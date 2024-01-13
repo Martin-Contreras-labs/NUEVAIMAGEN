@@ -1,0 +1,171 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], bodega: tables.BodegaEmpresa)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE DE EXCEDENTES", mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodega.getNombre().toUpperCase)
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch4('tablaPrincipal');">
+								</div>
+							</td>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        @for((nivel1,index1) <- lista.zipWithIndex) {
+							<TR>
+								@for((nivel2,index) <- nivel1.zipWithIndex) {
+									@if(index==1){
+										<td style="text-align:center">@nivel2</td>
+									}else{
+									@if(index==0){
+										<td style="min-width:150px">@nivel2</td>
+									}else{
+										
+									@if(index==2){
+										
+										@if(index1 > 2){
+											<td style="min-width:80px"><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
+										}else{
+											<td style="min-width:80px">@nivel2</td>
+										}
+										
+									}else{
+									@if(index==3){
+										
+										@if(index1 > 2){
+											<td style="min-width:300px"><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
+										}else{
+											<td style="min-width:300px">@nivel2</td>
+										}
+										
+									}else{
+									
+									@if(index==4||index==5){
+										<td style="text-align:right">@nivel2</td>
+									}else{
+									@if(index==6){
+										<td style="text-align:center">@nivel2</td>
+									}else{
+									@if(index>6){
+										<td style="min-width:60px;text-align:right">@nivel2</td>
+									}else{
+										<td style="min-width:50px">@nivel2</td>
+									}
+									}
+									}
+									}
+									}
+									}
+									}
+								}
+							</TR>
+						 }
+						 <TR>
+							@for(nivel2 <- lista.get(0).tail.tail) {
+								<td style="background-color:#F8E6E0"></td>
+							}
+						</TR>
+					</table>
+				</div>
+			</div>
+
+	
+	<form id="excel" class="formulario" method="post" action="/reporteExcedentesDetalleExcel/">
+		<input type="hidden" name="id_bodegaEmpresa" value="@bodega.getId()">
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		var tabla = document.getElementById("tablaPrincipal");
+		for (var i = 0; i < tabla.rows[0].cells.length; i++) { 	
+			tabla.rows[0].cells[i].style.backgroundColor="#F8E6E0" ;
+			tabla.rows[1].cells[i].style.backgroundColor="#F8E6E0" ;
+			tabla.rows[2].cells[i].style.backgroundColor="#F8E6E0" ;
+		}
+		var l=tabla.rows.length-1;
+		tabla.rows[l].cells[0].textContent="";
+		tabla.rows[l].cells[0].colSpan="3";
+		for (var i = 0; i < tabla.rows.length; i++) {
+			for (var j = 11; j < tabla.rows[i].cells.length; j++) {
+				tabla.rows[i].cells[j].style.textAlign="center";
+			}
+		}
+		for (var i = 11; i < tabla.rows[l].cells.length+2; i++) {
+			var total=0;
+			for (var k = 4; k<l;k++) {
+				var aux=parseFloat(tabla.rows[k].cells[i].textContent);
+				if(isNaN(aux)) aux=0;
+				total= parseFloat(aux)+parseFloat(total);
+				if(isNaN(tabla.rows[3].cells[i].textContent)){
+					tabla.rows[k].cells[i].style.backgroundColor="#F8E6E0";
+				}
+				if(!isNaN(parseFloat(tabla.rows[k].cells[i].textContent))){
+					tabla.rows[k].cells[i].title='@mapDiccionario.get("Guia"): '+tabla.rows[0].cells[i].textContent+
+						"\n Fecha:"+tabla.rows[1].cells[i].textContent+
+						"\n Codigo:"+tabla.rows[k].cells[1].textContent+
+						"\n Equipo:"+tabla.rows[k].cells[2].textContent;
+				}
+			}
+			
+			tabla.rows[l].cells[i-2].textContent=total;
+			
+			tabla.rows[l].cells[i-2].style.textAlign="center";
+			
+			tabla.rows[l+0].cells[i-2].title='@mapDiccionario.get("Guia"): '+ tabla.rows[0].cells[i].textContent+
+						"\n Fecha:"+tabla.rows[1].cells[i].textContent;
+		}
+		
+
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

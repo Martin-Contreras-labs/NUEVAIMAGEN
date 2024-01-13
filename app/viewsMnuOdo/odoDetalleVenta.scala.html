@@ -1,0 +1,121 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+ventaServicio: tables.VentaServicio, desdeAAMMDD: String, hastaAAMMDD: String)
+
+    	
+@main("") {
+
+ @menues(mapDiccionario, mapPermiso, userMnu, " ") 
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE DE REPORT DIARIO", "") 
+		
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+				<br>
+				<div align=center><h4 style="color:blue"><strong>DETALLE - REPORT DIARIO</strong></h4></div>
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<thead>
+							<tr>
+								<td style="text-align:left;"><strong>FECHA (*):</strong></td>
+						        <td style="text-align:left;" width="70%" colspan="3">@ventaServicio.getFecha()</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>USER_MADA:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="3">@ventaServicio.getNomUserAdam()</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>OPERADOR:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="3">@ventaServicio.getNomOperador()</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA") (*):</strong></td>
+						        <td style="text-align:left" width="70%" colspan="3">@ventaServicio.getNomBodegaEmpresa()</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>SERVICIO (*):</strong></td>
+								<td style="text-align:left" width="70%" colspan="3">@ventaServicio.getNroCotiOdo() - @ventaServicio.getCodServicio() - @ventaServicio.getNomServicio()</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>EQUIPO:</strong></td>
+								<td style="text-align:left" width="70%" colspan="3">@ventaServicio.getCodEquipo() - @ventaServicio.getNomEquipo()</td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"><strong>Hr_INI:</strong></td>
+						        <td style="text-align:left">@ventaServicio.getHoraIni()</td>
+								<td style="text-align:left;"><strong>Hr_TER:</strong></td>
+						        <td style="text-align:left">@ventaServicio.getHoraTer()</td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"><strong>Lect_INI:</strong></td>
+						        <td style="text-align:left">@ventaServicio.getLecturaIni()</td>
+								<td style="text-align:left;"><strong>Lect_TER:</strong></td>
+						        <td style="text-align:left">@ventaServicio.getLecturaTer()</td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"><strong><div id="unidad">CANT (*)</div></strong></td>
+						        <td style="text-align:left" width="70%" colspan="3">@ventaServicio.getCantidad() </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>DETALLE:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="3">@ventaServicio.getDetalle()</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>NOTAS:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="3">@ventaServicio.getObservaciones()</td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"  colspan="4">
+									<input type="hidden" name="firmaPDFoperador" id="firma" value="0">
+									FIRMA OPERADOR:<br>
+									<img src="data:image/jpeg;base64, @ventaServicio.getFirmaPDFoperador()" />
+								</td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"   colspan="4">
+									FIRMA AUTORIZADA:<br>
+									<img src="data:image/jpeg;base64, @ventaServicio.getFirmaPDFautorizador()" />
+								</td>
+							</tr>
+						
+							<tr>
+								<td colspan="4" style="text-align:center;">
+									<form action="/odoListarVentas1/" method="POST">
+										<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
+										<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+										<button type="submit" class="btn btn-sm btn-success" style="font-size: 10px;">Listo</button>
+									</form>
+								</td>
+							</tr>
+						</thead>
+					</table>
+			</div>
+		</div>
+
+		
+	</div>
+}
+
+
+	
+<script>
+
+
+	
+	$(document).ready(function() {
+ 		document.getElementById('mostrarmostrar').style.display="block";
+	
+	} );
+	
+	
+	
+	
+		
+		
+		
+</script>
+	
+

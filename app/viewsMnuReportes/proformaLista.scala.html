@@ -1,0 +1,511 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], listAnios: List[Long], year: Long )
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTADO DE EP/PROFORMA (FACTURAS)", "")
+
+		<div class="noprint">
+			<div align="center">
+				@for(anio <-listAnios){
+					<a href="#" onclick="location.href='/proformaLista/@anio'">
+						<kbd style="background-color: #73C6B6">@anio</kbd>
+					</a>
+				}
+			</div>
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch2('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							&nbsp;&nbsp;&nbsp;
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							&nbsp;&nbsp;&nbsp;
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+							&nbsp;&nbsp;&nbsp;
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<form id="excel" class="formulario" method="post" action="/proformaListaExcel/">
+			<input type="hidden" name="year" value="@year">
+		</form>
+			
+		
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+					<TR> 
+						<TH>TIPO</TH>
+				        <TH>NUMERO</TH>
+						<TH>FECHA</TH>
+						<TH>DESDE</TH>
+						<TH>HASTA</TH>
+						<TH>RUT</TH>
+						<TH>CLIENTE</TH>
+						<TH>SUCURSAL</TH>
+						<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+						<TH>Total<br>NETO</TH>
+						<TH>Total<br>IVA</TH>
+						<TH>Total<br>TOTAL</TH>
+						<TH>Prof<br>PDF</TH>
+						<TH>Excel<br>EP</TH>
+						<TH>Excel<br>MOV</TH>
+						<!-- <TH>Doc<br>ANEXO</TH> -->
+						@if(mapPermiso.get("parametro.proformaLista-descargarXLM")!=null && !mapPermiso.get("parametro.proformaLista-descargarXLM").equals("")  && mapPermiso.get("parametro.proformaLista-descargarXLM").equals("1")){
+							<TH>Down<br>XML</TH>
+						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null && !mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("")  && mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH style="text-align:center">API<br>Manager</TH>
+						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiNubox")!=null && !mapPermiso.get("parametro.proformaListar-llenarApiNubox").equals("")  && mapPermiso.get("parametro.proformaListar-llenarApiNubox").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH style="text-align:center">API<br>Nubox</TH>
+						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto")!=null && !mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto").equals("")  && mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH style="text-align:center">SAP<br>Conconcreto</TH>
+							<TH style="text-align:center">Nro SAP</TH>
+						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!= null && !mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("") && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH style="text-align:center">WEB<br>IConstruye</TH>
+							<TH style="text-align:center">Folio</TH>
+						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.proformaListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH>WEB<br>Maximise</TH>
+							<TH>Nro.Int</TH>
+						}
+						@if(mapPermiso.get("proformaListadoEliminar")!=null) {
+							<TH>DEL</TH>
+						}
+						
+						
+						
+					</TR>
+				</thead>
+				<tbody>
+					@for(lista1 <- lista){
+						<tr>
+							<td style= "text-align: center;">@lista1.get(16)</td>
+							<td style= "text-align: center;">@lista1.get(0)</td>
+							<td style= "text-align: center;">
+								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(2))</div>
+								@lista1.get(2)
+							</td>
+							<td style= "text-align: center;">
+								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(3))</div>
+								@lista1.get(3)
+							</td>
+							<td style= "text-align: center;">
+								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(4))</div>
+								@lista1.get(4)
+							</td>
+							<td style= "text-align: center;">@lista1.get(5)</td>
+							<td style= "text-align: left;">@lista1.get(6)</td>
+							<td style= "text-align: left;">@lista1.get(22)</td>
+							<td style= "text-align: left;">@lista1.get(7)</td>
+							<td style= "text-align: right;">@lista1.get(8)</td>
+							<td style= "text-align: right;">@lista1.get(9)</td>
+							<td style= "text-align: right;">@lista1.get(10)</td>
+							<td style= "text-align: center;">
+								@if(lista1.get(11)!="0"){
+									<a href="#" onclick="mostrarPDF('@lista1.get(11)')">
+		    							<kbd style="background-color: #85C1E9">pdf</kbd>
+		    						</a>
+								}else{
+									--
+								}
+							</td>
+							<td style="text-align:center;">
+								@if(lista1.get(12)!="0"){
+									<a href="#" onclick= "descargaDocumento('@lista1.get(12)')">
+										<kbd style="background-color: #85C1E9">xls</kbd>
+									</a>
+								}else{
+									--
+								}
+							</td>
+							<td style="text-align:center;">
+								@if(lista1.get(13)!="0"){
+									<a href="#" onclick= "descargaDocumento('@lista1.get(13)')">
+										<kbd style="background-color: #85C1E9">xls</kbd>
+									</a>
+								}else{
+									--
+								}
+							</td>
+							<!-- <td style="text-align:center;">
+								@if(lista1.get(14)!="0"){
+									<a href="#" onclick= "descargaDocumento('@lista1.get(14)')">
+										<kbd style="background-color: #85C1E9">doc</kbd>
+									</a>
+								}else{
+									--
+								}
+							</td> -->
+					
+							@if(mapPermiso.get("parametro.proformaLista-descargarXLM")!=null && mapPermiso.get("parametro.proformaLista-descargarXLM").equals("1")){
+								<td style="text-align:center;">
+									@if(lista1.get(17)!="0"){
+										<a href="#" onclick="enviarXML('@lista1.get(0)')">
+											@if(lista1.get(18).equals("0")){
+												<kbd style="background-color:#C39BD3">enviar</kbd>
+											}else{
+												<kbd style="background-color: #85C1E9">reenviar</kbd>
+											}
+										</a>
+									}else{
+										--
+									}
+								</td>
+							}
+					
+							@if(mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(17)!="0"){
+										@if(lista1.get(19)!=null){
+											<a href="#" onclick="enviarApiManager('@lista1.get(0)')">
+												<kbd style="background-color: #C39BD3">enviar</kbd>
+											</a>
+										}else{
+											--
+										}
+									}else{
+										--
+									}
+								</td>
+							}
+							@if(mapPermiso.get("parametro.proformaListar-llenarApiNubox")!=null && mapPermiso.get("parametro.proformaListar-llenarApiNubox").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(17)!="0"){
+										@if(lista1.get(19)!=null){
+											@if(!lista1.get(16).equals("Venta")){
+												@if(lista1.get(20).equals("0") || lista1.get(20).length()>50){
+													<a href="#" onclick="enviarApiNubox('@lista1.get(0)')">
+														<kbd style="background-color: #C39BD3">enviar</kbd>
+													</a>
+												}else{
+													<a href="#" onclick="enviarApiNubox('@lista1.get(0)')">
+														<kbd style="background-color: #85C1E9">reenviar</kbd>
+													</a>
+												}
+											}
+										}else{
+											--
+										}
+									}else{
+										--
+									}
+								</td>
+							}
+							@if(mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(17)!="0"){
+										@if(lista1.get(19)!=null){
+											@if(!lista1.get(16).equals("Venta")){
+												@if(lista1.get(21).equals("0")){
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarApiSapConconcreto('@lista1.get(0)',1)">
+														<kbd style="background-color: #C39BD3">enviar</kbd>
+													</a>
+												}else{
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarApiSapConconcreto('@lista1.get(0)',0)">
+														<kbd style="background-color: #85C1E9">reenviar</kbd>
+													</a>
+												}
+											}
+										}else{
+											--
+										}
+									}else{
+										--
+									}
+								</td>
+								<td style="text-align:center;">
+									@if(!lista1.get(21).equals("0")){
+										@lista1.get(21)
+									}
+								</td>
+							}
+							@if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!= null && !mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("") && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(17)!="0"){
+										@if(lista1.get(19)!=null){
+											@if(!lista1.get(16).equals("Venta")){
+												@if(lista1.get(21).equals("0")){
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarWebIConstruye('@lista1.get(0)',1)">
+														<kbd style="background-color: #C39BD3">enviar</kbd>
+													</a>
+												}else{
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarWebIConstruye('@lista1.get(0)',0)">
+														<kbd style="background-color: #85C1E9">reenviar</kbd>
+													</a>
+												}
+											}
+										}else{
+											--
+										}
+									}else{
+										--
+									}
+								</td>
+								<td style="text-align:center;">
+									@if(!lista1.get(21).equals("0")){
+										@lista1.get(21)
+									}
+								</td>
+								
+							}
+							
+							
+						@if(mapPermiso.get("parametro.proformaListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.proformaListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<td style="text-align:center;">
+								@if(lista1.get(16).equals(mapDiccionario.get("Arriendo"))){
+									@if(lista1.get(18).equals("0")){
+										<a href="#" onclick= "$('#id_proformaWebMaximise').val('@lista1.get(0)'); $('#selectSucursal').modal('show');">
+											<kbd style="background-color: #C39BD3">enviar</kbd>
+										</a>
+									}else{
+										<a href="#" onclick= "$('#id_proformaWebMaximise').val('@lista1.get(0)'); $('#selectSucursal').modal('show');">
+											<kbd style="background-color: #85C1E9">reenviar</kbd>
+										</a>
+									}
+									
+								}else{
+									--
+								}
+							</td>
+							<td style="text-align:center;">
+								@if(lista1.get(16).equals(mapDiccionario.get("Arriendo"))){
+									@if(!lista1.get(21).equals("0")){
+										<a href="/downFacturaMaximise/@lista1.get(21)" > 
+										<kbd style="background-color: rgb(50, 215, 75)">@lista1.get(21)</kbd>
+									</a> 
+									}else{
+										--
+									}
+								}else{
+									--
+								}
+							</td>
+						}
+						
+						
+						@if(mapPermiso.get("proformaListadoEliminar")!=null) {
+							<td style="text-align:center;">
+								<a href="#" onclick="eliminaProforma('@lista1.get(0)');">
+									<kbd style="background-color: red">X</kbd>
+								</a>
+							</td>
+						}
+					
+					</tr>
+	 			}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>EP/PROFORMA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formEnviarXml" method="post" action="/generaProformaXml/">	
+		<input type="hidden" id="id_proformaXml" name="id_proforma">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiManager" method="post" action="/generaProformaApiManager/">	
+		<input type="hidden" id="id_proformaManager" name="id_proforma">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiNubox" method="post" action="/generaProformaApiNubox/">	
+		<input type="hidden" id="id_proformaNubox" name="id_proforma">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiSapConconcreto" method="post" action="/generaProformaApiSapConconcreto/">	
+		<input type="hidden" id="id_proformaSapConconcreto" name="id_proforma">
+	</form>
+
+	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaProformaWebIConstruye/">	
+		<input type="hidden" id="id_proformaWebIConstruye" name="id_proforma">
+	</form>
+	
+	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaProformaWebMaximise/">	
+		<input type="hidden" id="id_proformaWebMaximise" name="id_proforma">
+		<input type="hidden" id="sucursalMaximise" name="sucursalMaximise">
+		<input type="hidden" id="codigoMaximise" name="codigoMaximise">
+	</form>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+
+	<form id="form_eliminar" method="post" action="/proformaElimina/">
+		<input type="hidden" id="form_id_proforma" name="id_proforma">
+	</form>
+	
+	<div id='selectSucursal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-sm' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Seleccione Sucursal</h5>
+				</div>
+				<div class='modal-body'>
+					<a href="" onclick='$("#sucursalMaximise").val("1"); $("#selectCodigo").modal("show");' data-dismiss='modal'>BSTGO CENTRAL SANTIAGO</a>
+					<br>
+					<a href="" onclick='$("#sucursalMaximise").val("2"); $("#selectCodigo").modal("show");' data-dismiss='modal'>BANTO CENTRAL ANTOFAGASTA</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='selectCodigo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-sm' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Seleccione Concepto</h5>
+				</div>
+				<div class='modal-body'>
+					<a href="" onclick='$("#codigoMaximise").val("VT-001"); enviarWebMaximise()' data-dismiss='modal'>VT-001 ARRIENDO ANDAMIOS</a>
+					<br>
+					<a href="" onclick='$("#codigoMaximise").val("VT-002"); enviarWebMaximise()' data-dismiss='modal'>VT-002 ARRIENDO ENCOFRADOS</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 2, "desc" ],[ 1, "desc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const enviarXML = (id_proforma) =>{
+		$('#id_proformaXml').val(id_proforma);
+		document.getElementById('formEnviarXml').submit();
+	}
+	
+	const enviarApiManager = (id_proforma) =>{
+		$('#id_proformaManager').val(id_proforma);
+		document.getElementById('formEnviaApiManager').submit();
+	}
+	
+	const enviarApiNubox = (id_proforma) =>{
+		$('#id_proformaNubox').val(id_proforma);
+		document.getElementById('formEnviaApiNubox').submit();
+	}
+	
+	const enviarApiSapConconcreto = (id_proforma, primeraVez) =>{
+		$('#id_proformaSapConconcreto').val(id_proforma);
+		if(primeraVez == 1){
+			document.getElementById('formEnviaApiSapConconcreto').submit();
+		}else{
+			alertify.confirm('Esta seguro de re-enviar @mapDiccionario("PROFORMA") numero: '+id_proforma+"\n esto generara un nuevo número y documento en SAP.\nNOTA: Si el reenvio es debido a cambios efectuados en mada, este reenvio no sirve, debe generar una nueva proforma para que aplique los cambios.", function (e) {
+				if (e) {
+					document.getElementById('formEnviaApiSapConconcreto').submit();
+				}else{
+					document.getElementById('bloquear2').style.display='none';
+				}
+			});
+		}
+		
+	}
+	
+	const enviarWebIConstruye = (id_proforma, primeraVez) =>{
+		$('#id_proformaWebIConstruye').val(id_proforma);
+		if(primeraVez == 1){
+			document.getElementById('formEnviaWebIConstruye').submit();
+		}else{
+			alertify.confirm('Esta seguro de re-enviar @mapDiccionario("PROFORMA") numero: '+id_proforma+"\n esto generara una nueva Factura y Folio.\nNOTA: Si el reenvio es debido a cambios efectuados en mada, este reenvio no sirve, debe generar una nueva proforma para que aplique los cambios.", function (e) {
+				if (e) {
+					document.getElementById('formEnviaWebIConstruye').submit();
+				}else{
+					document.getElementById('bloquear2').style.display='none';
+				}
+			});
+		}
+	}
+	
+	const enviarWebMaximise = () =>{
+		document.getElementById('formEnviaWebMaximise').submit();
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const eliminaProforma = (id_proforma) => {
+		alertify.confirm('Esta seguro de eliminar @mapDiccionario("PROFORMA") numero: '+id_proforma, function (e) {
+			if (e) {
+				$("#form_id_proforma").val(id_proforma);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	
+	
+</script>
+
+
+
+
+		
+		
+	

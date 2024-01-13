@@ -1,0 +1,108 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], equipo: tables.Equipo)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE DE EXCEDENTES", "EQUIPO: "+equipo.getCodigo+" - "+equipo.getNombre)
+		
+		<div class="row  justify-content-md-center">
+			<div class="8 col-sm-6 col-md-6 col-lg-6">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch4('tablaPrincipal');">
+								</div>
+							</td>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR> 
+						        <TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+						        <TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+						        <TH style= "text-align: center;vertical-align: top;">EXCEDENTES</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- lista){
+								<TR>
+									<td style="text-align:center;vertical-align:middle;">@lista1.get(0)</td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.get(1)</td>
+									<td style="text-align:center;vertical-align:middle;">@lista1.get(2)</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<form id="excel" class="formulario" method="post" action="/routes2/reporteExcedentesDetalleEquipoExcel/">
+		<input type="hidden" name="id_equipo" value="@equipo.getId()">
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"paging": false,
+			"info": false,
+			"searching": false,
+	    	"order": [[ 1, "asc" ]],
+	    	"language": {
+	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        }
+	  	} );
+		
+
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

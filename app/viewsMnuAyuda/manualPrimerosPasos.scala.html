@@ -1,0 +1,88 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "GUIA MANUAL BASICO","")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<h3><b><u>IMPORTANTE</u></b></h3>
+					<h3>
+						<p class="text-justify" style="font-size:16">
+							Al iniciar por primera vez el ingreso de datos al sistema, se recomienda seguir los siguientes pasos.<BR>
+							Nota: solo es una recomendación de orden, ya que por las características propias de este software, es 
+							totalmente flexible y no requiere de orden específico para operarlo.
+						</p>
+					</h3>
+					<br>
+					<h2><b>1- Primer Paso: en menú TABLAS→Usuarios/Perfiles:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Agregar los usuarios y perfiles asociados a cada uno.
+						</p>
+					<br>
+					<h2><b>2- Segundo Paso: en menú TABLAS→Grupos:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Agregar los grupos en los cuales se clasificaran los equipos que se vayan ingresando al sistema.
+						</p>
+					<br>
+					<h2><b>3- Tercer Paso: en menú TABLAS→Proyectos:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Agregar los proyectos actuales a los cuales se genera facturas pro-forma por los equipos asignados.
+						</p>
+					<br>
+					<h2><b>4- Quinto Paso: en menú COMPRAS→Ingresar Compras:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Incorporar el máximo de las existencias o equipos que se deseen administrar. 
+								No es necesario ingresar todo ya que siempre es posible ir agregando más equipos. 
+								Se recomienda sean ingresados a @mapDiccionario.get("Bodega") de disponibles.
+						</p>
+					<br>
+					<h2><b>5- Sexto Paso: en menú COMPRAS→Confirmar Compras:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Confirmar todo lo ingresado, previa verificación. Es importante entender que después de confirmado 
+								no es posible modificar desde la compra.
+						</p>
+					<br>
+					<h2><b>6- Séptimo Paso: en menú TABLAS→Maestro Precios:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Presionar botón agregar, seleccionar todos si hay pendientes y confirmar. 
+								A continuación actualizar los precios de Reposicion y @mapDiccionario.get("Arriendo") de cada unidad.
+						</p>
+					<br>
+					<h2><b>7- Octavo Paso: en menú @mapDiccionario.get("Bodegas")→Administrar @mapDiccionario.get("Bodegas"):</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Agregar @mapDiccionario.get("Bodegas") internas y externas a las que serán asignados los equipos de disponibles. 
+								Tener presente que la diferencia entre @mapDiccionario.get("Bodega") interna y externa es: solo las @mapDiccionario.get("Bodegas") externas 
+								son unidades a las cuales se cobra @mapDiccionario.get("Arriendo") (en general son proyectos).
+						</P>
+					<br>
+					<h2><b>8- Noveno Paso: en menú Movimientos→Ingresar:</b></h2>
+						<p class="text-justify" style="font-size:14;">
+								Comenzar con el ingreso de movimientos entre @mapDiccionario.get("Bodegas").
+						</p>
+					<br><br><br>
+			</div>
+		</div>
+	</div>
+	
+
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+</script>
+
+
+		
+		
+	

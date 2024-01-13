@@ -1,0 +1,99 @@
+@(nEmpresa: String, base: String, equipo: tables.Equipo, stock: Double, ubicacion: String, listaTransac: List[qr.QrTransacEquipo])
+
+@mainQR("MADA_QR") {
+
+
+
+<div class="container">
+  	
+  	
+  	<br><br><br><br>
+  	
+
+  		<div class="form-group row">
+    		<label for="inputEmpresa" class="col-sm-3 col-form-label"  style="font-size:30px">Propietario:</label>
+		    <div class="col-sm-9">
+		      <input type="text" class="form-control font-weight-bold" id="inputEmpresa" style="font-size:30px;color:blue" value="@nEmpresa.toUpperCase()" disabled>
+		    </div>
+  		</div>
+  		<br>
+  		<div class="form-group row">
+    		<label for="inputCodigo" class="col-sm-3 col-form-label"  style="font-size:30px">Código:</label>
+		    <div class="col-sm-9">
+		      <input type="text" class="form-control font-weight-bold" id="inputCodigo" style="font-size:30px;color:blue" value="@equipo.codigo.toUpperCase()" disabled>
+		    </div>
+  		</div>
+  		<br>
+  		<div class="form-group row">
+    		<label for="textAreaDecripcion" class="col-sm-3 col-form-label"  style="font-size:30px">Descripción:</label>
+		    <div class="col-sm-9">
+		      <textarea class="form-control font-weight-bold" id="textAreaDecripcion" rows="2" style="font-size:30px;color:blue" disabled>@equipo.nombre.toUpperCase()</textarea>
+		    </div>
+  		</div>
+  		<br>
+  		<div class="form-group row">
+    		<label for="textAreaGrupo" class="col-sm-3 col-form-label"  style="font-size:30px">Grupo:</label>
+		    <div class="col-sm-9">
+		      <textarea class="form-control font-weight-bold" id="textAreaGrupo" rows="2" style="font-size:30px;color:blue" disabled>@equipo.grupo.toUpperCase()</textarea>
+		    </div>
+  		</div>
+  		<br>
+  		@if(stock<2){
+	  		<div class="form-group row">
+	    		<label for="textAreaUbicacion" class="col-sm-3 col-form-label"  style="font-size:30px">Ubicación:</label>
+			    <div class="col-sm-9">
+			      <textarea class="form-control font-weight-bold" id="textAreaUbicacion" rows="2" style="font-size:30px;color:blue" disabled>@ubicacion.toUpperCase()</textarea>
+			    </div>
+	  		</div>
+  		}
+  		@for(lista <-listaTransac){
+  			<br>
+	  		<div class="form-group row">
+	    		<label for="@lista.campo" class="col-sm-5 col-form-label"  style="font-size:30px">@lista.campo.toUpperCase():</label>
+			    <div class="col-sm-7">
+			    	@if(lista.id_qrTipoContenido==1){
+		        		@if(!lista.contenido.equals("0")){ 
+		        			<input type="text" class="form-control font-weight-bold" id="@lista.campo" style="font-size:30px;color:blue" value="@lista.contenido.toUpperCase()" disabled>
+		        		}
+		        	}else{
+		        		@if(!lista.contenido.equals("0")){
+		        		<form id="form" action="/qrImagenQr/" method="POST">
+					  		<input type="hidden" name="nEmpresa" value="@nEmpresa">
+					  		<input type="hidden" name="base" value="@base">
+					  		<input type="hidden" name="id_equipo" value="@equipo.id">
+					  		<input type="hidden" name="stock" value="@stock">
+					  		<input type="hidden" name="ubicacion" value="@ubicacion">
+					  		<input type="hidden" name="archivo" value="@lista.contenido">
+					  		<input type="hidden" name="tipo" value="@lista.tipo">
+							<button type="submit" class="btn btn-warning btn-lg btn-block" style="font-size:40px">
+								@if(lista.tipo.equals("Archivo PDF")){
+									download PDF
+								}else{
+									mostrar IMG
+								}
+							</button>
+						</form>
+		        		}
+		        	}
+			      
+			    </div>
+	  		</div>
+  		}
+  		
+  		<div align="center">
+	  		<br><br>
+	  		<button type="button" class="btn btn-info btn-lg" style="font-size:30px" onclick="history.go(-1)">VOLVER</button>
+		</div>
+	
+	
+</div>
+
+
+
+
+
+
+
+
+
+}

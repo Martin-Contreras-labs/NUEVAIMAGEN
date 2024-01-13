@@ -1,0 +1,111 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listBodegas: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR NUEVO TIPO DE ESTADO (DEVOLUCIONES)", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/tipoEstadoGraba/">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">SIGLA: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									id="sigla"
+									name="sigla"
+									autocomplete="off"
+									maxlength="5"
+									onchange="value = value.trim(); verificaSigla(value);">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NOMBRE: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="nombre"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("BODEGA") ASOCIADA: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="id_bodegaAsociada">
+									@for(lista <- listBodegas){
+										<option value="@lista.get(1)">@lista.get(5)</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">APLICA LISTA PRECIOS: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="reparable">
+									<option value="1">SI</option>
+									<option value="0">NO</option>
+								</select>
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit"  value="GRABAR ESTADO" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/tipoEstadoMantencion/';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const verificaSigla = (sigla) => {
+		var formData = new FormData();
+	  	formData.append('sigla',sigla);
+        $.ajax({
+            url: "/verificaSiglaTipoEstadoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('La sigla de tipo estado ya existe, intente con otra', function () {
+	     				$("#sigla").val("");
+		     		});
+	     		}
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+
+</script>
+
+		
+	

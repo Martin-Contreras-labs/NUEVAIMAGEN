@@ -1,0 +1,219 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, listaPrecioServicio: tables.ListaPrecioServicio, listPVariable: List[tables.PrecioVariableServicio], 
+decMon: Long, hoy: utilities.Fechas)
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "PRECIOS VARIABLES (CREAR/MODIFICAR/ELIMINAR)", mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodega.getNombre().toUpperCase())
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button" value="AGREGAR NUEVA FECHA" class="btn btn-info btn-sm rounded-pill btn-block" onclick='$("#agregarFecha").modal("show")'>
+				</div>
+			</div>
+		</div>
+		<br>
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH width="120px">FECHA</TH>
+							<TH>NRO.COTI</TH>
+							<TH>CODIGO</TH>
+							<TH>SERVICIO</TH>
+							<TH width="20px">MONEDA</TH>
+							<TH>VALOR</TH>
+							<TH width="5px">DEL</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listPVariable){
+							<TR>
+								<td style="text-align:center">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.fecha)</div>
+									@utilities.Fechas.DDMMAA(lista1.fecha)
+								</td>
+								<td style="text-align: center">@listaPrecioServicio.getNumeroCotiOdo()</td>
+								<td style="text-align: center">@listaPrecioServicio.getCodServicio()</td>
+								<td style="text-align:center">@listaPrecioServicio.getNomServicio()</td>
+								<td style="text-align:center">
+									@listaPrecioServicio.getNickMoneda()
+								</td>
+								<td style="text-align:right; max-width:50px !important">
+									
+									<div style="display:none">@lista1.getPrecioSTR()</div>
+									
+									<input type="text" class="form-control right width80"
+										value = "@lista1.getPrecioSTR()"
+										onfocus="value=value.replace(/,/g,'')" 
+										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, '@decMon');"
+										onkeypress="return ingresoDouble(event,value)"
+										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.getId_bodegaEmpresa()','@lista1.getId_servicio','@utilities.Fechas.AAMMDD(lista1.fecha)',value,'@lista1.getId_cotiOdo'); value = formatStandar(value, '@decMon');">
+								</td>
+								<td style="text-align:center;">
+									<a href="#" onclick= "eliminarPrecio('@lista1.getId_bodegaEmpresa()','@lista1.getId_servicio','@utilities.Fechas.AAMMDD(lista1.fecha)','@lista1.getId_cotiOdo')">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/servicioPreciosVariable1/@bodega.getId()';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div id="agregarFecha" class="modal show" role="dialog" data-backdrop="static" data-keyboard="false" style="display: none; padding-right: 0px;" aria-modal="true">
+		<div class="modal-dialog modal-dialog-scrollable modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">AGREGAR VALOR</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">×</span>
+				        </button>
+				</div>
+				<div class="modal-body">
+					<form action="/servicioAgregaVariable/" method="POST">
+						<table class="table table-sm table-bordered table-condensed table-hover table-fluid">
+							<tr>
+								<td>FECHA:</td>
+								<td width="80px" style="text-align:center">
+									<input type="hidden" name="id_bodega" value="@listaPrecioServicio.getId_bodegaEmpresa()">
+									<input type="hidden" name="id_servicio" value="@listaPrecioServicio.getId_servicio()">
+									<input type="hidden" name="id_cotiOdo" value="@listaPrecioServicio.getId_cotiOdo()">
+									<input type="date" class="form-control center"
+										id="fecha"
+										name="fecha"
+							  			onblur="if(!limitaFecha(value,720,10)) {
+													value = '@hoy.getFechaStrAAMMDD()';
+												}"
+							  			value="@hoy.getFechaStrAAMMDD()"
+										required>
+								</td>
+							</tr>
+							<tr>
+								<td>MONEDA:</td>
+								<td style="text-align:center;">
+									@listaPrecioServicio.getNickMoneda()
+								</td>
+							</tr>
+							<tr>
+								<td>VALOR:</td>
+								<td style="text-align:right; max-width:50px !important">
+									<input type="text" class="form-control right width80"
+										name="precio"
+										onfocus="value=value.replace(/,/g,'')" 
+										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, '@decMon');"
+										onkeypress="return ingresoDouble(event,value)"
+										onchange="if(value.trim()=='') value=0; value = formatStandar(value,'@decMon');"
+										autocomplete="off"
+										required>
+								</td>
+							</tr>
+						</table>
+					
+						<div class="row">
+							<div class="col-sm-12" style="text-align:center">
+								<button type="submit" class="btn btn-sm  btn-success" style="font-size: 10px;">Grabar</button>
+								<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	
+	<form id="form_eliminar" method="post" action="/servicioEliminaVariable/">
+		<input type="hidden" id="form_id_bodega" name="id_bodega">
+		<input type="hidden" id="form_id_servicio" name="id_servicio">
+		<input type="hidden" id="form_fecha" name="fecha">
+		<input type="hidden" id="form_id_cotiOdo" name="id_cotiOdo">
+	</form>
+	
+	
+	
+	
+	
+	
+}
+
+
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "desc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		         }
+		  } );
+
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const eliminarPrecio = (id_bodega,id_servicio,fecha, id_cotiOdo) => {
+		alertify.confirm("Esta seguro de eliminar el precio", function (e) {
+			if (e) {
+				$("#form_id_bodega").val(id_bodega);
+				$("#form_id_servicio").val(id_servicio);
+				$("#form_fecha").val(fecha);
+				$("#form_id_cotiOdo").val(id_cotiOdo);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+		
+		
+	}
+	
+	
+	const cambiaPrecio = (id_bodega, id_servicio, fecha, valor, id_cotiOdo) => {
+		var formData = new FormData();
+		formData.append('id_bodega',id_bodega);
+	  	formData.append('id_servicio',id_servicio);
+		formData.append('valor',valor);
+		formData.append('fecha',fecha);
+		formData.append('id_cotiOdo',id_cotiOdo);
+        $.ajax({
+            url: "/modPrecioVariableServicioAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	
+</script>
+
+
+		
+		
+	

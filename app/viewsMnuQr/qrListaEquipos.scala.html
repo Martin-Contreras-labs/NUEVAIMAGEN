@@ -1,0 +1,149 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listEquipQr: List[qr.QrEquipo])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTADO DE EQUIPOS INSCRITOS -- CODIFICACION QR","CREAR/MODIFICAR")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<th style= "text-align: center;">GRUPO</th>
+							<th style= "text-align: center;">CODIGO</th>
+							<th style= "text-align: center;">NOMBRE/DESCRIPCION</th>
+							<th style= "text-align: center;">QR</th>
+							<th style= "text-align: center;">REVISAR DATOS</th>
+							<th style= "text-align: center;">Activo/Inactivo</th>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista <- listEquipQr){
+							<TR>
+								<td style="text-align: left;">@lista.grupo</td>
+								<td style="text-align: center;">@lista.codigo</td>
+						        <td style="text-align:left">@lista.nombre</td>
+						        <td style="text-align:center">
+						        	<a href="#" onclick="selectModal('@lista.codigo','@lista.nombre','@lista.qr')">
+										<img src='/viewImg/@lista.qr' style="max-height:50px;max-width:100%">
+									</a>
+								</td>
+								<td style="text-align:center">
+									<form id="form_@lista.id_equipo"method="post" action="/qrRevisarDatos/">
+										<input type="hidden" name="id_equipo" value="@lista.id_equipo">
+										<a href="#" onclick="document.getElementById('form_@lista.id_equipo').submit()">
+											<kbd style="background-color: #73C6B6">Revisar/Agregar Datos</kbd>
+										</a>
+									</form>
+								</td>
+						        @if(lista.activo==1){
+						        	<td style="text-align:center">
+						        		<font color="green"><b>ACTIVO</b></font>&nbsp;&nbsp;
+										<a href="#" onclick= "cambiarEstado('@lista.id_equipo','@lista.activo')">
+											<kbd style="background-color: red">C</kbd>
+										</a>
+						        	</td>
+						        }else{
+						        	<td style="text-align:center">
+						        		<font color="red"><b>INACTIVO</b></font>&nbsp;&nbsp;
+						        		<a href="#" onclick= "cambiarEstado('@lista.id_equipo','@lista.activo')">
+											<kbd style="background-color: red">C</kbd>
+										</a>
+						        	</td>
+						        }
+							</TR>
+						}
+					</tbody>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="INSCRIBIR/AGREGAR EQUIPOS" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/qrSelectEquipos/';">
+						</div>
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalQr' class="modal" role="dialog" data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+				   	<h5 id="nombreEquipo" class="modal-title">
+			           EQUIPO
+			        </h5>
+			        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+			        	<span aria-hidden='true'>&times;</span>
+			        </button>
+				</div>
+	     		<div class="modal-body">
+		     		<div align="center">
+		     			<div id="imagenQr"></div>
+		     			<div id="codigoQr"></div>
+		     			<div id="equipoQr"></div>
+						<button type="button" class="btn btn-success btn-sm rounded-pill btn-block" data-dismiss="modal" >
+							CERRAR
+						</button>
+					</div>
+				</div>
+	   		</div>
+		</div>
+	</div>
+	
+	<form id="form_cambiarEstado"method="post" action="/qrCambiaEstadoEquipos/">
+		<input type="hidden" id="id_equipo" name="id_equipo" value="0">
+		<input type="hidden" id="activo" name="activo" value="0">
+	</form>
+
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[10, 50, 100, 200, -1], [10, 50, 100, 200, "All"]],
+				"order": [[ 5, "asc" ], [ 0, "asc" ], [ 1, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const selectModal = (codigo,equipo,qr) =>{
+	  var qr = "/viewImg/"+qr;
+	  document.getElementById('imagenQr').innerHTML = "<label><img src='"+qr+"' style='max-height:200px;max-width:100%'/></label>";
+	  document.getElementById('codigoQr').innerHTML = "<h5>"+codigo+"</h5>";
+      document.getElementById('equipoQr').innerHTML = "<h5>"+equipo+"</h5>";
+      $("#modalQr").modal("show");
+  	}
+
+	const cambiarEstado = (id_equipo,activo) => {
+		alertify.confirm("Esta seguro de cambiar el estado del equipo", function (e) {
+			if (e) {
+				$("#id_equipo").val(id_equipo);
+				$("#activo").val(activo);
+				document.getElementById('form_cambiarEstado').submit();
+			}else{
+				$("#id_equipo").val(0);
+				$("#activo").val(0);
+			}
+		});
+  	}
+</script>
+
+
+		
+		
+	

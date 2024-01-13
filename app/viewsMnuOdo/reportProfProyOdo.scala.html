@@ -1,0 +1,209 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+totalesPorProyecto: List[List[String]], fechaDesde: String, fechaHasta: String, usd: Double, eur: Double, uf: Double, desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
+    	
+@main("") {
+	
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","PROCESO DE EP/FACTURACION SERVICIOS")
+		<div class="row  justify-content-md-center">
+		
+		
+		
+		<div class="noprint">
+				<table class="table table-sm table-condensed table-fluid">
+					<tr>
+						<td>
+							<div align="center">
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success" 
+									onclick="history.go(-1); return false;">
+									Volver
+								</button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/reportProfProyOdoExcel/">
+				<input type="hidden" name="desdeAAMMDD" value="@fechaDesde">
+				<input type="hidden" name="hastaAAMMDD" value="@fechaHasta">
+				<input type="hidden" name="uf" value="@uf">
+				<input type="hidden" name="usd" value="@usd">
+				<input type="hidden" name="eur" value="@eur">
+			</form>
+		
+		
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<h5>Período desde @desdeDDMMAA a @hastaDDMMAA</h5>
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR> 
+						        <TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+ 								<TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE<BR>CLIENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE<br>PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">COMERCIAL</TH>
+								
+								<TH style= "text-align:center;vertical-align:top;">SUBTOTAL<BR>(en @mapDiccionario.get("PESOS"))</TH>
+								<TH style= "text-align:center;vertical-align:top;">AJUSTES<BR>(en @mapDiccionario.get("PESOS"))</TH>
+								<TH style= "text-align:center;vertical-align:top;">TOTAL<BR>(en @mapDiccionario.get("PESOS"))</TH>
+								
+								<TH width="5%" >DETALLE<BR></TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- totalesPorProyecto){
+								<TR>
+									<td style="text-align:left;vertical-align:middle;">@lista1.get(10)</td>
+									<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoBodega('@lista1.get(0)');">@lista1.get(1)</a></td>
+									<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoCliente('@lista1.get(8)');">@lista1.get(2)</a></td>
+									<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoProyecto('@lista1.get(9)');">@lista1.get(3)</a></td>
+									
+									<td style="text-align:left;vertical-align:middle;">@lista1.get(4)</td>
+									<td style= "text-align:right;" class="subtotal">@lista1.get(5)</td>
+									<td style= "text-align:right;" class="ajuste">@lista1.get(6)</td>
+									<td style= "text-align:right;" class="total">@lista1.get(7)</td>
+									
+									<td style="text-align:center;vertical-align:middle;">
+										<form id="form0_@lista1.get(0)" class="formulario" method="post" action="/reportProfProyDetalleOdo/">
+											<input type="hidden" name="id_bodega" value="@lista1.get(0)">
+											<input type="hidden" name="fechaDesde" value="@fechaDesde">
+											<input type="hidden" name="fechaHasta" value="@fechaHasta">
+											<input type="hidden" name="uf" value="@uf">
+											<input type="hidden" name="usd" value="@usd">
+											<input type="hidden" name="eur" value="@eur">
+											<a href="#" onclick="document.getElementById('form0_@lista1.get(0)').submit()">
+												<kbd style="background-color: #73C6B6">Emitir</kbd>
+											</a>
+										</form>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+						<tfoot>
+							<TR>
+								<td style="background-color: #eeeeee">TOTALES</td>
+								<td style="background-color: #eeeeee"></td>
+								<td style="background-color: #eeeeee"></td>
+								<td style="background-color: #eeeeee"></td>
+								<td style="background-color: #eeeeee"></td>
+								<td style="background-color: #eeeeee;text-align:right;" id="subtotal"></td>
+								<td style="background-color: #eeeeee;text-align:right;" id="ajuste"></td>
+								<td style="background-color: #eeeeee;text-align:right;" id="total"></td>
+								<td style="background-color: #eeeeee;text-align:right;">
+							</TR>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SERVICIO PROFORMA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+}
+
+
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+
+		let subtotal = 0;
+		$(".subtotal").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			subtotal += parseFloat(val);
+		});
+		$("#subtotal").text(formatStandar(subtotal,0));
+		
+		let ajuste = 0;
+		$(".ajuste").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajuste += parseFloat(val);
+		});
+		$("#ajuste").text(formatStandar(ajuste,0));
+		
+		let total = 0;
+		$(".total").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			total += parseFloat(val);
+		});
+		$("#total").text(formatStandar(total,0));
+		
+		document.getElementById('mostrarmostrar').style.display="block";
+		
+		if("@archivoPDF"!="0"){
+			 document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/@archivoPDF' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+		}
+		
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

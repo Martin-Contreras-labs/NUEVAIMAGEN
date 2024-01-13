@@ -1,0 +1,69 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listado: List[List[List[String]]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "QR DE EQUIPOS -- CODIFICACION QR","")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+				<div class="noprint">
+					<input type="button" class="btn btn-primary btn-sm rounded-pill btn-block" onclick="window.print(); return false;" value="Imprimir">
+				</div>
+				<br>
+			</div>
+			<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+				<div class="noprint">
+					<form action="/qrPrintQrEquiposWord/" method="POST">
+						<input type="submit" class="btn btn-info btn-sm rounded-pill btn-block" value="Exportar a Word">
+					</form>
+				</div>
+				<br>
+			</div>
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table id="tablaPrincipal" class="table table-sm table-bordered table-condensed table-fluid">
+					<tbody>
+						@for(lista1 <- listado){
+							<TR>
+								@for(lista2 <- lista1){
+									<td style="text-align:center">
+										<img src='/viewImg/@lista2.get(0)' style="max-height:120px;max-width:100%">
+										<br>
+										@lista2.get(1).toUpperCase()
+									</td>
+								}
+							</TR>
+						}
+					</tbody>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+</script>
+
+
+		
+		
+	

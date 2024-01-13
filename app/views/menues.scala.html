@@ -1,0 +1,1315 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, marcar: String)
+
+<!DOCTYPE html>
+
+
+<style>
+	.dropdown-submenu {
+	  position: relative;
+	}
+	.dropdown-submenu a::after {
+	  transform: rotate(-90deg);
+	  position: absolute;
+	  right: 6px;
+	  top: .8em;
+	}
+	.dropdown-submenu .dropdown-menu {
+	  top: 0;
+	  left: 100%;
+	  margin-left: .1rem;
+	  margin-right: .1rem;
+	}
+	.dropdown-submenu.pull-left > .dropdown-menu {
+	  left: -100%;
+	  margin-left: 10px;
+	  -webkit-border-radius: 6px 0 6px 6px;
+	     -moz-border-radius: 6px 0 6px 6px;
+	          border-radius: 6px 0 6px 6px;
+	}
+</style>
+    
+
+   
+
+<nav class="navbar navbar-expand-lg navbar-dark border" style="background-color: rgb(49, 106, 136);">
+	<a class="navbar-brand" href="/home/"><img src="/assets/images/favicon.png" width="25px" height="auto"></a>
+  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    	<span class="navbar-toggler-icon"></span>
+  	</button>
+ 	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+ 		<ul class="navbar-nav mr-auto">
+			@if(userMnu.getId_usuario().toString().equals("0")){
+				<li class="nav-item active">
+       				<a class="nav-link" href="/inicioCPanelHome/">cPanel<span class="sr-only">(current)</span></a>
+       			</li>
+       		}
+       			<li class="nav-item active">
+       				<a class="nav-link" href="/home/">@marcar Home<span class="sr-only">(current)</span></a>
+       			</li>
+       		
+      		&nbsp;
+      		<li class="divider-vertical border"></li>
+      		
+      		
+      		
+      		
+      		
+      		
+      		
+      		<!-- =================================== -->
+	        <!-- 			MENU COTI ODO    		 -->  
+	        <!-- =================================== -->
+ 			@if(mapPermiso.get("mnuCOTIODO")!=null && mapPermiso.get("parametro.mnuCOTIODO")!=null && mapPermiso.get("parametro.mnuCOTIODO").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuCOTIODO" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	CotiOdo
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+						@if(mapPermiso.get("cotiOdoImprime")!=null){
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">Cotizaciones Odo</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("cotiOdoIngreso")!=null){
+					        			<li><a class="dropdown-item" href="/routes2/cotiOdoIngreso/">Hacer Coti Odo</a></li>
+									}
+									@if(mapPermiso.get("cotiOdoModifica")!=null){
+										<li><a class="dropdown-item" href="/routes2/cotiOdoListaModifica/">Modificar Coti Odo</a></li>
+									}
+									
+									@if(mapPermiso.get("cotiOdoCambiarEstado")!=null){
+										<a class="dropdown-item" href="/routes2/cotiOdoListaCambiaEstado/">Cambiar Estado Coti Odo</a>
+										<!-- <a class="dropdown-item" href="/cotizaEstadoMantencion/">Admin Estados</a> -->
+									}
+									
+									@if(mapPermiso.get("cotiOdoImprime")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href="/routes2/cotiOdoListaImprimir/">Imprimir Coti Odo</a></li>
+										<li><a class="dropdown-item" href="/routes2/reportCotiOdoSel/">Reporte Movil Coti Odo</a></li>
+									}
+									
+									@if(mapPermiso.get("cotiOdoConfirma")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href="/routes2/cotiOdoListaConfirma/">Confirma Coti Odo</a></li>
+									}
+								</ul>
+							</li>
+						}
+						@if(mapPermiso.get("otOdoRevisa")!=null){
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Ordenes_de_trabajo")</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("otOdoIngreso")!=null){
+										<li><a class="dropdown-item" href="/routes2/otOdoListaCotizaSinOt/">Hacer @mapDiccionario.get("OT") Odo</a></li>
+										<a class="dropdown-item" href="/routes2/otOdoListaEliminar/">Eliminar @mapDiccionario.get("OT") Odo</a>
+										<a class="dropdown-item" href="/routes2/otOdoListaCambiarEstado/">Cambiar Estado de @mapDiccionario.get("OT") Odo</a>
+										<a class="dropdown-item" href="/otEstadoMantencion/">Admin Estados</a>
+									}
+									@if(mapPermiso.get("otOdoRevisa")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<a class="dropdown-item" href="/routes2/otOdoListaRevisar/">Revisar/Imprimir @mapDiccionario.get("OT") Odo</a>
+										<a class="dropdown-item" href="/routes2/reportOtOdoSel/">Reporte Movil de @mapDiccionario.get("OT") Odo</a>
+									}
+									@if(mapPermiso.get("otOdoConfirma")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<a class="dropdown-item" href="/routes2/otOdoListaConfirma/">Confirma @mapDiccionario.get("OT") Odo</a>
+									}
+								</ul>
+							</li>
+						}
+						<div class="dropdown-divider" style="border-color:black"></div>
+						@if(mapPermiso.get("cotiOdoGeneraContrato")!=null && mapPermiso.get("parametro.otGenerarContrato")!=null && mapPermiso.get("parametro.otGenerarContrato").equals("1")){
+							<a class="dropdown-item" href="/routes2/otOdoGenerarContrato/0">Generar Contrato Odo</a>
+						}
+						@if(mapPermiso.get("otOdoAgregaOC")!=null){
+							<a class="dropdown-item" href="/routes2/otOdoListaAgregarOC/0">Agregar OC del Cliente Odo</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+      		
+      		<!-- =================================== -->
+	        <!-- 			MENU COTIZAR 			 -->  
+	        <!-- =================================== -->
+ 			@if(mapPermiso.get("mnuCOTIZAR")!=null && mapPermiso.get("parametro.mnuCOTIZAR")!=null && mapPermiso.get("parametro.mnuCOTIZAR").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuCOTIZAR" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Cotizar
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+						@if(mapPermiso.get("cotizaImprime")!=null){
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">Cotizaciones</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("cotizaIngreso")!=null){
+										@if(mapPermiso.get("parametro.cotizaSel")!=null && mapPermiso.get("parametro.cotizaSel").equals("1")){
+											<li><a class="dropdown-item" href="/routes2/cotizaIngresoSelect/">Hacer Cotizaci&oacute;n</a></li>
+										}else{
+											<li><a class="dropdown-item" href="/cotizaIngreso/">Hacer Cotizaci&oacute;n</a></li>
+										}
+									}
+									@if(mapPermiso.get("cotizaModifica")!=null){
+										@if(mapPermiso.get("parametro.cotizaSel")!=null && mapPermiso.get("parametro.cotizaSel").equals("1")){
+											<li><a class="dropdown-item" href="/routes2/cotizaListaModificaSelPeriodo/">Modificar Cotizaci&oacute;n</a></li>
+										}else{
+											<li><a class="dropdown-item" href="/cotizaListaModificaPeriodo/">Modificar Cotizaci&oacute;n</a></li>
+										}
+									}
+									@if(mapPermiso.get("cotizaCambiarEstado")!=null){
+										<a class="dropdown-item" href="/cotizaListaCambiaEstadoPeriodo/">Cambiar Estado Cotizaciones</a>
+									}
+									@if(mapPermiso.get("cotizaImprime")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href="/cotizaListaImprimirPeriodo/">Imprimir Cotizaciones</a></li>
+										<li><a class="dropdown-item" href="/routes2/cotizaListaResumen0/">Hacer Resumen</a></li>
+										<li><a class="dropdown-item" href="/routes2/cotizaListaBiblioteca/">Biblioteca Resumenes</a></li>
+										<li><a class="dropdown-item" href="/reportCotizaSel/">Reporte Movil Cotizaciones</a></li>
+										<li><a class="dropdown-item" href="/routes2/reportPipelineSel/">Pipeline</a></li>
+									}
+									
+
+									@if(mapPermiso.get("cotizaConfirma")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href="/cotizaListaConfirma/">Confirma Cotizaciones</a></li>
+									}
+								</ul>
+							</li>
+						}
+						@if(mapPermiso.get("otRevisa")!=null){
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Ordenes_de_trabajo")</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("otIngreso")!=null){
+										<li><a class="dropdown-item" href="/otListaCotizaSinOt/">Hacer @mapDiccionario.get("OT")</a></li>
+										<a class="dropdown-item" href="/otListaEliminar/">Eliminar @mapDiccionario.get("OT")</a>
+										<a class="dropdown-item" href="/otListaCambiarEstadoPeriodo/">Cambiar Estado de @mapDiccionario.get("OT")</a>
+										<a class="dropdown-item" href="/otEstadoMantencion/">Admin Estados</a>
+										<a class="dropdown-item" href="/routes2/otAdminPrecios0/">Precios por @mapDiccionario.get("Bodega") (@mapDiccionario.get("OT"))</a>
+									}
+									@if(mapPermiso.get("otRevisa")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<a class="dropdown-item" href="/routes2/otListaRevisarPeriodo/">Revisar/Imprimir @mapDiccionario.get("OT")</a>
+										<a class="dropdown-item" href="/routes2/reportOtSel/">Reporte Movil de @mapDiccionario.get("OT")</a>
+										<a class="dropdown-item" href="/routes2/reportOtSaldos/">Saldos por despachar (Agrupado)</a>
+										<a class="dropdown-item" href="/routes2/reportOtSaldosPorOt/">Saldos por despachar (Por @mapDiccionario.get("OT"))</a>
+										<a class="dropdown-item" href="/routes2/reportOtPrecios0/">Revisar @mapDiccionario.get("OT") por @mapDiccionario.get("Bodega")</a>
+									}
+									
+									@if(mapPermiso.get("otConfirma")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<a class="dropdown-item" href="/otListaConfirma/">Confirma @mapDiccionario.get("OT")</a>
+									}
+								</ul>
+							</li>
+						}
+						@if(mapPermiso.get("otListarDespachos")!=null){
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">Despachos</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("otDespacha")!=null){
+										<a class="dropdown-item" href="/otListaDespacharPeriodo/">Despachar</a>
+									}
+									@if(mapPermiso.get("otModificarDespacho")!=null){
+										<a class="dropdown-item" href="/otListaDespachoModificarPeriodo/">Modificar Despacho</a>
+									}
+									@if(mapPermiso.get("otListarDespachos")!=null){
+										<li class="dropdown-submenu">
+											<a class="dropdown-item dropdown-toggle" href="#">Listar Despachos</a>
+											<ul class="dropdown-menu">
+													<li><a class="dropdown-item" href="/routes2/otListarDespachosPeriodo/">Sin Imagenes</a></li>
+													<li><a class="dropdown-item" href="/routes2/otListarDespachosImgPeriodo/">Con Imagenas</a></li>
+											</ul>
+										</li>
+									}
+								</ul>
+							</li>
+						}
+						<div class="dropdown-divider" style="border-color:black"></div>
+						@if(mapPermiso.get("cotizaGeneraContrato")!=null && mapPermiso.get("parametro.otGenerarContrato")!=null && mapPermiso.get("parametro.otGenerarContrato").equals("1")){
+							<a class="dropdown-item" href="/routes2/otGenerarContratoPeriodo/">Generar Contrato</a>
+						}
+						@if(mapPermiso.get("otAgregaOC")!=null){
+							<a class="dropdown-item" href="/routes2/otListaAgregarOCPeriodo/">Agregar OC del Cliente</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU COMPRAS 			 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuCOMPRAS")!=null && mapPermiso.get("parametro.mnuCOMPRAS")!=null && mapPermiso.get("parametro.mnuCOMPRAS").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuCOMPRAS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Compras
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        	
+		        		@if(mapPermiso.get("compraIngreso")!=null && mapPermiso.get("importaCompraIconstruye")!=null && mapPermiso.get("parametro.importaCompraIconstruye")!=null && mapPermiso.get("parametro.importaCompraIconstruye").equals("1")){
+		        			<a class="dropdown-item" href="/compraImportIconstruye0/">Import IConstruye</a>
+						}
+						
+						@if(mapPermiso.get("compraIngreso")!=null){
+		        			<a class="dropdown-item" href="/compraIngreso/">Ingresar Compras</a>
+						}
+						@if(mapPermiso.get("compraConfirma")!=null){
+							<a class="dropdown-item" href="/compraConfirma/">Confirmar Compras</a>
+						}
+						@if(mapPermiso.get("compraModifica")!=null){
+							<a class="dropdown-item" href="/compraListaModifica/">Modificar Compras</a>
+						}
+						@if(mapPermiso.get("compraListado")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">Listar Compras</a>
+								<ul class="dropdown-menu">
+										<li><a class="dropdown-item" href="/listComprasPorCompra/">Por Compra</a></li>
+										<li><a class="dropdown-item" href="/listComprasPorEquipo/">Por Equipo</a></li>
+								</ul>
+								<a class="dropdown-item" href="/routes2/movCompras0/">Mov Compras</a>
+							</li>
+						}
+						@if(mapPermiso.get("compraElimina")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/compraElimina/">Eliminar (No confirmadas)</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 		MENU MOVIMIENTOS 			 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuMOVIMIENTOS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Movimientos
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("movimientoSelectBodegaOrigen")!=null){
+		        			<a class="dropdown-item" href="/movimientoSelectBodegaOrigen/">Ingresar</a>
+						}
+						@if(mapPermiso.get("movimientoListar")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">Listar Movimientos</a>
+								<ul class="dropdown-menu">
+										<li><a class="dropdown-item" href="/movimientoListarPeriodo/">Sin Imagenes</a></li>
+										<li><a class="dropdown-item" href="/movimientoListarImgPeriodo/">Con Imagenes</a></li>
+								</ul>
+							</li>
+						}
+						@if(mapPermiso.get("movimientoSelectModificar")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/movimientoSelectModificarPeriodo/">Modificar</a>
+						}
+						@if(mapPermiso.get("hojaChequeoSelectBodega")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/hojaChequeoSelectBodegaAgrupado/">Hoja Chequeo (Agrupado)</a>
+							<a class="dropdown-item" href="/hojaChequeoSelectPorGrupo/">Hoja Chequeo por Grupo (Agrupado)</a>
+							<a class="dropdown-item" href="/hojaChequeoSelectBodega/">Hoja Chequeo (Por Cotizaci&oacute;n)</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU BAJAS 				 -->  
+	        <!-- =================================== -->
+			@if(mapPermiso.get("cambiarSucursal")==null || userMnu.aplicaPorSucursal.equals("0")){
+		        @if(mapPermiso.get("mnuBAJAS")!=null && mapPermiso.get("parametro.mnuBAJAS")!=null && mapPermiso.get("parametro.mnuBAJAS").equals("1")){
+		 			<li class="nav-item dropdown">
+						<a id="mnuBAJAS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						 	Bajas
+			        	</a>
+			        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+			        		@if(mapPermiso.get("bajaIngreso")!=null){
+			        			<a class="dropdown-item" href="/bajaIngreso/">Ingresar Actas</a>
+							}
+							@if(mapPermiso.get("bajaConfirma")!=null){
+			        			<a class="dropdown-item" href="/confirmaBaja/">Confirmar Bajas</a>
+							}
+							@if(mapPermiso.get("bajaModifica2")!=null){
+			        			<a class="dropdown-item" href="/bajaListaModifica/">Modificar Actas</a>
+							}
+							@if(mapPermiso.get("bajaListado")!=null){
+								<div class="dropdown-divider" style="border-color:black"></div>
+								<li class="dropdown-submenu">
+									<a class="dropdown-item dropdown-toggle" href="#">Listar Bajas</a>
+									<ul class="dropdown-menu">
+											<li><a class="dropdown-item" href="/listBajasPorActa/">Por Acta</a></li>
+											<li><a class="dropdown-item" href="/listBajasPorEquipo/">Por Equipo</a></li>
+									</ul>
+								</li>
+							}
+			        	</ul>
+			        </li>
+				}
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU PLANES 	   		 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuPLANES")!=null && mapPermiso.get("parametro.mnuPLANES")!=null && mapPermiso.get("parametro.mnuPLANES").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuPLANES" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Planes
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("planHojaVida")!=null){
+							
+		        			<a class="dropdown-item" href="/hojaVidaMantencionLista/0">Actualizar Hojas de Vida</a>
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+						}
+						
+		        		@if(mapPermiso.get("planMantencion")!=null){
+		        			<a class="dropdown-item" href="/hojaVidaPlanMantencion/">Planes de Mantenci&oacute;n</a>
+						}
+						@if(mapPermiso.get("planTipoPlan")!=null){
+							<a class="dropdown-item" href="/tipoPlanMantencion/">Tipo Plan de Mantención</a>
+						}
+						
+						@if(mapPermiso.get("planTipoTrabajo")!=null){
+		        			<a class="dropdown-item" href="/tipoTrabajoMantencion/">Tipo de Trabajo</a>
+						}
+						@if(mapPermiso.get("reportesHojaVida")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/hojaVidaReportLista/">Hojas de Vida</a>
+						}
+						@if(mapPermiso.get("analisisHojaVida")!=null){
+		        			<a class="dropdown-item" href="/hojaVidaReportKpis/">Reporte KPIs</a>
+						}
+						@if(mapPermiso.get("planGraficos")!=null){
+							<li class="dropdown-submenu">
+								<a class="dropdown-item dropdown-toggle" href="#">Gr&aacute;ficos</a>
+								<ul class="dropdown-menu">
+										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,30">Gr&aacute;fico-30</a></li>
+										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,60">Gr&aacute;fico-60</a></li>
+										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,90">Gr&aacute;fico-90</a></li>
+										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,180">Gr&aacute;fico-180</a></li>
+										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,360">Gr&aacute;fico-360</a></li>
+								</ul>
+							</li>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 		MENU DISPONIBILIDAD 	   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuDISPONIBILIDAD")!=null && mapPermiso.get("parametro.mnuDISPONIBILIDAD")!=null && mapPermiso.get("parametro.mnuDISPONIBILIDAD").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuDISPONIBILIDAD" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Disponibilidad
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("disponibleActualizaAll")!=null){
+		        			<a class="dropdown-item" href="/disponibleActualizaAll/">Actualizar Fechas</a>
+						}
+						@if(mapPermiso.get("reportDisponibilidadAll")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/reportDisponibilidadAll/">Reporte</a>
+						}
+						@if(mapPermiso.get("disponibleActualizaAll")!=null){
+							@if(mapPermiso.get("cambiarSucursal")==null || userMnu.aplicaPorSucursal.equals("0")){
+								<div class="dropdown-divider" style="border-color:black"></div>
+		        				<a class="dropdown-item" href="/disponibleInscribirEquipo/">Inscribir Equipos</a>
+		        				<a class="dropdown-item" href="/disponibleEliminarEquipo/">Desinscribir Equipos</a>
+							}
+							
+
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/disponibleInscribirBodega/">Inscribir @mapDiccionario.get("Bodega")s</a>
+		        			<a class="dropdown-item" href="/disponibleEliminarBodega/">Desinscribir @mapDiccionario.get("Bodega")s</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU QR 			   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuQR")!=null && mapPermiso.get("parametro.mnuQR")!=null && mapPermiso.get("parametro.mnuQR").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuQR" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Qr
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("qrAdminEquipos")!=null){
+		        			<a class="dropdown-item" href="/qrListaEquipos/">Administrar QR</a>
+		        			<a class="dropdown-item" href="/qrListaAtributoEquipos/">Atributos QR</a>
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/qrPrintQrEquipos/">Print QR Equipos</a>
+						}
+						
+						
+						
+						@if(mapPermiso.get("qrAdminPersonal")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/qrListaPersonal">Admin Personal</a>
+		        			<a class="dropdown-item" href="/qrListaAtributoPersonal">Atributos Personal</a>
+						}
+		        	</ul>
+		        </li>
+			}
+
+			<!-- =================================== -->
+	        <!-- 		MENU PRESUPUESTOS 		   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuPRESUPUESTOS")!=null && mapPermiso.get("parametro.mnuPRESUPUESTOS")!=null && mapPermiso.get("parametro.mnuPRESUPUESTOS").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuPRESUPUESTOS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Ppto
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("pptoAdministrar")!=null){
+		        			<a class="dropdown-item" href="/pptoAdministrar/">Administrar Pptos</a>
+						}
+		        		@if(mapPermiso.get("pptoReportes")!=null){
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/pptoListadoPptos/">Reporte Pptos</a>
+						}
+		        	</ul>
+		        </li>
+			}
+						
+			<!-- =================================== -->
+	        <!-- 			MENU ODO 			   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuODO")!=null && mapPermiso.get("parametro.mnuODO")!=null && mapPermiso.get("parametro.mnuODO").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuQR" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Odo
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("odoAdminClases")!=null){
+		        			<a class="dropdown-item" href="/claseMantencion/">Familias</a>
+						}
+						@if(mapPermiso.get("odoAdminServicios")!=null){
+		        			<a class="dropdown-item" href="/servicioMantencion/">Servicios</a>
+						}
+						@if(mapPermiso.get("odoAdminPrecios")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/servicioPrecios/" title="Agregar y revisar precios de servicios por una bodega">Precios por @mapDiccionario.get("Bodega") (ODO)</a>
+							<a class="dropdown-item" href="/routes2/servicioPreciosServicio/" title="Agregar y revisar precios de un servicio en varias bodegas">Precios por Servicio en Bodegas</a>
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/servicioEquipos0/">Inscribir Equipos</a>
+							<a class="dropdown-item" href="/servicioPreciosVariable0/">Precios Variables</a>
+						}
+						@if(mapPermiso.get("odoAdminOperadores")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/operadorMantencion/">Operadores</a>
+						}
+						@if(mapPermiso.get("odoVentas")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/odoVentas/">Ingreso Report</a>
+							<a class="dropdown-item" href="/odoListarVentas0/">Listar Report</a>
+						}
+						
+						
+						@if(mapPermiso.get("mnuREPORTMOVODO")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Movimientos</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("reporteMovOdo0")!=null){
+										<li><a class="dropdown-item" href='/reporteMovOdoCantidades/'>Por Fecha (Cantidades)</a></li>
+									}
+									<!--    NO FUNCIONA NO HABILITADO (7-9-2022)
+									@if(mapPermiso.get("reporteMovOdo1")!=null){
+										<li><a class="dropdown-item" href='/reporteMovOdoValorizado/'>Por Fecha (Valorizado)</a></li>
+									}
+									-->
+								</ul>
+							</li>
+		        		}
+
+						@if(mapPermiso.get("mnuPROFORMAS_SERVICIO")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Proforma")s</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("odoProformas")!=null){
+										<li><a class="dropdown-item" href='/reportProfPerOdo/'>@mapDiccionario.get("tipoBodega_2")</a></li>
+									}
+									
+									
+									@if(mapPermiso.get("odoResumen")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reportOdoPeriodoResumen/'>Resumen y Detalle (por período)</a></li>
+									}
+									@if(mapPermiso.get("odoConsolidado")!=null){
+										<li><a class="dropdown-item" href='/reportOdoConsolidado/'>Consolidado (varios Meses)</a></li>
+									}
+									
+									@if(mapPermiso.get("odoProformaLista")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/proformaListaOdo/'>Listado de @mapDiccionario.get("Proforma")s</a></li>
+									}
+									<div class="dropdown-divider" style="border-color:black"></div>
+									@if(mapPermiso.get("odoHaceAjustes")!=null){
+										<li><a class="dropdown-item" href='/ajustesEpOdo/'>Hacer Ajustes EP-@mapDiccionario.get("Proforma")</a></li>
+									}
+									@if(mapPermiso.get("odoListaAjustes")!=null){
+										<li><a class="dropdown-item" href='/ajustesEpRptOdo/'>Reporte Ajustes X @mapDiccionario.get("Bodega")/Proyecto</a></li>
+									}
+									@if(mapPermiso.get("odoAjustesPorPeriodo")!=null){
+										<li><a class="dropdown-item" href='/ajustesPeriodoEpRpt1Odo/'>Reporte Ajustes X Per&iacute;odo</a></li>
+									}
+									
+									
+									<div class="dropdown-divider" style="border-color:black"></div>
+									<li><a class="dropdown-item" href='/reportOperadorConsol0/'>Consolidado por Operador</a></li>
+									
+									
+									
+									
+								</ul>
+							</li>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU BODEGAS 		   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuBODEGAS")!=null && mapPermiso.get("parametro.mnuBODEGAS")!=null && mapPermiso.get("parametro.mnuBODEGAS").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuBODEGAS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	@mapDiccionario.get("Bodegas")
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("bodegaAdministrar")!=null){
+		        			<a class="dropdown-item" href="/bodegaAdministrar/">Administrar @mapDiccionario.get("Bodegas")</a>
+							@if(mapPermiso.get("cambiarSucursal")!=null){
+								<a class="dropdown-item" href="/routes2/sucursalAdministrar/">Administrar Sucursales</a>
+							}
+							<div class="dropdown-divider" style="border-color:black"></div>
+						}
+						@if(mapDiccionario.get("nEmpresa").equals("GLOBALRENT") && mapPermiso.get("bodegaAsignaDctos")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+		        			<a class="dropdown-item" href="/bodegaAsignaDctos/">Asignar Descuentos</a>
+						}
+						@if(mapPermiso.get("bodegaAsignaTasas")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+		        			<a class="dropdown-item" href="/bodegaAsignaTasas/">Asignar Tasas</a>
+						}
+						@if(mapPermiso.get("bodegaPrecios")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+		        			<a class="dropdown-item" href="/bodegaPrecios/">Precios por @mapDiccionario.get("Bodega")</a>
+						}
+						@if(mapPermiso.get("bodegaFactorViga")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+		        			<a class="dropdown-item" href="/bodegaFactorViga/">Factor Viga (m2/ml)</a>
+						}
+						@if(mapPermiso.get("bodegaContactos")!=null){
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/bodegaContactos/">Administrar Contactos</a>
+		        			<a class="dropdown-item" href="/bodegaContactosExcel/">Exportar Contactos</a>
+						}
+		        		@if(mapPermiso.get("bodegaVigenteNoVigente")!=null){
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/bodegaVigenteNoVigente/">Cambiar el Estado <br> de @mapDiccionario.get("Bodegas")</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU TABLAS 		   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuTABLAS")!=null && mapPermiso.get("parametro.mnuTABLAS")!=null && mapPermiso.get("parametro.mnuTABLAS").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuTABLAS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Tablas
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("precioMantencion")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+							@if(mapPermiso.get("cambiarSucursal")==null || userMnu.aplicaPorSucursal.equals("0")){
+								<a class="dropdown-item" href="/routes2/precioMantSelSucursal/">Maestro de Precios</a>
+		        				<div class="dropdown-divider" style="border-color:black"></div>
+							}
+		        			
+						}
+						@if(mapPermiso.get("grupoMantencion")!=null){
+		        			<a class="dropdown-item" href="/grupoMantencion/">Grupos</a>
+						}
+						@if(mapPermiso.get("equipoMantencion")!=null){
+		        			<a class="dropdown-item" href="/equipoMantencion/">Equipos</a>
+						}
+						@if(mapPermiso.get("proyectoMantencion")!=null){
+		        			<a class="dropdown-item" href="/proyectoMantencion/">Proyectos</a>
+						}
+						@if(mapPermiso.get("clienteMantencion")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/clienteMantencion/">Clientes/Propietarios</a>
+						}
+						@if(mapPermiso.get("proveedorMantencion")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+		        			<a class="dropdown-item" href="/proveedorMantencion/">Proveedores</a>
+						}
+						@if(mapPermiso.get("fabricaMantencion")!=null){
+		        			<a class="dropdown-item" href="/fabricaMantencion/">Fabricantes</a>
+						}
+						
+						
+						@if(mapPermiso.get("bodegaContactos")!=null){
+							<a class="dropdown-item" href="/allContactosCliProvFabrExcel/">Exportar Contactos</a>
+						}
+						
+						@if(mapPermiso.get("transportistaMantencion")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+			        		<a class="dropdown-item" href="/transportistaMantencion/">Transportistas</a>
+		        		}
+		        		
+						@if(mapPermiso.get("tipoEstado")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/tipoEstadoMantencion/">Tipo Estados Equipo</a>
+							<a class="dropdown-item" href="/routes2/cotizaSolucionMantencion/">Tipo de Soluciones (coti)</a>
+						}
+						@if(mapPermiso.get("decimalNumero")!=null){
+		        			<a class="dropdown-item" href="/decimalNumero/">Cantidad Decimales</a>
+						}
+						@if(mapPermiso.get("usuarioMantencion")!=null){
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/usuarioMantencion/">Usuarios/Perfiles</a>
+							<a class="dropdown-item" href="/routes2/comercialMantencion/">Comerciales</a>
+						}
+						
+						@if(mapPermiso.get("historialCambios")!=null){
+		        			<div class="dropdown-divider" style="border-color:black"></div>
+		        			<a class="dropdown-item" href="/registroDeCambios/">Historial de Cambios</a>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+
+			
+			<!-- =================================== -->
+	        <!-- 			MENU REPORTES 		   	 -->  
+	        <!-- =================================== -->
+	        @if(mapPermiso.get("mnuREPORTES")!=null && mapPermiso.get("parametro.mnuREPORTES")!=null && mapPermiso.get("parametro.mnuREPORTES").equals("1")){
+	 			<li class="nav-item dropdown">
+					<a id="mnuREPORTES" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Reportes
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("mnuINVENTARIOS")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Inventarios</a>
+								<ul class="dropdown-menu">
+									<li class="dropdown-submenu">
+										<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Arriendo")</a>
+										<ul class="dropdown-menu">
+											@if(mapPermiso.get("reportInventarioGeneral")!=null){
+												<li><a class="dropdown-item" href='/reportInventarioEquipoCorte/@mapDiccionario.get("ARRIENDO")'>
+													@mapDiccionario.get("Arriendo"): por Equipos
+												</a></li>
+											}
+											@if(mapPermiso.get("reportInventarioSelectivo")!=null){
+												<li><a class="dropdown-item" href='/reportInventarioBodegaCorte/@mapDiccionario.get("ARRIENDO")'>
+													@mapDiccionario.get("Arriendo"): por @mapDiccionario.get("Bodegas")
+												</a></li>
+											}
+											@if(mapPermiso.get("reportInventarioGrupo")!=null){
+												<li><a class="dropdown-item" href='/reportInventarioGrupoCorte/@mapDiccionario.get("ARRIENDO")'>
+													@mapDiccionario.get("Arriendo"): por Grupos
+												</a></li>
+											}
+											@if(mapPermiso.get("inventarioMatriz")!=null){
+												<div class="dropdown-divider" style="border-color:black"></div>
+												<li><a class="dropdown-item" href='/reportInventarioMatrizCorte/@mapDiccionario.get("ARRIENDO")'>
+													@mapDiccionario.get("Arriendo"): Equipos por Bodegas
+												</a></li>
+											}
+										</ul>
+									</li>
+									<li class="dropdown-submenu">
+										<a class="dropdown-item dropdown-toggle" href="#">Vendido</a>
+										<ul class="dropdown-menu">
+											@if(mapPermiso.get("reportInventarioGeneral")!=null){
+												<li><a class="dropdown-item" href="/reportInventarioEquipoCorte/VENTA">Vendido: por Equipos</a></li>
+											}
+											@if(mapPermiso.get("reportInventarioSelectivo")!=null){
+												<li><a class="dropdown-item" href="/reportInventarioBodegaCorte/VENTA">Vendido: por @mapDiccionario.get("Bodegas")</a></li>
+											}
+											@if(mapPermiso.get("reportInventarioGrupo")!=null){
+												<li><a class="dropdown-item" href="/reportInventarioGrupoCorte/VENTA">Vendido: por Grupos</a></li>
+											}
+											@if(mapPermiso.get("inventarioMatriz")!=null){
+												<div class="dropdown-divider" style="border-color:black"></div>
+												<li><a class="dropdown-item" href="/reportInventarioMatrizCorte/VENTA">Vendido: Equipos por Bodegas</a></li>
+											}
+										</ul>
+									</li>
+									<li class="dropdown-submenu">
+										<a class="dropdown-item dropdown-toggle" href="#">Todo (@mapDiccionario.get("Arr")+Vend)</a>
+										<ul class="dropdown-menu">
+											@if(mapPermiso.get("reportInventarioGeneral")!=null){
+												<li><a class="dropdown-item" href="/reportInventarioEquipoCorte/TODO">Todo: por Equipos</a></li>
+											}
+											@if(mapPermiso.get("reportInventarioSelectivo")!=null){
+												<li><a class="dropdown-item" href="/reportInventarioBodegaCorte/TODO">Todo: por @mapDiccionario.get("Bodegas")</a></li>
+											}
+											@if(mapPermiso.get("reportInventarioGrupo")!=null){
+												<li><a class="dropdown-item" href="/reportInventarioGrupoCorte/TODO">Todo: por Grupos</a></li>
+											}
+											@if(mapPermiso.get("inventarioMatriz")!=null){
+												<div class="dropdown-divider" style="border-color:black"></div>
+												<li><a class="dropdown-item" href="/reportInventarioMatrizCorte/TODO">Todo: Equipos por Bodegas</a></li>
+											}
+											@if(mapPermiso.get("inventarioStock")!=null){
+												<div class="dropdown-divider" style="border-color:black"></div>
+												<li><a class="dropdown-item" href="/reportInventarioTodo/">Equipos con Stock y Precios</a></li>
+											}
+										</ul>
+									</li>
+									<div class="dropdown-divider" style="border-color:black"></div>
+		        					<a class="dropdown-item" href="/routes2/reportEstadoBodegas/">Estado @mapDiccionario.get("Bodegas")</a>
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("mnuPROYECTOS")!=null && mapPermiso.get("reportInventarioProyecto")!=null){
+		        			<a class="dropdown-item" href="/reportInventarioProyecto/">Existencias</a>
+		        		}
+		        		@if(mapPermiso.get("mnuGRAFICOS")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Gr&aacuteficos</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("subMenu4")!=null){
+										<li class="dropdown-submenu">
+											@if(mapPermiso.get("reportGraficoGrupo1")!=null){
+												<a class="dropdown-item" href='/reportGraficoMovResumen/0,0'>Resumen</a>
+											}
+											@if(mapPermiso.get("reportGraficoGrupo2")!=null){
+												<a class="dropdown-item" href='/reportGraficoMovPorGrupo/0,0,0,1'>@mapDiccionario.get("tipoBodega_1")</a>
+											}
+											@if(mapPermiso.get("reportGraficoGrupo3")!=null){
+												<a class="dropdown-item" href='/reportGraficoMovPorGrupo/0,0,0,2'>@mapDiccionario.get("tipoBodega_2")</a>
+											}
+											@if(mapPermiso.get("reportGraficoGrupo4")!=null){
+												<a class="dropdown-item" href='/reportGraficoMovPorGrupo/0,0,0,0'>Todo el Detalle</a>
+											}
+											@if(mapPermiso.get("reportGraficoOcupacion1")!=null){
+												<div class="dropdown-divider" style="border-color:black"></div>
+												<a class="dropdown-item" href='/reportGraficoMovUso/'>Ocupaci&oacute;n Mensual</a>
+											}
+										</li>
+									}
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("mnuREPORTEEJECUTIVO")!=null && mapPermiso.get("reporteEjecutivo1")!=null){
+		        			<a class="dropdown-item" href="/reporteEjecutivo1/" onclick="document.getElementById('enProceso').style.display='block';">Reporte Ejecutivo</a>
+		        		}
+		        		@if(mapPermiso.get("mnuREPORTEGERENCIAL")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Reporte Gerencial</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("reporteGerencial1")!=null){
+										<li><a class="dropdown-item" href='/reporteGerencial/'>Reporte Gerencial</a></li>
+									}
+									@if(mapPermiso.get("reporteGerencial2")!=null){
+										<li><a class="dropdown-item" href='/reporteGerencialGrupo/'>Reporte por Grupos</a></li>
+									}
+									@if(mapPermiso.get("reporteGerencial2")!=null){
+										<li><a class="dropdown-item" href='/reporteGerencialKG/'>Resumen KG movidos</a></li>
+									}
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("mnuREPORTMOVIMIENTOS")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Movimientos</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("reporteMovimientos0")!=null){
+										<li><a class="dropdown-item" href='/reporteMovimientosPeriodoAgrupado/'>Por Fecha (Agrupado)</a></li>
+									}
+									@if(mapPermiso.get("reporteMovimientos1")!=null){
+										<li><a class="dropdown-item" href='/reporteMovimientosPeriodo/'>Por Fecha (Valorizado)</a></li>
+									}
+									@if(mapPermiso.get("reporteMovimientos2")!=null){
+										<li><a class="dropdown-item" href='/reporteMovimientosListaProyectosIE/'>Ordenado por Ingreso-Egreso</a></li>
+									}
+									
+									@if(mapPermiso.get("reporteMovimientos0")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/routes2/reportePorProyectoAgrupado/'>Por Proyecto (Agrupado)</a></li>
+										<li><a class="dropdown-item" href='/reporteMovSoloBodInternas0/'>Solo @mapDiccionario.get("Bodega")s Internas</a></li>
+									}
+									
+									@if(mapPermiso.get("reporteExcedentes")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reporteExcedentesListaProyectos/'>Excedentes por @mapDiccionario.get("Bodega")/Proyecto</a></li>
+										<li><a class="dropdown-item" href='/routes2/reporteExcedentesListaEquipos/'>Excedentes por Equipo</a></li>
+									}
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("mnuREPORTESTADOS")!=null && mapPermiso.get("reportEstados")!=null){
+							<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Estados</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("reportFacturaDetalleProyecto")!=null){
+										<li><a class="dropdown-item" href='/reporteEstadosTodos/'>Estados por @mapDiccionario.get("Bodega")/Proyecto</a></li>
+										<li><a class="dropdown-item" href='/reporteEstadosAll0/'>Reparaciones por @mapDiccionario.get("Bodega")/Proyecto</a></li>
+									}
+									@if(mapPermiso.get("reportEstados")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reporteEstadosPeriodo0/'>Estados por Periodo</a></li>
+									}
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("mnuTRAZABILIDAD")!=null && mapPermiso.get("reportTrazaEquipo")!=null){
+		        			<a class="dropdown-item" href="/reportTrazaEquipo/">Trazabilidad</a>
+		        		}
+
+		        		@if(mapPermiso.get("mnuPROFORMAS")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Proforma")s</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("reportFacturaDetalleProyecto")!=null){
+										<li><a class="dropdown-item" href='/reportFacturaPeriodo/'>@mapDiccionario.get("tipoBodega_2")</a></li>
+									}
+									@if(mapPermiso.get("proformaResumen")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reportFacturaPeriodoResumen/'>Resumen y Detalle (por período)</a></li>
+									}
+									@if(mapPermiso.get("proformaConsolidado")!=null){
+										<li><a class="dropdown-item" href='/reportFacturaConsolidado/'>Consolidado (varios Meses)</a></li>
+									}
+									@if(mapPermiso.get("proformaConsolidado")!=null){
+										<li><a class="dropdown-item" href='/reportFactConsolconGrupo/'>Consolidado (detalle por grupos)</a></li>
+									}
+									@if(mapPermiso.get("proformaConsolidado")!=null && !mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO") && !mapDiccionario.get("nEmpresa").equals("ALZATEC")){
+										<li><a class="dropdown-item" href='/reportFactConsolconEquipos/'>Consolidado (detalle por equipos)</a></li>
+									}
+									@if(mapPermiso.get("proformaListado")!=null && userMnu.getId_tipoUsuario() != 7){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/proformaLista/0'>Listado de @mapDiccionario.get("Proforma")s</a></li>
+									}
+									<div class="dropdown-divider" style="border-color:black"></div>
+									@if(mapPermiso.get("proformaHaceAjustes")!=null){
+										<li><a class="dropdown-item" href='/ajustesEp/'>Hacer Ajustes EP-@mapDiccionario.get("Proforma")</a></li>
+									}
+									@if(mapPermiso.get("proformaListaAjustes")!=null){
+										<li><a class="dropdown-item" href='/ajustesEpRpt/'>Reporte Ajustes X @mapDiccionario.get("Bodega")/Proyecto</a></li>
+									}
+									@if(mapPermiso.get("proformaAjustesPorPeriodo")!=null){
+										<li><a class="dropdown-item" href='/ajustesPeriodoEpRpt1/'>Reporte Ajustes X Per&iacute;odo</a></li>
+									}
+									
+								</ul>
+							</li>
+		        		}
+						@if(mapDiccionario.get("nEmpresa").equals("HOHE") && mapPermiso.get("reportesHOHE")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Tabla_Todo</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href='/hoheReportTodo0/'>Todo por Per&iacute;odo</a></li>
+									<li><a class="dropdown-item" href='/hoheTodoResumen0/'>Resumen por Per&iacute;odo</a></li>
+									<li><a class="dropdown-item" href='/hoheMatrizVerticalInventario0/'>Matriz Inventario (p_min)</a></li>
+									<li><a class="dropdown-item" href='/hoheMatrizVerticalInv0Coti/'>Matriz Inventario (por_coti)</a></li>
+									<li><a class="dropdown-item" href='/hoheEstadoCotiOt/'>Estado de OT</a></li>
+									<li><a class="dropdown-item" href='/hoheEstadoCotiSinOt/'>Estado de COTI</a></li>
+								</ul>
+							</li>
+						}
+		        	</ul>
+		        </li>
+			}
+			
+			<!-- =================================== -->
+	        <!-- 			MENU COBRANZA	 		   	 -->  
+	        <!-- =================================== -->
+ 			 <!--@if(mapPermiso.get("mnuFACTURA")!=null && mapPermiso.get("parametro.mnuFACTURA")!=null && mapPermiso.get("parametro.mnuFACTURA").equals("1")){
+ 				<li class="nav-item dropdown">
+					<a id="mnuFACTURA" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Cobranza
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+		        		@if(mapPermiso.get("subMenu1")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Proforma")s</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("facturaPasaVenta")!=null){	
+										<li><a class="dropdown-item" href='/proformaListaPasoVenta/'>Pasar a Ventas</a></li>
+									}
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("subMenu2")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Ventas</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("facturaModificar")!=null){	
+										<li><a class="dropdown-item" href='/ventasLista/'>Listar/Modificar</a></li>
+									}
+									@if(mapPermiso.get("facturaIngresar")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/ventasIngreso/'>Ingresar</a></li>
+									}
+								</ul>
+							</li>
+		        		}
+		        		@if(mapPermiso.get("subMenu3")!=null){
+		        			<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Seguimiento</a>
+								<ul class="dropdown-menu">
+									@if(mapPermiso.get("facturaReporte1")!=null){	
+										<li><a class="dropdown-item" href='/ivaPorPagar/'>Iva X pagar</a></li>
+									}
+									@if(mapPermiso.get("facturaReporte2")!=null){
+										<li><a class="dropdown-item" href='/ventasMes/'>Ventas del Mes</a></li>
+									}
+									<div class="dropdown-divider" style="border-color:black"></div>
+									<li class="dropdown-submenu">
+										<a class="dropdown-item dropdown-toggle" href="#">Facturas X cobrarl</a>
+										<ul class="dropdown-menu">
+											@if(mapPermiso.get("facturaReporte3")!=null){
+												<li><a class="dropdown-item" href='/cobrarFacturaVencida/'>Vencidas</a></li>
+											}
+											@if(mapPermiso.get("facturaReporte4")!=null){
+												<li><a class="dropdown-item" href='/cobrarFacturaPorVencer/'>Por Vencer</a></li>
+											}
+											@if(mapPermiso.get("facturaReporte5")!=null){
+												<li><a class="dropdown-item" href='/cobrarFacturaTodas/'>Todas</a></li>
+											}
+										</ul>
+									</li>
+									@if(mapPermiso.get("facturaReporte6")!=null){
+										<li><a class="dropdown-item" href='/graficoVentas/'>Gr&aacute;fico de Ventas</a></li>
+									}
+								</ul>
+							</li>
+		        		}
+		        	</ul>
+		        </li>
+ 			} -->
+			
+			<!-- =================================== -->
+	        <!-- 			MENU AYUDA	 		   	 -->  
+	        <!-- =================================== -->
+ 			<li class="nav-item dropdown">
+				<a id="mnuAYUDA" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				 	Ayuda
+	        	</a>
+	        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+					<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Manuales</a>
+								<ul class="dropdown-menu">
+										<li><a class="dropdown-item" href="/manualBasico/">Manual B&aacute;sico</a></li>
+										<a class="dropdown-item" href="/manualPrimerosPasos/">Primeros Pasos</a>
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-BAJAS.pdf')">BAJAS</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-BODEGAS.pdf')">@mapDiccionario.get("BODEGAS")</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-COMPRAS.pdf')">COMPRAS</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-COTIZAR.pdf')">COTIZAR</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-DISPONIBILIDAD.pdf')">DISPONIBILIDAD</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-MOVIMIENTOS.pdf')">MOVIMIENTOS</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA_ODO.pdf')">ODO</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-PLANES.pdf')">PLANES</a></li>
+										<li><a class="dropdown-item" href='#' onclick="mostrarPDFmanuales('MADA3-V3-TABLAS.pdf')">TABLAS</a></li>
+								</ul>
+					</li>
+					<li class="dropdown-submenu pull-left">
+								<a class="dropdown-item dropdown-toggle" href="#">Tutoriales</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="https://youtu.be/74R1kYSbw40?t=371" target="_blank">Movimientos</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/nJhv2Gp3U3w?t=275" target="_blank">Compras</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/PIyDUQNlJ2M?t=33" target="_blank">Bajas</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/11S3DbFe86w?t=274" target="_blank">Cotizar</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/zSp022p_G18?t=172" target="_blank">Planes de Mantenimiento</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/CQa_Hb4KNGw?t=285" target="_blank">Disponibilidad</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/AutMUStAqYM?t=211" target="_blank">Evaluación de Devoluciones</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/bZrkJX8VZz4?t=80" target="_blank">Reportes Gráficos</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/4J9fYgQQToE?t=46" target="_blank">Precios</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/DhJ6957ofgg?t=117" target="_blank">Facturación y Cobro a Clientes</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/ziENFavcrO8?t=64" target="_blank">Presupuestos</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/NR88UwMWxj0?t=13" target="_blank">Creación de Equipos y Grupos</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/YewC3d5MbEA?t=12" target="_blank">Revisión de Inventarios</a></li>
+									<li><a class="dropdown-item" href="https://youtu.be/XMIQ40JZO_U?t=46" target="_blank">Varios</a></li>
+								</ul>
+					</li>
+					<div class="dropdown-divider" style="border-color:black"></div>
+					<li><a class="dropdown-item" href="#" onclick="$('#modalContacto').modal('show')">Contactos</a></li>
+					<div class="dropdown-divider" style="border-color:black"></div>
+					<li><a class="dropdown-item"  href="#" onclick="$('#modalCreditos').modal('show')">Cr&eacute;ditos</a></li>
+	        	</ul>
+	        </li>
+										
+										
+										
+										
+
+
+			<!-- =================================== -->
+	        <!-- 			MENU TOOLS	 		   	 -->  
+	        <!-- =================================== -->
+			@if(userMnu.getUserName().equals("Admin") || userMnu.getUserName().equals("PBA")){
+				<li class="nav-item dropdown">
+					<a id="mnuADMIN" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					 	Tools
+		        	</a>
+		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+	        			<a class="dropdown-item" href="/administraModulos/">Modulos</a>
+	        			<a class="dropdown-item" href="/administrarEmisor/">Emisor Tributario</a>
+		        	</ul>
+		        </li>
+			}
+			
+			
+			
+ 		</ul>
+ 		
+ 		
+ 		<!-- =================================== -->
+        <!-- 		USUARIO Y EXIT				 -->  
+        <!-- =================================== -->
+   		<div align="right">
+    		<ul class="navbar-nav mr-auto">
+				<li class="nav-item ">
+					@if(userMnu.getId_usuario()==0){
+						<a class="nav-link" href="/cpanel/">@userMnu.getUserName()</a>
+					}else{
+						<a class="nav-link" href="#" onclick="formUsuarioSelect2('@userMnu.getId_usuario()');"> @userMnu.getUserName()</a>
+					}
+		      	</li>
+		      	&nbsp;
+		      	<li class="divider-vertical border"></li>
+		      	<li class="nav-item active">
+		        	<a class="nav-link" href="/">EXIT</a>
+				</li>
+     		</ul>
+    	</div>
+ 	</div>
+</nav>
+
+
+<div id="updateUsuario2"></div>
+
+
+
+
+	<div id='muestraPDFmanuales' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>MANUAL</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDFmanuales"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="modalCreditos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+				MADA VERSIÓN 3.0
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+					<p>“Software para la administración, control y gestión de alquileres y ventas”.</p>
+					<br><br>
+					Propiedad de INQSOL SpA.
+					<br>
+					Rut 76.312.175-5, Chile.
+		      </div>
+		    </div>
+		  </div>
+	</div>
+
+	<div id="modalContacto" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+		    <div class="modal-content" style="width:90%">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+					<form action="/sendEmail/" method="POST">
+						<table class="table table-sm table-bordered table-condensed table-hover table-fluid">
+							<tbody>
+								<tr>
+							        <td style="text-align:left;width:35%;">NOMBRE (*):</td>
+							        <td style="text-align:left">
+							        	<input type="text" class="form-control form-control-sm" 
+											name="nombre" autocomplete="off" required
+										</td>
+								</tr>
+								<tr>
+							        <td style="text-align:left;width:35%;">E-MAIL (*):</td>
+							        <td style="text-align:left">
+							        	<input type="email" class="form-control form-control-sm" 
+											name="email" autocomplete="off" required
+										</td>
+								</tr>
+								<tr>
+							        <td style="text-align:left;width:35%;">TELEFONO:</td>
+							        <td style="text-align:left">
+							        	<input type="text" class="form-control form-control-sm" 
+											name="fono" autocomplete="off"
+										</td>
+								</tr>
+								<tr>
+							        <td style="text-align:left;">MENSAJE:</td>
+							        <td style="text-align:left">
+							        	<textarea class="form-control form-control-sm" rows="5" 
+											name="mensaje" autocomplete="off"></textarea>
+							        </td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="row">
+							<div class="col-sm-12" style="text-align:center">
+								<button type="submit" class="btn btn-sm  btn-success" style="font-size: 10px;"  onclick="this.setAttribute('disabled',true)">ENVIAR</button>
+							</div>
+						</div>
+					</form>
+		      </div>
+			  <div class="modal-footer">
+				Sr. Jorge Ignacio Prieto &#60;jiprieto&#64;inqsol.cl> +56 9 4614 9191<br>
+		      	Sr. Pedro Barros &#60;pbarros&#64;inqsol.cl> +56 9 8299 1918
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+
+
+
+
+
+<script>
+		
+	$('.dropdown-menu a.dropdown-toggle').on('click', function(e) {
+		if (!$(this).next().hasClass('show')) {
+		  	$(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+		}
+	  	var $subMenu = $(this).next(".dropdown-menu");
+	  	$subMenu.toggleClass('show');
+	  	$(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+	    	$('.dropdown-submenu .show').removeClass("show");
+	  	});
+	  	return false;
+	});
+
+	$(document).ready(function() {
+ 	    /* if(!@marcar.equals("")) document.getElementById("@marcar").style.color='blue';
+	    if(!@marcar.equals("")) document.getElementById("@marcar").style.fontSize = "1.2em"; */
+	});
+	
+	
+	
+	function formUsuarioSelect2(id_usuario){
+		var formData = new FormData();
+	  	formData.append('id_usuario',id_usuario);
+        $.ajax({
+            url: "/usuarioModalUpdate2",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}else if(respuesta == "noCorresponde"){
+	     			
+	     		}else{
+	     			document.getElementById('updateUsuario2').innerHTML=respuesta; 
+	     			$('#modalUpdateUsuario2').modal('show');
+	     		}
+	     	}
+        });
+    }
+	
+	function validaUsuarioUpdate2(usuario,anterior){
+		if(usuario!=anterior){
+			var formData = new FormData();
+		  	formData.append('userName',usuario);
+	        $.ajax({
+	            url: "/usuarioValida2",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}
+		     		if(respuesta.status){
+		     			alertify.alert("'El nombre de usuario ya existe, intente con otro nombre'", function () {
+		     				$("#userNameUpdate2").val(anterior);
+			     		});
+		     		}
+		     	}
+	        });
+		}
+	}
+	
+	const mostrarPDFmanuales = (nombrePDF) => {
+		  document.getElementById('rutaPDFmanuales').innerHTML="<object data='/showPdfManuales/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDFmanuales').modal('show');
+	}
+	
+	//RESTRINGE EL TIEMPO DE INACTIVIDAD EN EL SISTEMA
+		$(document).ready(function() {
+			resetTimer();
+		});
+	
+	    var time;
+	    window.onload = resetTimer;
+	    // DOM Events
+	    document.onmousemove = resetTimer;
+	    document.onkeypress = resetTimer;
+		document.onload = resetTimer;
+		document.onclick = resetTimer;
+	
+	    function logout() {
+	        alert("Tiempo de inactividad excedido. Por seguridad vuelva a ingresar usuario y clave");
+	        location.href = '/';
+	    }
+	
+	    function resetTimer() {
+	        clearTimeout(time);
+	   		time = setTimeout(logout, 10800000);
+	        // 1000 milliseconds = 1 second
+	    }
+
+
+	
+</script>
+
+
+
+
+
+
+
+
+		
+
+

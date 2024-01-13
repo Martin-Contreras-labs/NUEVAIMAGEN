@@ -1,0 +1,74 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listEquipQr: List[qr.QrEquipo])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION EQUIPOS NO INSCRITOS -- CODIFICACION QR","SELECCIONAR")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-10 col-sm-8 col-md-8 col-lg-8">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<th>GRUPO</th>
+							<th>CODIGO</th>
+							<th>NOMBRE/DESCRIPCION</th>
+							<th>SELECT</th>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista <- listEquipQr){
+							<TR>
+								<td style="text-align: left;">@lista.grupo</td>
+								<td style="text-align: center;">@lista.codigo</td>
+						        <td style="text-align:left">@lista.nombre</td>
+						        <td style="text-align:center">
+									<form id="form_@lista.id_equipo" method="post" action="/qrAgregaEquipo/">
+										<input type="hidden" name="id_equipo" value="@lista.id_equipo">
+										<a href="#" onclick="document.getElementById('form_@lista.id_equipo').submit()">
+											<kbd style="background-color: #73C6B6">select</kbd>
+										</a>
+									</form>
+					        	</td>
+							</TR>
+						}
+					</tbody>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+</script>
+
+
+		
+		
+	

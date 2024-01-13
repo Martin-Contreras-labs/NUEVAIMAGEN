@@ -1,0 +1,115 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listAjustes: List[tables.AjustesEpOdo], desde: String, hasta: String)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "REPORTE AJUSTES EP/PROFORMAS SERVICIOS (POR PERIODOS) POR " + mapDiccionario.get("BODEGA") +"/PROYECTO", "(desde "+desde+" hasta "+hasta+")")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<th style="text-align:center;">SUCURSAL</th>
+							<th style="text-align:center;">@mapDiccionario.get("BODEGA")/PROYECTO</th>
+					        <th style="text-align:center; min-width:80px;">FECHA</th>
+					        <th style="text-align:center;">TIPO AJUSTE</th>
+					        <th style="text-align:center;">MONEDA</th>
+					        <th style="text-align:center;">VALOR</th>
+					        <th style="text-align:center;">CONCEPTO</th>
+					        <th style="text-align:center;">NOTAS</th>
+							<TH style= "text-align: center;">PDF<br>ADJUNTO</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listAjustes){
+							<TR>
+								<td style="text-align:left;">@lista1.nameSucursal</td>
+								<td style="text-align:left;">@lista1.bodegaEmpresa</td>
+								<td style="text-align:center;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.fechaAjuste)</div>
+									@lista1.fechaAjuste
+								</td>
+								<td style="text-align:center;">@lista1.tipoAjuste</td>
+								<td style="text-align:center;">@lista1.moneda</td>
+								<td style="text-align:right;">@lista1.totalAjuste</td>
+								<td style="text-align:left;">@lista1.concepto</td>
+								<td style="text-align:left;">@lista1.observaciones</td>
+								<td style= "text-align: center;vertical-align: middle;">
+									@if(lista1.ajustePDF.equals("0")){
+										<div id="actualizarPDF@lista1.id">
+											--
+										</div>
+									}else{
+										<a href="#" onclick="mostrarPDF('@lista1.ajustePDF')">
+											<kbd style="background-color: #85C1E9">pdf</kbd>
+										</a>
+									}
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>AJUSTE EP/PROFORMA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[25, 50, 100, 200, -1], [25, 50, 100, 200, "All"]],
+		    	"order": [[ 1, "asc" ],[ 2, "desc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	
+</script>
+
+
+		
+		
+	

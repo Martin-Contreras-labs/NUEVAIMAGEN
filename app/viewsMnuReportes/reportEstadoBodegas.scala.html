@@ -1,0 +1,144 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: List[List[String]])
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "ESTADO DE "+mapDiccionario.get("BODEGAS")+"/PROYECTO","(solo externas)")
+		
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="location.href='/home/'">
+								Cerrar
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<form id="excel" class="formulario" method="post" action="/routes2/reportEstadoBodegasExcel/">
+		</form>
+			
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch3('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+							<TR> 
+						        <TH colspan="7" style= "text-align: center;vertical-align: top;"></TH>
+								<TH colspan="3" style= "text-align: center;vertical-align: top;">PRIMER DESPACHO</TH>
+								<TH colspan="3" style= "text-align: center;vertical-align: top;">ULTIMA DEVOLUCION</TH>
+								<TH style= "text-align: center;vertical-align: top;"></TH>
+							</TR>
+					        <TR> 
+						        <TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+						        <TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">VIGENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE CLIENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">RUT CLIENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">COMERCIAL</TH>
+								<TH style= "text-align: center;vertical-align: top;">NRO GUIA</TH>
+								<TH style= "text-align: center;vertical-align: top;">REF GUIA</TH>
+								<TH style= "text-align: center;vertical-align: top;">FECHA GUIA</TH>
+								<TH style= "text-align: center;vertical-align: top;">NRO GUIA</TH>
+								<TH style= "text-align: center;vertical-align: top;">REF GUIA</TH>
+								<TH style= "text-align: center;vertical-align: top;">FECHA GUIA</TH>
+								<TH style= "text-align: center;vertical-align: top;">CANTIDAD<br>EQUIPOS</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- datos){
+								<TR>
+									<td style="text-align:center;">@lista1.get(0)</td>
+									<td style="text-align:left;">@lista1.get(1)</td>
+									<td style="text-align:center;">@lista1.get(2)</td>
+									<td style="text-align:left;">@lista1.get(3)</td>
+									<td style="text-align:center;">@lista1.get(4)</td>
+									<td style="text-align:left;">@lista1.get(5)</td>
+									<td style="text-align:left;">@lista1.get(6)</td>
+									<td style="text-align:center;">@lista1.get(7)</td>
+									<td style="text-align:center;">@lista1.get(8)</td>
+									<td style="text-align:center;">
+										<div style="display: none;">@lista1.get(9)</div>
+										@utilities.Fechas.DDMMAA(lista1.get(9))
+									</td>
+									<td style="text-align:center;">@lista1.get(10)</td>
+									<td style="text-align:center;">@lista1.get(11)</td>
+									<td style="text-align:center;">
+										<div style="display: none;">@lista1.get(12)</div>
+										@utilities.Fechas.DDMMAA(lista1.get(12))
+									</td>
+									<td style="text-align:right;">@lista1.get(13)</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

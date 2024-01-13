@@ -1,0 +1,80 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listClientes: List[List[String]])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "RESUMEN COTIZACIONES","SELECCION DE CLIENTE")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-9 col-sm-7 col-md-7 col-lg-7">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>RUT</TH>
+								<TH>CLIENTE</TH>
+								<TH>SELECT</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listClientes){
+								<TR>
+									<td style="text-align:center;vertical-align:middle;">@lista1.get(1)</td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.get(3)</td>
+									<td style="text-align:center;vertical-align:middle;">
+										<form id="form0_@lista1.get(0)" class="formulario" method="post" action="/routes2/cotizaListaResumen00/">
+											<input type="hidden" name="id_cliente" value="@lista1.get(0)">
+											<a href="#" onclick="document.getElementById('form0_@lista1.get(0)').submit()">
+												<kbd style="background-color: #73C6B6">select</kbd>
+											</a>
+										</form>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+				</div>
+			</div>
+	</div>
+	
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

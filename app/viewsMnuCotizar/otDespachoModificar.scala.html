@@ -1,0 +1,925 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+guia: tables.Guia, cabezeraOt: String, bodegaDestino: tables.BodegaEmpresa,
+fechaGuia: String, vistaDetOrigen: String, id_cotizacion: Long, cont: Long, bodegaOrigen: tables.BodegaEmpresa,
+listaTransporte: List[tables.Transportista], id_comercial: Long)
+
+@main("") {
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
+	
+	<form id="formModificaDespacho" action="/modificaDespacho/" enctype="multipart/form-data" method="POST">
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "MODIFICAR DESPACHO","")
+			
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					@Html(cabezeraOt)
+				</div>
+			</div>
+			
+			<input type="hidden" name="seModifico" id="seModifico" value="0">
+			<input type="hidden" name="id_guia" value="@guia.getId()">
+			<input type="hidden" name="id_ot" value="@guia.getId_ot()">
+			<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
+			<input type="hidden" name="id_comercialDestino" value="@id_comercial">
+			
+			<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				<thead style="background-color: #eeeeee">
+					<tr>
+						<td width="25%">
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">Origen</span>
+						  		</div>
+						  		<input type="hidden" id="id_bodegaOrigen" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
+								<input type="text" class="form-control left"
+									id="nombreBodegaOrigen"
+									value="@bodegaOrigen.getNombre()"
+									readonly>
+							</div>
+						</td>
+						<td width="25%">
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">Destino</span>
+						  		</div>
+								<input type="hidden" name="id_bodegaDestino" value="@bodegaDestino.getId()">
+								<input type="text" class="form-control left"
+									value="@bodegaDestino.getNombre()"
+									readonly>
+							</div>
+						</td>
+						<td>
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
+						  		</div>
+									<input type="text" class="form-control left"
+						  				name="numeroGuia"
+										id="numeroGuia"
+										value = "@guia.getNumero()"
+										onkeypress="return ingresoInt(event)"
+										onchange="verificarNumeroGuia(value)"
+										autocomplete="off"
+										required>
+						  		
+							</div>
+						</td>
+						<td>
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
+						  		</div>
+						  		<input type="text" class="form-control left"
+									id="numGuiaCliente"
+					  				name="numGuiaCliente"
+									value = "@guia.getNumGuiaCliente()"
+									onchange='$("#seModifico").val(1)';
+					  				autocomplete="off"
+					  				maxlength="50">
+							</div>
+						</td>
+						<td width="230px">
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">Fecha</span>
+						  		</div>
+						  		<input type="date" class="form-control center"
+						  			name="fechaGuia" 
+						  			id="fechaGuia"
+						  			onblur="if(!limitaFecha(value,720,10)) value='@fechaGuia'; else $('#seModifico').val(1);"
+						  			value="@fechaGuia"
+				        			required>
+							</div>
+						</td>
+						<td style="text-align:center;" width="70px">
+							<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+								@if(guia.getDocAnexo().equals("0")){
+									<input type="hidden" name="docAnexo" value="0">
+									<div id="txtBtn">Adjuntar</div>
+								}else{
+									<input type="hidden" name="docAnexo" value="@guia.getDocAnexo()">
+									<div id="txtBtn">Cambiar</div>
+								}
+		    					<input type="file" multiple id="docAdjunto" name="docAdjunto[]" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
+							</span>
+						</td>
+						<td style="text-align:letf;">
+							@if(guia.getDocAnexo().equals("0")){
+								--
+							}else{
+								<a href="#" onclick="descargaDocumento('@guia.getDocAnexo()')">
+									<kbd style="background-color: #7F8C8D">doc</kbd>
+								</a>
+							}
+						</td>
+					</tr>
+					<tr>
+						<td colspan="5">
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text">Observaciones</span>
+						  		</div>
+								<textarea class="form-control" 
+									id="observaciones"
+									name="observaciones" 
+									autocomplete="off"
+									onchange="$('#seModifico').val(1);">@guia.getObservaciones()</textarea>
+							</div>
+						</td>
+						<td colspan="2" style="text-align:center;" width="70px" id="sube1">
+							@if(guia.getFotos().equals("0")){
+								<div id="cargadasFotos">--</div>
+							}else{
+								<a href="/muestraAlbumFotos/@guia.getFotos()">
+									<kbd style="background-color: #7F8C8D">Ver Album</kbd>
+								</a>
+							}
+						</td>
+					</tr>
+				</thead>
+			</table>
+			
+			<div id="vistaDetOrigen">@Html(vistaDetOrigen)</div>
+			
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+					<input type="button"  id="transporte" value='Agregar Transportista' class="btn btn-info btn-sm rounded-pill btn-block" onclick="selectTransporte(0);" >
+				</div>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+					<input type="button"  id="verifica" value='Verificar' class="btn btn-success btn-sm rounded-pill btn-block" onclick="verificaMovimientos();" >
+				</div>
+				<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+					<input type="button" id="cancelar" value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+				<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+					<input type="button"  id="aplica" value='Confirmar' class="btn btn-primary btn-sm rounded-pill btn-block" onclick="confirmaMovimientos();" style="visibility:hidden">
+				</div>
+				<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+					<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block" onclick="modificaMovimientos();" style="visibility:hidden">
+				</div>
+			</div>
+			
+		</div>
+		<input type="hidden" id="id_transportistaXLSX" name="id_transportista" value="@guia.getId_transportista()">
+	</form>
+	
+	
+	
+	<div id='modalListaEquipos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>BUSCAR Y SELECCIONAR EQUIPO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="listaEquipos"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+		
+	@modalListaTransportistas2(mapDiccionario, listaTransporte)
+	
+	@if(mapPermiso.get("parametro.album-fotos")!=null && mapPermiso.get("parametro.album-fotos").equals("1")){
+	
+		<br>
+		<hr style="height:2px; border:none; color: black; background-color: black;">
+		<table class="table-bordered table-condensed">
+			<tbody>
+				<tr>
+					<td>
+						<span class="btn btn-info btn-sm btn-file" style="font-size: 12px;">
+							<div id="txtBtn">Seleccionar Imagenes</div>
+								<input type="file" multiple accept="image/*" id="imagen" onchange="cambiarTexto(this)">
+							</div>
+						</span>
+					</td>
+					<td style="text-align:center" id="sube2">
+						@if(guia.getFotos().equals("0")){
+							<div id="cargadasFotos">--</div>
+						}else{
+							<a href="/muestraAlbumFotos/@guia.getFotos()">
+								<kbd style="background-color: #7F8C8D">Ver Album</kbd>
+							</a>
+						}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Anteponer sigla
+					</td>
+					<td>
+						<input type="text" class="form-control" id="textSigla" value="" autocomplete="off" maxlength="5" placeholder="max 5 caracteres" onchange="value = value.trim();">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="button" class="btn btn-sm btn-warning" id="btnComprimirBlob" value="Subir las imagenes">
+					</td>
+					<td>
+						<div id="textBtnComprimir">&nbsp;Ninguna imagen seleccionada&nbsp;</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div id="msgEspera2"></div>
+	}
+	
+}
+
+
+
+<script type="text/javascript">
+
+		let auxId_guia = 0;
+		let auxId_transportista = "@guia.getId_transportista()";
+	
+		const selectTransporte = (id_guia) => {
+			auxId_guia = id_guia;
+			$('#modalListaTransporte').modal('show');
+		}
+		
+		const seleccionaTransportista = (id_transportista) => {
+			$('#modalListaTransporte').modal('hide');
+			$('#id_guiaXLSX').val(auxId_guia);
+			$('#id_transportistaXLSX').val(id_transportista);
+			auxId_transportista = id_transportista;
+			$('#seModifico').val(1);
+			transportistaSeleccionado();
+		}
+		
+		const transportistaSeleccionado = () => {
+			var tableReg = document.getElementById("tablaListaTransporte");
+			for (var i = 1; i < tableReg.rows.length; i++){
+				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+				let idTransporte = cellsOfRow[0].innerHTML;
+				if(idTransporte == auxId_transportista){
+					tableReg.rows[i].style.backgroundColor = "yellow";
+					
+				}else{
+					tableReg.rows[i].style.backgroundColor = "";
+				}
+			}
+		}
+
+	$(document).ready(function() {
+		document.getElementById('mostrarmostrar').style.display="block";
+		
+		let elemento = document.getElementsByClassName('cantDespacho');
+		for(let i = 0; i < elemento.length; i++){
+			elemento[i].setAttribute("onfocus","value=value.replace(/,/g,'')");
+		}
+		
+		cont = "@cont";
+		
+		$('#tablaListaBodegasOrigen').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+			"order": [[ 0, "asc" ],[ 1, "asc" ]],
+	    	"language": {
+	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        }
+		} );
+		
+		sumaTotales();
+		llenaListEquipo('@guia.getId_bodegaOrigen()');
+		
+		 transportistaSeleccionado();
+
+	});
+	
+	const verificarNumeroGuia = (value) =>{
+		if(value.trim()==""){
+			$("#numeroGuia").val("@guia.getNumero()");
+		}else{
+			let aux = '@guia.getNumero()';
+			var formData = new FormData();
+		  	formData.append('numeroGuia',value);
+	        $.ajax({
+	            url: "/verificaNumeroGuiaAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="existe"){
+		     			alertify.alert('El número de movimiento ya existe, intente con otro', function () {
+		     				$("#numeroGuia").val("@guia.getNumero()");
+		     			});
+		     		}else if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}else{
+						$("#seModifico").val(1);
+					}
+				}
+	        });
+		}
+	}
+	
+	let vistaHTML = "";
+	
+	const llenaListEquipo = (id_bodegaOrigen) => {
+		var formData = new FormData();
+  		formData.append('id_bodegaOrigen',id_bodegaOrigen);
+		$.ajax({
+	            url: "/tblListEquipoConStockAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(rs){
+					if(rs=="vacia"){
+						alertify.alert('@mapDiccionario.get("BODEGA")/PROYECTO no tiene equipos para trasladar', function () {
+							$("#id_bodegaOrigen").val("0");
+							$("#nombreBodegaOrigen").val("");
+						});
+					}else{
+						let map = new Map();
+						vistaHTML = 
+		    				"<table id='tablaListadoEquipos' class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
+		    					"<thead style='background-color: #eeeeee'>"+
+			    					"<tr>"+
+			    						"<th>GRUPO</th>"+
+			    						"<th>CODIGO</th>"+
+			    						"<th>EQUIPO</th>"+
+			    						"<th>UN</th>"+
+			    						"<th>STOCK</th>"+
+			    					"</tr>"+
+			    				"</thead>"+
+			    				"<tbody>";
+		    			for(var i in rs){
+		    				let stockInicial = parseFloat(rs[i][9].replace(/,/g,''));
+		    				vistaHTML += 
+		    					"<tr onclick=\"selCod='"+rs[i][4]+"';"
+		    								+ "selEquip='"+rs[i][5].replace(/"\""/g,'')+"';"
+		    								+ "selStock='"+rs[i][9]+"';"
+		    								+ "selUnidad='"+rs[i][8]+"';"
+		    								+ "selKg='"+rs[i][6]+"';"
+		    								+ "selM2='"+rs[i][7]+"';"+
+		    								" agregarLinea("+rs[i][0]+","+rs[i][1]+","+stockInicial+")\" data-dismiss='modal'>"+
+		    						
+			    						"<td style='text-align:left;'>"+rs[i][2]+"</td>"+
+			    						"<td style='text-align:left;'>"+rs[i][4]+"</td>"+
+			    						"<td style='text-align:left;'>"+rs[i][5]+"</td>"+ 
+			    						"<td style='text-align:center;'>"+rs[i][8]+"</td>"+ 
+			    						"<td style='text-align:right;'>"+rs[i][9]+"</td>"+
+		    					"</tr>";
+							map.set(rs[i][4], rs[i])
+		    			}
+		    			vistaHTML +=
+		    					"</tbody>"+
+		    				"</table>";
+		
+						document.getElementById('listaEquipos').innerHTML = vistaHTML;
+						
+						$('#tablaListadoEquipos').DataTable({
+					    	"fixedHeader": true,
+					    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+							"order": [[ 2, "asc" ]],
+					    	"language": {
+					        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+					        }
+						} );
+						
+					}
+		     	}
+	      });
+	}
+	
+	
+	const muestraEquipos = () => {
+		if($("#id_bodegaOrigen").val() == 0) {
+			alertify.alert('Antes debe seleccionar @mapDiccionario.get("BODEGA")/PROYECTO de origen , desde dónde se obtendrán los equipos a entregar', function () {
+				
+			});
+		}else{
+			
+			document.getElementById('listaEquipos').innerHTML = vistaHTML;
+			$('#tablaListadoEquipos').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+			} );
+			
+			let lista = document.getElementById('tablaListadoEquipos');
+			let dato = document.getElementById('tabla_'+index);
+			for(let i=0; i<lista.rows.length; i++){
+				let cod = lista.rows[i].cells[1].innerHTML;
+				lista.rows[i].style.display = 'true';
+				for(let j=0; j<dato.rows.length; j++){
+					let cod2 = dato.rows[j].cells[0].innerHTML;
+					if(cod == cod2){
+						lista.rows[i].style.display = 'none';
+					}
+				}
+			}
+			$("#seModifico").val(1);
+			$('#modalListaEquipos').modal('show');
+		}
+   }
+
+
+
+
+	let index = -1;
+	let idCotizaDetalle = -1;
+	let esVenta = -1;
+	let idEquipOrigen = -1;
+
+	
+	let selCod = "";
+	let selEquip = "";
+	let selStock = 0;
+	let selUnidad = "";
+	let selKg = 0;
+	let selM2 = 0;
+	let cont = 0;
+	
+	const agregarLinea = (id_equipo, id_cotizacion, stockInicial) =>{
+		
+		let lista = document.getElementById('tablaListadoEquipos');
+		for(let i=0; i<lista.rows.length; i++){
+			lista.rows[i].style.display = '';
+		}
+		
+		let tabla = document.getElementById('tabla_'+index);
+		tr = tabla.insertRow(tabla.rows.length-1);
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:left');
+		td.innerHTML = 	selCod;
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:left');
+		td.innerHTML = 	"<input type='hidden' name='id_equipoDespacho[]' value='"+id_equipo+"'>"+
+						"<input type='hidden' name='id_cotizaDetalle[]' value='"+idCotizaDetalle+"'>"+
+						"<input type='hidden' name='esVenta[]' value='"+esVenta+"'>"+
+						"<input type='hidden' name='esNuevo[]' value='0'>"+
+						"<input type='hidden' name='id_equipoOrigen[]' value='"+idEquipOrigen+"'>"+
+						selEquip;
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:center');
+		td.innerHTML = selUnidad;
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:right');
+		td.innerHTML="<div id='"+cont+"_cantStock'>"+selStock +"</div>";
+		
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:center');
+		td.innerHTML ="<input type='text' class='cantDespacho form-control right' value='0.00' "+
+				" id='"+cont+"_cantDespacho_"+id_equipo+"_"+id_cotizacion+"' "+ 
+				" name='cantDespacho[]' " +
+				" onfocus=\"value=value.replace(/,/g,'')\" "+
+				" onkeypress='return ingresoDouble(event,value)' "+
+				" onfocusout='value = formatStandar2(value);'"+
+				" onchange=' validaCantDespacho("+cont+",value,"+id_equipo+","+id_cotizacion+","+stockInicial+",0,0); value = formatStandar2(value);'>";
+		
+				
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:center');
+		td.innerHTML ="<input type='text' class='cantEquivalente form-control right' value='0.00' "+
+			" id='"+cont+"_cantEquivalente' "+
+			" name='cantEquivalente[]' " +
+			" onfocus=\"value=value.replace(/,/g,'')\" "+
+			" onkeypress='return ingresoDouble(event,value)' "+
+			" onfocusout='value = formatStandar2(value);'"+
+			" onchange='value=formatStandar2(value);'>";
+	
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:right;');
+		td.innerHTML ="<div class='kg' id='"+cont+"_kgTot'>0.00</div>";
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:right;');
+		td.innerHTML ="<div class='m2' id='"+cont+"_m2Tot'>0.00</div>";
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'display:none');
+		td.innerHTML ="<div id='"+cont+"_kgUn'>"+selKg+"</div>";
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'display:none');
+		td.innerHTML ="<div id='"+cont+"_m2Un'>"+selM2+"</div>";
+		
+		$("#seModifico").val(1);
+			
+		cont++;
+			
+	}
+	
+	const validaCantDespacho = (indCont, valor, id_equipo, id_cotizacion, stockInicial, cantInicial, cantDespAgrup) =>{
+		
+		let stock = $("#"+indCont+"_cantStock").text().replace(/,/g,'');
+		let kgUni = $("#"+indCont+"_kgUn").text().replace(/,/g,'');
+		let m2Uni = $("#"+indCont+"_m2Un").text().replace(/,/g,'');
+		
+		let sum = 0;
+		let elemento = document.getElementsByClassName('cantDespacho');
+		for(let i = 0; i < elemento.length; i++){
+		    let dePaso = elemento[i].getAttribute('id').split("_");
+			if( id_equipo==dePaso[2] && id_cotizacion==dePaso[3] ){
+				let auxNum = elemento[i].value;
+				auxNum = auxNum.replace(/,/g,'');
+				sum += parseFloat(auxNum);
+			}
+		}
+		
+		let stockTotal = parseFloat(stockInicial) + parseFloat(cantDespAgrup);
+		
+		
+		if(parseFloat(valor) > parseFloat(stockTotal) || parseFloat(sum) > parseFloat(stockTotal)){
+			
+			alertify.alert('La cantidad no puede ser mayor al stock disponible', function () {
+				
+				$("#"+indCont+"_cantStock").text(formatStandar(stockInicial,2));
+				$("#"+indCont+"_cantDespacho_"+id_equipo+"_"+id_cotizacion).val(formatStandar(cantInicial,2));
+				
+				$("#"+indCont+"_cantEquivalente").val(formatStandar(parseFloat(0),2));
+				$("#"+indCont+"_kgTot").text(formatStandar(parseFloat(0)*parseFloat(kgUni),2));
+				$("#"+indCont+"_m2Tot").text(formatStandar(parseFloat(0)*parseFloat(m2Uni),2));
+			});
+		} else {
+			
+			let stockResult = parseFloat(stockTotal) - parseFloat(sum);
+			let elemento2 = document.getElementsByClassName('cantDespacho');
+			for(let i = 0; i < elemento2.length; i++){
+			    let dePaso = elemento2[i].getAttribute('id').split("_");
+				if( id_equipo == dePaso[2] && id_cotizacion == dePaso[3] ){
+					let auxCont = dePaso[0];
+					$("#"+auxCont+"_cantStock").text(formatStandar(stockResult,2));
+				}
+			}
+			
+			$("#"+indCont+"_cantEquivalente").val(formatStandar(parseFloat(valor),2));
+			$("#"+indCont+"_kgTot").text(formatStandar(parseFloat(valor)*parseFloat(kgUni),2));
+			$("#"+indCont+"_m2Tot").text(formatStandar(parseFloat(valor)*parseFloat(m2Uni),2));
+		}
+		$("#seModifico").val(1);
+		sumaTotales();
+	}
+	
+	const sumaTotales = () =>{
+		let cant = 0;
+		let kg = 0;
+		let m2 = 0;
+		
+		let arrCant = document.getElementsByClassName('cantDespacho');
+		let arrKg = document.getElementsByClassName('kg');
+		let arrM2 = document.getElementsByClassName('m2');
+		
+		for(let i = 0; i < arrCant.length; i++){
+			let auxNum = arrCant[i].value;
+			auxNum = auxNum.replace(/,/g,'');
+			cant += parseFloat(auxNum);
+		}
+		
+		for(let i = 0; i < arrKg.length; i++){
+			let auxNum = arrKg[i].innerHTML;
+			auxNum = auxNum.replace(/,/g,'');
+			kg += parseFloat(auxNum);
+		}
+		
+		for(let i = 0; i < arrM2.length; i++){
+			let auxNum = arrM2[i].innerHTML;
+			auxNum = auxNum.replace(/,/g,'');
+			m2 += parseFloat(auxNum);
+		}
+		
+		$("#totalCant").text(formatStandar(parseFloat(cant)));
+		$("#totalKG").text(formatStandar(parseFloat(kg)));
+		$("#totalM2").text(formatStandar(parseFloat(m2)));
+	}
+	
+	const verificaMovimientos = () =>{
+		
+		document.getElementById("nombreBodegaOrigen").style.backgroundColor = "yellow";
+		document.getElementById("nombreBodegaOrigen").setAttribute('disabled','true');
+		
+		document.getElementById("numeroGuia").style.backgroundColor = "yellow";
+		document.getElementById("numeroGuia").setAttribute('disabled','true');
+		
+		document.getElementById("numGuiaCliente").style.backgroundColor = "yellow";
+		document.getElementById("numGuiaCliente").setAttribute('disabled','true');
+		
+		document.getElementById("fechaGuia").style.backgroundColor = "yellow";
+		document.getElementById("fechaGuia").setAttribute('disabled','true');
+		
+		
+		let input = document.getElementsByClassName("cantDespacho");
+		for (let i=0; i<input.length;i++){
+			input[i].style.backgroundColor = "yellow";
+		    input[i].setAttribute('disabled','true');
+	    }
+		
+		input = document.getElementsByClassName("cantEquivalente");
+		for (let i=0; i<input.length;i++){
+			input[i].style.backgroundColor = "yellow";
+		    input[i].setAttribute('disabled','true');
+	    }
+
+		let btnBuscar = document.getElementsByClassName("btnBuscar");
+		for (let i=0; i<btnBuscar.length;i++){
+			btnBuscar[i].style.display = "none";
+	    }
+		
+		document.getElementById('verifica').style.visibility = 'hidden';
+		document.getElementById('modifica').style.visibility = 'visible';
+		document.getElementById('aplica').style.visibility = 'visible';
+	}
+	
+	const modificaMovimientos = () =>{
+		
+		document.getElementById("nombreBodegaOrigen").style.backgroundColor = "white";
+		document.getElementById("nombreBodegaOrigen").removeAttribute('disabled');
+		
+		document.getElementById("numeroGuia").style.backgroundColor = "white";
+		document.getElementById("numeroGuia").removeAttribute('disabled');
+		
+		document.getElementById("numGuiaCliente").style.backgroundColor = "white";
+		document.getElementById("numGuiaCliente").removeAttribute('disabled');
+		
+		document.getElementById("fechaGuia").style.backgroundColor = "white";
+		document.getElementById("fechaGuia").removeAttribute('disabled');
+		
+		
+		let input = document.getElementsByClassName("cantDespacho");
+		for (let i=0; i<input.length;i++){
+			input[i].style.backgroundColor = "white";
+		    input[i].removeAttribute('disabled');
+	    }
+		
+		input = document.getElementsByClassName("cantEquivalente");
+		for (let i=0; i<input.length;i++){
+			input[i].style.backgroundColor = "white";
+		    input[i].removeAttribute('disabled');
+	    }
+
+		let btnBuscar = document.getElementsByClassName("btnBuscar");
+		for (let i=0; i<btnBuscar.length;i++){
+			btnBuscar[i].style.display = "block";
+	    }
+		
+		document.getElementById('verifica').style.visibility = 'visible';
+		document.getElementById('modifica').style.visibility = 'hidden';
+		document.getElementById('aplica').style.visibility = 'hidden';
+		document.getElementById('cancelar').style.visibility = 'visible';
+	}
+	
+	const confirmaMovimientos = () =>{
+		document.getElementById('aplica').style.visibility = 'hidden';
+		document.getElementById('modifica').style.visibility = 'hidden';
+		document.getElementById('cancelar').style.visibility = 'hidden';
+		document.getElementById('transporte').style.visibility = 'hidden';
+		
+		
+		document.getElementById("nombreBodegaOrigen").removeAttribute('disabled');
+		document.getElementById("numeroGuia").removeAttribute('disabled');
+		document.getElementById("numGuiaCliente").removeAttribute('disabled');
+		document.getElementById("fechaGuia").removeAttribute('disabled');
+		
+		let input = document.getElementsByClassName("cantDespacho");
+		for (let i=0; i<input.length;i++){
+		    input[i].removeAttribute('disabled');
+	    }
+		
+		input = document.getElementsByClassName("cantEquivalente");
+		for (let i=0; i<input.length;i++){
+		    input[i].removeAttribute('disabled');
+	    }
+
+		if($("#id_bodegaOrigen").val() == 0) {
+			alertify.alert('Antes debe seleccionar @mapDiccionario.get("BODEGA")/PROYECTO de origen', function () {
+				modificaMovimientos();
+			});
+		}else {
+			let totalCantidad = $("#totalCant").text();
+			totalCantidad = totalCantidad.replace(/,/g,'');
+			if(parseFloat(totalCantidad)>0){
+				document.getElementById('enCarga').style.display="block";
+				document.getElementById("formModificaDespacho").submit();
+			}else{
+				alertify.alert('No puede generar un despacho sin cantidades a trasladar', function () {
+					modificaMovimientos();
+				});
+			}
+		}
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		
+		if (!file) return;
+		
+		const $inputArchivos = document.querySelector("#docAdjunto");
+		const archivosParaSubir = $inputArchivos.files;
+		let tamanio = 0;
+		let allowSubmit = false;
+		
+		for(let i=0; i<archivosParaSubir.length; i++){
+			tamanio += archivosParaSubir[i].size;
+			let nombre = archivosParaSubir[i].name;
+			let extencion = nombre.substring(nombre.lastIndexOf(".")).toLowerCase();
+			for (let j = 0; j < extArray.length; j++) {
+				if (extArray[j] == extencion) { 
+					allowSubmit = true;
+				}
+			}
+			if(allowSubmit && i < archivosParaSubir.length -1){
+				allowSubmit = false;
+			}
+		}
+		
+		if (allowSubmit) {
+			if(tamanio > 200000000){
+				alert("Se permite máximo subir 200 MB,"
+				+" lo que se intenta subir pesa: "+Math.round(tamanio/10000)/100+" MB");
+				form.docAdjunto.value="";
+			}else{
+				alert("Documento subido con éxito");
+				$("#txtBtn").text("Cambiar Documento");
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione solo archivos con extenciones permitidas "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+		
+		
+
+	
+</script>
+
+<script type="text/javascript">
+		
+			const $imagen = document.querySelector("#imagen");
+			
+			const cambiarTexto = (nodo) =>{
+				$("#textBtnComprimir").text(nodo.files.length + " imagenes seleccionadas");
+			}
+			
+			document.querySelector("#btnComprimirBlob").addEventListener("click", async () => {
+				if ($imagen.files.length <= 0) {
+					return;
+				}
+				document.getElementById('enCarga').style.display="block";
+				let sigla = $("#textSigla").val();
+				if(sigla.length > 0){
+					sigla = sigla+"_";
+				}
+				subirArchivo2($imagen, contador, sigla);
+			});
+			
+			let contador = 0;
+
+				
+				const MAX_WIDTH = 1000;
+				const MAX_HEIGHT = 750;
+				const MIME_TYPE = "image/jpeg";
+				const QUALITY = 0.7;
+
+				const input = document.getElementById("img-input");
+				
+				function subirArchivo2($imagen, contador, sigla) {
+					const file = $imagen.files[contador]; 
+					  const blobURL = URL.createObjectURL(file);
+					  const img = new Image();
+					  img.src = blobURL;
+					  img.onerror = function () {
+					    URL.revokeObjectURL(this.src);
+					  };
+					  
+					  
+					  img.onload = function () {
+					    URL.revokeObjectURL(this.src);
+					    const [newWidth, newHeight] = calculateSize(img, MAX_WIDTH, MAX_HEIGHT);
+					    const canvas = document.createElement("canvas");
+					    canvas.width = newWidth;
+					    canvas.height = newHeight;
+					    const ctx = canvas.getContext("2d");
+					    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+					    canvas.toBlob(
+					      (blob) => {
+					        displayInfo('Original file', file);
+					        displayInfo('Compressed file', blob);
+					      
+					        const myFile = new File([blob], sigla + $imagen.files[contador].name, {
+							    type: blob.type,
+							});
+							
+							$("#msgEspera").text(" cargando imagen "+(contador+1)+" de "+$imagen.files.length);
+							$("#msgEspera2").text(" En proceso..... cargando imagen "+(contador+1)+" de "+$imagen.files.length);
+							
+							
+							var formData = new FormData();
+							formData.append("fotosAdjunto[0]",myFile);
+							formData.append("id_guia",'@guia.id');
+							formData.append("iniCarpeta",'Fotos_Mov_');
+								$.ajax({
+									async: false,
+							        url: "/grabaAlbumFotosAjax/",
+							        type: "POST",
+							        method: "POST",
+							        data: formData,
+							        cache: false,
+							        contentType: false,
+							     	processData: false,
+							     	success: function(rs){
+							     		if(rs == "error"){
+							     			alertify.alert('Se presento un error, no fueron subidas las imagenes', function () {
+							     				document.getElementById("imagen").value = "";
+							     			});
+							     		}else{
+							     			contador++;
+							     			if(contador < $imagen.files.length){
+							     				subirArchivo2($imagen, contador, sigla);
+							     			}else{
+							     				alertify.alert('Subidas las imagenes con exito', function () {
+									     			document.getElementById("imagen").value = "";
+									     			$("#textBtnComprimir").text("Ninguna imagen seleccionada");
+									     			
+									     			document.getElementById("sube1").innerHTML = 
+									     				"<a href='/muestraAlbumFotos/"+rs+"'><kbd style='background-color: #7F8C8D'>Ver Album</kbd></a>";
+									     			document.getElementById("sube2").innerHTML = 
+									     				"<a href='/muestraAlbumFotos/"+rs+"'><kbd style='background-color: #7F8C8D'>Ver Album</kbd></a>";
+									     		});
+												document.getElementById('enCarga').style.display="none";
+							     			}
+							     		}
+							     	}
+							    });
+					      },
+					      MIME_TYPE,
+					      QUALITY
+					    );
+					  };
+				}
+
+				function calculateSize(img, maxWidth, maxHeight) {
+				  let width = img.width;
+				  let height = img.height;
+
+				  if (width > height) {
+				    if (width > maxWidth) {
+				      height = Math.round((height * maxWidth) / width);
+				      width = maxWidth;
+				    }
+				  } else {
+				    if (height > maxHeight) {
+				      width = Math.round((width * maxHeight) / height);
+				      height = maxHeight;
+				    }
+				  }
+				  return [width, height];
+				}
+
+				function displayInfo(label, file) {
+				  const p = document.createElement('p');
+				  p.innerText = `${label} - ${readableBytes(file.size)}`;
+				}
+
+				function readableBytes(bytes) {
+				  const i = Math.floor(Math.log(bytes) / Math.log(1024)),
+				    sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+				  return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
+				}
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,567 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MOVIMIENTOS Y DESPACHOS EFECTUADOS","(SIN IMAGENES)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+		
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>TIPO</TH>
+							<TH>Nro<br>COTI</TH>
+							<TH>Nro<br>MOV</TH>
+							<TH>Nro<br>REF</TH>
+							<TH>SELECT</TH>
+							<TH style="min-width:80px;">FECHA</TH>
+							<TH>SUCURSAL<br>DESDE</TH>
+							<TH>DESDE<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+							<TH>SUCURSAL<br>HASTA</TH>
+							<TH>HASTA<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+							<TH>SELECT</TH>
+							<TH>GUIA<br>PDF</TH>
+							@if(!mapPermiso.get("parametro.movimientoListar-descargaXLSX").equals("1")){
+								<TH>GUIA<br>EXCEL</TH>
+							}
+							<TH>ANEXO</TH>
+							<TH>ALBUM</TH>
+							@if(mapPermiso.get("parametro.movimientoListar-descargaXLSX").equals("1")){
+								<TH>EXCEL</TH>
+							}
+							@if(mapPermiso.get("parametro.movimientoListar-descargarXLM").equals("1")){
+								<TH>XML</TH>
+							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarApiManager").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>API<br>Manager</TH>
+							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarApiNubox").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>API<br>Nubox</TH>
+							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarWebFacturacion").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>WEB<br>Facturacion</TH>
+								<TH>DTE</TH>
+							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>WEB<br>Maximise</TH>
+								<TH>Nro.Int</TH>
+							}
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listaGuias){
+							<TR>
+								<td  style="text-align:center;">@lista1.getTipoGuia()</td>
+								<td  style="text-align:center;">
+									@if(lista1.getNumeroCotizacion()!=0){
+										<a href="#" onclick="verCotizacion('@lista1.getId_cotizacion()')">
+											<kbd style="background-color: #73C6B6">@lista1.getNumeroCotizacion()</kbd>
+										</a>
+									}else{
+										--
+									}
+								</td>
+								<td  style="text-align:center;">@lista1.getNumero()</td>
+								<td  style="text-align:center;">@lista1.getNumGuiaCliente()</td>
+								<td style="text-align:center;">
+									<a href="/movimientoDetalleGuia/@lista1.getId()">
+										<kbd style="background-color: #73C6B6">select</kbd>
+									</a>
+								</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@lista1.getFecha()</div>
+									@utilities.Fechas.DDMMAA(lista1.getFecha())
+								</td>
+								<td  style="text-align:left;">@lista1.getNameSucursalOrigen()</td>
+								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaOrigen()')">@lista1.getBodegaOrigen()</a></td>
+								<td  style="text-align:left;">@lista1.getNameSucursalDestino()</td>
+								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaDestino()')">@lista1.getBodegaDestino()</a></td>
+								
+								<td style="text-align:center;">
+									<a href="/movimientoDetalleGuia/@lista1.getId()">
+										<kbd style="background-color: #73C6B6">select</kbd>
+									</a>
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.getGuiaPDF().equals("0")){
+										--
+									}else{
+										<a href="#" onclick="mostrarPDF('@lista1.getGuiaPDF()')">
+											<kbd style="background-color: #85C1E9">pdf</kbd>
+										</a>
+									}
+								</td>
+								
+								@if(!mapPermiso.get("parametro.movimientoListar-descargaXLSX").equals("1")){
+									<td style="text-align:center;">
+										<a href="#" onclick="descargaEnExcel('@lista1.getId()')">
+											<kbd style="background-color: #85C1E9">xls</kbd>
+										</a>
+									</td>
+								}
+								
+								<td style="text-align:center;">
+									@if(lista1.getDocAnexo().equals("0")){
+										--
+									}else{
+										<a href="#" onclick="descargaDocumento('@lista1.getDocAnexo()')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+								
+								<td style="text-align:center;">
+									@if(lista1.getFotos().equals("0")){
+										--
+									}else{
+										<a href="/muestraAlbumFotos/@lista1.getFotos()">
+											<kbd style="background-color: #7F8C8D">Ver</kbd>
+										</a>
+									}
+								</td>
+						
+								@if(mapPermiso.get("parametro.movimientoListar-descargaXLSX").equals("1")){
+									<td style="text-align:center;">
+										<a href="#" onclick="descargaXLSX('@lista1.getId()','@lista1.getId_transportista()')">
+											<kbd style="background-color: #C39BD3">xlsx</kbd>
+										</a>
+									</td>
+								}
+						
+							
+								@if(mapPermiso.get("parametro.movimientoListar-descargarXLM").equals("1")){
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											<a href="#" onclick="descargarXML('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #C39BD3">enviar</kbd>
+											</a>
+										}else{
+											--
+										}
+									</td>
+								}
+								@if(mapPermiso.get("parametro.movimientoListar-llenarApiManager").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											<a href="#" onclick= "llenarApiManager('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #C39BD3">enviar</kbd>
+											</a>
+										}else{
+											--
+										}
+									</td>
+								}
+								@if(mapPermiso.get("parametro.movimientoListar-llenarApiNubox").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											@if(lista1.getResponse().equals("0") || lista1.getResponse().length()>50){
+												<a href="#" onclick= "llenarApiNubox('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #C39BD3">enviar</kbd>
+												</a>
+											}else{
+												<a href="#" onclick= "llenarApiNubox('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #85C1E9">reenviar</kbd>
+												</a>
+											}
+										}else{
+											--
+										}
+									</td>
+								}
+								@if(mapPermiso.get("parametro.movimientoListar-llenarWebFacturacion").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											@if(lista1.getGuiaXml().equals("0")){
+												<a href="#" onclick= "llenarWebFacturacion('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #C39BD3">enviar</kbd>
+												</a>
+											}else{
+												<a href="#" onclick= "llenarWebFacturacion('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #85C1E9">reenviar</kbd>
+												</a>
+											}
+											
+										}else{
+											--
+										}
+									</td>
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											@if(!lista1.getLinkFolio().equals("0")){
+												<a href="@lista1.getLinkFolio()" >
+													
+													<kbd style="background-color: rgb(50, 215, 75)">DTE</kbd>
+												</a>
+											}else{
+												--
+											}
+										}else{
+											--
+										}
+									</td>
+								}
+								
+								
+								
+								
+								
+								@if(mapPermiso.get("parametro.movimientoListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											@if(lista1.getGuiaXml().equals("0")){
+												<a href="#" onclick= "llenarWebMaximise('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #C39BD3">enviar</kbd>
+												</a>
+											}else{
+												<a href="#" onclick= "llenarWebMaximise('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #85C1E9">reenviar</kbd>
+												</a>
+											}
+											
+										}else{
+											--
+										}
+									</td>
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											@if(!lista1.getLinkFolio().equals("0")){
+												<a href="/downGuiaMaximiseAjax/@lista1.getLinkFolio()" > 
+												<kbd style="background-color: rgb(50, 215, 75)">@lista1.getLinkFolio()</kbd>
+											</a> 
+											}else{
+												--
+											}
+										}else{
+											--
+										}
+									</td>
+								}
+								
+								
+								
+								
+								
+								
+								
+								
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>MOVIMIENTO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='selectSucursal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-sm' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Seleccione Sucursal</h5>
+				</div>
+				<div class='modal-body'>
+					<a href="" onclick="selectSucursal('1');" data-dismiss='modal'>1 SANTIAGO</a>
+					<br>
+					<a href="" onclick="selectSucursal('2');" data-dismiss='modal'>2 ANTOFAGASTA</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+	<form class="formulario" id="formDescargaXLSX" method="post" action="/generaGuiaXLS/">	
+		<input type="hidden" id="id_guiaXLSX" name="id_guia">
+		<input type="hidden" id="id_transportistaXLSX" name="id_transportista"  value="0">
+	</form>
+	
+	<form class="formulario" id="formDescargaExcel" method="post" action="/generaGuiaExcel/">	
+		<input type="hidden" id="id_guiaExcel" name="id_guia">
+	</form>
+	
+	<form class="formulario" id="formDescargaXML" method="post" action="/generaGuiaXML/">	
+		<input type="hidden" id="id_guiaXML" name="id_guia">
+		<input type="hidden" id="id_transportistaXML" name="id_transportista" value="0">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiManager" method="post" action="/generaGuiaApiManager/">	
+		<input type="hidden" id="id_guiaManager" name="id_guia">
+		<input type="hidden" id="id_transportistaManager" name="id_transportista" value="0">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiNubox" method="post" action="/generaGuiaApiNubox/">	
+		<input type="hidden" id="id_guiaNubox" name="id_guia">
+		<input type="hidden" id="id_transportistaNubox" name="id_transportista" value="0">
+	</form>
+	
+	<form class="formulario" id="formEnviaWebFacturacion" method="post" action="/generaGuiaWebFacturacion/">	
+		<input type="hidden" id="id_guiaFacturacion" name="id_guia">
+		<input type="hidden" id="id_transportistaFacturacion" name="id_transportista" value="0">
+	</form>
+	
+	
+	
+	
+	
+	
+	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaGuiaWebMaximise/">	
+		<input type="hidden" id="id_guiaMaximise" name="id_guia">
+		<input type="hidden" id="id_transportistaMaximise" name="id_transportista" value="0">
+		<input type="hidden" id="sucursalMaximise" name="sucurMaximise" value="0">
+	</form>
+	
+	
+	
+	
+	
+	@modalListaTransportistas(mapDiccionario, listaTransporte);
+
+}
+
+
+<script type="text/javascript">
+
+	let auxId_transportista = 0;
+	
+	const transportistaSeleccionado = () => {
+		var tableReg = document.getElementById("tablaListaTransporte");
+		for (var i = 1; i < tableReg.rows.length; i++){
+			var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+			let idTransporte = cellsOfRow[0].innerHTML;
+			if(idTransporte == auxId_transportista){
+				tableReg.rows[i].style.backgroundColor = "yellow";
+				
+			}else{
+				tableReg.rows[i].style.backgroundColor = "";
+			}
+		}
+	}
+
+	$(document).ready(function() {
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 4, "desc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const verCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const descargaXLSX = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 1;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	const descargaEnExcel = (id_guia) => {
+		$('#id_guiaExcel').val(id_guia);
+		document.getElementById('formDescargaExcel').submit();
+	}
+	
+	const descargarXML = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 2;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	const llenarApiManager = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 3;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	const llenarApiNubox = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 4;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	const llenarWebFacturacion = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 5;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	
+	
+	
+	const llenarWebMaximise = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 6;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	
+	let auxId_guia = 0;
+	let auxDownloadGuia = 0;
+	const seleccionaTransportista = (id_transportista) => {
+		$('#modalListaTransporte').modal('hide');
+		
+		if(auxDownloadGuia==1){
+			$('#id_guiaXLSX').val(auxId_guia);
+			$('#id_transportistaXLSX').val(id_transportista);
+			document.getElementById('formDescargaXLSX').submit();
+		}
+		
+		if(auxDownloadGuia==2){
+			$('#id_guiaXML').val(auxId_guia);
+			$('#id_transportistaXML').val(id_transportista);
+			document.getElementById('formDescargaXML').submit();
+		}
+		
+		if(auxDownloadGuia==3){
+			$('#id_guiaManager').val(auxId_guia);
+			$('#id_transportistaManager').val(id_transportista);
+			document.getElementById('formEnviaApiManager').submit();
+		}
+		
+		if(auxDownloadGuia==4){
+			$('#id_guiaNubox').val(auxId_guia);
+			$('#id_transportistaNubox').val(id_transportista);
+			document.getElementById('formEnviaApiNubox').submit();
+		}
+		
+		if(auxDownloadGuia==5){
+			$('#id_guiaFacturacion').val(auxId_guia);
+			$('#id_transportistaFacturacion').val(id_transportista);
+			document.getElementById('formEnviaWebFacturacion').submit();
+		}
+		
+		
+		if(auxDownloadGuia==6){
+			auxId_transportista = id_transportista;
+			$('#selectSucursal').modal('show');
+		}
+		
+	}
+	
+	const selectSucursal = sucurMaximise =>{
+		$('#id_guiaMaximise').val(auxId_guia);
+		$('#id_transportistaMaximise').val(auxId_transportista);
+		$('#sucursalMaximise').val(sucurMaximise);
+		document.getElementById('formEnviaWebMaximise').submit();
+	}
+	
+	const downGuia = nroIntGuia =>{
+		var formData = new FormData();
+	  	formData.append('nroIntGuia',nroIntGuia);
+        $.ajax({
+            url: "/downGuiaMaximiseAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		
+	     	}
+        });
+	}
+	
+	
+</script>
+
+		
+		
+	

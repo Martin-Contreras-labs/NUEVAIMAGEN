@@ -1,0 +1,199 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "CAMBIAR EL ESTADO DE COTIZACIONES","(solo cotizaciones pendientes de confirmar)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>SUCURSAL</TH>
+							<TH>COMERCIAL</TH>
+							<TH>SOLUCION</TH>
+							<TH>Nro.COTI</TH>
+							<TH style="min-width:80px;">FECHA</TH>
+							<TH>CLIENTE</TH>
+							<TH>PROYECTO</TH>
+							<TH>OBSERVACIONES</TH>
+							<TH>DOC</TH>
+							<TH>ESTADO</TH>
+							<TH>NOTAS</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listCotizaciones){
+							<TR>
+								<td style="text-align:left;">@lista1.get(9)</td>
+								<td style="text-align:left;">@lista1.get(10)</td>
+								<td style="text-align:left;">@lista1.get(11)</td>
+								<td style="text-align:center;">
+									<a href="#" onclick="verCotizacion('@lista1.get(0)')">
+											<kbd style="background-color: rgb(90, 200, 245)">
+												<font color="green">@lista1.get(1)</font>
+											</kbd>
+									</a>
+								</td>
+								<td style="text-align:center;">
+									<div style="display:none">@lista1.get(2)</div>
+									@utilities.Fechas.DDMMAA(lista1.get(2))
+								</td>
+								<td style="text-align:left;"><a href="#" onclick="buscaCliente('@lista1.get(3)')">@lista1.get(3)</a></td>
+								<td style="text-align:left;"><a href="#" onclick="buscaProyecto('@lista1.get(6)')">@lista1.get(6)</a></td>
+								<td style="text-align:left;">@lista1.get(4)</td>
+								<td style="text-align:center;">
+									@if(lista1.get(5).equals("0")){
+										--
+									}else{
+										<a href="#" onclick="descargaDocumento('@lista1.get(5)')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+								<td  style="text-align:center;">
+									<select class="custom-select height23px font10px" onchange="cambiarEstado('@lista1.get(0)', value)">
+										<option value="@lista1.get(7)">@lista1.get(8)</option>
+										@for(lista <- listEstados){
+											<option value="@lista.id">@lista.estado</option>
+										}
+									</select>
+								</td>
+								<td  style="min-width: 100px; text-align:center;">
+									<input type="text" class="form-control left" 
+										value = "@lista1.get(12)"
+										autocomplete="off" 
+										maxlength="150"
+										onchange="cambiarNota('@lista1.get(0)', value)">
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 3, "desc" ],[ 2, "desc" ],[ 0, "asc" ],[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const verCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const cambiarEstado = (id_cotizacion, id_cotizaEstado) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+	  	formData.append('id_cotizaEstado',id_cotizaEstado);
+        $.ajax({
+            url: "/cambiarCotizaEstadoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){}
+        });
+	}
+	
+	const cambiarNota = (id_cotizacion, nota) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+	  	formData.append('nota',nota);
+        $.ajax({
+            url: "/cambiarCotizaNotaAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){}
+        });
+	}
+		
+	
+	
+</script>
+
+
+
+
+		
+		
+	

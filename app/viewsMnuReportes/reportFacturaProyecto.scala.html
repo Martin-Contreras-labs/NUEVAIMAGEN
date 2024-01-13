@@ -1,0 +1,172 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+tabla: String, fechaDesde: String, fechaHasta: String, usd: Double, eur: Double, uf: Double, 
+desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","PROCESO DE EP/FACTURACION PROFORMA")
+		<div class="row  justify-content-md-center">
+		
+			<div class="noprint">
+				<table class="table table-sm table-condensed table-fluid">
+					<tr>
+						<td>
+							<div align="center">
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success" 
+									onclick="history.go(-1);return false;">
+									Volver
+								</button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoExcel/">
+				<input type="hidden" name="fechaDesde" value="@fechaDesde">
+				<input type="hidden" name="fechaHasta" value="@fechaHasta">
+				<input type="hidden" name="uf" value="@uf">
+				<input type="hidden" name="usd" value="@usd">
+				<input type="hidden" name="eur" value="@eur">
+			</form>
+			
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<h5>Período desde @desdeDDMMAA a @hastaDDMMAA</h5>
+				<div class="table-responsive">
+					@Html(tabla)
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>FACTURA PROFORMA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+
+		let cfi = 0;
+		$(".cfi").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			cfi += parseFloat(val);
+		});
+		$("#cfi").text(formatStandar(cfi,0));
+		
+		let arr = 0;
+		$(".arr").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			arr += parseFloat(val);
+		});
+		$("#arr").text(formatStandar(arr,0));
+		
+		let vta = 0;
+		$(".vta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			vta += parseFloat(val);
+		});
+		$("#vta").text(formatStandar(vta,0));
+		
+		let ajustArr = 0;
+		$(".ajustArr").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajustArr += parseFloat(val);
+		});
+		$("#ajustArr").text(formatStandar(ajustArr,0));
+		
+		let ajustVta = 0;
+		$(".ajustVta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajustVta += parseFloat(val);
+		});
+		$("#ajustVta").text(formatStandar(ajustVta,0));
+		
+		let granTotal = 0;
+		$(".granTotal").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			granTotal += parseFloat(val);
+		});
+		$("#granTotal").text(formatStandar(granTotal,0));
+
+		document.getElementById('mostrarmostrar').style.display="block";
+			
+		if("@archivoPDF"!="0"){
+			 document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/@archivoPDF' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+		}
+			
+			
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

@@ -1,0 +1,139 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: List[List[String]], fecha: String, cantMeses: String, categorias: List[String], nameSerie: List[String], mapDataSerie: Map[String,List[String]])
+    	
+
+@main("") {
+	
+	<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "REPORTE ODO CONSOLIDADO DE EP/PROFORMAS","POR "+cantMeses+" MESES VS " + mapDiccionario("BODEGA")+"/PROYECTO")
+
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch2('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<form id="excel" class="formulario" method="post" action="/reportOdoConsolidadoRtpExcel/">
+			<input type="hidden" name="fecha" value="@fecha">
+			<input type="hidden" name="cantMeses" value="@cantMeses">
+		</form>
+
+		<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+	  		<thead style="background-color: #eeeeee" class="header">
+	  			<TR>
+					@for(titulos <- datos.get(0)){
+						<th style="text-align:center;">@titulos</th>
+					}
+				</TR>
+	  		</thead>
+			<tbody>
+			@for(lista <- datos.tail){
+				<TR>
+					<td style="text-align:left;">@Html(lista.get(0))</td>
+					<td style="text-align:left;">@Html(lista.get(1))</td>
+					@for(lista2 <- lista.tail.tail){
+						<td style="text-align:right;">@lista2</td>
+					}
+				</TR>
+			}
+			</tbody>
+		</table>
+			
+		<table id="grafico" class="table table-sm table-bordered table-condensed table-fluid">
+			<tr>
+				<TD style="width:100%; margin: 0 0">
+					<div id="graficoConsolidado" style="height:600px; width:100%; "></div>
+				</TD>
+			</tr>
+		 </table>
+	</div>
+			  
+}
+
+<script type="text/javascript">
+	$(document).ready(function () {
+	
+		
+
+		
+		Highcharts.chart('graficoConsolidado',{
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'CONSOLIDADO DE PROFORMAS'
+            },
+            xAxis: {
+                categories: @Html(categorias.toString()),
+                labels: {
+                    rotation: -45
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: ''
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                    }
+                }
+            }, 
+            tooltip: {
+                formatter: function() {
+                    return '<b>'+ this.x +'</b><br/>'+
+                        this.series.name +' $: '+ Highcharts.numberFormat(this.y,0);
+                }
+            },
+            series: [
+	            @for((lista,index) <- nameSerie.zipWithIndex){
+	            	{
+		            	name: @Html(lista.toString()),
+		            	data: @Html(mapDataSerie.get(lista).toString())
+		            }
+	            	@if(index < nameSerie.size()-1){
+	            		,
+	            	}
+	            }
+            ]
+        });
+			
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+</script>

@@ -1,0 +1,274 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], fechaCorte: String, tipo:String)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "INVENTARIO - "+tipo+" - POR EQUIPO (valorizado a precio compra y lista)","FECHA DE CORTE: " + utilities.Fechas.DDMMAA(fechaCorte))
+		
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch3('tablaPrincipal'); sumarTotales2();">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">TOTAL COMPRA (@mapDiccionario.get("PESOS"))</span>
+					  		</div>
+					  		<input type="text" class="form-control right"
+								id="sumaGranTotalCompra"
+								readonly>
+						</div>
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">TOTAL VENTA (@mapDiccionario.get("PESOS"))</span>
+					  		</div>
+					  		<input type="text" class="form-control right"
+								id="sumaGranTotalVenta"
+								readonly>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		
+		<div>
+			ALTERNAR COLUMNAS: 
+				<a class="toggle-vis" href="#" data-column="0"><kbd id="kdb0" style="background-color: #73C6B6">GRUPO</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="1"><kbd id="kdb1" style="background-color: #73C6B6">IMG</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">COD</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">EQUIPO</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">MON Compra</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">P.U. Compra</kbd></a>
+				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">MON Vta/@mapDiccionario.get("ARR")</kbd></a>
+				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">P.U. Venta</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">UN @mapDiccionario.get("ARR")</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="9"><kbd id="kdb9" style="background-color: #73C6B6">P.U. @mapDiccionario.get("Arriendo")</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="10"><kbd id="kdb10" style="background-color: #73C6B6">UN</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="11"><kbd id="kdb11" style="background-color: #73C6B6">CANT</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="12"><kbd id="kdb12" style="background-color: #73C6B6">TOTAL Compra</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="13"><kbd id="kdb13" style="background-color: #73C6B6">TOTAL Venta</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="14"><kbd id="kdb14" style="background-color: #73C6B6">Compra (@mapDiccionario.get("PESOS"))</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">Venta (@mapDiccionario.get("PESOS"))</kbd></a>
+		</div>
+    				
+    				
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+			        <TR> 
+						        <TH style= "text-align: right;vertical-align:top;width:10%"></TH>
+						        <TH style= "text-align: right;vertical-align:top;"></TH>
+						        <TH style= "text-align: right;vertical-align:top;width:10%"></TH>
+								<TH style= "text-align: right;vertical-align:top;width:30%;color:blue">SUBTOTALES (resultado de buscar):&nbsp</TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: center;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align:top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align: top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align: top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align: top;color:blue"></TH>
+				<!-- 15 -->		<TH style= "text-align: right;vertical-align: top;color:blue"></TH>
+								<TH style= "text-align: right;vertical-align: top;width:4%;color:blue"></TH>
+					</TR>
+					<TR> 
+					        <TH style= "text-align: center;vertical-align:top;width:10%">GRUPO</TH>
+					        <TH style= "text-align: center;vertical-align:top;">IMG</TH>
+					        <TH style= "text-align: center;vertical-align:top;width:10%">COD</TH>
+							<TH style= "text-align: center;vertical-align:top;width:30%">EQUIPO</TH>
+							<TH style= "text-align: center;vertical-align:top;">MON</TH>
+							<TH style= "text-align: center;vertical-align:top;">P.U.<br>Compra</TH>
+							<TH style= "text-align: center;vertical-align:top;">MON</TH>
+							<TH style= "text-align: center;vertical-align:top;">P.U.<br>Venta</TH>
+							<TH style= "text-align: center;vertical-align:top;">UN @mapDiccionario.get("ARR")</TH>
+							<TH style= "text-align: center;vertical-align:top;">P.U.<br>@mapDiccionario.get("Arriendo")</TH>
+							<TH style= "text-align: center;vertical-align:top;">UN</TH>
+							<TH style= "text-align: center;vertical-align:top;">CANT</TH>
+							<TH style= "text-align: center;vertical-align: top;">TOTAL<br>Compra</TH>
+							<TH style= "text-align: center;vertical-align: top;">TOTAL<br>Venta</TH>
+							<TH style= "text-align: center;vertical-align: top;">Compra<br>(@mapDiccionario.get("PESOS"))</TH>
+			<!-- 15 -->		<TH style= "text-align: center;vertical-align: top;">Venta<br>(@mapDiccionario.get("PESOS"))</TH>
+							<TH style= "text-align: center;vertical-align: top;width:4%">VER</TH>
+					</TR>
+				</thead>
+				<tbody>
+				@for(lista1 <- lista){
+				<TR>
+					<td>@lista1.get(1)</td>
+					<td style="text-align:left;vertical-align:middle;">
+						@if(lista1.get(16)!="0"){
+							<img src='/viewImg/@lista1.get(16)' style="width:auto; max-height:25px; max-width:50px;">
+						}
+					</td>
+					<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(2)</a></td>
+					<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(3)</a></td>
+					<td style="text-align:center;vertical-align:middle;">@lista1.get(4)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(5)</td>
+					<td style="text-align:center;vertical-align:middle;">@lista1.get(6)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(7)</td>
+					<td style="text-align:center;vertical-align:middle;">@lista1.get(8)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(9)</td>
+					<td style="text-align:center;vertical-align:middle;">@lista1.get(10)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(11)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(12)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(13)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(14)</td>
+					<td style="text-align:right;vertical-align:middle;">@lista1.get(15)</td>
+					
+					<td title='SELECCIONAR' style="text-align:center;vertical-align:middle;">
+						<form id="form_@lista1.get(0)" class="formulario" method="post" action="/reportInventarioGeneralXEquipo/">
+							<input type="hidden" name="id_equipo" value="@lista1.get(0)">
+							<input type="hidden" name="fechaCorte" value="@fechaCorte">
+							<input type="hidden" name="tipo" value="@tipo">
+							<a href="#" onclick="document.getElementById('form_@lista1.get(0)').submit()">
+								<kbd style="background-color: #73C6B6">select</kbd>
+							</a>
+						</form>
+					</td>
+				</TR>
+	 			}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<form id="excel" class="formulario" method="post" action="/reportInventarioEquipoExcel/">
+		<input type="hidden" name="fechaCorte" value="@fechaCorte">
+		<input type="hidden" name="tipo" value="@tipo">
+	</form>
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+            sumarTotales2();
+            flag = false;
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 3, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  
+		   $('a.toggle-vis').on('click', function (e) {
+		        e.preventDefault();
+		        // Get the column API object
+		        let col = $(this).attr('data-column');
+		        var column = $('#tablaPrincipal').DataTable().column(col);
+		        // Toggle the visibility
+		        column.visible(!column.visible());
+		        if(column.visible()){
+					document.getElementById('kdb'+col).style.backgroundColor = "#73C6B6";
+				}else{
+					document.getElementById('kdb'+col).style.backgroundColor = "#D6DBDF";
+				}
+		    });
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	function sumarTotales2() {
+		var tabla = document.getElementById("tablaPrincipal");
+		var cuentaItems = 0;
+		var sumaCantidades = 0;
+		if(flag){
+			var sumaGranTotalCompra = 0;
+			var sumaGranTotalVenta = 0;
+		}
+		var sumaTotalesCompraMO = 0;
+		var sumaTotalesVentaMO = 0;
+		var sumaTotalesCompraMP = 0;
+		var sumaTotalesVentaMP = 0;
+		
+		var numero = new DecimalFormat("#,##0.00");
+
+		for (var i = 2; i < tabla.rows.length; i++) { 
+			var aux = 0;
+			
+			if(flag){
+				aux = tabla.rows[i].cells[14].textContent;
+				sumaGranTotalCompra = parseFloat(sumaGranTotalCompra) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[15].textContent;
+				sumaGranTotalVenta = parseFloat(sumaGranTotalVenta) + parseFloat(numero.formatBack(aux));
+			}
+			
+			if(tabla.rows[i].style.display != "none"){
+				cuentaItems++;
+				aux = tabla.rows[i].cells[11].textContent;
+				sumaCantidades = parseFloat(sumaCantidades) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[12].textContent;
+				sumaTotalesCompraMO = parseFloat(sumaTotalesCompraMO) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[13].textContent;
+				sumaTotalesVentaMO = parseFloat(sumaTotalesVentaMO) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[14].textContent;
+				sumaTotalesCompraMP = parseFloat(sumaTotalesCompraMP) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[15].textContent;
+				sumaTotalesVentaMP = parseFloat(sumaTotalesVentaMP) + parseFloat(numero.formatBack(aux));
+			}
+			
+		}
+		
+		tabla.rows[0].cells[11].textContent = formatStandar0(sumaCantidades);
+		tabla.rows[0].cells[6].textContent = formatStandar0(cuentaItems);
+		tabla.rows[0].cells[12].textContent = formatStandar0(sumaTotalesCompraMO);
+		tabla.rows[0].cells[13].textContent = formatStandar0(sumaTotalesVentaMO);
+		tabla.rows[0].cells[14].textContent = formatStandar0(sumaTotalesCompraMP);
+		tabla.rows[0].cells[15].textContent = formatStandar0(sumaTotalesVentaMP);
+		if(flag){
+			document.getElementById('sumaGranTotalCompra').value=formatStandar0(sumaGranTotalCompra);
+			document.getElementById('sumaGranTotalVenta').value=formatStandar0(sumaGranTotalVenta);
+		}
+		
+		
+		
+	}
+	
+</script>
+
+
+
+
+		
+		
+	

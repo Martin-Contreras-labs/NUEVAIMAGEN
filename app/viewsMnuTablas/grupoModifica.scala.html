@@ -1,0 +1,134 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+grupo: tables.Grupo, listAtributosGrupo: List[tables.Atributo])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR/ELIMINAR GRUPO Y/O ATRIBUTOS ASIGNADOS", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td>
+							<div class="row">
+								<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+									<b><font color="#008000">GRUPO:</font></b>
+								</div>
+								<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+									<input type="hidden" name="id_grupo" value="@grupo.getId()">
+									<input type="text" class="form-control"
+										id="nombre"
+										maxlength="50"
+										value="@grupo.getNombre()"
+										onchange="value = value.trim(); modificarGrupo(id)">
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<table class="table table-sm table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<tr>
+										<th colspan="10" style="text-align:left">
+											<font color="#008000"> LISTA DE ATRIBUTOS: </font>
+										</th>
+									</tr>
+									<TR> 
+										<TH style="vertical-align: top;">ATRIBUTO</TH>
+										<TH style= "text-align: center;">UNIDAD</TH>
+										<TH style= "text-align: center;">NUMERICO</TH>
+										<TH style= "text-align: center;">DEL</TH>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista1 <- listAtributosGrupo){
+										<TR>
+											<td  style="text-align:left;">@lista1.getAtributo()</td>
+											<td  style="text-align:left;">@lista1.getUnidad()</td>
+											<td style="text-align:center;">
+										    	@if(lista1.getEsNumerico()==1){SI}
+										    	@if(lista1.getEsNumerico()==0){NO}
+											</td>
+											<td  style="text-align:center;">
+												<form id="form_@grupo.id@lista1.getId()" method="post" action="/grupoEliminaAtributo/">
+													<input type="hidden" name="id_grupo" value="@grupo.id">
+													<input type="hidden" name="id_atributo" value="@lista1.getId()">
+													<a href="#" onclick='document.getElementById("form_@grupo.id@lista1.getId()").submit();'>
+														<kbd style="background-color: red">X</kbd>
+													</a>
+												</form>
+											</td>
+										</TR>
+						 			}
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=4>
+							<div class="row justify-content-md-center" >
+								<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+									<input type="button" value="Agregar Atributo" class="btn btn-info btn-sm rounded-pill btn-block" 
+										onclick="location.href='/grupoNuevoAtributo/@grupo.id'">
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/grupoMantencion/';">
+				</div>
+			</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarGrupo = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_grupo','@grupo.getId()');
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaGrupoPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El nombre de grupo ya existe, intente con otro', function () {
+	     				$("#nombre").val("@grupo.getNombre()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+</script>
+
+
+		
+		
+	

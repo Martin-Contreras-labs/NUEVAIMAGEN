@@ -1,0 +1,252 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+usuario: tables.Usuario, listTipoUsuario: List[tables.UsuarioTipo], listPermisoBodPorUsuario: List[List[String]], 
+esPorPorProyecto: Long, listEsPorProyecto: List[List[Long]], listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR USUARIO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td style="text-align:left;">USUARIO (userName): </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="userName"
+								autocomplete="off"
+								value="@usuario.getUserName()"
+								maxlength="100"
+								onchange="value = value.trim(); modificarUsuario(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">CLAVE (userKey): </td>
+						<td style="text-align:left;">
+							<input type="password" class="form-control left"
+								id="userKey"
+								autocomplete="off"
+								value="@usuario.getUserKey()"
+								maxlength="100"
+								onchange="value = value.trim(); modificarUsuario(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">NOMBRE (fullName): </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="nombre"
+								autocomplete="off"
+								value="@usuario.getNombre()"
+								maxlength="100"
+								onchange="value = value.trim(); modificarUsuario(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">CARGO: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="cargo"
+								autocomplete="off"
+								value="@usuario.getCargo()"
+								maxlength="100"
+								onchange="value = value.trim(); modificarUsuario(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">E-MAIL: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="email"
+								autocomplete="off"
+								value="@usuario.getEmail()"
+								maxlength="100"
+								onchange="value = value.trim(); modificarUsuario(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">TELEFONO: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="fono"
+								autocomplete="off"
+								value="@usuario.getFono()"
+								maxlength="100"
+								onchange="value = value.trim(); modificarUsuario(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">TIPO USUARIO: </td>
+						<td style="text-align:left;">
+							<select class="custom-select" 
+								id="id_tipoUsuario" 
+								onchange="modificarUsuario(id); cambiaMensaje(value);">
+								@for(lista <- listTipoUsuario){
+									<option value="@lista.getId()">@lista.getTipo()</option>
+								}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">SUCURSAL: </td>
+						<td style="text-align:left;">
+							<select class="custom-select" 
+								id="id_sucursal" 
+								onchange="modificarUsuario(id);">
+								<option value="@sucursal.getId()">@sucursal.getNombre()</option>
+								@for(lista <- listSucursal){
+									<option value="@lista.getId()">@lista.getNombre()</option>
+								}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">OBSERVACIONES: </td>
+						<td style="text-align:left;">
+							<textarea class='form-control form-control-sm' rows='3'
+								id="observaciones"
+								onchange="value = value.trim(); modificarUsuario(id)"
+								autocomplete="off">@usuario.getObservaciones()</textarea>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<div id="mensajePorProyecto" align="center"></div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table id="selectBodegas" class="table table-sm table-bordered table-condensed table-fluid" hidden>
+								<thead style="background-color: #eeeeee">
+									<tr>
+										<th colspan="10" style="text-align:left">
+											<font color="#008000"> ACCESO A @mapDiccionario.get("BODEGA")S: </font>
+										</th>
+									</tr>
+									<tr>
+										<TH>TIPO @mapDiccionario.get("BODEGA")</TH>
+										<TH>ACCESO A @mapDiccionario.get("BODEGA")S</TH>
+										<TH>Del</TH>
+									</tr>
+								</thead>
+								<tbody>
+									@for(lista <- listPermisoBodPorUsuario){
+										<tr>
+									        <td style="text-align:left;">@lista.get(1)</td>
+											<td style="text-align:left;">@lista.get(2)</td>
+											<td  style="text-align:center;">
+												<a href="#" onclick= "eliminarBodegaEmpresa('@lista.get(0)')">
+													<kbd style="background-color: red">X</kbd>
+												</a>
+											</td>
+										</tr>
+									}
+									<td colspan=7>
+										<div align="center">
+											<form method="post" action="/usuarioListBodegaEmpresa/">
+												<input type="hidden" name="id_usuario" value="@usuario.getId()">
+												<input type="submit" class="btn btn-light btn-sm rounded-pill" 
+													value = 'Agregar @mapDiccionario.get("BODEGA")'>
+											</form>
+										</div>
+									</td>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					
+					
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/usuarioMantencion/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="formUser" method="post" action="/usuarioBodegaEmpresaElimina/">
+		<input type="hidden" id="form_id_bodegaEmpresa" name="id_bodegaEmpresa">
+		<input type="hidden" id="form_id_usuario" name="id_usuario">
+	</form>
+
+}
+
+
+
+<script type="text/javascript">
+	let id_usuario = @usuario.getId();
+
+	$(document).ready(function() {
+		$('#id_tipoUsuario > option[value="@usuario.getId_tipoUsuario()"]').attr('selected', 'selected');
+		if(@esPorPorProyecto==1){
+	  		document.getElementById("mensajePorProyecto").innerHTML = "<kbd style='background-color: blue'>PERFIL CON ACCESO SOLO A "+'@mapDiccionario.get("BODEGA")'+"S/PROYECTOS AGREGADOS</kbd>";
+	  		document.getElementById("selectBodegas").removeAttribute("hidden");
+	  	}else{
+	  		document.getElementById("mensajePorProyecto").innerHTML = "<kbd style='background-color: blue'>PERFIL CON ACCESO A TODAS/TODOS "+'@mapDiccionario.get("BODEGA")'+"S/PROYECTOS</kbd>";
+	  	}
+		 document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarUsuario = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_usuario',id_usuario);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaUsuarioPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El usuario (userName) ya existe, intente con otro', function () {
+	     				$("#userName").val("@usuario.getUserName()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	const eliminarBodegaEmpresa = (id_bodegaEmpresa) => {
+		alertify.confirm('Esta seguro de eliminar @mapDiccionario.get("BODEGA")', function (e) {
+			if (e) {
+				$("#form_id_bodegaEmpresa").val(id_bodegaEmpresa);
+				$("#form_id_usuario").val(id_usuario);
+				document.getElementById("formUser").submit();
+			}
+		});
+	}
+	
+	let mapAux = new Map();
+	@for(lista <- listEsPorProyecto){
+		mapAux.set(@lista.get(0),@lista.get(1));
+	}
+	const cambiaMensaje = (id_tipoUsuario) => {
+		let porProyecto = mapAux.get(parseFloat(id_tipoUsuario));
+		if(porProyecto==1){
+			document.getElementById("mensajePorProyecto").innerHTML = "<kbd style='background-color: blue'>PERFIL CON ACCESO SOLO A "+'@mapDiccionario.get("BODEGA")'+"S/PROYECTOS AGREGADOS</kbd>";
+	  		document.getElementById("selectBodegas").removeAttribute("hidden");
+	  	}else{
+	  		document.getElementById("mensajePorProyecto").innerHTML = "<kbd style='background-color: blue'>PERFIL CON ACCESO A TODAS/TODOS "+'@mapDiccionario.get("BODEGA")'+"S/PROYECTOS</kbd>";
+	  		document.getElementById("selectBodegas").setAttribute("hidden","true");
+	  	}
+	}
+
+</script>
+
+		
+	

@@ -1,0 +1,195 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]])
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTADO DE EP/PROFORMA (FACTURAS)", "")
+
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch2('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							&nbsp;&nbsp;
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="location.href = '/home/'">
+								Listo
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+					<TR> 
+				        <TH>NUMERO</TH>
+						<TH>FECHA</TH>
+						<TH>DESDE</TH>
+						<TH>HASTA</TH>
+						<TH>RUT</TH>
+						<TH>CLIENTE</TH>
+						<TH>SUCURSAL</TH>
+						<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+						<TH>Total<br>NETO</TH>
+						<TH>Total<br>IVA</TH>
+						<TH>Total<br>TOTAL</TH>
+						<TH>Prof<br>PDF</TH>
+						<TH>Excel<br>EP</TH>
+						@if(mapPermiso.get("odoProformaListaEliminar")!=null) {
+							<TH>DEL</TH>
+						}
+					</TR>
+				</thead>
+				<tbody>
+					@for(lista1 <- lista){
+						<tr>
+							<td style= "text-align: center;">@lista1.get(0)</td>
+							<td style= "text-align: center;">
+								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(2))</div>
+								@lista1.get(2)
+							</td>
+							<td style= "text-align: center;">
+								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(3))</div>
+								@lista1.get(3)
+							</td>
+							<td style= "text-align: center;">
+								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(4))</div>
+								@lista1.get(4)
+							</td>
+							<td style= "text-align: center;">@lista1.get(5)</td>
+							<td style= "text-align: left;">@lista1.get(6)</td>
+							<td style= "text-align: left;">@lista1.get(19)</td>
+							<td style= "text-align: left;">@lista1.get(7)</td>
+							<td style= "text-align: right;">@lista1.get(8)</td>
+							<td style= "text-align: right;">@lista1.get(9)</td>
+							<td style= "text-align: right;">@lista1.get(10)</td>
+							<td style= "text-align: center;">
+								@if(lista1.get(11)!="0"){
+									<a href="#" onclick="mostrarPDF('@lista1.get(11)')">
+		    							<kbd style="background-color: #85C1E9">pdf</kbd>
+		    						</a>
+								}else{
+									--
+								}
+							</td>
+							<td style="text-align:center;">
+								@if(lista1.get(12)!="0"){
+									<a href="#" onclick= "descargaDocumento('@lista1.get(12)')">
+										<kbd style="background-color: #85C1E9">xls</kbd>
+									</a>
+								}else{
+									--
+								}
+							</td>
+							@if(mapPermiso.get("odoProformaListaEliminar")!=null) {
+								<td style="text-align:center;">
+									<a href="#" onclick="eliminaProforma('@lista1.get(0)');">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							}
+					
+					</tr>
+	 			}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>EP/PROFORMA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+	<form id="form_eliminar" method="post" action="/proformaEliminaOdo/">
+		<input type="hidden" id="form_id_proforma" name="id_proforma">
+	</form>
+	
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 2, "desc" ],[ 1, "desc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const eliminaProforma = (id_proforma) => {
+		alertify.confirm('Esta seguro de eliminar @mapDiccionario("PROFORMA") numero: '+id_proforma, function (e) {
+			if (e) {
+				$("#form_id_proforma").val(id_proforma);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	
+	
+</script>
+
+
+
+
+		
+		
+	

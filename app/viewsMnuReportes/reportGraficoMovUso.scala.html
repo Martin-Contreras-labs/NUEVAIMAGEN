@@ -1,0 +1,192 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+ graficoOcupacion: List[String], graficoOcupacionUnidad: List[String])
+
+    	
+@main("") {
+	
+	<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "OCUPACIÓN MENSUAL - SITUACIÓN GLOBAL","")
+		
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<table id="ESQUEMAGENERAL" class="table table-sm table-bordered table-condensed table-fluid">
+					<TR>
+				  		<TD colspan="2" width="90%" id="ocupacion" style="height: auto; margin: 0 auto"></TD>
+					</TR>
+					<TR>
+				  		<TD colspan="2" width="90%" id="ocupacionUnidad" style="height: auto; margin: 0 0"></TD>
+					</TR>
+				</table>
+				
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+			Highcharts.chart('ocupacion',{
+	            chart: {
+	                zoomType: 'xy'
+	            },
+	            title: {
+	                 text: '% OCUPACIÓN MENSUAL (Valorizado)'
+	            },
+	            subtitle: {
+	                text: ''
+	            },
+	            xAxis: [{
+	            	categories: @Html(graficoOcupacion.get(0)),
+	                labels: {
+	                    rotation: -45,
+	                    align: 'right',
+	                    style: {
+	                        fontSize: '10px',
+	                        fontFamily: 'Verdana, sans-serif'
+	                    }
+	                }
+	            }],
+	            yAxis: {
+	                min: 0,
+	                max: 100,
+	                title: {
+	                    text: 'Porcentaje'
+	                },
+	                stackLabels: {
+	                    enabled: true,
+	                    style: {
+	                        fontWeight: 'bold',
+	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                    }
+	                }
+	            },
+	            tooltip: {
+	                shared: true
+	            },
+	            legend: {
+	                layout: 'horizontal',
+	                align: 'center',
+	                verticalAlign: 'top',
+	                y: 30,
+	                floating: false,
+	                borderWidth: 0,
+	                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+	            },
+	            plotOptions: {
+	                spline: {
+	                    lineWidth: 1,
+	                    states: {
+	                        hover: {
+	                            lineWidth: 6
+	                        }
+	                    },
+	                    marker: {
+	                        enabled: false
+	                    }
+	                }
+	            },
+	            series: [
+	               @for(lista <- graficoOcupacion.tail){
+	            	   @Html(lista)
+	               }
+
+	            ]
+	        });
+
+			Highcharts.chart('ocupacionUnidad',{
+	            chart: {
+	                zoomType: 'xy'
+	            },
+	            title: {
+	                 text: '% OCUPACIÓN MENSUAL (por unidades)'
+	            },
+	            subtitle: {
+	                text: ''
+	            },
+	            xAxis: [{
+	            	categories: @Html(graficoOcupacionUnidad.get(0)),
+	                labels: {
+	                    rotation: -45,
+	                    align: 'right',
+	                    style: {
+	                        fontSize: '10px',
+	                        fontFamily: 'Verdana, sans-serif'
+	                    }
+	                }
+	            }],
+	            yAxis: {
+	                min: 0,
+	                max: 100,
+	                title: {
+	                    text: 'Porcentaje'
+	                },
+	                stackLabels: {
+	                    enabled: true,
+	                    style: {
+	                        fontWeight: 'bold',
+	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                    }
+	                }
+	            },
+	            tooltip: {
+	                shared: true
+	            },
+	            legend: {
+	                layout: 'horizontal',
+	                align: 'center',
+	                verticalAlign: 'top',
+	                y: 30,
+	                floating: false,
+	                borderWidth: 0,
+	                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+	            },
+	            plotOptions: {
+	                spline: {
+	                    lineWidth: 1,
+	                    states: {
+	                        hover: {
+	                            lineWidth: 6
+	                        }
+	                    },
+	                    marker: {
+	                        enabled: false
+	                    }
+	                }
+	            },
+	            series: [
+	               @for(lista <- graficoOcupacionUnidad.tail){
+	            	   @Html(lista)
+	               }
+
+	            ]
+	        });
+
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	   });
+			  
+	
+</script>
+
+
+		
+		
+	

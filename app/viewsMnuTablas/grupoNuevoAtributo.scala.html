@@ -1,0 +1,67 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+grupo: tables.Grupo, listUnidades: List[tables.Unidad])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR NUEVO ATRIBUTO PARA: " + grupo.getNombre(), "")
+		<form action="/grupoGrabaAtributo/" method="POST">
+			<input type="hidden" name="id_grupo" value="@grupo.getId()">
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td>NOMBRE ATRIBUTO</td>
+							<td><input type="text" class="form-control" name="nombreAtributo" maxlength="50" required></td>
+						</tr>
+						<tr>
+				 			<td>UNIDAD DE MEDIDA: </td>
+				 			<td>
+				 				<select class="custom-select" style="min-width:120px" name="id_unidad">
+					            	@for(lista <- listUnidades){
+					                	<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+						        </select>
+				 			</td>
+				 		</tr>
+				 		<tr>
+				 			<td>¿ES NUMERICO?: </td>
+				 			<td>
+				 				<select class="custom-select" style="min-width:120px" name="esNumerico">
+					                <option value="1">SI</option>
+					                <option value="0">NO</option>
+						        </select>
+				 			</td>
+				 		</tr>
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="submit"  value="GRABAR ATRIBUTO" class="btn btn-success btn-sm rounded-pill btn-block">
+					</div>
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+</script>
+
+
+		
+		
+	

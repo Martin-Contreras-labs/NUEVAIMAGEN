@@ -1,0 +1,112 @@
+
+@(title: String)(content: Html)
+
+<!DOCTYPE html>
+
+<style>
+.blocker {
+position: absolute;
+top: 0px;
+left: 0px;
+height:100%;
+width:100%;        /* hacemos que ocupe toda la pantalla a cualquier resolución*/
+z-index: 50;        /* lo colocamos por encima del resto de componentes*/
+filter:alpha(opacity=50);
+-moz-opacity: 50;
+opacity: 0.50;
+background-color: #909497;
+text-align:center;
+vertical-align: middle;
+}
+</style>
+
+
+<html lang="en" style="padding-left:5px;padding-right:5px;font-size: 12px;">
+    <head>
+    	<meta charset="utf-8">
+    	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    	<meta name="author" content="INQSOL SPA">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	<meta name="google" value="notranslate">
+    	<meta http-equiv="cache-control" content="no-cache"/>
+    	
+    	
+    	<link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    	
+    	
+    
+        @* Here's where we render the page title `String`. *@
+        <title>MADA</title>
+        
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="print,page"  href="@routes.Assets.versioned("stylesheets/print.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.versioned("bootstrap-4.3.1/css/bootstrap.css")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("alertify.js/themes/alertify.core.css")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("alertify.js/themes/alertify.default.css")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("dataTables/dataTables.bootstrap4.min.css")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("dataTables/fixedHeader.dataTables.min.css")">
+        <link rel="stylesheet" href="@routes.Assets.versioned("dataTables/fixedColumns.dataTables.min.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+    </head>
+    <body>
+    
+    	<script src="@routes.Assets.versioned("javascripts/main.js")"></script>
+        <script src="@routes.Assets.versioned("javascripts/DecimalFormat.js")"></script>
+        <script src="@routes.Assets.versioned("javascripts/jquery-3.3.1.slim.min.js")"></script>
+		<script src="@routes.Assets.versioned("javascripts/jquery.js")"></script>
+		<script src="@routes.Assets.versioned("bootstrap-4.3.1/js/bootstrap.min.js")"></script>
+		<script src="@routes.Assets.versioned("alertify.js/lib/alertify.js")"></script>
+		<script src="@routes.Assets.versioned("dataTables/jquery.dataTables.min.js")"></script>
+		<script src="@routes.Assets.versioned("dataTables/dataTables.bootstrap4.min.js")"></script>
+		
+		<script src="@routes.Assets.versioned("dataTables/dataTables.fixedHeader.min.js")"></script>
+		<script src="@routes.Assets.versioned("dataTables/dataTables.fixedColumns.min.js")"></script>
+
+		
+        @* And here's where we render the `Html` object containing the page content. *@
+
+		<div id="enProceso" class="blocker" style="display: none;">
+			<br><br><br><br><br><br><h1>El reporte esta en proceso.....</h1>
+		</div>
+
+		<div id="bloquear" class="blocker" style="display:none;"><br><br><br><br><br><br><h1>Se perdió la conexión con Internet</h1></div>
+		<div id="bloquear2" class="blocker" style="display:none;"></div>
+
+        @content
+
+        <br><br><br><br><br><br><br><br>
+
+
+		
+    </body>
+</html>
+
+<script>
+	//VERIFICA CONEXION A INTERNET
+	setInterval('estaConectado()',1000);
+	function estaConectado(){
+		if(!navigator.onLine){
+		    document.getElementById('bloquear').style.display="block"; 
+		}else{
+			document.getElementById('bloquear').style.display="none"; 
+		}
+	}
+	
+	//RESTRINGE LA TECLA ENTER SOBRE SUMMIT
+	document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('input[type=text]').forEach( node => node.addEventListener('keypress', e => {
+        if(e.keyCode == 13) {
+          e.preventDefault();
+        }
+      }))
+    });
+    
+
+</script>
+
+
+
+
+
+
+    

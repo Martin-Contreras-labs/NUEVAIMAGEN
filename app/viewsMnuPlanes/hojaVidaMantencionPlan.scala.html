@@ -1,0 +1,201 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: List[String])
+
+
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "PROGRAMA PLAN DE MANTENCION","MODIFICAR")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-9 col-md-9 col-lg-9">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="2">
+							<b>DETALLE DEL EQUIPO</b>
+						</td>
+						<td colspan="6">
+							<b>ULTIMA COMPRA</b>
+						</td>
+						
+					</tr>
+					<tr>
+						<td>GRUPO:</td>
+						<td>@allPlan.get(0).equipoGrupo</td>
+						<td>@mapDiccionario.get("RUT")-PROV:</td>
+						<td>@listCompra.get(0)</td>
+						<td>FECHA:</td>
+						<td>@listCompra.get(3)</td>
+						<td>MONEDA:</td>
+						<td>@listCompra.get(5)</td>
+					</tr>
+					<tr>
+						<td>CODIGO EQUIPO:</td>
+						<td>@allPlan.get(0).equipoCodigo</td>
+						<td>PROVEEDOR:</td>
+						<td>@listCompra.get(1)</td>
+						<td>PDF:</td>
+						<td>
+							@if(listCompra.get(4)!="0"){
+								<a href="#" onclick="mostrarPDF('@listCompra.get(4)')">
+									<kbd style="background-color: #85C1E9">pdf</kbd>
+								</a>
+							}else{
+							---
+							}
+						</td>
+						<td>PRECIO:</td>
+						<td>@listCompra.get(6)</td>
+					</tr>
+					<tr>
+						<td>NOMBRE EQUIPO:</td>
+						<td>@allPlan.get(0).equipoNombre</td>
+						<td>FACTURA:</td>
+						<td>@listCompra.get(2)</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td colspan="20">
+							<b>ATRIBUTOS DEL EQUIPO</b>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="20">
+							@for(lista <- listAtributos){
+									@lista|
+								}
+						</td>
+					</tr>
+				</table>
+				<table id="planes" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="20">
+							<h5><b><font color="#008000"> PLAN DE MANTENCION</font></b></h5>
+						</td>
+					</tr>
+					<tr>
+						<TH style="text-align:center">Plan</TH>
+						<TH style="text-align:center">Fecha Nueva<br>Lectura Tomada</TH>
+						<TH style="text-align:center">Unidad</TH>
+						<TH style="text-align:center">Cantidad Nueva<br>Lectura Tomada</TH>
+						<TH style="text-align:center">Rotación (Cada X Cantidad<br>Correspone Mantención)</TH>
+						<TH style="text-align:center">Consumo Promedio<br>Mensual Estimado</TH>
+						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
+					</tr>
+					@for(lista <- allPlan){
+						<tr>
+							<td style="text-align:center">@lista.tipoPlanNombre</td>
+							<td style="text-align:center">
+								<input type="date" class="form-control center"
+									id="fechaReset"
+						  			onblur="if(!limitaFecha(value,720,10)) {
+												value = '@utilities.Fechas.AAMMDD(lista.fechaReset)';
+											} else {
+												actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', id, value);
+											}"
+						  			value="@utilities.Fechas.AAMMDD(lista.fechaReset)">
+							</td>
+							<td style="text-align:center">@lista.unidadMantencion</select>
+							</td>
+							<td style="text-align:right">
+								<input type="text" class="form-control center"
+									id="estadoActual"
+									value="@lista.estadoActual"
+									onfocus="value = value.replace(/,/g,'');" 
+									onkeypress="return ingresoDouble(event,value)"
+									autocomplete="off"
+									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', id, value);">
+							</td>
+							<td style="text-align:center">@lista.cadaNEstimado</td>
+							<td style="text-align:center">@lista.consumoEstimadoPorMes</td>
+							<td style="text-align:right">
+								<input type="text" class="form-control center"
+									id="proximaMantencion"
+									value="@lista.proximaMantencion"
+									onfocus="value = value.replace(/,/g,'');" 
+									onkeypress="return ingresoDouble(event,value)"
+									autocomplete="off"
+									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', id, value);">
+							</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>	
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/hojaVidaMantencionLista/0';">
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COMPRA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const actualizaPorCampo = (id_tipoPlan, id_equipo, campo, valor) =>{
+		var formData = new FormData();
+	  	formData.append('id_tipoPlan',id_tipoPlan);
+		formData.append('id_equipo',id_equipo);
+		formData.append('campo',campo);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/actualCampoPlanMantencionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     	}
+        });
+	}
+	
+</script>
+
+
+		
+		
+	

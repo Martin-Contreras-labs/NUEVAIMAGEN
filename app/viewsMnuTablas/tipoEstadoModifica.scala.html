@@ -1,0 +1,179 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], listBodegas: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR TIPO DE ESTADO (DEVOLUCIONES)", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td style="text-align:left;">SIGLA: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="sigla"
+								autocomplete="off"
+								value="@tipoEstado.getSigla()"
+								maxlength="5"
+								onchange="value = value.trim(); modificarTipoEstado(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">NOMBRE: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="nombre"
+								autocomplete="off"
+								value="@tipoEstado.getNombre()"
+								maxlength="50"
+								onchange="value = value.trim(); modificarTipoEstado(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">@mapDiccionario.get("BODEGA") ASOCIADA: </td>
+						<td style="text-align:left;">
+							<select class="custom-select" 
+								id="id_bodegaAsociada" 
+								onchange="modificarTipoEstado(id);">
+								@for(lista <- listBodegas){
+									<option value="@lista.get(1)">@lista.get(5)</option>
+								}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">APLICA LISTA PRECIOS: </td>
+						<td style="text-align:left;">
+							<select class="custom-select" 
+								id="reparable" 
+								onchange="modificarTipoEstado(id);">
+								<option value="1">SI</option>
+								<option value="0">NO</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table class="table table-sm table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<tr>
+										<th colspan="10" style="text-align:left">
+											<font color="#008000"> LISTA DE PRECIOS DEFINIDA: </font>
+										</th>
+									</tr>
+									<tr>
+										<TH>SIGLA</TH>
+										<TH>NOMBRE</TH>
+										<TH>MONEDA</TH>
+										<TH>PRECIO</TH>
+										<TH>DESCRIPCION</TH>
+										<TH>Edit</TH>
+										<TH>Del</TH>
+									</tr>
+								</thead>
+								<tbody>
+									@for(lista <- listTipoReparacion){
+										<tr>
+									        <td style="text-align:left;">@lista.getSigla()</td>
+											<td style="text-align:left;">@lista.getNombre()</td>
+											<td style="text-align:center;">@lista.getMoneda()</td>
+											<td style="text-align:right;">@lista.getPrecio()</td>
+											<td style="text-align:left;">@lista.getDescripcion()</td>
+											<td  style="text-align:center;">
+												<a href="/tipoReparacionModifica/@lista.getId(),@tipoEstado.getId()">
+													<kbd style="background-color: #73C6B6">E</kbd>
+												</a>
+											</td>
+											<td  style="text-align:center;">
+												<a href="#" onclick= "eliminarReparacion('@lista.getId()')">
+													<kbd style="background-color: red">X</kbd>
+												</a>
+											</td>
+										</tr>
+									}
+									<td colspan=7>
+										<div align="center">
+											<input type="button" class="btn btn-light btn-sm rounded-pill" 
+												onclick="location.href='/tipoReparacionAgrega/@tipoEstado.getId()'"
+												value = "Agregar Reparación">
+										</div>
+									</td>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/tipoEstadoMantencion/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="form_eliminar" method="post" action="/tipoReparacionElimina/">
+		<input type="hidden" id="form_id_tipoReparacion" name="id_tipoReparacion">
+		<input type="hidden" id="form_id_tipoEstado" name="id_tipoEstado">
+	</form>
+
+}
+
+
+
+<script type="text/javascript">
+	let id_tipoEstado = '@tipoEstado.getId()';
+
+	$(document).ready(function() {
+		  $('#id_bodegaAsociada > option[value="@tipoEstado.getId_bodegaAsociada()"]').attr('selected', 'selected');
+		  $('#reparable > option[value="@tipoEstado.getReparable()"]').attr('selected', 'selected');
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarTipoEstado = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_tipoEstado',id_tipoEstado);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaTipoEstadoPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('La sigla asignada ya existe, intente con otra', function () {
+	     				$("#sigla").val("@tipoEstado.getSigla()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	const eliminarReparacion = (id_tipoReparacion) => {
+		alertify.confirm("Esta seguro de eliminar este tipo de reparación", function (e) {
+			if (e) {
+				$("#form_id_tipoReparacion").val(id_tipoReparacion);
+				$("#form_id_tipoEstado").val(id_tipoEstado);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+
+</script>
+
+		
+	

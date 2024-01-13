@@ -1,0 +1,80 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+fecha: String)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "CONSOLIDADO DE PROFORMAS POR EQUIPOS (NO CONSIDERA AJUSTES A EP)","POR MESES VS " +mapDiccionario("BODEGA")+"/PROYECTO")
+		<form action="/reportFactConsolconEquiposRtp/" method="POST" onsubmit="return validarForm();">
+			<br><br><br>
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH colspan="2">CONSOLIDADAR POR:</TH>
+							</TR>
+							<TR>
+								<TH>ULTIMO MES:</TH>
+								<td>
+									<input type="date" class="form-control center"
+							  			name="fecha"
+							  			value="@fecha"
+					        			required>
+								</td>
+							</TR>
+							<TR>
+								<TH>CANTIDAD DE MESES::</TH>
+								<td style="text-align:left;">
+									<select class="custom-select" name="cantMeses">
+										<option value="12">12 meses</option>
+										<option value="3">3 meses</option>
+										<option value="6">6 meses</option>
+										<option value="9">9 meses</option>
+										<option value="12">12 meses</option>
+										<option value="18">18 meses</option>
+										<option value="24">24 meses</option>
+									</select>
+								</td>
+							</TR>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-4 col-sm-2 col-md-2 col-lg-2">
+					@if(mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")){
+						<input type="submit" id="btnSubmit" value='Exportar a Excel' class="btn btn-primary btn-sm rounded-pill btn-block">
+					}else{
+						<input type="submit" id="btnSubmit" value='Generar Reporte' onclick="document.getElementById('enProceso').style.display='block';" class="btn btn-primary btn-sm rounded-pill btn-block">
+					}
+				</div>
+			</div>
+		</form>
+	</div>
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		return(true);
+	}
+	
+	
+</script>
+
+
+
+
+		
+		
+	

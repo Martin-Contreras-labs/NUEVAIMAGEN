@@ -1,0 +1,213 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listPrecio: List[tables.Precio], listMoneda: List[tables.Moneda], listUnidadTiempo: List[tables.UnidadTiempo],
+sucursal: tables.Sucursal)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MAESTRO DE PRECIOS - SUCURSAL: "+ sucursal.getNombre(), "(a partir de esta lista, se pasa el precio al cliente por equipo, solo la primera vez que se entrega)")
+		<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+			<thead style="background-color: #eeeeee">
+				<TR> 
+					<TH style="vertical-align: top;">GRUPO</TH>
+					<TH>CODIGO</TH>
+					<TH>EQUIPO</TH>
+					<TH>MONEDA<BR>Compra</TH>
+					<TH>PRECIO<br>Compra</TH>
+					<TH>MONEDA<BR>Rep/@mapDiccionario.get("Arr")</TH>
+					<TH>PRECIO<br>Reposici&oacute;n o Venta</TH>
+					<TH>TASA<br>@mapDiccionario.get("Arriendo")</TH>
+					<TH>PRECIO<br>@mapDiccionario.get("Arriendo")</TH>
+					<TH>UNIDAD<BR>@mapDiccionario.get("Arriendo")</TH>
+					<TH style="min-width:80px;">Ultimo<br>Cambio</TH>
+					<TH>VALOR<br>M&iacute;nimo</TH>
+					<TH>MINIMO<br>en D&iacute;as</TH>
+				</TR>
+			</thead>
+			<tbody>
+				@for(lista2 <- listPrecio){
+					<tr class="align-middle">
+						<td>@lista2.getNombreGrupo()</td>
+						<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista2.getCodigoEquipo()');">@lista2.getCodigoEquipo()</a></td>
+						<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista2.getCodigoEquipo()');">@lista2.getNombreEquipo()</a></td>
+						
+						<td style="text-align:center;">@lista2.getMonedaCompra()</td>
+						<td style="text-align:right;">@lista2.getPrecioCompra()</td>
+						<td>
+							<select class="custom-select" 
+								id="NM_@lista2.getId_equipo()" 
+								onchange="grabar(id,value,'@lista2.getId_equipo()')">
+								<option value="@lista2.getId_moneda()">@lista2.getNombreMoneda()</option>
+								@for(lista <- listMoneda){
+									<option value="@lista.id">@lista.nickName</option>
+								}
+							</select>
+						</td>
+						<td>
+							<div style="display:none">@lista2.getPrecioVenta()</div>
+							<input type="text" class="form-control right"
+								id="PV_@lista2.getId_equipo()"
+								value="@lista2.getPrecioVenta()"
+								onfocus="value=value.replace(/,/g,'')" 
+								onkeypress="return ingresoDouble(event,value)"
+								onchange="grabar(id,value,'@lista2.getId_equipo()')">
+						</td>
+						<td>
+							<div style="display:none">@lista2.getTasaArriendo()</div>
+							<input type="text" class="form-control center"
+								id="TA_@lista2.getId_equipo()" 
+								value="@lista2.getTasaArriendo()"
+								disabled>
+						</td>
+						<td>
+							<div style="display:none">@lista2.getPrecioArriendo()</div>
+							<input type="text" class="form-control right"
+								id="PA_@lista2.getId_equipo()"
+								value="@lista2.getPrecioArriendo()"
+								onfocus="value=value.replace(/,/g,'')" 
+								onkeypress="return ingresoDouble(event,value)"
+								onchange="grabar(id,value,'@lista2.getId_equipo()')">	
+						</td>
+						<td>
+							<select class="custom-select" 
+								id="UT_@lista2.getId_equipo()"
+								onchange="grabar(id,value,'@lista2.getId_equipo()')">
+								<option value="@lista2.getId_unidadTiempo()">@lista2.getNombreUnidadTiempo()</option>
+								@for(lista <- listUnidadTiempo){
+									<option value="@lista.id">@lista.nombre</option>
+								}
+							</select>
+						</td>
+						<td class="center">
+							<div style="display:none">@lista2.getFecha().substring(6,10)-@lista2.getFecha().substring(3,5)-@lista2.getFecha().substring(0,2)</div>
+							<div id="FE_@lista2.getId_equipo()">@lista2.getFecha()</div>
+						</td>
+						<td>
+							<div style="display:none">@lista2.getPrecioMinimo()</div>
+							<input type="text" class="form-control right"
+								id="PM_@lista2.getId_equipo()"
+								value="@lista2.getPrecioMinimo()"
+								onfocus="value=value.replace(/,/g,'')" 
+								onkeypress="return ingresoDouble(event,value)"
+								onchange="grabar(id,value,'@lista2.getId_equipo()')">
+						</td>
+						<td>
+							<div style="display:none">@lista2.getPermanenciaMinima()</div>
+							<input type="text" class="form-control right"
+								id="PE_@lista2.getId_equipo()"
+								value="@lista2.getPermanenciaMinima()"
+								onfocus="value=value.replace(/,/g,'')" 
+								onkeypress="return ingresoInt(event)"
+								onchange="grabar(id,value,'@lista2.getId_equipo()')">									
+						</td>
+					</tr>
+				 }
+			</tbody>
+		</table>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/'">
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 2, "asc" ],[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+	const grabar = (id, valor, id_equipo) => {
+		let auxId = id.split("_");
+		let id_moneda = $("#NM_"+auxId[1]).val();
+		var formData = new FormData();
+		formData.append('id_sucursal',"@sucursal.getId()");
+		formData.append('id_equipo',id_equipo);
+		formData.append('id_moneda',id_moneda);
+		formData.append('campo',auxId[0]);
+		formData.append('valor',valor);
+		$.ajax({
+            url: "/actualizaPrecioAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     		if(respuesta.status){
+	     			let fecha = respuesta.fecha;
+	     			let numDec = respuesta.numDec;
+	     			@if(mapDiccionario.get("nEmpresa").equals("MONTAX")||mapDiccionario.get("nEmpresa").equals("TECA")) {
+	     				numDec = 4;
+	     			}
+	     			if(auxId[0]=="PV" || auxId[0]=="PA" || auxId[0]=="PM"){
+	     				$("#"+id).val(formatStandar(valor,numDec));
+	     			}
+	     			if(auxId[0]=="PE"){
+	     				$("#"+id).val(formatStandar(valor,0));
+	     			}
+	     			if(auxId[0]=="PA"){
+	     				let numero = new DecimalFormat("#,##0.00");
+	     				let pventa = numero.formatBack($("#PV_"+auxId[1]).val());
+	     				let tasa = 0;
+	     				if(pventa!=0){
+	     					tasa = valor/pventa*100;
+	     				} 
+	     				$("#TA_"+auxId[1]).val(formatPorcentaje(tasa));
+	     			}
+	     			if(auxId[0]=="PV"){
+	     				let numero = new DecimalFormat("#,##0.00");
+	     				let parriendo = numero.formatBack($("#PA_"+auxId[1]).val());
+	     				let tasa = 0;
+	     				if(valor!=0){
+	     					tasa = parriendo/valor*100;
+	     				} 
+	     				$("#TA_"+auxId[1]).val(formatPorcentaje(tasa));
+	     			}
+	     			if(auxId[0]=="NM"){
+	     				let numero = new DecimalFormat("#,##0.00");
+	     				let pventa = numero.formatBack($("#PV_"+auxId[1]).val());
+	     				let parriendo = numero.formatBack($("#PA_"+auxId[1]).val());
+	     				let pminimo = numero.formatBack($("#PM_"+auxId[1]).val());
+	     				$("#PV_"+auxId[1]).val(formatStandar(pventa,numDec));
+	     				$("#PA_"+auxId[1]).val(formatStandar(parriendo,numDec));
+	     				$("#PM_"+auxId[1]).val(formatStandar(pminimo,numDec));
+	     				
+	     			}
+	     			$("#FE_"+auxId[1]).val(fecha);
+	     		}else{
+	     			location.reload();
+	     		}
+	     	}
+        });
+	}
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,110 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+fechaDesde: String, fechaHasta: String, plantilla: List[List[String]])
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "CONSOLIDADO POR OPERADORES","(SOLO CANTIDADES)")
+			<form action="/reportOperadorConsol1Excel/" method="POST">
+				<input type="hidden" name="fechaDesde" value="@fechaDesde">
+				<input type="hidden" name="fechaHasta" value="@fechaHasta">
+				
+				<div class="container ocultar" style="max-width:99.9%;text-align:center ">
+					<button type="button" class="btn btn-info btn-sm" onclick="window.print()">Imprimir</button>
+					<button type="submit" class="btn btn-info btn-sm">Exportar a Excel</button>
+				</div>
+			</form>
+			
+			
+			
+			<table id="detalleKardex" class="table table-sm table-hover table-bordered table-condensed table-fluid" width="100%">
+				<thead style="background-color: #eeeeee">
+				
+						<tr>
+							<TH style="text-align: center">@plantilla.get(0).get(0)</TH>
+							<TH style="text-align: center">@plantilla.get(0).get(1)</TH>
+							@for(lista2 <- plantilla.get(0).tail.tail){
+								<th style="text-align:center; white-space: nowrap;vertical-align: middle">
+									<div style="display: flex;flex-direction: row;">
+										<span style="writing-mode: vertical-lr;transform: rotate(180deg);width: 23px;">
+											@lista2
+										</span>
+									</div>
+								</th>
+							}
+						</tr>
+				
+				</thead>
+				
+				<tbody >
+					@for(lista <-plantilla.tail){
+						<tr>
+							<TH style="text-align: left">@lista.get(0)</TH>
+							<TH style="text-align: center">@lista.get(1)</TH>
+							@for(lista2 <- lista.tail.tail){
+								
+								@if(!(lista2.equals("") || lista2.equals("0.00"))){
+									<td style="text-align: center; background-color:powderblue; width:40px">@lista2</TH>
+								}else{
+									<td style="text-align: center; width:40px">@lista2</TH>
+								}
+								
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+			<br>
+			<div align="center">
+				<button type="button" class="btn btn-sm  btn-success" style="font-size: 10px;" onclick="window.history.back()">Volver</button>
+			</div>
+			
+			
+		<br><br><br><br>
+	</div>
+		
+}
+				
+<script>
+
+    
+    $(document).ready(function() {
+	
+    	$('#detalleKardex').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[-1], ["All"]],
+	    	"paging":   false,
+	        "ordering": true,
+	        "info":     true,
+	        "bLengthChange" : false,
+	    	"language": {
+	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        }
+	    } );
+    	
+		  document.getElementById('mostrarmostrar').style.display="block";
+	} );
+    
+    
+    
+	
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		
+
+
+

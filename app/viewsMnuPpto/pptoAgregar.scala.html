@@ -1,0 +1,95 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, listGrupo: List[tables.Grupo], numDecimales: Long)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MANTENCION DE PRESUPUESTO : "+ bodega.nombre.toUpperCase(),"AGREGAR AL PRESUPUESTO")
+		<form action="/pptoGrabar/" method="POST">
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align: left;">MES - AÑO: </td>
+							<td style="text-align: left;">
+								<input type="hidden" name="id_bodegaEmpresa" value="@bodega.id">
+							  	<input type="month" name="anioMes" 
+									onblur="if(!limitaFecha(value,1800,3600)) value=''"
+									required>
+						    </td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">GRUPO - FAMILIA: </td>
+							<td style="text-align: left;">
+								<select class="custom-select"
+									name="id_grupo">
+									<option value="0">No Aplica</option>
+									@for(lista <- listGrupo){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+						    </td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">APLICA COMO:</td>
+							<td style="text-align: left;">
+								<select class="custom-select"
+									name="esVenta">
+									<option value="0">@mapDiccionario.get("ARRIENDO")</option>
+									<option value="1">VENTA</option>
+								</select>
+						    </td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">MONTO (en @mapDiccionario.get("PESOS")): </td>
+							<td style="text-align: left;">
+								<input type="text" class="form-control height23px width200px right"
+									name="total"
+									value="0"
+									onfocus="value=value.replace(/,/g,'')" 
+									onkeypress="return ingresoDouble(event,value)"
+									onchange="if(value.trim()=='') value = 0; value = formatStandar(value,'@numDecimales');">
+						    </td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">CONCEPTO: </td>
+							<td style="text-align: left;">
+								<input type="text" class="form-control left"
+									name="concepto"
+									required
+									autocomplete="off">
+						    </td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="submit"  value="GRABAR" class="btn btn-success btn-sm rounded-pill btn-block">
+					</div>
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/pptoEditar/@bodega.getId()';">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+}
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,102 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listActas: List[tables.ActaBaja])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTADO DE ACTAS DE BAJA","")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-10 col-sm-8 col-md-8 col-lg-8">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH style="min-width:80px;">FECHA</TH>
+							<TH>NUMERO</TH>
+							<TH>OBSERVACIONES</TH>
+							<TH>DOCUMENTO</TH>
+							<TH>SELECT</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listActas){
+							<TR>
+								<td style="text-align:center;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.getFecha())</div>
+									@utilities.Fechas.DDMMAA(lista1.getFecha())
+								</td>
+								<td  style="text-align:center;">@lista1.getNumero()</td>
+								<td  style="text-align:left;">@lista1.getObservaciones()</td>
+								<td style="text-align:center;">
+									@if(lista1.getActaBajaPDF().equals("0")){
+										--
+									}else{
+										<a href="#" onclick="descargaDocumento('@lista1.getActaBajaPDF()')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+								<td  style="text-align:center;">
+									<a href="/bajaActaPrint/@lista1.getId()">
+										<kbd style="background-color: #73C6B6">select</kbd>
+									</a>
+								</td>
+								
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "desc" ],[ 1, "desc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	
+		
+		
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

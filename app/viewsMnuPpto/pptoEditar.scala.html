@@ -1,0 +1,141 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, listPpto: List[tables.Ppto], numDecimales: Long)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MANTENCION DE PRESUPUESTO : "+ bodega.nombre.toUpperCase(),"CREAR/MODIFICAR/ELIMINAR")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>  
+						    <TH style= "text-align: center;">AÑO-MES<BR></TH>
+							<TH style= "text-align: center;">GRUPO/FAMILIA</TH>
+							<TH style= "text-align: center;">VENTA<br>(en @mapDiccionario.get("PESOS"))</TH>
+							<TH style= "text-align: center;">@mapDiccionario.get("ARRIENDO")<br>(en @mapDiccionario.get("PESOS"))</TH>
+							<TH style= "text-align: center;">TOTAL<br>(en @mapDiccionario.get("PESOS"))</TH>
+							<TH style= "text-align: center;">CONCEPTO</TH>
+							<TH style= "text-align: center;" width="5%" >EDITAR<BR></TH>
+							<TH style= "text-align: center;" width="5%" >BORRAR<BR></TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listPpto){
+							<TR>
+								<td style= "text-align: left;">@lista1.anioMes</td>
+								<td style= "text-align: left;">@lista1.nombreGrupo</td>
+								<td style= "text-align: right;">@lista1.ventaConFormato</td>
+								<td style= "text-align: right;">@lista1.arriendoConFormato</td>
+								<td style= "text-align: right;">@lista1.totalConFormato</td>
+								<td style= "text-align: left;">@lista1.concepto</td>
+								<td style= "text-align: center;">
+									<a href="#" onclick= "modificar('@lista1.id')">
+										<kbd style="background-color: #73C6B6">E</kbd>
+									</a>
+								</td>
+								<td style= "text-align: center;">
+									<a href="#" onclick= "eliminar('@lista1.id')">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+					<tfoot>
+						<TR>
+							<TH style= "text-align: left;">TOTALES</TH>
+							<TH style= "text-align: left;"></TH>
+							<TH style= "text-align: right;">0</TH>
+							<TH style= "text-align: right;">0</TH>
+							<TH style= "text-align: right;">0</TH>
+							<TH style= "text-align: center;"></TH>
+							<TH style= "text-align: center;"></TH>
+							<TH style= "text-align: left;"></TH>
+						</TR>
+		 			</tfoot>
+				</table>
+				
+				<div class="noprint">
+					<form id="form" action="/pptoAgregar/" method="POST">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input type="hidden" name="id_bodegaEmpresa" value="@bodega.getId()">
+								<input type="submit"  value="AGREGAR" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input type="button"  value="VOLVER" class="btn btn-light btn-sm rounded-pill btn-block" onclick="window.history.back();">
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="formModificarLinea" action="/pptoModificar/" method="POST">
+		<input type="hidden" name="id_bodegaEmpresa" value="@bodega.id">
+		<input type="hidden" id="selectModifica" name="id_ppto"value="0">
+	</form>
+	
+	<form id="formEliminarLinea" action="/pptoEliminar/" method="POST">
+		<input type="hidden" name="id_bodegaEmpresa" value="@bodega.id">
+		<input type="hidden" id="selectElimina" name="id_ppto"value="0">
+	</form>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+		  } );
+
+			let tabla = document.getElementById("tablaPrincipal");
+	        let totVta = 0;
+	        let totArr = 0;
+	        let totTot = 0;
+	        for (let i = 2; i < tabla.rows.length-1; i++) { 
+				var aux = tabla.rows[i].cells[2].textContent;
+				totVta = parseFloat(totVta) + parseFloat(aux.replace(/,/g,''));
+				aux = tabla.rows[i].cells[3].textContent;
+				totArr = parseFloat(totArr) + parseFloat(aux.replace(/,/g,''));
+				aux = tabla.rows[i].cells[4].textContent;
+				totTot = parseFloat(totTot) + parseFloat(aux.replace(/,/g,''));
+			}
+	        tabla.rows[tabla.rows.length-1].cells[2].textContent = formatStandar(totVta,'@numDecimales');
+	        tabla.rows[tabla.rows.length-1].cells[3].textContent = formatStandar(totArr,'@numDecimales');
+	        tabla.rows[tabla.rows.length-1].cells[4].textContent = formatStandar(totTot,'@numDecimales');
+
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificar = (id_ppto) => {
+		  $("#selectModifica").val(id_ppto);
+		  $("#formModificarLinea").submit();
+	}
+	  
+	const eliminar = (id_ppto) => {
+		alertify.confirm("Esta seguro de eliminar esta línea de presupuesto", function (e) {
+			if (e) {
+				$("#selectElimina").val(id_ppto);
+			 	$("#formEliminarLinea").submit();
+			}
+		});
+	}
+	
+</script>
+
+
+		
+		
+	
