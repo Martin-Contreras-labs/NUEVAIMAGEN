@@ -205,7 +205,7 @@ public class MnuPlanes extends Controller {
 					}else {
 						try {
 			    			Connection con = db.getConnection();
-			    			Map<String,Equipo> mapEquipo = Equipo.mapAllPorCodigo(con, s.baseDato);
+			    			Map<String,Equipo> mapEquipo = Equipo.mapAllVigentesPorCodigo(con, s.baseDato);
 			    			
 			    			//VALIDA EXCEL
 			    			
@@ -221,7 +221,7 @@ public class MnuPlanes extends Controller {
 			    					break;
 			    				}
 			    				
-			    				Equipo equipo = mapEquipo.get(codigo_equipo);
+			    				Equipo equipo = mapEquipo.get(codigo_equipo.toUpperCase());
 			    				if(equipo==null) {
 			    					listCodNoExiste += codigo_equipo + ", ";
 			    					codigoNoExiste = true;
@@ -292,7 +292,7 @@ public class MnuPlanes extends Controller {
 			    					}
 			    					
 			    					PlanMantencion planMantencion = mapPlanMantencion.get(codigo_equipo);
-			    					Equipo equipo = mapEquipo.get(codigo_equipo);
+			    					Equipo equipo = mapEquipo.get(codigo_equipo.toUpperCase());
 			    					if(planMantencion==null) {
 			    						PlanMantencion.create(con, s.baseDato, equipo.getId());
 			    					}
@@ -496,7 +496,7 @@ public class MnuPlanes extends Controller {
 					}else {
 						try {
 			    			Connection con = db.getConnection();
-			    			Map<String,Equipo> mapEquipo = Equipo.mapAllPorCodigo(con, s.baseDato);
+			    			Map<String,Equipo> mapEquipo = Equipo.mapAllVigentesPorCodigo(con, s.baseDato);
 			    			//VALIDA EXCEL:
 				    			boolean sinCodigo = false;
 				    			boolean codigoNoExiste = false;
@@ -507,7 +507,7 @@ public class MnuPlanes extends Controller {
 				    					sinCodigo = true;
 				    					break;
 				    				}
-				    				Equipo equipo = mapEquipo.get(codigo_equipo.trim());
+				    				Equipo equipo = mapEquipo.get(codigo_equipo.trim().toUpperCase());
 				    				if(equipo==null) {
 				    					listCodNoExiste += codigo_equipo + ", ";
 				    					codigoNoExiste = true;
@@ -565,7 +565,7 @@ public class MnuPlanes extends Controller {
 			    					}
 			    					
 			    					PlanMantencion planMantencion = mapPlanMantencion.get(codigo_equipo.trim());
-			    					Equipo equipo = mapEquipo.get(codigo_equipo.trim());
+			    					Equipo equipo = mapEquipo.get(codigo_equipo.trim().toUpperCase());
 			    					if(planMantencion==null) {
 			    						PlanMantencion.create(con, s.baseDato, equipo.getId());
 			    						PlanMantencion aux = PlanMantencion.findPorCodigo(con, s.baseDato, codigo_equipo.trim());

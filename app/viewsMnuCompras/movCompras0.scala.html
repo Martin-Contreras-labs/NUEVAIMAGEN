@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-fechaDesde: String, fechaHasta: String)
+fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor])
 
     	
 @main("") {
@@ -31,6 +31,18 @@ fechaDesde: String, fechaHasta: String)
 							  			name="fechaHasta"
 							  			value="@fechaHasta"
 					        			required>
+								</td>
+							</TR>
+							<TR>
+							<TH>PROVEEDOR:</TH>
+								<td>
+									<input type="hidden" id="id_proveedor" name="id_proveedor" value="0">
+									<select id="selSucursal" class="custom-select center"  onchange = "$('#id_proveedor').val(value); ">
+										<option value="0">-- TODOS --</option>
+										@for(lista <- listProveedor){
+											<option value="@lista.getId()">@lista.getNickName()</option>
+										}
+									</select>
 								</td>
 							</TR>
 						</thead>

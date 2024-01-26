@@ -171,7 +171,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        				listEquipBodOrigen.add(aux);
 		    				}else {
 		    					List<String> aux = new ArrayList<String>();
-		    					aux.add(v.getId_equipo().toString()); 						// 0 id_equipo
+		    					aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
 		        				aux.add("0"); 										// 1 id_cotizacion
 		        				aux.add(grupo.getNombre()); 						// 2 nombre de grupo
 		        				aux.add(""); 										// 3 numero cotizacion
@@ -283,6 +283,72 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     		return ok(mensajes.render("/",msgError));
     	}
     }
+	
+	public Result movValySubePlantilla(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		Archivos aux = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+    		Http.MultipartFormData.FilePart<TemporaryFile> archivo = aux.file;
+    		Long id_bodegaOrigen = aux.id_bodegaOrigen;
+    		if (archivo != null && id_bodegaOrigen > 0) {
+    			File file = Archivos.parseMultipartFormDatatoFile(archivo);
+	    		try {
+	    			Connection con = db.getConnection();
+	    			List<String> mensaje = Movimiento.validaPlantillaMovimiento(con, s.baseDato, file);
+	    			if(mensaje.get(0).equals("true")) {
+	    				List<List<String>> listaExcel = Movimiento.llenaListaDesdePlantillaExcel(file);
+	    				Map<String,List<String>> map = new HashMap<String,List<String>>();
+	    				listaExcel.forEach(x->{
+	    					map.put(x.get(0), x);
+	    				});
+	    				String mapeo = Json.toJson(map).toString();
+	    				con.close();
+	    				return ok("{\"status\":true,\"map\":"+mapeo+"}").as("application/json");
+	    			}else {
+	    				String msg = "";
+						for(String m: mensaje) {
+							msg += m + "<br>";
+						}
+						con.close();
+						return ok("{\"status\":false,\"msg\":\""+msg+"\"}").as("application/json");
+	    			}
+	    			
+	    		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+    			
+			}
+    	}
+    	return ok("{\"status\":\"false\",\"msg\":\"ERROR\"}").as("application/json");
+	}
+	
+	public Result movPlantilla(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			Long id_bodegaOrigen = Long.parseLong(form.get("id_bodegaOrigen").trim());
+    			try {
+    				Connection con = db.getConnection();
+    				File file = Movimiento.plantillaMovimiento(con, s.baseDato, s.id_tipoUsuario, id_bodegaOrigen);
+    				if(file != null) {
+    					con.close();
+        				return ok(file, Optional.of("plantillaCargaMovimientos.xlsx"));
+    				}else {
+    					con.close();
+    					return ok(mensajes.render("/",msgError));
+    				}
+    				
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    	        }
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
 	
 	public Result nameComercialAjax(Http.Request request) {
 		Sessiones s = new Sessiones(request);

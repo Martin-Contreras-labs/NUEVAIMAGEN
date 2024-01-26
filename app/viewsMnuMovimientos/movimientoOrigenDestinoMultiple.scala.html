@@ -163,7 +163,22 @@ sucursal: tables.Sucursal, comercial: tables.Comercial)
 
 						</thead>
 					</table>
-					<hr>
+					
+					
+					@if(bodegaOrigen.esInterna == 1){
+						<div class="noprint" align="center">
+							<div class="row justify-content-md-center" >
+								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+									<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+										onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
+								</div>
+							</div>
+						</div>
+					}
+					
+					
+					
+					
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
 							<TR>
@@ -213,7 +228,7 @@ sucursal: tables.Sucursal, comercial: tables.Comercial)
 									
 									
 									
-									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(4)</a></td>
+									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');"><div class="codigo">@lista1.get(4)</div></a></td>
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(5)</a></td>
 									<td  style="text-align:right;">@lista1.get(6)</td>
 									<td  style="text-align:right;">@lista1.get(7)</td>
@@ -234,8 +249,8 @@ sucursal: tables.Sucursal, comercial: tables.Comercial)
 										</div>
 									</td>
 									<td  style="text-align:center;">
-										<input type="hidden" name="esVenta[]" id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
-										<input type="checkbox" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1) 
+										<input type="hidden" class="esVenta0" name="esVenta[]" id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
+										<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1) 
 										$("#esVenta_@lista1.get(0)_@lista1.get(1)").val(0); else $("#esVenta_@lista1.get(0)_@lista1.get(1)").val(1);'>
 									</td>
 									<td width="1px" style="text-align:center;">
@@ -439,6 +454,38 @@ sucursal: tables.Sucursal, comercial: tables.Comercial)
 		        </div>
 	    	</div>
 		</div>
+	</div>
+	
+	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Carga masiva de equipos a mover</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        
+			<div class="row">
+				<div class="col-sm-12" style="text-align:center">
+					<form action="/routes2/movPlantilla/" method="POST"  onsubmit="return validarForm2();">
+					<input type="hidden" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
+						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
+					</form>
+					<br>
+					<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+						<div>SUBIR ARCHIVO</div>
+						<input type="file" id="archivoXLSX"  value="" onchange="subirArchivo(this.form, this); $('#modalCargaMasiva').modal('hide');">
+					</span>
+					<br><br>
+					<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+			<br>
+	      </div>
+	    </div>
+	  </div>
 	</div>
 	
 	@modalListaTransportistas(mapDiccionario, listaTransporte)
@@ -1172,6 +1219,89 @@ sucursal: tables.Sucursal, comercial: tables.Comercial)
 			+ "e intente de nuevo.");
 			form.docAdjunto.value="";
 		}
+	}
+	
+	let extArray2 = new Array(".xls", ".xlsx");
+	function subirArchivo(form, nodo) {
+		allowSubmit = false;
+		if (!nodo.files[0]){
+			return;
+		}
+		
+		let nombre = nodo.files[0].name;
+		while (nombre.indexOf("\\") != -1){
+			nombre = nombre.slice(nombre.indexOf("\\") + 1);
+		}
+
+		ext = nombre.slice(nombre.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray2.length; i++) {
+			if (extArray2[i] == ext) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var formData = new FormData();
+			formData.append("file",nodo.files[0]);
+			formData.append("id_bodegaOrigen",'@bodegaOrigen.getId()');
+			$.ajax({
+				async: false,
+				url: "/routes2/movValySubePlantilla/",
+		        type: "POST",
+		        method: "POST",
+		        data: formData,
+		        cache: false,
+		        contentType: false,
+		     	processData: false,
+		     	success: function(rs){
+		     		if(rs["status"]){
+						$("#tablaPrincipal").dataTable().fnDestroy();
+						let codigos = document.querySelectorAll(".codigo");
+						let cantidades = document.querySelectorAll(".cantidad");
+						let esVenta0 = document.querySelectorAll(".esVenta0");
+						let esVenta1 = document.querySelectorAll(".esVenta1");
+						let verificaStock = document.querySelectorAll(".verificaStock");
+						let mensajes = "";
+						for (let i = 0; i < codigos.length; i++) {
+							let aux = rs["map"][codigos[i].textContent.toUpperCase()];
+							document.getElementById('btnCargaExcel').style.visibility = 'hidden';
+							if(aux != null){
+								let valores = aux;
+								let codigo = valores[0].toUpperCase();
+								let cant = valores[2].replace(/,/g,'');
+								let stock = valores[1].replace(/,/g,'');
+								if(parseFloat(cant) > parseFloat(stock)){
+									cantidades[i].value = formatStandar(stock,2);
+									mensajes += "La cantidad en codigo "+codigo+" supera el stock, cantidad = "+formatStandar(cant,2)+" y stock = "+formatStandar(stock,2)+", se coloca el stock.<br>";
+								}else{
+									cantidades[i].value = formatStandar(cant,2);
+								}
+								esVenta0[i].value = valores[3];
+								if(esVenta0[i].value == "1"){
+									esVenta1[i].checked = true;
+								}
+							}else{
+								mensajes += "El codigo "+codigos[i].textContent+" no esta en lo disponible, no se considera.\n";
+							}
+						}
+						verificaMovimientos();
+						if(mensajes.length > 5){
+							alertify.alert("ALERTA:<br> " + mensajes);
+						}
+		     		}else{
+						alertify.alert("ERROR EN ARCHIVO:<br> " + rs["msg"]);
+		     		}
+				}
+			 });
+		}else{
+			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
+			+ (extArray2.join("  ")) + "\nPor favor, seleccione un archivo valido "
+			+ "e intente de nuevo.");
+			form.archivoXLSX.value="";
+		}
+		
+	}
+	
+	const validarForm2 = () =>{
+		$("#btnSubmit2").attr('disabled',true);
+		return(true);
 	}
 
 	

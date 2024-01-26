@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-lista: List[List[String]], fechaDesde: String, fechaHasta: String)
+lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor: Long)
     	
 @main("") {
 
@@ -66,7 +66,6 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String)
 												@if(!nivel2.equals("0") || index2 == 2){
 													<td style="background-color: #eeeeee">@nivel2</td>
 												}else{
-													
 													<td>@nivel2</td>
 												}
 											}
@@ -83,6 +82,7 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String)
 	<form id="excel" class="formulario" method="post" action="/routes2/movCompras1Excel/">
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+		<input type="hidden" id="id_proveedor" name="id_proveedor" value="@id_proveedor">
 	</form>
 
 
@@ -102,17 +102,7 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String)
 				tabla.rows[i].cells[k].style.textAlign="center";
 			}
 		}
-		/*
-		for (var i = 0; i < tabla.rows.length; i++) { 	
-			tabla.rows[i].cells[5].style.backgroundColor="#eeeeee";
-		}
 		
-		for (var i = 5; i < tabla.rows.length; i++) { 
-			tabla.rows[i].cells[tabla.rows[0].cells.length-2].style.backgroundColor="#eeeeee";
-			tabla.rows[i].cells[tabla.rows[0].cells.length-2].style.textAlign="right";
-			tabla.rows[i].cells[tabla.rows[0].cells.length-1].style.textAlign="right";
-		}
-		*/
 		var footer = tabla.createTFoot();
 		var newRow = footer.insertRow(0);
 		var cellsOfRow = tabla.rows[0].getElementsByTagName('th');
@@ -154,7 +144,7 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String)
 				"info": false,
 				"searching": false,
 		    	"order": [[ 2, "asc" ]],
-				"scrollY": 550,
+				//"scrollY": 550,
 				"scrollX": true,
 		    	"language": {
 		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"

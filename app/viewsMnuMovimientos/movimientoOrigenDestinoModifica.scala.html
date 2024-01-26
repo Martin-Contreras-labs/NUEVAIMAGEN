@@ -622,7 +622,7 @@ sucursalOrigen: tables.Sucursal, comercial: tables.Comercial, sucursalDestino: t
 			let sinNegativos = 0;
 			for (let i = 0; i < verifica.length; i++) {
 				let aux = verifica[i].textContent.replace(/,/g,'')
-				if(parseFloat(aux) < 0){
+				if(parseFloat(aux) < -0.001){
 					sinNegativos = 1;
 				}
 			}

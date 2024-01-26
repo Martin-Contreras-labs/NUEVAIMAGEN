@@ -347,7 +347,8 @@ public class Factura {
 							" ifnull(bodegaEmpresa.id, 0), " +
 							" esModificable, " +
 							" compra.id, " +
-							" equipo.id " +
+							" equipo.id, " +
+							" bodegaEmpresa.id_sucursal " +
 							" from `"+db+"`.factura " +
 							" left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor " +
 							" left join `"+db+"`.compra on compra.id_factura = factura.id " +
@@ -364,6 +365,9 @@ public class Factura {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
 			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
+			
+			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();
 				i++;
@@ -399,6 +403,17 @@ public class Factura {
 				
 				aux.add(myformatdouble2.format(pesoUnit*rs.getDouble(4)));  	// 16 kg total
 				aux.add(myformatdouble2.format(supUnit*rs.getDouble(4)));  		// 17 m2 total
+				
+				Sucursal sucursal = mapSucursal.get(rs.getLong(14));
+				if(sucursal != null) {
+					aux.add(sucursal.getNombre());  						// 18 nombre sucursal
+					aux.add(sucursal.getId().toString());  					// 19 id sucursal
+				}else {
+					aux.add("");
+					aux.add("0");
+				}
+				
+				
 				
 				detalle.add(aux);
 			}

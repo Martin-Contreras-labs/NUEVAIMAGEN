@@ -192,7 +192,7 @@ public class MnuCompras extends Controller {
 	    				
 	    				Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
 	    				Map<String,Moneda> mapMoneda = Moneda.mapNickMonedas(con, s.baseDato);
-	    				Map<String,Equipo> mapEquipo = Equipo.mapAllPorCodigo(con, s.baseDato);
+	    				Map<String,Equipo> mapEquipo = Equipo.mapAllVigentesPorCodigo(con, s.baseDato);
 	    				Map<String,EquivalenciasMonedas> mapEquivalenciasMonedas = EquivalenciasMonedas.mapEquivNickMonedas(con, s.baseDato);
 	    				
 	    				Long minId_fabrica = Fabrica.minId_fabrica(con, s.baseDato);
@@ -227,7 +227,7 @@ public class MnuCompras extends Controller {
 	    					}
 	    					
 	    					String codEquipo = detalle.get(6).toUpperCase().trim().toUpperCase();
-	    					equipo = mapEquipo.get(codEquipo);
+	    					equipo = mapEquipo.get(codEquipo.toUpperCase());
 	    					if(equipo == null) {
 	    						String nombEquipo = detalle.get(7).toUpperCase().trim();
 	    						FormEquipoGraba aux = new FormEquipoGraba();
@@ -510,14 +510,15 @@ public class MnuCompras extends Controller {
 	    			String esPorSucursal = "1";
 	    			List<List<String>> lista = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, esPorSucursal, id_sucursal);
     				String vista = 
-    						"<select class=\"selBodDest form-control form-control-sm\" name=\"id_bodegaDestino[]\">"+
+    						"<select class='selBodDest form-control form-control-sm' name='id_bodegaDestino[]'>"+
     								"<option value='0'></option>";
     						for(List<String> l: lista) {
     							vista += "<option value='"+l.get(1)+"'>"+l.get(5)+"</option>";
     						}
     						vista += "</select>";
+    				Sucursal sucursal = Sucursal.find(con, s.baseDato, id_sucursal);	
 					con.close();
-					return ok(vista);
+					return ok("{\"vista\":\""+vista+"\",\"nameSucursal\":\""+sucursal.nombre+"\"}").as("application/json");
 				} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1153,8 +1154,9 @@ public class MnuCompras extends Controller {
     			Fechas hoy = Fechas.hoy();
     			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
     			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
     			con.close();
-    			return ok(movCompras0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+    			return ok(movCompras0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, listProveedor));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -1174,13 +1176,18 @@ public class MnuCompras extends Controller {
 	       	}else {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
+	       		Long id_proveedor = Long.parseLong(form.get("id_proveedor"));
 	       		try {
 	    			Connection con = db.getConnection();
+	    			String filtroPorProveedor = "";
+	    			if(id_proveedor > 0) {
+	    				filtroPorProveedor = " and proveedor.id = " + id_proveedor;
+	    			}
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta);
+	    			List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor);
 	    			con.close();
-	    			return ok(movCompras1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
+	    			return ok(movCompras1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta,id_proveedor));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1200,10 +1207,16 @@ public class MnuCompras extends Controller {
 	       	}else {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
+	       		Long id_proveedor = Long.parseLong(form.get("id_proveedor"));
 	       		try {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta);
+	    			String filtroPorProveedor = "";
+	    			if(id_proveedor > 0) {
+	    				filtroPorProveedor = " and proveedor.id = " + id_proveedor;
+	    			}
+		    			
+	    			List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor);
 	    			File file = ReportMovCompras.movComprasPeriodoExcel(con, s.baseDato, datos, mapeoDiccionario, fechaDesde, fechaHasta);
 	    			if(file!=null) {
 		       			con.close();

@@ -3,6 +3,8 @@ package controllers;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -5036,7 +5038,6 @@ public class MnuCotizar extends Controller {
 	    			
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
-	    			
 	    			List<Guia> listaGuias = Guia.allDespachosConOtDesdeHasta(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 	    			List<Guia> listaGuiasSinNroNegativo = new ArrayList<Guia>();
 	    			listaGuias.forEach(x->{
@@ -5044,7 +5045,6 @@ public class MnuCotizar extends Controller {
 	    					listaGuiasSinNroNegativo.add(x);
 	    				}
 	    			});
-	    			
 	    			
 	    			con.close();
 	    			return ok(otListarDespachos.render(mapeoDiccionario,mapeoPermiso,userMnu,listaGuiasSinNroNegativo));
@@ -5549,6 +5549,35 @@ public class MnuCotizar extends Controller {
 	}
     
     public Result cotiValidarPlantilla(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			List<String> mensaje = new ArrayList<String>();
+    			Archivos aux = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+        		Http.MultipartFormData.FilePart<TemporaryFile> archivo = aux.file;
+        		
+    			if (archivo != null) {
+    				File file = Archivos.parseMultipartFormDatatoFile(archivo);
+					try {
+		    			Connection con = db.getConnection();
+		    			mensaje = FormCotiza.cotiValidarPlantillaExcel(con, s.baseDato, file);
+		    			String jsonMsg = Json.toJson(mensaje).toString();
+		    			con.close();
+		    			return ok(jsonMsg.toString()).as("application/json");
+					} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+    			}
+	       	}
+    	}
+    	return ok("error");
+    }
+    
+    
+    public Result cotiCargaPlantilla(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
@@ -5558,19 +5587,14 @@ public class MnuCotizar extends Controller {
     		}else {
     			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
     			String id_sucursal = form.get("id_sucursal").trim();
-    			
-    			List<String> mensaje = new ArrayList<String>();
+
         		Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
     			Http.MultipartFormData.FilePart<TemporaryFile> archivo = body.getFile("archivoXLSX");
     			if (archivo != null) {
     				File file = Archivos.parseMultipartFormDatatoFile(archivo);
 					try {
 		    			Connection con = db.getConnection();
-		    			
-		    			mensaje = FormCotiza.cotiValidarPlantillaExcel(con, s.baseDato, file);
-		    			
-		    			if(mensaje.get(0).equals("true")) {
-		    				
+
 		    				List<List<String>> listaExcel = FormCotiza.llenaListaDesdeExcel(file);
 		    				Map<String,List<String>> mapListaExcel = new HashMap<String,List<String>>();
 		    				for(List<String> l: listaExcel){
@@ -5582,6 +5606,54 @@ public class MnuCotizar extends Controller {
 		    				
 		    				if(mapListaExcel.size() == listaExcel.size()) {
 		    					
+		    					
+		    					Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, s.baseDato);
+		    					String newEquipos = "";
+		    					String selEquipos = "";
+		    	    			List<String> codigos = new ArrayList<String>();
+		    					for(List<String> l: listaExcel) {
+									Equipo equipo = mapEquipos.get(l.get(0).toUpperCase());
+		    	    				if(equipo == null) {
+		    	    					newEquipos += "('"+l.get(0)+"','"+l.get(1)+"','2'),";
+		    	    					codigos.add(l.get(0));
+		    	    					selEquipos += "'"+l.get(0)+"',";
+		    	    				}
+		    					}
+	    	    				if(newEquipos.length()>1) {
+		    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
+		    	    				PreparedStatement smt = con
+		    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad) VALUES "+newEquipos+";");
+		    	    				smt.executeUpdate();
+		    	    				smt.close();
+		    	    				selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
+		    	    				PreparedStatement smt2 = con
+		    	    						.prepareStatement("Select id from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
+		    	    				ResultSet rs2 = smt2.executeQuery();
+		    	    				List<String> idsEquipo = new ArrayList<String>();
+		    	    				while(rs2.next()) {
+		    	    					idsEquipo.add(rs2.getString(1));
+		    	    				}
+		    	    				smt2.close();
+		    	    				rs2.close();
+		    	    				String datos = "";
+		    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
+		    	    				for(String x:idsEquipo){
+		    	    					for(Sucursal sucursal: listSucursal) {
+		    	    						datos += "("+x+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+sucursal.getId()+"),";
+		    	    					}
+		    	    					
+		    	    				}
+		    	    				datos = datos.substring(0,datos.length()-1);
+		    	    				PreparedStatement smt3 = con
+		    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
+		    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+		    	    								+ " values "+datos+";");
+		    	    				smt3.executeUpdate();
+		    	    				smt3.close();
+		    	    			}
+	    	    				
+	    	    				
+	    	    				
 		    					Long id_cotizacion = (long) 0;
 		    					
 		    	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -5616,8 +5688,6 @@ public class MnuCotizar extends Controller {
 		    	    			formCotiza.id_cotizacion = id_cotizacion;
 		    	    			
 		    	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
-		    	    			
-		    	    			
 		    	    			
 		    	    			for(int i=0;i<listaConPrecio.size();i++){
 		    	    				
@@ -5728,6 +5798,7 @@ public class MnuCotizar extends Controller {
 		    	    					
 		    	    			}
 		    	    			
+		    	    			
 		    	    			for(List<String> l: listaConPrecio) {
 		    	    				l.add(l.get(10).replaceAll(",", ""));
 		    	    				l.add(l.get(5).replaceAll(",", ""));
@@ -5741,9 +5812,8 @@ public class MnuCotizar extends Controller {
 		    	    				l.add(l.get(18).replaceAll(",", ""));
 		    	    				l.add(l.get(19).replaceAll(",", ""));
 		    	    			}
-		    	    		
-		    	    			List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, s.baseDato);
 		    	    			
+		    	    			List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, s.baseDato);
 		    	    			
 		    	    			Comercial comercial = new Comercial();
 		    	    			Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, s.id_usuario);
@@ -5777,7 +5847,6 @@ public class MnuCotizar extends Controller {
 		    	    			String jsonDetalle = Json.toJson(listaConPrecio).toString();
 		    	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
 		    	    			
-		    	    			
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
@@ -5787,14 +5856,6 @@ public class MnuCotizar extends Controller {
 		    					con.close();
 								return ok(mensajes.render("/cotizaIngreso2/"+id_bodegaEmpresa, "Existen codigos duplicados en el archivo"));
 		    				}
-		    			}else {
-		    				String msg = "";
-							for(String m: mensaje) {
-								msg += m + " ";
-							}
-							con.close();
-							return ok(mensajes.render("/cotizaIngreso2/"+id_bodegaEmpresa, msg));
-		    			}
 					} catch (SQLException e) {
 		    			e.printStackTrace();
 		    		}
@@ -6079,11 +6140,6 @@ public class MnuCotizar extends Controller {
 								return ok(mensajes.render("/cotizaIngreso2/"+id_bodegaEmpresa, "Existen codigos duplicados en el archivo"));
 		    				}
 		    				
-		    				
-		    				
-		    				
-		    				
-		    				//return ok(mensajes.render("/cotizaIngreso2/"+id_bodegaEmpresa, "continuar con el vaciado"));
 		    			}else {
 		    				String msg = "";
 							for(String m: mensaje) {

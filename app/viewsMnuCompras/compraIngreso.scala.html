@@ -134,6 +134,7 @@ listSucursales: List[tables.Sucursal])
 								<TH width="3%">MONEDA</TH>
 								<TH width="10%">P.UNITARIO<br>COMPRA</TH>
 								<TH width="10%">TOTAL</TH>
+								<TH width="10%">SUCURSAL</TH>
 								<TH width="4%">ASIGNA<br>P.LISTA</TH>
 								<TH width="15%">DESTINO</TH>
 								<TH width="4%">TOT.KG</TH>
@@ -161,6 +162,7 @@ listSucursales: List[tables.Sucursal])
 								<td></td>
 								<td></td>
 								<td></td>
+								<td></td>
 							</TR>
 				 			<TR style="background-color: #eeeeee">
 						        <td></td>
@@ -172,6 +174,7 @@ listSucursales: List[tables.Sucursal])
 								<td></td>
 								<td></td>
 								<td><div id="totalTotal" align="right">0.00</div></td>
+								<td></td>
 								<td></td>
 								<td></td>
 								<td><div id="totalKG" align="right">0.00</div></td>
@@ -388,59 +391,6 @@ listSucursales: List[tables.Sucursal])
 		</div>
 	</div>
 	
-	<div id='modalSucursalPrecio' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-		<div class='modal-dialog modal-dialog-scrollable modal-md' role='document'>
-			<div class='modal-content'>
-				<div class='modal-header'>
-					<h5 class='modal-title'>SELECCIONE SUCURSAL A<BR>ASIGNAR/CAMBIAR PRECIO LISTA</h5>
-				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-				          <span aria-hidden='true'>&times;</span>
-				        </button>
-				</div>
-				<div class='modal-body'>
-					<table class="table table-sm table-bordered table-condensed table-fluid">
-						<TR>
-							<td style="text-align:left">
-								<select class="custom-select" id="nuevoEquipoId_grupo" onchange="muestraPrecios(value);">
-									<option value="0"></option>
-									@for(lista <- listSucursales){
-										<option value="@lista.getId()">@lista.getNombre()</option>
-									}
-								</select>
-							</td>
-						</TR>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div id='modalSucursalPrecio2' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-		<div class='modal-dialog modal-dialog-scrollable modal-md' role='document'>
-			<div class='modal-content'>
-				<div class='modal-header'>
-					<h5 class='modal-title'>SELECCIONE SUCURSAL PARA<BR>ASIGNAR/CAMBIAR PRECIO LISTA</h5>
-				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-				          <span aria-hidden='true'>&times;</span>
-				        </button>
-				</div>
-				<div class='modal-body'>
-					<table class="table table-sm table-bordered table-condensed table-fluid">
-						<TR>
-							<td style="text-align:left">
-								<select class="custom-select" onchange="muestraPrecios2(value);">
-									<option value="0"></option>
-									@for(lista <- listSucursales){
-										<option value="@lista.getId()">@lista.getNombre()</option>
-									}
-								</select>
-							</td>
-						</TR>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
 	
 	
 }
@@ -585,12 +535,27 @@ listSucursales: List[tables.Sucursal])
 		
 		cell = row.insertCell(9);
 		cell.style.textAlign = "center";
-		cell.innerHTML = "<a href=\"#\" onclick=\"selSucursalPrecio("+id_equipo+")\"> "+
-			"<kbd style=\"background-color: #CACFD2\">Asignar</kbd></a>";
+		let auxSucursales = "<select class=\"form-control form-control-sm \"" +
+								" onchange= \"actualizaSucursal('"+cont+"','"+id_equipo+"',value);\">" +
+										"<option value='0'></option>";
+												@for(lista <- listSucursales){
+													auxSucursales += "<option value=\"@lista.getId()\">@lista.getNombre()</option>";
+												}
+							        		auxSucursales += "</select></td>";
+		cell.innerHTML = auxSucursales;
+		
+		
+		
 		
 		cell = row.insertCell(10);
 		cell.style.textAlign = "center";
-		let des = "<div id='selBodegaDestino_"+id_equipo+"'><select class=\"selBodDest form-control form-control-sm\" name=\"id_bodegaDestino[]\">"+
+		cell.innerHTML = "<input type=\"hidden\" id=\"id_sucursal_"+cont+"\" value=\"0\">" +
+						"<a href=\"#\" onclick=\"selSucursalPrecio("+cont+","+id_equipo+")\"> "+
+							"<kbd style=\"background-color: #CACFD2\">Asignar</kbd></a>";
+		
+		cell = row.insertCell(11);
+		cell.style.textAlign = "center";
+		let des = "<div id='selBodegaDestino_"+cont+"'><select class=\"selBodDest form-control form-control-sm\" name=\"id_bodegaDestino[]\">"+
 					"<option value='0'></option>";
     		@for(bod <- listBodegas){
     			des += "<option value='@bod.get(1)'>@bod.get(5)</option>";
@@ -598,15 +563,15 @@ listSucursales: List[tables.Sucursal])
     		des += "</select></div>";
 		cell.innerHTML = des;
 			
-		cell = row.insertCell(11);
+		cell = row.insertCell(12);
 		cell.style.textAlign = "right";
 		cell.innerHTML = "<div class=\"kg\" id=\"totKG_"+cont+"\" align=\"right\">0.00</div>";
 		
-		cell = row.insertCell(12);
+		cell = row.insertCell(13);
 		cell.style.textAlign = "right";
 		cell.innerHTML = "<div class=\"m2\" id=\"totM2_"+cont+"\" align=\"right\">0.00</div>";
 		
-		cell = row.insertCell(13);
+		cell = row.insertCell(14);
 		cell.style.textAlign = "center";
 		cell.innerHTML = "<a href=\"#\" onclick= \"eliminarFila(this)\"><kbd style=\"background-color: red\">X</kbd></a>";
 		
@@ -698,18 +663,13 @@ listSucursales: List[tables.Sucursal])
 		return(flag);
 	}
 	
-	let auxIdEquipo = "";
-	const selSucursalPrecio = (id_equipo) => {
-		auxIdEquipo = id_equipo;
-		$("#modalSucursalPrecio").modal("show");
-	}
-	
-	const muestraPrecios = (id_sucursal) => {
-		$("#modalSucursalPrecio").modal("hide");
+	const selSucursalPrecio = (index,id_equipo) => {
+		let id_sucursal = $("#id_sucursal_"+index).val();
 		if(id_sucursal != 0){
 			var formData = new FormData();
 			formData.append('id_sucursal',id_sucursal);
-		  	formData.append('id_equipo',auxIdEquipo);
+		  	formData.append('id_equipo',id_equipo);
+
 	        $.ajax({
 	            url: "/modalPreciosAjax/",
 	            type: "POST",
@@ -728,67 +688,61 @@ listSucursales: List[tables.Sucursal])
 			            contentType: false,
 				     	processData: false,
 				     	success: function(rs2){
-				     		document.getElementById("selBodegaDestino_"+auxIdEquipo).innerHTML =  rs2;
 							document.getElementById("modalPrecios").innerHTML =  rs1;
 				     		$("#modalPrecioLista").modal("show");
 				     	}
 			        });
 		     	}
 	        });
+		}else{
+			alertify.alert("Primero debe seleccionar la Sucursal", function () {
+     			});
 		}
-
 	}
 	
-	const selSucursalPrecio2 = (id_equipo) => {
-		auxIdEquipo = id_equipo;
-		$("#modalSucursalPrecio2").modal("show");
+	const actualizaSucursal = (index, auxIdEquipo, id_sucursal) =>{
+		$("#modalSucursal").modal("hide");
+		if(id_sucursal != 0){
+			var formData = new FormData();
+			formData.append('id_sucursal',id_sucursal);
+		  	formData.append('id_equipo',auxIdEquipo);
+	        $.ajax({
+	            url: "/routes2/compraVistaSelBodDestAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(rs2){
+		     		document.getElementById("selBodegaDestino_"+index).innerHTML =  rs2["vista"];
+					$("#id_sucursal_"+index).val(id_sucursal);
+		     		$("#sucursal_"+index).val(rs2["nameSucursal"]);
+		     	}
+	        });
+		}
 	}
 	
-	const muestraPrecios2 = (id_sucursal,campo,valor) => {
-		let id_moneda = $("#precioMoneda").val();
+	
+	
+	const actualizaSelect  = (index, id_bodega, id_equipo) => {
 		var formData = new FormData();
-		formData.append('id_sucursal',id_sucursal);
-		formData.append('id_equipo',id_equipo);
-		formData.append('id_moneda',id_moneda);
-		formData.append('campo',campo);
-		formData.append('valor',valor);
+		formData.append('id_bodega',id_bodega);
+	  	formData.append('id_equipo',id_equipo);
 		$.ajax({
-            url: "/actualizaPrecioAjax/",
+            url: "/routes2/compraVistaSelBodDestAjax2/",
             type: "POST",
             method: "POST",
             data: formData,
             cache: false,
             contentType: false,
 	     	processData: false,
-	     	success: function(respuesta){
-	     		if(respuesta=="error"){
-	     			alertify.alert(msgError, function () {
-		     			location.href = "/";
-		     		});
-	     		}
-	     		if(respuesta.status){
-	     			let nroDecimal = mapDec.get(parseFloat(id_moneda));
-	     			let precioVenta = $("#precioVenta").val().replace(/,/g,'');
-	     			let precioArriendo = $("#precioArriendo").val().replace(/,/g,'');
-	     			let precioMinimo = $("#precioMinimo").val().replace(/,/g,'');
-	     			let permanenciaMinima = $("#permanenciaMinima").val().replace(/,/g,'');
-	     			if(precioVenta=="") precioVenta = 0;
-	     			if(precioArriendo=="") precioArriendo = 0;
-	     			if(precioMinimo=="") precioMinimo = 0;
-	     			if(permanenciaMinima=="") permanenciaMinima = 0;
-	     			let tasa = parseFloat(precioArriendo)/parseFloat(precioVenta);
-	     			if(parseFloat(precioVenta)==0) tasa = 0;
-	     			$("#precioVenta").val(formatStandar(parseFloat(precioVenta),nroDecimal));
-	     			$("#precioArriendo").val(formatStandar(parseFloat(precioArriendo),nroDecimal));
-	     			$("#precioMinimo").val(formatStandar(parseFloat(precioMinimo),nroDecimal));
-	     			$("#permanenciaMinima").val(formatStandar(parseFloat(permanenciaMinima),0));
-	     			$("#precioTasa").val(formatPorcentaje(parseFloat(tasa*100)));
-	     		}
+	     	success: function(rs2){
+	     		document.getElementById("selBodegaDestino_"+index).innerHTML =  rs2;
 	     	}
         });
 	}
 	
-
 	const cambiarPrecio = (id_sucursal, id_equipo,campo,valor) => {
 		let id_moneda = $("#precioMoneda").val();
 		var formData = new FormData();

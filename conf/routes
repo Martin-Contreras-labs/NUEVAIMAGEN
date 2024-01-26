@@ -669,6 +669,7 @@ POST	/modificaDespacho/					controllers.MnuCotizar.modificaDespacho(request: Req
 
 POST	/cotiPlantilla/						controllers.MnuCotizar.cotiPlantilla(request: Request)
 POST	/cotiValidarPlantilla/				controllers.MnuCotizar.cotiValidarPlantilla(request: Request)
+POST	/cotiCargaPlantilla/				controllers.MnuCotizar.cotiCargaPlantilla(request: Request)
 
 
 

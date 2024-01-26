@@ -61,7 +61,7 @@ public class ReportMovCompras {
 		super();
 	}
 	
-	public static List<List<String>> listaFacturasBetwen(Connection con, String db, String fechaDesde, String fechaHasta) {
+	public static List<List<String>> listaFacturasBetwen(Connection con, String db, String fechaDesde, String fechaHasta, String filtroPorProveedor) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		try {
 			
@@ -73,7 +73,7 @@ public class ReportMovCompras {
 							+ " factura.fecha "
 							+ " from `"+db+"`.factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
-							+ " where factura.fecha between ? and ? "
+							+ " where factura.fecha between ? and ? " + filtroPorProveedor
 							+ " group by factura.id order by factura.fecha ;");
 			smt1.setString(1, fechaDesde);
 			smt1.setString(2, fechaHasta);
@@ -94,10 +94,9 @@ public class ReportMovCompras {
 		return (lista);
 	}
 	
-	public static List<ReportMovCompras> movComprasBetwen(Connection con, String db, String fechaDesde, String fechaHasta) {
+	public static List<ReportMovCompras> movComprasBetwen(Connection con, String db, String fechaDesde, String fechaHasta, String filtroPorProveedor) {
 		List<ReportMovCompras> lista = new ArrayList<ReportMovCompras>();
 		try {
-			
 			PreparedStatement smt1 = con
 					.prepareStatement("select "
 							+ " compra.id_factura, "
@@ -112,7 +111,7 @@ public class ReportMovCompras {
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
 							+ " left join `"+db+"`.equipo on equipo.id = compra.id_equipo"
-							+ " where factura.fecha between ? and ? "
+							+ " where (factura.fecha between ? and ?) " + filtroPorProveedor
 							+ " group by compra.id_factura, compra.id_equipo;");
 			smt1.setString(1, fechaDesde);
 			smt1.setString(2, fechaHasta);
@@ -130,10 +129,10 @@ public class ReportMovCompras {
 		return (lista);
 	}
 	
-	public static List<ReportMovCompras> movStockIni(Connection con, String db, String fechaDesde) {
+	public static List<ReportMovCompras> movStockIni(Connection con, String db, String fechaDesde, String filtroPorProveedor) {
 		List<ReportMovCompras> lista = new ArrayList<ReportMovCompras>();
 		try {
-			
+
 			PreparedStatement smt1 = con
 					.prepareStatement("select "
 							+ " compra.id_factura, "
@@ -148,7 +147,7 @@ public class ReportMovCompras {
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
 							+ " left join `"+db+"`.equipo on equipo.id = compra.id_equipo"
-							+ " where factura.fecha < ? "
+							+ " where factura.fecha < ? " + filtroPorProveedor
 							+ " group by compra.id_equipo;");
 			smt1.setString(1, fechaDesde);
 			ResultSet rs1 = smt1.executeQuery();
@@ -165,10 +164,9 @@ public class ReportMovCompras {
 		return (lista);
 	}
 	
-	public static List<ReportMovCompras> movStockFin(Connection con, String db, String fechaHasta) {
+	public static List<ReportMovCompras> movStockFin(Connection con, String db, String fechaHasta, String filtroPorProveedor) {
 		List<ReportMovCompras> lista = new ArrayList<ReportMovCompras>();
 		try {
-			
 			PreparedStatement smt1 = con
 					.prepareStatement("select "
 							+ " compra.id_factura, "
@@ -183,9 +181,10 @@ public class ReportMovCompras {
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
 							+ " left join `"+db+"`.equipo on equipo.id = compra.id_equipo"
-							+ " where factura.fecha <= ? "
+							+ " where factura.fecha <= ? " + filtroPorProveedor
 							+ " group by compra.id_equipo;");
 			smt1.setString(1, fechaHasta);
+			System.out.println(smt1);
 			ResultSet rs1 = smt1.executeQuery();
 			while (rs1.next()) {
 				if(rs1.getDouble(8) > 0) {
@@ -200,11 +199,11 @@ public class ReportMovCompras {
 		return (lista);
 	}
 	
-	public static List<List<String>> movComprasPeriodo(Connection con, String db, String fechaDesde, String fechaHasta) {
+	public static List<List<String>> movComprasPeriodo(Connection con, String db, String fechaDesde, String fechaHasta, String filtroPorProveedor) {
 		
-		List<ReportMovCompras> ini = ReportMovCompras.movStockIni(con, db, fechaDesde);
-		List<ReportMovCompras> betwen = ReportMovCompras.movComprasBetwen(con, db, fechaDesde, fechaHasta);
-		List<ReportMovCompras> fin = ReportMovCompras.movStockFin(con, db, fechaHasta);
+		List<ReportMovCompras> ini = ReportMovCompras.movStockIni(con, db, fechaDesde, filtroPorProveedor);
+		List<ReportMovCompras> betwen = ReportMovCompras.movComprasBetwen(con, db, fechaDesde, fechaHasta, filtroPorProveedor);
+		List<ReportMovCompras> fin = ReportMovCompras.movStockFin(con, db, fechaHasta, filtroPorProveedor);
 		
 		Map<Long,List<String>> mapEncabezado = new HashMap<Long,List<String>>();
 		for(ReportMovCompras x: fin) {
@@ -241,7 +240,7 @@ public class ReportMovCompras {
 			mapDetalleFin.put(x.id_equipo, x.cantidad);
 		}
 		
-		List<List<String>> listaFacturas = ReportMovCompras.listaFacturasBetwen(con, db, fechaDesde, fechaHasta);
+		List<List<String>> listaFacturas = ReportMovCompras.listaFacturasBetwen(con, db, fechaDesde, fechaHasta, filtroPorProveedor);
 		
 		List<List<String>> tabla = new ArrayList<List<String>>();
 		List<String> linea0 = new ArrayList<String>();
@@ -308,15 +307,8 @@ public class ReportMovCompras {
 				cant = (double) 0;
 			}
 			linea.add(format.format(cant));
-			
 			tabla.add(linea);
-			
 		});
-			
-			
-		
-		
-		
 		return (tabla);
 	}
 	

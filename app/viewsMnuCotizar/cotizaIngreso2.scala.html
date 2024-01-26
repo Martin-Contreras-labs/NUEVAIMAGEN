@@ -57,7 +57,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		</script>
 	<!-- FIN MODAL CREA PROYECTOS -->
 	
-
+	
 	<form action="/cotizarNuevo/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
 		<div id="mostrarmostrar" style="display:none;">
 			@barraTitulo(mapDiccionario, "INGRESO DE NUEVA COTIZACION", "")
@@ -303,21 +303,13 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 							</div>
 							
 							
-<<<<<<< HEAD
+
 						@if(mapPermiso.get("parametro.coti8columnas")!=null && mapPermiso.get("parametro.coti8columnas").equals("1")) {
 							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
 								<input id="btnImport8column" type="button"  value="Import 8 Columnas Excel" class="btn btn-primary btn-sm rounded-pill btn-block" 
 									onclick="$('#modalImport8column').modal('show');">&nbsp;&nbsp;&nbsp;
 							</div>
 						}
-=======
-			@if(mapDiccionario.get("nEmpresa").equals("DEMO") && userMnu.getUserName().equals("PBA")){
-							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-								<input id="btnCargaExcel" type="button"  value="Import 8 Columnas Excel" class="btn btn-primary btn-sm rounded-pill btn-block" 
-									onclick="$('#modalImport8column').modal('show');">&nbsp;&nbsp;&nbsp;
-							</div>
-			}
->>>>>>> 40fb108c5816bbb28cd772381a6fe793353a3a1a
 			
 			
 			
@@ -616,7 +608,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
 	    <div class="modal-content">
 	      <div class="modal-header">
-	        <h5 class="modal-title">Carga masiva de equipos</h5>
+	        <h5 class="modal-title">Carga masiva de equipos a cotizar</h5>
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 	          <span aria-hidden="true">&times;</span>
 	        </button>
@@ -629,12 +621,12 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
 					</form>
 					<br>
-					<form id="cotiValidarPlantilla" action="/cotiValidarPlantilla/" method="POST" enctype="multipart/form-data">
+					<form id="cotiCargaPlantilla" action="/cotiCargaPlantilla/" method="POST" enctype="multipart/form-data">
 						<input type="hidden" id="formSucursal" name="id_sucursal" value="@sucursal.getId()">
 						<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
 							<div>SUBIR ARCHIVO</div>
 							<input type="hidden" id="id_bodegaEmpresa" name="id_bodegaEmpresa" value="@formCotiza.id_bodegaEmpresa">
-							<input type="file" id="archivoXLSX" name="archivoXLSX" value="" onchange="subirArchivo(this.form, this.form.archivoXLSX.value)">
+							<input type="file" id="archivoXLSX" name="archivoXLSX" value="" onchange="subirArchivo(this.form, this.form.archivoXLSX.value,this)">
 						</span>
 					</form>
 					<br>
@@ -681,16 +673,34 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	    </div>
 	  </div>
 	</div>
-<<<<<<< HEAD
-
-=======
 	
-	<li class="nav-item active">
-       				<a class="nav-link" href="/routes2/pruebaPlantillaExcel/">PRUEBA<span class="sr-only">(current)</span></a>
-       			</li>
->>>>>>> 40fb108c5816bbb28cd772381a6fe793353a3a1a
+	<div id="msgNuevosCodigos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable modal-lg" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">EXISTE EQUIPOS EN LA PLANTILLA EXCEL QUE NO EXISTEN EN MADA</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+				<div class="col-sm-12" style="text-align:center">
+				  <button type="button" class="btn btn-sm  btn-primary" style="font-size: 10px;" 
+					onclick='$("#cotiCargaPlantilla").submit();'>CREAR LOS EQUIPOS QUE NO EXISTEN</button><br><br>
+				  <button type="button" class="btn btn-sm  btn-info" style="font-size: 10px;" 
+					onclick="revisarEquiposNuevos();">REVISAR EQUIPOS QUE NO EXISTEN</button><br><br>
+				  <button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" 
+					onclick="location.reload();">CANCELAR</button>
+				</div>
+			<br>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	
+	
 }
-
 
 
 <script type="text/javascript">
@@ -1170,7 +1180,10 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	const verificaCotizacion = () =>{
 		document.getElementById("btnCopiaCoti").style.display = "none";
 		document.getElementById("btnCargaExcel").style.display = "none";
-		document.getElementById("btnImport8column").style.display = "none";
+		if('@mapPermiso.get("parametro.coti8columnas")'!=null && '@mapPermiso.get("parametro.coti8columnas")' == "1") {
+				document.getElementById("btnImport8column").style.display = "none";
+		}
+		
 		sumaTotales();
 		let granTotRepos = $("#granTotRepos").text().replace(/,/g,'');
 		let granTotArrie = $("#granTotArrie").text().replace(/,/g,'');
@@ -1245,7 +1258,10 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	const seleccionaCotizacion = (id_cotizacion) =>{
 		document.getElementById("btnCopiaCoti").style.display = "none";
 		document.getElementById("btnCargaExcel").style.display = "none";
-		document.getElementById("btnImport8column").style.display = "none";
+		if('@mapPermiso.get("parametro.coti8columnas")'!=null && '@mapPermiso.get("parametro.coti8columnas")' == "1") {
+				document.getElementById("btnImport8column").style.display = "none";
+		}
+		
 		let formData = new FormData();
 	    formData.append('id_cotizacion',id_cotizacion);
 		$.ajax({
@@ -1339,7 +1355,10 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	if("@importDesdeExcel" == "1"){
 		document.getElementById("btnCopiaCoti").style.display = "none";
 		document.getElementById("btnCargaExcel").style.display = "none";
-		document.getElementById("btnImport8column").style.display = "none";
+		if('@mapPermiso.get("parametro.coti8columnas")'!=null && '@mapPermiso.get("parametro.coti8columnas")' == "1") {
+				document.getElementById("btnImport8column").style.display = "none";
+		}
+		
 	}
 	
 	
@@ -1426,7 +1445,8 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	}
 	
 	let extArray2 = new Array(".xls", ".xlsx");
-	function subirArchivo(form, file) {
+	let rsGlobal = "";
+	function subirArchivo(form, file, nodo) {
 		allowSubmit = false;
 		if (!file) return;
 		while (file.indexOf("\\") != -1)
@@ -1436,7 +1456,30 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			if (extArray2[i] == ext) { allowSubmit = true; break; }
 		}
 		if (allowSubmit) {
-			$("#cotiValidarPlantilla").submit();
+			var formData = new FormData();
+			formData.append("file",nodo.files[0]);
+	        $.ajax({
+	            url: "/cotiValidarPlantilla/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(rs){
+					$('#modalCargaMasiva').modal('hide');
+					if(rs[0] == 'true'){
+						$("#cotiCargaPlantilla").submit();
+					}else if(rs[0].substring(0,7) == "EQUIPOS"){
+						rsGlobal = rs;
+						$("#msgNuevosCodigos").modal('show');
+					}else{
+						alertify.alert("SE PRESENTO UN PROBLEMA", function () { 
+							location.reload();
+						});
+					}
+		     	}
+	        });	
 		}else{
 			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
 			+ (extArray2.join("  ")) + "\nPor favor, seleccione otro archivo "
@@ -1444,6 +1487,23 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			form.archivoXLSX.value="";
 		}
 	}
+	
+	const revisarEquiposNuevos = () =>{
+		$('#msgNuevosCodigos').modal('hide');
+		let mensaje = "";
+		for(var i in rsGlobal){
+			mensaje += rsGlobal[i];
+		}
+		alertify.alert(mensaje, function () { 
+			location.reload();
+		});
+	}
+	
+	
+	
+	
+	
+	
 	
 	function subirCoti8colum(form, file) {
 		allowSubmit = false;

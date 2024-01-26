@@ -40,9 +40,13 @@ public class Archivos{
 	public Long id_guia;
 	public Long id_ventaServicio;
 	public String iniCarpeta;
+	
+	public Http.MultipartFormData.FilePart<TemporaryFile> file;
+	public Long id_bodegaOrigen;
 
 	public Archivos(String path, List<Http.MultipartFormData.FilePart<TemporaryFile>> docAdjunto, 
-			List<Http.MultipartFormData.FilePart<TemporaryFile>> fotosAdjunto, Long id_guia, Long id_ventaServicio, String iniCarpeta) {
+			List<Http.MultipartFormData.FilePart<TemporaryFile>> fotosAdjunto, Long id_guia, Long id_ventaServicio, String iniCarpeta, 
+			Http.MultipartFormData.FilePart<TemporaryFile> file, Long id_bodegaOrigen) {
 		super();
 		this.path = path;
 		this.docAdjunto = docAdjunto;
@@ -50,6 +54,8 @@ public class Archivos{
 		this.id_guia = id_guia;
 		this.id_ventaServicio = id_ventaServicio;
 		this.iniCarpeta = iniCarpeta;
+		this.file = file;
+		this.id_bodegaOrigen = id_bodegaOrigen;
 	}
 
 	public Archivos() {

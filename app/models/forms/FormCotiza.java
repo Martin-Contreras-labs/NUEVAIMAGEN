@@ -216,7 +216,7 @@ public class FormCotiza {
 							" equipo.nombre," + 
 							" unidad.nombre," + 
 							" grupo.id, " +
-							" grupo.nombre, " +
+							" ifnull(grupo.nombre,''), " +
 							" equipo.vigente " +
 							" from `"+db+"`.equipo  "+
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo "+
@@ -2430,7 +2430,7 @@ public class FormCotiza {
 		DecimalFormat df = new DecimalFormat("#");
 	    df.setMaximumFractionDigits(8);
 	    
-        mensaje.add("ERROR cod:001");
+        mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
         
         try {
             Workbook libro = WorkbookFactory.create(file);
@@ -2461,7 +2461,7 @@ public class FormCotiza {
             	mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
             	return (mensaje);
             }
-            Map<String,Equipo> mapEquipos = Equipo.mapAllPorCodigo(con, db);
+            Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, db);
             boolean flag = true;
             int fila = 2;
             int x = 2;
@@ -2495,9 +2495,9 @@ public class FormCotiza {
                         		Long aux2 = aux.longValue();
                         		dato = df.format(aux2);
                         	}
-                			Equipo equipo = mapEquipos.get(dato);
+                			Equipo equipo = mapEquipos.get(dato.toUpperCase());
                 			if(equipo == null) {
-                				mensaje.add("error en fila "+fila+": Codigo ["+dato+"] no existe en mada o el equipo esta no vigente.");
+                				mensaje.add("En fila "+fila+": Codigo ["+dato+"] no existe en mada.<br>");
                         		flag = false;
                 			}
                 		}

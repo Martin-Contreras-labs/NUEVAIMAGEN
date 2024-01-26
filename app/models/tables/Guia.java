@@ -1412,12 +1412,13 @@ public class Guia {
 	    				idSucursal = auxNumCotiSucur.get(1);
 	    			}
 				
-					
-					if(condicionadoPorSucursal && idSucursal.toString().equals(id_sucursal)) {
-						aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-								rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-								numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-								id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio));
+					if(condicionadoPorSucursal) {
+						if(idSucursal.toString().equals(id_sucursal)) {
+							aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+									rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+									numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
+									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio));
+						}
 					}else {
 						aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
 								rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,

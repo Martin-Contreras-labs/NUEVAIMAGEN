@@ -140,7 +140,16 @@ public class Equipo {
 		return map;
 	}
 	
-	public static Map<String,Equipo> mapAllPorCodigo (Connection con, String db) {
+	public static Map<String,Equipo> mapAllAllPorCodigo (Connection con, String db) {
+		Map<String,Equipo> map = new HashMap<String,Equipo>();
+		List<Equipo> lista = Equipo.allAll(con, db);
+		for(int i=0; i<lista.size(); i++) {
+			map.put(lista.get(i).codigo, lista.get(i));
+		}
+		return map;
+	}
+	
+	public static Map<String,Equipo> mapAllVigentesPorCodigo (Connection con, String db) {
 		Map<String,Equipo> map = new HashMap<String,Equipo>();
 		List<Equipo> lista = Equipo.allVigentes(con, db);
 		for(int i=0; i<lista.size(); i++) {
@@ -148,6 +157,8 @@ public class Equipo {
 		}
 		return map;
 	}
+	
+	
 	
 	public static List<Equipo> allVigentes(Connection con, String db) {
 		List<Equipo> lista = new ArrayList<Equipo>();
@@ -355,7 +366,7 @@ public class Equipo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.equipo set `" + campo + "` = ? WHERE id = ?;");
-			if(campo.equals("codigo")) valor = valor.replaceAll("\\,","").trim();
+			if(campo.equals("codigo")) valor = valor.replaceAll("\\,","").trim().toUpperCase();
 			if(campo.equals("nombre")) valor = valor.trim();
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_equipo);
@@ -494,7 +505,7 @@ public class Equipo {
 					.prepareStatement("INSERT INTO `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad) " +
 							" VALUES (?,?,?,?,?)");
 			smt.setLong(1, aux.id_fabrica);
-			smt.setString(2, aux.codigo.replaceAll("\\,","").trim());
+			smt.setString(2, aux.codigo.replaceAll("\\,","").trim().toUpperCase());
 			smt.setString(3, aux.nombre.trim());
 			smt.setLong(4, aux.id_grupo);
 			smt.setLong(5, aux.id_unidad);
@@ -504,7 +515,7 @@ public class Equipo {
 			PreparedStatement smt2 = con
 					.prepareStatement("select id from `"+db+"`.equipo where id_fabrica=? and codigo=? and nombre=? and id_grupo=? and id_unidad=?;");
 			smt2.setLong(1, aux.id_fabrica);
-			smt2.setString(2, aux.codigo.replaceAll("\\,","").trim());
+			smt2.setString(2, aux.codigo.replaceAll("\\,","").trim().toUpperCase());
 			smt2.setString(3, aux.nombre.trim());
 			smt2.setLong(4, aux.id_grupo);
 			smt2.setLong(5, aux.id_unidad);

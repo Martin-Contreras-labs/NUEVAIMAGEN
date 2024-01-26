@@ -24,6 +24,14 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU MOVIMIENTOS - Ingresar nuevo
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST	/movValySubePlantilla/				controllers.MnuMovimientos.movValySubePlantilla(request: Request)
+POST	/movPlantilla/						controllers.MnuMovimientos.movPlantilla(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU COTI ODO
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

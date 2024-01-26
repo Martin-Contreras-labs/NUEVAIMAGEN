@@ -621,13 +621,6 @@ public class FormMovimiento {
 	 	            	   }
 	 	            	   for(ContactoBodegaEmpresa c: listContactos) {
 	 	            		 String nombre = c.getNombre().toLowerCase();
-	 	            		 if(nombre.length()>1) {
-	 	            			String auxNom[] = nombre.split(" ");
-	 	            			nombre = "";
-	 	            			for (int i = 0; i < auxNom.length; i++) {
-	 	            				nombre += " " + auxNom[i].substring(0,1).toUpperCase() + auxNom[i].substring(1);
-		 	            		 }
-	 	            		 }
 	 	            		   aux += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
 	 	            	   }
 	 	                    text = text.replace("contactosBodega", aux);

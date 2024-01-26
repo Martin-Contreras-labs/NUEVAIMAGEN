@@ -184,7 +184,8 @@ public class ReportCotizaciones {
 		return (resultado);
 	}
 	
-	public static List<List<String>> detallePipeline(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, String pais, String condSucursal, String condComercial) {
+	public static List<List<String>> detallePipeline(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, String pais, 
+			String condSucursal, String condComercial) {
 		
 		List<List<String>> detalle = new ArrayList<List<String>>();
 
@@ -210,7 +211,7 @@ public class ReportCotizaciones {
 							+ " from `"+db+"`.cotizaDetalle"
 							+ " left join `"+db+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
 							+ " left join `"+db+"`.ot on ot.id_cotizacion = cotizacion.id"
-							+ " where cotizacion.fecha between ? and ? "+condComercial+";");
+							+ " where cotizacion.fecha between ? and ? " + condSucursal + " " + condComercial + ";");
 			smt.setString(1, desdeAAMMDD);
 			smt.setString(2, hastaAAMMDD);
 

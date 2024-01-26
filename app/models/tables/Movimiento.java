@@ -1,5 +1,9 @@
 package models.tables;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.util.TempFile;
+
+import controllers.HomeController;
+import models.calculo.Inventarios;
+import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 
@@ -681,6 +698,320 @@ public class Movimiento {
 			e.printStackTrace();
 		}
 		return(map);
+	}
+	
+	public static File plantillaMovimiento(Connection con, String db, String id_tipoUsuario, Long id_bodegaOrigen) {
+		File tmp = TempFile.createTempFile("tmp","null");
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(db, id_tipoUsuario);
+		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db, id_bodegaOrigen);
+		Long soloArriendo = (long) 1;
+		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+			soloArriendo = (long) 0;
+		}
+		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, id_bodegaOrigen, soloArriendo);
+		Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, db);
+		List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+		map.forEach((k,v)->{
+			Equipo equipo = mapEquipo.get(v.getId_equipo());
+			if(equipo!=null) {
+				if(v.getCantidad()>0) {
+    				List<String> aux = new ArrayList<String>();
+    				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+    				aux.add(equipo.getCodigo()); 						// 1 codigo de equipo
+    				aux.add(equipo.getNombre()); 						// 2 nombre de equipo
+    				aux.add(equipo.getUnidad());						// 3 unidad
+    				aux.add(myformatdouble2.format(v.getCantidad()));	// 4 stock disponible
+    				listEquipBodOrigen.add(aux);
+				}
+			}
+		});
+		try {
+			InputStream formato = Archivos.leerArchivo("formatos/plantillaMovimiento.xlsx");
+            Workbook libro = WorkbookFactory.create(formato);
+            formato.close();
+            
+            CellStyle subtitulo = libro.createCellStyle();
+            Font font2 = libro.createFont();
+            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setColor((short)0);
+            font2.setFontHeight((short)(12*20));
+            subtitulo.setFont(font2);
+         
+            CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+            detalle.setBorderTop(CellStyle.BORDER_THIN);
+            detalle.setBorderRight(CellStyle.BORDER_THIN);
+            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+		
+            row = hoja1.getRow(1);
+            cell = row.createCell(2);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(bodegaOrigen.getNombre().toUpperCase());
+			
+			
+			//DETALLE DE LA TABLA
+			int posRow = 4;
+			for(int i=0; i<listEquipBodOrigen.size(); i++){
+				row = hoja1.createRow(posRow);
+				int posCell = 0;
+				Double aux = (double)0;
+				
+				posCell++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(listEquipBodOrigen.get(i).get(1));
+				
+				posCell++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(listEquipBodOrigen.get(i).get(2));
+				
+				posCell++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(listEquipBodOrigen.get(i).get(3));
+				
+				posCell++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(4).replaceAll(",", ""));
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(aux);
+				
+				posCell++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue((long)0);
+				
+				posCell++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue((long)0);
+				
+				posRow++;
+			}
+			
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        }
+		return(tmp);
+	}
+	
+	public static List<String> validaPlantillaMovimiento(Connection con, String db, File file) {
+
+		Map<String,Equipo> mapEquipos = Equipo.mapAllVigentesPorCodigo(con, db);
+		List<String> mensaje = new ArrayList<String>();
+		DecimalFormat df = new DecimalFormat("#");
+	    df.setMaximumFractionDigits(8);
+	    
+       // mensaje.add("");
+		
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            boolean archivoNoCorresponde = false;
+            
+            //valido titulos y archivo
+            if(hoja1 != null) {
+            	row = hoja1.getRow(3);
+            	if(row != null) {
+            		for(int i=1; i<7; i++) {
+	            		cell = row.getCell(i);
+	                	if(cell == null) {
+	                		archivoNoCorresponde = true;
+	                	}
+	            	}
+            	}else {
+            		archivoNoCorresponde = true;
+            	}
+            }else {
+            	archivoNoCorresponde = true;
+            }
+            if(archivoNoCorresponde) {
+            	mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+            	return (mensaje);
+            }
+            // fin
+            
+            
+            // valido datos
+            boolean flag = true;
+            int fila = 4;
+            row = hoja1.getRow(fila);
+            if(row != null) {
+            	cell = row.getCell(1);
+            	if(cell != null) {
+            		Long nroFilasExcel = (long) 0;
+            		Map<Long,Long> mapValidaRepetido = new HashMap<Long,Long>();
+            		while (row != null && cell != null ) {
+            			row = hoja1.getRow(fila);
+            			if(row != null) {
+            				
+            				//valido codigos
+            				cell = row.getCell(1);
+            				if(cell != null) {
+            					boolean noEsBlanco = true;
+    	                    	try {
+    	                    		String dato = cell.getStringCellValue().trim();
+    	                    		if(dato.trim().equals("")) {
+    	                    			noEsBlanco = false;
+    	                    		}
+    	                    	}catch(Exception e){
+    	                    		Double aux = cell.getNumericCellValue();
+    	                    		if(aux.toString().trim().equals("")) {
+    	                    			noEsBlanco = false;
+    	                    		}
+    	                    	}
+    	                    	if(noEsBlanco) {
+    	                			String dato = "codigo";
+    	                			cell = row.getCell(1);
+    	                			try {
+    	                        		dato = cell.getStringCellValue().trim();
+    	                        	}catch(Exception e){
+    	                        		Double aux = cell.getNumericCellValue();
+    	                        		Long aux2 = aux.longValue();
+    	                        		dato = df.format(aux2);
+    	                        	}
+    	                			Equipo equipo = mapEquipos.get(dato);
+    	                			if(equipo == null) {
+    	                				mensaje.add("error en fila "+(fila+1)+": Codigo ["+dato+"] no existe en mada o el equipo esta no vigente.");
+    	                        		flag = false;
+    	                			}else{
+    	                				mapValidaRepetido.put(equipo.getId(), equipo.getId());
+    	                			}
+    	                		}
+            				}
+            				
+            				//valido numeros
+            				for(int i=4; i<7; i++) {
+            					cell = row.getCell(i);
+            					String celda = "";
+            					switch(i) {
+            					  case 4: celda  = "E" + (fila+1); break;
+            					  case 5: celda  = "F" + (fila+1); break;
+            					  case 6: celda  = "G" + (fila+1); break;
+            					  default:
+            					}
+            					
+            					if(cell != null) {
+            						try {
+            							Double aux = cell.getNumericCellValue();
+            							if(aux < (double)0) {
+            								mensaje.add("error en fila "+(fila+1)+": El dato en la celda "+ celda +" no puede ser menor que cero.");
+            								flag = false;
+            							}else {
+            								if(i == 6 && aux > 1) {
+            									mensaje.add("error en fila "+(fila+1)+": El dato en la celda "+ celda +" solo puede ser cero o uno.");
+	            								flag = false;
+            								}
+            							}
+	    	                    	}catch(Exception e){
+	    	                    		mensaje.add("error en fila "+(fila+1)+": El dato en la celda "+ celda +" no es numero.");
+    	                        		flag = false;
+	    	                    	}
+            						
+            					}
+            				}
+            				nroFilasExcel++;
+            				fila++;
+            			}
+            		}
+            		if(nroFilasExcel - mapValidaRepetido.size() != (long)0) {
+            			mensaje.add("Existen codigos duplicados en el archivo.");
+                		flag = false;
+            		}
+            	}
+            }
+            if(flag) {
+            	mensaje.set(0,"true");
+            }
+        } catch (Exception e) {
+			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+        	return (mensaje);
+        }
+		return(mensaje);
+	}
+	
+	public static List<List<String>> llenaListaDesdePlantillaExcel (File file) {
+		List<List<String>> lista = new ArrayList<List<String>>();
+		DecimalFormat df = new DecimalFormat("#");
+	    df.setMaximumFractionDigits(8);
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            int x = 4;
+            row = hoja1.getRow(x);
+            cell = row.getCell(1);
+            while (row!=null && cell !=null ) {
+            	row = hoja1.getRow(x++);
+            	if(row!=null) {
+            		cell = row.getCell(1);
+                	if(cell!=null) {
+                		boolean noEsBlanco = true;
+                    	try {
+                    		String dato = cell.getStringCellValue().trim();
+                    		if(dato.trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}catch(Exception e){
+                    		Double aux = cell.getNumericCellValue();
+                    		if(aux.toString().trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}
+                		if(noEsBlanco) {
+                			List<String> auxList = new ArrayList<String>();
+                			for(int i=1; i<7; i++) {
+                    			String dato = "";
+                    			cell = row.getCell(i);
+                                if(cell!=null) {
+                                	try {
+                                		dato = cell.getStringCellValue().trim();
+                                		dato = dato.replaceAll("'", "\"");
+                                	}catch(Exception e){
+                                		if(i==1) {
+                                			Double aux = cell.getNumericCellValue();
+                                    		Long aux2 = aux.longValue();
+                                    		dato = df.format(aux2);
+                                		}else {
+                                			Double aux = cell.getNumericCellValue();
+                                    		dato = df.format(aux);
+                                		}
+                                	}
+                                }
+                                if(i == 1 || i > 3) {
+                                	auxList.add(dato);
+                                }
+                            }
+                			auxList.set(0, auxList.get(0).toUpperCase());
+                    		lista.add(auxList);
+                		}
+                	}
+                	cell = row.getCell(1);
+            	}
+            }
+		} catch (InvalidFormatException | IOException e1) {
+		}
+		return(lista);
 	}
 
 	

@@ -42,7 +42,7 @@ public class Coti8columnas extends Controller {
 		
 		public static List<String> validaPlantilla(Connection con, String db, File file) {
 
-			Map<String,Equipo> mapEquipos = Equipo.mapAllPorCodigo(con, db);
+			Map<String,Equipo> mapEquipos = Equipo.mapAllVigentesPorCodigo(con, db);
 			List<String> mensaje = new ArrayList<String>();
 			DecimalFormat df = new DecimalFormat("#");
 		    df.setMaximumFractionDigits(8);
@@ -117,7 +117,7 @@ public class Coti8columnas extends Controller {
 	    	                        		Long aux2 = aux.longValue();
 	    	                        		dato = df.format(aux2);
 	    	                        	}
-	    	                			Equipo equipo = mapEquipos.get(dato);
+	    	                			Equipo equipo = mapEquipos.get(dato.toUpperCase());
 	    	                			if(equipo == null) {
 	    	                				mensaje.add("error en fila "+(fila+1)+": Codigo ["+dato+"] no existe en mada o el equipo esta no vigente.");
 	    	                        		flag = false;

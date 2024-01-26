@@ -49,6 +49,7 @@ import models.utilities.Fechas;
 
 public class ReportMovimientos {
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
 	
@@ -3275,21 +3276,25 @@ public class ReportMovimientos {
 		
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT distinct " +
-							" guia.numero, " +
-							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
-							" tipoMovimiento.nombre, " +
-							" guia.fecha, " +
-							" ifnull(guia.numGuiaCliente,''), "+
-							" id_tipoMovimiento " +
-							" FROM `"+db+"`.movimiento " +
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
-							" where id_bodegaEmpresa =  ? and numero is not null and guia.numero > 0 " +
-							" order by guia.fecha,guia.numero;");
+					.prepareStatement("SELECT distinct "
+							+ " if(movimiento.id_compra > 0,factura.numero,guia.numero) as numero,  "
+							+ " if(movimiento.id_compra > 0,concat(day(factura.fecha),'/',month(factura.fecha),'/',year(factura.fecha)),concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha))) as fecha,   "
+							+ " if(movimiento.id_compra > 0,'Factura',if(guia.id_bodegaDestino=1,'Baja',if(movimiento.id_tipoMovimiento=2 and movimiento.esVenta=1,'Venta',if(tipoMovimiento.id=1,'Entrada','Salida')))) as tipo, "
+							+ " if(movimiento.id_guia=0,factura.fecha,guia.fecha) as fecha,  "
+							+ " ifnull(guia.numGuiaCliente,''),  "
+							+ " id_tipoMovimiento "
+							+ " FROM `"+db+"`.movimiento  "
+							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia  "
+							+ " left join `"+db+"`.compra on compra.id = movimiento.id_compra"
+							+ " left join `"+db+"`.factura on factura.id = compra.id_factura"
+							+ " left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento   "
+							+ " where movimiento.id_bodegaEmpresa =  ? "
+							+ " and (guia.numero is not null or factura.numero is not null) "
+							+ " and (movimiento.id_guia > 0 or movimiento.id_compra > 0)  "
+							+ " order by guia.fecha,guia.numero;");
 			smt1.setLong(1, id_bodegaEmpresa);
+
 			ResultSet rs1 = smt1.executeQuery();
-			
 			List<String> numGuia = new ArrayList<String>();
 			List<String> fechGuia = new ArrayList<String>();
 			List<String> guiaClie = new ArrayList<String>();
@@ -3325,6 +3330,12 @@ public class ReportMovimientos {
 			guiaClie.add("Nro.Ref");
 			tipGuia.add("Tipo.Mov: ");
 			blanco.add("m2");
+			
+			numGuia.add("");
+			fechGuia.add("");
+			guiaClie.add("");
+			tipGuia.add("Stock");
+			blanco.add("Inicial");
 				
 			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
 			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
@@ -3332,48 +3343,32 @@ public class ReportMovimientos {
 			Calendar hastaMas1 = hastaAux.getFechaCal();
 			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 			
+			List<List<String>> listaGuias = new ArrayList<List<String>>();
 			while (rs1.next()) {
 				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(4));
 				if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
 					numGuia.add(rs1.getString(1));
 					fechGuia.add(rs1.getString(2));
 					guiaClie.add(rs1.getString(5));
-					
-					
 					String tipo = rs1.getString(3);
-					if(rs1.getLong(6) == 1) {
-						tipo = "Entrada";
-					}
-					if(rs1.getLong(6) == 2) {
-						tipo = "Salida";
-					}
-					
-					
 					tipGuia.add(tipo);
 					blanco.add(" ");
 				}
-			}
-			rs1.close();
-			smt1.close();
-				
-			PreparedStatement smt2 = con
-					.prepareStatement(" select distinct  guia.numero,guia.fecha " +
-							" from `"+db+"`.guia " +
-							" left join `"+db+"`.movimiento on movimiento.id_guia = guia.id " +
-							" where id_bodegaEmpresa = ? and guia.numero > 0"+
-							" order by guia.fecha,guia.numero; ");
-			smt2.setLong(1, id_bodegaEmpresa);
-		
-			ResultSet rs2 = smt2.executeQuery();
-			List<List<String>> listaGuias = new ArrayList<List<String>>();
-			while (rs2.next()) {
 				List<String> aux = new ArrayList<String>();
-				aux.add(rs2.getString(1));
-				aux.add(rs2.getString(2));
+				aux.add(rs1.getString(1));
+				aux.add(rs1.getString(4));
+				aux.add(rs1.getString(3));
 				listaGuias.add(aux);
 			}
-			rs2.close();
-			smt2.close();
+			
+			numGuia.add("");
+			fechGuia.add("");
+			guiaClie.add("");
+			tipGuia.add("Stock");
+			blanco.add("Final");
+			
+			rs1.close();
+			smt1.close();
 				
 			PreparedStatement smt3 = con
 					.prepareStatement(" select distinct " +
@@ -3390,6 +3385,7 @@ public class ReportMovimientos {
 							" order by grupo.nombre,equipo.nombre;");
 			
 			smt3.setLong(1, id_bodegaEmpresa);
+
 			ResultSet rs3 = smt3.executeQuery();
 			List<List<String>> listaCodigos = new ArrayList<List<String>>();
 			
@@ -3405,23 +3401,29 @@ public class ReportMovimientos {
 			smt3.close();
 				
 			PreparedStatement smt4 = con
-					.prepareStatement(" select " +
-							" equipo.codigo,    " +
-							" guia.numero, " +
-							" sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)),   " +
-							" movimiento.id_cotizacion "+
-							" from `"+db+"`.movimiento " +
-							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-							" where movimiento.id_bodegaEmpresa =  ? and guia.numero > 0"+  
-							" and guia.fecha is not null    " +
-							" group by equipo.codigo, guia.numero  " + 
-							" order by guia.fecha,guia.numero,equipo.codigo;");
+					.prepareStatement("select "
+							+ " equipo.codigo, "
+							+ " if(movimiento.id_compra > 0,factura.numero,guia.numero) as numero,   "
+							+ " sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)), "
+							+ " movimiento.id_cotizacion, "
+							+ " if(movimiento.id_compra > 0,'Factura',if(guia.id_bodegaDestino=1,'Baja',if(movimiento.id_tipoMovimiento=2 and movimiento.esVenta=1,'Venta',if(tipoMovimiento.id=1,'Entrada','Salida')))) as tipo, "
+							+ " if(movimiento.id_compra > 0,factura.fecha,guia.fecha) as fecha"
+							+ " from `"+db+"`.movimiento "
+							+ " left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo "
+							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia "
+							+ " left join `"+db+"`.compra on compra.id = movimiento.id_compra "
+							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
+							+ " left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento    "
+							+ " where movimiento.id_bodegaEmpresa = ? "
+							+ " and (guia.numero is not null or factura.numero is not null) "
+							+ " and (movimiento.id_guia > 0 or movimiento.id_compra > 0)  "
+							+ " group by equipo.codigo, guia.numero, compra.id "
+							+ " order by guia.fecha,guia.numero,equipo.codigo;");
 			smt4.setLong(1, id_bodegaEmpresa);
 			ResultSet rs4 = smt4.executeQuery();
 			Map<String,String> codGuiaCant = new HashMap<String,String>();
 			while (rs4.next()) {
-				codGuiaCant.put(rs4.getString(1).trim()+"_"+rs4.getString(2).trim(), rs4.getString(3));
+				codGuiaCant.put(rs4.getString(1).trim()+"_"+rs4.getString(2).trim()+"_"+rs4.getString(5)+"_"+rs4.getString(6), rs4.getString(3));
 			}
 			rs4.close();
 			smt4.close();
@@ -3458,24 +3460,31 @@ public class ReportMovimientos {
 				}
 					
 				
+				Double totStockPorLinea =  (double)0;
 				Double totCantPorLinea = (double)0;
 				for(int k=0;k<listaGuias.size();k++){
 					Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+
+					String keyAux = listaCodigos.get(i).get(1).trim()+"_"+listaGuias.get(k).get(0).trim()+"_"+listaGuias.get(k).get(2)+"_"+listaGuias.get(k).get(1);
+					String cantidad = codGuiaCant.get(keyAux);
+					
 					if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
-						String keyAux=listaCodigos.get(i).get(1).trim()+"_"+listaGuias.get(k).get(0).trim();
-						String cantidad = codGuiaCant.get(keyAux);
-						if(cantidad==null){
+						if(cantidad == null){
 							aux.add(" ");
 						}else{
-							totCantPorLinea += Math.abs(Double.parseDouble(cantidad.replaceAll(",", "")));
+							totCantPorLinea += Double.parseDouble(cantidad.replaceAll(",", ""));
 							aux.add(cantidad);
 						}
 						
+					} else if(fechaGuia.fechaCal.before(desde.fechaCal)){
+						if(cantidad != null){
+							totStockPorLinea += Double.parseDouble(cantidad.replaceAll(",", ""));
+						}
 					}
 				}
-				if(totCantPorLinea>0) {
-					lista.add(aux);
-				}
+				aux.add(5, myformatdouble0.format(totStockPorLinea));
+				aux.add(myformatdouble0.format(totStockPorLinea + totCantPorLinea));
+				lista.add(aux);
 				
 			}
 		} catch (SQLException e) {
