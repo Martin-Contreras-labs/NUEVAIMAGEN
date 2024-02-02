@@ -89,8 +89,13 @@ public class ReportHohe {
 						/*18*/	+ "e.nombre as equipo, "
 						/*19*/	+ "gr.nombre as grupo, "
 						/*20*/	+ "if(m.esVenta=0,'Arriendo','Venta'), "
-						/*21*/	+ "ifnull(p.precioReposicion,0)  as PL_Reposicion, "
-						/*22*/	+ "ifnull(p.precioArriendo,0) as PL_Arriendo, "
+
+								+ "'21', "
+								+ "'22', "
+						
+//						/*21*/	+ "ifnull(p.precioReposicion,0)  as PL_Reposicion, "
+//						/*22*/	+ "ifnull(p.precioArriendo,0) as PL_Arriendo, "
+
 						/*23*/	+ "ifnull(lp.precioReposicion,0) as PB_Reposicion, "
 						/*24*/	+ "ifnull(lp.precioArriendo,0) as PB_Arriendo, " 
 						
@@ -107,7 +112,7 @@ public class ReportHohe {
 									" left join `"+db+"`.guia as g on g.id=m.id_guia "+
 									" left join `"+db+"`.equipo as e on e.id=m.id_equipo "+
 									" left join `"+db+"`.grupo as gr on gr.id=e.id_grupo "+
-									" left join `"+db+"`.precio as p on p.id_equipo = m.id_equipo "+
+									// " left join `"+db+"`.precio as p on p.id_equipo = m.id_equipo "+
 									" left join `"+db+"`.listaPrecio as lp on lp.id_equipo = m.id_equipo and lp.id_bodegaEmpresa = m.id_bodegaEmpresa "+ 
 									" and lp.id_cotizacion = m.id_cotizacion "+
 									" left join `"+db+"`.compra as c on c.id = m.id_compra "+
@@ -116,6 +121,10 @@ public class ReportHohe {
 									" where b.id is not null "+
 									" and g.fecha between '"+desde+"' and '"+hasta+"' or (m.id_guia=0 and m.id_compra>0);");
 					ResultSet rs = smt.executeQuery();
+					
+					//id_equipo vs list  0 precioVenta 1 precioArriendo 2 idUnidadTiempo 3 idMoneda
+					Map<Long,List<Double>> mapPrecio = Precio.maestroPListaPorSucursal(con, db, (long)1);
+					
 					while (rs.next()) {		
 						List<String> aux = new ArrayList<String>();
 						aux.add(rs.getString(1));         //  0  id_movimiento
@@ -139,8 +148,13 @@ public class ReportHohe {
 						aux.add(rs.getString(18));        // 17  equipo
 						aux.add(rs.getString(19));        // 18  grupo
 						aux.add(rs.getString(20));        // 19  tipo (arriendo/venta)
-						aux.add(rs.getString(21));        // 20  PL_Reposicion
-						aux.add(rs.getString(22));        // 21  PL_Arriendo
+						
+						List<Double> precio = mapPrecio.get(rs.getLong(5));
+						aux.add(precio.get(0).toString());        // 20  PL_Reposicion
+						aux.add(precio.get(1).toString());        // 21  PL_Arriendo
+						
+//						aux.add(rs.getString(21));        // 20  PL_Reposicion
+//						aux.add(rs.getString(22));        // 21  PL_Arriendo
 						aux.add(rs.getString(23));        // 22  PB_Reposicion
 						aux.add(rs.getString(24));        // 23  PB_Arriendo
 						
@@ -383,8 +397,12 @@ public class ReportHohe {
 						/*18*/	+ "e.nombre as equipo, "
 						/*19*/	+ "gr.nombre as grupo, "
 						/*20*/	+ "if(m.esVenta=0,'Arriendo','Venta'), "
-						/*21*/	+ "ifnull(p.precioReposicion,0)  as PL_Reposicion, "
-						/*22*/	+ "ifnull(p.precioArriendo,0) as PL_Arriendo, "
+						
+								+ "'21', "
+								+ "'22', "
+						
+//						/*21*/	+ "ifnull(p.precioReposicion,0)  as PL_Reposicion, "
+//						/*22*/	+ "ifnull(p.precioArriendo,0) as PL_Arriendo, "
 						/*23*/	+ "ifnull(lp.precioReposicion,0) as PB_Reposicion, "
 						/*24*/	+ "ifnull(lp.precioArriendo,0) as PB_Arriendo, " 
 						
@@ -396,13 +414,16 @@ public class ReportHohe {
 									" left join `"+db+"`.guia as g on g.id=m.id_guia "+
 									" left join `"+db+"`.equipo as e on e.id=m.id_equipo "+
 									" left join `"+db+"`.grupo as gr on gr.id=e.id_grupo "+
-									" left join `"+db+"`.precio as p on p.id_equipo = m.id_equipo "+
+									//" left join `"+db+"`.precio as p on p.id_equipo = m.id_equipo "+
 									" left join `"+db+"`.listaPrecio as lp on lp.id_equipo = m.id_equipo and lp.id_bodegaEmpresa = m.id_bodegaEmpresa "+ 
 									" and lp.id_cotizacion = m.id_cotizacion "+
 									" where b.id is not null "+
 									" and g.fecha between '"+desde+"' and '"+hasta+"';");
 
 					ResultSet rs = smt.executeQuery();
+					
+					//id_equipo vs list  0 precioVenta 1 precioArriendo 2 idUnidadTiempo 3 idMoneda
+					Map<Long,List<Double>> mapPrecio = Precio.maestroPListaPorSucursal(con, db, (long)1);
 					
 					while (rs.next()) {		
 						List<String> aux = new ArrayList<String>();
@@ -430,8 +451,13 @@ public class ReportHohe {
 							aux.add(rs.getString(20));        // 11  tipo (arriendo/venta)
 							aux.add(rs.getString(7));         // 12  cantidad
 							aux.add(rs.getString(8));         // 13  peso
-							aux.add(rs.getString(21));        // 14  PL_Reposicion
-							aux.add(rs.getString(22));        // 15  PL_Arriendo
+							
+							
+							List<Double> precio = mapPrecio.get(rs.getLong(5));
+							aux.add(precio.get(0).toString());        // 14  PL_Reposicion
+							aux.add(precio.get(1).toString());        // 15  PL_Arriendo
+							
+							
 							aux.add(rs.getString(23));        // 16  PB_Reposicion
 							aux.add(rs.getString(24));        // 17  PB_Arriendo
 							datos.add(aux);

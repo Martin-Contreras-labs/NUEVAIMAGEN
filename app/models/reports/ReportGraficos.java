@@ -30,7 +30,7 @@ public class ReportGraficos {
 	
 	public static List<String> graficoDistribucionResumenValorizado(Connection con, String db, Map<String, String> mapeoDiccionario, String filtroGrupos, String esPorSucursal, String id_sucursal) {
 		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, db, Long.parseLong(id_sucursal));
+		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
 		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
 		Fechas hoy = Fechas.hoy();
 		List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, db, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, mapeoDiccionario.get("ARRIENDO"), 
@@ -43,7 +43,7 @@ public class ReportGraficos {
 	
 	public static List<String> graficoDistribucionResumenPorUnidades(Connection con, String db, Map<String, String> mapeoDiccionario, String filtroGrupos, String esPorSucursal, String id_sucursal) {
 		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, db, Long.parseLong(id_sucursal));
+		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
 		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
 		Fechas hoy = Fechas.hoy();
 		List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, db, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, mapeoDiccionario.get("ARRIENDO"), 
@@ -58,7 +58,7 @@ public class ReportGraficos {
 			String idTipoBodega, String esPorSucursal, String id_sucursal) {
 		
 		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, db, Long.parseLong(id_sucursal));
+		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
 		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
 		Fechas hoy = Fechas.hoy();
 		
@@ -245,7 +245,7 @@ public class ReportGraficos {
 			String idTipoBodega, String esPorSucursal, String id_sucursal) {
 		
 		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, db, Long.parseLong(id_sucursal));
+		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
 		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
 		Fechas hoy = Fechas.hoy();
 		

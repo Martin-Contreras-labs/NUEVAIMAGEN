@@ -556,12 +556,11 @@ public class Precio {
 		return (aux);
 	}
 	
-	public static boolean create(Connection con, String db, Long id_sucursal, Long id_equipo, String fecha) {
+	public static boolean create(Connection con, String db, Long id_equipo, String fecha) {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
 					.prepareStatement("select id from sucursal;");
-			smt2.setLong(1, id_sucursal);
 			ResultSet rs2 = smt2.executeQuery();
 			String aux = "";
 			while(rs2.next()) {
@@ -607,7 +606,7 @@ public class Precio {
 		return (flag);
 	}
 	
-	public static Map<Long,List<Double>> maestroPreciosLista(Connection con, String db, Long id_sucursal) {
+	public static Map<Long,List<Double>> maestroPListaPorSucursal(Connection con, String db, Long id_sucursal) {
 		 Map<Long,List<Double>> preciosLista = new HashMap<Long,List<Double>>();
 			try {
 				PreparedStatement smt = con

@@ -823,6 +823,7 @@ public class MnuTablas extends Controller {
     		}else {
     			try {
 	    			Connection con = db.getConnection();
+	    			form.desdeMenu = "TABLAS";
 	    			if(Equipo.create(con, s.baseDato, form)) {
 	    				Equipo equipo = Equipo.findXCodigo(con, s.baseDato, form.codigo);
 	    				if(form.idAtributos!=null){
@@ -834,7 +835,7 @@ public class MnuTablas extends Controller {
 								}
 							}
 						}
-	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea nuevo equipo codigo: "+form.codigo);
+	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea desde TABLAS nuevo equipo codigo: "+form.codigo);
 	    				con.close();
 	    				return redirect("/equipoMantencion/");
 	    			}else {

@@ -79,7 +79,7 @@ public class ReportHojaVida {
 		
 		for(int i=0;i<equipos.size();i++){
 			Long idEquipo =Long.parseLong(equipos.get(i).get(0).trim());
-			Map<Long,List<Double>> precios = Precio.maestroPreciosLista(con, db, id_sucursal);
+			Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
 			Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);		
 			Double factor = equivalencia.get((long)(double)precios.get(idEquipo).get(2));
 			Double idMoneda = precios.get(idEquipo).get(3);
@@ -422,7 +422,7 @@ public class ReportHojaVida {
 		fechaInicio.add(Calendar.DAY_OF_MONTH, (int) (long) periodo * -1);
 		java.sql.Date sqlDateHoy = new java.sql.Date(fechaHoy.getTime().getTime());
 		java.sql.Date sqlDateInicio = new java.sql.Date(fechaInicio.getTime().getTime());
-		Map<Long,List<Double>> precios = Precio.maestroPreciosLista(con, db, id_sucursal);
+		Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
 		Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);
 		Fechas hoy = Fechas.hoy();
 		Map<Long,Double> tasas = TasasCambio.mapTasasPorFecha(con, db, hoy.getFechaStrAAMMDD(), pais);
@@ -699,7 +699,7 @@ public class ReportHojaVida {
 		
 		for(int i=0;i<equipos.size();i++){
 			Long idEquipo=Long.parseLong(equipos.get(i).get(0).trim());
-			Map<Long,List<Double>> precios = Precio.maestroPreciosLista(con, db, id_sucursal);
+			Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
 			Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);		
 			Double factor = equivalencia.get((long)(double)precios.get(idEquipo).get(2));
 			Double idMoneda = precios.get(idEquipo).get(3);

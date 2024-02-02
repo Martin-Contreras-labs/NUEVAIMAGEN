@@ -238,6 +238,7 @@ public class MnuCompras extends Controller {
 	    						aux.idAtributos = new ArrayList<Long>();
 	    						aux.nombre = nombEquipo;
 	    						aux.valorAtributos = new ArrayList<String>();
+	    						aux.desdeMenu = "ICONSTRUYE";
 	    						Equipo.create(con, s.baseDato, aux);
 	    						equipo = Equipo.findXCodigo(con, s.baseDato, codEquipo);
 	    					}
@@ -402,7 +403,7 @@ public class MnuCompras extends Controller {
     				Precio precio = Precio.findXIdEquipo(con, s.baseDato, id_sucursal, id_equipo, mapeoDiccionario);
     				if(precio==null){
     					Fechas fecha = Fechas.hoy();
-    					if(Precio.create(con, s.baseDato, id_sucursal, id_equipo, fecha.getFechaStrAAMMDD())) {
+    					if(Precio.create(con, s.baseDato, id_equipo, fecha.getFechaStrAAMMDD())) {
     						precio = Precio.findXIdEquipo(con, s.baseDato, id_sucursal, id_equipo, mapeoDiccionario);
     					}else {
     						con.close();
@@ -573,6 +574,20 @@ public class MnuCompras extends Controller {
 	    			Connection con = db.getConnection();
 	    			if(Equipo.create(con, s.baseDato, form)) {
 	    				Equipo equipo = Equipo.findXCodigo(con, s.baseDato, form.codigo);
+	    				if(form.desdeMenu == null) {
+	    					form.desdeMenu = "no tiene datos";
+	    				}
+	    				if(form.desdeMenu.equals("COMPRA")) {
+	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea desde COMPRA nuevo equipo codigo: "+form.codigo);
+	    				}else if(form.desdeMenu.equals("REDIMENSIONAR")){
+	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea desde REDIMENSIONAR nuevo equipo codigo: "+form.codigo);
+	    				}else if(form.desdeMenu.equals("COMPRA_ICONSTRUYE")){
+	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea desde COMPRA_ICONSTRUYE nuevo equipo codigo: "+form.codigo);
+	    				}else if(form.desdeMenu.equals("PLANES_ICONSTRUYE")){
+	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea desde PLANES_ICONSTRUYE nuevo equipo codigo: "+form.codigo);
+	    				}else{
+	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea nuevo equipo codigo: "+form.codigo);
+	    				}
     	    			con.close();
     	    			return ok(equipo.getId()+"_"+equipo.getKG()+"_"+equipo.getM2());
     				}else {

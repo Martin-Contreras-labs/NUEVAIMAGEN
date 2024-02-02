@@ -811,6 +811,7 @@ listSucursales: List[tables.Sucursal])
 			formData.append('nombre',$("#nuevoEquipoNombre").val());
 			formData.append('id_fabrica',$("#nuevoEquipoId_fabrica").val());
 			formData.append('id_unidad',$("#nuevoEquipoId_unidad").val());
+			formData.append('desdeMenu',"COMPRA");
 			
 			$.ajax({
 	            url: "/nuevoEquipoAjax/",

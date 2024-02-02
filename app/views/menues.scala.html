@@ -345,6 +345,46 @@
 			        	</ul>
 			        </li>
 				}
+				
+				
+				
+				
+				<!-- =================================== -->
+	        	<!-- 			MENU REDIMENSIONAR 				 -->  
+	        	<!-- =================================== -->
+				@if(mapPermiso.get("mnuBAJAS")!=null && mapPermiso.get("parametro.mnuBAJAS")!=null && mapPermiso.get("parametro.mnuBAJAS").equals("1")){
+		 			<li class="nav-item dropdown">
+						<a id="mnuBAJAS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						 	Redimensionar
+			        	</a>
+			        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+			        		@if(mapPermiso.get("bajaIngreso")!=null){
+			        			<a class="dropdown-item" href="/routes2/bajaRedimensionar/">Preparar</a>
+							}
+							@if(mapPermiso.get("bajaConfirma")!=null){
+			        			<a class="dropdown-item" href="#">Confirmar</a>
+							}
+							@if(mapPermiso.get("bajaModifica2")!=null){
+			        			<a class="dropdown-item" href="#">Eliminar</a>
+							}
+							@if(mapPermiso.get("bajaListado")!=null){
+								<div class="dropdown-divider" style="border-color:black"></div>
+								<li class="dropdown-submenu">
+									<a class="dropdown-item dropdown-toggle" href="#">Listar</a>
+									<ul class="dropdown-menu">
+											<li><a class="dropdown-item" href="#">Por Acta</a></li>
+											<li><a class="dropdown-item" href="#">Por Equipo</a></li>
+									</ul>
+								</li>
+							}
+			        	</ul>
+			        </li>
+				}
+				
+				
+				
+				
+				
 			}
 			
 			<!-- =================================== -->

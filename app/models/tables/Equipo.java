@@ -382,71 +382,79 @@ public class Equipo {
 	public static boolean estaEnUso(Connection con, String db, Long id_equipo) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt1 = con.prepareStatement("select * from `"+db+"`.movimiento WHERE id_equipo = ?");
+			PreparedStatement smt1 = con.prepareStatement("select * from `"+db+"`.movimiento WHERE id_equipo = ?;");
 			smt1.setLong(1, id_equipo);
 			ResultSet rs1 = smt1.executeQuery();
 			if(rs1.next()) {
 				flag=true;
 			}else {
-				smt1 = con.prepareStatement("select * from `"+db+"`.planMantencion WHERE id_equipo = ?");
+				smt1 = con.prepareStatement("select * from `"+db+"`.planMantencion WHERE id_equipo = ?;");
 				smt1.setLong(1, id_equipo);
 				rs1 = smt1.executeQuery();
 				if(rs1.next()) {
 					flag=true;
 				}else {
-					smt1 = con.prepareStatement("select * from `"+db+"`.hojaVida WHERE id_equipo = ?");
+					smt1 = con.prepareStatement("select * from `"+db+"`.hojaVida WHERE id_equipo = ?;");
 					smt1.setLong(1, id_equipo);
 					rs1 = smt1.executeQuery();
 					if(rs1.next()) {
 						flag=true;
 					}else {
-						smt1 = con.prepareStatement("select * from `"+db+"`.reparacionEquipoTMP WHERE id_equipo = ?");
+						smt1 = con.prepareStatement("select * from `"+db+"`.reparacionEquipoTMP WHERE id_equipo = ?;");
 						smt1.setLong(1, id_equipo);
 						rs1 = smt1.executeQuery();
 						if(rs1.next()) {
 							flag=true;
 						}else {
-							smt1 = con.prepareStatement("select * from `"+db+"`.compra WHERE id_equipo = ?");
+							smt1 = con.prepareStatement("select * from `"+db+"`.compra WHERE id_equipo = ?;");
 							smt1.setLong(1, id_equipo);
 							rs1 = smt1.executeQuery();
 							if(rs1.next()) {
 								flag=true;
 							}else {
-								smt1 = con.prepareStatement("select * from `"+db+"`.baja WHERE id_equipo = ?");
+								smt1 = con.prepareStatement("select * from `"+db+"`.baja WHERE id_equipo = ?;");
 								smt1.setLong(1, id_equipo);
 								rs1 = smt1.executeQuery();
 								if(rs1.next()) {
 									flag=true;
 								}else {
-									smt1 = con.prepareStatement("select * from `"+db+"`.adicional WHERE id_equipo = ?");
+									smt1 = con.prepareStatement("select * from `"+db+"`.adicional WHERE id_equipo = ?;");
 									smt1.setLong(1, id_equipo);
 									rs1 = smt1.executeQuery();
 									if(rs1.next()) {
 										flag=true;
 									}else {
-										smt1 = con.prepareStatement("select * from `"+db+"`.adicionalAuxiliarDePaso WHERE id_equipo = ?");
+										smt1 = con.prepareStatement("select * from `"+db+"`.adicionalAuxiliarDePaso WHERE id_equipo = ?;");
 										smt1.setLong(1, id_equipo);
 										rs1 = smt1.executeQuery();
 										if(rs1.next()) {
 											flag=true;
 										}else {
-											smt1 = con.prepareStatement("select * from `"+db+"`.cotizaDetalle WHERE id_equipo = ?");
+											smt1 = con.prepareStatement("select * from `"+db+"`.cotizaDetalle WHERE id_equipo = ?;");
 											smt1.setLong(1, id_equipo);
 											rs1 = smt1.executeQuery();
 											if(rs1.next()) {
 												flag=true;
 											}else {
-												smt1 = con.prepareStatement("select * from `"+db+"`.cronograma WHERE id_equipo = ?");
+												smt1 = con.prepareStatement("select * from `"+db+"`.cronograma WHERE id_equipo = ?;");
 												smt1.setLong(1, id_equipo);
 												rs1 = smt1.executeQuery();
 												if(rs1.next()) {
 													flag=true;
 												}else {
-													smt1 = con.prepareStatement("select * from `"+db+"`.equipoServicio WHERE id_equipo = ?");
+													smt1 = con.prepareStatement("select * from `"+db+"`.equipoServicio WHERE id_equipo = ?;");
 													smt1.setLong(1, id_equipo);
 													rs1 = smt1.executeQuery();
 													if(rs1.next()) {
 														flag=true;
+													}else {
+														smt1 = con.prepareStatement("select * from `"+db+"`.redimensionar WHERE id_equipoRedimensionar = ? or id_equipoOrigen = ?;");
+														smt1.setLong(1, id_equipo);
+														smt1.setLong(2, id_equipo);
+														rs1 = smt1.executeQuery();
+														if(rs1.next()) {
+															flag=true;
+														}
 													}
 												}
 											}
@@ -468,7 +476,7 @@ public class Equipo {
 	
 	
 	public static boolean delete(Connection con, String db, Long idEquipo) {
-		boolean flag=false;
+		boolean flag = false;
 		try {
 			PreparedStatement smta = con.prepareStatement("DELETE FROM `"+db+"`.equipo WHERE id = ?");
 			smta.setLong(1, idEquipo);smta.executeUpdate();

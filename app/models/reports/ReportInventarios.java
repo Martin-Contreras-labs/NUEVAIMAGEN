@@ -1176,7 +1176,7 @@ public class ReportInventarios {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, db,fechaCorte, mapeoDiccionario.get("pais"));
 		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, db, bodega.getId_sucursal());
+		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, bodega.getId_sucursal());
 		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		Long contador = (long) 0;

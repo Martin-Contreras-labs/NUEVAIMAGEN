@@ -197,17 +197,6 @@ public class FormCotiza {
 		
 		
 		try {
-			String maximoNumeroDecimales = "0";
-			PreparedStatement smt2 = con
-					.prepareStatement(" select max(ifnull(moneda.numeroDecimales,2)) " +
-							" from `"+db+"`.equipo  "+
-							" left join `"+db+"`.precio on precio.id_equipo=equipo.id "+
-							" left join `"+db+"`.moneda on moneda.id=precio.id_moneda; ");
-			ResultSet rs2 = smt2.executeQuery();
-			
-			if(rs2.next()) maximoNumeroDecimales = rs2.getString(1);
-			rs2.close();
-			smt2.close();
 			
 			PreparedStatement smt = con
 					.prepareStatement(" select " + 
@@ -369,7 +358,7 @@ public class FormCotiza {
 				aux.add("0.00");  														//19 total m2
 				
 				aux.add(nroDecimal.toString());  											//20 numero de decimales
-				aux.add(maximoNumeroDecimales); 										//21 maximo numero de decimales
+				aux.add(numDec.toString()); 										//21 maximo numero de decimales
 				aux.add(rs.getString(5)); 												//22 id grupo
 				aux.add(rs.getString(6)); 												//23 nombre grupo
 				

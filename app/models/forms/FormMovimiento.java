@@ -308,8 +308,8 @@ public class FormMovimiento {
 							smt3.close();
 							List<Double> auxMov = new ArrayList<Double>();
 							auxMov.add(Double.parseDouble(id_mov.toString()));							//0 id_movimiento
-							auxMov.add(Double.parseDouble(auxEst[0]));		//1 id_tipoEstado
-							auxMov.add(Double.parseDouble(auxEst[1]));		//2 cantidad
+							auxMov.add(Double.parseDouble(auxEst[0]));									//1 id_tipoEstado
+							auxMov.add(Double.parseDouble(auxEst[1]));									//2 cantidad
 							auxMov.add(Double.parseDouble(listMov.get(i).getId_equipo().toString()));	//3 id_equipo
 							listaIdMovIdTipEstCant.add(auxMov);
 							PreparedStatement smt4 = con.prepareStatement("select id from `"+db+"`.estadoEquipo "
@@ -759,9 +759,9 @@ public class FormMovimiento {
     			Double granTotalM2=(double)0;
     			
     			Double granTotalBueno=(double)0;
-    			Double granTotalLim=(double)0;
-    			Double granTotalRep=(double)0;
-    			Double granTotalIrr=(double)0;
+    			Double granTotalEst1=(double)0;
+    			Double granTotalEst2=(double)0;
+    			Double granTotalEst3=(double)0;
     			Double granTotalEst4=(double)0;
     			Double granTotalEst5=(double)0;
     			
@@ -829,9 +829,9 @@ public class FormMovimiento {
 					// FIN DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA
 					
 					//ESTADOS
-					Double lim = (double)  0; // id_tipoEstado = 3
-					Double rep = (double)  0; // id_tipoEstado = 1
-					Double irr = (double)  0; // id_tipoEstado = 2
+					Double est1 = (double)  0; // id_tipoEstado = 3
+					Double est2 = (double)  0; // id_tipoEstado = 1
+					Double est3 = (double)  0; // id_tipoEstado = 2
 					Double est4 = (double) 0; // id_tipoEstado = 4
 					Double est5 = (double) 0; // id_tipoEstado = 5
 					
@@ -846,30 +846,36 @@ public class FormMovimiento {
 					for(int j=0; j<estNiv1.length; j++) {
 						String[] estNiv2 = estNiv1[j].split(":");
 						if(estNiv2.length>0) {
-							if(estNiv2[0].equals("3")) { lim = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
-							if(estNiv2[0].equals("1")) { rep = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
-							if(estNiv2[0].equals("2")) { irr = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
+							if(estNiv2[0].equals("3")) { est1 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
+							if(estNiv2[0].equals("1")) { est2 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
+							if(estNiv2[0].equals("2")) { est3 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
 							if(estNiv2[0].equals("4")) { est4 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
 							if(estNiv2[0].equals("5")) { est5 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
 						}
 					}
 					
-					Double bueno = cantDbl - lim - rep - irr;
+					Double bueno = cantDbl - est1 - est2 - est3;
 					
 						//AJUSTE ESPECIAL A EMPRESAS:
 		    				if(mapDiccionario.get("nEmpresa").equals("GFS")) {
-		    					bueno = cantDbl - lim - rep - irr - est4 - est5;
+		    					bueno = cantDbl - est1 - est2 - est3 - est4 - est5;
 		    				}
 		    				if(mapDiccionario.get("nEmpresa").equals("ALZATEC")) {
-		    					bueno = cantDbl - lim - rep - irr - est4;
-		    					Double auxlim = lim;
-		    					Double auxrep = rep;
+		    					bueno = cantDbl - est1 - est2 - est3 - est4;
+		    					Double auxlim = est1;
+		    					Double auxrep = est2;
 		    					
-		    					lim = irr;
-		    					rep = auxlim;
-		    					irr = auxrep;
+		    					est1 = est3;
+		    					est2 = auxlim;
+		    					est3 = auxrep;
 		    					
 		    				}
+		    				if(mapDiccionario.get("nEmpresa").equals("HOHE")) {
+		    					bueno = est1;
+		    					est1 = est3;
+		    					est3 = est4;
+		    				}
+		    				
 	    				//FIN AJUSTE ESPECIAL A EMPRESAS
 						
 	    			//FIN ESTADOS
@@ -967,13 +973,13 @@ public class FormMovimiento {
 		    				texto = myformatdouble0.format(bueno);
 		    				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 			   				cell = row.getCell(3);
-			   				texto = myformatdouble0.format(lim);
+			   				texto = myformatdouble0.format(est1);
 			   				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 			   				cell = row.getCell(4);
-			   				texto = myformatdouble0.format(rep);
+			   				texto = myformatdouble0.format(est2);
 			   				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 			   				cell = row.getCell(5);
-			   				texto = myformatdouble0.format(irr);
+			   				texto = myformatdouble0.format(est3);
 			   				
 			   				if(mapDiccionario.get("nEmpresa").equals("MDP ANDAMIOS")) {
 			   					texto = "";
@@ -1060,9 +1066,9 @@ public class FormMovimiento {
 		    				
 		    				
 		    				granTotalBueno += bueno;
-		    				granTotalLim += lim;
-		    				granTotalRep += rep;
-		    				granTotalIrr += irr;
+		    				granTotalEst1 += est1;
+		    				granTotalEst2 += est2;
+		    				granTotalEst3 += est3;
 		    				
 		        			
 		    				table.createRow();
@@ -1125,13 +1131,13 @@ public class FormMovimiento {
 	    			texto = myformatdouble0.format(granTotalBueno);
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 	    			cell = row.getCell(3);
-	    			texto = myformatdouble0.format(granTotalLim);
+	    			texto = myformatdouble0.format(granTotalEst1);
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 	    			cell = row.getCell(4);
-	    			texto = myformatdouble0.format(granTotalRep);
+	    			texto = myformatdouble0.format(granTotalEst2);
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 	    			cell = row.getCell(5);
-	    			texto = myformatdouble0.format(granTotalIrr);
+	    			texto = myformatdouble0.format(granTotalEst3);
 	    			if(mapDiccionario.get("nEmpresa").equals("MDP ANDAMIOS")) {
 	   					texto = "";
 	   				}

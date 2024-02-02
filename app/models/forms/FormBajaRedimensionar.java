@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import models.calculo.Inventarios;
-import models.tables.ActaBaja;
+import models.tables.ActaRedimensionar;
 import models.tables.Atributo;
 import models.tables.Baja;
 import models.tables.Cotizacion;
@@ -19,39 +19,138 @@ import models.tables.Grupo;
 import models.tables.Moneda;
 import models.tables.Movimiento;
 import models.tables.Precio;
+import models.tables.Redimensionar;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 
-public class FormBaja {
-	public Long id_actaBaja;
+public class FormBajaRedimensionar {
+	public Long id_actaRedimensionar;
 	public Long numero;
 	public String fecha;
 	public String observaciones;
-	public List<Long> id_equipo;
-	public List<String> cantidad;
-	public List<String> motivo;
+	
+	public List<Long> id_equipoOrigen;
+	public List<String> cantEquipoOrigen;
+	
+	public List<Long> id_a_redimensionar;
+	public List<Long> id_redimensionar;
+	public List<String> cantEquipoRedimensionar;
 
-	public FormBaja(Long id_actaBaja, Long numero, String fecha, String observaciones, List<Long> id_equipo,
-			List<String> cantidad, List<String> motivo) {
+	public FormBajaRedimensionar(Long id_actaRedimensionar, Long numero, String fecha, String observaciones,
+			List<Long> id_equipoOrigen, List<String> cantEquipoOrigen, List<Long> id_a_redimensionar,
+			List<Long> id_redimensionar, List<String> cantEquipoRedimensionar) {
 		super();
-		this.id_actaBaja = id_actaBaja;
+		this.id_actaRedimensionar = id_actaRedimensionar;
 		this.numero = numero;
 		this.fecha = fecha;
 		this.observaciones = observaciones;
-		this.id_equipo = id_equipo;
-		this.cantidad = cantidad;
-		this.motivo = motivo;
+		this.id_equipoOrigen = id_equipoOrigen;
+		this.cantEquipoOrigen = cantEquipoOrigen;
+		this.id_a_redimensionar = id_a_redimensionar;
+		this.id_redimensionar = id_redimensionar;
+		this.cantEquipoRedimensionar = cantEquipoRedimensionar;
 	}
 
-	public FormBaja() {
+	public FormBajaRedimensionar() {
 		super();
 	}
 	
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
+	
+	public static boolean create (Connection con, String db, Map<String,String> mapeoPermiso, 
+			FormBajaRedimensionar form, Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto) {
+		boolean flag = false;
+		
+		Long soloArriendo = (long) 1;
+		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+			soloArriendo = (long) 0;
+		}
+		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
+		Map<Long,Double> mapCantBaja = new HashMap<Long,Double>();
+		
+		for(int i=0; i<form.id_equipoOrigen.size(); i++) {
+			Movimiento mov = map.get(form.id_equipoOrigen.get(i).toString()+"_0");
+			Double cant = (double)0;
+			if(mov!=null) {
+				cant = mov.getCantidad();
+				Double cantBaja = Double.parseDouble(form.cantEquipoOrigen.get(i).replaceAll(",", ""));
+				if((double) cantBaja <= (double) cant && cantBaja > 0) {
+					form.cantEquipoOrigen.set(i,cant.toString());
+					Double aux = mapCantBaja.get(form.id_equipoOrigen.get(i));
+					if(aux == null) {
+						mapCantBaja.put(form.id_equipoOrigen.get(i), cantBaja);
+					}else {
+						mapCantBaja.put(form.id_equipoOrigen.get(i), cantBaja + aux);
+					}
+					
+				}
+			}
+		}
+		
+		ActaRedimensionar actaRedimensionar = new ActaRedimensionar(form);
+		Long id_actaRedimensionar = ActaRedimensionar.create(con, db, actaRedimensionar);
+		if(id_actaRedimensionar > 0) {
+			String detalle = "";
+			for(int i=0; form.id_a_redimensionar!=null && i<form.id_a_redimensionar.size(); i++) {
+				Double cantBaja = mapCantBaja.get(form.id_a_redimensionar.get(i));
+				if(cantBaja != null && (double) cantBaja > (double) 0) {
+					Double aux = Double.parseDouble(form.cantEquipoRedimensionar.get(i).replaceAll(",", ""));
+					if(aux > 0) {
+						detalle += "('"+id_actaRedimensionar+"','"+form.id_a_redimensionar.get(i)+"','"+cantBaja
+								+"','"+form.id_redimensionar.get(i)+"','"+form.cantEquipoRedimensionar.get(i).replaceAll(",", "")+"'),";
+					}
+				}
+			}
+			if(form.id_a_redimensionar!=null && detalle.length() > 2) {
+				detalle = detalle.substring(0,detalle.length()-1);
+				if(detalle.length()>2) {
+					if(!Redimensionar.create(con, db, detalle)) {
+						ActaRedimensionar.delete(con, db, id_actaRedimensionar);
+					}else {
+						String path = "0";
+						if (docAdjunto != null) {
+							String nombreArchivoSinExtencion = "Doc_Redimensionar_" + id_actaRedimensionar;
+							path = Archivos.grabarArchivos(docAdjunto, db, nombreArchivoSinExtencion);
+							ActaRedimensionar.modifyXCampo(con, db, "actaPDF", path, id_actaRedimensionar);
+						}
+						flag = true;
+					}
+				}
+			}
+		}
+		if( ! flag) {
+			ActaRedimensionar.delete(con, db, id_actaRedimensionar);
+		}
+		return(flag);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//********************************************
 	
 	
 	
@@ -128,61 +227,10 @@ public class FormBaja {
 		return (listEquipEnBodBaja);
 	}
 	
-	public static boolean create (Connection con, String db, Map<String,String> mapeoPermiso, FormBaja form, Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto) {
-		boolean flag = false;
-		
-		Long soloArriendo = (long) 1;
-		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-			soloArriendo = (long) 0;
-		}
-		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
-		
-		for(int i=0; i<form.id_equipo.size(); i++) {
-			Movimiento mov = map.get(form.id_equipo.get(i).toString()+"_0");
-			Double cant = (double)0;
-			if(mov!=null) {
-				cant = mov.getCantidad();
-				Double aux = Double.parseDouble(form.cantidad.get(i).replaceAll(",", ""));
-				if((double) aux > (double) cant && (double) cant > (double) 0) {
-					form.cantidad.set(i,cant.toString());
-				}
-			}
-		}
-		
-		ActaBaja actaBaja = new ActaBaja(form);
-		Long id_actaBaja = ActaBaja.create(con, db, actaBaja);
-		if(id_actaBaja>0) {
-			String detalle = "";
-			for(int i=0; form.id_equipo!=null && i<form.id_equipo.size(); i++) {
-				Double aux = Double.parseDouble(form.cantidad.get(i).replaceAll(",", ""));
-				if((double) aux > (double)0) {
-					detalle += "('"+id_actaBaja+"','"+form.id_equipo.get(i)+"','"+form.cantidad.get(i).replaceAll(",", "")+"','"+form.motivo.get(i)+"'),";
-				}
-			}
-			if(form.id_equipo!=null && detalle.length() > 2) {
-				detalle = detalle.substring(0,detalle.length()-1);
-				if(detalle.length()>2) {
-					if(!Baja.create(con, db, detalle)) {
-						ActaBaja.delete(con, db, id_actaBaja);
-					}else {
-						String path = "0";
-						if (docAdjunto != null) {
-							String nombreArchivoSinExtencion = "Doc_Baja_" + id_actaBaja;
-							path = Archivos.grabarArchivos(docAdjunto, db, nombreArchivoSinExtencion);
-							ActaBaja.modifyXCampo(con, db, "actaBajaPDF", path, id_actaBaja);
-						}
-						flag = true;
-					}
-				}else {
-					ActaBaja.delete(con, db, id_actaBaja);
-				}
-			}
-		}
-		return(flag);
-	}
+	
 	
 	public static List<List<String>> detalleDeLaBaja (Connection con, String db, Map<String,String> mapeoPermiso, Map<String,String> mapeoDiccionario, Long id_actaBaja, Map<Long, Baja> mapDetalleBajaModifica){
-		List<List<String>> listEquipBodOrigen = FormBaja.listEquipEnBodBaja(con, db, mapeoPermiso, mapeoDiccionario);
+		List<List<String>> listEquipBodOrigen = FormBajaRedimensionar.listEquipEnBodBaja(con, db, mapeoPermiso, mapeoDiccionario);
 		Map<Long, List<String>> mapEquipBodOrigen = new HashMap<Long,List<String>>();
 		Map<Long,Long> mapId_equipos = new HashMap<Long,Long>();
 		mapDetalleBajaModifica.forEach((k,v)->{
@@ -339,51 +387,51 @@ public class FormBaja {
 		return(detalle);
 	}
 	
-	public static boolean update (Connection con, String db, Map<String,String> mapeoPermiso, FormBaja form, Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto) {
+	public static boolean update (Connection con, String db, Map<String,String> mapeoPermiso, FormBajaRedimensionar form, Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto) {
 		boolean flag = false;
 		
-		Long soloArriendo = (long) 1;
-		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-			soloArriendo = (long) 0;
-		}
-		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
-		
-		for(int i=0; i<form.id_equipo.size(); i++) {
-			Movimiento mov = map.get(form.id_equipo.get(i).toString()+"_0");
-			Double cant = (double)0;
-			if(mov!=null) {
-				cant = mov.getCantidad();
-				Double aux = Double.parseDouble(form.cantidad.get(i).replaceAll(",", ""));
-				if((double) aux > (double) cant && (double) cant > (double) 0) {
-					form.cantidad.set(i,cant.toString());
-				}
-			}
-		}
-		
-		
-		Long id_actaBaja = form.id_actaBaja;
-		if(id_actaBaja>0) {
-			String detalle = "";
-			for(int i=0; form.id_equipo!=null && i<form.id_equipo.size(); i++) {
-				Double aux = Double.parseDouble(form.cantidad.get(i).replaceAll(",", ""));
-				if((double) aux > (double)0) {
-					detalle += "('"+id_actaBaja+"','"+form.id_equipo.get(i)+"','"+form.cantidad.get(i).replaceAll(",", "")+"','"+form.motivo.get(i)+"'),";
-				}
-			}
-			if(form.id_equipo!=null) {
-				detalle = detalle.substring(0,detalle.length()-1);
-				Baja.create(con, db, detalle);
-				ActaBaja.modifyXCampo(con, db, "fecha", form.fecha, id_actaBaja);
-				ActaBaja.modifyXCampo(con, db, "observaciones", form.observaciones, id_actaBaja);
-				String path = "0";
-				if (docAdjunto != null) {
-					String nombreArchivoSinExtencion = "Doc_Baja_" + id_actaBaja;
-					path = Archivos.grabarArchivos(docAdjunto, db, nombreArchivoSinExtencion);
-					ActaBaja.modifyXCampo(con, db, "actaBajaPDF", path, id_actaBaja);
-				}
-				flag = true;
-			}
-		}
+//		Long soloArriendo = (long) 1;
+//		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+//			soloArriendo = (long) 0;
+//		}
+//		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
+//		
+//		for(int i=0; i<form.id_equipoOrigen.size(); i++) {
+//			Movimiento mov = map.get(form.id_equipoOrigen.get(i).toString()+"_0");
+//			Double cant = (double)0;
+//			if(mov!=null) {
+//				cant = mov.getCantidad();
+//				Double aux = Double.parseDouble(form.cantEquipoOrigen.get(i).replaceAll(",", ""));
+//				if((double) aux > (double) cant && (double) cant > (double) 0) {
+//					form.cantEquipoOrigen.set(i,cant.toString());
+//				}
+//			}
+//		}
+//		
+//		
+//		Long id_actaBaja = form.id_actaBaja;
+//		if(id_actaBaja>0) {
+//			String detalle = "";
+//			for(int i=0; form.id_equipoOrigen!=null && i<form.id_equipoOrigen.size(); i++) {
+//				Double aux = Double.parseDouble(form.cantEquipoOrigen.get(i).replaceAll(",", ""));
+//				if((double) aux > (double)0) {
+//					detalle += "('"+id_actaBaja+"','"+form.id_equipoOrigen.get(i)+"','"+form.cantEquipoOrigen.get(i).replaceAll(",", "")+"','"+form.motivo.get(i)+"'),";
+//				}
+//			}
+//			if(form.id_equipoOrigen!=null) {
+//				detalle = detalle.substring(0,detalle.length()-1);
+//				Baja.create(con, db, detalle);
+//				ActaBaja.modifyXCampo(con, db, "fecha", form.fecha, id_actaBaja);
+//				ActaBaja.modifyXCampo(con, db, "observaciones", form.observaciones, id_actaBaja);
+//				String path = "0";
+//				if (docAdjunto != null) {
+//					String nombreArchivoSinExtencion = "Doc_Baja_" + id_actaBaja;
+//					path = Archivos.grabarArchivos(docAdjunto, db, nombreArchivoSinExtencion);
+//					ActaBaja.modifyXCampo(con, db, "actaBajaPDF", path, id_actaBaja);
+//				}
+//				flag = true;
+//			}
+//		}
 		return(flag);
 	}
 	

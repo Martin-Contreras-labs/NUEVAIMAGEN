@@ -684,7 +684,7 @@ public class ReportEjecutivos {
 		List<String> grupos = new ArrayList<String>();
 		Fechas corte = Fechas.hoy();
 		Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, db, corte.getFechaStrAAMMDD(), pais);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, db, Long.parseLong(id_sucursal));
+		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
 		
 		Map<String,Double> mapListaGrupoTipBod = new HashMap<String,Double>();
 		Map<String,Double> mapListaGrupo = new HashMap<String,Double>();

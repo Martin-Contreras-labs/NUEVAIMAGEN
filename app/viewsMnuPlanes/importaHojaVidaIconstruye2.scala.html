@@ -619,6 +619,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 			formData.append('nombre',$("#nuevoEquipoNombre").val());
 			formData.append('id_fabrica',$("#nuevoEquipoId_fabrica").val());
 			formData.append('id_unidad',$("#nuevoEquipoId_unidad").val());
+			formData.append('desdeMenu',"PLANES_ICONSTRUYE");
 			
 			$.ajax({
 	            url: "/nuevoEquipoAjax/",

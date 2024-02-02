@@ -148,7 +148,7 @@ public class MnuReportes extends Controller {
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
 	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, 
@@ -183,7 +183,7 @@ public class MnuReportes extends Controller {
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
 	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 	    			List<List<String>> datos = ReportInventarios.reportInventarioGeneralXEquipo(con, s.baseDato, id_equipo, fechaCorte, tipo, 
 	    					mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
@@ -243,7 +243,7 @@ public class MnuReportes extends Controller {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
 	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, 
@@ -2268,7 +2268,7 @@ public class MnuReportes extends Controller {
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
     			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
@@ -2305,7 +2305,7 @@ public class MnuReportes extends Controller {
     			}
     			
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
     			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
@@ -2374,7 +2374,7 @@ public class MnuReportes extends Controller {
     			}
     			
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
     			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
@@ -2413,7 +2413,7 @@ public class MnuReportes extends Controller {
     			}
     			
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-    			Map<Long,List<Double>> mapPLista = Precio.maestroPreciosLista(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
     			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 

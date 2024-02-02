@@ -238,12 +238,7 @@ public class FormDespacho {
 									id_unidadTiempo = precioMaestro.getId_unidadTiempo();
 								
 								}else {
-									PreparedStatement smt3 = con
-											.prepareStatement("INSERT INTO `"+db+"`.precio "
-												+ "(id_equipo, id_moneda, fecha) "
-												+ " values ('"+listOtDespachado.get(i).getId_equipoDespacho()+"','"+id_moneda+"','"+Fechas.hoy().getFechaStrAAMMDD()+"');");
-									smt3.executeUpdate();
-									smt3.close();
+									Precio.create(con, db, listOtDespachado.get(i).getId_equipoDespacho(), Fechas.hoy().getFechaStrAAMMDD());
 								}
 								
 								Long id_cotizacion = listOtDespachado.get(i).getId_cotizacion();

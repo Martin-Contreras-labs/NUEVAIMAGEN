@@ -1,0 +1,605 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+numeroActaRedimensionar: Long, listEquipBodOrigen: List[List[String]], fecha: String,
+listEquipos: List[tables.Equipo], listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad]
+)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<form action="/routes2/bajaRedimensionarNuevo/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "PREPARAR ACTA PARA REDIMENSIONAR","")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="300px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro ACTA REDIMENSIONAR</span>
+								  		</div>
+								  		<input type="hidden" name="id_actaRedimensionar" value="0">
+	  									<input type="text" class="form-control center"
+	  										name="numero"
+	  										value="@numeroActaRedimensionar"
+	  										readonly>
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
+								  		</div>
+								  		<input type="date" class="form-control center"
+								  			name="fecha"
+								  			onblur="if(!limitaFecha(value,720,10)) value=''"
+								  			value="@fecha"
+						        			required>
+									</div>
+								</td>
+								<td>
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+										<div id="txtBtn">Adjuntar</div>
+				    					<input type="file" id="docAdjunto" name="docAdjunto" onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
+									</span>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="6">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
+								  		</div>
+	  									<textarea class="form-control" 
+	  										name="observaciones" 
+	  										autocomplete="off"></textarea>
+									</div>
+								</td>
+							</tr>
+						</thead>
+					</table>
+					<hr>
+					
+					<table id="detalle" class="table table-sm table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<th width="50%" colspan="7" style="text-align:center;">EQUIPOS EN BODEGA DE BAJAS</th>
+								<th width="5%"></th>
+								<th width="45%" colspan="7" style="text-align:center;">DETALLE A REDIMENSIONAR</th>
+							</tr>
+							<tr> 
+								<TH width="7%">CODIGO</TH>
+								<TH width="17%">EQUIPO</TH>
+						        <TH width="3%">UN</TH>
+								<TH width="5%" style="background-color: yellow;">STOCK</TH>
+								<TH width="3%">MONEDA</TH>
+								<TH width="7%">P.UNITARIO<br>COMPRA</TH>
+								<TH width="7%">TOTAL</TH>
+								<TH  width="5%" style="background-color: yellow;">CANTIDAD<br>A BAJA</TH>
+								<TH width=7%>CODIGO</TH>
+								<TH width=17%>EQUIPO</TH>
+								<TH width=3%>UN</TH>
+								<TH width=5% style="background-color: yellow;">CANTIDAD<br>REDIMENS</TH>
+								<TH width=13%>DESTINO</TH>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								@for((lista1, index) <- listEquipBodOrigen.zipWithIndex){
+									<TR>
+										<td  style="text-align:left;">
+											@lista1.get(4)
+										</td>
+										
+										<td  style="text-align:left;">
+											<input type="hidden" name="id_equipoOrigen[]" value="@lista1.get(0)">
+											@lista1.get(5)
+										</td>
+										<td  style="text-align:center;">@lista1.get(8)</td>
+										<td  style="text-align:right;" class="stock">@lista1.get(9)</td>
+										<td  style="text-align:center;">@lista1.get(10)</td>
+										<td  style="text-align:right;">@lista1.get(11)</td>
+										<td  style="text-align:right;" class="total">@lista1.get(12)</td>
+										<td  style="text-align:center;">
+											<input type="text" class="cantidad form-control right"
+												name="cantEquipoOrigen[]"
+												id="cantidad_@lista1.get(0)_@lista1.get(1)"
+												value="0.00"
+												onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+												onkeypress="return ingresoDouble(event,value)"
+												autocomplete="off"
+												onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)', value);">
+										</td>
+										<td colspan="5">
+											<table id="tabla_@index" class="table table-sm table-bordered table-condensed table-fluid">
+												<tbody>
+													<tr>
+														<td width="16%">
+															<div class="input-group input-group-sm">
+															  <input class="form-control borrarCodigoEquipo" type="text" 
+																	onclick="idEquipOrigen='@lista1.get(0)'; muestraEquipos('@index');"
+																	readonly>
+															  <div class="input-group-append">
+															    <span class="input-group-text" onclick="idEquipOrigen='@lista1.get(0)'; muestraEquipos('@index');">B</span>
+															  </div>
+															</div>
+														</td>
+														<td width="37%"></td>
+														<td width="7%"></td>
+														<td width="11%"></td>
+														<td width="29%"></td>
+													</tr>
+												</tbody>
+											</table>
+										</td>
+									</TR>
+					 			}
+						</tbody>
+						<tfoot>
+							<tr> 
+								<th></th>
+								<th style="text-align:left;">TOTALES</th>
+								<th></th>
+								<th><div id="totalStock" align="right">0.00</div></th>
+								<th></th>
+								<th></th>
+								<th><div id="totalTotal" align="right">0.00</div></th>
+								<th><div id="totalCantidad" align="right">0.00</div></th>
+								<th></th>
+								<th></th>
+								<th><div id="totalRedimensionar" align="right">0.00</div></th>
+								<th></th>
+							</tr>
+						</tfoot>
+					</table>
+					
+					
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="submit"  id="aplica" value='Grabar' class="btn btn-primary btn-sm rounded-pill btn-block">
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	
+	
+	<div id='modalListaEquipos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+						<h5 class='modal-title'>BUSCAR Y SELECCIONAR EQUIPO</h5>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<button type='button' class='btn btn-sm  btn-info' style='font-size: 10px;' data-dismiss='modal' onclick='$("#modalNuevoEquipo").modal("show")'>Agregar nuevo equipo</button>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+				
+					<table id='tablaListadoEquipos' class='table table-sm table-hover table-bordered table-condensed table-fluid'>
+    					<thead style='background-color: #eeeeee'>
+	    					<tr>
+	    						<th>CODIGO</th>
+	    						<th>EQUIPO</th>
+	    						<th>UN</th>
+	    					</tr>
+	    				</thead>
+	    				<tbody>
+							@for(lista <- listEquipos){
+								<tr onclick="
+									selCod='@lista.getCodigo';
+    								selEquip='@lista.getNombre';
+    								selUnidad='@lista.getUnidad';
+    								agregarLinea('@lista.getId');"
+				
+									 data-dismiss='modal'>
+	    						
+		    						<td style='text-align:left;'>@lista.getCodigo</td>
+		    						<td style='text-align:left;'>@lista.getNombre</td>
+		    						<td style='text-align:center'>@lista.getUnidad</td>
+	    						</tr>
+							}
+							
+						</tbody>
+		    		</table>
+
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalNuevoEquipo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>INGRESAR NUEVO EQUIPO</h5>
+					<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<TR>
+							<td  style="text-align:left;">GRUPO</td>
+							<td style="text-align:left">
+								<select class="custom-select"
+									id="nuevoEquipoId_grupo"
+									required>
+									@for(lista <- listGrupos){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</TR>
+						<tr>
+							<td style="text-align:left; vertical-align:top">CODIGO EQUIPO: </td>
+							<td style="text-align:left; vertical-align:top">
+								<input type="text" class="form-control left"
+									id="nuevoEquipoCodigo"
+									required
+									autocomplete="off"
+									onkeypress="return sinReservados(event)"
+									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
+									maxlength="50"
+									value = " ">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left; vertical-align:top">NOMBRE EQUIPO: </td>
+							<td style="text-align:left; vertical-align:top">
+								<input type="text" class="form-control left"
+									id="nuevoEquipoNombre"
+									required
+									autocomplete="off"
+									maxlength="100"
+									value = " ">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left; vertical-align:top">FABRICANTE: </td>
+							<td style="text-align:left; vertical-align:top">
+								<select class="custom-select" 
+									id="nuevoEquipoId_fabrica"
+									required>
+									@for(lista <- listFabrica){
+										<option value="@lista.id">@lista.nickName</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left; vertical-align:top">UNIDAD: </td>
+							<td style="text-align:left; vertical-align:top">
+								<select class="custom-select" 
+									id="nuevoEquipoId_unidad"
+									required>
+									@for(lista <- listUnidades){
+										<option value="@lista.id">@lista.nombre</option>
+									}
+								</select>
+							</td>
+						</tr>
+					</table>
+					<div class='row'>
+						<div class='col-sm-5' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' onclick="grabaNuevoEquipo()">GRABAR</button>
+						</div>
+						<div class='col-sm-5' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-light' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+			</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		sumaTotales();
+		document.getElementById('mostrarmostrar').style.display="block";
+		
+		
+		$('#tablaListadoEquipos').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 0, "asc" ]],
+		    	"language": {
+		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        }
+			} );
+	});
+	
+	
+	
+	
+	
+	let selCod = "";
+	let selEquip = "";
+	let selUnidad = "";
+	let index = 0;
+	let cont = 0;
+	let idEquipOrigen = 0;
+	
+	const muestraEquipos = (auxIndex) => {
+			index = auxIndex;
+			let lista = document.getElementById('tablaListadoEquipos');
+			for(let i=0; i<lista.rows.length; i++){
+				lista.rows[i].style.display = '';
+			}
+			let dato = document.getElementById('tabla_'+index);
+			for(let i=0; i<lista.rows.length; i++){
+				let cod = lista.rows[i].cells[0].innerHTML;
+				lista.rows[i].style.display = 'true';
+				for(let j=0; j<dato.rows.length; j++){
+					let cod2 = dato.rows[j].cells[0].innerHTML;
+					if(cod == cod2){
+						lista.rows[i].style.display = 'none';
+					}
+				}
+			}
+			
+			$('#modalListaEquipos').modal('show');
+   	}
+
+	const agregarLinea = (id_equipo) =>{
+		
+		let tabla = document.getElementById('tabla_'+index);
+		tr = tabla.insertRow(tabla.rows.length-1);
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:left');
+		td.innerHTML = 	selCod;
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:left');
+		td.innerHTML = 	
+			 "<input type='hidden' name='id_a_redimensionar[]' value='"+idEquipOrigen+"'>"
+			+ "<input type='hidden' name='id_redimensionar[]' value='"+id_equipo+"'>"
+			+ selEquip;
+	
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:center');
+		td.innerHTML = selUnidad;
+		
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:center');
+		td.innerHTML ="<input type=\"text\" class=\"cantRedimensionar form-control right\""
+				+" name=\"cantEquipoRedimensionar[]\""
+				+" id=\"\""
+				+" value=\"0.00\""
+				+" onfocus=\"value=value.replace(/,/g,''); cantAux = value;\""
+				+" onkeypress=\"return ingresoDouble(event,value)\""
+				+" autocomplete=\"off\""
+				+" onchange=\"if(value=='') value=0; sumaTotales();\">";
+												
+				
+		td = tr.insertCell(tr.cells.length);
+		td.setAttribute ('style', 'text-align:center');
+		td.innerHTML ="select";
+	
+		cont++;
+			
+	}
+
+	const verificaCantidad = (id_equipo, id_cotizacion, stock, cantidad) =>{
+		stock = stock.replace(/,/g,'');
+		if(parseFloat(cantidad) > parseFloat(stock)){
+			alertify.alert('La cantidad no puede ser mayor al stock disponible para dar de baja', function () {
+				$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(0,2));
+     		});
+		}else{
+			$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(cantidad,2));
+		}
+		sumaTotales();
+	}
+	
+	const validarForm = () =>{
+		$("#aplica").attr('disabled',true);
+		let flag = false;
+		let cantTotal = $("#totalCantidad").text().replace(/,/g,'');
+		let cantTotalRedimensionar = $("#totalRedimensionar").text().replace(/,/g,'');
+		if(parseFloat(cantTotal) > 0 && parseFloat(cantTotalRedimensionar) > 0){
+			return(true);
+		}else{
+			flag = false;
+			alertify.alert('PARA GRABAR AL MENOS DEBE CONSIDERAR UN EQUIPO PARA BAJA y CON AL MENOS UN EQUIPO PARA REDIMENSIONAR', function () {
+				$("#aplica").attr('disabled',false);
+				return(flag);
+     		});
+		}
+		return(flag);
+	}
+	
+	const sumaTotales = () => {
+		 let sum = 0;
+			$(".stock").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalStock").text(formatStandar(sum,2));
+			sum = 0;
+			$(".total").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalTotal").text(formatStandar(sum,0));
+			sum = 0;
+			$(".cantidad").each(function() {
+				let val = $(this).val().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalCantidad").text(formatStandar(sum,2));
+			sum = 0;
+			$(".cantRedimensionar").each(function() {
+				let val = $(this).val().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalRedimensionar").text(formatStandar(sum,2));
+	}
+	
+	const grabaNuevoEquipo = () =>{
+		
+		nuevoEquipoCodigo = $("#nuevoEquipoCodigo").val().trim();
+		nuevoEquipoNombre = $("#nuevoEquipoNombre").val().trim();
+		if(nuevoEquipoCodigo==""){
+			alertify.alert("Debe ingresar un código de equipo", function () {
+ 				$("#nuevoEquipoCodigo").focus();
+     		});
+		}else if(nuevoEquipoNombre==""){
+			alertify.alert("Debe ingresar un nombre de equipo", function () {
+ 				$("#nuevoEquipoNombre").focus();
+     		});
+		}else{
+			$("#modalNuevoEquipo").modal('hide');
+			let auxOpcion = document.getElementById("nuevoEquipoId_unidad");
+			let auxEquipoUnidad = auxOpcion.options[auxOpcion.selectedIndex].text;
+			
+			var formData = new FormData();
+			formData.append('id_grupo',$("#nuevoEquipoId_grupo").val());
+			formData.append('codigo',$("#nuevoEquipoCodigo").val());
+			formData.append('nombre',$("#nuevoEquipoNombre").val());
+			formData.append('id_fabrica',$("#nuevoEquipoId_fabrica").val());
+			formData.append('id_unidad',$("#nuevoEquipoId_unidad").val());
+			formData.append('desdeMenu',"REDIMENSIONAR");
+			
+			
+			$.ajax({
+	            url: "/nuevoEquipoAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="existe"){
+		     			alertify.alert("El código de equipo ya existe, intente con otro", function () {
+		     				$("#nuevoEquipoCodigo").val("");
+			     		});
+		     		}else if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}else{
+		     			let rs = respuesta.split("_");
+						selCod = $("#nuevoEquipoCodigo").val();
+						selEquip = $("#nuevoEquipoNombre").val();
+						
+						let auxOpcion = document.getElementById("nuevoEquipoId_unidad");
+						selUnidad = auxOpcion.options[auxOpcion.selectedIndex].text;
+						
+						
+						$("#tablaListadoEquipos").dataTable().fnDestroy();
+						
+
+						let tabla = document.getElementById("tablaListadoEquipos");
+						tr = tabla.insertRow(tabla.rows.length-1);
+			
+						td = tr.insertCell(tr.cells.length);
+						td.setAttribute ('style', 'text-align:left');
+						td.innerHTML = 	selCod;
+			
+						td = tr.insertCell(tr.cells.length);
+						td.setAttribute ('style', 'text-align:left');
+						td.innerHTML = 	selEquip;
+					
+						td = tr.insertCell(tr.cells.length);
+						td.setAttribute ('style', 'text-align:center');
+						td.innerHTML = auxEquipoUnidad;
+						
+						$('#tablaListadoEquipos').DataTable({
+					    	"fixedHeader": true,
+					    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+							"order": [[ 0, "asc" ]],
+					    	"language": {
+					        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+					        }
+						} );
+					
+					
+		     			agregarLinea(rs[0]);
+		     			$("#nuevoEquipoCodigo").val("");
+		     			$("#nuevoEquipoNombre").val("");
+		     		}
+		     	}
+	        });
+		}
+	}
+	
+	const verificaCodigo = (codigo) => {
+		var formData = new FormData();
+	  	formData.append('codigo',codigo);
+        $.ajax({
+            url: "/verificaCodigoEquipoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert("El código de equipo ya existe, intente con otro", function () {
+	     				$("#nuevoEquipoCodigo").val("");
+		     		});
+	     		}
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		let allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1){
+			file = file.slice(file.indexOf("\\") + 1);
+		}
+		let extencion = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray.length; i++) {
+			if (extArray[i] == extencion) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var file = $("#docAdjunto")[0].files[0];
+			var fileSize = file.size; //tamaño del archivo
+			if(fileSize>100000000){
+				alert("Se permiten únicamente archivos que no superen los 100 MB,"
+				+" el que se intenta subir pesa: "+Math.round(file.size/10)/100+" KB");
+				form.docAdjunto.value="";
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+	
+	
+
+
+	
+</script>
+
+
+		
+		
+	
