@@ -27,8 +27,18 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 # MENU BAJA - redimensionar
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-GET		/bajaRedimensionar/				controllers.MnuBajas.bajaRedimensionar(request: Request)
-POST	/bajaRedimensionarNuevo/		controllers.MnuBajas.bajaRedimensionarNuevo(request: Request)
+GET		/redimensionarPrepara/				controllers.MnuRedimensionar.redimensionarPrepara(request: Request)
+POST	/redimensionarNuevo/				controllers.MnuRedimensionar.redimensionarNuevo(request: Request)
+GET		/redimensionarConfirmar0/			controllers.MnuRedimensionar.redimensionarConfirmar0(request: Request)
+POST	/redimensionarConfirmar1/			controllers.MnuRedimensionar.redimensionarConfirmar1(request: Request)
+POST	/redimensionarConfirmar2/			controllers.MnuRedimensionar.redimensionarConfirmar2(request: Request)
+
+GET		/redimensionarEliminar0/			controllers.MnuRedimensionar.redimensionarEliminar0(request: Request)
+POST	/redimensionarEliminar1/			controllers.MnuRedimensionar.redimensionarEliminar1(request: Request)
+POST	/redimensionarEliminar2/			controllers.MnuRedimensionar.redimensionarEliminar2(request: Request)
+
+GET		/redimensionarListar0/				controllers.MnuRedimensionar.redimensionarListar0(request: Request)
+POST	/redimensionarListar1/				controllers.MnuRedimensionar.redimensionarListar1(request: Request)
 
 
 

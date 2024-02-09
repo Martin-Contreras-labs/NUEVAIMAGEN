@@ -405,6 +405,36 @@ public class Compra {
 		return (lista);
 	}
 	
+	public static List<List<String>> allPorFactura(Connection con, String db, Long id_factura){
+		List<List<String>> lista = new ArrayList<List<String>>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" select " +
+							" compra.id, " +
+							" compra.id_bodegaEmpresa, " +
+							" compra.id_equipo, " +
+							" compra.cantidad " +
+							" from `"+db+"`.compra " +
+							" where compra.id_factura = ?;");
+			smt.setLong(1, id_factura);
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(rs.getString(1));								// 0 id_compra
+				aux.add(rs.getString(2));								// 1 id_bodegaEmpresa
+				aux.add(rs.getString(3));								// 2 id_equipo
+				aux.add(rs.getString(4));								// 3 cantidad
+				lista.add(aux);
+				
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
 	public static boolean deleteAllPorFacturaYfactura(Connection con, String db, Long id_factura) {
 		boolean flag = false;
 		try {

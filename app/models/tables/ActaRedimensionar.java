@@ -7,13 +7,12 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.mysql.jdbc.Statement;
 
-import models.forms.FormBajaRedimensionar;
+import models.forms.FormRedimensionar;
+
 
 public class ActaRedimensionar {
 	public Long id;
@@ -21,17 +20,19 @@ public class ActaRedimensionar {
 	public String fecha;
 	public String actaPDF;
 	public String observaciones;
+	public String fechaConfirma;
 	
-	public ActaRedimensionar(Long id, Long numero, String fecha, String actaPDF, String observaciones) {
+	public ActaRedimensionar(Long id, Long numero, String fecha, String actaPDF, String observaciones, String fechaConfirma) {
 		super();
 		this.id = id;
 		this.numero = numero;
 		this.fecha = fecha;
 		this.actaPDF = actaPDF;
 		this.observaciones = observaciones;
+		this.fechaConfirma = fechaConfirma;
 	}
 	
-	public ActaRedimensionar(FormBajaRedimensionar form) {
+	public ActaRedimensionar(FormRedimensionar form) {
 		super();
 		this.id = (long)0;
 		this.numero = form.numero;
@@ -84,6 +85,14 @@ public class ActaRedimensionar {
 		this.observaciones = observaciones;
 	}
 
+	public String getFechaConfirma() {
+		return fechaConfirma;
+	}
+
+	public void setFechaConfirma(String fechaConfirma) {
+		this.fechaConfirma = fechaConfirma;
+	}
+
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
@@ -115,21 +124,24 @@ public class ActaRedimensionar {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("select id from `"+db+"`.redimensionar WHERE id_actaRedimensionar = ?;");
+					.prepareStatement("select id from `"+db+"`.actaRedimensionar WHERE id = ? and fechaConfirma is null;");
 			smt1.setLong(1, id_actaRedimensionar);
 			ResultSet resultado1 = smt1.executeQuery();
 			if (resultado1.next()) {
-				flag = false;
-			}else{			
 				PreparedStatement smt = con
 						.prepareStatement("DELETE FROM `"+db+"`.actaRedimensionar WHERE id = ?;");
 				smt.setLong(1, id_actaRedimensionar);
 				smt.executeUpdate();
 				smt.close();
+				PreparedStatement smt2 = con
+						.prepareStatement("DELETE FROM `"+db+"`.redimensionar WHERE id_actaRedimensionar = ?;");
+				smt2.setLong(1, id_actaRedimensionar);
+				smt2.executeUpdate();
+				smt2.close();
+				flag = true;
 			}
 			smt1.close();
 			resultado1.close();
-			flag = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -192,91 +204,20 @@ public class ActaRedimensionar {
 		return (aux);
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//*******************************
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	public static List<ActaRedimensionar> all(Connection con, String db) {
+	public static List<ActaRedimensionar> allPorConfirmar(Connection con, String db) {
 		List<ActaRedimensionar> lista = new ArrayList<ActaRedimensionar>();
-		
 		try {
 			PreparedStatement smt=null;
 			ResultSet rs = null;
 			smt = con
-					.prepareStatement(" select " +
-							" id, numero, fecha, actaBajaPDF, observaciones " +
-							" from `"+db+"`.actaBaja;");
-			rs = smt.executeQuery();
-			while (rs.next()) {	
-				String fecha = null;
-				if (rs.getString(3) != null) {
-					fecha = myformatfecha.format(rs.getDate(3));
-				}
-				lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5)));
-			}
-			smt.close();
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return (lista);
-	}
-	
-	public static List<ActaRedimensionar> allModificables(Connection con, String db) {
-		List<ActaRedimensionar> lista = new ArrayList<ActaRedimensionar>();
-		try {
-			Map<Long,Long> mapIdActas = new HashMap<Long,Long>();
-			PreparedStatement smt2=null;
-			ResultSet rs2 = null;
-			smt2 = con
-					.prepareStatement("select id_actaBaja from `"+db+"`.baja where esModificable=1 and fechaConfirma is null group by id_actaBaja;");
-			rs2 = smt2.executeQuery();
-			while (rs2.next()) {		
-				mapIdActas.put(rs2.getLong(1), rs2.getLong(1));
-			}
-			smt2.close();
-			rs2.close();
-			
-			PreparedStatement smt=null;
-			ResultSet rs = null;
-			smt = con
-					.prepareStatement(" select " +
-							" id, numero, fecha, actaBajaPDF, observaciones " +
-							" from `"+db+"`.actaBaja;");
+					.prepareStatement("select id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,'') "
+							+ " from `"+db+"`.actaRedimensionar"
+							+ " where fechaConfirma is null;");
 			rs = smt.executeQuery();
 			while (rs.next()) {
-				if(mapIdActas.get(rs.getLong(1)) != null) {
-					String fecha = null;		
-					if (rs.getString(3) != null) {
-						fecha = myformatfecha.format(rs.getDate(3));
-					}
-					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5)));
-				}
+				String fecha = myformatfecha.format(rs.getDate(3));
+				String fechaConfirma = rs.getString(6);	
+					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma));
 			}
 			smt.close();
 			rs.close();
@@ -286,21 +227,45 @@ public class ActaRedimensionar {
 		return (lista);
 	}
 	
-	public static ActaRedimensionar find(Connection con, String db, Long id_actaBaja) {
+	public static List<ActaRedimensionar> allConfirmadas(Connection con, String db) {
+		List<ActaRedimensionar> lista = new ArrayList<ActaRedimensionar>();
+		try {
+			PreparedStatement smt=null;
+			ResultSet rs = null;
+			smt = con
+					.prepareStatement("select id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,'') "
+							+ " from `"+db+"`.actaRedimensionar"
+							+ " where fechaConfirma is not null;");
+			rs = smt.executeQuery();
+			while (rs.next()) {
+				String fecha = myformatfecha.format(rs.getDate(3));
+				String fechaConfirma = rs.getString(6);	
+					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma));
+			}
+			smt.close();
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
+	
+	public static ActaRedimensionar find(Connection con, String db, Long id_actaRedimensionar) {
 		ActaRedimensionar aux = null;
 		try {
 			PreparedStatement smt=null;
 			ResultSet rs = null;
 			smt = con
 					.prepareStatement(" select " +
-							" id, numero, fecha, actaBajaPDF, observaciones " +
-							" from `"+db+"`.actaBaja where id = ?;");
-			smt.setLong(1, id_actaBaja);
+							" id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,'') " +
+							" from `"+db+"`.actaRedimensionar where id = ?;");
+			smt.setLong(1, id_actaRedimensionar);
 			rs = smt.executeQuery();
 			if (rs.next()) {
-				String fecha="";
-				if (rs.getString(3) != null) {fecha = myformatfecha.format(rs.getDate(3));}
-				aux = new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5));
+				String fecha = rs.getString(3);
+				String fechaConfirma = rs.getString(6);	
+				aux = new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma);
 			}
 			smt.close();
 			rs.close();
@@ -311,6 +276,7 @@ public class ActaRedimensionar {
 	}
 	
 	
+
 	
 	
 	

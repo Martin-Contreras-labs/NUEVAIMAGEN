@@ -359,21 +359,21 @@
 			        	</a>
 			        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
 			        		@if(mapPermiso.get("bajaIngreso")!=null){
-			        			<a class="dropdown-item" href="/routes2/bajaRedimensionar/">Preparar</a>
+			        			<a class="dropdown-item" href="/routes2/redimensionarPrepara/">Preparar</a>
 							}
 							@if(mapPermiso.get("bajaConfirma")!=null){
-			        			<a class="dropdown-item" href="#">Confirmar</a>
+			        			<a class="dropdown-item" href="/routes2/redimensionarConfirmar0/">Confirmar</a>
 							}
 							@if(mapPermiso.get("bajaModifica2")!=null){
-			        			<a class="dropdown-item" href="#">Eliminar</a>
+			        			<a class="dropdown-item" href="/routes2/redimensionarEliminar0/">Eliminar</a>
 							}
 							@if(mapPermiso.get("bajaListado")!=null){
 								<div class="dropdown-divider" style="border-color:black"></div>
 								<li class="dropdown-submenu">
 									<a class="dropdown-item dropdown-toggle" href="#">Listar</a>
 									<ul class="dropdown-menu">
-											<li><a class="dropdown-item" href="#">Por Acta</a></li>
-											<li><a class="dropdown-item" href="#">Por Equipo</a></li>
+											<li><a class="dropdown-item" href="/routes2/redimensionarListar0/">Por Acta</a></li>
+											<!-- <li><a class="dropdown-item" href="#">Por Equipo</a></li> -->
 									</ul>
 								</li>
 							}

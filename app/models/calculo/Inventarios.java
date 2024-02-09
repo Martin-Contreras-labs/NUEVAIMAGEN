@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import models.tables.Baja;
 import models.tables.BodegaEmpresa;
 import models.tables.Movimiento;
+import models.tables.Redimensionar;
 
 public class Inventarios {
 	
@@ -74,14 +75,24 @@ public class Inventarios {
 		
 		if(id_bodegaEmpresa==(long)1) {
 			Map<Long,Double> bajasSinConfirmar = Baja.totalDeBajasPorIdEquipoPendientes(con, db);
+			Map<Long,Double> redimensionarSinConfirmar = Redimensionar.redimensionarPorIdEquipoPendientes(con, db);
 			map.forEach((k,v) ->{
 				Double baja = bajasSinConfirmar.get(v.id_equipo);
 				if(baja!=null) {
 					Double aux = v.getCantidad();
 					v.setCantidad(aux-baja);
 				}
+				Double redimensionar = redimensionarSinConfirmar.get(v.id_equipo);
+				if(redimensionar!=null) {
+					Double aux = v.getCantidad();
+					v.setCantidad(aux-redimensionar);
+				}
+				if(v.getCantidad() < 0 ) {
+					v.setCantidad((double)0);
+				}
 			});
 		}
+		
 		return(map);
 	}
 	
@@ -114,11 +125,20 @@ public class Inventarios {
 		
 		if(id_bodegaEmpresa==(long)1) {
 			Map<Long,Double> bajasSinConfirmar = Baja.totalDeBajasPorIdEquipoPendientes(con, db);
+			Map<Long,Double> redimensionarSinConfirmar = Redimensionar.redimensionarPorIdEquipoPendientes(con, db);
 			map.forEach((k,v) ->{
 				Double baja = bajasSinConfirmar.get(v.id_equipo);
 				if(baja!=null) {
 					Double aux = v.getCantidad();
 					v.setCantidad(aux-baja);
+				}
+				Double redimensionar = redimensionarSinConfirmar.get(v.id_equipo);
+				if(redimensionar!=null) {
+					Double aux = v.getCantidad();
+					v.setCantidad(aux-redimensionar);
+				}
+				if(v.getCantidad() < 0 ) {
+					v.setCantidad((double)0);
 				}
 			});
 		}

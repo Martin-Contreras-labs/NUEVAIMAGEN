@@ -145,6 +145,24 @@ public class ActaBaja {
 		return (aux);
 	}
 	
+	public static Long findIdActaBaja (Connection con, String db, Long numero) {
+		Long aux = (long)0;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id from `"+db+"`.actaBaja where numero = ?;");
+			smt.setLong(1, numero);
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {		
+				aux = rs.getLong(1);
+			}
+			smt.close();
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+	
 	public static Long create(Connection con, String db, ActaBaja actaBaja) {
 		Long id_acta = (long)0;
 		try {

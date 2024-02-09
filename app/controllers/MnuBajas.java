@@ -11,16 +11,10 @@ import java.util.Optional;
 
 import controllers.HomeController.Sessiones;
 import models.forms.FormBaja;
-import models.forms.FormBajaRedimensionar;
 import models.tables.ActaBaja;
-import models.tables.ActaRedimensionar;
 import models.tables.Baja;
 import models.tables.Compra;
-import models.tables.Equipo;
-import models.tables.Fabrica;
-import models.tables.Grupo;
 import models.tables.Movimiento;
-import models.tables.Unidad;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
@@ -413,76 +407,5 @@ public class MnuBajas extends Controller {
     
     
     
-    //============================================================
-    // MNU bajaIngreso   Bajas/Redimensionar -- bajaIngreso
-    //============================================================
-
-    public Result bajaRedimensionar(Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-    		try {
-    			Connection con = db.getConnection();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("bajaIngreso")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			Long numeroActaRedimensionar = ActaRedimensionar.findNuevoNumero(con, s.baseDato);
-    			String fecha = Fechas.hoy().getFechaStrAAMMDD();
-    			List<List<String>> listEquipBodOrige = FormBaja.listEquipEnBodBaja(con, s.baseDato, mapeoPermiso, mapeoDiccionario);
-    			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato);
-    			
-    			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
-    			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
-    			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
-    			
-    			con.close();
-    			return ok(bajaRedimensionar.render(mapeoDiccionario,mapeoPermiso,userMnu,numeroActaRedimensionar,listEquipBodOrige, fecha,
-    					listEquipos, listGrupos, listFabrica, listUnidades));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
-    }
-    
-    public Result bajaRedimensionarNuevo(Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    			FormBajaRedimensionar form = formFactory.form(FormBajaRedimensionar.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-        		if (form.numero==null || form.id_actaRedimensionar==null) {
-        			return ok(mensajes.render("/",msgErrorFormulario));
-        		}else {
-        			Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-    				Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
-        			try {
-    	    			Connection con = db.getConnection();
-    	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    	    			if(ActaRedimensionar.existeNumero(con, s.baseDato, form.numero)) {
-    	    				String msg = "El numero de acta redimensionar ya fue utilizado, debe volver a ingresar el acta redireccionar";
-    	    				return ok(mensajes.render("/home/",msg));
-    	    			}
-    	    			if(FormBajaRedimensionar.create(con, s.baseDato, mapeoPermiso, form, docAdjunto)) {
-    	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "redimensionar", (long)0, "create", "ingresa nueva acta redimensionar nro: "+form.numero);
-    	    			}else {
-    	    				con.close();
-    	    				return ok(mensajes.render("/home/","No se pudo grabar debido a que para redimensionar bajas debe al menos estar asociado en una linea el equipo de baja con el equipo o equipos a redimensionar, ambos con cantidades mayor que cero."));
-    	    			}
-    	    			con.close();
-    	    			return redirect("/home/");
-        			} catch (SQLException e) {
-    	    			e.printStackTrace();
-    	    		}
-        			return ok(mensajes.render("/",msgError));
-        		}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
-    }
-	
 
 }

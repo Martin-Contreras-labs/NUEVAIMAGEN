@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mysql.jdbc.Statement;
+
 import models.forms.FormProveedorGraba;
 
 
@@ -393,6 +395,27 @@ public class Proveedor {
 			flag=false;
 		}
 		return (flag);
+	}
+	
+	public static Long insertNew(Connection con, String db, String nickName) {
+		Long aux = (long)0;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("INSERT INTO `"+db+"`.proveedor (nickName) VALUES (?);",Statement.RETURN_GENERATED_KEYS);
+			smt.setString(1, nickName);
+			smt.executeUpdate();
+			
+			ResultSet rs = smt.getGeneratedKeys();
+            if (rs.next()) {
+            	aux = rs.getLong(1);
+            }
+            smt.close();
+            rs.close();
+            
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return (aux);
 	}
 	
 	public static boolean createDesdeIConstruye(Connection con, String db, Proveedor aux) {

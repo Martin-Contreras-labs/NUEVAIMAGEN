@@ -172,6 +172,44 @@ public class Factura {
 		return (flag);
 	}
 	
+	public static Long findIdFactura(Connection con, String db, Long numeroFactura, Long id_proveedor) {
+		Long aux = (long) 0;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" SELECT id FROM `"+db+"`.factura where numero = ? and id_proveedor = ?;" );
+			smt.setLong(1, numeroFactura);
+			smt.setLong(2, id_proveedor);
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {	
+				aux = rs.getLong(1);	
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return (aux);
+	}
+	
+	public static Long nuevoNumero(Connection con, String db, Long id_proveedor) {
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" SELECT max(numero) FROM `"+db+"`.factura where id_proveedor = ?;" );
+			smt.setLong(1, id_proveedor);
+			ResultSet rs = smt.executeQuery();
+			Long aux = (long) 0;
+			if (rs.next()) {	
+				aux = rs.getLong(1) + (long) 1;	
+			}
+			rs.close();
+			smt.close();
+			return (aux);
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return ((long) 1);
+	}
+	
 	public static Long create(Connection con, String db, Factura factura, String numOcIConstruye, String id_userCrea) {
 		Long id_factura = (long) 0;
 		try {
