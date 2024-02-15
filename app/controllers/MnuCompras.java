@@ -2,9 +2,12 @@ package controllers;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,12 +37,15 @@ import models.tables.Regiones;
 import models.tables.Sucursal;
 import models.tables.Unidad;
 import models.tables.UnidadTiempo;
+import models.utilities.Archivos;
+import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.db.Database;
+import play.libs.Json;
 import play.libs.Files.TemporaryFile;
 import play.libs.mailer.MailerClient;
 import play.libs.ws.WSClient;
@@ -603,6 +609,247 @@ public class MnuCompras extends Controller {
     		return ok("error");
     	}
 	}
+    
+    public Result compraPlantilla(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			try {
+    				Connection con = db.getConnection();
+    				File file = Compra.plantillaCompras(con, s.baseDato);
+    				if(file != null) {
+    					con.close();
+        				return ok(file, Optional.of("plantillaCargaCompras.xlsx"));
+    				}else {
+    					con.close();
+    					return ok(mensajes.render("/",msgError));
+    				}
+    				
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    	        }
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+    
+    public Result compraValidarPlantilla(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			List<String> mensaje = new ArrayList<String>();
+    			Archivos aux = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+        		Http.MultipartFormData.FilePart<TemporaryFile> archivo = aux.file;
+        		
+    			if (archivo != null) {
+    				File file = Archivos.parseMultipartFormDatatoFile(archivo);
+					try {
+		    			Connection con = db.getConnection();
+		    			mensaje = FormCompra.compraValidarPlantillaExcel(con, s.baseDato, file);
+		    			String jsonMsg = Json.toJson(mensaje).toString();
+		    			con.close();
+		    			return ok(jsonMsg.toString()).as("application/json");
+					} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+    			}
+	       	}
+    	}
+    	return ok("error");
+    }
+    
+    public Result compraCargaPlantilla(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+        		Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+    			Http.MultipartFormData.FilePart<TemporaryFile> archivo = body.getFile("archivoXLSX");
+    			if (archivo != null) {
+    				File file = Archivos.parseMultipartFormDatatoFile(archivo);
+					try {
+		    			Connection con = db.getConnection();
+		    				Long id_proveedor = FormCompra.validaProveedor(con, s.baseDato, file);
+		    				if(id_proveedor == null) {
+		    					con.close();
+								return ok(mensajes.render("/compraIngreso/", "Falta o no existe el proveedor"));
+		    				}
+		    				Map<String,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAllNombre(con, s.baseDato);
+		    				Map<String,List<String>> mapListaExcel = new HashMap<String,List<String>>();
+		    				List<List<String>> listaExcel = FormCompra.llenaListaDesdeExcel(file);
+		    				for(List<String> l: listaExcel){
+		    					BodegaEmpresa bodega = mapBodega.get(l.get(9).toUpperCase());
+		    					if(bodega == null) {
+		    						con.close();
+		    						if(l.get(9).length() < 1) {
+		    							return ok(mensajes.render("/compraIngreso/", "Faltan bodegas destino"));
+		    						}
+									return ok(mensajes.render("/compraIngreso/", "No existe la bodega destino: "+l.get(9).toUpperCase()));
+		    					}
+		    					mapListaExcel.put(l.get(1), l);
+		    				}
+		    				if(mapListaExcel.size() != listaExcel.size()) {
+		    					con.close();
+								return ok(mensajes.render("/compraIngreso/", "Existen codigos duplicados en el archivo"));
+		    				}
+		    				
+	    					Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, s.baseDato);
+	    					String newEquipos = "";
+	    					String selEquipos = "";
+	    	    			List<String> codigos = new ArrayList<String>();
+	    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
+	    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
+	    	    			for(List<String> l: listaExcel) {
+								Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+	    	    				if(equipo == null) {
+	    	    					Long id_grupo = (long)0;
+	    	    					Grupo grupo = mapGrupo.get(l.get(0));
+	    	    					if(grupo != null) {
+	    	    						id_grupo = grupo.getId();
+	    	    					}
+	    	    					Long id_unidad = (long)1;
+	    	    					Unidad unidad = mapUnidad.get(l.get(5));
+	    	    					if(unidad != null) {
+	    	    						id_unidad = unidad.getId();
+	    	    					}
+	    	    					newEquipos += "('"+l.get(1)+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"'),";
+	    	    					codigos.add(l.get(1));
+	    	    					selEquipos += "'"+l.get(1)+"',";
+	    	    				}
+	    					}
+	    	    			if(newEquipos.length()>1) {
+	    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
+	    	    				PreparedStatement smt = con
+	    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
+	    	    				
+	    	    				smt.executeUpdate();
+	    	    				smt.close();
+	    	    				selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
+	    	    				PreparedStatement smt2 = con
+	    	    						.prepareStatement("Select id from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
+	    	    				ResultSet rs2 = smt2.executeQuery();
+	    	    				List<String> idsEquipo = new ArrayList<String>();
+	    	    				while(rs2.next()) {
+	    	    					idsEquipo.add(rs2.getString(1));
+	    	    				}
+	    	    				smt2.close();
+	    	    				rs2.close();
+	    	    				String datos = "";
+	    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
+	    	    				for(String x:idsEquipo){
+	    	    					for(Sucursal sucursal: listSucursal) {
+	    	    						datos += "("+x+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+sucursal.getId()+"),";
+	    	    					}
+	    	    					
+	    	    				}
+	    	    				datos = datos.substring(0,datos.length()-1);
+	    	    				PreparedStatement smt3 = con
+	    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
+	    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+	    	    								+ " values "+datos+";");
+	    	    				smt3.executeUpdate();
+	    	    				smt3.close();
+	    	    			}
+		    				
+		    				
+		    				
+	    	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    	    			
+	    	    			List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
+	    	    			List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
+	    	    			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
+	    	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+	    	    			List<Moneda> listMon = Moneda.all(con, s.baseDato);
+	    	    			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
+	    	    			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
+	    	    			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
+	    	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
+	    	    			List<Sucursal> listSucursales = Sucursal.all(con, s.baseDato);
+	    	    			
+	    	    			
+	    	    			
+	    	    			mapEquipos = Equipo.mapAllAllPorCodigo(con, s.baseDato);
+	    	    			Map<String,Moneda> mapMoneda = Moneda.mapNickMonedas(con, s.baseDato);
+	    	    			List<List<String>> lista = new ArrayList<List<String>>();
+	    	    			for(List<String> l: listaExcel) {
+								Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+								BodegaEmpresa bodega = mapBodega.get(l.get(9).toUpperCase());
+								if(equipo!=null && bodega!=null) {
+									List<String> aux = new ArrayList<String>();
+									
+									String cant = l.get(6);
+									if(cant.trim().length() == 0) {
+										cant = "0.00";
+									}else {
+										try {
+											cant = DecimalFormato.formato(Double.parseDouble(cant), (long)2);
+										}catch(Exception e) {
+											cant = "0.00";
+										}
+									}
+									
+									Moneda mon = mapMoneda.get(l.get(7));
+									if(mon == null) {
+										mon = Moneda.find(con, s.baseDato, (long)1);
+									}
+									
+									String pu = l.get(8);
+									if(pu.trim().length() == 0) {
+										pu = DecimalFormato.formato((double)0, mon.numeroDecimales);
+									}else {
+										try {
+											pu = DecimalFormato.formato(Double.parseDouble(pu), (long)2);
+										}catch(Exception e) {
+											pu = DecimalFormato.formato((double)0, mon.numeroDecimales);
+										}
+									}
+									
+									/*0*/ aux.add(equipo.getGrupo());
+									/*1*/ aux.add(equipo.getCodigo());
+									/*2*/ aux.add(equipo.getNombre());
+									/*3*/ aux.add(DecimalFormato.formato(equipo.getKG(), (long)2));
+									/*4*/ aux.add(DecimalFormato.formato(equipo.getM2(), (long)2));
+									/*5*/ aux.add(equipo.getUnidad());
+									/*6*/ aux.add(cant);
+									/*7*/ aux.add(mon.getNickName());
+									/*8*/ aux.add(pu);
+									/*9*/ aux.add(bodega.getNombre());
+									
+									/*10*/ aux.add(equipo.getId().toString());
+									/*11*/ aux.add(mon.getId().toString());
+									/*12*/ aux.add(mon.getNumeroDecimales().toString());
+									/*13*/ aux.add(bodega.getId_sucursal().toString());
+									/*14*/ aux.add(bodega.getNameSucursal());
+									/*15*/ aux.add(bodega.getId().toString());
+									lista.add(aux);
+								}
+	    	    			}
+	    	    			con.close();
+	    	    			return ok(compraIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,listProveedor,listEquipo,listMoneda,listBodegas,listMon,listGrupos,listFabrica,listUnidades,
+	    	    					listRegiones, listSucursales, lista));
+		    	    			
+					} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+    			}
+	       	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+    
+    
+    
     
     //============================================================
     // MNU compraConfirma   Compras/Confirmar Compras

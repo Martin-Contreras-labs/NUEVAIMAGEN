@@ -210,6 +210,15 @@ public class BodegaEmpresa {
 		return (map);
 	}
 	
+	public static Map<String,BodegaEmpresa> mapAllNombre(Connection con, String db) {
+		Map<String,BodegaEmpresa> map = new HashMap<String,BodegaEmpresa>();
+		List<BodegaEmpresa> lista = BodegaEmpresa.allInternas(con, db);
+		lista.forEach(x->{
+			map.put(x.getNombre().toUpperCase(), x);
+		});
+		return (map);
+	}
+	
 	
 	public static List<BodegaEmpresa> all(Connection con, String db) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
@@ -276,6 +285,71 @@ public class BodegaEmpresa {
 		return (lista);
 	}
 	
+	public static List<BodegaEmpresa> allInternas(Connection con, String db) {
+		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
+		try {
+			PreparedStatement smt = con
+						.prepareStatement("select " +
+								" bodegaEmpresa.id," +
+								" esInterna," +
+								" bodegaEmpresa.nombre," +
+								" id_cliente," +
+								" id_proyecto," +
+								" tasaDescto, " +
+								" tasaArriendo," +
+								" tasaCfi," +
+								" cobraDiaDespacho," +
+								" nDiaGraciaEnvio," +
+								" nDiaGraciaRegreso," +
+								" tipoBodega.nombre," +
+								" factorM2Viga," +
+								" baseCalculo," +
+								" tratoDevoluciones," +
+								" ifnull(cliente.nickName,''), " +
+								" ifnull(proyecto.nickName,''), " +
+								" ifnull(bodegaEmpresa.comercial,''), "+
+								" ifnull(cliente.rut,''), "+
+								" ifnull(bodegaEmpresa.pep,''), "+
+								" ifnull(bodegaEmpresa.ivaBodega,0), "+
+								" bodegaEmpresa.id_sucursal, "+
+								" bodegaEmpresa.id_comercial "+
+								" from `"+db+"`.bodegaEmpresa " +
+								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
+								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+								" where esInterna = 1;" );
+				ResultSet rs = smt.executeQuery();
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.nombre;
+					}
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(23));
+					if(comercial!=null) {
+						nameComercial = comercial.getNameUsuario();
+					}else {
+						nameComercial = rs.getString(18);
+					}
+					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
+							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
+							rs.getDouble(8),rs.getLong(9),
+							rs.getLong(10),rs.getLong(11),rs.getDouble(13),
+							rs.getLong(14),rs.getLong(15),rs.getString(12),
+							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
+							rs.getString(20),rs.getDouble(21),
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial));
+				}
+				rs.close();
+				smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
 	public static List<BodegaEmpresa> allFiltroPorNombre(Connection con, String db, String filtroPorNombreBodega) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
 		if(filtroPorNombreBodega.length()>0) {
@@ -794,8 +868,7 @@ public class BodegaEmpresa {
 		return (lista);
 	}
 	
-	public static List<List<String>> listaAllBodegasVigentesInternas(Connection con, String db, String esPorSucursal, 
-			String id_sucursal) {
+	public static List<List<String>> listaAllBodegasVigentesInternas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		String condSucursal = "";

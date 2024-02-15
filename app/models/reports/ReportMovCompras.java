@@ -184,7 +184,7 @@ public class ReportMovCompras {
 							+ " where factura.fecha <= ? " + filtroPorProveedor
 							+ " group by compra.id_equipo;");
 			smt1.setString(1, fechaHasta);
-			System.out.println(smt1);
+
 			ResultSet rs1 = smt1.executeQuery();
 			while (rs1.next()) {
 				if(rs1.getDouble(8) > 0) {

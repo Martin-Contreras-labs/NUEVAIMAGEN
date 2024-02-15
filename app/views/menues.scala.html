@@ -347,27 +347,25 @@
 				}
 				
 				
-				
-				
 				<!-- =================================== -->
 	        	<!-- 			MENU REDIMENSIONAR 				 -->  
 	        	<!-- =================================== -->
-				@if(mapPermiso.get("mnuBAJAS")!=null && mapPermiso.get("parametro.mnuBAJAS")!=null && mapPermiso.get("parametro.mnuBAJAS").equals("1")){
+				@if(mapPermiso.get("mnuREDIMENSIONAR")!=null && mapPermiso.get("parametro.mnuREDIMENSIONAR")!=null && mapPermiso.get("parametro.mnuREDIMENSIONAR").equals("1")){
 		 			<li class="nav-item dropdown">
 						<a id="mnuBAJAS" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						 	Redimensionar
 			        	</a>
 			        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
-			        		@if(mapPermiso.get("bajaIngreso")!=null){
+			        		@if(mapPermiso.get("redimensionarIngreso")!=null){
 			        			<a class="dropdown-item" href="/routes2/redimensionarPrepara/">Preparar</a>
 							}
-							@if(mapPermiso.get("bajaConfirma")!=null){
+							@if(mapPermiso.get("redimensionarConfirma")!=null){
 			        			<a class="dropdown-item" href="/routes2/redimensionarConfirmar0/">Confirmar</a>
 							}
-							@if(mapPermiso.get("bajaModifica2")!=null){
+							@if(mapPermiso.get("redimensionarEliminar")!=null){
 			        			<a class="dropdown-item" href="/routes2/redimensionarEliminar0/">Eliminar</a>
 							}
-							@if(mapPermiso.get("bajaListado")!=null){
+							@if(mapPermiso.get("redimensionarListado")!=null){
 								<div class="dropdown-divider" style="border-color:black"></div>
 								<li class="dropdown-submenu">
 									<a class="dropdown-item dropdown-toggle" href="#">Listar</a>
@@ -380,11 +378,6 @@
 			        	</ul>
 			        </li>
 				}
-				
-				
-				
-				
-				
 			}
 			
 			<!-- =================================== -->

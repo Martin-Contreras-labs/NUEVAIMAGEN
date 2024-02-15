@@ -2431,18 +2431,14 @@ public class FormCotiza {
             if(row==null || archivoNoCorresponde) {
             	archivoNoCorresponde = true;
             }else {
-            	for(int i=1; i<9; i++) {
+            	for(int i=1; i<13; i++) {
             		cell = row.getCell(i);
                 	if(cell==null) {
                 		archivoNoCorresponde = true;
                 	}
             	}
-            	cell = row.getCell(0);
-            	if(cell!=null) {
-            		archivoNoCorresponde = true;
-            	}
             	cell = row.getCell(2);
-            	if(!cell.getStringCellValue().equals("EQUIPO")) {
+            	if(!cell.getStringCellValue().equals("CODIGO")) {
             		archivoNoCorresponde = true;
             	}
             }
@@ -2454,13 +2450,11 @@ public class FormCotiza {
             boolean flag = true;
             int fila = 2;
             int x = 2;
-            row = hoja1.getRow(1);
-            cell = row.getCell(1);
             while (row!=null && cell !=null ) {
             	fila++;
             	row = hoja1.getRow(x++);
             	if(row!=null) {
-            		cell = row.getCell(1);
+            		cell = row.getCell(2);
                 	if(cell!=null) {
                 		boolean noEsBlanco = true;
                     	try {
@@ -2476,7 +2470,7 @@ public class FormCotiza {
                     	}
                 		if(noEsBlanco) {
                 			String dato = "codigo";
-                			cell = row.getCell(1);
+                			cell = row.getCell(2);
                 			try {
                         		dato = cell.getStringCellValue().trim();
                         	}catch(Exception e){
@@ -2491,7 +2485,7 @@ public class FormCotiza {
                 			}
                 		}
                 	}
-                	cell = row.getCell(1);
+                	cell = row.getCell(2);
             	}
             }
             if(flag) {
@@ -2513,13 +2507,17 @@ public class FormCotiza {
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
             Cell cell = null;
-            int x = 2;
+            
             row = hoja1.getRow(1);
-            cell = row.getCell(1);
+            if(row != null) {
+            	cell = row.getCell(2);
+            }
+            
+            int x = 2;
             while (row!=null && cell !=null ) {
             	row = hoja1.getRow(x++);
             	if(row!=null) {
-            		cell = row.getCell(1);
+            		cell = row.getCell(2);
                 	if(cell!=null) {
                 		boolean noEsBlanco = true;
                     	try {
@@ -2535,22 +2533,16 @@ public class FormCotiza {
                     	}
                 		if(noEsBlanco) {
                 			List<String> auxList = new ArrayList<String>();
-                			for(int i=1; i<9; i++) {
+                			for(int i=1; i<13; i++) {
                     			String dato = "";
                     			cell = row.getCell(i);
                                 if(cell!=null) {
                                 	try {
+                                		Double aux = cell.getNumericCellValue();
+                                		dato = df.format(aux);
+                                	}catch(Exception e){
                                 		dato = cell.getStringCellValue().trim();
                                 		dato = dato.replaceAll("'", "\"");
-                                	}catch(Exception e){
-                                		if(i==1) {
-                                			Double aux = cell.getNumericCellValue();
-                                    		Long aux2 = aux.longValue();
-                                    		dato = df.format(aux2);
-                                		}else {
-                                			Double aux = cell.getNumericCellValue();
-                                    		dato = df.format(aux);
-                                		}
                                 	}
                                 }
                                 auxList.add(dato);
@@ -2559,7 +2551,7 @@ public class FormCotiza {
                     		lista.add(auxList);
                 		}
                 	}
-                	cell = row.getCell(1);
+                	cell = row.getCell(2);
             	}
             }
 		} catch (InvalidFormatException | IOException e1) {
@@ -2567,14 +2559,19 @@ public class FormCotiza {
 		return(lista);
 	}
 	
-	// 0 CODIGO
-	// 1 EQUIPO
-	// 2 CANT
-	// 3 SOLO VENTA
-	// 4 P.UNITARIO VTA/REPOS
-	// 5 TASA
-	// 6 ARR/VTA P.UNITARIO ARR
-	// 7 PERMANENCIA
+	//  0 GRUPO
+	//  1 CODIGO
+	//  2 EQUIPO
+	//  3 UNIDAD
+	//  4 CANT
+	//  5 SOLO VENTA
+	//  6 MONEDA
+	//  7 P.UNITARIO VTA/REPOS
+	//  8 UNIDAD ALQUILER
+	//  9 TASA
+	// 10 ARR/VTA P.UNITARIO ARR
+	// 11 PERMANENCIA
+	
 	
 }
 

@@ -1,11 +1,24 @@
 package models.forms;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import models.tables.Compra;
+import models.tables.Equipo;
 import models.tables.Factura;
+import models.tables.Proveedor;
 import models.utilities.Archivos;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
@@ -105,7 +118,189 @@ public class FormCompra {
 		return(flag);
 	}
 	
+	public static Long validaProveedor (Connection con, String db, File file) {
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.getRow(1);
+            if(row != null) {
+            	cell = row.getCell(2);
+            }
+            
+            if(row!=null && cell !=null ) {
+            	Proveedor proveedor = Proveedor.findPorNickName(con, db, cell.getStringCellValue());
+            	if(proveedor == null) {
+            		return(null);
+            	}else {
+            		return(proveedor.getId());
+            	}
+            }else {
+            	return(null);
+            }
+            
+		} catch (InvalidFormatException | IOException e1) {
+			return(null);
+		}
+	}
 	
+	public static List<String> compraValidarPlantillaExcel (Connection con, String db, File file) {
+		List<String> mensaje = new ArrayList<String>();
+		DecimalFormat df = new DecimalFormat("#");
+	    df.setMaximumFractionDigits(8);
+	    
+        mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
+        
+        try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            boolean archivoNoCorresponde = false;
+            row = hoja1.getRow(3);
+            if(row==null || archivoNoCorresponde) {
+            	archivoNoCorresponde = true;
+            }else {
+            	for(int i=1; i<11; i++) {
+            		cell = row.getCell(i);
+                	if(cell==null) {
+                		archivoNoCorresponde = true;
+                	}
+            	}
+            	cell = row.getCell(2);
+            	if(!cell.getStringCellValue().equals("CODIGO")) {
+            		archivoNoCorresponde = true;
+            	}
+            }
+            if(archivoNoCorresponde) {
+            	mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+            	return (mensaje);
+            }
+            Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, db);
+            boolean flag = true;
+            int fila = 4;
+            int x = 4;
+            while (row!=null && cell !=null ) {
+            	fila++;
+            	row = hoja1.getRow(x++);
+            	if(row!=null) {
+            		cell = row.getCell(2);
+                	if(cell!=null) {
+                		boolean noEsBlanco = true;
+                    	try {
+                    		String dato = cell.getStringCellValue().trim();
+                    		if(dato.trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}catch(Exception e){
+                    		Double aux = cell.getNumericCellValue();
+                    		if(aux.toString().trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}
+                		if(noEsBlanco) {
+                			String dato = "codigo";
+                			cell = row.getCell(2);
+                			try {
+                        		dato = cell.getStringCellValue().trim();
+                        	}catch(Exception e){
+                        		Double aux = cell.getNumericCellValue();
+                        		Long aux2 = aux.longValue();
+                        		dato = df.format(aux2);
+                        	}
+                			Equipo equipo = mapEquipos.get(dato.toUpperCase());
+                			if(equipo == null) {
+                				mensaje.add("En fila "+fila+": Codigo ["+dato+"] no existe en mada.<br>");
+                        		flag = false;
+                			}
+                		}
+                	}
+                	cell = row.getCell(2);
+            	}
+            }
+            if(flag) {
+            	mensaje.set(0,"true");
+            }
+        } catch (Exception e) {
+			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+        	return (mensaje);
+        }
+		return(mensaje);
+	}
+	
+	public static List<List<String>> llenaListaDesdeExcel (File file) {
+		List<List<String>> lista = new ArrayList<List<String>>();
+		DecimalFormat df = new DecimalFormat("#");
+	    df.setMaximumFractionDigits(8);
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.getRow(1);
+            if(row != null) {
+            	cell = row.getCell(2);
+            }
+
+            int x = 4;
+            while (row!=null && cell !=null ) {
+            	row = hoja1.getRow(x++);
+            	if(row!=null) {
+            		cell = row.getCell(2);
+                	if(cell!=null) {
+                		boolean noEsBlanco = true;
+                    	try {
+                    		String dato = cell.getStringCellValue().trim();
+                    		if(dato.trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}catch(Exception e){
+                    		Double aux = cell.getNumericCellValue();
+                    		if(aux.toString().trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}
+                		if(noEsBlanco) {
+                			List<String> auxList = new ArrayList<String>();
+                			for(int i=1; i<11; i++) {
+                    			String dato = "";
+                    			cell = row.getCell(i);
+                                if(cell!=null) {
+                                	try {
+                                		Double aux = cell.getNumericCellValue();
+                                		dato = df.format(aux);
+                                	}catch(Exception e){
+                                		dato = cell.getStringCellValue().trim();
+                                		dato = dato.replaceAll("'", "\"");
+                                	}
+                                }
+                                auxList.add(dato);
+                            }
+                			auxList.set(0, auxList.get(0).toUpperCase());
+                    		lista.add(auxList);
+                		}
+                	}
+                	cell = row.getCell(2);
+            	}
+            }
+		} catch (InvalidFormatException | IOException e1) {
+		}
+		return(lista);
+	}
+	
+	// 0 GRUPO
+	// 1 CODIGO
+	// 2 EQUIPO
+	// 3 KG
+	// 4 M2
+	// 5 UN
+	// 6 CANTIDAD
+	// 7 MONEDA
+	// 8 P.U COMPRA
+	// 9 DESTINO
 	
 	
 	

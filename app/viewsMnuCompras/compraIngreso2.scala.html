@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listProveedor: List[tables.Proveedor], listEquipo: List[tables.Equipo], listMoneda: List[tables.Moneda], listBodegas: List[List[String]], listMon: List[tables.Moneda],
 listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad], listRegiones: List[tables.Regiones],
-listSucursales: List[tables.Sucursal])
+listSucursales: List[tables.Sucursal], lista: List[List[String]])
 
     	
 @main("") {
@@ -124,24 +124,6 @@ listSucursales: List[tables.Sucursal])
 					<hr>
 					
 					
-					
-					
-					
-						<div class="noprint" align="center">
-							<div class="row justify-content-md-center" >
-								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-									<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
-										onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
-								</div>
-							</div>
-						</div>
-					
-						
-					
-					
-					
-					
-					
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
 							<TR>
@@ -163,6 +145,93 @@ listSucursales: List[tables.Sucursal])
 							</TR>
 						</thead>
 						<tbody>
+						
+							@for((l,i) <- lista.zipWithIndex){
+								<tr>
+									<td style="text-align: left;">
+										<input type="hidden" name="id_equipo[]" value="@l.get(10)">
+										@l.get(1)
+									</td>
+									<td style="text-align: left;">@l.get(2)</td>
+									<td style="text-align: right;">
+										<div id="KG_@(i+1)" align="right">@l.get(3)</div>
+									</td>
+									<td style="text-align: right;">
+										<div id="M2_@(i+1)" align="right">@l.get(4)</div>
+									</td>
+									<td style="text-align: center;">@l.get(5)</td>
+									<td style="text-align: center;">
+										<input type="text" class="cantidad form-control right" 
+											name="cantidad[]" 
+											id="cantidad_@(i+1)" 
+											value="@l.get(6)" 
+											onfocus="value=value.replace(/,/g,'');" 
+											onkeypress="return ingresoDouble(event,value)" 
+											autocomplete="off" 
+											onchange="if(value=='') value=0; value=formatStandar(value,2); actualTotales(id);">
+									</td>
+									<td style="text-align: center;">
+										<select class="form-control form-control-sm" 
+											id="idMoneda_@(i+1)" 
+											name="id_monedaCompra[]">
+											<option value="@l.get(11)">@l.get(7)</option>
+											@for(mon <- listMoneda){
+								    			<option value='@mon.getId()'>@mon.getNickName()</option>
+											}
+										</select>
+									</td>
+									<td style="text-align: center;">
+										<input type="text" class="form-control right" 
+											name="puCompra[]" 
+											id="puCompra_@(i+1)" 
+											value="@l.get(8)" 
+											onfocus="value=value.replace(/,/g,'');" 
+											onkeypress="return ingresoDouble(event,value)" 
+											autocomplete="off" 
+											onchange="if(value=='') value=0; value=formatStandar(value,'@l.get(12)'); actualTotales(id);"> 
+									</td>
+									<td style="text-align: right;">
+										<div class="total" id="total_@(i+1)" align="right">0.00</div>
+									</td>
+									<td style="text-align: center;">
+										<select class="form-control form-control-sm " 
+											onchange="actualizaSucursal('@(i+1)','@l.get(10)',value);">
+											<option value="@l.get(13)">@l.get(14)</option>
+											@for(lista <- listSucursales){
+												<option value="@lista.getId()">@lista.getNombre()</option>
+											}
+										</select>
+									</td>
+									<td style="text-align: center;">
+										<input type="hidden" id="id_sucursal_@(i+1)" value="@l.get(13)">
+											<a href="#" onclick="selSucursalPrecio('@(i+1)','@l.get(10)')"> 
+												<kbd style="background-color: #CACFD2">Asignar</kbd>
+											</a>
+									</td>
+									<td style="text-align: center;">
+										<div id="selBodegaDestino_@(i+1)">
+											<select class="selBodDest form-control form-control-sm" name="id_bodegaDestino[]">
+												<option value="@l.get(15)">@l.get(9)</option>
+												@for(bod <- listBodegas){
+    												<option value='@bod.get(1)'>@bod.get(5)</option>
+												}
+											</select>
+										</div>
+									</td>
+									<td style="text-align: right;">
+										<div class="kg" id="totKG_@(i+1)" align="right">0.00</div>
+									</td>
+									<td style="text-align: right;">
+										<div class="m2" id="totM2_@(i+1)" align="right">0.00</div>
+									</td>
+									<td style="text-align: center;">
+										<a href="#" onclick="eliminarFila(this)">
+											<kbd style="background-color: red">X</kbd>
+										</a>
+									</td>
+								</tr>
+							
+							}
 				 			<TR>
 						        <td>
 									<input type='text' class='form-control' style='background:white' 
@@ -184,6 +253,8 @@ listSucursales: List[tables.Sucursal])
 								<td></td>
 								<td></td>
 							</TR>
+							
+							
 				 			<TR style="background-color: #eeeeee">
 						        <td></td>
 								<td>TOTALES</td>
@@ -217,63 +288,6 @@ listSucursales: List[tables.Sucursal])
 			</div>
 		</div>
 	</form>
-	
-	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
-	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title">Carga masiva de compras</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	        
-			<div class="row">
-				<div class="col-sm-12" style="text-align:center">
-					<form action="/routes2/compraPlantilla/" method="POST"  onsubmit="return validarForm2();">
-						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
-					</form>
-					<br>
-					<form id="compraCargaPlantilla" action="/routes2/compraCargaPlantilla/" method="POST" enctype="multipart/form-data">
-						<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
-							<div>SUBIR ARCHIVO</div>
-							<input type="file" id="archivoXLSX" name="archivoXLSX" value="" onchange="subirArchivo(this.form, this.form.archivoXLSX.value,this)">
-						</span>
-					</form>
-					<br>
-					<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
-				</div>
-			</div>
-			<br>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-	
-	<div id="msgNuevosCodigos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
-	  <div class="modal-dialog modal-sm modal-dialog-scrollable modal-lg" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title">EXISTE EQUIPOS EN LA PLANTILLA EXCEL QUE NO EXISTEN EN MADA</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-				<div class="col-sm-12" style="text-align:center">
-				  <button type="button" class="btn btn-sm  btn-primary" style="font-size: 10px;" 
-					onclick='$("#compraCargaPlantilla").submit();'>CREAR LOS EQUIPOS QUE NO EXISTEN</button><br><br>
-				  <button type="button" class="btn btn-sm  btn-info" style="font-size: 10px;" 
-					onclick="revisarEquiposNuevos();">REVISAR EQUIPOS QUE NO EXISTEN</button><br><br>
-				  <button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" 
-					onclick="location.reload();">CANCELAR</button>
-				</div>
-			<br>
-	      </div>
-	    </div>
-	  </div>
-	</div>
 	
 	<div id='listaProveedor' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
@@ -477,6 +491,8 @@ listSucursales: List[tables.Sucursal])
 
 <script type="text/javascript">
 
+	let cont = 0;
+
 	$(document).ready(function() {
 		
 		$('#tablaListaProveedores').DataTable({
@@ -497,6 +513,9 @@ listSucursales: List[tables.Sucursal])
 	        }
 	  	} );
 		  
+		cont = "@(lista.size()+1)";
+		todosLosTotales();
+		
 		  document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
@@ -547,7 +566,7 @@ listSucursales: List[tables.Sucursal])
 	let auxKgEquip = "";
 	let auxM2Equip = "";
 	let auxUnEquip = "";
-	let cont = 0;
+	
 	
 	const selectEquipo = (id_equipo) => {
 		cont++;
@@ -675,6 +694,25 @@ listSucursales: List[tables.Sucursal])
 		$("#total_"+aux[1]).text(formatStandar(total,nroDecimal));
 		$("#totKG_"+aux[1]).text(formatStandar(totKG,2));
 		$("#totM2_"+aux[1]).text(formatStandar(totM2,2));
+		sumaTotales();
+	}
+	
+	const todosLosTotales = () =>{
+		for(let i=1; i<cont; i++){
+			let cantidad = $("#cantidad_"+i).val().replace(/,/g,'');
+			let puCompra = $("#puCompra_"+i).val().replace(/,/g,'');
+			let id_moneda = $("#idMoneda_"+i).val();
+			let nroDecimal = mapDec.get(parseFloat(id_moneda));
+			let kg = $("#KG_"+i).text().replace(/,/g,'');
+			let m2 = $("#M2_"+i).text().replace(/,/g,'');
+			let total = parseFloat(cantidad) * parseFloat(puCompra);
+			let totKG = parseFloat(cantidad) * parseFloat(kg);
+			let totM2 = parseFloat(cantidad) * parseFloat(m2);
+			$("#puCompra_"+i).val(formatStandar(puCompra,nroDecimal));
+			$("#total_"+i).text(formatStandar(total,nroDecimal));
+			$("#totKG_"+i).text(formatStandar(totKG,2));
+			$("#totM2_"+i).text(formatStandar(totM2,2));
+		}
 		sumaTotales();
 	}
 	
@@ -978,64 +1016,6 @@ listSucursales: List[tables.Sucursal])
 		}
 	}
 	
-	let extArray2 = new Array(".xls", ".xlsx");
-	function subirArchivo(form, file, nodo) {
-		allowSubmit = false;
-		if (!file) return;
-		while (file.indexOf("\\") != -1)
-			file = file.slice(file.indexOf("\\") + 1);
-		ext = file.slice(file.lastIndexOf(".")).toLowerCase();
-		for (var i = 0; i < extArray2.length; i++) {
-			if (extArray2[i] == ext) { allowSubmit = true; break; }
-		}
-		if (allowSubmit) {
-			var formData = new FormData();
-			formData.append("file",nodo.files[0]);
-	        $.ajax({
-				url: "/routes2/compraValidarPlantilla/",
-	            type: "POST",
-	            method: "POST",
-	            data: formData,
-	            cache: false,
-	            contentType: false,
-		     	processData: false,
-		     	success: function(rs){
-					$('#modalCargaMasiva').modal('hide');
-					if(rs[0] == 'true'){
-						$("#compraCargaPlantilla").submit();
-					}else if(rs[0].substring(0,7) == "EQUIPOS"){
-						rsGlobal = rs;
-						$("#msgNuevosCodigos").modal('show');
-					}else{
-						alertify.alert("SE PRESENTO UN PROBLEMA", function () { 
-							location.reload();
-						});
-					}
-		     	}
-	        });
-		}else{
-			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
-			+ (extArray2.join("  ")) + "\nPor favor, seleccione otro archivo "
-			+ "e intente de nuevo.");
-			form.archivoXLSX.value="";
-		}
-	}
-	
-	const revisarEquiposNuevos = () =>{
-		$('#msgNuevosCodigos').modal('hide');
-		let mensaje = "";
-		for(var i in rsGlobal){
-			mensaje += rsGlobal[i];
-		}
-		alertify.alert(mensaje, function () { 
-			location.reload();
-		});
-	}
-	
-	const validarForm2 = () =>{
-		$("#btnSubmit2").attr('disabled',true);
-		return(true);
-	}
 
 	
 </script>

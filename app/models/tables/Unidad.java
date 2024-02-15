@@ -58,7 +58,7 @@ public class Unidad{
 		Map<String,Unidad> map = new HashMap<String,Unidad>();
 		List<Unidad> lista = Unidad.all(con, db);
 		for(int i=0; i<lista.size(); i++) {
-			map.put(lista.get(i).nombre, lista.get(i));
+			map.put(lista.get(i).nombre.toUpperCase(), lista.get(i));
 		}
 		return map;
 	}

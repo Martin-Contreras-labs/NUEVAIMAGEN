@@ -336,7 +336,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		    								+ "selUnidad='"+rs[i][8]+"';"
 		    								+ "selKg='"+rs[i][6]+"';"
 		    								+ "selM2='"+rs[i][7]+"';"+
-		    								" agregarLinea("+rs[i][0]+","+rs[i][1]+","+stockInicial+")\" data-dismiss='modal'>"+
+		    								" agregarLinea("+rs[i][0]+","+rs[i][1]+","+stockInicial+",'0.00','-1')\" data-dismiss='modal'>"+
 		    						
 			    						"<td style='text-align:left;'>"+rs[i][2]+"</td>"+
 			    						"<td style='text-align:left;'>"+rs[i][4]+"</td>"+
@@ -367,6 +367,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 						let tdIdEquipOrigen = document.getElementsByClassName('tdIdEquipOrigen');
 						let tdEsVentaOrigen = document.getElementsByClassName('tdEsVentaOrigen');
 						let tdIdCotizaDetalle = document.getElementsByClassName('tdIdCotizaDetalle');
+						let tdSaldo = document.getElementsByClassName('tdSaldo');
 						
 						for(let i = 0; i < tdCodOrigen.length; i++){
 							let aux = map.get(tdCodOrigen[i].textContent);
@@ -374,7 +375,8 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 							index = i;
 							idCotizaDetalle = tdIdCotizaDetalle[i].textContent;
 							esVenta = tdEsVentaOrigen[i].textContent;
-							idEquipOrigen = tdIdEquipOrigen[i].textContent;
+							saldo = tdSaldo[i].textContent;
+							idCotizaDetalle = tdIdCotizaDetalle[i].textContent;
 								
 							if(aux == null){
 								selCod = tdCodOrigen[i].textContent;
@@ -384,7 +386,8 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 								selKg = "0.00";
 								selM2 = "0.00";
 								let stock = "0.00";
-								agregarLinea(idEquipOrigen,tdEsVentaOrigen[i].textContent,stock);
+								saldo = "0.00";
+								agregarLinea(idEquipOrigen,tdEsVentaOrigen[i].textContent,stock, saldo, idEquipOrigen);
 							}else{
 								selCod=aux[4];
 		    					selEquip = aux[5].replace(/"\""/g,'');
@@ -393,9 +396,14 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		    					selKg=aux[6];
 		    					selM2=aux[7];
 								let stock = parseFloat(aux[9].replace(/,/g,''));
-								agregarLinea(aux[0],aux[1],stock);
+								let auxSaldo = parseFloat(saldo.replace(/"\""/g,''));
+								if(stock < auxSaldo){
+									auxSaldo = stock;
+								}
+								agregarLinea(aux[0],aux[1],stock, auxSaldo, aux[0]);
 							}
 						}
+						sumaTotales();
 					}
 				}
 	      });
@@ -443,6 +451,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 	let idCotizaDetalle = -1;
 	let esVenta = -1;
 	let idEquipOrigen = -1;
+	let saldo = 0;
 
 	
 	let selCod = "";
@@ -453,7 +462,10 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 	let selM2 = 0;
 	let cont = 0;
 	
-	const agregarLinea = (id_equipo, id_cotizacion, stockInicial) =>{
+	const agregarLinea = (id_equipo, id_cotizacion, stockInicial, saldo, id_eqOrigen) =>{
+		if(id_eqOrigen < 0){
+			id_eqOrigen = idEquipOrigen;
+		}
 		
 		let lista = document.getElementById('tablaListadoEquipos');
 		for(let i=0; i<lista.rows.length; i++){
@@ -473,7 +485,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 						"<input type='hidden' name='id_cotizaDetalle[]' value='"+idCotizaDetalle+"'>"+
 						"<input type='hidden' name='esVenta[]' value='"+esVenta+"'>"+
 						"<input type='hidden' name='esNuevo[]' value='0'>"+
-						"<input type='hidden' name='id_equipoOrigen[]' value='"+idEquipOrigen+"'>"+
+						"<input type='hidden' name='id_equipoOrigen[]' value='"+id_eqOrigen+"'>"+
 						selEquip;
 		
 		td = tr.insertCell(tr.cells.length);
@@ -487,9 +499,10 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		
 		td = tr.insertCell(tr.cells.length);
 		td.setAttribute ('style', 'text-align:center');
-		td.innerHTML ="<input type='text' class='cantDespacho form-control right' value='0.00' "+
+		td.innerHTML ="<input type='text' class='cantDespacho form-control right' "+
 				" id='"+cont+"_cantDespacho_"+id_equipo+"_"+id_cotizacion+"' "+ 
 				" name='cantDespacho[]' " +
+				" value='"+formatStandar2(saldo)+"'"+
 				" onfocus=\"value=value.replace(/,/g,'')\" "+
 				" onkeypress='return ingresoDouble(event,value)' "+
 				" onfocusout='value = formatStandar2(value);'"+
@@ -498,9 +511,10 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 				
 		td = tr.insertCell(tr.cells.length);
 		td.setAttribute ('style', 'text-align:center');
-		td.innerHTML ="<input type='text' class='cantEquivalente form-control right' value='0.00' "+
+		td.innerHTML ="<input type='text' class='cantEquivalente form-control right' "+
 			" id='"+cont+"_cantEquivalente' "+
 			" name='cantEquivalente[]' " +
+			" value='"+formatStandar2(saldo)+"'"+
 			" onfocus=\"value=value.replace(/,/g,'')\" "+
 			" onkeypress='return ingresoDouble(event,value)' "+
 			" onfocusout='value = formatStandar2(value);'"+

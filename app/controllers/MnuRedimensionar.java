@@ -57,7 +57,7 @@ public class MnuRedimensionar extends Controller {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("bajaIngreso")==null) {
+    			if(mapeoPermiso.get("redimensionarIngreso")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -131,7 +131,7 @@ public class MnuRedimensionar extends Controller {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("bajaConfirma")==null) {
+    			if(mapeoPermiso.get("redimensionarConfirma")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -160,7 +160,7 @@ public class MnuRedimensionar extends Controller {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("bajaConfirma")==null) {
+	    			if(mapeoPermiso.get("redimensionarConfirma")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
@@ -277,7 +277,7 @@ public class MnuRedimensionar extends Controller {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("bajaConfirma")==null) {
+    			if(mapeoPermiso.get("redimensionarEliminar")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -306,7 +306,7 @@ public class MnuRedimensionar extends Controller {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("bajaConfirma")==null) {
+	    			if(mapeoPermiso.get("redimensionarEliminar")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
@@ -422,7 +422,7 @@ public class MnuRedimensionar extends Controller {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("bajaConfirma")==null) {
+    			if(mapeoPermiso.get("redimensionarListado")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -451,7 +451,7 @@ public class MnuRedimensionar extends Controller {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("bajaConfirma")==null) {
+	    			if(mapeoPermiso.get("redimensionarListado")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}

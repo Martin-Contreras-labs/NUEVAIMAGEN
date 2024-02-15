@@ -1,5 +1,8 @@
 package models.tables;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +14,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.util.TempFile;
+
+import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 
@@ -485,6 +498,123 @@ public class Compra {
 			e.printStackTrace();
 		}
 		return (flag);
+	}
+	
+	public static File plantillaCompras(Connection con, String db) {
+		File tmp = TempFile.createTempFile("tmp","null");
+		
+		
+		List<Moneda> listMonedas = Moneda.all(con,db);
+		List<Unidad> listUnidades = Unidad.all(con,db);
+		List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con,db, "0", "0");
+		List<Equipo> listEquipos = Equipo.allAll(con,db);
+		List<Grupo> listGrupos = Grupo.all(con, db);
+		List<Proveedor> listProveedor = Proveedor.all(con, db);
+		
+		try {
+			InputStream formato = Archivos.leerArchivo("formatos/plantillaCompras.xlsx");
+            Workbook libro = WorkbookFactory.create(formato);
+            formato.close();
+            
+            CellStyle subtitulo = libro.createCellStyle();
+            Font font2 = libro.createFont();
+            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setColor((short)0);
+            font2.setFontHeight((short)(12*20));
+            subtitulo.setFont(font2);
+         
+            CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+            detalle.setBorderTop(CellStyle.BORDER_THIN);
+            detalle.setBorderRight(CellStyle.BORDER_THIN);
+            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            Sheet hoja2 = libro.getSheetAt(1);
+            Row row = null;
+            Cell cell = null;
+		
+            
+          //DETALLE DE AUXILIARES
+            
+            int posRow = 2;
+            for(int i=0; i<listMonedas.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja2.getRow(aux);
+            	if(row == null) {
+            		row = hoja2.createRow(aux);
+            	}
+            	cell = row.createCell(1);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listMonedas.get(i).getNickName());
+            }
+			
+            for(int i=0; i<listUnidades.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja2.getRow(aux);
+            	if(row == null) {
+            		row = hoja2.createRow(aux);
+            	}
+            	cell = row.createCell(3);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listUnidades.get(i).getNombre());
+            }
+            
+            for(int i=0; i<listBodegas.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja2.getRow(aux);
+            	if(row == null) {
+            		row = hoja2.createRow(aux);
+            	}
+            	cell = row.createCell(5);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listBodegas.get(i).get(5));
+            }
+            
+            for(int i=0; i<listEquipos.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja2.getRow(aux);
+            	if(row == null) {
+            		row = hoja2.createRow(aux);
+            	}
+            	cell = row.createCell(7);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listEquipos.get(i).getCodigo());
+            	cell = row.createCell(8);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listEquipos.get(i).getNombre());
+            }
+            
+            for(int i=0; i<listGrupos.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja2.getRow(aux);
+            	if(row == null) {
+            		row = hoja2.createRow(aux);
+            	}
+            	cell = row.createCell(10);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listGrupos.get(i).getNombre());
+            }
+            
+            for(int i=0; i<listProveedor.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja2.getRow(aux);
+            	if(row == null) {
+            		row = hoja2.createRow(aux);
+            	}
+            	cell = row.createCell(12);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listProveedor.get(i).getNickName());
+            }
+			
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        }
+		return(tmp);
 	}
 	
 

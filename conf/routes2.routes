@@ -172,6 +172,13 @@ GET 	/movCompras0/			controllers.MnuCompras.movCompras0(request: Request)
 POST	/movCompras1/			controllers.MnuCompras.movCompras1(request: Request)
 POST	/movCompras1Excel/		controllers.MnuCompras.movCompras1Excel(request: Request)
 
+
+
+POST	/compraPlantilla/				controllers.MnuCompras.compraPlantilla(request: Request)
+POST	/compraCargaPlantilla/			controllers.MnuCompras.compraCargaPlantilla(request: Request)
+POST	/compraValidarPlantilla/		controllers.MnuCompras.compraValidarPlantilla(request: Request)
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # excedentes por equipo
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

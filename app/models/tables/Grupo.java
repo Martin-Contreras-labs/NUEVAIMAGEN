@@ -45,6 +45,23 @@ public class Grupo {
 		return (map);
 	}
 	
+	public static Map<String,Grupo> mapAllPorNombre(Connection con, String db) {
+		Map<String,Grupo> map = new HashMap<String,Grupo>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getString(2).toUpperCase(), new Grupo(rs.getLong(1),rs.getString(2)));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return (map);
+	}
+	
 	public static List<Grupo> all(Connection con, String db) {
 		List<Grupo> lista = new ArrayList<Grupo>();
 		try {

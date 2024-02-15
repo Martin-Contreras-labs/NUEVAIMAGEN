@@ -45,6 +45,25 @@ public class UnidadTiempo {
 		}
 		return (lista);
 	}
+	
+	public static UnidadTiempo find(Connection con, String db, Long id_unidadTiempo) {
+		UnidadTiempo aux = null;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("SELECT id,nombre " +
+							" FROM `"+db+"`.unidadTiempo where id=?;");
+			smt.setLong(1, id_unidadTiempo);
+			ResultSet resultado = smt.executeQuery();
+			if (resultado.next()) {
+				aux = new UnidadTiempo(resultado.getLong(1),resultado.getString(2));
+			}
+			resultado.close();
+			smt.close();
+		} catch (SQLException e) {
+    			e.printStackTrace();
+		}
+		return (aux);
+	}
 
 	
 	public static Map<Long,Double> equivalencia(Connection con, String db){

@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.File;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -54,6 +53,7 @@ import models.tables.TasasCambio;
 import models.tables.TipoEstado;
 import models.tables.TipoReparacion;
 import models.tables.Transportista;
+import models.tables.Unidad;
 import models.tables.UnidadTiempo;
 import models.tables.Usuario;
 import models.tables.UsuarioPermiso;
@@ -4170,7 +4170,7 @@ public class MnuCotizar extends Controller {
 	    						"<td style='text-align:center' class='tdUnOrigen'>"+detOrigen.get(i).get(4)+"</td>"+
 	    						"<td style='text-align:right'>"+detOrigen.get(i).get(5)+"</td>"+
 	    						"<td style='text-align:center'>"+detOrigen.get(i).get(6)+"</td>"+
-	    						"<td style='text-align:right'>"+detOrigen.get(i).get(7)+"</td>"+
+	    						"<td style='text-align:right' class='tdSaldo'>"+detOrigen.get(i).get(7)+"</td>"+
 	    						"<td colspan='9'>"+
 	    							"<table id='tabla_"+i+"'class='table table-sm table-bordered table-condensed table-fluid'>"+
 	    								"<tr>"+
@@ -5540,9 +5540,19 @@ public class MnuCotizar extends Controller {
         	if (form.hasErrors()) {
     			return ok(mensajes.render("/",msgErrorFormulario));
     		}else {
-    			InputStream tmp = Archivos.leerArchivo("formatos/plantillaCotizacion.xlsx");
-    			File file = Archivos.parseInputStreamToFile(tmp);
-    			return ok(file, Optional.of("plantillaCargaCotizacion.xlsx"));
+    			try {
+	    			Connection con = db.getConnection();
+	    			File file = Cotizacion.plantillaCotizacion(con, s.baseDato);
+	    			if(file != null) {
+						con.close();
+	    				return ok(file, Optional.of("plantillaCargaCotizacion.xlsx"));
+					}else {
+						con.close();
+						return ok(mensajes.render("/",msgError));
+					}
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    	        }
 	       	}
     	}
     	return ok(mensajes.render("/",msgError));
@@ -5601,28 +5611,43 @@ public class MnuCotizar extends Controller {
 		    					if(l.get(2).trim().equals("")) {
 		    						l.set(2, "1");
 		    					}
-		    					mapListaExcel.put(l.get(0), l);
+		    					mapListaExcel.put(l.get(1), l);
 		    				}
 		    				
-		    				if(mapListaExcel.size() == listaExcel.size()) {
-		    					
-		    					
+		    				if(mapListaExcel.size() != listaExcel.size()) {
+		    					con.close();
+								return ok(mensajes.render("/cotizaIngreso2/"+id_bodegaEmpresa, "Existen codigos duplicados en el archivo"));
+		    				}
+		    	
 		    					Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, s.baseDato);
 		    					String newEquipos = "";
 		    					String selEquipos = "";
 		    	    			List<String> codigos = new ArrayList<String>();
+		    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
+		    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
+		    	    			
 		    					for(List<String> l: listaExcel) {
-									Equipo equipo = mapEquipos.get(l.get(0).toUpperCase());
+									Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
 		    	    				if(equipo == null) {
-		    	    					newEquipos += "('"+l.get(0)+"','"+l.get(1)+"','2'),";
-		    	    					codigos.add(l.get(0));
-		    	    					selEquipos += "'"+l.get(0)+"',";
+		    	    					Long id_grupo = (long)0;
+		    	    					Grupo grupo = mapGrupo.get(l.get(0));
+		    	    					if(grupo != null) {
+		    	    						id_grupo = grupo.getId();
+		    	    					}
+		    	    					Long id_unidad = (long)1;
+		    	    					Unidad unidad = mapUnidad.get(l.get(3));
+		    	    					if(unidad != null) {
+		    	    						id_unidad = unidad.getId();
+		    	    					}
+		    	    					newEquipos += "('"+l.get(1)+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"'),";
+		    	    					codigos.add(l.get(1));
+		    	    					selEquipos += "'"+l.get(1)+"',";
 		    	    				}
 		    					}
 	    	    				if(newEquipos.length()>1) {
 		    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
 		    	    				PreparedStatement smt = con
-		    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad) VALUES "+newEquipos+";");
+		    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
 		    	    				smt.executeUpdate();
 		    	    				smt.close();
 		    	    				selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
@@ -5689,6 +5714,9 @@ public class MnuCotizar extends Controller {
 		    	    			
 		    	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 		    	    			
+		    	    			
+		    	    			Map<String,Moneda> mapMoneda = Moneda.mapNickMonedas(con, s.baseDato);
+		    	    			Map<String,UnidadTiempo> maUnTiempo = UnidadTiempo.mapUnidadTiempoPorNombre(con, s.baseDato);
 		    	    			for(int i=0;i<listaConPrecio.size();i++){
 		    	    				
 		    	    				Long decimal = Long.parseLong(listaConPrecio.get(i).get(20));
@@ -5700,15 +5728,13 @@ public class MnuCotizar extends Controller {
 		    	    						//CANTIDAD
 		    	    						Double cantDbl = (double) 1;
 		    	    						String cantStr = "1.00";
-		    	    						String auxStr = lexcel.get(2).trim();
+		    	    						String auxStr = lexcel.get(4).trim();
 		    	    						
 		    	    						if(!auxStr.equals("")) {
 		    	    							try {
 		    	    								cantDbl =  Double.parseDouble(auxStr);
 		    	    								if((double) cantDbl > (double) 0) {
 		    	    									cantStr =  DecimalFormato.formato(cantDbl, (long)2);
-		    	    								}else {
-		    	    									cantDbl = (double) 1;
 		    	    								}
 		    	    							}catch(Exception e){}
 		    	    						}
@@ -5717,7 +5743,7 @@ public class MnuCotizar extends Controller {
 		    	    						
 		    	    						//ESVENTA
 		    	    						String esVenta = "0";
-		    	    						auxStr = lexcel.get(3).toUpperCase().trim();
+		    	    						auxStr = lexcel.get(5).toUpperCase().trim();
 		    	    						if(auxStr.equals("SI")) {
 		    	    							esVenta = "1";
 		    	    						}
@@ -5728,7 +5754,7 @@ public class MnuCotizar extends Controller {
 		    	    						String puVentaStr = listaConPrecio.get(i).get(5);
 		    	    						Double puVentaDbl = Double.parseDouble(puVentaStr.replaceAll(",", ""));
 		    	    						
-		    	    						auxStr = lexcel.get(4).trim();
+		    	    						auxStr = lexcel.get(7).trim();
 		    	    						if(!auxStr.equals("")) {
 		    	    							try {
 		    	    								puVentaDbl = Double.parseDouble(auxStr);
@@ -5750,7 +5776,7 @@ public class MnuCotizar extends Controller {
 		    	    						//PRECIO ARRIENDO, TASA, PERMANENCIA Y TOTAL
 		    	    						String puArrStr = listaConPrecio.get(i).get(7);
 		    	    						Double puArrDbl = Double.parseDouble(puArrStr.replaceAll(",", ""));
-		    	    						auxStr = lexcel.get(6).trim();
+		    	    						auxStr = lexcel.get(10).trim();
 		    	    						if(!auxStr.equals("")) {
 		    	    							try {
 		    	    								puArrDbl = Double.parseDouble(auxStr);
@@ -5763,7 +5789,7 @@ public class MnuCotizar extends Controller {
 		    	    						
 		    	    						Double permDbl = (double)1;
 		    	    						String permStr = "1.00";
-		    	    						auxStr = lexcel.get(7).trim();
+		    	    						auxStr = lexcel.get(11).trim();
 		    	    						if(!auxStr.equals("")) {
 		    	    							try {
 		    	    								permDbl = Double.parseDouble(auxStr);
@@ -5792,7 +5818,25 @@ public class MnuCotizar extends Controller {
 			    	    					Double m2 = Double.parseDouble(listaConPrecio.get(i).get(17)) * cantDbl;
 			    	    					
 			    	    					listaConPrecio.get(i).set(18,DecimalFormato.formato(kg, (long)2)); 
-			    	    					listaConPrecio.get(i).set(19,DecimalFormato.formato(m2, (long)2)); 
+			    	    					listaConPrecio.get(i).set(19,DecimalFormato.formato(m2, (long)2));
+			    	    					
+			    	    					
+			    	    					Moneda moneda = mapMoneda.get(lexcel.get(6).trim());
+		    	    						if(moneda == null) {
+		    	    							moneda = Moneda.find(con, s.baseDato, (long)1);
+		    	    						}
+		    	    						listaConPrecio.get(i).set(8, moneda.getId().toString());
+		    	    						listaConPrecio.get(i).set(4, moneda.getNickName());
+		    	    						listaConPrecio.get(i).set(20, moneda.getNumeroDecimales().toString());
+			    	    					
+			    	    					
+		    	    						UnidadTiempo unidadTiempo = maUnTiempo.get(lexcel.get(8).trim());
+		    	    						if(unidadTiempo == null) {
+		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, (long)4);
+		    	    						}
+		    	    						listaConPrecio.get(i).set(9, unidadTiempo.getId().toString());
+		    	    						listaConPrecio.get(i).set(6, unidadTiempo.getNombre());
+			    	    					
 		    	    						
 		    	    					}
 		    	    					
@@ -5852,10 +5896,7 @@ public class MnuCotizar extends Controller {
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
 		    	    					jsonDetalle, listSoluciones));
 		    	    			
-		    				}else {
-		    					con.close();
-								return ok(mensajes.render("/cotizaIngreso2/"+id_bodegaEmpresa, "Existen codigos duplicados en el archivo"));
-		    				}
+		    					
 					} catch (SQLException e) {
 		    			e.printStackTrace();
 		    		}
