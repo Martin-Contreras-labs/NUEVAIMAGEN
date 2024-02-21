@@ -151,19 +151,16 @@ GET		/reportOtPrecios0/				controllers.MnuCotizar.reportOtPrecios0(request: Requ
 POST	/reportOtPrecios1/				controllers.MnuCotizar.reportOtPrecios1(request: Request)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# comercial sucursal
+# comercial sucursal TABLAS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 GET 	/comercialMantencion/			controllers.MnuTablas.comercialMantencion(request: Request)
 POST	/modVigComercialAjax/			controllers.MnuTablas.modVigComercialAjax(request: Request)
 POST	/comercialAgrega/				controllers.MnuTablas.comercialAgrega(request: Request)
+GET 	/precioMantSelSucursal/			controllers.MnuTablas.precioMantSelSucursal(request: Request)
 
+POST	/equipoMantencionExcel/			controllers.MnuTablas.equipoMantencionExcel(request: Request)
 
-
-
-GET 	/precioMantSelSucursal/				controllers.MnuTablas.precioMantSelSucursal(request: Request)
-POST	/compraVistaSelBodDestAjax/			controllers.MnuCompras.compraVistaSelBodDestAjax(request: Request)
-POST	/compraVistaSelBodDestAjax2/		controllers.MnuCompras.compraVistaSelBodDestAjax2(request: Request)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # compras
@@ -173,10 +170,19 @@ POST	/movCompras1/			controllers.MnuCompras.movCompras1(request: Request)
 POST	/movCompras1Excel/		controllers.MnuCompras.movCompras1Excel(request: Request)
 
 
+POST	/compraVistaSelBodDestAjax/			controllers.MnuCompras.compraVistaSelBodDestAjax(request: Request)
+POST	/compraVistaSelBodDestAjax2/		controllers.MnuCompras.compraVistaSelBodDestAjax2(request: Request)
 
 POST	/compraPlantilla/				controllers.MnuCompras.compraPlantilla(request: Request)
 POST	/compraCargaPlantilla/			controllers.MnuCompras.compraCargaPlantilla(request: Request)
 POST	/compraValidarPlantilla/		controllers.MnuCompras.compraValidarPlantilla(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# precios maestro
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST	/precioPlantilla/				controllers.MnuTablas.precioPlantilla(request: Request)
+POST	/precioCargaPlantilla/			controllers.MnuTablas.precioCargaPlantilla(request: Request)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

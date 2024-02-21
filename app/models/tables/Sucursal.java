@@ -120,6 +120,29 @@ public class Sucursal {
 		return (aux);
 	}
 	
+	public static Sucursal findPorNombre(Connection con, String db, String nameSucursal) {
+		Sucursal aux = null;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select " + 
+							" sucursal.id, " + 
+							" sucursal.nombre, " +
+							" sucursal.observaciones, " +
+							" sucursal.direccion " +
+							" from `"+db+"`.sucursal " +
+							" where upper(sucursal.nombre) = ?;");
+			smt.setString(1, nameSucursal.toUpperCase());
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {		
+				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4));
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+	
 	public static boolean esPorSucursal(Map<String,String> mapeoPermiso, String id_tipoUsuario) {
 		boolean esPorSucursal = true;
 		if(mapeoPermiso.get("cambiarSucursal")!=null) {

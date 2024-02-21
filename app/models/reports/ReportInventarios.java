@@ -410,6 +410,65 @@ public class ReportInventarios {
 		return (lista);
 	}
 	
+	public static Map<Long,List<String>> mapIdEqVsEnCantBodegas(Connection con, String db) {
+		
+		 Map<Long,List<String>> map = new  HashMap<Long,List<String>>();
+		
+		try {
+			PreparedStatement smt6 = con
+					.prepareStatement("select"
+							+ " count(movimiento.id_bodegaEmpresa),"
+							+ " bodegaEmpresa.nombre,"
+							+ " movimiento.id_equipo,"
+							+ " if(guia.id>0,guia.fecha,if(factura.id>0,factura.fecha,actaBaja.fecha)) as fecha,"
+							+ " bodegaEmpresa.esInterna,"
+							+ " bodegaEmpresa.id_sucursal"
+							+ " from `"+db+"`.movimiento"
+							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia"
+							+ " left join `"+db+"`.compra on compra.id = movimiento.id_compra"
+							+ " left join `"+db+"`.factura on factura.id = compra.id_factura"
+							+ " left join `"+db+"`.baja on baja.id = movimiento.id_baja"
+							+ " left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
+							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+							+ " where movimiento.id_bodegaEmpresa > 0"
+							+ " group by movimiento.id_equipo;");
+			ResultSet rs6 = smt6.executeQuery();
+			
+			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			while (rs6.next()) {
+				if(rs6.getDouble(9)!=0){
+					
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs6.getLong(16));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					
+					String ubicacion = "varias";
+					if(rs6.getLong(1) == (long)1) {
+						ubicacion = rs6.getString(2);
+					}
+
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs6.getString(1));  							//  0 conteo de bodega con stock
+					aux.add(ubicacion);			   							//  1 bodegaEmpresa.nombre	si conteo =0 sino ubicacion varias				
+					aux.add(rs6.getString(3));  							//  2 id_equipo
+					aux.add(rs6.getString(4));  							//  3 fecha
+					aux.add(rs6.getString(5));  							//  4 bodegaEmpresa.esInterna
+					aux.add(rs6.getString(6));  							//  5 bodegaEmpresa.id_sucursal
+					aux.add(nameSucursal);  								//  6 name sucursal
+					map.put(rs6.getLong(3), aux);
+				}
+			}
+			rs6.close();
+			smt6.close();
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		
+		return (map);
+	}
+	
 	public static List<List<String>> reportInventarioGeneralXEquipo(Connection con, String db, Long id_equipo, String fechaCorte, String tipo, 
 			Map<Long,List<Double>> mapPCompra, Map<Long,List<Double>> mapPLista, Map<Long,String> moneda, Map<String,String> mapeoDiccionario,
 			String esPorSucursal, String id_sucursal) {
@@ -428,9 +487,6 @@ public class ReportInventarios {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, "
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad,";
-// 						este if aplica si solo en inventario arriendos deseo no mostrar bodegas internas
-//					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=0, 1, 0))) = -0, 0, "
-//					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=0, 1, 0)))) as cantidad,";
 		}else if(tipo.equals("VENTA")) {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, "

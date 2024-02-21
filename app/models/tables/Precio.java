@@ -1,5 +1,9 @@
 package models.tables;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +17,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.util.TempFile;
+
+import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 
@@ -73,7 +88,7 @@ public class Precio {
 	public Precio() {super();}
 	
 	public Long getId_sucursal() {return id_sucursal;}
-	public void setId_sucursal(Long id_sucursal) {this.id_equipo = id_sucursal;}
+	public void setId_sucursal(Long id_sucursal) {this.id_sucursal = id_sucursal;}
 	public Long getId_equipo() {return id_equipo;}
 	public void setId_equipo(Long id_equipo) {this.id_equipo = id_equipo;}
 	public Long getId_moneda() {return id_moneda;}
@@ -681,6 +696,364 @@ public class Precio {
 		return (preciosLista);
 	}
 	
+	
+	public static File plantillaPrecios(Connection con, String db, Map<String,String> mapeoDiccionario, Long id_sucursal) {
+		File tmp = TempFile.createTempFile("tmp","null");
+		
+		
+		List<Precio> listPrecio = Precio.allSoloVigentes(con, db, mapeoDiccionario, id_sucursal);
+		Sucursal sucursal = Sucursal.find(con, db, id_sucursal.toString());
+		
+		try {
+			InputStream formato = Archivos.leerArchivo("formatos/plantillaPrecios.xlsx");
+            Workbook libro = WorkbookFactory.create(formato);
+            formato.close();
+            
+            CellStyle subtitulo = libro.createCellStyle();
+            Font font2 = libro.createFont();
+            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setColor((short)0);
+            font2.setFontHeight((short)(12*20));
+            subtitulo.setFont(font2);
+         
+            CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+            detalle.setBorderTop(CellStyle.BORDER_THIN);
+            detalle.setBorderRight(CellStyle.BORDER_THIN);
+            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+		
+            
+          //DETALLE DE AUXILIARES
+            
+            row = hoja1.getRow(1);
+            cell = row.getCell(2);
+        	cell.setCellType(Cell.CELL_TYPE_STRING);
+        	cell.setCellValue(sucursal.getNombre());
+            
+            int posRow = 4;
+            for(int i=0; i<listPrecio.size(); i++){
+            	int aux = posRow +i;
+            	row = hoja1.createRow(aux);
+
+        		cell = row.createCell(1);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listPrecio.get(i).getNombreGrupo());
+            	
+            	cell = row.createCell(2);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listPrecio.get(i).getCodigoEquipo());
+            	
+            	cell = row.createCell(3);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listPrecio.get(i).getNombreEquipo());
+            	
+            	cell = row.createCell(4);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listPrecio.get(i).getNombreMoneda());
+            	
+            	cell = row.createCell(5);
+            	Double precio = Double.parseDouble(listPrecio.get(i).precioVenta.replaceAll(",", ""));
+            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            	cell.setCellValue(precio);
+            	
+            	cell = row.createCell(6);
+            	precio = Double.parseDouble(listPrecio.get(i).precioArriendo.replaceAll(",", ""));
+            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            	cell.setCellValue(precio);
+            	
+            	cell = row.createCell(7);
+            	cell.setCellType(Cell.CELL_TYPE_STRING);
+            	cell.setCellValue(listPrecio.get(i).getNombreUnidadTiempo());
+            	
+            	cell = row.createCell(8);
+            	precio = Double.parseDouble(listPrecio.get(i).precioMinimo.replaceAll(",", ""));
+            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            	cell.setCellValue(precio);
+            	
+            	cell = row.createCell(9);
+            	Long dias = Long.parseLong(listPrecio.get(i).getPermanenciaMinima().replaceAll(",", ""));
+            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            	cell.setCellValue(dias);
+            	
+            }
+			
+			
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        }
+		return(tmp);
+	}
+	
+	public static Long validaSucursal (Connection con, String db, File file) {
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.getRow(1);
+            if(row != null) {
+            	cell = row.getCell(2);
+            }
+            
+            if(row!=null && cell !=null ) {
+            	Sucursal sucursal = Sucursal.findPorNombre(con, db, cell.getStringCellValue());
+            	if(sucursal == null) {
+            		return(null);
+            	}else {
+            		return(sucursal.getId());
+            	}
+            }else {
+            	return(null);
+            }
+            
+		} catch (InvalidFormatException | IOException e1) {
+			return(null);
+		}
+	}
+	
+	public static List<String> validaPlantillaPrecio(Connection con, String db, File file, Map<String,Equipo> mapEquipos) {
+
+		
+		List<String> mensaje = new ArrayList<String>();
+		DecimalFormat df = new DecimalFormat("#");
+	    df.setMaximumFractionDigits(8);
+	    
+	    mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
+		
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            boolean archivoNoCorresponde = false;
+            
+            //valido titulos y archivo
+            if(hoja1 != null) {
+            	row = hoja1.getRow(3);
+            	if(row != null) {
+            		for(int i=1; i<10; i++) {
+	            		cell = row.getCell(i);
+	                	if(cell == null) {
+	                		archivoNoCorresponde = true;
+	                	}
+	            	}
+            	}else {
+            		archivoNoCorresponde = true;
+            	}
+            }else {
+            	archivoNoCorresponde = true;
+            }
+            if(archivoNoCorresponde) {
+            	mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+            	return (mensaje);
+            }
+            // fin
+            
+            
+            // valido datos
+            boolean flag = true;
+            int fila = 4;
+            row = hoja1.getRow(fila);
+            if(row != null) {
+            	cell = row.getCell(1);
+            	if(cell != null) {
+            		Long nroFilasExcel = (long) 0;
+            		Map<Long,Long> mapValidaRepetido = new HashMap<Long,Long>();
+            		while (row != null && cell != null ) {
+            			row = hoja1.getRow(fila);
+            			if(row != null) {
+            				
+            				//valido codigos
+            				cell = row.getCell(2);
+            				if(cell != null) {
+            					boolean noEsBlanco = true;
+    	                    	try {
+    	                    		String dato = cell.getStringCellValue().trim();
+    	                    		if(dato.trim().equals("")) {
+    	                    			noEsBlanco = false;
+    	                    		}
+    	                    	}catch(Exception e){
+    	                    		Double aux = cell.getNumericCellValue();
+    	                    		if(aux.toString().trim().equals("")) {
+    	                    			noEsBlanco = false;
+    	                    		}
+    	                    	}
+    	                    	if(noEsBlanco) {
+    	                			String dato = "codigo";
+    	                			cell = row.getCell(2);
+    	                			try {
+    	                        		dato = cell.getStringCellValue().trim();
+    	                        	}catch(Exception e){
+    	                        		Double aux = cell.getNumericCellValue();
+    	                        		Long aux2 = aux.longValue();
+    	                        		dato = df.format(aux2);
+    	                        	}
+    	                			Equipo equipo = mapEquipos.get(dato);
+    	                			if(equipo == null) {
+    	                				mensaje.add("error en fila "+(fila+1)+": Codigo ["+dato+"] no existe en mada o el equipo esta no vigente.");
+    	                        		flag = false;
+    	                			}else{
+    	                				mapValidaRepetido.put(equipo.getId(), equipo.getId());
+    	                			}
+    	                		}
+            				}
+            				
+            				//valido numeros
+            				for(int i=5; i<10; i++) {
+            					cell = row.getCell(i);
+            					String celda = "";
+            					switch(i) {
+            					  case 5: celda  = "F" + (fila+1); break;
+            					  case 6: celda  = "G" + (fila+1); break;
+            					  case 8: celda  = "I" + (fila+1); break;
+            					  case 9: celda  = "J" + (fila+1); break;
+            					  default:
+            					}
+            					
+            					if(cell != null && i != 7) {
+            						try {
+            							Double aux = cell.getNumericCellValue();
+            							if(aux < (double)0) {
+            								mensaje.add("error en fila "+(fila+1)+": El dato en la celda "+ celda +" no puede ser menor que cero.");
+            								flag = false;
+            							}
+	    	                    	}catch(Exception e){
+	    	                    		mensaje.add("error en fila "+(fila+1)+": El dato en la celda "+ celda +" no es numero.");
+    	                        		flag = false;
+	    	                    	}
+            					}
+            				}
+            				nroFilasExcel++;
+            				fila++;
+            			}
+            		}
+            		if(nroFilasExcel - mapValidaRepetido.size() != (long)0) {
+            			mensaje.add("Existen codigos duplicados en el archivo.");
+                		flag = false;
+            		}
+            	}
+            }
+            if(flag) {
+            	mensaje.set(0,"true");
+            }
+        } catch (Exception e) {
+			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+        	return (mensaje);
+        }
+		return(mensaje);
+	}
+	
+	public static List<List<String>> llenaListaDesdeExcel (File file) {
+		List<List<String>> lista = new ArrayList<List<String>>();
+		DecimalFormat df = new DecimalFormat("#");
+	    df.setMaximumFractionDigits(8);
+		try {
+            Workbook libro = WorkbookFactory.create(file);
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.getRow(1);
+            if(row != null) {
+            	cell = row.getCell(2);
+            }
+
+            int x = 4;
+            while (row!=null && cell !=null ) {
+            	row = hoja1.getRow(x++);
+            	if(row!=null) {
+            		cell = row.getCell(2);
+                	if(cell!=null) {
+                		boolean noEsBlanco = true;
+                    	try {
+                    		String dato = cell.getStringCellValue().trim();
+                    		if(dato.trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}catch(Exception e){
+                    		Double aux = cell.getNumericCellValue();
+                    		if(aux.toString().trim().equals("")) {
+                    			noEsBlanco = false;
+                    		}
+                    	}
+                		if(noEsBlanco) {
+                			List<String> auxList = new ArrayList<String>();
+                			for(int i=1; i<10; i++) {
+                    			String dato = "";
+                    			cell = row.getCell(i);
+                                if(cell!=null) {
+                                	try {
+                                		Double aux = cell.getNumericCellValue();
+                                		dato = df.format(aux);
+                                	}catch(Exception e){
+                                		dato = cell.getStringCellValue().trim();
+                                		dato = dato.replaceAll("'", "\"");
+                                	}
+                                }
+                                auxList.add(dato);
+                            }
+                			auxList.set(0, auxList.get(0).toUpperCase());
+                    		lista.add(auxList);
+                		}
+                	}
+                	cell = row.getCell(2);
+            	}
+            }
+		} catch (InvalidFormatException | IOException e1) {
+		}
+		return(lista);
+	}
+	
+	// 0 GRUPO
+	// 1 CODIGO
+	// 2 EQUIPO
+	// 3 MONEDA
+	// 4 P.U VENTA
+	// 5 P.U ARRIENDO
+	// 6 UNIDAD ARRIENDO
+	// 7 PRECIO MINIMO
+	// 8 CANTIDAD DIAS
+	
+	
+	public static boolean updatePorSucursal(Connection con, String db, Precio precio, String fechaAAMMDD) {
+		boolean flag = false;
+		try {
+			Double tasaArriendo = (double) 0;
+			Double pArr = Double.parseDouble(precio.getPrecioArriendo().replaceAll(",", ""));
+			Double pRep = Double.parseDouble(precio.getPrecioReposicion().replaceAll(",", ""));
+			if(pRep > 0) {
+				tasaArriendo = pArr/pRep;
+			}
+			PreparedStatement smt1 = con
+						.prepareStatement("UPDATE `"+db+"`.precio SET precioVenta=?, precioReposicion=?, tasaArriendo=?, precioArriendo=?, precioMinimo=?, permanenciaMinima=?, fecha=? " +
+								" WHERE id_sucursal = ? and id_equipo = ?;");
+			smt1.setString(1, precio.getPrecioVenta());
+			smt1.setString(2, precio.getPrecioReposicion());
+			smt1.setDouble(3, tasaArriendo);
+			smt1.setString(4, precio.getPrecioArriendo());
+			smt1.setString(5, precio.getPrecioMinimo());
+			smt1.setString(6, precio.getPermanenciaMinima());
+			smt1.setString(7, fechaAAMMDD);
+			smt1.setLong(8, precio.getId_sucursal());
+			smt1.setLong(9, precio.getId_equipo());
+			smt1.executeUpdate();
+			smt1.close();
+			flag = true;
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return (flag);
+	}
 	
 
 }

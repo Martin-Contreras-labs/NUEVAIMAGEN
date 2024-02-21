@@ -434,16 +434,30 @@ public class Inventarios {
 	
 	
 	//map equipos con inventario positivo mayor que cero con o sin fecha de corte
-	public static Map<Long,Double> mapEquiposConStock(Connection con, String db){
+	public static Map<Long,Double> mapEquiposConStock(Connection con, String db, String tipo, Map<String,String> mapeoDiccionario){
 		Map<Long,Double> map = new HashMap<Long,Double>();
+		String condicionaSuma = "";
+		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
+			condicionaSuma = " if("
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, "
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad,";
+		}else if(tipo.equals("VENTA")) {
+			condicionaSuma = " if("
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, "
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0)))) as cantidad,";
+		}else if(tipo.equals("TODO")){
+			condicionaSuma = "if("
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad, ";
+		}
 			try {
 				PreparedStatement smt20 = con
 						.prepareStatement(" select "
 								+ " movimiento.id_equipo, "
-								+ " if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))) "
+								+   condicionaSuma
 								+ " from `"+db+"`.movimiento "
 								+ " group by id_equipo "
-								+ " having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0");
+								+ " having cantidad > 0");
 				ResultSet rs20 = smt20.executeQuery();
 				while (rs20.next()) {
 					map.put(rs20.getLong(1), rs20.getDouble(2));

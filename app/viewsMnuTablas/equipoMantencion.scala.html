@@ -12,6 +12,23 @@ listEquipos: List[tables.Equipo])
 		@barraTitulo(mapDiccionario, "EQUIPOS: CREAR/MODIFICAR/ELIMINAR", "")
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+			
+			
+				<div class='noprint'>
+					<table class='table table-sm table-condensed table-fluid'>
+						<tr>
+							<td>
+								<div align='center'>
+									<button type='button'  class='btn btn-sm btn-success' onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<form id="excel" class="formulario" method="post" action="/routes2/equipoMantencionExcel/"> </form>
+						
 				
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">

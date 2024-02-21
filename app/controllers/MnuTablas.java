@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import controllers.HomeController.Sessiones;
+import models.calculo.Inventarios;
 import models.forms.FormClienteGraba;
 import models.forms.FormContactoClienteGraba;
 import models.forms.FormContactoFabricaGraba;
@@ -23,10 +24,12 @@ import models.forms.FormProyectoGraba;
 import models.forms.FormTipoEstadoGraba;
 import models.forms.FormTipoReparacionGraba;
 import models.forms.FormUsuarioGraba;
+import models.reports.ReportInventarios;
 import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Comercial;
+import models.tables.Compra;
 import models.tables.Comunas;
 import models.tables.ContactoCliente;
 import models.tables.ContactoFabrica;
@@ -50,6 +53,7 @@ import models.tables.Usuario;
 import models.tables.UsuarioPermiso;
 import models.tables.UsuarioTipo;
 import models.utilities.Archivos;
+import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
 import play.data.DynamicForm;
@@ -188,6 +192,122 @@ public class MnuTablas extends Controller {
     	return ok("error");
     }
     
+    public Result precioPlantilla(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
+    			try {
+    				Connection con = db.getConnection();
+    				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    				
+    				File file = Precio.plantillaPrecios(con, s.baseDato, mapeoDiccionario, id_sucursal);
+    				if(file != null) {
+    					con.close();
+        				return ok(file, Optional.of("plantillaMaestroPrecios.xlsx"));
+    				}else {
+    					con.close();
+    					return ok(mensajes.render("/",msgError));
+    				}
+    				
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    	        }
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+    
+    public Result precioCargaPlantilla(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+        		Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+    			Http.MultipartFormData.FilePart<TemporaryFile> archivo = body.getFile("archivoXLSX");
+    			if (archivo != null) {
+    				File file = Archivos.parseMultipartFormDatatoFile(archivo);
+    				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
+					try {
+		    			Connection con = db.getConnection();
+	    				Long auxIdSucursal = Precio.validaSucursal(con, s.baseDato, file);
+	    				if(auxIdSucursal == null) {
+	    					con.close();
+							return ok(mensajes.render("/home/", "Falta o no existe la sucursal en el archivo"));
+	    				}else {
+	    					if((long) id_sucursal != (long) auxIdSucursal) {
+	    						con.close();
+								return ok(mensajes.render("/home/", "La sucursal del archivo no corresponde a la sucursal seleccionada"));
+	    					}
+	    				}
+		    				
+	    				Map<String,Equipo> mapEquipos = Equipo.mapAllVigentesPorCodigo(con, s.baseDato);
+	    				List<String> mensaje = Precio.validaPlantillaPrecio(con, s.baseDato, file, mapEquipos);
+	    				if( ! mensaje.get(0).equals("true")) {
+	    					String msg = "";
+							for(String m: mensaje) {
+								msg += m + " --- ";
+							}
+							con.close();
+							return ok(mensajes.render("/home/",msg));
+		    			}
+		    				
+		    			List<List<String>> listaExcel = Precio.llenaListaDesdeExcel(file);
+		    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		    			Map<Long, Precio> mapPrecio = Precio.mapPreciosLista(con, s.baseDato, mapeoDiccionario, id_sucursal);
+		    			Fechas hoy = Fechas.hoy();
+    	    			for(List<String> l: listaExcel) {
+							Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+							
+							if(equipo != null) {
+								Precio precio = mapPrecio.get(equipo.getId());
+								
+								if(precio != null) {
+									Double pVenta1 = Double.parseDouble(precio.getPrecioVenta().replaceAll(",", ""));
+									Double pRepos1 = Double.parseDouble(precio.getPrecioReposicion().replaceAll(",", ""));
+									Double pArr1 = Double.parseDouble(precio.getPrecioArriendo().replaceAll(",", ""));
+									Double pMin1 = Double.parseDouble(precio.getPrecioMinimo().replaceAll(",", ""));
+									Long perm1 = Long.parseLong(precio.getPermanenciaMinima().replaceAll(",", ""));
+									
+									Double pVenta2 = Double.parseDouble(l.get(4).replaceAll(",", ""));
+									Double pRepos2 = Double.parseDouble(l.get(4).replaceAll(",", ""));
+									Double pArr2 = Double.parseDouble(l.get(5).replaceAll(",", ""));
+									Double pMin2 = Double.parseDouble(l.get(7).replaceAll(",", ""));
+									Long perm2 = Long.parseLong(l.get(8).replaceAll(",", ""));
+									
+									Double rs = (pVenta1 + pRepos1 + pArr1 + pMin1 + perm1) - (pVenta2 + pRepos2 + pArr2 + pMin2 + perm2);
+									
+									if(rs < 0 || rs > 0) {
+										Precio aux = new Precio();
+										aux.setId_equipo(equipo.getId());
+										aux.setId_sucursal(id_sucursal);
+										aux.setPrecioVenta(l.get(4).replaceAll(",", ""));
+										aux.setPrecioReposicion(l.get(4).replaceAll(",", ""));
+										aux.setPrecioArriendo(l.get(5).replaceAll(",", ""));
+										aux.setPrecioMinimo(l.get(7).replaceAll(",", ""));
+										aux.setPermanenciaMinima(l.get(8).replaceAll(",", ""));
+										Precio.updatePorSucursal(con, s.baseDato, aux, hoy.getFechaStrAAMMDD());
+									}
+								}
+							}
+    	    			}
+    	    			con.close();
+    	    			return ok(mensajes.render("/home/", "Actualizados los precios."));
+		    	    			
+					} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+    			}
+	       	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
     
     
     
@@ -528,6 +648,82 @@ public class MnuTablas extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}else {
     		return ok(mensajes.render("/",msgError));
+    	}
+    }
+    
+    public Result equipoMantencionExcel(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("equipoMantencion")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			
+	    			List<List<String>> listAtribGroup = Atributo.listAtributosGroup(con, s.baseDato);
+	    			
+	    			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato); // considerar mostrar vigencia grupo,cod,nombre,unidad y desde map agregar stock, ubicacion (obra sino varias)
+	    			
+
+	    			Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, s.baseDato, "ARRIENDO", mapeoDiccionario); // k= idequipo, v = double cant
+	    			
+	    			Map<Long,List<String>> mapIdEqVsEnCantBodegas = ReportInventarios.mapIdEqVsEnCantBodegas(con, s.baseDato);
+	    			
+	    			// *************
+	    			// falta conseguir: si es un solo equipo obtener fecha desde y ubicacion, si es mas de uno en blanco fecha y varias en ubicacion
+	    			// *************
+	    			
+	    			
+	    			// *************
+	    			// NOTA: falta fecha de factura y numero factura
+	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato); // k= idequipo, v = precio, id_moneda 
+	    			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato); // k= id_moneda, v = string nickMoneda
+	    			// *************
+	    			
+	    			// APLICAR FILTROS POR COLUMNA SIMILAR A ADAM EN kardexRptMatrizTerrenoTrab
+	    			
+	    			// <div id="enCarga" class="blocker" style="display: block;"><br><br><br><br><br><br><h1>Ahora se esta cargando..... :)</h1></div> idem reporteEjecutivo1
+	    			// revisar el porque no sale en proceso ..... 
+	    			
+	    			
+	    			// nota solo equipos con stock
+	    			
+	    			
+	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+	    			
+	    			
+	    			
+	    			/// dejar como thread al correo registrado en usuario con alerta.
+	    			
+	    			
+	    			
+	    			
+	    			List<Cliente> listClientes = Cliente.all(con, s.baseDato);
+	    			
+	    			File file = Cliente.allExcel(s.baseDato, mapeoDiccionario, listClientes);
+	    			
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("Listado_Clientes.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	    	}
+    	}else {
+    		return ok("");
     	}
     }
     

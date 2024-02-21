@@ -77,6 +77,35 @@ public class Atributo{
 		return (listAtributo);
 	}
 	
+	public static List<List<String>> listAtributosGroup(Connection con, String db) {
+		List<List<String>> lista = new ArrayList<List<String>>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select "
+							+ "	atributo.atributo, atributo.esNumerico, unidad.nombre"
+							+ "	from atributo"
+							+ "	left join unidad on unidad.id = atributo.id_unidad"
+							+ "	group by atributo, esNumerico;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				List<String> aux = new ArrayList<String>();
+				String esNumerico = "Texto";
+				if(rs.getLong(2)>0) {
+					esNumerico = "Numero";
+				}
+				aux.add(rs.getString(1)); 	// 0 nombre atributo
+				aux.add(esNumerico);		// 1 texto o numero
+				aux.add(rs.getString(3));	// 2 unidad
+				aux.add(rs.getString(2));	// 3 0=texto o 1=numero
+				lista.add(aux);
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
 	public static Map<String,List<String>> mapIdAtributoXequipoConValor(Connection con, String db, Long id_equipo) {
 		Map<String,List<String>> map = new HashMap<String,List<String>>();
 		try {

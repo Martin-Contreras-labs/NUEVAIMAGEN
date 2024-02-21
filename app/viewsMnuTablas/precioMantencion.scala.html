@@ -11,6 +11,16 @@ sucursal: tables.Sucursal)
 	
 	<div id="mostrarmostrar" style="display:none;">
 		@barraTitulo(mapDiccionario, "MAESTRO DE PRECIOS - SUCURSAL: "+ sucursal.getNombre(), "(a partir de esta lista, se pasa el precio al cliente por equipo, solo la primera vez que se entrega)")
+		<br>
+		<div class="noprint" align="center">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input id="btnCargaExcel" type="button"  value="Actualizar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+						onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
+				</div>
+			</div>
+		</div>
+						
 		<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 			<thead style="background-color: #eeeeee">
 				<TR> 
@@ -117,6 +127,41 @@ sucursal: tables.Sucursal)
 			</div>
 		</div>
 	</div>
+	
+	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Carga masiva de compras</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        
+			<div class="row">
+				<div class="col-sm-12" style="text-align:center">
+					<form action="/routes2/precioPlantilla/" method="POST"  onsubmit="return validarForm2();">
+						<input type="hidden" name="id_sucursal" value="@sucursal.getId()">
+						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
+					</form>
+					<br>
+					<form id="precioCargaPlantilla" action="/routes2/precioCargaPlantilla/" method="POST" enctype="multipart/form-data">
+						<input type="hidden" name="id_sucursal" value="@sucursal.getId()">
+						<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+							<div>SUBIR ARCHIVO</div>
+							<input type="file" id="archivoXLSX" name="archivoXLSX" value="" onchange="subirArchivo(this.form, this.form.archivoXLSX.value,this)">
+						</span>
+					</form>
+					<br>
+					<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+			<br>
+	      </div>
+	    </div>
+	  </div>
+	</div>
 }
 
 
@@ -204,6 +249,31 @@ sucursal: tables.Sucursal)
 	     		}
 	     	}
         });
+	}
+	
+	const validarForm2 = () =>{
+		$("#btnSubmit2").attr('disabled',true);
+		return(true);
+	}
+	
+	let extArray2 = new Array(".xls", ".xlsx");
+	function subirArchivo(form, file, nodo) {
+		allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1)
+			file = file.slice(file.indexOf("\\") + 1);
+		ext = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray2.length; i++) {
+			if (extArray2[i] == ext) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			$("#precioCargaPlantilla").submit();
+		}else{
+			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
+			+ (extArray2.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.archivoXLSX.value="";
+		}
 	}
 </script>
 
