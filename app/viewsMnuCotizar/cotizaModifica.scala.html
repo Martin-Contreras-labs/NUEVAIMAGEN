@@ -212,14 +212,14 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 								  		</div>
 										@if(mapPermiso.get("cambiarSucursal")!=null){
 											@if(mapPermiso.get("cambiarComercial")!=null){
-												<select id="selSucursal" class="custom-select"  style="width: 80px;" onchange = "$('#id_sucursal').val(value); actualizaComerciales(value); actualizaPrecios(value);">
+												<select id="selSucursal" class="custom-select"  style="width: 80px;" onchange = "$('#id_sucursal').val(value); actualizaComerciales(value);">
 													<option value="@cotizacion.getId_sucursal()">@cotizacion.getNameSucursal()</option>
 													@for(lista <- listSucursal){
 														<option value="@lista.getId()">@lista.getNombre()</option>
 													}
 												</select>
 											}else{
-												<select id="selSucursal" class="custom-select"  style="width: 80px;" onchange = "$('#id_sucursal').val(value); actualizaPrecios(value);">
+												<select id="selSucursal" class="custom-select"  style="width: 80px;" onchange = "$('#id_sucursal').val(value);">
 													<option value="@cotizacion.getId_sucursal()">@cotizacion.getNameSucursal()</option>
 													@for(lista <- listSucursal){
 														<option value="@lista.getId()">@lista.getNombre()</option>
@@ -1315,7 +1315,6 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		sumaTotales();
 		document.getElementById('selSucursal').disabled = true;
 		document.getElementById('selComercial').disabled = true;
-		document.getElementById('selSolucion').disabled = true;
 		$('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
@@ -1343,63 +1342,7 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
         });	
 	}
 	
-	const actualizaPrecios = (id_sucursal) =>{
-		/*
-		document.getElementById('bloquear2').style.display="block";
-			var formData = new FormData();
-			formData.append('id_sucursal',id_sucursal);
-	        $.ajax({
-	            url: "/actualizaPreciosAjax/",
-	            type: "POST",
-	            method: "POST",
-	            data: formData,
-	            cache: false,
-	            contentType: false,
-		     	processData: false,
-		     	success: function(rs){
-			
-					$("#tablaPrincipal").dataTable().fnDestroy();
-					
-					let tabla = document.getElementById("tablaPrincipal");
-					
-					for(i=2; i<tabla.rows.length-3; i++){
-						let id_equipo = tabla.rows[i].cells[20].innerHTML;
-						let nroDecimal = tabla.rows[i].cells[21].innerHTML;
-						
-						for(let i=0; i<rs.length; i++){
-							if(rs[i].id_equipo == id_equipo){
-								let puVentaRepos = rs[i].precioVenta;
-								let puArriendo = rs[i].precioArriendo;
-								let tasaArriendo = 0
-								if(parseFloat(puVentaRepos) > 0){
-									tasaArriendo = parseFloat(puArriendo)/ parseFloat(puVentaRepos);
-								}
-								$("#hiddenpuVentaRepos_"+id_equipo).val(puVentaRepos);
-								$("#puVentaRepos_"+id_equipo).val(formatStandar(parseFloat(puVentaRepos),nroDecimal));
-								$("#hiddenpuArriendo_"+id_equipo).val(puArriendo);
-								$("#puArriendo_"+id_equipo).val(formatStandar(parseFloat(puArriendo),nroDecimal));
-								$("#tasaArr_"+id_equipo).val(formatPorcentaje(parseFloat(tasaArriendo) * 100));
-								calculaLinea(id_equipo,nroDecimal);
-							}
-						}
-						
-					}
-
-					sumaTotales();
-					$('#tablaPrincipal').DataTable({
-				    	"fixedHeader": true,
-				    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
-				    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
-				    	"language": {
-				        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
-				        }
-					});
-					
-					document.getElementById('bloquear2').style.display="none";
-				}
-	        });	
-*/
-		}
+	
 	
 
 

@@ -675,11 +675,7 @@ public class MnuTablas extends Controller {
 
 	    			Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, s.baseDato, "ARRIENDO", mapeoDiccionario); // k= idequipo, v = double cant
 	    			
-	    			Map<Long,List<String>> mapIdEqVsEnCantBodegas = ReportInventarios.mapIdEqVsEnCantBodegas(con, s.baseDato);
-	    			
-	    			// *************
-	    			// falta conseguir: si es un solo equipo obtener fecha desde y ubicacion, si es mas de uno en blanco fecha y varias en ubicacion
-	    			// *************
+	    			Map<Long,List<String>> mapUbicacion = ReportInventarios.mapIdEqVsEnCantBodegas(con, s.baseDato);
 	    			
 	    			
 	    			// *************

@@ -1206,7 +1206,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			document.getElementById('verifica').style.visibility = 'hidden';
 			document.getElementById('selSucursal').disabled = true;
 			document.getElementById('selComercial').disabled = true;
-			document.getElementById('selSolucion').disabled = true;
 			$('#btnAplicarTasa').hide();
 			$('#btnAplicarFactor').hide();
 			$('#btnAplicarFactorRepos').hide();
@@ -1245,7 +1244,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		document.getElementById('verifica').style.visibility = 'visible';
 		document.getElementById('selSucursal').disabled = false;
 		document.getElementById('selComercial').disabled = false;
-		document.getElementById('selSolucion').disabled = false;
 		$('#btnAplicarTasa').show();
 		$('#btnAplicarFactor').show();
 		$('#btnAplicarFactorRepos').show();
@@ -1366,7 +1364,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	let dctoObligado = 0;
 	const validarForm = () =>{
 		$("#aplica").attr('disabled',true);
-		let flag = true;
+		let flag = false;
 		sumaTotales();
 		let granTotRepos = $("#granTotRepos").text().replace(/,/g,'');
 		let granTotArrie = $("#granTotArrie").text().replace(/,/g,'');
@@ -1375,25 +1373,21 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		
 		
 		if(sumaAux <= 0){
-			flag = false;
 			alertify.alert('NO PUEDE GENERAR UNA COTIZACION SIN CANTIDADES', function () {
 				$("#aplica").attr('disabled',false);
 				return(flag);
      		});
 		}else if($("#id_cliente").val()=='0'){
-			flag = false;
 			alertify.alert('NO PUEDE GENERAR UNA COTIZACION SIN ASIGNAR UN CLIENTE', function () {
 				$("#aplica").attr('disabled',false);
 				return(flag);
      		});
 		}else if(dctoObligado==0 && '@mapDiccionario.get("nEmpresa")' == 'MONTAX'){
-			flag = false;
 			alertify.alert('ESTA OBLIGADO A INGRESAR UN DESCUENTO, SI NO APLICA DESCUENTO INGREZAR UN CERO', function () {
 				$("#aplica").attr('disabled',false);
 				return(flag);
      		});
 		}else if ((sumaAux-parseFloat(granTotRepos))<=0){
-			flag = false;
 			alertify.alert('NO PUEDE GENERAR UNA COTIZACION QUE SUMA CERO, REVISAR PERMANENCIA', function () {
 				$("#aplica").attr('disabled',false);
 				return(flag);
@@ -1411,6 +1405,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			}
 			return(true);
 		}
+		return(flag);
 	}
 
 	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
@@ -1541,7 +1536,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		sumaTotales();
 		document.getElementById('selSucursal').disabled = true;
 		document.getElementById('selComercial').disabled = true;
-		document.getElementById('selSolucion').disabled = true;
 		$('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
@@ -1571,7 +1565,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		sumaTotales();
 		document.getElementById('selSucursal').disabled = true;
 		document.getElementById('selComercial').disabled = true;
-		document.getElementById('selSolucion').disabled = true;
 		$('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
@@ -1602,7 +1595,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		sumaTotales();
 		document.getElementById('selSucursal').disabled = true;
 		document.getElementById('selComercial').disabled = true;
-		document.getElementById('selSolucion').disabled = true;
 		$('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
@@ -1629,7 +1621,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		sumaTotales();
 		document.getElementById('selSucursal').disabled = true;
 		document.getElementById('selComercial').disabled = true;
-		document.getElementById('selSolucion').disabled = true;
 		$('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],

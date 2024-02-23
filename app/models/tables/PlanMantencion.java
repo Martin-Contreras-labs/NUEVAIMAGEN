@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import controllers.HomeController;
 import models.calculo.Inventarios;
 import models.utilities.Fechas;
 
@@ -161,8 +162,8 @@ public class PlanMantencion {
 
 	public static List<PlanMantencion> all(Connection con, String db) {
 		List<PlanMantencion> lista = new ArrayList<PlanMantencion>();
-		
-		Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, db);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(db);
+		Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, db, "TODO", mapeoDiccionario);
 		try {
 			PreparedStatement smt = con
 					.prepareStatement(" select "

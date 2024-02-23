@@ -440,15 +440,15 @@ public class Inventarios {
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, "
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad,";
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad";
 		}else if(tipo.equals("VENTA")) {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, "
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0)))) as cantidad,";
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0)))) as cantidad";
 		}else if(tipo.equals("TODO")){
 			condicionaSuma = "if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad, ";
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad ";
 		}
 			try {
 				PreparedStatement smt20 = con
@@ -458,6 +458,7 @@ public class Inventarios {
 								+ " from `"+db+"`.movimiento "
 								+ " group by id_equipo "
 								+ " having cantidad > 0");
+
 				ResultSet rs20 = smt20.executeQuery();
 				while (rs20.next()) {
 					map.put(rs20.getLong(1), rs20.getDouble(2));
