@@ -417,48 +417,30 @@ public class ReportInventarios {
 		try {
 			PreparedStatement smt6 = con
 					.prepareStatement("select"
-							+ " count(movimiento.id_bodegaEmpresa),"
-							+ " bodegaEmpresa.nombre,"
-							+ " movimiento.id_equipo,"
-							+ " if(guia.id>0,guia.fecha,if(factura.id>0,factura.fecha,actaBaja.fecha)) as fecha,"
-							+ " bodegaEmpresa.esInterna,"
-							+ " bodegaEmpresa.id_sucursal"
-							+ " from `"+db+"`.movimiento"
-							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia"
-							+ " left join `"+db+"`.compra on compra.id = movimiento.id_compra"
-							+ " left join `"+db+"`.factura on factura.id = compra.id_factura"
-							+ " left join `"+db+"`.baja on baja.id = movimiento.id_baja"
-							+ " left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
-							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-							+ " where movimiento.id_bodegaEmpresa > 0"
-							+ " group by movimiento.id_equipo;");
+							+ " count(id_bodegaEmpresa),"
+							+ " id_bodegaEmpresa,"
+							+ " id_equipo,"
+							+ " nombre,"
+							+ " sum(if(id_tipoMovimiento=1,1,-1)*cantidad)"
+							+ " from `"+db+"`.movimiento "
+							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa "
+							+ " group by id_bodegaEmpresa,id_equipo "
+							+ " having sum(if(id_tipoMovimiento=1,1,-1)*cantidad)>0;");
+
 			ResultSet rs6 = smt6.executeQuery();
 			
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			while (rs6.next()) {
-				if(rs6.getDouble(9)!=0){
-					
-					String nameSucursal = "";
-					Sucursal sucursal = mapSucursal.get(rs6.getLong(16));
-					if(sucursal!=null) {
-						nameSucursal = sucursal.getNombre();
-					}
 					
 					String ubicacion = "varias";
 					if(rs6.getLong(1) == (long)1) {
-						ubicacion = rs6.getString(2);
+						ubicacion = rs6.getString(4);
 					}
 
 					List<String> aux = new ArrayList<String>();
 					aux.add(rs6.getString(1));  							//  0 conteo de bodega con stock
 					aux.add(ubicacion);			   							//  1 bodegaEmpresa.nombre	si conteo =0 sino ubicacion varias				
 					aux.add(rs6.getString(3));  							//  2 id_equipo
-					aux.add(rs6.getString(4));  							//  3 fecha
-					aux.add(rs6.getString(5));  							//  4 bodegaEmpresa.esInterna
-					aux.add(rs6.getString(6));  							//  5 bodegaEmpresa.id_sucursal
-					aux.add(nameSucursal);  								//  6 name sucursal
 					map.put(rs6.getLong(3), aux);
-				}
 			}
 			rs6.close();
 			smt6.close();
@@ -3723,70 +3705,6 @@ public class ReportInventarios {
         }
 	  return tmp;
 	  
-	}
-	
-	public static List<List<String>> reportInventarioSoloProyectosSelectivo(Connection con, String db, String permisoPorBodega, String esPorSucursal, String id_sucursal) {
-		List<List<String>> lista = new ArrayList<List<String>>();
-		
-		String condSucursal = "";
-		if(esPorSucursal.equals("1")) {
-			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
-		}
-		
-		try {
-			PreparedStatement smt5 = con
-					.prepareStatement(" select " +
-							" bodegaEmpresa.esInterna, " +
-							" movimiento.id_bodegaEmpresa, " +
-							" ifnull(cliente.id,0), " +
-							" ifnull(proyecto.id,0), " +
-							" bodegaEmpresa.nombre,   " +
-							" ifnull(cliente.rut,''), " +
-							" ifnull(cliente.nickName,''), " +
-							" ifnull(proyecto.nickName,''), " +
-							" ifnull(comunas.nombre,''), " +
-							" tipoBodega.nombre, " +
-							" bodegaEmpresa.factorM2Viga, " +
-							" ifnull(movimiento.id_cotizacion,0), "+
-							" bodegaEmpresa.id_sucursal "+
-							" from `"+db+"`.movimiento   " +
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and tipoBodega.id = 2 " + permisoPorBodega + condSucursal +
-							" group by movimiento.id_bodegaEmpresa  " +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;");
-			ResultSet rs5 = smt5.executeQuery();
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			while (rs5.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs5.getLong(13));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs5.getString(1));  // 0 es cliente interno
-				aux.add(rs5.getString(2));  // 1 idbodega empresa
-				aux.add(rs5.getString(3));  // 2 id de cliente
-				aux.add(rs5.getString(4));  // 3 id del proyecto
-				aux.add(rs5.getString(10));  // 4 tipo de cliente interno o externo
-				aux.add(rs5.getString(5));  // 5 nombre bodega o empresa
-				aux.add(rs5.getString(6));  // 6 rut del cliente
-				aux.add(rs5.getString(7));  // 7 nombre del cliente
-				aux.add(rs5.getString(8));  // 8 nombre del proyecto
-				aux.add(rs5.getString(9));  // 9 comuna
-				aux.add(rs5.getString(11)); // 10 factorViga
-				aux.add(nameSucursal); 		// 11 nameSucursal
-				lista.add(aux);
-			}
-			rs5.close();
-			smt5.close();
-		} catch (SQLException e) {
-				e.printStackTrace();
-		}
-		return (lista);
 	}
 	
 	public static List<List<String>> listaProyectosAsignados(Connection con, String db, String permisoPorBodega, String esPorSucursal, String id_sucursal) {

@@ -68,8 +68,8 @@ public class Sucursal {
 
 	public static Map<Long,Sucursal> mapAllSucursales(Connection con, String db){
 		Map<Long,Sucursal> map = new HashMap<Long,Sucursal>();
-		List<Sucursal> listClientes = Sucursal.all(con, db);
-		listClientes.forEach(x->{
+		List<Sucursal> listSucursal = Sucursal.all(con, db);
+		listSucursal.forEach(x->{
 			map.put(x.getId(), x);
 		});
 		return(map);

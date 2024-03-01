@@ -33,6 +33,7 @@ listOt: List[List[String]])
 							<TH>DOC<br>COTI</TH>
 							<TH>ULTIMA<br>ACTUALIZACION</TH>
 							<TH>ESTIMACION<br>DE ENTREGA</TH>
+							<TH>SALDO</TH>
 							<TH>ESTADO</TH>
 							<TH>SELECT</TH>
 						</TR>
@@ -103,6 +104,7 @@ listOt: List[List[String]])
 									<div style="display: none;">@utilities.Fechas.AAMMDD(lista1.get(18))</div>
 									<div id="fechaActual_@lista1.get(0)">@lista1.get(18)</div>
 								</td>
+								<td style="text-align:center;">@lista1.get(20)</td>
 								<td  style="text-align:center;">@lista1.get(12)</td>
 								<td  style="text-align:center;">
 									<a href="#" onclick= "revisarOt('@lista1.get(0)')">

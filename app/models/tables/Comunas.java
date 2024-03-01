@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Comunas {
@@ -21,6 +23,22 @@ public class Comunas {
 		super();
 	}
 	
+	public static Map<String, String> mapAll(Connection con, String db) {
+		Map<String,String> map = new HashMap<String,String>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("SELECT codigo,nombre FROM `"+db+"`.comunas;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getString(1), rs.getString(2));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
 	
 	public static List<Comunas> allPorRegion(Connection con, String db,String cod_region) {
 		List<Comunas> lista = new ArrayList<Comunas>();

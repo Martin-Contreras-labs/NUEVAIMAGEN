@@ -75,7 +75,7 @@ import viewsMnuTablas.html.*;
 public class MnuTablas extends Controller {
 	
    
-	public static Database db = HomeController.db;
+	public static Database db = HomeController.dbWrite;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
@@ -669,46 +669,17 @@ public class MnuTablas extends Controller {
 	    			}
 	    			
 	    			List<List<String>> listAtribGroup = Atributo.listAtributosGroup(con, s.baseDato);
-	    			
-	    			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato); // considerar mostrar vigencia grupo,cod,nombre,unidad y desde map agregar stock, ubicacion (obra sino varias)
-	    			
-
-	    			Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, s.baseDato, "ARRIENDO", mapeoDiccionario); // k= idequipo, v = double cant
-	    			
+	    			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato); 
+	    			Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, s.baseDato, "ARRIENDO", mapeoDiccionario);
 	    			Map<Long,List<String>> mapUbicacion = ReportInventarios.mapIdEqVsEnCantBodegas(con, s.baseDato);
+	    			Map<Long,List<String>> mapPCompra = Compra.ultimoPrecioMasFactura(con, s.baseDato); 
+	    			Map<String,List<String>> mapAtributos = Atributo.mapAtributosAllEquipos(con, s.baseDato);
 	    			
-	    			
-	    			// *************
-	    			// NOTA: falta fecha de factura y numero factura
-	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato); // k= idequipo, v = precio, id_moneda 
-	    			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato); // k= id_moneda, v = string nickMoneda
-	    			// *************
-	    			
-	    			// APLICAR FILTROS POR COLUMNA SIMILAR A ADAM EN kardexRptMatrizTerrenoTrab
-	    			
-	    			// <div id="enCarga" class="blocker" style="display: block;"><br><br><br><br><br><br><h1>Ahora se esta cargando..... :)</h1></div> idem reporteEjecutivo1
-	    			// revisar el porque no sale en proceso ..... 
-	    			
-	    			
-	    			// nota solo equipos con stock
-	    			
-	    			
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
-	    			
-	    			
-	    			
-	    			/// dejar como thread al correo registrado en usuario con alerta.
-	    			
-	    			
-	    			
-	    			
-	    			List<Cliente> listClientes = Cliente.all(con, s.baseDato);
-	    			
-	    			File file = Cliente.allExcel(s.baseDato, mapeoDiccionario, listClientes);
+	    			File file = Equipo.allExcel(s.baseDato, mapeoDiccionario, listEquipos, mapStock, mapUbicacion, mapPCompra, listAtribGroup, mapAtributos);
 	    			
 	    			if(file!=null) {
 		       			con.close();
-		       			return ok(file,false,Optional.of("Listado_Clientes.xlsx"));
+		       			return ok(file,false,Optional.of("Listado_Equipos.xlsx"));
 		       		}else {
 		       			con.close();
 		       			return ok("");

@@ -83,8 +83,8 @@ public class Atributo{
 			PreparedStatement smt = con
 					.prepareStatement("select "
 							+ "	atributo.atributo, atributo.esNumerico, unidad.nombre"
-							+ "	from atributo"
-							+ "	left join unidad on unidad.id = atributo.id_unidad"
+							+ "	from `"+db+"`.atributo"
+							+ "	left join `"+db+"`.unidad on unidad.id = atributo.id_unidad"
 							+ "	group by atributo, esNumerico;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
@@ -125,6 +125,35 @@ public class Atributo{
 		}
 		return (map);
 	}
+	
+	public static Map<String,List<String>> mapAtributosAllEquipos(Connection con, String db) {
+		Map<String,List<String>> map = new HashMap<String,List<String>>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select"
+							+ " atributo.atributo,"
+							+ " atributoEquipo.id_equipo,"
+							+ " atributoEquipo.strAtributo,"
+							+ " atributoEquipo.numAtributo,"
+							+ " concat(atributoEquipo.strAtributo,atributoEquipo.numAtributo)"
+							+ " from `"+db+"`.atributoEquipo"
+							+ " left join `"+db+"`.atributo on atributo.id = atributoEquipo.id_atributo"
+							+ " group by atributo.atributo, atributoEquipo.id_equipo;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(rs.getString(3));	// strAtributo
+				aux.add(rs.getString(4));	// numAtributo
+				aux.add(rs.getString(5));	// valorGlobal
+				map.put(rs.getString(1)+"_"+rs.getString(2), aux);
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
+	
 	
 	public static List<Atributo> allXGrupo(Connection con, String db, Long id_grupo) {
 		List<Atributo> lista = new ArrayList<Atributo>();

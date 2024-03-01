@@ -125,6 +125,54 @@ public class Compra {
 		return (aux);
 	}
 	
+	public static Map<Long,List<String>> ultimoPrecioMasFactura(Connection con, String db){
+		Map<Long,List<String>> aux = new HashMap<Long,List<String>>();
+		try {
+			PreparedStatement smt2 = con
+					.prepareStatement("select max(concat(factura.fecha,'_',compra.id)) from `"+db+"`.compra "
+							+ " left join `"+db+"`.factura on factura.id = compra.id_factura  group by id_equipo;");
+
+			ResultSet rs2 = smt2.executeQuery();
+			String lista ="";
+			while (rs2.next()) {
+				String[] arrAux = rs2.getString(1).split("_");
+				lista = lista + arrAux[1] + ",";
+			}
+			rs2.close();smt2.close();
+			if(lista.length()>0) {
+				lista=lista.substring(0,lista.length()-1);
+				PreparedStatement smt = con
+						.prepareStatement(" select"
+								+ " compra.id_equipo,"
+								+ " compra.precioUnidad,"
+								+ " moneda.nickName,"
+								+ " factura.fecha,"
+								+ " factura.numero,"
+								+ " proveedor.nickName"
+								+ " from `"+db+"`.compra"
+								+ " left join `"+db+"`.moneda on moneda.id = compra.id_moneda"
+								+ " left join `"+db+"`.factura on factura.id = compra.id_factura"
+								+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor"
+								+ " where compra.id in ("+lista+") ;");
+				ResultSet rs = smt.executeQuery();
+				while (rs.next()) {
+					List<String> aux2 = new ArrayList<String>();
+					aux2.add(rs.getString(2)); // 0 precioUnidad
+					aux2.add(rs.getString(3)); // 1 moneda.nickName
+					aux2.add(rs.getString(4)); // 2 factura.fecha
+					aux2.add(rs.getString(5)); // 3 factura.numero
+					aux2.add(rs.getString(6)); // 4 proveedor
+					aux.put(rs.getLong(1),aux2);  
+				}
+				rs.close();
+				smt.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+	
 	public static Map<Long,String> ultimoMonedaPrecio(Connection con, String db){
 		Map<Long,String> aux = new HashMap<Long,String>();
 		try {

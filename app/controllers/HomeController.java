@@ -49,6 +49,7 @@ import models.tables.VentaServicio;
 import models.utilities.Admin;
 import models.utilities.Archivos;
 import models.utilities.DatabaseExecutionContext;
+import models.utilities.DatabaseRead;
 import models.utilities.Fechas;
 import models.utilities.Inicio;
 import models.utilities.Integridad;
@@ -84,7 +85,8 @@ public class HomeController extends Controller {
 	public static String msgSinPermiso = "USTED NO TIENE PERMISO PARA ACCEDER, POR FAVOR NO LO INTENTE, GRACIAS";
 	
 	public static FormFactory formFactory;
-	public static Database db;
+	public static Database dbWrite;
+	public static DatabaseRead dbRead;
 	public static DatabaseExecutionContext executionContext;
 	public static Config config;
 	public final MailerClient mailerClient;
@@ -92,9 +94,10 @@ public class HomeController extends Controller {
 	
     @SuppressWarnings("static-access")
 	@Inject
-    public HomeController(Database db, DatabaseExecutionContext executionContext,FormFactory formFactory,Config config,
+    public HomeController(Database dbWrite, DatabaseRead dbRead, DatabaseExecutionContext executionContext,FormFactory formFactory,Config config,
     		MailerClient mailerClient, WSClient ws) {
-	    this.db = db;
+    	this.dbWrite = dbWrite;
+	    this.dbRead = dbRead;
 	    this.executionContext = executionContext;
 	    this.formFactory = formFactory;
 	    this.config = config;
@@ -153,7 +156,7 @@ public class HomeController extends Controller {
     	Sessiones s = new Sessiones(request);
     	if(s.baseDato!=null) {
     		try {
-        		Connection con = db.getConnection();
+        		Connection con = dbRead.getConnection(dbRead);
     			map = UsuarioPermiso.mapPermisos(con,s.baseDato,s.id_tipoUsuario);
     			con.close();
     			return(map);
@@ -167,7 +170,7 @@ public class HomeController extends Controller {
     public static Map<String,String> mapPermisos(String baseDato, String permiso){
     	Map<String,String> map = new HashMap<String,String>();
     	try {
-    		Connection con = db.getConnection();
+    		Connection con = dbRead.getConnection(dbRead);
 			map = UsuarioPermiso.mapPermisos(con,baseDato,permiso);
 			con.close();
 			return(map);
@@ -182,7 +185,7 @@ public class HomeController extends Controller {
     	Sessiones s = new Sessiones(request);
     	if(s.baseDato!=null) {
     		try {
-        		Connection con = db.getConnection();
+        		Connection con = dbRead.getConnection(dbRead);
     			map = Diccionario.mapDiccionario(con, s.baseDato);
     			con.close();
     			return(map);
@@ -196,7 +199,7 @@ public class HomeController extends Controller {
     public static Map<String,String> mapDiccionario(String baseDato){
     	Map<String,String> map = new HashMap<String,String>();
     	try {
-    		Connection con = db.getConnection();
+    		Connection con = dbRead.getConnection(dbRead);
 			map = Diccionario.mapDiccionario(con, baseDato);
 			con.close();
 			return(map);
@@ -209,7 +212,7 @@ public class HomeController extends Controller {
     public static List<TipoEstado> listaEstados(UserMnu usuario){
     	List<TipoEstado> lista = new ArrayList<TipoEstado>();
 		try {
-			Connection con = db.getConnection();
+			Connection con = dbRead.getConnection(dbRead);
 			lista = TipoEstado.all(con, usuario.getBaseDato());
 			con.close();
 		} catch (SQLException e) {
@@ -330,7 +333,7 @@ public class HomeController extends Controller {
 	       	}else {
 	       		String fecha = form.get("fecha");
 				try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
         			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),fecha);
 	    	    	con.close();
@@ -423,7 +426,7 @@ public class HomeController extends Controller {
         			lista.add(aux);
         		}
         		try {
-        			Connection con = db.getConnection();
+        			Connection con = dbRead.getConnection(dbRead);
         			
         			
         			String aux[] = carpeta.split("_");
@@ -560,7 +563,7 @@ public class HomeController extends Controller {
     public Result inicio() throws InterruptedException {
     	try {
     		List<String> lista = new ArrayList<String>();
-			Connection con = db.getConnection();
+			Connection con = dbRead.getConnection(dbRead);
 			PreparedStatement smt = con.
 					prepareStatement("select pais from paises order by orden;");
 			ResultSet rs = smt.executeQuery();
@@ -586,7 +589,7 @@ public class HomeController extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			
@@ -641,7 +644,7 @@ public class HomeController extends Controller {
        		
        		
        		try {
-				Connection con = db.getConnection();
+				Connection con = dbWrite.getConnection();
 				Inicio inicio = Inicio.findXempresaVigente(con,userName,empresa,pais);
 				
 				if(inicio.getId()==-1){
@@ -736,7 +739,7 @@ public class HomeController extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			
@@ -793,7 +796,7 @@ public class HomeController extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			
@@ -824,7 +827,7 @@ public class HomeController extends Controller {
 	   			return ok("");
 	       	}else {
 	       		try {
-		       		Connection con = db.getConnection();
+		       		Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<VentaServicio> listVentas = VentaServicio.allPorBodegas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal,s.id_sucursal, 
@@ -879,7 +882,7 @@ public class HomeController extends Controller {
 
     public Result vistaAdminCallback(Http.Request request) {
        		try {
-    			Connection con = db.getConnection();
+    			Connection con =dbRead.getConnection(dbRead);
     			List<List<String>> proyectos = Admin.listaProyectos(con);
     			con.close();
     			return ok(vistaAdmin.render(proyectos)).addingToSession(request, "administrador", "esAdmin");
@@ -895,7 +898,7 @@ public class HomeController extends Controller {
     	try {
     		String administrador = request.session().get("administrador").get();
     		if(administrador.equals("esAdmin")) {
-    			Connection con = db.getConnection();
+    			Connection con = dbWrite.getConnection();
         		Usuario usuario = Usuario.findXIdUser(con, baseDato, (long) 1);
         		Integridad.verifica(con, baseDato, usuario.getId().toString());
         		Long esMoroso = Registro.esMoroso(con, baseDato);
@@ -940,7 +943,7 @@ public class HomeController extends Controller {
         		return ok("error");
         	}else {
         		try {
-	        		Connection con = db.getConnection();
+	        		Connection con = dbRead.getConnection(dbRead);
 	        		String vista = Usuario.vistaUpdateUsuario2(con, s.baseDato, Long.parseLong(s.id_usuario));
 	        		con.close();
 	        		return ok(vista);
@@ -963,7 +966,7 @@ public class HomeController extends Controller {
         	}else {
         		String userName = form.get("userName").trim();
         		try {
-	        		Connection con = db.getConnection();
+	        		Connection con = dbRead.getConnection(dbRead);
 	        		if(Usuario.existe(con, s.baseDato, userName)) {
 	        			con.close();
 	        			return ok("{ \"status\": true}").as("application/json");
@@ -997,7 +1000,7 @@ public class HomeController extends Controller {
         		String fono = form.get("fono").trim();
         		String observaciones = form.get("observaciones").trim();
         		try {
-	        		Connection con = db.getConnection();
+	        		Connection con = dbWrite.getConnection();
 	        		Usuario aux = Usuario.findXIdUser(con, s.baseDato, id);
 	        		Usuario usuario = new Usuario(id, userName, userKey, nombre, cargo, aux.getId_tipoUsuario(),aux.getPorProyecto(), "", "", email, "", fono, observaciones,(long)1,aux.getId_sucursal(), aux.getNameSucursal());
 	        		if(Usuario.modify(con, s.baseDato, usuario)) {
@@ -1048,7 +1051,7 @@ public class HomeController extends Controller {
        		
        		
        		try {
-				Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 				Inicio inicio = Inicio.findXempresaVigente(con,userName,empresa,pais);
 				
 				if(inicio.getId()==-1){

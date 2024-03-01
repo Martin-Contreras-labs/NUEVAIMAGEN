@@ -30,7 +30,7 @@ import viewsMnuBajas.html.*;
 
 public class MnuBajas extends Controller {
 	
-	public static Database db = HomeController.db;
+	public static Database db = HomeController.dbWrite;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;

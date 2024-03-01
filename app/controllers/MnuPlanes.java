@@ -48,7 +48,7 @@ import views.html.mensajes;
 import viewsMnuPlanes.html.*;
 
 public class MnuPlanes extends Controller {
-	public static Database db = HomeController.db;
+	public static Database db = HomeController.dbWrite;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;

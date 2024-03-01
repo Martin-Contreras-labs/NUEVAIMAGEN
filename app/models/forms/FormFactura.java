@@ -56,9 +56,11 @@ public class FormFactura {
 	public List<String> folioRef; 
 	public List<String> fchRef; 
 	public List<String> razonRef; 
+	
+	public String oc;
 
 	public FormFactura(String idBodega, String fechaDesde, String fechaHasta, String uf, String usd, String eur,
-			List<String> tpoDocRef, List<String> folioRef, List<String> fchRef, List<String> razonRef) {
+			List<String> tpoDocRef, List<String> folioRef, List<String> fchRef, List<String> razonRef, String oc) {
 		super();
 		this.idBodega = idBodega;
 		this.fechaDesde = fechaDesde;
@@ -70,6 +72,7 @@ public class FormFactura {
 		this.folioRef = folioRef;
 		this.fchRef = fchRef;
 		this.razonRef = razonRef;
+		this.oc = oc;
 	}
 
 
@@ -89,7 +92,7 @@ public class FormFactura {
 			List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, 
 			List<List<String>> detalleAjuste, String conDetalle, 
 			List<List<String>> inicioPer, List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, List<List<String>> finalPer,
-			Double uf, Double usd, Double eur) {
+			Double uf, Double usd, Double eur, String oc) {
 		
 			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.id_bodegaEmpresa);
 			
@@ -251,8 +254,15 @@ public class FormFactura {
     				}
     				
     			}
+    			
+    			if(oc.length()>0) {
+    				strReferencia += "\n" + oc;
+    			}
+    			
     			cell=table.getRow(0).getCell(0);
     			setCelda(cell,"Arial",10,1,"2b5079",strReferencia,false);
+    			
+    			
     			
     			
     			cell=table.getRow(0).getCell(2);
@@ -848,7 +858,7 @@ public class FormFactura {
 	
 	public static String generaProformaVenta(Connection con, String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
 			Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, List<List<String>> detalleAjuste, 
-			List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10) {
+			List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, String oc) {
 		
 		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.id_bodegaEmpresa);
 		
@@ -1039,6 +1049,10 @@ public class FormFactura {
 							docRef+": "+referencias.folioRef.get(i)+" - "+referencias.fchRef.get(i)+" - "+referencias.razonRef.get(i)+"\n";
 				}
 				
+			}
+			
+			if(oc.length()>0) {
+				strReferencia += "\n" + oc;
 			}
 			
 			cell=table.getRow(0).getCell(0);

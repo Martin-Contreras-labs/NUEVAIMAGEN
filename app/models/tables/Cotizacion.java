@@ -709,6 +709,32 @@ public class Cotizacion {
 		return(lista);
 	}
 	
+	public static String ocParticiaEnBodega(Connection con, String db, Long id_bodegaEmpresa) {
+		String aux = "";
+		try {
+			PreparedStatement smt = con
+						.prepareStatement("select"
+								+ " id_bodegaEmpresa,"
+								+ " numeroOC"
+								+ " from `"+db+"`.cotizacion"
+								+ " where id>0 and id_bodegaEmpresa = ? and numeroOc <> ''"
+								+ " group by numeroOc;" );
+				smt.setLong(1, id_bodegaEmpresa);
+				ResultSet rs = smt.executeQuery();
+				while (rs.next()) {
+					aux += rs.getString(2) + "; ";
+				}
+				if(aux.length() > 0) {
+					aux = "ORDENES: " + aux.substring(0,aux.length()-2);
+				}
+				rs.close();
+				smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+	
 	public static List<Cotizacion> allDesdeHasta(Connection con, String db, String desde, String hasta){
 		List<Cotizacion> lista = new ArrayList<Cotizacion>();
 		try{
@@ -1331,6 +1357,7 @@ public class Cotizacion {
 			nickProyecto = proyecto.getNickName();
 		}
 		
+		
 		vista=vista+
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
 			"<tr>"+
@@ -1345,13 +1372,14 @@ public class Cotizacion {
 			"</tr>"+
 			"<tr>"+
 				"<td colspan='2'><label for='numeroCotizacion'>Sucursal: "+sucursal.nombre+"</label></td>"+
-				"<td colspan='3' rowspan='3' style='text-align:left; vertical-align:top'><label>Observaciones: <br>"+cotizacion.observaciones+"</label></td>"+
+				"<td colspan='3' rowspan='2' style='text-align:left; vertical-align:top'><label>Observaciones: <br>"+cotizacion.observaciones+"</label></td>"+
 			"</tr>"+
 			"<tr>"+
 				"<td colspan='2'><label for='numeroCotizacion'>Comercial: "+comercial.nameUsuario+"</label></td>"+
 			"</tr>"+
 			"<tr>"+
 				"<td colspan='2'><label for='numeroCotizacion'>Tipo de Solucion: "+cotizacion.getNameCotizaSolucion()+"</label></td>"+
+				"<td ><label for='ocCotizacion'> Nro OC: "+cotizacion.getNumeroOC()+"</label></td>"+
 			"</tr>"+
 		"</table>"+
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+

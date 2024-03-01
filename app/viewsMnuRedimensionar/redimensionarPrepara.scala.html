@@ -248,7 +248,6 @@ optBodegas: String )
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									id="nuevoEquipoCodigo"
-									required
 									autocomplete="off"
 									onkeypress="return sinReservados(event)"
 									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
@@ -261,7 +260,6 @@ optBodegas: String )
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									id="nuevoEquipoNombre"
-									required
 									autocomplete="off"
 									maxlength="100"
 									value = " ">
@@ -454,8 +452,8 @@ optBodegas: String )
 	
 	const grabaNuevoEquipo = () =>{
 		
-		nuevoEquipoCodigo = $("#nuevoEquipoCodigo").val().trim();
-		nuevoEquipoNombre = $("#nuevoEquipoNombre").val().trim();
+		let nuevoEquipoCodigo = $("#nuevoEquipoCodigo").val().trim();
+		let nuevoEquipoNombre = $("#nuevoEquipoNombre").val().trim();
 		if(nuevoEquipoCodigo==""){
 			alertify.alert("Debe ingresar un código de equipo", function () {
  				$("#nuevoEquipoCodigo").focus();

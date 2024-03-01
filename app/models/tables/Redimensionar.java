@@ -130,7 +130,7 @@ public class Redimensionar {
 							+ " group by id_equipoOrigen;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				aux.put(rs.getLong(1), rs.getDouble(2) / 2);
+				aux.put(rs.getLong(1), rs.getDouble(2));
 			}
 			rs.close();
 			smt.close();

@@ -63,6 +63,7 @@ listOt: List[List[String]])
 								
 								
 								<td style="text-align:center;">
+									<div id="auxNroOC_@lista1.get(0)" style="display:none">@lista1.get(16)</div>
 									<input type="text" class="form-control height23px left"
 											id="numeroOC_@lista1.get(0)"
 											value="@lista1.get(16)"
@@ -242,9 +243,10 @@ listOt: List[List[String]])
 	}
 	
 	const actualizaOC = (id, id_cotizacion) => {
+		let valor = $("#"+id).val();
 		var formData = new FormData();
 		formData.append('id_cotizacion', id_cotizacion);
-	  	formData.append('numeroOC',$("#"+id).val());
+	  	formData.append('numeroOC',valor);
         $.ajax({
             url: "/routes2/oc_cotiClienteAjax/",
             type: "POST",
@@ -253,12 +255,12 @@ listOt: List[List[String]])
             cache: false,
             contentType: false,
 	     	processData: false,
-	     	success: function(respuesta){}
+	     	success: function(respuesta){
+				let aux = id.replace("numeroOC_","auxNroOC_"); 
+				$("#"+aux).text(valor);
+			}
         });
 	}
-	
-	
-	
 	
 		
 	

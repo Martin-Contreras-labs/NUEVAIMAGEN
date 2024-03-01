@@ -44,6 +44,7 @@ import models.tables.AjustesEP;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Compra;
+import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Grupo;
@@ -60,6 +61,7 @@ import models.tables.TipoReferencia;
 import models.tables.UnidadTiempo;
 import models.tables.UsuarioPermiso;
 import models.utilities.Archivos;
+import models.utilities.DatabaseRead;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
@@ -82,7 +84,8 @@ import viewsMnuReportes.html.*;
 public class MnuReportes extends Controller {
 	
 	
-	public static Database db = HomeController.db;
+	public static Database dbWrite = HomeController.dbWrite;
+	public static DatabaseRead dbRead = HomeController.dbRead;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
@@ -112,7 +115,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -143,7 +146,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -178,7 +181,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -211,7 +214,7 @@ public class MnuReportes extends Controller {
 	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 	       		String tipo = form.get("tipo").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -240,7 +243,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
 	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
@@ -276,7 +279,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -308,7 +311,7 @@ public class MnuReportes extends Controller {
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		Long soloVigentes = Long.parseLong(form.get("soloVigentes").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -339,7 +342,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o TODO
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -370,7 +373,7 @@ public class MnuReportes extends Controller {
 	       		Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
 	       		String tipo = form.get("tipo").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -399,7 +402,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 	    			List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
@@ -430,7 +433,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -461,7 +464,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -491,7 +494,7 @@ public class MnuReportes extends Controller {
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -522,7 +525,7 @@ public class MnuReportes extends Controller {
 	       		String tipo = form.get("tipo").trim();
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
@@ -555,7 +558,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -595,7 +598,7 @@ public class MnuReportes extends Controller {
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		String id_sucursal = form.get("id_sucursal").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -663,7 +666,7 @@ public class MnuReportes extends Controller {
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		String id_sucursal = form.get("id_sucursal").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
@@ -722,7 +725,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -750,7 +753,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
 	    			File file = ReportInventarios.exportaReportInventarioTodo(con, s.baseDato, datos, mapeoDiccionario);
@@ -780,7 +783,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -808,7 +811,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato);
 	    			File file = ReportBodegas.estadoBodegasExcel(s.baseDato, mapeoDiccionario, datos);
@@ -839,7 +842,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -870,7 +873,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -897,7 +900,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 	    			List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
@@ -928,7 +931,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -958,17 +961,76 @@ public class MnuReportes extends Controller {
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+//	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+//	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+//	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
+	       		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+	    		tasas.put((long)2, (double) 100000); 			// 'Dólar', 'USD', '2'
+	    		tasas.put((long)3, (double) 100000); 			// 'Euro', 'EUR', '3'
+	    		tasas.put((long)4, (double) 100000); 			// 'Unidad Fomento', 'UF', '4'
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioSoloProyectosSelectivo(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+	    			
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			
+	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, listado, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, listado);
+	    			
+	    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+	    			List<List<String>> proyectos = new ArrayList<List<String>>();
+	    			if(map.size()>0) {
+		    			for(List<String> aux:proyectosAux) {
+		    				String idBodega = map.get(aux.get(1));
+		    				if(idBodega!=null) {
+		    					proyectos.add(aux);
+		    				}
+		    			}
+	    			}else {
+	    				proyectos = proyectosAux;
+	    			}
+	    			
+	    			Map<String,List<String>> mapTotal = new HashMap<String,List<String>>();
+	    			for(List<String> total: resumenTotales){
+	    				mapTotal.put(total.get(0), total);
+	    			}
+	    			
+	    			
+	    			List<List<String>> datos = new ArrayList<List<String>>();
+	    			for(List<String> lista1: proyectos){
+	    				List<String> x = mapTotal.get(lista1.get(1));
+	    					if(x!=null){
+	    						List<String> aux = new ArrayList<String>();
+	    						aux.add(lista1.get(0));  // 0 es cliente interno
+	    						aux.add(lista1.get(1));  	// 1 idbodega empresa
+	    						aux.add(lista1.get(2));  	// 2 id de cliente
+	    						aux.add(lista1.get(3));  	// 3 id del proyecto
+	    						aux.add("");  				// 4 tipo de cliente interno o externo
+	    						aux.add(lista1.get(5));  	// 5 nombre bodega o empresa
+	    						aux.add(lista1.get(6));  	// 6 rut del cliente
+	    						aux.add(lista1.get(7));  	// 7 nombre del cliente
+	    						aux.add(lista1.get(8));  	// 8 nombre del proyecto
+	    						aux.add(lista1.get(9));  	// 9 comuna
+	    						aux.add("");  				// 10 factorViga
+	    						aux.add(lista1.get(14)); 	// 11 nameSucursal
+	    						datos.add(aux);
+		    				}
+	    			}
+	    			
 	    			con.close();
-	    			return ok(reporteMovimientosListaProyectosAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
+	    			return ok(reporteMovimientosListaProyectosAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos, desdeAAMMDD,hastaAAMMDD));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -992,7 +1054,7 @@ public class MnuReportes extends Controller {
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1026,7 +1088,7 @@ public class MnuReportes extends Controller {
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -1061,7 +1123,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1094,7 +1156,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1124,7 +1186,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1153,7 +1215,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasSoloBodInternas(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -1184,7 +1246,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1217,7 +1279,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1248,7 +1310,7 @@ public class MnuReportes extends Controller {
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1287,7 +1349,7 @@ public class MnuReportes extends Controller {
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			
@@ -1326,7 +1388,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1369,7 +1431,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1515,7 +1577,7 @@ public class MnuReportes extends Controller {
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1555,7 +1617,7 @@ public class MnuReportes extends Controller {
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -1591,18 +1653,75 @@ public class MnuReportes extends Controller {
 	public Result reporteMovimientosListaProyectosIE(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		try {
-    			Connection con = db.getConnection();
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+    		String desdeAAMMDD = "2016-01-01";
+       		String hastaAAMMDD = "3000-01-01";
+//       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+//       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+//       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+       		Map<Long,Double> tasas = new HashMap<Long,Double>();
+    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+    		tasas.put((long)2, (double) 100000); 			// 'Dólar', 'USD', '2'
+    		tasas.put((long)3, (double) 100000); 			// 'Euro', 'EUR', '3'
+    		tasas.put((long)4, (double) 100000); 			// 'Unidad Fomento', 'UF', '4'
+       		try {
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("reporteMovimientos2")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
     			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			List<List<String>> datos = ReportInventarios.reportInventarioSoloProyectosSelectivo(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+    			
+    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+    			
+    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, listado, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, listado);
+    			
+    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+    			List<List<String>> proyectos = new ArrayList<List<String>>();
+    			if(map.size()>0) {
+	    			for(List<String> aux:proyectosAux) {
+	    				String idBodega = map.get(aux.get(1));
+	    				if(idBodega!=null) {
+	    					proyectos.add(aux);
+	    				}
+	    			}
+    			}else {
+    				proyectos = proyectosAux;
+    			}
+    			
+    			Map<String,List<String>> mapTotal = new HashMap<String,List<String>>();
+    			for(List<String> total: resumenTotales){
+    				mapTotal.put(total.get(0), total);
+    			}
+    			
+    			
+    			List<List<String>> datos = new ArrayList<List<String>>();
+    			for(List<String> lista1: proyectos){
+    				List<String> x = mapTotal.get(lista1.get(1));
+    					if(x!=null){
+    						List<String> aux = new ArrayList<String>();
+    						aux.add(lista1.get(0));  // 0 es cliente interno
+    						aux.add(lista1.get(1));  	// 1 idbodega empresa
+    						aux.add(lista1.get(2));  	// 2 id de cliente
+    						aux.add(lista1.get(3));  	// 3 id del proyecto
+    						aux.add("");  				// 4 tipo de cliente interno o externo
+    						aux.add(lista1.get(5));  	// 5 nombre bodega o empresa
+    						aux.add(lista1.get(6));  	// 6 rut del cliente
+    						aux.add(lista1.get(7));  	// 7 nombre del cliente
+    						aux.add(lista1.get(8));  	// 8 nombre del proyecto
+    						aux.add(lista1.get(9));  	// 9 comuna
+    						aux.add("");  				// 10 factorViga
+    						aux.add(lista1.get(14)); 	// 11 nameSucursal
+    						datos.add(aux);
+	    				}
+    			}
+    			
     			con.close();
     			return ok(reporteMovimientosListaProyectosIE.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
         	} catch (SQLException e) {
@@ -1625,7 +1744,7 @@ public class MnuReportes extends Controller {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
 	       		String esVenta = form.get("esVenta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1657,7 +1776,7 @@ public class MnuReportes extends Controller {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 	       		String esVenta = form.get("esVenta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasIE(con, s.baseDato, id_bodegaEmpresa, esVenta);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -1692,7 +1811,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1723,7 +1842,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1751,7 +1870,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportExcedentes.reportExcedentesDetallePorProyecto(con, s.baseDato, id_bodegaEmpresa);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -1782,7 +1901,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1813,7 +1932,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		String id_equipo = form.get("id_equipo").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1842,7 +1961,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		String id_equipo = form.get("id_equipo").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportExcedentes.reportExcedentesEquiposDetalle(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, id_equipo);
@@ -1874,7 +1993,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1905,7 +2024,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1939,7 +2058,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 	    			List<TipoEstado> listTipoEstados = TipoEstado.allUsadosPorBodega(con, s.baseDato, bodega);
@@ -1976,7 +2095,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2010,7 +2129,7 @@ public class MnuReportes extends Controller {
 	       		String desdeAAMMDD = form.get("fechaDesde").trim();
 	       		String hastaAAMMDD = form.get("fechaHasta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2044,7 +2163,7 @@ public class MnuReportes extends Controller {
 	       		String desdeAAMMDD = form.get("desdeAAMMDD").trim();
 	       		String hastaAAMMDD = form.get("hastaAAMMDD").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportInventarios.reportInventarioPorEstadosPorPeriodo(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
@@ -2076,7 +2195,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2107,7 +2226,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2140,7 +2259,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -2172,7 +2291,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2202,7 +2321,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2229,7 +2348,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = ReportTrazabilidades.trazaEquipo(con, s.baseDato, id_equipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 	    			File file = ReportTrazabilidades.trazaEquipoExcel(s.baseDato, datos, mapeoDiccionario);
@@ -2259,7 +2378,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2296,7 +2415,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2335,7 +2454,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2365,7 +2484,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2404,7 +2523,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2443,7 +2562,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2473,7 +2592,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2507,7 +2626,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2537,7 +2656,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2567,7 +2686,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2594,7 +2713,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2627,7 +2746,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -2670,7 +2789,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2703,7 +2822,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		List<String> listIdGrupos = form.listIdGrupos;
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
 	    			String vistaCheckBox = "";
 	    			vistaCheckBox = "<h6>GRUPOS:</h6>";
@@ -2732,7 +2851,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2794,7 +2913,7 @@ public class MnuReportes extends Controller {
 	       		}
 	       		
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			List<Grupo> listGrupos = Grupo.allFiltroPorId(con, s.baseDato, listIdGruposAll.toString().substring(1,listIdGruposAll.toString().length()-1));
 	    			List<BodegaEmpresa> listBodegas = BodegaEmpresa.allFiltroPorId(con, s.baseDato, listIdBodegasAll.toString().substring(1,listIdBodegasAll.toString().length()-1));
@@ -2835,7 +2954,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2865,7 +2984,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2908,7 +3027,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3063,7 +3182,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	    		
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -3144,7 +3263,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	    			
 	    		try {
-	        		Connection con = db.getConnection();
+	        		Connection con = dbRead.getConnection(dbRead);
 	        		
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3197,10 +3316,15 @@ public class MnuReportes extends Controller {
 	    			tasaCambio.add(eur);
 	    			
 	    			
+	    			String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+	    			
+	    			
+	    			
 	    			con.close();
 		    		return ok(reportFacturaProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,idTipoUsuario,
 		    				inicioPer,guiasPer,fechas,bodega,proyecto,tasaCambio,
-		    				resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias));
+		    				resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias,
+		    				oc));
 	    		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -3235,7 +3359,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	    		
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -3310,7 +3434,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	    			
 	    		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbWrite.getConnection();
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -3344,7 +3468,6 @@ public class MnuReportes extends Controller {
 	    			tasaCambio.add(usd);
 	    			tasaCambio.add(eur);
 	    			Fechas hoy = Fechas.hoy();
-	    			
 	    			Proforma proforma = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
 	    			  proforma.setFecha(hoy.getFechaStrAAMMDD());
 					  proforma.setDesde(desdeAAMMDD);
@@ -3389,17 +3512,20 @@ public class MnuReportes extends Controller {
 					}
 	 	            
 	 	           String archivoPDF = "0";
+	 	           String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+	 	           
+	 	           
 	 	           if(esVenta.equals("0")) {
 	 	        	   // genera PDF de arriendo, XML, JSON y guarda json en proforma
 	 	        	   	proforma.setTipo(mapeoDiccionario.get("Arriendo"));
 	 	        	    String conDetalle = mapeoPermiso.get("parametro.proformaInvConCompra");
 		 	            archivoPDF = FormFactura.generaProformaArriendo(con, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-								resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, guiasPer, mapReportPorGuia10, finalPer, uf, usd, eur);
+								resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, guiasPer, mapReportPorGuia10, finalPer, uf, usd, eur, oc);
 	    			}else {
 	    				// genera PDF de venta, XML, JSON y guarda json en proforma
 	    				proforma.setTipo("Venta");
 			 	        archivoPDF = FormFactura.generaProformaVenta(con, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-								cliente,proforma,referencias,detalleAjuste, guiasPer, mapReportPorGuia10);
+								cliente,proforma,referencias,detalleAjuste, guiasPer, mapReportPorGuia10, oc);
 	    			}
 	 	           
 	    		
@@ -3428,7 +3554,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3474,7 +3600,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3511,7 +3637,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			
@@ -3599,7 +3725,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 	    		
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -3690,7 +3816,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3725,7 +3851,7 @@ public class MnuReportes extends Controller {
 	       		
 	       		Long meses = Long.parseLong(form.get("cantMeses").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3783,7 +3909,7 @@ public class MnuReportes extends Controller {
 	       		Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 		    	Long meses = Long.parseLong(form.get("cantMeses"));
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
@@ -3815,7 +3941,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3850,7 +3976,7 @@ public class MnuReportes extends Controller {
 	       		
 	       		Long meses = Long.parseLong(form.get("cantMeses").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3972,7 +4098,7 @@ public class MnuReportes extends Controller {
 	       		Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 		    	Long meses = Long.parseLong(form.get("cantMeses"));
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
@@ -4004,7 +4130,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4039,7 +4165,7 @@ public class MnuReportes extends Controller {
 	       		
 	       		Long meses = Long.parseLong(form.get("cantMeses").trim());
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4163,7 +4289,7 @@ public class MnuReportes extends Controller {
 	       		Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 		    	Long meses = Long.parseLong(form.get("cantMeses"));
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
@@ -4197,7 +4323,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4247,7 +4373,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long year = Long.parseLong(form.get("year"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			if(mapeoPermiso.get("proformaListado")==null) {
@@ -4287,7 +4413,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4320,7 +4446,7 @@ public class MnuReportes extends Controller {
     		 
     		FormXmlFactura form = formFactory.form(FormXmlFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 	       		try {
-		       		Connection con = db.getConnection();
+		       		Connection con = dbRead.getConnection(dbRead);
 		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		       		Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 		       		FormXmlFactura.grabarReferencias(s.baseDato, mapeoPermiso, proforma.proformaXml, form);
@@ -4364,7 +4490,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			String rs = ApiManagerDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma);
 	    			con.close();
@@ -4389,7 +4515,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			Long id_guia = (long)0;
 	    			String rs = ApiNuboxDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
@@ -4416,7 +4542,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			Long id_guia = (long)0;
 	    			String rs = ApiSapConconcreto.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
@@ -4444,7 +4570,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4477,7 +4603,7 @@ public class MnuReportes extends Controller {
     		 
     		FormXmlFactura form = formFactory.form(FormXmlFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 	       		try {
-		       		Connection con = db.getConnection();
+		       		Connection con = dbWrite.getConnection();
 		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		       		Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 		       		String xmlStr = FormXmlFactura.grabarReferencias(s.baseDato, mapeoPermiso, proforma.proformaXml, form);
@@ -4545,7 +4671,7 @@ public class MnuReportes extends Controller {
 				}
 				
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
 	    			
@@ -4583,7 +4709,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
 	       			String nroIntFactura = WebMaximise.downOrderMaximise(con, s.baseDato, ws, emisorTributario, nroIntOrden);
 	       			
@@ -4616,7 +4742,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			Proforma.eliminaProforma(con, s.baseDato, id_proforma);
     				con.close();
 	       			return (proformaLista(request, (long)0));
@@ -4642,7 +4768,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4673,7 +4799,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodega = Long.parseLong(form.get("id_bodega"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4703,7 +4829,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			String path = "0";
 					if (docAdjunto != null) {
 						String nombreArchivoSinExtencion = "Ajuste-ID-" + id_ajuste;
@@ -4734,7 +4860,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4763,7 +4889,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			if(AjustesEP.update(con, s.baseDato, form)) {
 	    				AjustesEP ajuste = AjustesEP.find(con, s.baseDato, form.id, s.aplicaPorSucursal, s.id_sucursal);
 	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", form.id, "update", "modifica ajuste de ep en bodega "+ajuste.bodegaEmpresa);
@@ -4793,7 +4919,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			if(AjustesEP.delete(con, s.baseDato, id_ajuste)) {
 	    				AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
 	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "delete", "elimina ajuste de ep en bodega "+ajuste.bodegaEmpresa);
@@ -4823,7 +4949,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodega = Long.parseLong(form.get("id_bodega"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4854,7 +4980,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	    			Connection con = db.getConnection();
+	       			Connection con = dbWrite.getConnection();
 	    			if(AjustesEP.create(con, s.baseDato, form)) {
 	    				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, form.id_bodegaEmpresa);
 	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", (long)0, "create", "agrega nuevo ajuste de ep en bodega "+bodega.getNombre());
@@ -4884,7 +5010,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4917,7 +5043,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodega = Long.parseLong(form.get("id_bodega"));
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4944,7 +5070,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -4977,7 +5103,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	    			Connection con = db.getConnection();
+	    			Connection con = dbRead.getConnection(dbRead);
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5008,7 +5134,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5041,7 +5167,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			List<List<String>> lista = ReportHohe.datos(con, s.baseDato, fechaDesde, fechaHasta);
 	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReportTodo.xlsx");
 	       			File file = ReportHohe.reporteHoheExcel(fechaDesde, fechaHasta, lista, formato);
@@ -5067,7 +5193,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5100,7 +5226,7 @@ public class MnuReportes extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			List<List<String>> lista = ReportHohe.datosResumen(con, s.baseDato, fechaDesde, fechaHasta);
 	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReportResumen.xlsx");
 	       			File file = ReportHohe.reporteHoheResumenExcel(fechaDesde, fechaHasta, lista, formato);
@@ -5126,7 +5252,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5151,7 +5277,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5181,7 +5307,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReporteInventarioMatriz.xlsx");
 	       			File file = ReportHohe.listaMatrizEquiposHOHE0(con, s.baseDato, fechaCorte, formato);
 	    			if(file!=null) {
@@ -5211,7 +5337,7 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReporteInventarioMatriz.xlsx");
 	       			File file = ReportHohe.listaMatrizEquiposHOHE0Coti(con, s.baseDato, fechaCorte, formato);
 	    			if(file!=null) {
@@ -5236,7 +5362,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5265,7 +5391,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReporteEstadoCotiOt.xlsx");
 	       			List<List<String>> datos = ReportHohe.estadoOtDespachos(con, s.baseDato);
 	       			File file = ReportHohe.estadoCotiOtExcel(datos, formato);
@@ -5291,7 +5417,7 @@ public class MnuReportes extends Controller {
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		try {
-    			Connection con = db.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -5320,7 +5446,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		try {
-	       			Connection con = db.getConnection();
+	       			Connection con = dbRead.getConnection(dbRead);
 	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReporteEstadoCotiSinOt.xlsx");
 	       			List<List<String>> datos = ReportHohe.estadoCotiConfYnoConfSinOt(con, s.baseDato);
 	       			File file = ReportHohe.estadoCotiSinOtExcel(datos, formato);

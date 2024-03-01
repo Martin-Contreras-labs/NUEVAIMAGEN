@@ -940,10 +940,11 @@ public class Movimiento {
             	}
             }
             if(flag) {
-            	mensaje.set(0,"true");
+            	mensaje.add("true");
             }
         } catch (Exception e) {
-			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
+        	e.printStackTrace();
+			mensaje.add("ARCHIVO NO CORRESPONDE A LA PLANTILLA");
         	return (mensaje);
         }
 		return(mensaje);

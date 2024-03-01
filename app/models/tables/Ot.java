@@ -816,6 +816,11 @@ public class Ot {
 			"<tbody>";
 		
 		Map<Long,Double> mapDespachado = OtDespachado.mapSumaDespachadoPorIdOtCantEquiv(con, db, ot.getId());
+		
+		Double cantOrigen = (double)0;
+		Double cantSaldo = (double)0;
+		Double cantDesp = (double)0;
+		Double cantEquiv = (double)0;
 					
 		for(int i=0;i<detalleOrigen.size();i++){
 			Double cant = Double.parseDouble(detalleOrigen.get(i).getCantidad().replaceAll(",", ""));
@@ -831,6 +836,11 @@ public class Ot {
 			if((long) detalleOrigen.get(i).esVenta == (long) 1){
 				concepto = "Venta";
 			}
+			
+			cantOrigen += cant;
+			cantSaldo += saldoPorDespachar;
+			
+			
 			vista += 
 			"<TR>"+
 				"<td style= 'text-align: left;'>"+detalleOrigen.get(i).getGrupo()+"</td>"+
@@ -855,17 +865,18 @@ public class Ot {
 					}
 				}
 				vista += "</td>"+
-				"<td style= 'text-align: center;' style= 'text-align: center;' title='Unidad'>";
+				"<td style= 'text-align: center;' title='Unidad'>";
 				for(int k=0;k<detalleDespacho.size();k++){
 					if(detalleOrigen.get(i).getId_equipo().toString().equals(detalleDespacho.get(k).get(1))) {
 						vista += detalleDespacho.get(k).get(5)+"<br>";
 					}
 				}
 				vista += "</td>"+
-				"<td style= 'text-align: right;' style= 'text-align: center;' title='Cantidad despachada'>";
+				"<td style= 'text-align: right;'  title='Cantidad despachada'>";
 				for(int k=0;k<detalleDespacho.size();k++){
 					if(detalleOrigen.get(i).getId_equipo().toString().equals(detalleDespacho.get(k).get(1))) {
 						vista += detalleDespacho.get(k).get(6)+"<br>";
+						cantDesp += Double.parseDouble(detalleDespacho.get(k).get(6).replaceAll(",", ""));
 					}
 				}
 				vista += "</td>"+
@@ -873,6 +884,7 @@ public class Ot {
 				for(int k=0;k<detalleDespacho.size();k++){
 					if(detalleOrigen.get(i).getId_equipo().toString().equals(detalleDespacho.get(k).get(1))) {
 						vista += detalleDespacho.get(k).get(7)+"<br>";
+						cantEquiv += Double.parseDouble(detalleDespacho.get(k).get(7).replaceAll(",", ""));
 					}
 				}
 				vista += "</td>"+
@@ -880,6 +892,20 @@ public class Ot {
  			}
 			vista=vista+
 				"</tbody>"+
+				"<tfoot>"+
+					"<td></td>"+
+					"<td></td>"+
+					"<td></td>"+
+					"<td></td>"+
+					"<td style= 'text-align: right;'>"+myformatdouble2.format(cantOrigen)+"</td>"+
+					"<td></td>"+
+					"<td style= 'text-align: right;'>"+myformatdouble2.format(cantSaldo)+"</td>"+
+					"<td></td>"+
+					"<td></td>"+
+					"<td></td>"+
+					"<td style= 'text-align: right;'>"+myformatdouble2.format(cantDesp)+"</td>"+
+					"<td style= 'text-align: right;'>"+myformatdouble2.format(cantEquiv)+"</td>"+
+				"</tfoot>"+
 				"</table>"+
 				"</div>";
 		return(vista);
@@ -2126,6 +2152,7 @@ public class Ot {
 		Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, db);
 		Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAllConOt(con, db);
 		Map<Long,OtEstado> mapEstado = OtEstado.mapAll(con, db);
+		Map<Long, Double> mapSaldos = CotizaDetalle.mapIdCotiVsSaldo(con, db);
 		if(esPorSucursal.equals("1")) {
 			listadoOt.forEach(x->{
 				if(x.id_sucursal.toString().equals(id_sucursal)) {
@@ -2180,6 +2207,13 @@ public class Ot {
     				aux.add(x.getFechaActualizacion());			// 17 getFechaActualizacion
     				aux.add(x.getFechaEnvio());					// 18 getFechaEnvio
     				aux.add(x.getFechaConfirmada());			// 19 fecha confirmada OT
+    				Double saldo = mapSaldos.get(x.getId_cotizacion());
+    				if(saldo!=null) {
+    					aux.add(saldo.toString());		// 20 saldos por despachar
+    				}else {
+    					aux.add("---");		// 20 saldos por despachar
+    				}
+    				aux.add(x.getNotaOtEstado());			//21 NotaOtEstado
 					listOt.add(aux);
 				}
 			});
@@ -2236,6 +2270,14 @@ public class Ot {
 				aux.add(x.getFechaActualizacion());			// 17 getFechaActualizacion
 				aux.add(x.getFechaEnvio());					// 18 getFechaEnvio
 				aux.add(x.getFechaConfirmada());			// 19 fecha confirmada OT
+				Double saldo = mapSaldos.get(x.getId_cotizacion());
+				if(saldo!=null) {
+					aux.add(saldo.toString());		// 20 saldos por despachar
+				}else {
+					aux.add("---");		// 20 saldos por despachar
+				}
+				aux.add(x.getNotaOtEstado());			//21 NotaOtEstado
+				listOt.add(aux);
 				listOt.add(aux);
 			});
 		}

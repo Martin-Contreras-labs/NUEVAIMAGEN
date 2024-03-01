@@ -4,7 +4,8 @@ fechas: List[String],
 bodega: tables.BodegaEmpresa, proyecto: tables.Proyecto, tasaCambio: List[Double],
 resumenSubtotales: List[List[String]], id_bodegaEmpresa: Long, finalPer: List[List[String]], cliente: tables.Cliente,
 detalleAjuste: List[List[String]],
-mapReportPorGuia10: Map[String,List[List[String]]], cantDec: Long, listReferencias: List[tables.TipoReferencia])
+mapReportPorGuia10: Map[String,List[List[String]]], cantDec: Long, listReferencias: List[tables.TipoReferencia],
+oc: String)
 
 	<!-- ANCLA CABECERAS DE TABLAS -->
 	<style type="text/css"> 
@@ -194,7 +195,7 @@ mapReportPorGuia10: Map[String,List[List[String]]], cantDec: Long, listReferenci
 			
 			<table class="table table-sm table-bordered table-condensed table-fluid">
 					 <TR> 
-						<td colspan="3" style= "text-align: left; vertical-align:top;">
+						<td width="44%" colspan="3" style= "text-align: left; vertical-align:top;">
 							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
 								@if(!cliente.rut.equals(null)){
 									<tr style= "background-color: #F2F5A9;">
@@ -269,8 +270,8 @@ mapReportPorGuia10: Map[String,List[List[String]]], cantDec: Long, listReferenci
 								</tr>
 							</table>
 						</td>
-						<td>&nbsp;</td>
-						<td colspan="7" style= "text-align: left;">
+						<td width="2%">&nbsp;</td>
+						<td width="44%" colspan="7" style= "text-align: left;">
 							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
 								<tr>
 									<th colspan="2">TOTAL NETO (CFI + @mapDiccionario.get("ARRIENDO") + VENTA NETO + AJUSTES)</th>
@@ -316,6 +317,9 @@ mapReportPorGuia10: Map[String,List[List[String]]], cantDec: Long, listReferenci
 									<th  width="15%" style="text-align:right;"><div id="resumenTotal02"></div></th>
 									<th  width="15%" style="text-align:right;"><div id="resumenTotal12"></div></th>
 									<th  width="15%" style="text-align:right;"><div id="resumenTotal22"></div></th>
+								</tr>
+								<tr>
+									<td colspan="4" style= "text-align: left;">@oc<td>
 								</tr>
 							</table>
 						</td>

@@ -200,6 +200,7 @@ public class ModeloCalculo {
 		
 		//SUMA INVENTARIO INICIAL MAS GUIAS Y APLICA LOS AJUSTES A ESTADOS DE PAGO
 		Map<Long,Calc_AjustesEP> mapResumenAjustePorBodega = Calc_AjustesEP.mapResumenAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD);
+		
 		for (Long v : listaBodegas.values()) {
 			
 			Double totVenta = (double) 0, totArriendo = (double) 0, totCfi = (double) 0, totTot = (double) 0;
@@ -257,15 +258,12 @@ public class ModeloCalculo {
 			aux.maestroTotalArriendo = maestroTotArriendo;
 			aux.maestroTotalCfi = maestroTotCfi;
 			aux.maestroTotalTotal = aux.maestroTotalVenta + aux.maestroTotalArriendo + aux.maestroTotalCfi;
-			
-			
-			
+
 			
 			if(totArriendo +  totVenta > 0) {
 				listado.add(aux);
 			}
 		}
-		
 		
 		return(listado);
 	}

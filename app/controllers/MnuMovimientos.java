@@ -63,7 +63,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	
 	
 	
-	public static Database db = HomeController.db;
+	public static Database db = HomeController.dbWrite;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;

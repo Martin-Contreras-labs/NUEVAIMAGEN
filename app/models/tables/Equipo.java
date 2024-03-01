@@ -1,5 +1,8 @@
 package models.tables;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +14,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.util.TempFile;
+
 import models.forms.FormEquipoGraba;
+import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 
@@ -560,6 +579,410 @@ public class Equipo {
 		return (flag);
 	}
 	
+	public static File allExcel(String db, Map<String,String> mapDiccionario, 
+			List<Equipo> listEquipos, Map<Long,Double> mapStock, Map<Long,List<String>> mapUbicacion, Map<Long,List<String>> mapPCompra,
+			List<List<String>> listAtribGroup, Map<String,List<String>> mapAtributos) {
+		File tmp = TempFile.createTempFile("tmp","null");
+				
+				try {
+					String path = "formatos/excel.xlsx";
+					InputStream formato = Archivos.leerArchivo(path);
+		            Workbook libro = WorkbookFactory.create(formato);
+		            formato.close();
+		            
+		            // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+		            CellStyle titulo = libro.createCellStyle();
+		            Font font = libro.createFont();
+		            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		            font.setColor((short)4);
+		            font.setFontHeight((short)(14*20));
+		            titulo.setFont(font);
+		            
+		            CellStyle subtitulo = libro.createCellStyle();
+		            Font font2 = libro.createFont();
+		            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		            font2.setColor((short)0);
+		            font2.setFontHeight((short)(12*20));
+		            subtitulo.setFont(font2);
+		            
+		            CellStyle encabezado = libro.createCellStyle();
+		            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+		            encabezado.setBorderTop(CellStyle.BORDER_THIN);
+		            encabezado.setBorderRight(CellStyle.BORDER_THIN);
+		            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+		            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		            encabezado.setFillForegroundColor((short)19);
+		            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+		            
+		            CellStyle detalle = libro.createCellStyle();
+		            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+		            detalle.setBorderTop(CellStyle.BORDER_THIN);
+		            detalle.setBorderRight(CellStyle.BORDER_THIN);
+		            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+		            
+		            
+		            
+		            //titulos del archivo
+		            
+		            libro.setSheetName(0, "EQUIPOS");
+		            Sheet hoja1 = libro.getSheetAt(0);
+		            
+		            Row row = null;
+		            Cell cell = null;
+		            
+		            row = hoja1.createRow(1);
+		            cell = row.createCell(1);
+		            cell.setCellStyle(titulo);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("LISTADO DE EQUIPOS");
+					
+					row = hoja1.createRow(2);
+		            cell = row.createCell(1);
+		            cell.setCellStyle(subtitulo);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+					
+					row = hoja1.createRow(3);
+		            cell = row.createCell(1);
+		            cell.setCellStyle(subtitulo);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+					
+					
+					
+					//anchos de columnas
+					for(int i=1; i<100; i++) {
+						hoja1.setColumnWidth(i, 6*1000);
+					}
+					//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+					InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+		            byte[] bytes = IOUtils.toByteArray(x);
+		            x.close();
+		            int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+					Drawing draw = hoja1.createDrawingPatriarch();
+					CreationHelper helper = libro.getCreationHelper();
+					ClientAnchor anchor = helper.createClientAnchor();
+			        //set top-left corner for the image
+			        anchor.setCol1(9);
+			        anchor.setRow1(1);
+					Picture img = draw.createPicture(anchor, pngIndex);
+					img.resize(0.4);
+					hoja1.createFreezePane(0, 0, 0,0);
+					
+					
+					// encabezado de la tabla
+					
+					int posRow = 8;
+					
+					row = hoja1.createRow(posRow);
+					int posCell = 0;
+					
+					posCell++;
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(titulo);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("LISTADO:");
+					
+					posRow += 2;
+					posCell = 0;
+					
+					row = hoja1.createRow(posRow);
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("VIGENTE");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("GRUPO");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("CODIGO");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("EQUIPO");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("FABRICANTE");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("UN");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("STOCK");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("UBICACION");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("Nro FACTURA");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("FECHA\nFACTURA");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("MONEDA");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("PRECIO\nCOMPRA");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("PROVEEDOR");
+					
+					
+					Row rowAtrib = hoja1.createRow(posRow-2);
+					Row rowNum = hoja1.createRow(posRow-1);
+					Row rowUn = row;
+					
+					for(List<String> atrib: listAtribGroup) {
+						posCell++;
+						cell = rowAtrib.createCell(posCell);
+			            cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(atrib.get(0));
+						
+						cell = rowNum.createCell(posCell);
+			            cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(atrib.get(1));
+						
+						cell = rowUn.createCell(posCell);
+			            cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(atrib.get(2));
+					}
+					
+					
+					
+					
+			        
+					for(int i=0;i<listEquipos.size();i++){
+									
+						posRow++;
+						posCell = 0;
+				        row = hoja1.createRow(posRow);
+								
+				        posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getVigente());
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getGrupo());
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getCodigo());
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getNombre());
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getFabrica());
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getUnidad());
+						
+						Double stock = mapStock.get(listEquipos.get(i).getId());
+						if(stock == null) {
+							stock = (double) 0;
+						}
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(stock);
+						
+						//mapStock, mapUbicacion
+						List<String> ubicacion = mapUbicacion.get(listEquipos.get(i).getId());
+						if(ubicacion != null) {
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(ubicacion.get(1));
+							
+						}else {
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+						}
+						
+						List<String> listCompra = mapPCompra.get(listEquipos.get(i).getId());
+						
+						if(listCompra != null) {
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(listCompra.get(3));
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(Fechas.DDMMAA(listCompra.get(2)));
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(listCompra.get(1));
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(Double.parseDouble(listCompra.get(0).replaceAll(",", "")));
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(listCompra.get(4));
+						}else {
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+						}
+						
+						for(List<String> atrib: listAtribGroup) {
+							List<String> list = mapAtributos.get(atrib.get(0)+"_"+listEquipos.get(i).getId());
+							if(list != null) {
+								
+								try {
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellStyle(detalle);
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(Double.parseDouble(list.get(2).replaceAll(",", "")));
+								}catch(Exception e) {
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellStyle(detalle);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(list.get(2));
+								}
+								
+								
+								
+								
+								
+								
+							}else {
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(detalle);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("");
+							}
+							
+						}
+						
+					}
+					
+					posRow = posRow + 5;
+					row = hoja1.createRow(posRow);
+					cell = row.createCell(1);
+					Hyperlink hiper = helper.createHyperlink(0);
+					hiper.setAddress("https://www.inqsol.cl");
+					cell.setHyperlink(hiper);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+
+					// Write the output to a file tmp
+					FileOutputStream fileOut = new FileOutputStream(tmp);
+					libro.write(fileOut);
+					fileOut.close();
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+		        }
+				
+				return tmp;
+			}
 		
 	
 	
