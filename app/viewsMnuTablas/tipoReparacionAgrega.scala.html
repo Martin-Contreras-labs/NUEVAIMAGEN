@@ -25,6 +25,7 @@ tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
 									name="sigla"
 									autocomplete="off"
 									maxlength="5"
+									onkeypress="return sinReservados(event)"
 									onchange="value = value.trim();verificaSigla(value, @tipoEstado.getId());"
 									required>
 							</td>
@@ -34,6 +35,7 @@ tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
 							<td style="text-align:left;">
 								<input type="text" class="form-control left"
 									name="nombre"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="50">
 							</td>

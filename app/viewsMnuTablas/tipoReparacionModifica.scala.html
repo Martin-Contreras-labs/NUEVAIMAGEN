@@ -22,6 +22,7 @@ tipoReparacion: tables.TipoReparacion, tipoEstado: tables.TipoEstado, listMoneda
 							<input type="text" class="form-control left"
 								id="sigla"
 								autocomplete="off"
+								onkeypress="return sinReservados(event)"
 								maxlength="5"
 								value = "@tipoReparacion.getSigla()"
 								onchange="modificarTipoReparacion(id)">
@@ -33,6 +34,7 @@ tipoReparacion: tables.TipoReparacion, tipoEstado: tables.TipoEstado, listMoneda
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
+								onkeypress="return sinReservados(event)"
 								maxlength="50"
 								value = "@tipoReparacion.getNombre()"
 								onchange="modificarTipoReparacion(id)">

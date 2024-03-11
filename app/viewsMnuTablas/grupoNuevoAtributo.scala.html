@@ -14,7 +14,12 @@ grupo: tables.Grupo, listUnidades: List[tables.Unidad])
 					<table class="table table-sm table-bordered table-condensed table-fluid">
 						<tr>
 							<td>NOMBRE ATRIBUTO</td>
-							<td><input type="text" class="form-control" name="nombreAtributo" maxlength="50" required></td>
+							<td><input type="text" class="form-control" 
+										name="nombreAtributo" 
+										maxlength="50" 
+										onkeypress="return sinReservados(event)"
+										required>
+							</td>
 						</tr>
 						<tr>
 				 			<td>UNIDAD DE MEDIDA: </td>

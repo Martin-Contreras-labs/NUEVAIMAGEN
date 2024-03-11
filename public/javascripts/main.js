@@ -131,7 +131,9 @@ function ingresoInt (e) {
 
 function sinReservados (e) {
     k = (document.getElementById) ? e.keyCode : e.which;
-    if (k!=47 && k!=92 && k!=44 && k!=39 && k!=34 && k!=96 && k!=32) return true;
+	//34 = " doble comilla
+	//32 = espacio
+    if (k!=47 && k!=92 && k!=44 && k!=39 && k!=96) return true;
     patron = /\d/;
     n = String.fromCharCode(k);
     return patron.test(n);

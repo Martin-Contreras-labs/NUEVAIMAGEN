@@ -3,7 +3,7 @@
 formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], numDecParaTot: String, listRegiones: List[tables.Regiones],
 jsonListUnTiempo: String,
 listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial], 
-jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion)
+jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion, iva: Double)
 
 
 
@@ -357,72 +357,6 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 						</div>
 					</div>
 					
-					<div id='modalFactorGlobal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
-							<div class='modal-content'>
-								<div class='modal-header'>
-								        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-								          <span aria-hidden='true'>&times;</span>
-								        </button>
-								</div>
-								<div class='modal-body'>
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">FACTOR SOBRE @mapDiccionario.get("ARRIENDO")</span>
-								  		</div>
-								  		<input type="text" class="form-control center"
-											id="factorGlobal"
-											value="0.0000"
-											onfocus="value = value.replace(/,/g,'')"
-											onkeypress="return ingresoDouble(event,value)"
-											autocomplete="off"
-											onchange="value = formatStandar(value,4); if(value=='') {value='0.0000';}">
-									</div>
-									<br>
-									<div class='row'>
-										<div class='col-sm-12' style='text-align:center'>
-											<input type="button" class="btn btn-sm btn-primary" value='Aplicar' onclick='$("#modalFactorGlobal").modal("hide"); aplicarFactorGlobal();'>
-											<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div id='modalFactorGlobalRepos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
-							<div class='modal-content'>
-								<div class='modal-header'>
-								        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-								          <span aria-hidden='true'>&times;</span>
-								        </button>
-								</div>
-								<div class='modal-body'>
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">FACTOR SOBRE VTA/REPOS</span>
-								  		</div>
-								  		<input type="text" class="form-control center"
-											id="factorGlobalRepos"
-											value="0.0000"
-											onfocus="value = value.replace(/,/g,'')"
-											onkeypress="return ingresoDouble(event,value)"
-											autocomplete="off"
-											onchange="value = formatStandar(value,4); if(value=='') {value='0.0000';}">
-									</div>
-									<br>
-									<div class='row'>
-										<div class='col-sm-12' style='text-align:center'>
-											<input type="button" class="btn btn-sm btn-primary" value='Aplicar' onclick='$("#modalFactorGlobalRepos").modal("hide"); aplicarFactorGlobalRepos();'>
-											<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					
 					<div id='modalPermGlobal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
 							<div class='modal-content'>
@@ -455,6 +389,44 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 							</div>
 						</div>
 					</div>
+					
+					
+					
+					<div class="noprint" align="center">
+						<div id="importar" class="row justify-content-md-center" style="display: true;">
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnCopiaCoti" type="button"  value="Restablecer Precios" class="btn btn-info btn-sm rounded-pill btn-block" 
+									onclick="window.reload();">&nbsp;&nbsp;&nbsp;
+							</div>
+						</div>
+					</div>
+					
+					<div class="noprint" align="center">
+						<div id="importar" class="row justify-content-md-center" style="display: none;">
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnCopiaCoti" type="button"  value="Copiar desde otra cotización" class="btn btn-warning btn-sm rounded-pill btn-block" 
+									onclick="listadoCotizaciones()">&nbsp;&nbsp;&nbsp;
+							</div>
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+									onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
+							</div>
+							
+							
+
+						@if(mapPermiso.get("parametro.coti8columnas")!=null && mapPermiso.get("parametro.coti8columnas").equals("1")) {
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnImport8column" type="button"  value="Import 8 Columnas Excel" class="btn btn-primary btn-sm rounded-pill btn-block" 
+									onclick="$('#modalImport8column').modal('show');">&nbsp;&nbsp;&nbsp;
+							</div>
+						}
+			
+			
+			
+						</div>
+					</div>
+					
+					
 					
 					<div id="tblPrincipal"></div>
 				</div>
@@ -598,6 +570,9 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 
 <script type="text/javascript">
 
+	let factorVta = 1;
+	let factorArr = 1;
+
 	$(document).ready(function() {
 		
 		let jsonListUnTiempo = @Html(jsonListUnTiempo);
@@ -615,18 +590,41 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		
 		let tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
 			+ "	<thead style=\"background-color: #eeeeee\">"
-			+ "<TR><TH colspan=\"8\" style=\"background-color: white\"></TH><TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarFactorRepos\" type=\"button\"  value=\"Aplica Factor\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalFactorGlobalRepos\").modal(\"show\")'>"
+			+ "<TR><TH colspan=\"8\" style=\"background-color: white\"></TH>"
+			+ "<TH style=\"text-align:center\">"
+				+ "Aplica_Factor<br><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+						+ " style='background-color: #ffc107'"
+						+ " id=\"btnAplicarFactorRepos\""
+						+ " value=\"1.00\""
+						+ " onkeypress=\"return ingresoDouble(event,value)\""
+						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+						+ " onchange=\"if(value=='' || value==0) {"
+							+ " value = formatStandar(factorVta,2);"
+							+ "}else{"
+								+ " aplicarFactorGlobalRepos(value);"
+								+ " value = formatStandar(value,2);"
+							+ "}\">"
 			+ "</TH>"
 			+ "<TH style=\"background-color: white\"></TH>"
 			+ "<TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
+			+ "<br><input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
 			+ "</TH>"
 			+ "<TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarFactor\" type=\"button\"  value=\"Aplica Factor\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalFactorGlobal\").modal(\"show\")'>"
+				+ "Aplica_Factor<br><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+						+ " style='background-color: #ffc107'"
+						+ " id=\"btnAplicarFactorRepos\""
+						+ " value=\"1.00\""
+						+ " onkeypress=\"return ingresoDouble(event,value)\""
+						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+						+ " onchange=\"if(value=='' || value==0) {"
+							+ " value = formatStandar(factorArr,2);"
+							+ "}else{"
+								+ " aplicarFactorGlobal(value);"
+								+ " value = formatStandar(value,2);"
+							+ "}\">"
 			+ "</TH>"
 			+ "<TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarPerm\" type=\"button\"  value=\"Aplica Perm\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalPermGlobal\").modal(\"show\")'>"
+			+ "<br><input id=\"btnAplicarPerm\" type=\"button\"  value=\"Aplica Perm\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalPermGlobal\").modal(\"show\")'>"
 			+ "</TH>"
 			+ "<TH colspan=\"12\" style=\"background-color: white\"></TH>"
 			+ "</TR>"
@@ -854,6 +852,41 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 				+ "<TH style = \"display:none\"></TH>"
 				+ "<TH style = \"display:none\"></TH>"
 				+ "</TR>"
+				+ "<TR id='tIva' style='display:none'>"
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">IVA </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR id='tTotal' style='display:none'>"
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">TOTAL CON IVA </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
 				+ "</tfoot>"
 				+ "</table>";
 
@@ -1071,7 +1104,7 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		let sumaAux = parseFloat(granTotRepos) + parseFloat(granTotArrie) + parseFloat(granTotVenta);
 		if(sumaAux > 0){
 			let tabla = document.getElementById("tablaPrincipal");
-			for(i=2; i<tabla.rows.length-3; i++){
+			for(i=2; i<tabla.rows.length-5; i++){
 				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
 				let arr = tabla.rows[i].cells[13].innerHTML.replace(/,/g,'');
 				let vta = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
@@ -1079,6 +1112,22 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 					tabla.rows[i].style.display = 'none';
 				}
 			}
+			
+			let iva = parseFloat("@iva");
+			
+			$("#ivaRepos").text(formatStandar(granTotRepos*iva),'@numDecParaTot');
+			$("#ivaArrie").text(formatStandar(granTotArrie*iva),'@numDecParaTot');
+			$("#ivaVenta").text(formatStandar(granTotVenta*iva),'@numDecParaTot');
+			
+			$("#totalConIvaRepos").text(formatStandar(formatStandar(granTotRepos*(1+iva)),'@numDecParaTot'));
+			$("#totalConIvaArrie").text(formatStandar(formatStandar(granTotArrie*(1+iva)),'@numDecParaTot'));
+			$("#totalConIvaVenta").text(formatStandar(formatStandar(granTotVenta*(1+iva)),'@numDecParaTot'));
+			
+			@if(mapPermiso.get("parametro.cotizaciones-con-iva")!=null && mapPermiso.get("parametro.cotizaciones-con-iva").equals("1")){
+				document.getElementById('tIva').style.display = '';
+				document.getElementById('tTotal').style.display = '';
+			}
+			
 			verificando = 1;
 			document.getElementById('tfoot').style.display = '';
 			document.getElementById('modifica').style.visibility = 'visible';
@@ -1106,7 +1155,7 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 	
 	const modificaCotizacion = () =>{
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			tabla.rows[i].style.display = '';
 		}
 		$('#tablaPrincipal').DataTable({
@@ -1161,7 +1210,7 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 	     		});
 		}else{
 			let tabla = document.getElementById("tablaPrincipal");
-			for(i=2; i<tabla.rows.length-3; i++){
+			for(i=2; i<tabla.rows.length-5; i++){
 				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
 				let arr = tabla.rows[i].cells[13].innerHTML.replace(/,/g,'');
 				let vta = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
@@ -1219,7 +1268,7 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		let tasa = $("#tasaGlobal").val();
 		tasa = tasa.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'');
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let prepos = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
@@ -1240,12 +1289,12 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		});
 	}
 	
-	const aplicarFactorGlobal = () => {
+	const aplicarFactorGlobal = (valor) => {
 		$("#tablaPrincipal").dataTable().fnDestroy();
-		let factorGlobal = $("#factorGlobal").val();
-		factorGlobal = factorGlobal.replace(/,/g,'');
+		let factorGlobal = valor/factorArr;
+		factorArr = valor;
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
@@ -1269,12 +1318,12 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		});
 	}
 	
-	const aplicarFactorGlobalRepos = () => {
+	const aplicarFactorGlobalRepos = (valor) => {
 		$("#tablaPrincipal").dataTable().fnDestroy();
-		let factorGlobalRepos = $("#factorGlobalRepos").val();
-		factorGlobalRepos = factorGlobalRepos.replace(/,/g,'');
+		let factorGlobalRepos = valor/factorVta;
+		factorVta = valor;
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
@@ -1304,7 +1353,7 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		let permGlobal = $("#permGlobal").val();
 		permGlobal = permGlobal.replace(/,/g,'');
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');

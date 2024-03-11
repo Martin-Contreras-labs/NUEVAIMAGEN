@@ -21,6 +21,7 @@ coti: tables.CotizaEstado)
 									<input type="text" class="form-control"
 										id="estado"
 										maxlength="50"
+										onkeypress="return sinReservados(event)"
 										value="@coti.getEstado()"
 										onchange="value = value.trim(); modificarEstado(id)">
 								</div>

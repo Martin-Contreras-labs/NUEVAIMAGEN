@@ -22,6 +22,7 @@ sucursal: tables.Sucursal)
 										id="nombre"
 										maxlength="50"
 										value="@sucursal.getNombre()"
+										onkeypress="return sinReservados(event)"
 										onchange="value = value.trim(); modificarSucursal(id)">
 								</div>
 							</div>

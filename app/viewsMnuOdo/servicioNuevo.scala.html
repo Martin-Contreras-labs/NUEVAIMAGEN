@@ -43,6 +43,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 								<input type="text" class="form-control left"
 									name="nombre"
 									required
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100">
 							</td>

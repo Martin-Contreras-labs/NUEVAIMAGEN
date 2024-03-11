@@ -37,6 +37,7 @@ import models.tables.CotizaDetalle;
 import models.tables.CotizaEstado;
 import models.tables.CotizaSolucion;
 import models.tables.Cotizacion;
+import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Grupo;
 import models.tables.Guia;
@@ -212,9 +213,11 @@ public class MnuCotizar extends Controller {
     			
     			List<CotizaSolucion> listSoluciones = CotizaSolucion.all(con, s.baseDato);
     			
+    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+    			
     			con.close();
     			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,numDecParaTot,listRegiones, jsonListUnTiempo, 
-    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones));
+    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, emisor.tasaIva/100));
     			
         	} catch (SQLException e) {
     			e.printStackTrace();
@@ -707,9 +710,12 @@ public class MnuCotizar extends Controller {
 	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
 	    			
 	    			List<CotizaSolucion> listSoluciones = CotizaSolucion.all(con, s.baseDato);
+	    			
+	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+	    			
 	    			con.close();
 	    			return ok(cotizaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos, numDecParaTot, listRegiones, jsonListUnTiempo, 
-	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion));
+	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, emisor.tasaIva/100));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1602,7 +1608,8 @@ public class MnuCotizar extends Controller {
 		    			List<List<String>> resumen = Cotizacion.listCotiDetallePorCotiSelect(con, s.baseDato, mapeoDiccionario, listadoIdCoti);
 		    			Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 		    			Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
-		    			String tabla = Cotizacion.vistaModalVerCotiResumen(mapeoDiccionario, resumen, cliente, proyecto, mapeoPermiso);
+		    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+		    			String tabla = Cotizacion.vistaModalVerCotiResumen(mapeoDiccionario, resumen, cliente, proyecto, mapeoPermiso, emisor);
 	    				con.close();
 	    				return ok(cotizaListaResumen2.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla , cliente, listadoIdCoti, proyecto));
 	    			}
@@ -1650,8 +1657,8 @@ public class MnuCotizar extends Controller {
 		    				String path = s.baseDato+"/"+archivoPdf;
 							Archivos.grabarArchivo(pdfSin, path);
 	    				}
-	    				
-						File fileXls = CotizacionEnExcel.cotizacionEnExcelResumen(s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso);
+	    				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+						File fileXls = CotizacionEnExcel.cotizacionEnExcelResumen(s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso,emisor);
 						if(fileXls !=null) {
 							String archivoXls = "CotiResumenXls_"+id_cotiBiblioteca+".xlsx";
 		    				CotiBiblioteca.updateXlsConDetalle(con, s.baseDato, archivoXls, id_cotiBiblioteca);
@@ -1690,7 +1697,8 @@ public class MnuCotizar extends Controller {
 	    			List<List<String>> resumen = Cotizacion.listCotiDetallePorCotiSelect(con, s.baseDato, mapeoDiccionario, listadoIdCoti);
 	    			Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 	    			Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
-	    			File file = CotizacionEnExcel.cotizacionEnExcelResumen(s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso);
+	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+	    			File file = CotizacionEnExcel.cotizacionEnExcelResumen(s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso, emisor);
 		       		if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("Cotizacion.xlsx"));
@@ -2487,7 +2495,7 @@ public class MnuCotizar extends Controller {
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("otIngreso")==null) {
+    			if(mapeoPermiso.get("cotizaCambiarEstado")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -2521,7 +2529,7 @@ public class MnuCotizar extends Controller {
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("otIngreso")==null) {
+	    			if(mapeoPermiso.get("cotizaCambiarEstado")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
@@ -5625,6 +5633,8 @@ public class MnuCotizar extends Controller {
 		    	    			List<String> codigos = new ArrayList<String>();
 		    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
 		    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
+		    	    			Map<String,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempoPorNombre(con, s.baseDato);
+		    	    			Map<String,Long> mapCodEqVsIdUnTiempo = new HashMap<String,Long>();
 		    	    			
 		    					for(List<String> l: listaExcel) {
 									Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
@@ -5642,8 +5652,33 @@ public class MnuCotizar extends Controller {
 		    	    					newEquipos += "('"+l.get(1)+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"'),";
 		    	    					codigos.add(l.get(1));
 		    	    					selEquipos += "'"+l.get(1)+"',";
+		    	    					
+		    	    					UnidadTiempo unidadTiempo = mapUnidadTiempo.get(l.get(8));
+		    	    					if(unidadTiempo != null) {
+		    	    						mapCodEqVsIdUnTiempo.put(l.get(1), unidadTiempo.getId());
+		    	    						
+		    	    					}
+		    	    					
+		    	    					
+		    	    					
 		    	    				}
 		    					}
+		    					
+		    					Long idAuxUnTiempo = (long) 2;
+		    					PreparedStatement smtAux = con
+	    	    						.prepareStatement("select count(id_unidadTiempo), id_unidadTiempo from `"+s.baseDato+"`.precio group by id_unidadTiempo;");
+	    	    				ResultSet rsAux = smtAux.executeQuery();
+	    	    				Long aux = (long)0;
+	    	    				while(rsAux.next()) {
+	    	    					if(rsAux.getLong(1) > aux) {
+	    	    						aux = rsAux.getLong(1);
+	    	    						idAuxUnTiempo = rsAux.getLong(2);
+	    	    					}
+	    	    				}
+	    	    				smtAux.close();
+	    	    				rsAux.close();
+		    					
+		    					
 	    	    				if(newEquipos.length()>1) {
 		    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
 		    	    				PreparedStatement smt = con
@@ -5664,7 +5699,13 @@ public class MnuCotizar extends Controller {
 		    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
 		    	    				for(String x:idsEquipo){
 		    	    					for(Sucursal sucursal: listSucursal) {
-		    	    						datos += "("+x+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+sucursal.getId()+"),";
+		    	    						
+		    	    						Long id_unidadTiempo = mapCodEqVsIdUnTiempo.get(x);
+		    	    						if(id_unidadTiempo == null) {
+		    	    							id_unidadTiempo = idAuxUnTiempo;
+		    	    						}
+		    	    						
+		    	    						datos += "("+x+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0',"+id_unidadTiempo+",'0','0',"+sucursal.getId()+"),";
 		    	    					}
 		    	    					
 		    	    				}
@@ -5832,7 +5873,7 @@ public class MnuCotizar extends Controller {
 			    	    					
 		    	    						UnidadTiempo unidadTiempo = maUnTiempo.get(lexcel.get(8).trim());
 		    	    						if(unidadTiempo == null) {
-		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, (long)4);
+		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, idAuxUnTiempo);
 		    	    						}
 		    	    						listaConPrecio.get(i).set(9, unidadTiempo.getId().toString());
 		    	    						listaConPrecio.get(i).set(6, unidadTiempo.getNombre());
@@ -5891,10 +5932,12 @@ public class MnuCotizar extends Controller {
 		    	    			String jsonDetalle = Json.toJson(listaConPrecio).toString();
 		    	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
 		    	    			
+		    	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+		    	    			
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
-		    	    					jsonDetalle, listSoluciones));
+		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100));
 		    	    			
 		    					
 					} catch (SQLException e) {
@@ -6170,11 +6213,12 @@ public class MnuCotizar extends Controller {
 		    	    			String jsonDetalle = Json.toJson(listaConPrecio).toString();
 		    	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
 		    	    			
+		    	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 		    	    			
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
-		    	    					jsonDetalle, listSoluciones));
+		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100));
 		    	    			
 		    				}else {
 		    					con.close();

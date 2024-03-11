@@ -21,7 +21,7 @@ tabla: String, cliente: tables.Cliente, listadoIdCoti: String, proyecto: tables.
 						</form>
 					</div>
 					<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1">
-						<form action="/routes2/cotizaListaResumen2Excel/" method="POST" onsubmit="return validarForm();">
+						<form action="/routes2/cotizaListaResumen2Excel/" method="POST" onsubmit="return validarForm2();">
 							<input type="hidden" name="listadoIdCoti" value="@listadoIdCoti">
 							<input type="hidden" name="id_cliente" value="@cliente.getId()">
 							<input type="hidden" name="id_proyecto" value="@proyecto.getId()">
@@ -64,6 +64,10 @@ tabla: String, cliente: tables.Cliente, listadoIdCoti: String, proyecto: tables.
 	
 	const validarForm = () =>{
 		$("#btnSubmit1").attr('disabled',true);
+		return(true);
+	}
+	
+	const validarForm2 = () =>{
 		$("#btnSubmit2").attr('disabled',true);
 		return(true);
 	}

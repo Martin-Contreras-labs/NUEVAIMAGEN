@@ -30,6 +30,7 @@ listUsuarios: List[tables.Usuario])
 								<input type="text" class="form-control left"
 									name="nombre"
 									required
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="200">
 							</td>
@@ -40,6 +41,7 @@ listUsuarios: List[tables.Usuario])
 								<input type="text" class="form-control left"
 									name="cargo"
 									value=""
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100">
 							</td>

@@ -17,6 +17,7 @@ listRegiones: List[tables.Regiones])
 								<input type="text" class="form-control left"
 									name="nombre"
 									autocomplete="off"
+									onkeypress="return sinReservados(event)"
 									maxlength="100"
 									onchange="value = value.trim();">
 							</td>
@@ -27,6 +28,7 @@ listRegiones: List[tables.Regiones])
 								<input type="text" class="form-control left"
 									id="nickName"
 									name="nickName"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="50"
 									required

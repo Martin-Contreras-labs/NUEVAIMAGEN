@@ -17,6 +17,7 @@ listTipoUsuario: List[tables.UsuarioTipo], listEsPorProyecto: List[List[Long]])
 								<input type="text" class="form-control left"
 									id="userName"
 									name="userName"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100"
 									required

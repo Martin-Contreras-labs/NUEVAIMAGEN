@@ -65,6 +65,7 @@ equipo: tables.Equipo, listGrupos: List[tables.Grupo], listAtributos: List[table
 								id="nombre"
 								autocomplete="off"
 								value="@equipo.getNombre()"
+								onkeypress="return sinReservados(event)"
 								maxlength="100"
 								onchange="value = value.trim(); modificarEquipo(id)">
 						</td>

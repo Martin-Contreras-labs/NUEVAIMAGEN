@@ -39,6 +39,7 @@ cliente: tables.Cliente, listComunas: List[tables.Comunas], listRegiones: List[t
 								id="nickName"
 								autocomplete="off"
 								value="@cliente.getNickName()"
+								onkeypress="return sinReservados(event)"
 								maxlength="50"
 								onchange="value = value.trim(); modificarCliente(id)">
 						</td>

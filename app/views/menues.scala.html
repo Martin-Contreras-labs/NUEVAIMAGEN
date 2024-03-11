@@ -182,10 +182,17 @@
 									@if(mapPermiso.get("otIngreso")!=null){
 										<li><a class="dropdown-item" href="/otListaCotizaSinOt/">Hacer @mapDiccionario.get("OT")</a></li>
 										<a class="dropdown-item" href="/otListaEliminar/">Eliminar @mapDiccionario.get("OT")</a>
+									}
+									
+									@if(mapPermiso.get("cotizaCambiarEstado")!=null){
 										<a class="dropdown-item" href="/otListaCambiarEstadoPeriodo/">Cambiar Estado de @mapDiccionario.get("OT")</a>
+									}
+									
+									@if(mapPermiso.get("otIngreso")!=null){
 										<a class="dropdown-item" href="/otEstadoMantencion/">Admin Estados</a>
 										<a class="dropdown-item" href="/routes2/otAdminPrecios0/">Precios por @mapDiccionario.get("Bodega") (@mapDiccionario.get("OT"))</a>
 									}
+									
 									@if(mapPermiso.get("otRevisa")!=null){
 										<div class="dropdown-divider" style="border-color:black"></div>
 										<a class="dropdown-item" href="/routes2/otListaRevisarPeriodo/">Revisar/Imprimir @mapDiccionario.get("OT")</a>

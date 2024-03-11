@@ -418,6 +418,7 @@ listSucursales: List[tables.Sucursal], lista: List[List[String]])
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									id="nuevoEquipoNombre"
+									onkeypress="return sinReservados(event)"
 									required
 									autocomplete="off"
 									maxlength="100">

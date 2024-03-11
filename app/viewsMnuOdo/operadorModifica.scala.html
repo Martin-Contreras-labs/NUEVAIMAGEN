@@ -33,6 +33,7 @@ listUsuarios: List[tables.Usuario], operador: tables.OperadorServicio)
 									name="nombre"
 									value="@operador.getNombre()"
 									required
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="200">
 							</td>
@@ -43,6 +44,7 @@ listUsuarios: List[tables.Usuario], operador: tables.OperadorServicio)
 								<input type="text" class="form-control left"
 									name="cargo"
 									value="@operador.getCargo()"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100">
 							</td>

@@ -2278,7 +2278,6 @@ public class Ot {
 				}
 				aux.add(x.getNotaOtEstado());			//21 NotaOtEstado
 				listOt.add(aux);
-				listOt.add(aux);
 			});
 		}
 		

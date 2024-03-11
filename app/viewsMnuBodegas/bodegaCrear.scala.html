@@ -95,6 +95,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 									id="nombre"
 									name="nombre"
 									autocomplete="off"
+									onkeypress="return sinReservados(event)"
 									maxlength="100"
 									onchange="value = value.trim(); verificaNombre(value);"
 									required>

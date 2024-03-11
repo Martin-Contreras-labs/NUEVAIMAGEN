@@ -46,6 +46,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 								<input type="text" class="form-control left"
 									name="nombre"
 									value = "@servicio.getNombre()"
+									onkeypress="return sinReservados(event)"
 									required
 									autocomplete="off"
 									maxlength="100">

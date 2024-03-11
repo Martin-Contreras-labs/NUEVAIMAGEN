@@ -2,7 +2,7 @@
 formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto],  
 numDecParaTot: String, listRegiones: List[tables.Regiones], jsonListUnTiempo: String, 
 sucursal: tables.Sucursal, comercial: tables.Comercial, listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial],
-importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion])
+importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], iva: Double)
 
 @main("") {
 
@@ -351,72 +351,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 						</div>
 					</div>
 					
-					<div id='modalFactorGlobal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
-							<div class='modal-content'>
-								<div class='modal-header'>
-								        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-								          <span aria-hidden='true'>&times;</span>
-								        </button>
-								</div>
-								<div class='modal-body'>
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">FACTOR SOBRE @mapDiccionario.get("ARRIENDO")</span>
-								  		</div>
-								  		<input type="text" class="form-control center"
-											id="factorGlobal"
-											value="0.0000"
-											onfocus="value = value.replace(/,/g,'')"
-											onkeypress="return ingresoDouble(event,value)"
-											autocomplete="off"
-											onchange="value = formatStandar(value,4); if(value=='') {value='0.0000';}">
-									</div>
-									<br>
-									<div class='row'>
-										<div class='col-sm-12' style='text-align:center'>
-											<input type="button" class="btn btn-sm btn-primary" value='Aplicar' onclick='$("#modalFactorGlobal").modal("hide"); aplicarFactorGlobal();'>
-											<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div id='modalFactorGlobalRepos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
-							<div class='modal-content'>
-								<div class='modal-header'>
-								        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-								          <span aria-hidden='true'>&times;</span>
-								        </button>
-								</div>
-								<div class='modal-body'>
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">FACTOR SOBRE VTA/REPOS</span>
-								  		</div>
-								  		<input type="text" class="form-control center"
-											id="factorGlobalRepos"
-											value="0.0000"
-											onfocus="value = value.replace(/,/g,'')"
-											onkeypress="return ingresoDouble(event,value)"
-											autocomplete="off"
-											onchange="value = formatStandar(value,4); if(value=='') {value='0.0000';}">
-									</div>
-									<br>
-									<div class='row'>
-										<div class='col-sm-12' style='text-align:center'>
-											<input type="button" class="btn btn-sm btn-primary" value='Aplicar' onclick='$("#modalFactorGlobalRepos").modal("hide"); aplicarFactorGlobalRepos();'>
-											<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					
 					<div id='modalPermGlobal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
 							<div class='modal-content'>
@@ -707,6 +641,9 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 
 	let noCambiarPorSucursal = "0";
 	
+	let factorVta = 1;
+	let factorArr = 1;
+	
 	$(document).ready(function() {
 		
 		noCambiarPorSucursal = "@importDesdeExcel";
@@ -725,20 +662,46 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			escondeLosM2 = 1;
 		}
 		
+		
+		
 		let tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
 			+ "	<thead style=\"background-color: #eeeeee\">"
-			+ "<TR><TH colspan=\"8\" style=\"background-color: white\"></TH><TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarFactorRepos\" type=\"button\"  value=\"Aplica Factor\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalFactorGlobalRepos\").modal(\"show\")'>"
-			+ "</TH>"
-			+ "<TH style=\"background-color: white\"></TH>"
+			+ "<TR>"
+				+ "<TH colspan=\"8\" style=\"background-color: white\"></TH>"
+				+ "<TH style=\"text-align:center\">"
+					+ "Aplica_Factor<br><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+					+ " style='background-color: #ffc107'"
+					+ " id=\"btnAplicarFactorRepos\""
+					+ " value=\"1.00\""
+					+ " onkeypress=\"return ingresoDouble(event,value)\""
+					+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+					+ " onchange=\"if(value=='' || value==0) {"
+							+ " value = formatStandar(factorVta,2);"
+							+ "}else{"
+								+ " aplicarFactorGlobalRepos(value);"
+								+ " value = formatStandar(value,2);"
+							+ "}\">"
+				+ "</TH>"
+				+ "<TH style=\"background-color: white\"></TH>"
+				+ "<TH style=\"text-align:center\">"
+					+ "<br><input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
+				+ "</TH>"
 			+ "<TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
+				+ "Aplica_Factor<br><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+						+ " style='background-color: #ffc107'"
+						+ " id=\"btnAplicarFactorRepos\""
+						+ " value=\"1.00\""
+						+ " onkeypress=\"return ingresoDouble(event,value)\""
+						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+						+ " onchange=\"if(value=='' || value==0) {"
+							+ " value = formatStandar(factorArr,2);"
+							+ "}else{"
+								+ " aplicarFactorGlobal(value);"
+								+ " value = formatStandar(value,2);"
+							+ "}\">"
 			+ "</TH>"
 			+ "<TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarFactor\" type=\"button\"  value=\"Aplica Factor\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalFactorGlobal\").modal(\"show\")'>"
-			+ "</TH>"
-			+ "<TH style=\"text-align:center\">"
-			+ "<input id=\"btnAplicarPerm\" type=\"button\"  value=\"Aplica Perm\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalPermGlobal\").modal(\"show\")'>"
+			+ "<br><input id=\"btnAplicarPerm\" type=\"button\"  value=\"Aplica Perm\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalPermGlobal\").modal(\"show\")'>"
 			+ "</TH>"
 			+ "<TH colspan=\"12\" style=\"background-color: white\"></TH>"
 			+ "</TR>"
@@ -950,7 +913,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 				+ "<TR>"
 				+ "<TH colspan=\"5\" style= \"text-align: right;\">Total cantidad</TH>"
 				+ "<TH colspan=\"1\" style= \"text-align: right;\"><div id=\"granTotCant\">0.00</div></TH>"
-				+ "<TH colspan=\"7\" style= \"text-align: right;\">TOTALES </TH>"
+				+ "<TH colspan=\"7\" style= \"text-align: right;\">TOTAL NETO</TH>"
 				+ "<TH style=\"text-align:right;\"><div id=\"granTotRepos\">0.00</div></TH>"
 				+ "<TH style=\"text-align:right;\"><div id=\"granTotArrie\">0.00</div></TH>"
 				+ "<TH style=\"text-align:right;\"><div id=\"granTotVenta\">0.00</div></TH>"
@@ -961,6 +924,44 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			}else{
 				tabla +="<TH style = \"text-align:right;\"><div id=\"granTotM2\">0.00</div></TH>";
 			}
+			
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR id='tIva' style='display:none'>"
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">IVA </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR id='tTotal' style='display:none'>"
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">TOTAL CON IVA </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			
 			
 			tabla +="<TH style = \"display:none\"></TH>"
 				+ "<TH style = \"display:none\"></TH>"
@@ -1163,7 +1164,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		$("#totKg_"+id_equipo).text(formatStandar(totKg,2));
 		$("#totM2_"+id_equipo).text(formatStandar(totM2,2));
 		
-		
 		$("#hiddencantidad_"+id_equipo).text(cant);
 		$("#hiddenpuVentaRepos_"+id_equipo).text(uniVta);
 		$("#hiddenpuArriendo_"+id_equipo).text(uniArr);
@@ -1191,7 +1191,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		let sumaAux = parseFloat(granTotRepos) + parseFloat(granTotArrie) + parseFloat(granTotVenta);
 		if(sumaAux > 0){
 			let tabla = document.getElementById("tablaPrincipal");
-			for(i=2; i<tabla.rows.length-3; i++){
+			for(i=2; i<tabla.rows.length-5; i++){
 				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
 				let arr = tabla.rows[i].cells[13].innerHTML.replace(/,/g,'');
 				let vta = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
@@ -1199,6 +1199,22 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 					tabla.rows[i].style.display = 'none';
 				}
 			}
+			
+			let iva = parseFloat("@iva");
+			
+			$("#ivaRepos").text(formatStandar(granTotRepos*iva),'@numDecParaTot');
+			$("#ivaArrie").text(formatStandar(granTotArrie*iva),'@numDecParaTot');
+			$("#ivaVenta").text(formatStandar(granTotVenta*iva),'@numDecParaTot');
+			
+			$("#totalConIvaRepos").text(formatStandar(formatStandar(granTotRepos*(1+iva)),'@numDecParaTot'));
+			$("#totalConIvaArrie").text(formatStandar(formatStandar(granTotArrie*(1+iva)),'@numDecParaTot'));
+			$("#totalConIvaVenta").text(formatStandar(formatStandar(granTotVenta*(1+iva)),'@numDecParaTot'));
+			
+			@if(mapPermiso.get("parametro.cotizaciones-con-iva")!=null && mapPermiso.get("parametro.cotizaciones-con-iva").equals("1")){
+				document.getElementById('tIva').style.display = '';
+				document.getElementById('tTotal').style.display = '';
+			}
+			
 			verificando = 1;
 			document.getElementById('tfoot').style.display = '';
 			document.getElementById('modifica').style.visibility = 'visible';
@@ -1227,7 +1243,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	
 	const modificaCotizacion = () =>{
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			tabla.rows[i].style.display = '';
 		}
 		$('#tablaPrincipal').DataTable({
@@ -1294,7 +1310,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 				$("#tablaPrincipal").dataTable().fnDestroy();
 				let tableReg = document.getElementById("tablaPrincipal");
 				
-				for (let i = 2; i < tableReg.rows.length-3; i++){
+				for (let i = 2; i < tableReg.rows.length-5; i++){
 					let cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
 					let id_equipo = cellsOfRow[20].innerHTML;
 					
@@ -1394,7 +1410,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
      		});
 		}else{
 			let tabla = document.getElementById("tablaPrincipal");
-			for(i=2; i<tabla.rows.length-3; i++){
+			for(i=2; i<tabla.rows.length-5; i++){
 				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
 				let arr = tabla.rows[i].cells[13].innerHTML.replace(/,/g,'');
 				let vta = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
@@ -1526,7 +1542,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		let tasa = $("#tasaGlobal").val();
 		tasa = tasa.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'');
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let prepos = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
@@ -1546,12 +1562,12 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		});
 	}
 	
-	const aplicarFactorGlobal = () => {
+	const aplicarFactorGlobal = (valor) => {
 		$("#tablaPrincipal").dataTable().fnDestroy();
-		let factorGlobal = $("#factorGlobal").val();
-		factorGlobal = factorGlobal.replace(/,/g,'');
+		let factorGlobal = valor/factorArr;
+		factorArr = valor;
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
@@ -1575,12 +1591,12 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		});
 	}
 	
-	const aplicarFactorGlobalRepos = () => {
+	const aplicarFactorGlobalRepos = (valor) => {
 		$("#tablaPrincipal").dataTable().fnDestroy();
-		let factorGlobalRepos = $("#factorGlobalRepos").val();
-		factorGlobalRepos = factorGlobalRepos.replace(/,/g,'');
+		let factorGlobalRepos = valor/factorVta;
+		factorVta = valor;
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
@@ -1610,7 +1626,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		let permGlobal = $("#permGlobal").val();
 		permGlobal = permGlobal.replace(/,/g,'');
 		let tabla = document.getElementById("tablaPrincipal");
-		for(i=2; i<tabla.rows.length-3; i++){
+		for(i=2; i<tabla.rows.length-5; i++){
 			let id_equipo = tabla.rows[i].cells[20].innerHTML;
 			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
@@ -1669,7 +1685,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 					
 					let tabla = document.getElementById("tablaPrincipal");
 					
-					for(i=2; i<tabla.rows.length-3; i++){
+					for(i=2; i<tabla.rows.length-5; i++){
 						let id_equipo = tabla.rows[i].cells[20].innerHTML;
 						let nroDecimal = tabla.rows[i].cells[21].innerHTML;
 						

@@ -441,7 +441,7 @@ public class CotizaDetalle {
 					.prepareStatement("select " + 
 							" cotizaDetalle.id,id_cotizacion,id_equipo,id_moneda,precioVenta,precioReposicion,"+
 							" precioArriendo,id_unidadTiempo,cantidad,permanencia,esVenta," + 
-							" equipo.codigo,equipo.nombre,moneda.nickName,unidadTiempo.nombre,unidad.nombre,equipo.id_grupo,grupo.nombre" + 
+							" equipo.codigo,equipo.nombre,moneda.nickName,unidadTiempo.nombre,unidad.nombre,equipo.id_grupo,ifnull(grupo.nombre,'')" + 
 							" from `"+db+"`.cotizaDetalle" + 
 							" left join `"+db+"`.equipo on equipo.id=cotizaDetalle.id_equipo" + 
 							" left join `"+db+"`.moneda on moneda.id=cotizaDetalle.id_moneda" + 

@@ -22,6 +22,7 @@ proveedor: tables.Proveedor)
 							<td style="text-align:left;">
 								<input type="text" class="form-control left"
 									name="nombre"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100"
 									required>
@@ -32,6 +33,7 @@ proveedor: tables.Proveedor)
 							<td style="text-align:left;">
 								<input type="text" class="form-control left"
 									name="cargo"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100">
 							</td>

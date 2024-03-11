@@ -39,7 +39,8 @@ public class MovimHojaChequeo {
 	
 	
 	
-	public static File hojaChequeoAgrupadoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, List<TipoEstado> listTipoEstado) {
+	public static File hojaChequeoAgrupadoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, 
+			List<TipoEstado> listTipoEstado, String contactos, String sinCant) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -166,12 +167,15 @@ public class MovimHojaChequeo {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
+			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
+			
+			
 			
 			if(bodegaOrigen.esInterna != (long)1){
 				for(int i=0; i<listTipoEstado.size(); i++) {
@@ -246,12 +250,20 @@ public class MovimHojaChequeo {
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(6));
 				
-				posCell++; posColl++;
-	            cell = row.createCell(posCell);
-	            cell.setCellStyle(detalle);
-	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				cell.setCellValue(aux);
+				if(sinCant.equals("0")) {
+					posCell++; posColl++;
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+				}else {
+					posCell++; posColl++;
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				}
+				
 				
 				if(bodegaOrigen.esInterna!=1){
 					for(int j=0; j<listTipoEstado.size(); j++) {
@@ -266,6 +278,12 @@ public class MovimHojaChequeo {
 				posRow++;
  			}
 			
+			posRow++;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(contactos);
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
@@ -288,7 +306,8 @@ public class MovimHojaChequeo {
 	  return tmp;
 	}
 	
-	public static File hojaChequeoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, List<TipoEstado> listTipoEstado) {
+	public static File hojaChequeoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, 
+			List<TipoEstado> listTipoEstado, String contactos, String sinCant) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -506,12 +525,20 @@ public class MovimHojaChequeo {
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(8));
 				
-				posCell++; posColl++;
-	            cell = row.createCell(posCell);
-	            cell.setCellStyle(detalle);
-	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(9).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				cell.setCellValue(aux);
+				if(sinCant.equals("0")) {
+					posCell++; posColl++;
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(9).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+				}else {
+					posCell++; posColl++;
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				}
+				
 				
 				if(bodegaOrigen.esInterna!=1){
 					for(int j=0; j<listTipoEstado.size(); j++) {
@@ -526,6 +553,12 @@ public class MovimHojaChequeo {
 				posRow++;
  			}
 			
+			posRow++;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(contactos);
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);

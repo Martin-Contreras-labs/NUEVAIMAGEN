@@ -23,6 +23,7 @@ import models.forms.FormMovimiento;
 import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Comercial;
+import models.tables.ContactoBodegaEmpresa;
 import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
@@ -1856,8 +1857,11 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
+    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+    			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01", 
+    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
     			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
     			con.close();
     			return ok(hojaChequeoSelectBodegaAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
         	} catch (SQLException e) {
@@ -1919,8 +1923,19 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				return ok(mensajes.render("/hojaChequeoSelectBodegaAgrupado/",mensaje));
     			}
     			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+    			
+    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+    			String contactos = "CONTACTOS: ";
+           	   	if(listContactos.size() == 0) {
+           		   contactos="";
+           	   	}
+           	   	for(ContactoBodegaEmpresa c: listContactos) {
+           		 String nombre = c.getNombre().toLowerCase();
+           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+           	   	}
+           	   
     			con.close();
-    			return ok(hojaChequeoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado));
+    			return ok(hojaChequeoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -1975,7 +1990,20 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				}
 	    			});
 	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
-	    			File file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado);
+	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+	    			String contactos = "CONTACTOS: ";
+	           	   	if(listContactos.size() == 0) {
+	           		   contactos="";
+	           	   	}
+	           	   	for(ContactoBodegaEmpresa c: listContactos) {
+	           		 String nombre = c.getNombre().toLowerCase();
+	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+	           	   	}
+	           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
+	           	   	if(sinCant == null) {
+	           	   		sinCant = "0";
+	           	   	}
+	    			File file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, sinCant);
 		       		if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("HojaChequeoPorCodigo.xlsx"));
@@ -2006,8 +2034,12 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
+    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+    			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01", 
+    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
     			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
+    			
     			con.close();
     			return ok(hojaChequeoSelectBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
         	} catch (SQLException e) {
@@ -2074,8 +2106,17 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
     			}
     			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+    			String contactos = "CONTACTOS: ";
+           	   	if(listContactos.size() == 0) {
+           		   contactos="";
+           	   	}
+           	   	for(ContactoBodegaEmpresa c: listContactos) {
+           		 String nombre = c.getNombre().toLowerCase();
+           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+           	   	}
     			con.close();
-    			return ok(hojaChequeoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado));
+    			return ok(hojaChequeoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -2140,7 +2181,20 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
 	    			}
 	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
-	    			File file = MovimHojaChequeo.hojaChequeoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado);
+	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+	    			String contactos = "CONTACTOS: ";
+	           	   	if(listContactos.size() == 0) {
+	           		   contactos="";
+	           	   	}
+	           	   	for(ContactoBodegaEmpresa c: listContactos) {
+	           		 String nombre = c.getNombre().toLowerCase();
+	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+	           	   	}
+	           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
+	           	   	if(sinCant == null) {
+	           	   		sinCant = "0";
+	           	   	}
+	    			File file = MovimHojaChequeo.hojaChequeoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, sinCant);
 		       		if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("HojaChequeoPorCodigoYCoti.xlsx"));
@@ -2176,8 +2230,11 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
+    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+    			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01", 
+    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
     			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
     			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
     			con.close();
     			return ok(hojaChequeoSelectPorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas,listGrupos));
@@ -2251,13 +2308,22 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				}
 	    			});
 	    			if(listEquipBodOrigen.size()==0) {
-	    				String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia)";
+	    				String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia) con el o los grupos seleccionados";
 	    				con.close();
 	    				return ok(mensajes.render("/hojaChequeoSelectPorGrupo/",mensaje));
 	    			}
 	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+	    			String contactos = "CONTACTOS: ";
+	           	   	if(listContactos.size() == 0) {
+	           		   contactos="";
+	           	   	}
+	           	   	for(ContactoBodegaEmpresa c: listContactos) {
+	           		 String nombre = c.getNombre().toLowerCase();
+	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+	           	   	}
 	    			con.close();
-	    			return ok(hojaChequeoDetallePorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado, idGrupos));
+	    			return ok(hojaChequeoDetallePorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado, idGrupos, contactos));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -2324,11 +2390,25 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				}
 	    			});
 	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			
 	    			File file = null;
 	    			if(mapeoDiccionario.get("nEmpresa").equals("HOHE")) {
 	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsxSoloHOHE(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado);
 	    			}else {
-	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado);
+	    				List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+		    			String contactos = "CONTACTOS: ";
+		           	   	if(listContactos.size() == 0) {
+		           		   contactos="";
+		           	   	}
+		           	   	for(ContactoBodegaEmpresa c: listContactos) {
+		           		 String nombre = c.getNombre().toLowerCase();
+		           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+		           	   	}
+		           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
+		           	   	if(sinCant == null) {
+		           	   		sinCant = "0";
+		           	   	}
+	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado,contactos,sinCant);
 	    			}
 		       		if(file!=null) {
 		       			con.close();

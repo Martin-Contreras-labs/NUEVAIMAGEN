@@ -48,15 +48,7 @@ listaGuias: List[tables.Guia])
 										--
 									}
 								</td>
-								<td  style="text-align:center;">
-									@if(lista1.getNumeroCotizacion()!=0){
-										<a href="#" onclick="verCotizacion('@lista1.getId_cotizacion()')">
-											<kbd style="background-color: #73C6B6">@lista1.getNumeroCotizacion()</kbd>
-										</a>
-									}else{
-										--
-									}
-								</td>
+								<td  style="text-align:center;">@lista1.getNumeroCotizacion()</td>
 								<td  style="text-align:center;">@lista1.getNumero()</td>
 								<td  style="text-align:center;">@lista1.getNumGuiaCliente()</td>
 								<td  style="text-align:center;">

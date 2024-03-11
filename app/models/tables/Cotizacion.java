@@ -1535,11 +1535,11 @@ public class Cotizacion {
 								"<TH style='text-align: right;'>"+formatDecimal.format(totalReposicion)+"</TH>"+
 								"<TH style='text-align: right;'>"+formatDecimal.format(totalArriendo)+"</TH>"+
 								"<TH style='text-align: right;'>"+formatDecimal.format(totalVenta)+"</TH>"+
-								"<TH style='text-align:right;'>"+myformatdouble2.format(totalKG)+"</TH>";
+								"<TH style='text-align:right;'></TH>";
 								if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
-									vista += "<TH style='text-align:right; display:none;'>"+myformatdouble2.format(totalM2)+"</TH>";
+									vista += "<TH style='text-align:right; display:none;'></TH>";
 								}else {
-									vista += "<TH style='text-align:right;'>"+myformatdouble2.format(totalM2)+"</TH>";
+									vista += "<TH style='text-align:right;'></TH>";
 								}
 								vista += 
 						"</TR>"+
@@ -1576,7 +1576,50 @@ public class Cotizacion {
 							vista += "<TH style='text-align:right;'>"+myformatdouble2.format(totalM2)+"</TH>";
 						}
 						vista += 
-				"</TR>"+
+				"</TR>";
+				
+			
+			if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
+				EmisorTributario emisor = EmisorTributario.find(con, db);
+				vista=vista+		
+					"<TR>"+
+
+							"<TH colspan='4' style= 'text-align: right;'></TH>"+
+							"<TH colspan='1' style= 'text-align: right;'></TH>"+
+							"<TH colspan='6' style= 'text-align: right;'>IVA </TH>"+
+									
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalReposicion*emisor.getTasaIva()/100)+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalArriendoConDcto*emisor.getTasaIva()/100)+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalVentaConDcto*emisor.getTasaIva()/100)+"</div></TH>"+
+							"<TH style='text-align:right;'></TH>";
+							if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
+								vista += "<TH style='text-align:right; display:none;'></TH>";
+							}else {
+								vista += "<TH style='text-align:right;'></TH>";
+							}
+							vista += 
+					"</TR>"+
+					"<TR>"+
+
+							"<TH colspan='4' style= 'text-align: right;'></TH>"+
+							"<TH colspan='1' style= 'text-align: right;'></TH>"+
+							"<TH colspan='6' style= 'text-align: right;'>TOTAL CON IVA </TH>"+
+									
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalReposicion*(1+emisor.getTasaIva()/100))+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalArriendoConDcto*(1+emisor.getTasaIva()/100))+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalVentaConDcto*(1+emisor.getTasaIva()/100))+"</div></TH>"+
+							"<TH style='text-align:right;'></TH>";
+							if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
+								vista += "<TH style='text-align:right; display:none;'></TH>";
+							}else {
+								vista += "<TH style='text-align:right;'></TH>";
+							}
+							vista += 
+					"</TR>";
+			}
+				
+						
+			vista=vista+
 			"</tfoot>"+
 		"</table>";
 		return(vista);
@@ -2568,7 +2611,7 @@ public class Cotizacion {
 						+ " unidadTiempo.nombre as unidadTiempo, "
 						+ " cotizaDetalle.precioArriendo * (1-cotizacion.dctoArriendo) as puArriendo, "
 						+ " cotizaDetalle.permanencia, "
-						+ " if(cotizaDetalle.esVenta=1,0,cotizaDetalle.precioVenta * (1-cotizacion.dctoVenta) * cantidad) as reposicion, "
+						+ " cotizaDetalle.precioVenta * cantidad as reposicion, "
 						+ " if(cotizaDetalle.esVenta=1,0,cotizaDetalle.precioArriendo * (1-cotizacion.dctoArriendo) * cantidad * cotizaDetalle.permanencia) as arriendo, "
 						+ " if(cotizaDetalle.esVenta=0,0,cotizaDetalle.precioVenta * (1-cotizacion.dctoVenta) * cantidad) as venta, "
 						+ " equipo.id, "
@@ -2691,7 +2734,8 @@ public class Cotizacion {
 		return(lista);
 	}
 	
-	public static String vistaModalVerCotiResumen( Map<String,String> mapDiccionario, List<List<String>> resumen, Cliente cliente, Proyecto proyecto, Map<String,String> mapeoPermiso){
+	public static String vistaModalVerCotiResumen( Map<String,String> mapDiccionario, List<List<String>> resumen, Cliente cliente, 
+			Proyecto proyecto, Map<String,String> mapeoPermiso, EmisorTributario emisor){
 		String vista="";
 		
 		
@@ -2821,7 +2865,48 @@ public class Cotizacion {
 							vista += "<TH style='text-align:right;'>"+myformatdouble2.format(totalM2)+"</TH>";
 						}
 				vista +=
-				"</TR>"+
+				"</TR>";
+				
+				
+				if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
+					vista +=
+							"<TR>"+
+									"<TH colspan='8' style= 'text-align: right;'></TH>"+
+									"<TH colspan='1' style= 'text-align: right;'></TH>"+
+									"<TH colspan='6' style= 'text-align: right;'>IVA </TH>"+
+											
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalRepos*emisor.getTasaIva()/100)+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalArr*emisor.getTasaIva()/100)+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalVta*emisor.getTasaIva()/100)+"</div></TH>"+
+									"<TH style='text-align:right;'></TH>";
+									if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
+										vista += "<TH style='text-align:right; display:none'></TH>";
+									}else {
+										vista += "<TH style='text-align:right;'></TH>";
+									}
+						vista +=
+							"</TR>";
+						vista +=
+								"<TR>"+
+									"<TH colspan='8' style= 'text-align: right;'></TH>"+
+									"<TH colspan='1' style= 'text-align: right;'></TH>"+
+									"<TH colspan='6' style= 'text-align: right;'>TOTAL CON IVA </TH>"+
+											
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalRepos*(1+emisor.getTasaIva()/100))+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalArr*(1+emisor.getTasaIva()/100))+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalVta*(1+emisor.getTasaIva()/100))+"</div></TH>"+
+									"<TH style='text-align:right;'></TH>";
+									if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
+										vista += "<TH style='text-align:right; display:none'></TH>";
+									}else {
+										vista += "<TH style='text-align:right;'></TH>";
+									}
+						vista +=
+							"</TR>";
+				}
+				
+				
+			vista = vista +
 			"</tfoot>"+
 		"</table>";
 		return(vista);

@@ -22,6 +22,27 @@
 		</div>
 	</div>
 	
+	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class="modal-title">@mapDiccionario.get("ORDEN_DE_TRABAJO")</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">×</span>
+				        </button>
+			</div>
+			<div class="modal-body">
+				<div id="mostrarLaOt"></div>
+   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
 			<div class='modal-content'>
@@ -105,6 +126,7 @@
 		
 				let tabla="<table id=\"tablaPrincipal\"class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"+"<thead style=\"background-color:#eeeeee\">"
 				+"<TR>"+"<TH>TIPO</TH>"
+				+"<TH>Nro<br>"+'@mapDiccionario.get("OT")'+"</TH>"
 				+"<TH>Nro<br>COTI</TH>"
 				+"<TH>Nro<br>MOV</TH>"
 				+"<TH>Nro<br>REF</TH>"
@@ -120,17 +142,27 @@
 				+"<TH>ALBUM</TH>"
 				+"<TH>DEL</TH>"
 				+"</TR>"+"</thead>"+"<tbody>";
+				console.log(jsonGuias);
 				for(var i in jsonGuias){
 					tabla = tabla +
 					"<TR>"+
-						"<td style=\"text-align:left;\">"+jsonGuias[i]["tipoGuia"]
-						+"</td>"+
+						"<td style=\"text-align:left;\">"+jsonGuias[i]["tipoGuia"]+"</td>"+
+						
+						
+						"<td style=\"text-align:center;\">";
+							if(jsonGuias[i]["numeroCotizacion"]!="0"){
+								tabla+="<a href=\"#\"onclick=\"verOt('"+jsonGuias[i]["id_ot"]+"')\">"
+											+"<kbd style=\"background-color:#73C6B6\">"+jsonGuias[i]["numeroOt"]+"</kbd>"
+									  +"</a>";}else{tabla+="--";}
+						tabla+="</td>"+
+						
+						
+						
 					"<td style=\"text-align:center;\">";
 						if(jsonGuias[i]["numeroCotizacion"]!="0"){
-							tabla+="<a href=\"#\"onclick=\"verCotizacion('"+jsonGuias[i]["id_cotizacion"]+"')\">"
-										+"<kbd style=\"background-color:#73C6B6\">"+jsonGuias[i]["numeroCotizacion"]+"</kbd>"
-								  +"</a>";}else{tabla+="--";}tabla+="</td>"+"<td style=\"text-align:center;\">"+jsonGuias[i]["numero"]+
-					"</td>"
+							tabla+=jsonGuias[i]["numeroCotizacion"];}else{tabla+="--";}
+					tabla+="</td>"
+					+"<td style=\"text-align:center;\">"+jsonGuias[i]["numero"]+"</td>"
 					+"<td style=\"text-align:center;\">"
 						+jsonGuias[i]["numGuiaCliente"]
 					+"</td>"
@@ -159,7 +191,7 @@
 				$('#tablaPrincipal').DataTable({
 				    	"fixedHeader": true,
 				    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
-				    	"order": [[ 4, "desc" ]],
+				    	"order": [[ 5, "desc" ]],
 				    	"language": {
 				        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 				        }
@@ -201,6 +233,24 @@
 	     	success: function(respuesta){
 	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
 	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	const verOt = (id_ot) => {
+		var formData = new FormData();
+	  	formData.append('id_ot',id_ot);
+        $.ajax({
+            url: "/verOtAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaOt').innerHTML = respuesta;
+	     		$('#modalVerOt').modal('show');
 	     	}
         });
 	}

@@ -3052,7 +3052,8 @@ public class ReportFacturas {
 	}
 	
 	public static File exportaProformaExcelResumen(String db, Map<String,String> mapDiccionario, List<List<String>> proyectos, Fechas desde, Fechas hasta,
-			Double uf, Double usd, Double eur, List<List<String>> resumenTotales, List<List<String>> resumenPorGrupoYProyecto, List<List<String>> resumenPorProyectoGrupoYdetalle) {
+			Double uf, Double usd, Double eur, List<List<String>> resumenTotales, List<List<String>> resumenPorGrupoYProyecto, List<List<String>> resumenPorProyectoGrupoYdetalle,
+			Map<String,Equipo> mapEquipo) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -3138,7 +3139,7 @@ public class ReportFacturas {
 			
 			
 			//anchos de columnas
-			for(int i=1; i<17; i++) {
+			for(int i=1; i<18; i++) {
 				hoja1.setColumnWidth(i, 6*1000);
 			}
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
@@ -3774,7 +3775,7 @@ public class ReportFacturas {
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
 			        
-					for(int j=0;j<14;j++){
+					for(int j=0;j<15;j++){
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(encabezado);
@@ -3824,6 +3825,12 @@ public class ReportFacturas {
 							cell.setCellStyle(subtitulo);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("Nro.Coti");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("GRUPO");
 							
 							posCell++;
 							cell = row.createCell(posCell);
@@ -3935,6 +3942,12 @@ public class ReportFacturas {
 								cell = row.createCell(posCell);
 								cell.setCellStyle(subtitulo);
 								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("GRUPO");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellValue("CODIGO");
 								
 								posCell++;
@@ -4022,7 +4035,7 @@ public class ReportFacturas {
 									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(1));
 				        			
 									posCell++; 
-						            cell = row.createCell(posCell+13);
+						            cell = row.createCell(posCell+14);
 						            cell.setCellStyle(detalle);
 						            aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(14).replaceAll(",", ""));
 									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
@@ -4045,6 +4058,16 @@ public class ReportFacturas {
 									cell = row.createCell(posCell);
 									cell.setCellType(Cell.CELL_TYPE_STRING);
 									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(2));
+									
+									String nameGrupo = "";
+									Equipo equipo = mapEquipo.get(resumenPorProyectoGrupoYdetalle.get(i).get(3));
+									if(equipo != null) {
+										nameGrupo = equipo.getGrupo();
+									}
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(nameGrupo);
 									
 									posCell++;
 									cell = row.createCell(posCell);

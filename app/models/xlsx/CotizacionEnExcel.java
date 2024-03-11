@@ -28,6 +28,7 @@ import org.apache.poi.util.TempFile;
 import models.tables.Cliente;
 import models.tables.CotizaDetalle;
 import models.tables.Cotizacion;
+import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Proyecto;
 import models.utilities.Archivos;
@@ -558,15 +559,11 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalKG);
 							
 							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 								posCell++; posColl++;
 					            cell = row.createCell(posCell);
 					            cell.setCellStyle(detalle);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-								cell.setCellValue(totalM2);
 							}
 							
 							posRow++;
@@ -662,15 +659,11 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue("");
 							
 							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 								posCell++; posColl++;
 					            cell = row.createCell(posCell);
 					            cell.setCellStyle(detalle);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
-								cell.setCellValue("");
 							}
 							
 							posRow++;
@@ -784,6 +777,210 @@ public class CotizacionEnExcel {
 						
 						posRow++;
 						
+						if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
+							EmisorTributario emisor = EmisorTributario.find(con, db);
+							
+							row = hoja1.createRow(posRow);
+							posCell = 0;
+							posColl = 0;
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("IVA");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalReposicion*emisor.getTasaIva()/100);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalArriendoConDcto*emisor.getTasaIva()/100);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalVentaConDcto*emisor.getTasaIva()/100);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+								posCell++; posColl++;
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+							}
+							
+							posRow++;
+							
+							
+							row = hoja1.createRow(posRow);
+							posCell = 0;
+							posColl = 0;
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("TOTAL CON IVA");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalReposicion*(1+emisor.getTasaIva()/100));
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalArriendoConDcto*(1+emisor.getTasaIva()/100));
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalVentaConDcto*(1+emisor.getTasaIva()/100));
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+								posCell++; posColl++;
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+							}
+							
+							posRow++;
+						}
 						
 						
 						posRow = posRow + 5;
@@ -1802,7 +1999,7 @@ public class CotizacionEnExcel {
 	}
 		
 	public static File cotizacionEnExcelResumen(String db, List<List<String>> resumen, Cliente cliente, Map<String,String> mapDiccionario, 
-			Proyecto proyecto, Map<String,String> mapeoPermiso){
+			Proyecto proyecto, Map<String,String> mapeoPermiso, EmisorTributario emisor){
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -2335,6 +2532,248 @@ public class CotizacionEnExcel {
 						posRow++;
 						
 						
+						if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
+							row = hoja1.createRow(posRow);
+							posCell = 0;
+							posColl = 0;
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("IVA");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalRepos*emisor.getTasaIva()/100);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalArr*emisor.getTasaIva()/100);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalVta*emisor.getTasaIva()/100);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+								posCell++; posColl++;
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+							}
+							
+							posRow++;
+							row = hoja1.createRow(posRow);
+							posCell = 0;
+							posColl = 0;
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("TOTAL CON IVA");
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalRepos*(1+emisor.getTasaIva()/100));
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalArr*(1+emisor.getTasaIva()/100));
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalVta*(1+emisor.getTasaIva()/100));
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							
+							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+								posCell++; posColl++;
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+							}
+							
+							posRow++;
+						}
 						
 						posRow = posRow + 5;
 						row = hoja1.createRow(posRow);

@@ -35,7 +35,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 									required
 									autocomplete="off"
 									onkeypress="return sinReservados(event)"
-									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
+									onchange="value = value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
 									maxlength="50">
 							</td>
 						</tr>
@@ -44,6 +44,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									name="nombre"
+									onkeypress="return sinReservados(event)"
 									required
 									autocomplete="off"
 									maxlength="100">

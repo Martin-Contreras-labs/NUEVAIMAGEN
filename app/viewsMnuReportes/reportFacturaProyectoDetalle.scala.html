@@ -33,7 +33,8 @@ oc: String)
 							<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('formProforma').submit()">
 								GENERAR @mapDiccionario.get("PROFORMA")
 							</button>
-					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close' 
+									onclick='document.getElementById("btnArr").disabled=false; document.getElementById("btnVta").disabled=false;'>
 					          	<span aria-hidden='true'>&times;</span>
 					        </button>
 						</div>
@@ -149,8 +150,8 @@ oc: String)
 							@if(!idTipoUsuario.equals("7")){
 								<div align="right">
 											HACER @mapDiccionario.get("PROFORMA"): 
-										<button type="button" class="btn btn-mini btn-info" tabindex="-1" 
-											onclick=" 
+										<button id="btnArr" type="button" class="btn btn-mini btn-info" tabindex="-1" 
+											onclick=" this.disabled = true;
 												if(parseFloat(numero.formatBack($('#resumenTotal12').text()))>0){
 													$('#esVenta').val('0');
 													$('#modalAgregaReferencias').modal('show');
@@ -161,8 +162,8 @@ oc: String)
 										</button>
 										
 										
-										<button type="button" class="btn btn-mini btn-info" tabindex="-1" 
-											onclick=" 
+										<button id="btnVta" type="button" class="btn btn-mini btn-info" tabindex="-1" 
+											onclick=" this.disabled = true;
 											if(parseFloat(numero.formatBack($('#resumenTotal22').text()))>0){
 												$('#esVenta').val('1');
 												$('#modalAgregaReferencias').modal('show');

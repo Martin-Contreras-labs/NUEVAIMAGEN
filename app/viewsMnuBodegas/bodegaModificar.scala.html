@@ -96,6 +96,7 @@ listComercial: List[tables.Comercial])
 									id="nombre"
 									name="nombre"
 									value="@bodega.getNombre()"
+									onkeypress="return sinReservados(event)"
 									autocomplete="off"
 									maxlength="100"
 									onchange="value = value.trim(); verificaNombre(value);"

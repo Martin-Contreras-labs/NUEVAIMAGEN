@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], listTipoEstado: List[tables.TipoEstado])
+bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], listTipoEstado: List[tables.TipoEstado],
+contactos: String)
     			
     	
 @main("") {
@@ -77,7 +78,7 @@ bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], list
 						<th colspan="6" style="text-align: left;">MATERIAL PARA RECOGER</th>
 					</TR>
 					<TR>
-						<td colspan="6" style="text-align: left;"><BR><BR></td>
+						<th colspan="6" style="text-align: left;">@contactos<BR><BR></th>
 					</TR>
 				</table>
 				<hr>
@@ -110,7 +111,11 @@ bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], list
 								<td  style="text-align:right;">@lista1.get(4)</td>
 								<td  style="text-align:right;">@lista1.get(5)</td>
 								<td  style="text-align:center;">@lista1.get(6)</td>
-								<td  style="text-align:right;">@lista1.get(7)</td>
+								@if(mapPermiso.get("parametro.ocultar-cant-hoja-chequeo")!=null && mapPermiso.get("parametro.ocultar-cant-hoja-chequeo").equals("1")){
+									<td  style="text-align:right;"></td>
+								}else{
+									<td  style="text-align:right;">@lista1.get(7)</td>
+								}
 								@if(bodegaOrigen.esInterna!=1){
 									@for((est,index) <- listTipoEstado.zipWithIndex){
 										<td></td>
