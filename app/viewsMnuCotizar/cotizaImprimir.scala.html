@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-id_cotizacion: Long, tabla: String)
+id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
 
 @main("") {
 
@@ -69,6 +69,7 @@ id_cotizacion: Long, tabla: String)
 						<form id='formCFI' method='post' action='/pdfCotizaArriendo/' onsubmit="return validarForm();">
 							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
 							<input type="hidden" id="sinDetCotArr" name="sinDetalle" value="0">
+							<input type="hidden" id="selectGrupos" name="selectGrupos" value="">
 							
 							<div class="input-group">
 						  		<div class="input-group-prepend">
@@ -92,6 +93,13 @@ id_cotizacion: Long, tabla: String)
 	  									<input type="radio" class="form-check-input" id="radio2b" name="optradioB" value="option2">SIN DETALLE
 	  									<label class="form-check-label" for="radio2b"></label>
 									</div>
+									
+									<div class="form-check" onchange="$('#sinDetCotArr').val('2'); ">
+	  									<input type="radio" class="form-check-input" id="radio3b" name="optradioB" value="option3" 
+											onclick='$("#modalCFI").modal("hide"); $("#modalSelectGrupos").modal("show")'>POR GRUPO (selectivo)
+	  									<label class="form-check-label" for="radio2b"></label>
+									</div>
+									
 									<br>
 								}
 						  		
@@ -104,6 +112,50 @@ id_cotizacion: Long, tabla: String)
 								</div>
 							</div>
 						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id='modalSelectGrupos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+							<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>
+										<TH>GRUPO</TH>
+										<th></th>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista <- listGrupos){
+										<tr>
+											<td>
+												@lista.getNombre()
+											</td>
+											<td  style="text-align:center;">
+												<input type="checkbox" id="check_@lista.getId()" value ="0" 
+													onchange="cambiaEstado(id, value, '@lista.getId()')"></td>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						  		
+							
+							
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="button" class="btn btn-sm btn-primary" value='Seleccionar' onclick='$("#modalSelectGrupos").modal("hide"); $("#modalCFI").modal("show")'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
 					</div>
 				</div>
 			</div>
@@ -232,6 +284,18 @@ id_cotizacion: Long, tabla: String)
 		}
 	}
 	
+	
+	const cambiaEstado = (auxId, valor, id_grupo) => {
+		if(valor==0) {
+			$("#"+auxId).val("1");
+			let aux = ""+$("#selectGrupos").val()+ id_grupo + ";"
+			$("#selectGrupos").val(aux);
+		}else{
+			$("#"+auxId).val("0");
+			let aux = ""+ id_grupo + ";"
+			$("#selectGrupos").val($("#selectGrupos").val().replace(aux,""));
+		}
+	}
 	
 	
 	function exportarExcel(element, filename){

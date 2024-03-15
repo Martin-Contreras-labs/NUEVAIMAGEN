@@ -1361,25 +1361,25 @@ public class Cotizacion {
 		vista=vista+
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
 			"<tr>"+
-				"<td><label for='numeroCotizacion'>Nro. Cotización: "+cotizacion.numero+"</label></td>"+
-				"<td><label for='fechaCotizacion'>Fecha: "+Fechas.DDMMAA(cotizacion.fecha)+"</label></td>"+
+				"<td>Nro. Cotización: "+cotizacion.numero+"</td>"+
+				"<td>Fecha: "+Fechas.DDMMAA(cotizacion.fecha)+"</td>"+
 				"<td></td>"+
 			"</tr>"+
 			"<tr>"+
-				"<td><label for='rutCliente'>"+mapDiccionario.get("RUT")+" Cliente: "+rutCliente+"</label></td>"+
-				"<td><label for='nombreCliente'>Nombre Cliente: "+nickCliente+"</label></td>"+
-				"<td><label for='nombreProyecto'>Nombre Proyecto: "+nickProyecto+"</label></td>"+
+				"<td>"+mapDiccionario.get("RUT")+" Cliente: "+rutCliente+"</td>"+
+				"<td>Nombre Cliente: "+nickCliente+"</td>"+
+				"<td>Nombre Proyecto: "+nickProyecto+"</td>"+
 			"</tr>"+
 			"<tr>"+
-				"<td colspan='2'><label for='numeroCotizacion'>Sucursal: "+sucursal.nombre+"</label></td>"+
-				"<td colspan='3' rowspan='2' style='text-align:left; vertical-align:top'><label>Observaciones: <br>"+cotizacion.observaciones+"</label></td>"+
+				"<td colspan='2'>Sucursal: "+sucursal.nombre+"</td>"+
+				"<td colspan='3' rowspan='2' style='text-align:left; vertical-align:top'>Observaciones: <br>"+cotizacion.observaciones+"</td>"+
 			"</tr>"+
 			"<tr>"+
-				"<td colspan='2'><label for='numeroCotizacion'>Comercial: "+comercial.nameUsuario+"</label></td>"+
+				"<td colspan='2'>Comercial: "+comercial.nameUsuario+"</td>"+
 			"</tr>"+
 			"<tr>"+
-				"<td colspan='2'><label for='numeroCotizacion'>Tipo de Solucion: "+cotizacion.getNameCotizaSolucion()+"</label></td>"+
-				"<td ><label for='ocCotizacion'> Nro OC: "+cotizacion.getNumeroOC()+"</label></td>"+
+				"<td colspan='2'>Tipo de Solucion: "+cotizacion.getNameCotizaSolucion()+"</td>"+
+				"<td > Nro OC: "+cotizacion.getNumeroOC()+"</td>"+
 			"</tr>"+
 		"</table>"+
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
@@ -2742,9 +2742,9 @@ public class Cotizacion {
 		vista = vista +
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
 			"<tr>"+
-				"<td><label for='rutCliente'>"+mapDiccionario.get("RUT")+" Cliente: "+cliente.getRut()+"</label></td>"+
-				"<td><label for='nombreCliente'>Nombre Cliente: "+cliente.getNickName()+"</label></td>"+
-				"<td><label for='nombreCliente'>Proyecto: "+proyecto.getNickName()+"</label></td>"+
+				"<td>"+mapDiccionario.get("RUT")+" Cliente: "+cliente.getRut()+"</td>"+
+				"<td>Nombre Cliente: "+cliente.getNickName()+"</td>"+
+				"<td>Proyecto: "+proyecto.getNickName()+"</td>"+
 			"</tr>"+
 		"</table>"+
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+

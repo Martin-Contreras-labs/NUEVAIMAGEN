@@ -506,7 +506,7 @@ public class Movimiento {
 		Boolean flag = false;
 		Guia guia = Guia.find(con, db, id_guia);
 		try {
-			if((long)guia.numero>(long)0) {
+			if(guia.numero!=null && (long)guia.numero>(long)0) {
 				PreparedStatement smt5 = con
 						.prepareStatement("delete from `"+db+"`.estadoEquipo where id_guia = ?;");
 				smt5.setLong(1, id_guia);

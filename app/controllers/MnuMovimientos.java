@@ -270,11 +270,15 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				comercial.setNameUsuario("");
 	    			}
 	    			
+	    			String sinVenta="0";
+	    			if(soloArriendo == (long)1 && bodegaOrigen.getEsInterna() == (long)2) {
+	    				sinVenta = "1";
+	    			}
 	    			
 	    			con.close();
 	    			return ok(movimientoOrigenDestinoMultiple.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listBodegasDestino,
 	    						nuevoNumeroGuia,hoy.getFechaStrAAMMDD(),listEquipNoEnBodOrigen,listTipoEstado,listTipoReparacion,listaTransporte,
-	    						sucursal, comercial));
+	    						sucursal, comercial, sinVenta));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -821,10 +825,15 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Sucursal sucursalOrigen = Sucursal.find(con, s.baseDato, bodegaOrigen.getId_sucursal().toString());
 	    			Sucursal sucursalDestino = Sucursal.find(con, s.baseDato, bodegaDestino.getId_sucursal().toString());
 	    			
+	    			String sinVenta="0";
+	    			if(soloArriendo == (long)1 && bodegaOrigen.getEsInterna() == (long)2) {
+	    				sinVenta = "1";
+	    			}
+	    			
 	    			con.close();
 	    			return ok(movimientoOrigenDestinoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,
 							listEquipNoEnBodOrigen,listTipoEstado,listTipoReparacion, guia, detalleMovimiento, permiteExcedentes, listaTransporte,
-							sucursalOrigen, comercial,sucursalDestino));
+							sucursalOrigen, comercial,sucursalDestino, sinVenta));
 	    			
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();

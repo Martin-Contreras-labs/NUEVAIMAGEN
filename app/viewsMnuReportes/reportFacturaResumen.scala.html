@@ -63,7 +63,9 @@ desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: 
 				
 					<tr>
 						<td><br><br><br>
+						@if(! mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 							<div align="left"><h5><b><font color="#008000"> RESUMEN POR FAMILIAS Y PROYECTOS (SIN AJUSTES A EP): </font></b></h5></div>
+						}
 							<div id="resumenPorPyGJson"></div>
 						</td>
 					</tr>
@@ -116,6 +118,7 @@ desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: 
 					let jsonPorPJson =rs["resumenPorPJson"];
 					let jsonTotales =rs["resumenTotalesJson"];
 					let jsonPorPyGJson = rs["resumenPorPyGJson"];
+					
 				//	let jsonPorPyGyDJson = rs["resumenPorPyGyDJson"];
 		
 				//	vistaPrincipal(jsonPorPJson, jsonTotales, jsonPorPyGJson, jsonPorPyGyDJson);
@@ -201,8 +204,8 @@ desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: 
 														+ "</table>";
 				document.getElementById('resumenPorPJson').innerHTML = tablaProyectos;
 				
-				
-				let tablaFamilias = ""
+				if('@mapDiccionario.get("nEmpresa")' != "SM8 DE MEXICO") {
+					let tablaFamilias = ""
 	    					+ "<table id=\"tablaFamilias\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
 	    						+ "<thead style=\"background-color: #eeeeee\">"
 	    							+ "<TR>"
@@ -253,7 +256,9 @@ desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: 
 	    									+ "</table>";
 						
 						
-				document.getElementById('resumenPorPyGJson').innerHTML = tablaFamilias;
+					document.getElementById('resumenPorPyGJson').innerHTML = tablaFamilias;
+				}
+				
 				
 				/*
 				let tablaDetalleProyectos = "";

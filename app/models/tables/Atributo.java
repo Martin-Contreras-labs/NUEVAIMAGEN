@@ -135,17 +135,21 @@ public class Atributo{
 							+ " atributoEquipo.id_equipo,"
 							+ " atributoEquipo.strAtributo,"
 							+ " atributoEquipo.numAtributo,"
-							+ " concat(atributoEquipo.strAtributo,atributoEquipo.numAtributo)"
+							+ " atributo.esNumerico "
 							+ " from `"+db+"`.atributoEquipo"
 							+ " left join `"+db+"`.atributo on atributo.id = atributoEquipo.id_atributo"
 							+ " group by atributo.atributo, atributoEquipo.id_equipo;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
+				String valorFinal = rs.getString(3);
+				if(rs.getLong(5) > 0) {
+					valorFinal = rs.getString(4);
+				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(3));	// strAtributo
 				aux.add(rs.getString(4));	// numAtributo
-				aux.add(rs.getString(5));	// valorGlobal
-				map.put(rs.getString(1)+"_"+rs.getString(2), aux);
+				aux.add(valorFinal);	// valorFinal
+				map.put(rs.getString(1)+"_"+rs.getString(5)+"_"+rs.getString(2), aux);
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {

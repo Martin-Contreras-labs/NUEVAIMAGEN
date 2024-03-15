@@ -661,7 +661,7 @@ public class FormCotiza {
 	}
 	
 	public static String generaPdfCotizaArriendo(Connection con, String db, Long id_cotizacion, Map<String,String> mapDiccionario, String cfi, Cotizacion cotizacion, 
-			Map<String,String> mapPermiso, String sinDetalle){
+			Map<String,String> mapPermiso, String sinDetalle, String selectGrupos){
 		
 		
 		List<CotizaDetalle> detalleCoti = CotizaDetalle.allPorIdCotizacion(con, db,id_cotizacion);
@@ -756,105 +756,231 @@ public class FormCotiza {
 				cell=table.getRow(0).getCell(12);setCelda(cell,"Arial",8,3,"2b5079","",false);
 			}
 			
-			table.createRow();
-			for(int i=0; i<detalleCoti.size(); i++) {
-				if((long)detalleCoti.get(i).esVenta == (long)0) {
+			
+			Double auxRestar = (double)0;
+			
+			if(sinDetalle.equals("2")) {
+				
+				String[] aux = selectGrupos.split(";");
+				Map<String,String> mapIdGrupo = new HashMap<String,String>();
+				for(int i=0; i<aux.length; i++) {
+					mapIdGrupo.put(aux[i], aux[i]);
+				}
+				Map<String,Long> mapDecimal = Moneda.numeroDecimalxNombre(con, db);
+				
+				
+				
+				table.createRow();
+				contFilasTabla++;
+				contFilasTabla++;
+				row = table.getRow(contFilasTabla);
+				cell=row.getCell(0);setCelda(cell,"Arial",8,1,"2b5079","Solucion",false);
+				cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079",cotizacion.getNameCotizaSolucion(),false);
+				cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079","GL",false);
+				cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079","1",false);
+				cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
+				
+				Long nroDecimal = mapDecimal.get(moneda);
+//				if(nroDecimal != null) {
+//					totalArriendo = DecimalFormato.formato(totalPrecio, nroDecimal);
+//				}else {
+//					totalArriendo = DecimalFormato.formato(totalPrecio, (long)0);
+//				}
+				//cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079","xx",false);
+				
+
+				
+				
+				table.createRow();
+				for(int i=0; i<detalleCoti.size(); i++) {
 					
-					contFilasTabla++;
-					
-					idMoneda = detalleCoti.get(i).getId_moneda();
-					String codigo = detalleCoti.get(i).getCodigo();
-					String equipo = detalleCoti.get(i).getEquipo();
-					String unidad = detalleCoti.get(i).getUnidad();
-					String cantidad = detalleCoti.get(i).getCantidad();
-					moneda = detalleCoti.get(i).getMoneda();
-					String puVenta = detalleCoti.get(i).getPrecioReposicion();
-					String unidadArriendo = detalleCoti.get(i).getUnidadTiempo();
-					String puArriendo = detalleCoti.get(i).getPrecioArriendo();
-					String permanencia = detalleCoti.get(i).getPermanencia().toString();
-					String totalArriendo = detalleCoti.get(i).getTotalArriendo();
-					String parcialRepos = detalleCoti.get(i).getTotalReposicion();
-					String totalKg = detalleCoti.get(i).getTotalKG();
-					String totalM2 = detalleCoti.get(i).getTotalM2();
-					
-	    			if(totalArriendo == null || totalArriendo.trim().length()<=0) {
-	    				totalArriendo = "0";
-	    			}
-	    			if(totalKg == null || totalKg.trim().length()<=0) {
-	    				totalKg = "0";
-	    			}
-	    			if(totalM2 == null || totalM2.trim().length()<=0) {
-	    				totalM2 = "0";
-	    			}
-	    			if(cantidad == null || cantidad.trim().length()<=0) {
-	    				cantidad = "0";
-	    			}
-	    			
-	    			if(puVenta == null || cantidad.trim().length()<=0) {
-	    				puVenta = "0";
-	    			}
-	    			
-	    			
-	    			
-	   				totalPrecio += Double.parseDouble(totalArriendo.replaceAll(",", "").trim());
-	   				sumKG += Double.parseDouble(totalKg.replaceAll(",", "").trim());
-	   				sumM2 += Double.parseDouble(totalM2.replaceAll(",", "").trim());
-	   				sumCant += Double.parseDouble(cantidad.replaceAll(",", "").trim());
-	   				
-	   				Double puVentaAux = Double.parseDouble(puVenta.replaceAll(",", "").trim());
-	   				Double cantidadAux = Double.parseDouble(cantidad.replaceAll(",", "").trim());
-	   				totalPrecioVenta +=  puVentaAux * cantidadAux;
-	   				
-	   				totalReposicion += Double.parseDouble(puVenta.replaceAll(",", "").trim()) * cantidadAux;
-	   				
-					row = table.getRow(contFilasTabla);
-					cell=row.getCell(0);setCelda(cell,"Arial",8,1,"2b5079",codigo,false);
-					cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079",equipo,false);
-					cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079",unidad,false);
-					cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",cantidad,false);
-					cell=row.getCell(4);setCelda(cell,"Arial",8,2,"2b5079",moneda,false);
-					cell=row.getCell(5);setCelda(cell,"Arial",8,3,"2b5079",puVenta,false);
-					cell=row.getCell(6);setCelda(cell,"Arial",8,2,"2b5079",unidadArriendo,false);
-					cell=row.getCell(7);setCelda(cell,"Arial",8,3,"2b5079",puArriendo,false);
-					cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",permanencia,false);
-					cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",parcialRepos,false);
-					cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
-					cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",totalKg,false);
-					if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
-						cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
+						idMoneda = detalleCoti.get(i).getId_moneda();
+						String codigo = detalleCoti.get(i).getCodigo();
+						String equipo = detalleCoti.get(i).getEquipo();
+						String cantidad = detalleCoti.get(i).getCantidad();
+						moneda = detalleCoti.get(i).getMoneda();
+						String puVenta = detalleCoti.get(i).getPrecioReposicion();
+						String totalArriendo = detalleCoti.get(i).getTotalArriendo();
+					//	String totalVenta = detalleCoti.get(i).getTotalVenta();
+						String totalKg = detalleCoti.get(i).getTotalKG();
+						String totalM2 = detalleCoti.get(i).getTotalM2();
+						
+		    			if(totalArriendo == null || totalArriendo.trim().length()<=0) {
+		    				totalArriendo = "0";
+		    			}
+		    			
+		    			Double auxTotalArriendo = Double.parseDouble(totalArriendo.replaceAll(",", "").trim());
+		    			totalPrecio += auxTotalArriendo;
+		    			
+		    			String idGrupo = mapIdGrupo.get(detalleCoti.get(i).id_grupo.toString());
+		    			if(idGrupo != null) {
+		    				if(puVenta != null && detalleCoti.get(i).getEsVenta() == (long)1) {
+		    					Double pu = Double.parseDouble(puVenta.replaceAll(",", "").trim());
+		    					Double cant = Double.parseDouble(cantidad.replaceAll(",", "").trim());
+		    					if(pu > 0 && cant > 0) {
+		    						totalPrecio += pu * cant;
+		    						auxTotalArriendo += pu * cant;
+		    					}
+			    				
+			    			}
+		    			}
+		    			
+		    			
+		    			if(totalKg == null || totalKg.trim().length()<=0) {
+		    				totalKg = "0";
+		    			}
+		    			if(totalM2 == null || totalM2.trim().length()<=0) {
+		    				totalM2 = "0";
+		    			}
+		    			if(cantidad == null || cantidad.trim().length()<=0) {
+		    				cantidad = "0";
+		    			}
+		    			
+		    			if(puVenta == null || cantidad.trim().length()<=0) {
+		    				puVenta = "0";
+		    			}
+		    			
+		   				sumKG += Double.parseDouble(totalKg.replaceAll(",", "").trim());
+		   				sumM2 += Double.parseDouble(totalM2.replaceAll(",", "").trim());
+		   				sumCant += Double.parseDouble(cantidad.replaceAll(",", "").trim());
+		   				
+		   				Double puVentaAux = Double.parseDouble(puVenta.replaceAll(",", "").trim());
+		   				Double cantidadAux = Double.parseDouble(cantidad.replaceAll(",", "").trim());
+		   				totalPrecioVenta +=  puVentaAux * cantidadAux;
+		   				
+		   				totalReposicion += Double.parseDouble(puVenta.replaceAll(",", "").trim()) * cantidadAux;
+		   				
+		   				if(idGrupo != null) {
+		   					contFilasTabla++;
+							row = table.getRow(contFilasTabla);
+							cell=row.getCell(0);setCelda(cell,"Arial",8,1,"2b5079",codigo,false);
+							cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079",equipo,false);
+							cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079","GL",false);
+							cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079","1",false);
+							cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
+							
+							nroDecimal = mapDecimal.get(moneda);
+							if(nroDecimal != null) {
+								totalArriendo = DecimalFormato.formato(auxTotalArriendo, nroDecimal);
+							}else {
+								totalArriendo = DecimalFormato.formato(auxTotalArriendo, (long)0);
+							}
+							auxRestar += auxTotalArriendo;
+							cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+							
+							table.createRow();
+		   				}
+		   				
+
+				}
+				
+				
+			} else {
+				table.createRow();
+				for(int i=0; i<detalleCoti.size(); i++) {
+					if((long)detalleCoti.get(i).esVenta == (long)0) {
+						
+						contFilasTabla++;
+						
+						idMoneda = detalleCoti.get(i).getId_moneda();
+						String codigo = detalleCoti.get(i).getCodigo();
+						String equipo = detalleCoti.get(i).getEquipo();
+						String unidad = detalleCoti.get(i).getUnidad();
+						String cantidad = detalleCoti.get(i).getCantidad();
+						moneda = detalleCoti.get(i).getMoneda();
+						String puVenta = detalleCoti.get(i).getPrecioReposicion();
+						String unidadArriendo = detalleCoti.get(i).getUnidadTiempo();
+						String puArriendo = detalleCoti.get(i).getPrecioArriendo();
+						String permanencia = detalleCoti.get(i).getPermanencia().toString();
+						String totalArriendo = detalleCoti.get(i).getTotalArriendo();
+						String parcialRepos = detalleCoti.get(i).getTotalReposicion();
+						String totalKg = detalleCoti.get(i).getTotalKG();
+						String totalM2 = detalleCoti.get(i).getTotalM2();
+						
+		    			if(totalArriendo == null || totalArriendo.trim().length()<=0) {
+		    				totalArriendo = "0";
+		    			}
+		    			if(totalKg == null || totalKg.trim().length()<=0) {
+		    				totalKg = "0";
+		    			}
+		    			if(totalM2 == null || totalM2.trim().length()<=0) {
+		    				totalM2 = "0";
+		    			}
+		    			if(cantidad == null || cantidad.trim().length()<=0) {
+		    				cantidad = "0";
+		    			}
+		    			
+		    			if(puVenta == null || cantidad.trim().length()<=0) {
+		    				puVenta = "0";
+		    			}
+		    			
+		    			
+		    			
+		   				totalPrecio += Double.parseDouble(totalArriendo.replaceAll(",", "").trim());
+		   				sumKG += Double.parseDouble(totalKg.replaceAll(",", "").trim());
+		   				sumM2 += Double.parseDouble(totalM2.replaceAll(",", "").trim());
+		   				sumCant += Double.parseDouble(cantidad.replaceAll(",", "").trim());
+		   				
+		   				Double puVentaAux = Double.parseDouble(puVenta.replaceAll(",", "").trim());
+		   				Double cantidadAux = Double.parseDouble(cantidad.replaceAll(",", "").trim());
+		   				totalPrecioVenta +=  puVentaAux * cantidadAux;
+		   				
+		   				totalReposicion += Double.parseDouble(puVenta.replaceAll(",", "").trim()) * cantidadAux;
+		   				
+						row = table.getRow(contFilasTabla);
+						cell=row.getCell(0);setCelda(cell,"Arial",8,1,"2b5079",codigo,false);
+						cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079",equipo,false);
+						cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079",unidad,false);
+						cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",cantidad,false);
+						cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
+						cell=row.getCell(5);setCelda(cell,"Arial",8,3,"2b5079",puVenta,false);
+						cell=row.getCell(6);setCelda(cell,"Arial",8,2,"2b5079",unidadArriendo,false);
+						cell=row.getCell(7);setCelda(cell,"Arial",8,3,"2b5079",puArriendo,false);
+						cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",permanencia,false);
+						cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",parcialRepos,false);
+						cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+						cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",totalKg,false);
+						if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+							cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
+						}
+						table.createRow();
 					}
-					table.createRow();
+				}
+				
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Long numDec = dec.get(idMoneda);
+				if(numDec==null) {
+					numDec = (long)1;
+				}
+				switch(numDec.toString()) {
+				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 default:  break;
+				}
+				
+				
+		        
+				//table.createRow();
+				row = table.getRow(contFilasTabla+2);
+				
+				cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079","TOTALES",true);
+				cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumCant),true);
+				cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalReposicion),true);
+				cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio),true);
+				cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumKG),true);
+				if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+					cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumM2),true);
 				}
 			}
+
+
 			
 			
 			
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Long numDec = dec.get(idMoneda);
-			if(numDec==null) {
-				numDec = (long)1;
-			}
-			switch(numDec.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-			 default:  break;
-			}
 			
 			
-	        
-			//table.createRow();
-			row = table.getRow(contFilasTabla+2);
-			
-			cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079","TOTALES",true);
-			cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumCant),true);
-			cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalReposicion),true);
-			cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio),true);
-			cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumKG),true);
-			if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
-				cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumM2),true);
-			}
 			
 			Double subTotal = totalPrecio;
 	        
@@ -981,10 +1107,54 @@ public class FormCotiza {
 	             }
 	        }
 			
+			
+			if(sinDetalle.equals("2")) {
+				table = doc.getTables().get(2);
+				row = table.getRow(0);
+				cell=row.getCell(5);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				cell=row.getCell(6);setCelda(cell,"Arial",8,2,"2b5079"," ",false);
+				cell=row.getCell(7);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				cell=row.getCell(10);setCelda(cell,"Arial",8,2,"2b5079","TOTAL",false);
+				cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				
+				
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Long numDec = dec.get(idMoneda);
+				if(numDec==null) {
+					numDec = (long)1;
+				}
+				switch(numDec.toString()) {
+				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 default:  break;
+				}
+				
+		        
+				//table.createRow();
+				row = table.getRow(2);
+				cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio-auxRestar),true);
+		
+
+
+			
+			
+			
+			
+			}
+			
+			
 			if(sinDetalle.equals("1")) {
 				table = doc.getTables().get(2);
 				doc.removeBodyElement(doc.getPosOfTable(table));
 			}
+			
+			
+			
+			
 			
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
@@ -2394,7 +2564,7 @@ public class FormCotiza {
 	private static void setCelda (XWPFTableCell cell,String fontFamily,int fontSize,int alingH,String colorRGB,String text,boolean bold) {
 		cell.removeParagraph(0);
 		XWPFParagraph paragraph =null;
-		if(text==null) text="--"; else if(text.trim().length()==0) text="--";
+		if(text==null) text=""; else if(text.trim().length()==0) text="";
 		paragraph = cell.addParagraph();
 		if(alingH==3) {
 			paragraph.setAlignment(ParagraphAlignment.RIGHT);

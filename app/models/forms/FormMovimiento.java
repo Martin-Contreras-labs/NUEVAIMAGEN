@@ -226,8 +226,8 @@ public class FormMovimiento {
 				listMov.add(auxMov);
 				//agrega estados y reparaciones en impares
 				if((long)bodegaOrigen.getEsInterna()>(long)1) {
-					listEstad.add(form.estados.get(i));
-					listRepar.add(form.reparaciones.get(i));
+					listEstad.add(form.estados.get(i)+"&"+form.id_equipo.get(i)+"_"+form.id_cotizacion.get(i));
+					listRepar.add(form.reparaciones.get(i)+"&"+form.id_equipo.get(i)+"_"+form.id_cotizacion.get(i));
 				}
 				auxMov.setCantCliente(cantCliente);
 				
@@ -247,114 +247,319 @@ public class FormMovimiento {
 				//agrega a la lista
 				listMov.add(auxMov);
 			}
-			listaIdMovIdTipEstCant = FormMovimiento.insertMovimientos(con, db, listMov, listEstad, listRepar, bodegaOrigen);
+			listaIdMovIdTipEstCant = FormMovimiento.insertMovimientos(con, db, listMov, listEstad, listRepar, bodegaOrigen, guia);
 		}
 		return(listaIdMovIdTipEstCant);
 	}
 	
-	public static List<List<Double>> insertMovimientos(Connection con, String db, List<Movimiento> listMov, List<String> listEstad, List<String> listRepar, BodegaEmpresa bodegaOrigen) {
+	public static List<List<Double>> insertMovimientos(Connection con, String db, List<Movimiento> listMov, List<String> listEstad, List<String> listRepar, BodegaEmpresa bodegaOrigen, Guia guia) {
 		
 		
-		int par = 0;
-		int cont = 0;
 		List<List<Double>> listaIdMovIdTipEstCant = new ArrayList<List<Double>>();
+		
+		String insertMovimiento = "";
 		for(int i=0; i<listMov.size(); i++) {
 			Double random = Math.random();
+			insertMovimiento += "('"
+					+listMov.get(i).getId_bodegaEmpresa()+"','"
+					+listMov.get(i).getId_equipo()+"','"
+					+listMov.get(i).getId_tipoMovimiento()+"','"
+					+listMov.get(i).getId_guia()+"','"
+					+listMov.get(i).getCantidad()+"','"
+					+listMov.get(i).getExceso()+"','"
+					+listMov.get(i).getId_bodegaOrigen()+"','"
+					+listMov.get(i).getEsVenta()+"','"
+					+listMov.get(i).getEsNuevo()+"','"
+					+listMov.get(i).getId_cotizacion()+"','"
+					+random+"','"
+					+listMov.get(i).getCantCliente()+"'),";
+			
+		}
+		if(insertMovimiento.length()>2) {
+			insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
+		}else {
+			insertMovimiento = null;
+		}
+		
+		if(insertMovimiento!=null && insertMovimiento.length()>2) {
 			try {
 				PreparedStatement smt = con
 						.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
 								+ " id_bodegaOrigen, esVenta, esNuevo, id_cotizacion, random, cantCliente) "
-								+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-				smt.setLong(1, listMov.get(i).getId_bodegaEmpresa());
-				smt.setLong(2, listMov.get(i).getId_equipo());
-				smt.setLong(3, listMov.get(i).getId_tipoMovimiento());
-				smt.setLong(4, listMov.get(i).getId_guia());
-				smt.setDouble(5, listMov.get(i).getCantidad());
-				smt.setDouble(6, listMov.get(i).getExceso());
-				smt.setLong(7, listMov.get(i).getId_bodegaOrigen());
-				smt.setLong(8, listMov.get(i).getEsVenta());
-				smt.setLong(9, listMov.get(i).getEsNuevo());
-				smt.setLong(10, listMov.get(i).getId_cotizacion());
-				smt.setDouble(11, random);
-				smt.setDouble(12, listMov.get(i).getCantCliente());
+								+ " VALUES "+insertMovimiento+";");
+				
 				smt.executeUpdate();
 				smt.close();
-				Long id_mov = (long)0;
-				PreparedStatement smt2 = con.prepareStatement("select max(id) from `"+db+"`.movimiento where random=? and id_bodegaEmpresa=? and id_equipo=? and id_guia=?;");	
-				smt2.setDouble(1, random);
-				smt2.setLong(2, listMov.get(i).getId_bodegaEmpresa());
-				smt2.setLong(3, listMov.get(i).getId_equipo());
-				smt2.setLong(4, listMov.get(i).getId_guia());
-				ResultSet rs = smt2.executeQuery();
-				if(rs.next()) {
-					id_mov = rs.getLong(1);
-				}
-				smt2.close();
-				rs.close();
-				if(i==par && (long)bodegaOrigen.getEsInterna()>(long)1) {
-					par = par + 2;
-					String[] estados = listEstad.get(cont).split(";");
-					for(int j=0; j<estados.length; j++) {
-						String[] auxEst = estados[j].split(":");
-						if(auxEst.length>1 && Double.parseDouble(auxEst[1]) > (long)0) {
-							Long id_estEquip = (long)0;
-							PreparedStatement smt3 = con.prepareStatement("insert into `"+db+"`.estadoEquipo (id_movimiento, id_tipoEstado, cantidad, id_guia) "
-									+ " values(?, ?, ?, ?);");	
-							smt3.setLong(1, id_mov);
-							smt3.setString(2, auxEst[0]);
-							smt3.setString(3, auxEst[1]);
-							smt3.setLong(4, listMov.get(i).getId_guia());
-							smt3.executeUpdate();
-							smt3.close();
-							List<Double> auxMov = new ArrayList<Double>();
-							auxMov.add(Double.parseDouble(id_mov.toString()));							//0 id_movimiento
-							auxMov.add(Double.parseDouble(auxEst[0]));									//1 id_tipoEstado
-							auxMov.add(Double.parseDouble(auxEst[1]));									//2 cantidad
-							auxMov.add(Double.parseDouble(listMov.get(i).getId_equipo().toString()));	//3 id_equipo
-							listaIdMovIdTipEstCant.add(auxMov);
-							PreparedStatement smt4 = con.prepareStatement("select id from `"+db+"`.estadoEquipo "
-									+ " where id_movimiento=? and id_tipoEstado=? and id_guia=?;");
-							smt4.setLong(1, id_mov);
-							smt4.setString(2, auxEst[0]);
-							smt4.setLong(3, listMov.get(i).getId_guia());
-							ResultSet rs4 = smt4.executeQuery();
-							if(rs4.next()) {
-								id_estEquip = rs4.getLong(1);
-							}
-							smt4.close();
-							rs4.close();
-							String[] reparaciones = listRepar.get(cont).split(";");
+				
+				
+				//prepara insertEstadoEquipo
+				Map<String,Long> mapIdEqVsIdMov = new HashMap<String,Long>();
+				String insertEstadoEquipo = "";
+				if(insertMovimiento != null  && insertMovimiento.length()>2 && (long)bodegaOrigen.getEsInterna() > (long)1) {
+					try {
+						PreparedStatement smt2 = con.prepareStatement("select id_equipo, id_cotizacion, id from `"+db+"`.movimiento where id_bodegaEmpresa=? and id_guia=?;");	
+						smt2.setLong(1, bodegaOrigen.getId());
+						smt2.setLong(2, guia.getId());
+						ResultSet rs = smt2.executeQuery();
+						while(rs.next()) {
+							mapIdEqVsIdMov.put(rs.getLong(1)+"_"+rs.getLong(2), rs.getLong(3));
+						}
+						smt2.close();
+						rs.close();
+						
+						String auxId_equipo_id_coti = "";
+						for(int i=0; i<listMov.size(); i++) {
 							
-							String noDuplicados = "";
-							for(int k=0; k<reparaciones.length && id_estEquip>0; k++) {
-									String[] auxRepar = reparaciones[k].split(":");
+							for(int j=0; j<listEstad.size(); j++) {
+								if(listEstad.get(j).length() > 0) {
 									
-									if(auxRepar.length>1 && auxRepar[0].equals(auxEst[0]) && Double.parseDouble(auxRepar[2]) > (double)0) {
-										String compara = auxRepar[0]+"_"+auxRepar[1]+"_"+auxRepar[2];
-										if(!noDuplicados.equals(compara)) {
-											PreparedStatement smt5 = con.
-													prepareStatement("insert into `"+db+"`.reparacionEquipo (id_movimiento, id_estadoEquipo, id_tipoEstado, id_tipoReparacion, cantidad, id_guia) "
-													+ " values(?, ?, ?, ?, ?, ?);");
-											smt5.setLong(1, id_mov);
-											smt5.setLong(2, id_estEquip);
-											smt5.setString(3, auxRepar[0]);
-											smt5.setString(4, auxRepar[1]);
-											smt5.setString(5, auxRepar[2]);
-											smt5.setLong(6, listMov.get(i).getId_guia());
-											smt5.executeUpdate();
-											smt5.close();
-											noDuplicados = compara;
+									String[] auxEstado = listEstad.get(j).split("&");
+									
+									String auxId_EquipoId_coti = auxEstado[1];
+									
+									String[] estados = auxEstado[0].split(";");
+									
+									String id_equipo_id_coti = listMov.get(i).getId_equipo()+"_"+listMov.get(i).getId_cotizacion();
+									Long id_movimiento = mapIdEqVsIdMov.get(id_equipo_id_coti);
+									
+									if(id_movimiento!=null && ! id_equipo_id_coti.equals(auxId_equipo_id_coti) && id_equipo_id_coti.equals(auxId_EquipoId_coti)) {
+										auxId_EquipoId_coti = id_equipo_id_coti;
+										for(int k=0; k<estados.length; k++) {
+											if(estados[k].length()>2) {
+												String[] auxEst = estados[k].split(":");
+												insertEstadoEquipo += "('"
+														+id_movimiento+"','"
+														+auxEst[0]+"','"
+														+auxEst[1]+"','"
+														+guia.getId()+"'),";
+												
+												List<Double> auxMov = new ArrayList<Double>();
+												auxMov.add(Double.parseDouble(id_movimiento.toString()));					//0 id_movimiento
+												auxMov.add(Double.parseDouble(auxEst[0]));									//1 id_tipoEstado
+												auxMov.add(Double.parseDouble(auxEst[1]));									//2 cantidad
+												auxMov.add(Double.parseDouble(listMov.get(i).getId_equipo().toString()));	//3 id_equipo
+												listaIdMovIdTipEstCant.add(auxMov);
+											}
 										}
 									}
+									
+								}
 							}
 						}
+					} catch (SQLException e) {
+		    			e.printStackTrace();
 					}
-					cont++;
+				}
+				if(insertEstadoEquipo.length()>2) {
+					insertEstadoEquipo = insertEstadoEquipo.substring(0,insertEstadoEquipo.length()-1);
+				}else {
+					insertEstadoEquipo = null;
+				}
+				
+				
+				
+				
+				
+				if(insertEstadoEquipo!=null && insertEstadoEquipo.length()>2) {
+					PreparedStatement smt3 = con.prepareStatement("insert into `"+db+"`.estadoEquipo (id_movimiento, id_tipoEstado, cantidad, id_guia) "
+							+ " values "+insertEstadoEquipo+";");
+					smt3.executeUpdate();
+					smt3.close();
+					
+					//prepara insertReparacionEquipo
+					String insertReparacionEquipo = "";
+					Map<String,String> mapIsertReparaciones = new HashMap<String,String>();
+					if(insertMovimiento != null  && insertMovimiento.length()>2 && insertEstadoEquipo != null && insertEstadoEquipo.length()>2 && (long)bodegaOrigen.getEsInterna() > (long)1) {
+						try {
+							Map<String,Long> mapIdMovIdTipEstEqVsIdEst = new HashMap<String,Long>();
+							PreparedStatement smt2 = con.prepareStatement("select id_movimiento, id_tipoEstado, id  from `"+db+"`.estadoEquipo where id_guia=?;");
+							smt2.setLong(1, guia.getId());
+							ResultSet rs = smt2.executeQuery();
+							while(rs.next()) {
+								mapIdMovIdTipEstEqVsIdEst.put(rs.getString(1)+"_"+rs.getString(2), rs.getLong(3));
+							}
+							smt2.close();
+							rs.close();
+							for(int i=0; i<listMov.size(); i++) {
+								for(int j=0; j<listRepar.size(); j++) {
+									if(listRepar.get(j).length() > 0) {
+										
+										String[] auxiliarRepar = listRepar.get(j).split("&");
+										
+										String id_equipo_id_coti = auxiliarRepar[1];
+										Long id_movimiento = mapIdEqVsIdMov.get(id_equipo_id_coti);
+										
+										if(id_movimiento!=null ) {
+											String[] reparaciones = auxiliarRepar[0].split(";");
+											
+											for(int k=0; k<reparaciones.length; k++) {
+												String[] auxRepar = reparaciones[k].split(":");
+												
+												Long id_estadoEquipo = mapIdMovIdTipEstEqVsIdEst.get(""+id_movimiento+"_"+auxRepar[0]);
+												
+												if(id_estadoEquipo!=null && Double.parseDouble(auxRepar[2]) > (double)0) {
+													String auxValores = "('"
+															+id_movimiento+"','"
+															+id_estadoEquipo+"','"
+															+auxRepar[0]+"','"
+															+auxRepar[1]+"','"
+															+auxRepar[2]+"','"
+															+guia.getId()+"'),";
+													mapIsertReparaciones.put(auxValores, auxValores);
+												}
+											}
+										}
+										
+									}
+								}
+							}
+						} catch (SQLException e) {
+			    			e.printStackTrace();
+						}
+					}
+					
+					for(String x: mapIsertReparaciones.values()) {
+						insertReparacionEquipo += x;
+					}
+					if(insertReparacionEquipo.length()>2) {
+						insertReparacionEquipo = insertReparacionEquipo.substring(0,insertReparacionEquipo.length()-1);
+					}else {
+						insertReparacionEquipo = null;
+					}
+					
+					if(insertReparacionEquipo!=null) {
+						PreparedStatement smt5 = con.
+								prepareStatement("insert into `"+db+"`.reparacionEquipo (id_movimiento, id_estadoEquipo, id_tipoEstado, id_tipoReparacion, cantidad, id_guia) "
+								+ " values "+insertReparacionEquipo+";");
+						smt5.executeUpdate();
+						smt5.close();
+					}
+					
+					
 				}
 			} catch (SQLException e) {
-	    			e.printStackTrace();
+    			e.printStackTrace();
 			}
+		}else {
+			Movimiento.delete(con, db, guia.getId());
 		}
+		
+		
+		
+		
+		
+		
+//		int par = 0;
+//		int cont = 0;
+//	//	List<List<Double>> listaIdMovIdTipEstCant = new ArrayList<List<Double>>();
+//		
+//		
+//		for(int i=0; i<listMov.size(); i++) {
+//			Double random = Math.random();
+//			try {
+//				PreparedStatement smt = con
+//						.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
+//								+ " id_bodegaOrigen, esVenta, esNuevo, id_cotizacion, random, cantCliente) "
+//								+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+//				smt.setLong(1, listMov.get(i).getId_bodegaEmpresa());
+//				smt.setLong(2, listMov.get(i).getId_equipo());
+//				smt.setLong(3, listMov.get(i).getId_tipoMovimiento());
+//				smt.setLong(4, listMov.get(i).getId_guia());
+//				smt.setDouble(5, listMov.get(i).getCantidad());
+//				smt.setDouble(6, listMov.get(i).getExceso());
+//				smt.setLong(7, listMov.get(i).getId_bodegaOrigen());
+//				smt.setLong(8, listMov.get(i).getEsVenta());
+//				smt.setLong(9, listMov.get(i).getEsNuevo());
+//				smt.setLong(10, listMov.get(i).getId_cotizacion());
+//				smt.setDouble(11, random);
+//				smt.setDouble(12, listMov.get(i).getCantCliente());
+//				smt.executeUpdate();
+//				smt.close();
+//				
+//				if(i==par && (long)bodegaOrigen.getEsInterna()>(long)1) {
+//					
+//					par = par + 2;
+//					String[] estados = listEstad.get(cont).split(";");
+//					Long id_mov = (long)0;
+//					
+//					if(estados.length>0) {
+//						
+//						PreparedStatement smt2 = con.prepareStatement("select max(id) from `"+db+"`.movimiento where random=? and id_bodegaEmpresa=? and id_equipo=? and id_guia=?;");	
+//						smt2.setDouble(1, random);
+//						smt2.setLong(2, listMov.get(i).getId_bodegaEmpresa());
+//						smt2.setLong(3, listMov.get(i).getId_equipo());
+//						smt2.setLong(4, listMov.get(i).getId_guia());
+//						ResultSet rs = smt2.executeQuery();
+//						if(rs.next()) {
+//							id_mov = rs.getLong(1);
+//						}
+//						smt2.close();
+//						rs.close();
+//					}
+//					
+//					
+//					
+//					for(int j=0; j<estados.length; j++) {
+//						String[] auxEst = estados[j].split(":");
+//						if(auxEst.length>1 && Double.parseDouble(auxEst[1]) > (long)0) {
+//							Long id_estEquip = (long)0;
+//							PreparedStatement smt3 = con.prepareStatement("insert into `"+db+"`.estadoEquipo (id_movimiento, id_tipoEstado, cantidad, id_guia) "
+//									+ " values(?, ?, ?, ?);");	
+//							smt3.setLong(1, id_mov);
+//							smt3.setString(2, auxEst[0]);
+//							smt3.setString(3, auxEst[1]);
+//							smt3.setLong(4, listMov.get(i).getId_guia());
+//							smt3.executeUpdate();
+//							smt3.close();
+//							List<Double> auxMov = new ArrayList<Double>();
+//							auxMov.add(Double.parseDouble(id_mov.toString()));							//0 id_movimiento
+//							auxMov.add(Double.parseDouble(auxEst[0]));									//1 id_tipoEstado
+//							auxMov.add(Double.parseDouble(auxEst[1]));									//2 cantidad
+//							auxMov.add(Double.parseDouble(listMov.get(i).getId_equipo().toString()));	//3 id_equipo
+//							listaIdMovIdTipEstCant.add(auxMov);
+//							PreparedStatement smt4 = con.prepareStatement("select id from `"+db+"`.estadoEquipo "
+//									+ " where id_movimiento=? and id_tipoEstado=? and id_guia=?;");
+//							smt4.setLong(1, id_mov);
+//							smt4.setString(2, auxEst[0]);
+//							smt4.setLong(3, listMov.get(i).getId_guia());
+//							ResultSet rs4 = smt4.executeQuery();
+//							if(rs4.next()) {
+//								id_estEquip = rs4.getLong(1);
+//							}
+//							smt4.close();
+//							rs4.close();
+//							String[] reparaciones = listRepar.get(cont).split(";");
+//							
+//							String noDuplicados = "";
+//							for(int k=0; k<reparaciones.length && id_estEquip>0; k++) {
+//									String[] auxRepar = reparaciones[k].split(":");
+//									
+//									if(auxRepar.length>1 && auxRepar[0].equals(auxEst[0]) && Double.parseDouble(auxRepar[2]) > (double)0) {
+//										String compara = auxRepar[0]+"_"+auxRepar[1]+"_"+auxRepar[2];
+//										if(!noDuplicados.equals(compara)) {
+//											PreparedStatement smt5 = con.
+//													prepareStatement("insert into `"+db+"`.reparacionEquipo (id_movimiento, id_estadoEquipo, id_tipoEstado, id_tipoReparacion, cantidad, id_guia) "
+//													+ " values(?, ?, ?, ?, ?, ?);");
+//											smt5.setLong(1, id_mov);
+//											smt5.setLong(2, id_estEquip);
+//											smt5.setString(3, auxRepar[0]);
+//											smt5.setString(4, auxRepar[1]);
+//											smt5.setString(5, auxRepar[2]);
+//											smt5.setLong(6, listMov.get(i).getId_guia());
+//											smt5.executeUpdate();
+//											smt5.close();
+//											noDuplicados = compara;
+//										}
+//									}
+//							}
+//						}
+//					}
+//					cont++;
+//				}
+//			} catch (SQLException e) {
+//	    			e.printStackTrace();
+//			}
+//		}
 		return (listaIdMovIdTipEstCant);
 	}
 	

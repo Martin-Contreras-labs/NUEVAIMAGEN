@@ -928,28 +928,21 @@ public class Equipo {
 						}
 						
 						for(List<String> atrib: listAtribGroup) {
-							List<String> list = mapAtributos.get(atrib.get(0)+"_"+listEquipos.get(i).getId());
+							List<String> list = mapAtributos.get(atrib.get(0)+"_"+atrib.get(3)+"_"+listEquipos.get(i).getId());
 							if(list != null) {
-								
-								try {
+								if(atrib.get(3).equals("1")) {
 									posCell++;
 									cell = row.createCell(posCell);
 									cell.setCellStyle(detalle);
 									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 									cell.setCellValue(Double.parseDouble(list.get(2).replaceAll(",", "")));
-								}catch(Exception e) {
+								}else {
 									posCell++;
 									cell = row.createCell(posCell);
 									cell.setCellStyle(detalle);
 									cell.setCellType(Cell.CELL_TYPE_STRING);
 									cell.setCellValue(list.get(2));
 								}
-								
-								
-								
-								
-								
-								
 							}else {
 								posCell++;
 								cell = row.createCell(posCell);

@@ -991,6 +991,8 @@ public class MnuReportes extends Controller {
 	    			
 	    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
+	    			
+	    			
 	    			if(map.size()>0) {
 		    			for(List<String> aux:proyectosAux) {
 		    				String idBodega = map.get(aux.get(1));
@@ -1010,6 +1012,7 @@ public class MnuReportes extends Controller {
 	    			
 	    			List<List<String>> datos = new ArrayList<List<String>>();
 	    			for(List<String> lista1: proyectos){
+	    				
 	    				List<String> x = mapTotal.get(lista1.get(1));
 	    					if(x!=null){
 	    						List<String> aux = new ArrayList<String>();
@@ -1703,6 +1706,7 @@ public class MnuReportes extends Controller {
     			
     			List<List<String>> datos = new ArrayList<List<String>>();
     			for(List<String> lista1: proyectos){
+    				System.out.println(lista1.get(5));
     				List<String> x = mapTotal.get(lista1.get(1));
     					if(x!=null){
     						List<String> aux = new ArrayList<String>();
@@ -3074,6 +3078,7 @@ public class MnuReportes extends Controller {
 	    					+ "			<TR> \n"
 	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>\n"
 	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>\n"
+	    					+ "				<TH width=\"5%\" >DETALLE<BR></TH>\n"
 	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">"+mapeoDiccionario.get("BODEGA")+"/PROYECTO</TH>\n"
 	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>\n"
 	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>\n"
@@ -3096,6 +3101,20 @@ public class MnuReportes extends Controller {
 	    								tabla += ""
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(14)+"</td>\n"
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(10)+"</td>\n"
+    												+ "<td style=\"text-align:center;vertical-align:middle;\">\n"
+    	    				    					+ "	<form id=\"form0_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"esVenta\" value=\"0\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">\n"
+    	    				    					+ "		<a href=\"#\" onclick=\"document.getElementById('form0_"+lista1.get(1)+"').submit()\">\n"
+    	    				    					+ "			<kbd style=\"background-color: #73C6B6\">Emitir</kbd>\n"
+    	    				    					+ "		</a>\n"
+    	    				    					+ "	</form>\n"
+    	    				    			+ "</td>\n"
     				    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoBodega('"+lista1.get(1)+"');\">"+lista1.get(5)+"</a></td>\n"
     				    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoCliente('"+lista1.get(2)+"');\">"+lista1.get(7)+"</a></td>\n"
     				    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('"+lista1.get(3)+"');\">"+lista1.get(8)+"</a></td>\n"
@@ -3129,6 +3148,7 @@ public class MnuReportes extends Controller {
 	    					+ "<tfoot>\n"
 	    					+ "	<TR>\n"
 	    					+ "		<td style=\"background-color: #eeeeee\">TOTALES</td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"

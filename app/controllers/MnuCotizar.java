@@ -1369,8 +1369,9 @@ public class MnuCotizar extends Controller {
     			}
     			Cotizacion coti = Cotizacion.find(con, s.baseDato, id_cotizacion);
     			String tabla = Cotizacion.vistaModalVerCotizacion(con, s.baseDato, coti, mapeoDiccionario, mapeoPermiso);
+    			List<Grupo> listGrupos = Grupo.allConEquipos(con, s.baseDato);
     			con.close();
-    			return ok(cotizaImprimir.render(mapeoDiccionario,mapeoPermiso,userMnu,id_cotizacion, tabla));
+    			return ok(cotizaImprimir.render(mapeoDiccionario,mapeoPermiso,userMnu,id_cotizacion, tabla, listGrupos));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -1424,10 +1425,11 @@ public class MnuCotizar extends Controller {
 	    	  	Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
 	    	  	String cfi = form.get("cfi").trim();
 	    	  	String sinDetalle = form.get("sinDetalle");
+	    	  	String selectGrupos = form.get("selectGrupos");
 				try {
 	    			Connection con = db.getConnection();
 	    			Cotizacion cotizacion = Cotizacion.find(con, s.baseDato,id_cotizacion);
-	    			String fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, cfi, cotizacion, mapeoPermiso, sinDetalle);
+	    			String fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, cfi, cotizacion, mapeoPermiso, sinDetalle, selectGrupos);
 		       		
 		       		String titulo = "COTIZACION DE "+ mapeoDiccionario.get("ARRIENDO");
 		       		//String url = "%2FcotizaListaImprimir%2F";
