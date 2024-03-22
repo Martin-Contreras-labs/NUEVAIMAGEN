@@ -51,6 +51,17 @@ function isValidDate(date) {
 }
 
 /************************************************************/
+/*			FORMATO FECHA									*/
+/************************************************************/
+
+function fechaAAMMDD(fecha) {
+	let dia = fecha.getDate().toString().padStart(2, '0');
+	let mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+	let anio = fecha.getFullYear();
+	return(anio+"-"+mes+"-"+dia);
+}
+
+/************************************************************/
 /*			FORMATO-NUMEROS									*/
 /************************************************************/
 

@@ -72,7 +72,7 @@ public class ReportOdoConsolidado {
 		
 		Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, db);
-		
+		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
     	
 		for(int i=0;i<listaFechas.size();i++) {
     		
@@ -93,7 +93,7 @@ public class ReportOdoConsolidado {
     		
     		List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
     		Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
-			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 			
 			
 			

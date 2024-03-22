@@ -23,7 +23,10 @@ listaAconfirmar: List[List[String]])
 								<TH>CANTIDAD</TH>
 								<TH>SUCURSAL</TH>
 								<TH>@mapDiccionario.get("BODEGA")<BR>DESTINO</TH>
-								<TH>CONFIRMAR</TH>
+								<TH>
+									CONFIRMAR<br>
+									<input id="btnSelectAll" type="button" class="btn btn-sm btn-secondary" onclick="selectAll()" value="Select Todo">
+								</TH>
 							</TR>
 						</thead>
 						<tbody>
@@ -43,8 +46,13 @@ listaAconfirmar: List[List[String]])
 									<td  style="text-align:left;">@lista1.get(12)</td>
 									<td  style="text-align:left;">@lista1.get(9)</td>
 									<td  style="text-align:center;">
-										<input type="checkbox" id="@lista1.get(0)" value ="0" 
-										onchange="cambiaEstado(id,value,'@lista1.get(10)','@lista1.get(8)','@lista1.get(2)','@lista1.get(13)')"></td>
+										<input type="hidden" class="idCompra" value="@lista1.get(0)">
+										<input type="hidden" class="idEquipo" value="@lista1.get(10)">
+										<input type="hidden" class="cantCant" value="@lista1.get(8)">
+										<input type="hidden" class="idBodDest" value="@lista1.get(2)">
+										<input type="hidden" class="idSucursal" value="@lista1.get(13)">
+										<input type="checkbox" class="checkVal" id="@lista1.get(0)" value ="0" 
+										onchange="cambiaEstado(id,value,'@lista1.get(10)','@lista1.get(8)','@lista1.get(2)','@lista1.get(13)')">
 									</td>
 								</TR>
 				 			}
@@ -98,6 +106,20 @@ listaAconfirmar: List[List[String]])
 		
 	}
 	
+			
+	const selectAll = () => {
+		$(".checkVal").attr('checked',true);
+		let filas = $(".checkVal").length;
+		let aux = "";
+		for(let i=0; i<filas; i++){
+			$(".checkVal")[i].value = "1";
+			
+			aux += ""+$(".idCompra")[i].value + "," + $(".idSucursal")[i].value  
+					+ "," + $(".idEquipo")[i].value + "," + $(".cantCant")[i].value 
+					+ "," + $(".idBodDest")[i].value + ";"
+			$("#cambiosDeEstados").val(aux);
+		}
+	}
 	
 	
 </script>

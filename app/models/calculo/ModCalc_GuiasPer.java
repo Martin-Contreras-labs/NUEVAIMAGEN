@@ -95,7 +95,7 @@ public class ModCalc_GuiasPer {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	public static List<ModCalc_GuiasPer> resumenGuiasPer(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas, 
+	public static List<ModCalc_GuiasPer> resumenGuiasPer(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas, 
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {	
 		
 //		SON FUNCIONES QUE ALIMENTAN ESTA FUNCION
@@ -115,6 +115,17 @@ public class ModCalc_GuiasPer {
 		
 		//DETERMINA LOS TOTALES DE GUIAS DEL PERIODO
 		for(int i=0; i<guiasPer.size(); i++) {
+			
+			
+			for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+    	  		Long k = entry.getKey();
+				Double aux = mapFijaTasas.get(guiasPer.get(i).id_bodegaEmpresa + "_" +k);
+				if(aux != null) {
+					entry.setValue(aux);
+				}
+			}
+			
+			
 				Long cobraDiaDespacho = (long) 0, nDiaGraciaEnvio = (long) 0, nDiaGraciaRegreso = (long) 0, tratoDevoluciones = (long) 0;
 				Double tasaCfi = (double)0;
 				

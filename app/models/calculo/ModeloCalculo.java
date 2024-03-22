@@ -61,7 +61,7 @@ public class ModeloCalculo {
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
-	public static List<ModeloCalculo> valorTotalporBodega(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,
+	public static List<ModeloCalculo> valorTotalporBodega(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
 		
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
@@ -203,6 +203,19 @@ public class ModeloCalculo {
 		
 		for (Long v : listaBodegas.values()) {
 			
+			
+			for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+    	  		Long k = entry.getKey();
+				Double aux = mapFijaTasas.get(v + "_" +k);
+				if(aux != null) {
+					entry.setValue(aux);
+				}
+			}
+			
+			
+			
+			
+			
 			Double totVenta = (double) 0, totArriendo = (double) 0, totCfi = (double) 0, totTot = (double) 0;
 			Double maestroTotVenta = (double) 0, maestroTotArriendo = (double) 0, maestroTotCfi = (double) 0, maestroTotTot = (double) 0;
 			
@@ -268,7 +281,7 @@ public class ModeloCalculo {
 		return(listado);
 	}
 	
-	public static List<ModeloCalculo> valorTotalporBodegaSinAjustes(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,
+	public static List<ModeloCalculo> valorTotalporBodegaSinAjustes(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
 		
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
@@ -466,8 +479,9 @@ public class ModeloCalculo {
 		return(listado);
 	}
 	
-	public static List<ModeloCalculo> valorTotalporBodegaYGrupo(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,
+	public static List<ModeloCalculo> valorTotalporBodegaYGrupo(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
+		
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
 		Map<String,String> listaBodegasGrupo = new HashMap<String,String>();
 		Map<String,ModeloCalculo> invInicial = new HashMap<String,ModeloCalculo>();
@@ -597,7 +611,7 @@ public class ModeloCalculo {
 		return(listado);
 	}
 	
-	public static List<ModeloCalculo> valorTotalporBodegaYGrupoYEquipo(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,
+	public static List<ModeloCalculo> valorTotalporBodegaYGrupoYEquipo(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
 		Map<String,String> listaBodegasEquipo = new HashMap<String,String>();
@@ -606,6 +620,7 @@ public class ModeloCalculo {
 		Long flagId_Bodega = (long) 0, flagId_Equipo = (long) 0;
 		Long id_bodegaEmpresa = (long) 0, id_equipo = (long) 0;
 		Double totalVenta = (double) 0, totalCfi = (double) 0, totalArriendo = (double) 0;
+	
 		//INVENTARIO INICIAL:
 		for(int i=0; i<inventarioInicial.size(); i++) {
 			if((flagId_Bodega - inventarioInicial.get(i).id_bodegaEmpresa) != 0) {

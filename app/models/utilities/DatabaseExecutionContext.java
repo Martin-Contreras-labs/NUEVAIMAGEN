@@ -1,14 +1,27 @@
 package models.utilities;
 
 
-import org.apache.pekko.actor.ActorSystem;
+import play.db.Database;
+import play.db.DBApi;
 
-import play.libs.concurrent.CustomExecutionContext;
+import java.sql.Connection;
 
-public class DatabaseExecutionContext extends CustomExecutionContext {
-  @javax.inject.Inject
-  public DatabaseExecutionContext(ActorSystem actorSystem) {
-    // uses a custom thread pool defined in application.conf
-    super(actorSystem, "database.dispatcher");
-  }
+import javax.inject.Inject;
+
+public class DatabaseExecutionContext {
+    private final Database dbWrite;
+
+    @Inject
+    public DatabaseExecutionContext(DBApi dbApi) {
+        this.dbWrite = dbApi.getDatabase("default");
+    }
+
+    public Database getDb() {
+        return dbWrite;
+    }
+    
+    public Connection getConnection(DatabaseExecutionContext dbWrite) {
+    	Database db2 = dbWrite.getDb();
+    	return db2.getConnection();
+    }
 }

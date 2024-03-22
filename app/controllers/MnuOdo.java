@@ -1933,9 +1933,10 @@ public class MnuOdo extends Controller {
 		    			Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
 		    			Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			con.close();
 		    			return ok(reportProfProyOdo.render(mapeoDiccionario,mapeoPermiso,userMnu,resumenTotalesPorProyecto,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD),archivoPDF));
 		        	} catch (SQLException e) {
@@ -1976,8 +1977,9 @@ public class MnuOdo extends Controller {
 		    			Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
 		    			Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			File file = ReportOdo.exportaProformaExcelProyectos(s.baseDato, mapeoDiccionario, resumenTotalesPorProyecto, desdeAAMMDD, hastaAAMMDD, uf, usd, eur);
 		    			
@@ -2701,8 +2703,9 @@ public class MnuOdo extends Controller {
 		    			Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
 		    			Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			Map<String, List<List<String>>> mapAgrupado =  new HashMap<String, List<List<String>>>();
 		    			Map<String, List<List<String>>> mapDetallado =  new HashMap<String, List<List<String>>>();
@@ -2769,8 +2772,9 @@ public class MnuOdo extends Controller {
 		    			Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
 		    			Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			Map<String, List<List<String>>> mapAgrupado =  new HashMap<String, List<List<String>>>();
 		    			Map<String, List<List<String>>> mapDetallado =  new HashMap<String, List<List<String>>>();
@@ -2988,8 +2992,9 @@ public class MnuOdo extends Controller {
 		    			Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
 		    			Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, 
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, 
 		    					mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			con.close();
 		    			return ok(reporteMovOdoCantLista.render(mapeoDiccionario,mapeoPermiso,userMnu,resumenTotalesPorProyecto,fechaDesde,fechaHasta));
@@ -3133,8 +3138,9 @@ public class MnuOdo extends Controller {
 		    			Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
 		    			Long id_grupo = (long)0; // 0 es todos los grupos de equipos
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			
 		    			con.close();

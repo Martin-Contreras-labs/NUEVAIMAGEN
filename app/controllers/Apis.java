@@ -460,9 +460,11 @@ public class Apis extends Controller {
     			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
     			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
     			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
-    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
+    			
+    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
     			
     			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, baseDato, valorTotalPorBodega);
 	   			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(con, baseDato, valorTotalPorBodega, "0", "0");

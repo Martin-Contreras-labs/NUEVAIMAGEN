@@ -79,7 +79,7 @@ public class ModCalc_InvInicial {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	public static List<ModCalc_InvInicial> resumenInvInicial(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas, 
+	public static List<ModCalc_InvInicial> resumenInvInicial(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas, 
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
 		
 //		SON FUNCIONES QUE ALIMENTAN ESTA FUNCION
@@ -96,7 +96,16 @@ public class ModCalc_InvInicial {
 		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 		
+		
 		for(int i=0; i<inventario.size(); i++) {
+			
+			for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+    	  		Long k = entry.getKey();
+				Double aux = mapFijaTasas.get(inventario.get(i).id_bodegaEmpresa + "_" +k);
+				if(aux != null) {
+					entry.setValue(aux);
+				}
+			}
 			
 			if((long) inventario.get(i).esVenta == (long) 0 && (double) inventario.get(i).cantidad > (double) 0) {
 			

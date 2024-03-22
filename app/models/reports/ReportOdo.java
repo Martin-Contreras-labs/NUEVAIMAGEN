@@ -51,7 +51,7 @@ public class ReportOdo {
 	
 	
 	
-	public static List<List<String>> resumenTotalesPorProyecto(Connection con, String db, List<VentaServicio> listVentaServicio, Map<Long,Double> tasas, 
+	public static List<List<String>> resumenTotalesPorProyecto(Connection con, String db, List<VentaServicio> listVentaServicio, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas, 
 			Map<Long,Long> mapDec, Map<Long,Double> mapTotalAjustePorBodega,
 			Map<Long,BodegaEmpresa> mapBodegas, Map<String,ListaPrecioServicio> mapPrecios, Long id_grupo, Map<Long,Long> mapIdEquipoVsIdGrupo) {
 		List<List<String>> lista = new ArrayList<List<String>>();
@@ -96,6 +96,16 @@ public class ReportOdo {
 			String idServicio = aux1[1];
 			Long id_equipo = Long.parseLong(aux1[2]);
 			Long id_cotiOdo = Long.parseLong(aux1[3]);
+			
+			
+			for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+    	  		Long key = entry.getKey();
+				Double aux = mapFijaTasas.get(idBodegaEmpresa + "_" +key);
+				if(aux != null) {
+					entry.setValue(aux);
+				}
+			}
+			
 			
 			boolean flag = true;
 			

@@ -114,12 +114,12 @@ public class ReportFacturas {
 		return (lista);
 	}
 	
-	public static List<List<String>> reportEstadoInicial10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas, 
+	public static List<List<String>> reportEstadoInicial10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas, 
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
 		
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
-		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		List<ModCalc_InvInicial> resumenInvInicial = new ArrayList<ModCalc_InvInicial>();
 		for(ModCalc_InvInicial x: resumenInvInicialAll) {
 			if((long)x.id_bodegaEmpresa==(long)id_bodegaEmpresa) {
@@ -294,10 +294,10 @@ public class ReportFacturas {
 	}
 	
 	public static List<List<String>> reportEstadoResumen10(Connection con, String db, List<List<String>> inicioPer, List<List<String>> guiasPer,
-			Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,  
+			Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,  
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
 		
-		
+	
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		for(int i=0;i<inicioPer.size();i++){
@@ -313,7 +313,7 @@ public class ReportFacturas {
 			}
 		}
 		
-		Map<String,List<List<String>>> mapDetalle = ReportFacturas.mapReportPorGuia10(con, db, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		Map<String,List<List<String>>> mapDetalle = ReportFacturas.mapReportPorGuia10(con, db, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		
 		for(int i=0;i<guiasPer.size();i++){
 			List<List<String>> detGuia = mapDetalle.get(guiasPer.get(i).get(8));
@@ -429,11 +429,11 @@ public class ReportFacturas {
 		return(lista);
 	}
 	
-	public static Map<String,List<List<String>>> mapReportPorGuia10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD,String hastaAAMMDD, Map<Long,Double> tasas,
+	public static Map<String,List<List<String>>> mapReportPorGuia10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD,String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
 		Map<String,List<List<String>>> map = new HashMap<String,List<List<String>>>();
 		
-		List<ModCalc_GuiasPer> guiasPerAll = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		List<ModCalc_GuiasPer> guiasPerAll = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		List<ModCalc_GuiasPer> guiasPer = new ArrayList<ModCalc_GuiasPer>();
 		for(ModCalc_GuiasPer x: guiasPerAll) {
 			if((long)x.id_bodegaEmpresa==(long)id_bodegaEmpresa) {	
@@ -2300,30 +2300,41 @@ public class ReportFacturas {
 	
 	public static List<List<String>> resumenPorGrupoYProyecto (Connection con, String db,List<List<String>> proyectos, Map<String, List<List<String>>> mapResumenSubtotales ){
 		List<List<String>> listaAux = new ArrayList<List<String>>();
+		
+		Map<String,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAllNombreExternas(con, db);
+		
 		for(int i=0;i<proyectos.size();i++){
 			List<List<String>> resumenSubtotales = mapResumenSubtotales.get(proyectos.get(i).get(11));
 			
 			for(int j=0;j<resumenSubtotales.size();j++){
-				List<String> aux = new ArrayList<String>();
-				aux.add(resumenSubtotales.get(j).get(0));		//0 grupo
-				aux.add(proyectos.get(i).get(5));				//1 bodegaEmpresa
-				aux.add(proyectos.get(i).get(6));				//2 rut
-				aux.add(proyectos.get(i).get(7));				//3 cliente
-				aux.add(resumenSubtotales.get(j).get(1));		//4 total arriendo
-				aux.add(resumenSubtotales.get(j).get(2));		//5 total compra
-				aux.add(resumenSubtotales.get(j).get(3));		//6 total CFI
-				aux.add(proyectos.get(i).get(8));				//7 proyecto
 				
-				String auxArriendo=resumenSubtotales.get(j).get(1);
-				String auxVenta=resumenSubtotales.get(j).get(2);
-				String auxCfi=resumenSubtotales.get(j).get(3);
-				auxArriendo=auxArriendo.replaceAll(",", "");
-				auxVenta=auxVenta.replaceAll(",", "");
-				auxCfi=auxCfi.replaceAll(",", "");
+				BodegaEmpresa bodega = mapBodega.get(proyectos.get(i).get(5));
 				
-				if(Double.parseDouble(auxArriendo.trim())>0||Double.parseDouble(auxVenta.trim())>0||Double.parseDouble(auxCfi.trim())>0) {
-					listaAux.add(aux);
+				if(bodega!=null) {
+					List<String> aux = new ArrayList<String>();
+					aux.add(resumenSubtotales.get(j).get(0));		//0 grupo
+					aux.add(proyectos.get(i).get(5));				//1 bodegaEmpresa
+					aux.add(proyectos.get(i).get(6));				//2 rut
+					aux.add(proyectos.get(i).get(7));				//3 cliente
+					aux.add(resumenSubtotales.get(j).get(1));		//4 total arriendo
+					aux.add(resumenSubtotales.get(j).get(2));		//5 total compra
+					aux.add(resumenSubtotales.get(j).get(3));		//6 total CFI
+					aux.add(proyectos.get(i).get(8));				//7 proyecto
+					
+					aux.add(bodega.getNameSucursal());							//8 sucursal
+					
+					String auxArriendo=resumenSubtotales.get(j).get(1);
+					String auxVenta=resumenSubtotales.get(j).get(2);
+					String auxCfi=resumenSubtotales.get(j).get(3);
+					auxArriendo=auxArriendo.replaceAll(",", "");
+					auxVenta=auxVenta.replaceAll(",", "");
+					auxCfi=auxCfi.replaceAll(",", "");
+					
+					if(Double.parseDouble(auxArriendo.trim())>0||Double.parseDouble(auxVenta.trim())>0||Double.parseDouble(auxCfi.trim())>0) {
+						listaAux.add(aux);
+					}
 				}
+				
 			}
 		}
 		
@@ -2396,6 +2407,7 @@ public class ReportFacturas {
 				aux1.add("");
 				aux1.add("");
 				aux1.add("");
+				aux1.add(listaAux.get(i).get(8));
 				listaRs.add(aux1);
 				
 				List<String> aux2 = new ArrayList<String>();
@@ -2408,6 +2420,7 @@ public class ReportFacturas {
 				aux2.add(listaAux.get(i).get(5));
 				aux2.add(myformatMonedaOrigen.format(auxSubTotA+auxSubTotV+auxSubTotCfi));
 				aux2.add(listaAux.get(i).get(7));
+				aux2.add(listaAux.get(i).get(8));
 				listaRs.add(aux2);
 			}else{
 				
@@ -2440,6 +2453,7 @@ public class ReportFacturas {
 				aux3.add(listaAux.get(i).get(5));
 				aux3.add(myformatMonedaOrigen.format(auxSubTotA+auxSubTotV+auxSubTotCfi));
 				aux3.add(listaAux.get(i).get(7));
+				aux3.add(listaAux.get(i).get(8));
 				listaRs.add(aux3);
 			}
 			int x = 0;
@@ -2455,6 +2469,7 @@ public class ReportFacturas {
 				aux4.add(myformatMonedaOrigen.format(subtotalV));
 				aux4.add(myformatMonedaOrigen.format(subtotalA+subtotalV+subtotalCfi));
 				aux4.add("");
+				aux4.add(listaAux.get(i).get(8));
 				listaRs.add(aux4);
 				totalA=totalA+subtotalA;
 				totalV=totalV+subtotalV;
@@ -2471,6 +2486,7 @@ public class ReportFacturas {
 				aux4.add(myformatMonedaOrigen.format(subtotalV));
 				aux4.add(myformatMonedaOrigen.format(subtotalA+subtotalV+subtotalCfi));
 				aux4.add("");
+				aux4.add(listaAux.get(i).get(8));
 				listaRs.add(aux4);
 				totalA=totalA+subtotalA;
 				totalV=totalV+subtotalV;
@@ -2479,6 +2495,7 @@ public class ReportFacturas {
 			
 		}
 		List<String> aux4 = new ArrayList<String>();
+		aux4.add("");
 		aux4.add("");
 		aux4.add("");
 		aux4.add("");
@@ -2499,6 +2516,7 @@ public class ReportFacturas {
 		aux5.add(myformatMonedaOrigen.format(totalV));
 		aux5.add(myformatMonedaOrigen.format(totalA+totalV+totalCfi));
 		aux5.add("");
+		aux4.add("");
 		listaRs.add(aux5);
 		List<String> aux6 = new ArrayList<String>();
 		aux6.add("");
@@ -2510,6 +2528,7 @@ public class ReportFacturas {
 		aux6.add(myformatMonedaOrigen.format(totalA+totalV+totalCfi));
 		aux6.add("");
 		aux6.add("");
+		aux4.add("");
 		listaRs.add(aux6);
 		
 		return(listaRs);
@@ -3471,6 +3490,12 @@ public class ReportFacturas {
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUCURSAL");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
 	        
 			if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
@@ -3523,226 +3548,113 @@ public class ReportFacturas {
 	        cfi = (double)0;
 	        totaltotal = (double)0;
 			
-	        for(int i=0;i<resumenPorGrupoYProyecto.size()-2;i++){
+	        String auxGrupo = "0";
+	        for(int i=0;i<resumenPorGrupoYProyecto.size()-3;i++){
 	        	
-	        	posRow++;
-				posCell = 0;
-		        row = hoja1.createRow(posRow);
+	        	
 		        
-		        if(resumenPorGrupoYProyecto.get(i).get(3).equals("SUBTOTAL")||resumenPorGrupoYProyecto.get(i).get(0).equals("TOTAL")){
-		        	posCell++;
-					cell = row.createCell(posCell);
-					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(0));
-					
-					posCell++;
-					cell = row.createCell(posCell);
-					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(1));
-					
-					if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
-						posCell++;
-						cell = row.createCell(posCell);
-			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(2));
-						
-						posCell++;
-						cell = row.createCell(posCell);
-			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(3));
-					}
-					
-					posCell++;
-					cell = row.createCell(posCell);
-					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(8));
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(4).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					cfi += aux;
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(5).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					arriendo += aux;
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(6).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					venta += aux;
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(7).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					totaltotal += aux;
-					
+		        if(!resumenPorGrupoYProyecto.get(i).get(0).equals("")) {
+		        	auxGrupo = resumenPorGrupoYProyecto.get(i).get(0);
 		        }else {
-		        	posCell++;
-					cell = row.createCell(posCell);
-					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(0));
-					
-					posCell++;
-					cell = row.createCell(posCell);
-					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(1));
-					
-					if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
-						posCell++;
+		        	if( ! (resumenPorGrupoYProyecto.get(i).get(3).equals("SUBTOTAL")) && ! (resumenPorGrupoYProyecto.get(i).get(3).equals("TOTAL")) ){
+		        		
+		        		posRow++;
+						posCell = 0;
+				        row = hoja1.createRow(posRow);
+				        
+			        	posCell++;
 						cell = row.createCell(posCell);
-			            cell.setCellStyle(detalle);
+						cell.setCellStyle(detalle);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(2));
+						cell.setCellValue(auxGrupo);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-			            cell.setCellStyle(detalle);
+						cell.setCellStyle(detalle);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(3));
-					}
-					
-					posCell++;
-					cell = row.createCell(posCell);
-					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(8));
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            if(resumenPorGrupoYProyecto.get(i).get(4).equals("")) {
-		            	aux = (double)0;
-		            }else {
-		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(4).replaceAll(",", ""));
-		            }
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					cfi += aux;
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            if(resumenPorGrupoYProyecto.get(i).get(5).equals("")) {
-		            	aux = (double)0;
-		            }else {
-		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(5).replaceAll(",", ""));
-		            }
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					arriendo += aux;
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            if(resumenPorGrupoYProyecto.get(i).get(6).equals("")) {
-		            	aux = (double)0;
-		            }else {
-		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(6).replaceAll(",", ""));
-		            }
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					venta += aux;
-					
-					posCell++; 
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(detalle);
-		            if(resumenPorGrupoYProyecto.get(i).get(7).equals("")) {
-		            	aux = (double)0;
-		            }else {
-		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(7).replaceAll(",", ""));
-		            }
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-					totaltotal += aux;
-					
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(9));
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(1));
+						
+						if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(2));
+							
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(3));
+						}
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(8));
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            if(resumenPorGrupoYProyecto.get(i).get(4).equals("")) {
+			            	aux = (double)0;
+			            }else {
+			            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(4).replaceAll(",", ""));
+			            }
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						cfi += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            if(resumenPorGrupoYProyecto.get(i).get(5).equals("")) {
+			            	aux = (double)0;
+			            }else {
+			            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(5).replaceAll(",", ""));
+			            }
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						arriendo += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            if(resumenPorGrupoYProyecto.get(i).get(6).equals("")) {
+			            	aux = (double)0;
+			            }else {
+			            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(6).replaceAll(",", ""));
+			            }
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						venta += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            if(resumenPorGrupoYProyecto.get(i).get(7).equals("")) {
+			            	aux = (double)0;
+			            }else {
+			            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(7).replaceAll(",", ""));
+			            }
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						totaltotal += aux;
+						
+			        }
 		        }
+		        
+		        
+		        
 	        }
 	        
-	        posRow++;
-			posCell = 0;
-	        row = hoja1.createRow(posRow);
-	        
-	        posCell++;
-			cell = row.createCell(posCell);
-			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("TOTAL");
-			
-			posCell++;
-			cell = row.createCell(posCell);
-			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("");
-	        
-			if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
-				posCell++;
-				cell = row.createCell(posCell);
-	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("");
-				
-				posCell++;
-				cell = row.createCell(posCell);
-	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("");
-			}
-			
-			posCell++;
-			cell = row.createCell(posCell);
-            cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("");
-			
-			posCell++; 
-            cell = row.createCell(posCell);
-            cell.setCellStyle(pie);
-            aux = cfi/2;
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-			cell.setCellValue(aux);
-			
-			posCell++; 
-            cell = row.createCell(posCell);
-            cell.setCellStyle(pie);
-            aux = arriendo/2;
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-			cell.setCellValue(aux);
-			
-			posCell++; 
-            cell = row.createCell(posCell);
-            cell.setCellStyle(pie);
-            aux = venta/2;
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-			cell.setCellValue(aux);
-			
-			posCell++; 
-            cell = row.createCell(posCell);
-            cell.setCellStyle(pie);
-            aux = totaltotal/2;
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-			cell.setCellValue(aux);
-			
-			
 			// llena RESUMEN POR PROYECTO Y FAMILIA
 			
 			posRow += 4;

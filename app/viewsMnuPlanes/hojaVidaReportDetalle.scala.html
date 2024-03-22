@@ -107,22 +107,38 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 					</tr>
 					<tr>
 						<TH style="text-align:center">Plan</TH>
-						<TH style="text-align:center">Fecha Nueva<br>Lectura Tomada</TH>
+						<TH style="text-align:center">Fecha<br>Lectura</TH>
 						<TH style="text-align:center">Unidad</TH>
-						<TH style="text-align:center">Cantidad Nueva<br>Lectura Tomada</TH>
+						<TH style="text-align:center">Cantidad<br>Lectura</TH>
 						<TH style="text-align:center">Rotación (Cada X Cantidad<br>Correspone Mantención)</TH>
 						<TH style="text-align:center">Consumo Promedio<br>Mensual Estimado</TH>
 						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
+						<TH style="text-align:center">Fecha Estimada<br>Mantencion</TH>
 					</tr>
 					@for(lista <- allPlan){
 						<tr>
 							<td style="text-align:center">@lista.tipoPlanNombre</td>
-							<td style="text-align:center">@lista.fechaReset</td>
+							<td style="text-align:center">
+								<input type="hidden" class="fechaReset" value="@lista.fechaReset">
+								@lista.fechaReset
+							</td>
 							<td style="text-align:center">@lista.unidadMantencion</td>
-							<td style="text-align:right">@lista.estadoActual</td>
+							<td style="text-align:right">
+								<input type="hidden" class="estadoActual" value="@lista.estadoActual">
+								@lista.estadoActual
+							</td>
 							<td style="text-align:center">@lista.cadaNEstimado</td>
-							<td style="text-align:center">@lista.consumoEstimadoPorMes</td>
-							<td style="text-align:right">@lista.proximaMantencion</td>
+							<td style="text-align:center">
+								<input type="hidden" class="consumoEstimadoPorMes" value="@lista.consumoEstimadoPorMes">
+								@lista.consumoEstimadoPorMes
+							</td>
+							<td style="text-align:right">
+								<input type="hidden" class="proximaMantencion" value="@lista.proximaMantencion">
+								@lista.proximaMantencion
+							</td>
+							<td style="text-align:center">
+								<input type="date" class="fechaEstimada form-control center" disabled>
+							</td>
 						</tr>
 					}
 				</table>
@@ -220,11 +236,34 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		
-
-		
+		calcFechaProxima();
 		  document.getElementById('mostrarmostrar').style.display="block";
 	});
+	
+	const calcFechaProxima = () =>{
+		let filas = $(".estadoActual").length;
+			let hoy = new Date();
+			
+			for(let i=0; i<filas; i++){
+				let fecha = $(".fechaReset")[i].value;
+				let proxima =  $(".proximaMantencion")[i].value;
+				proxima = proxima.replace(/,/g,'');
+				let actual =  $(".estadoActual")[i].value;
+				actual = actual.replace(/,/g,'');
+				let rotacion =  $(".consumoEstimadoPorMes")[i].value;
+				rotacion = rotacion.replace(/,/g,'');
+				let dif = parseFloat(proxima) - parseFloat(actual);
+				if(dif <= 0 || parseFloat(rotacion) <= 0){
+					$(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+				}else{
+					let diasASumar = dif/rotacion * 30;
+					let aux = fecha.split("-");
+					let auxFecha = new Date(aux[0],parseInt(aux[1])-1,aux[2]);
+					auxFecha.setDate(auxFecha.getDate() + diasASumar);
+					$(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+				}
+			}
+	}
 	
 	const mostrarPDF = (nombrePDF) => {
 		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";

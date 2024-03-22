@@ -16,6 +16,7 @@ import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
 import models.reports.ReportFacturas;
 import models.tables.AjustesEP;
+import models.tables.BodegaEmpresa;
 import models.tables.Guia;
 
 
@@ -130,9 +131,11 @@ public class ResumenDetallePorPeriodo {
 			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
-			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
+			
+			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, db, valorTotalPorBodega);  						// RESUMEN INICIAL DEL REPORTE
 			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(con, db, valorTotalPorBodega, esPorSucursal, id_sucursal); 
 			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con, db, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO

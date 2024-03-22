@@ -253,6 +253,7 @@ sinVenta: String)
 										<div class="verificaStock" id="stock_@lista1.get(0)_@lista1.get(1)">@lista1.get(9)</div>
 									</td>
 									<td  style="text-align:center;">
+										<div style='display:none'>@lista1.get(10)</div>
 										<div align="center">
 											<input type="text" class="cantidad form-control height23px right width80px"
 												name="cantidad[]"
@@ -292,6 +293,7 @@ sinVenta: String)
 										<input type="hidden" name="esNuevo[]" id="esNuevo_@lista1.get(0)_@lista1.get(1)" value="@lista1.get(12)">
 									</td>
 									<td style="text-align:right;">
+										<div style='display:none'>@lista1.get(13)</div>
 										<div align="center">
 											<input type="text" class="exceso form-control height23px right width80px"
 												name="exceso[]"
@@ -1159,14 +1161,24 @@ sinVenta: String)
 	
 	const verificaMovimientos = () =>{
 		$('#tablaPrincipal').dataTable().fnAddData( [
-			"TOTALES","","","","","","","","<div id='totalCant'>1.00</div>","","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+			"TOTALES",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			
+			"<div id='totalCant'>1.00</div>","","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
 				@if(bodegaOrigen.esInterna!=1){
 					"",
 					@for((est,index) <- listTipoEstado.zipWithIndex){
 							"",
 					}
 					@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
-						"<div id='totalCantCliente'>0.00</div>","<div id='totalDifCliente'>0.00</div>",
+						"<div id='totalCantCliente'>0.00</div>",
+						"<div id='totalDifCliente'>0.00</div>",
 					}
 				}
 		] );
@@ -1244,6 +1256,16 @@ sinVenta: String)
 		document.getElementById('modifica').style.visibility = 'visible';
 		document.getElementById('aplica').style.visibility = 'visible';
 		if('@bodegaOrigen.esInterna'=='2') document.getElementById('agregarEquiposNoEnviados').style.visibility = 'hidden';
+		
+		
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[-1, 15, 50, 100, 200], ["ALL", 15, 50, 100, 200]],
+	    	"order": [[ 2, "asc" ]],
+	    	"language": {
+	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        }
+	  	} );
 		
 	}
 		

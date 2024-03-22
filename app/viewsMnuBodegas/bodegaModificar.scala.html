@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], tipoBodega: tables.TipoBodega, bodega: tables.BodegaEmpresa, listRegiones: List[tables.Regiones],
-listComercial: List[tables.Comercial])
+listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: List[List[String]])
 
     	
 @main("") {
@@ -210,6 +210,59 @@ listComercial: List[tables.Comercial])
 											</select>
 										</td>
 									</tr>
+									
+									
+									@if(mapDiccionario.get("nEmpresa").equals("DEMO")){
+										<tr>
+											<td style="text-align:left;">Fijar tasas de cambio: </td>
+											<td style="text-align:left;">
+												<table id="fijaTasas" class="table table-sm table-bordered table-condensed table-fluid">
+													<thead>
+														<tr>
+															<th width="30%">Mon</th>
+															<th>Tasa</th>
+															<th width="10%">Del</th>
+														</tr>
+													</thead>
+													<tbody>
+														@for(lista <- fijaTasas){
+															<tr>
+																<td>
+																	<input type="hidden" name="idsMoneda[]" value="@lista.get(0)">
+																	@lista.get(2)
+																</td>
+																<td>
+																	<input type="text" class="form-control right"
+																		name="tasaCambio[]"
+																		value="@lista.get(1)"
+																		onkeypress="return ingresoDouble(event,value)"
+																		onchange="if(value.trim() == '') value='0';"
+																		autocomplete="off">
+																</td>
+																<td>
+																	<a href="#" onclick="eliminarFila(this)"><kbd style="background-color: red">X</kbd></a>
+																</td>
+															</tr>
+														} 
+														<tr>
+															<td>
+																<select class="custom-select" name="id_moneda[]" onchange="selMon(value)">
+																	<option value='0'></option>
+																	@for(lista <- listMon){
+																		<option value="@lista.id _ @lista.nickName">@lista.nickName</option>
+																	}
+																</select>
+															</td>
+															<td></td>
+															<td></td>
+														</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									}
+									
+									
 									@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 										<tr>
 											<td style="text-align:left;">PEP: </td>
@@ -508,6 +561,40 @@ listComercial: List[tables.Comercial])
 	const validarForm = () =>{
 		$("#btnSubmit").attr('disabled',true);
 		return(true);
+	}
+	
+	const selMon = (idMon_mon) => {
+		
+		let aux = idMon_mon.split(" _ ");
+		let id = aux[0];
+		let mon = aux[1];
+	
+		let tabla = document.getElementById("fijaTasas");
+		let row = tabla.insertRow(tabla.rows.length-1);
+		let cell;
+		
+		cell = row.insertCell(0);
+		cell.style.textAlign = "left";
+		cell.innerHTML = "<input type=\"hidden\" name=\"idsMoneda[]\" value=\""+id+"\">"+mon;
+		
+		cell = row.insertCell(1);
+		cell.style.textAlign = "left";
+		cell.innerHTML = "<input type=\"text\" class=\"form-control right\" "+
+			"name=\"tasaCambio[]\" "+
+			"value=\"0\" "+
+			"onkeypress=\"return ingresoDouble(event,value)\" "+
+			"onchange=\"if(value.trim() == '') value='0';\" "+
+			"autocomplete=\"off\" \">";
+		
+		cell = row.insertCell(2);
+		cell.style.textAlign = "center";
+		cell.innerHTML = "<a href=\"#\" onclick= \"eliminarFila(this)\"><kbd style=\"background-color: red\">X</kbd></a>";
+		
+	}
+	
+	const eliminarFila = (nodo) =>{
+		let nodoTd = nodo.parentNode.parentNode; 
+		$(nodoTd).remove();
 	}
 
 </script>

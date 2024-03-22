@@ -105,7 +105,7 @@ public class ReportGerenciales {
 		Map<Long,Long> mapDec = Moneda.numeroDecimal(con, db);
 		
 		Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, db);
-		
+		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 		
 		
 		//revisa y llena historico a partir del ultimo ingreso
@@ -140,7 +140,7 @@ public class ReportGerenciales {
 				}
 				
 				
-				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
 				ReportGerenciales.actualizaTablaReportGerencial(con, db, datos, listIniFinMes2Anios.get(i).get(2), id_grupo);
@@ -236,7 +236,7 @@ public class ReportGerenciales {
 					tasas.put((long)4, (double)1);
 				}
 				
-				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo, mapDec, mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
 				String[] aux = listIniFinMes2Anios.get(i).get(3).split("-");
@@ -381,7 +381,7 @@ public class ReportGerenciales {
 		Map<Long,Long> mapDec = Moneda.numeroDecimal(con, db);
 		
 		Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, db);
-		
+		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 		
 		
 		//revisa y llena historico a partir del ultimo ingreso
@@ -416,7 +416,7 @@ public class ReportGerenciales {
 				}
 				
 				
-				List<String> datos = ReportGerenciales.resumenTotalMesAnioSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+				List<String> datos = ReportGerenciales.resumenTotalMesAnioSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
 				ReportGerenciales.actualizaTablaReportGerencial(con, db, datos, listIniFinMes2Anios.get(i).get(2), id_grupo);
@@ -512,7 +512,7 @@ public class ReportGerenciales {
 					tasas.put((long)4, (double)1);
 				}
 				
-				List<String> datos = ReportGerenciales.resumenTotalMesAnioSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+				List<String> datos = ReportGerenciales.resumenTotalMesAnioSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo, mapDec, mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
 				String[] aux = listIniFinMes2Anios.get(i).get(3).split("-");
@@ -712,12 +712,12 @@ public class ReportGerenciales {
 		return(lista);
 	}
 	
-	public static List<String> resumenTotalMesAnio (Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,
+	public static List<String> resumenTotalMesAnio (Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, Map<Long,Calc_Precio> mapPreciosCompra, 
 			Map<Long,BodegaEmpresa> mapBodegas, Long id_grupo, Map<Long,Long> mapDec, Map<String,ListaPrecioServicio> mapPreciosOdo, Map<Long,Long> mapIdEquipoVsIdGrupo,
 			String esPorSucursal, String id_sucursal){
 		
-		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		if(id_grupo > 0) {
 			List<ModCalc_InvInicial> aux = new ArrayList<ModCalc_InvInicial>();
 			for(ModCalc_InvInicial x: inventarioInicial) {
@@ -728,7 +728,7 @@ public class ReportGerenciales {
 			inventarioInicial = aux;
 		}
 		
-		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		if(id_grupo > 0) {
 			List<ModCalc_GuiasPer> aux = new ArrayList<ModCalc_GuiasPer>();
 			for(ModCalc_GuiasPer x: guiasPeriodo) {
@@ -739,7 +739,7 @@ public class ReportGerenciales {
 			guiasPeriodo = aux;
 		}
 		
-		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial, guiasPeriodo);
+		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
 		
 		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, hastaAAMMDD);
 		
@@ -759,7 +759,7 @@ public class ReportGerenciales {
 		List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		
-		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		Double vtaOdo = (double)0;
 		for(List<String> lista: resumenTotalesPorProyecto) {
 			String tot = lista.get(7).replaceAll(",", "").trim();
@@ -832,12 +832,14 @@ public class ReportGerenciales {
 		return(lista);
 	}
 	
-	public static List<String> resumenTotalMesAnioSinAjustes (Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<Long,Double> tasas,
+	public static List<String> resumenTotalMesAnioSinAjustes (Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, Map<Long,Calc_Precio> mapPreciosCompra, 
 			Map<Long,BodegaEmpresa> mapBodegas, Long id_grupo, Map<Long,Long> mapDec, Map<String,ListaPrecioServicio> mapPreciosOdo, Map<Long,Long> mapIdEquipoVsIdGrupo,
 			String esPorSucursal, String id_sucursal){
 		
-		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		
+		
+		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		if(id_grupo > 0) {
 			List<ModCalc_InvInicial> aux = new ArrayList<ModCalc_InvInicial>();
 			for(ModCalc_InvInicial x: inventarioInicial) {
@@ -848,7 +850,7 @@ public class ReportGerenciales {
 			inventarioInicial = aux;
 		}
 		
-		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		if(id_grupo > 0) {
 			List<ModCalc_GuiasPer> aux = new ArrayList<ModCalc_GuiasPer>();
 			for(ModCalc_GuiasPer x: guiasPeriodo) {
@@ -859,7 +861,7 @@ public class ReportGerenciales {
 			guiasPeriodo = aux;
 		}
 		
-		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodegaSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial, guiasPeriodo);
+		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodegaSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
 		
 		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, hastaAAMMDD);
 		
@@ -879,7 +881,7 @@ public class ReportGerenciales {
 		List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		
-		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		Double vtaOdo = (double)0;
 		for(List<String> lista: resumenTotalesPorProyecto) {
 			String tot = lista.get(7).replaceAll(",", "").trim();

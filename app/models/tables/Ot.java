@@ -1768,32 +1768,62 @@ public class Ot {
 		String vista="";
 		
 		BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, db, coti.getId_bodegaEmpresa());
-		vista=vista+
-		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
-			"<tr>"+
-				"<td><input type='hidden' name='id_ot' value='"+ot.getId()+"'<label>N° "+mapeoDiccionario.get("OT")+": "+ot.numero+"</label></td>"+
-				"<td><label>Fecha "+mapeoDiccionario.get("OT")+": "+Fechas.DDMMAA(ot.fecha)+"</label></td>"+
-				"<td><label>N° COTI: "+coti.numero+"</label></td>"+
-				"<td><label>Fecha COTI: "+Fechas.DDMMAA(coti.fecha)+"</label></td>"+
-				
-				"<td><label>"+mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodega.getNombre()+"</label></td>"+
-				"<td><label>N° OC: "+coti.getNumeroOC()+"</label></td>"+
-			"</tr>"+
-			"<tr>"+
-				"<td colspan='2'><label>"+mapeoDiccionario.get("RUT")+" Cliente: "+bodega.getRutCliente()+"</label></td>"+
-				"<td colspan='2'><label>Nombre Cliente: "+bodega.getNickCliente()+"</label></td>"+
-				"<td><label>Nombre Proyecto: "+bodega.getNickProyecto()+"</label></td>"+
-				"<td>"+
-				"</td>"+
-			"</tr>"+
-			"<tr>"+
-				"<td><label>SUCURSAL: "+coti.getNameSucursal()+"</label></td>"+
-				"<td><label>COMERCIAL: "+coti.getNameComercial()+"</label></td>"+
-				"<td colspan='2' style='text-align:left'>OBS "+mapeoDiccionario.get("OT")+": "+ot.getObservaciones()+"</td>"+
-				"<td colspan='4' style='text-align:left'>OBS COTI: "+coti.getObservaciones()+"</td>"+
-			"</tr>"+
-			
-		"</table>";
+		if(bodega != null) {
+			vista=vista+
+					"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
+						"<tr>"+
+							"<td><input type='hidden' name='id_ot' value='"+ot.getId()+"'<label>N° "+mapeoDiccionario.get("OT")+": "+ot.numero+"</label></td>"+
+							"<td><label>Fecha "+mapeoDiccionario.get("OT")+": "+Fechas.DDMMAA(ot.fecha)+"</label></td>"+
+							"<td><label>N° COTI: "+coti.numero+"</label></td>"+
+							"<td><label>Fecha COTI: "+Fechas.DDMMAA(coti.fecha)+"</label></td>"+
+							
+							"<td><label>"+mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodega.getNombre()+"</label></td>"+
+							"<td><label>N° OC: "+coti.getNumeroOC()+"</label></td>"+
+						"</tr>"+
+						"<tr>"+
+							"<td colspan='2'><label>"+mapeoDiccionario.get("RUT")+" Cliente: "+bodega.getRutCliente()+"</label></td>"+
+							"<td colspan='2'><label>Nombre Cliente: "+bodega.getNickCliente()+"</label></td>"+
+							"<td><label>Nombre Proyecto: "+bodega.getNickProyecto()+"</label></td>"+
+							"<td>"+
+							"</td>"+
+						"</tr>"+
+						"<tr>"+
+							"<td><label>SUCURSAL: "+coti.getNameSucursal()+"</label></td>"+
+							"<td><label>COMERCIAL: "+coti.getNameComercial()+"</label></td>"+
+							"<td colspan='2' style='text-align:left'>OBS "+mapeoDiccionario.get("OT")+": "+ot.getObservaciones()+"</td>"+
+							"<td colspan='4' style='text-align:left'>OBS COTI: "+coti.getObservaciones()+"</td>"+
+						"</tr>"+
+						
+					"</table>";
+		}else {
+			vista=vista+
+					"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
+						"<tr>"+
+							"<td><input type='hidden' name='id_ot' value='"+ot.getId()+"'<label>N° "+mapeoDiccionario.get("OT")+": "+ot.numero+"</label></td>"+
+							"<td><label>Fecha "+mapeoDiccionario.get("OT")+": "+Fechas.DDMMAA(ot.fecha)+"</label></td>"+
+							"<td><label>N° COTI: "+coti.numero+"</label></td>"+
+							"<td><label>Fecha COTI: "+Fechas.DDMMAA(coti.fecha)+"</label></td>"+
+							
+							"<td><label>"+mapeoDiccionario.get("Bodega")+"/Proyecto: </label></td>"+
+							"<td><label>N° OC: "+coti.getNumeroOC()+"</label></td>"+
+						"</tr>"+
+						"<tr>"+
+							"<td colspan='2'><label>"+mapeoDiccionario.get("RUT")+" Cliente: </label></td>"+
+							"<td colspan='2'><label>Nombre Cliente: </label></td>"+
+							"<td><label>Nombre Proyecto: </label></td>"+
+							"<td>"+
+							"</td>"+
+						"</tr>"+
+						"<tr>"+
+							"<td><label>SUCURSAL: "+coti.getNameSucursal()+"</label></td>"+
+							"<td><label>COMERCIAL: "+coti.getNameComercial()+"</label></td>"+
+							"<td colspan='2' style='text-align:left'>OBS "+mapeoDiccionario.get("OT")+": "+ot.getObservaciones()+"</td>"+
+							"<td colspan='4' style='text-align:left'>OBS COTI: "+coti.getObservaciones()+"</td>"+
+						"</tr>"+
+						
+					"</table>";
+		}
+		
 		return(vista);
 	}
 	

@@ -1214,6 +1214,17 @@ sinVenta: String)
 		document.getElementById('modifica').style.visibility = 'visible';
 		document.getElementById('aplica').style.visibility = 'visible';
 		if('@bodegaOrigen.esInterna'=='2') document.getElementById('agregarEquiposNoEnviados').style.visibility = 'hidden';
+		
+		
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[-1, 15, 50, 100, 200], ["ALL", 15, 50, 100, 200]],
+	    	"order": [[ 2, "asc" ]],
+	    	"language": {
+	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        }
+	  	} );
+
 	}
 	
 	const modificaMovimientos = () =>{

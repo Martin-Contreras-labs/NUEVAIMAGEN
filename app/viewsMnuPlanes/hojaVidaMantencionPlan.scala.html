@@ -78,47 +78,56 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 					</tr>
 					<tr>
 						<TH style="text-align:center">Plan</TH>
-						<TH style="text-align:center">Fecha Nueva<br>Lectura Tomada</TH>
+						<TH style="text-align:center">Fecha<br>Lectura</TH>
 						<TH style="text-align:center">Unidad</TH>
-						<TH style="text-align:center">Cantidad Nueva<br>Lectura Tomada</TH>
+						<TH style="text-align:center">Cantidad<br>Lectura</TH>
 						<TH style="text-align:center">Rotación (Cada X Cantidad<br>Correspone Mantención)</TH>
 						<TH style="text-align:center">Consumo Promedio<br>Mensual Estimado</TH>
 						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
+						<TH style="text-align:center">Fecha Estimada<br>Mantencion</TH>
 					</tr>
 					@for(lista <- allPlan){
 						<tr>
-							<td style="text-align:center">@lista.tipoPlanNombre</td>
 							<td style="text-align:center">
-								<input type="date" class="form-control center"
-									id="fechaReset"
+								<input type="hidden" class="id_tipoPlan" value="@lista.id_tipoPlan">
+								@lista.tipoPlanNombre
+							</td>
+							<td style="text-align:center">
+								<input type="date" class="fechaReset form-control center"
 						  			onblur="if(!limitaFecha(value,720,10)) {
 												value = '@utilities.Fechas.AAMMDD(lista.fechaReset)';
 											} else {
-												actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', id, value);
+												actualizaAll('@lista.id_unidadMantencion', '@lista.id_equipo', 'fechaReset', value);
 											}"
 						  			value="@utilities.Fechas.AAMMDD(lista.fechaReset)">
 							</td>
-							<td style="text-align:center">@lista.unidadMantencion</select>
+							<td style="text-align:center">
+								<input type="hidden" class="id_unidadMantencion" value="@lista.id_unidadMantencion">
+								@lista.unidadMantencion
 							</td>
 							<td style="text-align:right">
-								<input type="text" class="form-control center"
-									id="estadoActual"
+								<input type="text" class="estadoActual form-control center"
 									value="@lista.estadoActual"
 									onfocus="value = value.replace(/,/g,'');" 
 									onkeypress="return ingresoDouble(event,value)"
 									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', id, value);">
+									onchange="if(value=='') value=0; actualizaAll('@lista.id_unidadMantencion', '@lista.id_equipo', 'estadoActual', value);">
 							</td>
 							<td style="text-align:center">@lista.cadaNEstimado</td>
-							<td style="text-align:center">@lista.consumoEstimadoPorMes</td>
+							<td style="text-align:center">
+								<input type="hidden" class="consumoEstimadoPorMes" value="@lista.consumoEstimadoPorMes">
+								@lista.consumoEstimadoPorMes
+							</td>
 							<td style="text-align:right">
-								<input type="text" class="form-control center"
-									id="proximaMantencion"
+								<input type="text" class="proximaMantencion form-control center"
 									value="@lista.proximaMantencion"
 									onfocus="value = value.replace(/,/g,'');" 
 									onkeypress="return ingresoDouble(event,value)"
 									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', id, value);">
+									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
+							</td>
+							<td style="text-align:center">
+								<input type="date" class="fechaEstimada form-control center" disabled>
 							</td>
 						</tr>
 					}
@@ -165,9 +174,34 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 
 <script type="text/javascript">
 	$(document).ready(function() {
-
-		  document.getElementById('mostrarmostrar').style.display="block";
+		calcFechaProxima();
+		document.getElementById('mostrarmostrar').style.display="block";
 	});
+	
+	const calcFechaProxima = () =>{
+		let filas = $(".estadoActual").length;
+			let hoy = new Date();
+			
+			for(let i=0; i<filas; i++){
+				let fecha = $(".fechaReset")[i].value;
+				let proxima =  $(".proximaMantencion")[i].value;
+				proxima = proxima.replace(/,/g,'');
+				let actual =  $(".estadoActual")[i].value;
+				actual = actual.replace(/,/g,'');
+				let rotacion =  $(".consumoEstimadoPorMes")[i].value;
+				rotacion = rotacion.replace(/,/g,'');
+				let dif = parseFloat(proxima) - parseFloat(actual);
+				if(dif <= 0 || parseFloat(rotacion) <= 0){
+					$(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+				}else{
+					let diasASumar = dif/rotacion * 30;
+					let aux = fecha.split("-");
+					let auxFecha = new Date(aux[0],parseInt(aux[1])-1,aux[2]);
+					auxFecha.setDate(auxFecha.getDate() + diasASumar);
+					$(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+				}
+			}
+	}
 	
 	const mostrarPDF = (nombrePDF) => {
 		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
@@ -189,8 +223,37 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
             contentType: false,
 	     	processData: false,
 	     	success: function(respuesta){
+				calcFechaProxima();
 	     	}
         });
+	}
+	
+	const actualizaAll = (id_unidadMantencion, id_equipo, campo, valor) =>{
+		
+		if(campo == 'fechaReset'){
+			let filas = $(".fechaReset").length;
+			
+			for(let i=0; i<filas; i++){
+				if($(".id_unidadMantencion")[i].value == id_unidadMantencion){
+					$(".fechaReset")[i].value = valor;
+					actualizaPorCampo($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+				} 
+				
+			}
+		}
+		
+		if(campo == 'estadoActual'){
+			let filas = $(".estadoActual").length;
+			
+			for(let i=0; i<filas; i++){
+				if($(".id_unidadMantencion")[i].value == id_unidadMantencion){
+					$(".estadoActual")[i].value = valor;
+					actualizaPorCampo($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+				} 
+				
+			}
+		}
+		
 	}
 	
 </script>

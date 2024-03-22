@@ -3404,7 +3404,7 @@ public class ReportMovimientos {
 					.prepareStatement("select "
 							+ " equipo.codigo, "
 							+ " if(movimiento.id_compra > 0,factura.numero,guia.numero) as numero,   "
-							+ " sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)), "
+							+ " sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)) as cantidad, "
 							+ " movimiento.id_cotizacion, "
 							+ " if(movimiento.id_compra > 0,'Factura',if(guia.id_bodegaDestino=1,'Baja',if(movimiento.id_tipoMovimiento=2 and movimiento.esVenta=1,'Venta',if(tipoMovimiento.id=1,'Entrada','Salida')))) as tipo, "
 							+ " if(movimiento.id_compra > 0,factura.fecha,guia.fecha) as fecha"
@@ -3417,7 +3417,7 @@ public class ReportMovimientos {
 							+ " where movimiento.id_bodegaEmpresa = ? "
 							+ " and (guia.numero is not null or factura.numero is not null) "
 							+ " and (movimiento.id_guia > 0 or movimiento.id_compra > 0)  "
-							+ " group by equipo.codigo, guia.numero, compra.id "
+							+ " group by equipo.codigo, numero , tipo "
 							+ " order by guia.fecha,guia.numero,equipo.codigo;");
 			smt4.setLong(1, id_bodegaEmpresa);
 			ResultSet rs4 = smt4.executeQuery();
@@ -3462,6 +3462,10 @@ public class ReportMovimientos {
 				
 				Double totStockPorLinea =  (double)0;
 				Double totCantPorLinea = (double)0;
+				
+				
+				
+				
 				for(int k=0;k<listaGuias.size();k++){
 					Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
 

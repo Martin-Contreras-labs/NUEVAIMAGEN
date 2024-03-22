@@ -69,6 +69,7 @@ public class ReportFacturaConsolidado {
 		Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 		Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
+		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
     	
     	for(int i=0;i<listaFechas.size();i++) {
     		
@@ -87,9 +88,9 @@ public class ReportFacturaConsolidado {
 				tasas.put((long)4,Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));	// el id 4 es uf
     		}
     		
-    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial, guiasPeriodo);
+    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
     		
     		mapTotales.put(desdeAAMMDD, calculo);
     		for(int k=0;k<calculo.size();k++) {
@@ -353,7 +354,7 @@ public class ReportFacturaConsolidado {
 			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
-	    	
+			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 			
 			for(int i=0;i<listaFechas.size();i++) {
 	    		
@@ -372,9 +373,9 @@ public class ReportFacturaConsolidado {
 					tasas.put((long)4,Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));	// el id 4 es uf
 	    		}
 	    		
-	    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupo(con, db, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial, guiasPeriodo);
+	    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupo(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
 	    		
 	    		mapTotales.put(desdeAAMMDD, calculo);
 	    		for(int k=0;k<calculo.size();k++) {
@@ -701,7 +702,7 @@ public class ReportFacturaConsolidado {
 		Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 		Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
-    	
+		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 		
 		for(int i=0;i<listaFechas.size();i++) {
     		
@@ -720,9 +721,9 @@ public class ReportFacturaConsolidado {
 				tasas.put((long)4,Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));	// el id 4 es uf
     		}
     		
-    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupoYEquipo(con, db, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial, guiasPeriodo);
+    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupoYEquipo(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
     		
     		mapTotales.put(desdeAAMMDD, calculo);
     		for(int k=0;k<calculo.size();k++) {

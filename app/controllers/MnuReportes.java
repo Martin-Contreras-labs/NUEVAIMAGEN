@@ -981,10 +981,11 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 	    			
-	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 	    			
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, listado, s.aplicaPorSucursal, s.id_sucursal);
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, listado);
@@ -1443,10 +1444,11 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 	    			
-	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 	    			
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, listado, s.aplicaPorSucursal, s.id_sucursal);
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, listado);
@@ -1677,10 +1679,11 @@ public class MnuReportes extends Controller {
     			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
     			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
     			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
     			
-    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
     			
     			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, listado, s.aplicaPorSucursal, s.id_sucursal);
     			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, listado);
@@ -1706,7 +1709,6 @@ public class MnuReportes extends Controller {
     			
     			List<List<String>> datos = new ArrayList<List<String>>();
     			for(List<String> lista1: proyectos){
-    				System.out.println(lista1.get(5));
     				List<String> x = mapTotal.get(lista1.get(1));
     					if(x!=null){
     						List<String> aux = new ArrayList<String>();
@@ -3040,20 +3042,25 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+	    			
+	    			
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
 	    			listIdBodegaEmpresa.clear();
 	    			mapPrecios.clear();
 	    			mapMaestroPrecios.clear();
 	    			
-	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 	    			
 	    			inventarioInicial.clear();
 	    			guiasPeriodo.clear();
 	    			
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, listado, s.aplicaPorSucursal, s.id_sucursal);
+	    			
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, listado);
+	    			
 	    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
@@ -3098,6 +3105,25 @@ public class MnuReportes extends Controller {
 	    								+ "<TR>\n";
 	    						for(List<String> total: resumenTotales){
 	    							if(lista1.get(1).equals(total.get(0))){
+	    								
+	    								Double auxUf = uf;
+	    								Double auxUsd = usd;
+	    								Double auxEur = eur;
+	    								
+	    								for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+	    				        	  		Long k = entry.getKey();
+	    				    				Double aux = mapFijaTasas.get(lista1.get(1) + "_" +k);
+	    				    				if(aux != null) {
+	    				    					if(k == (long)2) {
+	    				    						auxUsd = aux;
+	    				    					}else if (k == (long)3) {
+	    				    						auxEur = aux;
+	    				    					}else if (k == (long)4) {
+	    				    						auxUf = aux;
+	    				    					}
+	    				    				}
+	    				    			}
+	    								
 	    								tabla += ""
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(14)+"</td>\n"
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(10)+"</td>\n"
@@ -3125,18 +3151,18 @@ public class MnuReportes extends Controller {
     				    					+ "<td style= \"text-align:right;\" class=\"ajustVta\">"+total.get(6)+"</td>\n"
     				    					+ "<td style= \"text-align:right;\" class=\"granTotal\">"+total.get(4)+"</td>\n"
     				    					+ "<td style=\"text-align:center;vertical-align:middle;\">\n"
-    				    					+ "	<form id=\"form0_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"esVenta\" value=\"0\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">\n"
-    				    					+ "		<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">\n"
-    				    					+ "		<a href=\"#\" onclick=\"document.getElementById('form0_"+lista1.get(1)+"').submit()\">\n"
-    				    					+ "			<kbd style=\"background-color: #73C6B6\">Emitir</kbd>\n"
-    				    					+ "		</a>\n"
-    				    					+ "	</form>\n"
+	    				    					+ "	<form id=\"form0_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"esVenta\" value=\"0\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"uf\" value=\""+auxUf+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"usd\" value=\""+auxUsd+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"eur\" value=\""+auxEur+"\">\n"
+	    				    					+ "		<a href=\"#\" onclick=\"document.getElementById('form0_"+lista1.get(1)+"').submit()\">\n"
+	    				    					+ "			<kbd style=\"background-color: #73C6B6\">Emitir</kbd>\n"
+	    				    					+ "		</a>\n"
+	    				    					+ "	</form>\n"
     				    					+ "</td>\n";
 	    							}
 	    						}
@@ -3209,14 +3235,16 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+	    			
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
 	    			listIdBodegaEmpresa.clear();
 	    			mapPrecios.clear();
 	    			mapMaestroPrecios.clear();
 	    			
-	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 	    			
 	    			inventarioInicial.clear();
 	    			guiasPeriodo.clear();
@@ -3297,14 +3325,15 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 	    			
-	    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
 	    			List<List<String>> guiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 	    			
-	    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
-	    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(con, s.baseDato, inicioPer, guiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(con, s.baseDato, inicioPer, guiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
 	    			
 	    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
@@ -3312,7 +3341,7 @@ public class MnuReportes extends Controller {
 	    			Calendar hastaMas1 = hasta.getFechaCal();
 	    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 	    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
 	    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 	    			
@@ -3390,15 +3419,17 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-	    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+	    			
+	    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			List<List<String>> guiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-	    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(con, s.baseDato, inicioPer, guiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(con, s.baseDato, inicioPer, guiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	    			Calendar hastaMas1 = hasta.getFechaCal();
 	    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 	    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 	    			Long cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
 	    			List<String> fechas = new ArrayList<String>();
@@ -3465,17 +3496,19 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-	    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+	    			
+	    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			List<List<String>> guiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 	    			
-	    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
-	    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(con, s.baseDato, inicioPer, guiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(con, s.baseDato, inicioPer, guiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	    			Calendar hastaMas1 = hasta.getFechaCal();
 	    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 	    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(con, s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 	    			Long cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
 	    			List<String> fechas = new ArrayList<String>();
@@ -3666,12 +3699,13 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 	    			
-	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
-	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
-	    			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, valorTotalPorBodega);  						// RESUMEN INICIAL DEL REPORTE
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(con, s.baseDato, valorTotalPorBodega, s.aplicaPorSucursal, s.id_sucursal);								// RESUMEN POR GRUPO
@@ -3752,16 +3786,18 @@ public class MnuReportes extends Controller {
 	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+	    			
+	    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 	    			
 	    			listIdBodegaEmpresa.clear();
 	    			mapBodegaEmpresa.clear();
 	    			mapPrecios.clear();
 	    			mapMaestroPrecios.clear();
 	    			
-	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
-	    			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+	    			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 	    			
 	    			
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, s.baseDato, valorTotalPorBodega);  						// RESUMEN INICIAL DEL REPORTE
