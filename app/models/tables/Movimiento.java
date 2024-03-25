@@ -672,6 +672,24 @@ public class Movimiento {
 		return (aux);
 	}
 	
+	public static Map<Long,Long> mapAllIdBodEnMov(Connection con, String db) {
+		Map<Long,Long> map = new HashMap<Long,Long>();
+		
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select  "
+							+ " movimiento.id_bodegaEmpresa"
+							+ " from `"+db+"`.movimiento "
+							+ " group by movimiento.id_bodegaEmpresa;");
+			ResultSet rs = smt.executeQuery();
+			while(rs.next()) {
+				map.put(rs.getLong(1), rs.getLong(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(map);
+	}
 	
 	public static Map<String,Double> mapAllStockBodInt(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		Map<String,Double> map = new HashMap<String,Double>();

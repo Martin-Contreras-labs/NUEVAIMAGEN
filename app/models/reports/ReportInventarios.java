@@ -35,14 +35,17 @@ import org.apache.poi.util.TempFile;
 import models.calculo.Inventarios;
 import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
+import models.tables.Cliente;
 import models.tables.Compra;
 import models.tables.Grupo;
 import models.tables.ListaPrecio;
 import models.tables.Moneda;
 import models.tables.Movimiento;
 import models.tables.Precio;
+import models.tables.Proyecto;
 import models.tables.Sucursal;
 import models.tables.TasasCambio;
+import models.tables.TipoBodega;
 import models.tables.UnidadTiempo;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
@@ -3192,51 +3195,74 @@ public class ReportInventarios {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
 		
+		
 		try {
 			PreparedStatement smt5 = con
-					.prepareStatement(" select " +
-							" bodegaEmpresa.esInterna, " +
-							" movimiento.id_bodegaEmpresa, " +
-							" ifnull(cliente.id,0), " +
-							" ifnull(proyecto.id,0), " +
-							" bodegaEmpresa.nombre,   " +
-							" ifnull(cliente.rut,''), " +
-							" ifnull(cliente.nickName,''), " +
-							" ifnull(proyecto.nickName,''), " +
-							" ifnull(comunas.nombre,''), " +
-							" tipoBodega.nombre, " +
-							" bodegaEmpresa.id_sucursal   " +
-							" from `"+db+"`.movimiento   " +
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 " + permisoPorBodega + condSucursal +
-							" group by movimiento.id_bodegaEmpresa  " +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;");
+					.prepareStatement( " select "
+							+ " bodegaEmpresa.id,"
+							+ " bodegaEmpresa.esInterna,"
+							+ " bodegaEmpresa.id_cliente,"
+							+ " bodegaEmpresa.id_proyecto,"
+							+ " bodegaEmpresa.nombre,"
+							+ " bodegaEmpresa.id_sucursal"
+							+ " from `"+db+"`.bodegaEmpresa "
+							+ " where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 "+condSucursal+";");
 			ResultSet rs5 = smt5.executeQuery();
+			Map<Long,Long> mapIdBodegas = Movimiento.mapAllIdBodEnMov(con, db);
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			Map<Long, TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
+			Map<Long, Cliente> mapCliente = Cliente.mapAllClientes(con, db);
+			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
 			while (rs5.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs5.getLong(11));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
+				Long id_bodegaEmpresa = mapIdBodegas.get(rs5.getLong(1));
+				if(id_bodegaEmpresa != null) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs5.getLong(6));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					
+					String tipoCliente = "";
+					TipoBodega tipoBodega = mapTipoBodega.get(rs5.getLong(2));
+					if(tipoBodega != null) {
+						tipoCliente = tipoBodega.getNombre();
+					}
+					
+					String rutClie = "";
+					String nickClie = "";
+					Cliente cliente = mapCliente.get(rs5.getLong(3));
+					if(cliente != null) {
+						rutClie = cliente.getRut();
+						nickClie = cliente.getNickName();
+					}
+					
+					String nomProy = "";
+					String comuna = "";
+					Proyecto proyecto = mapProyecto.get(rs5.getLong(4));
+					if(proyecto != null) {
+						nomProy = proyecto.getNickName();
+						comuna = proyecto.getComuna();
+					}
+					
+					
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs5.getString(2)); // es cliente interno
+					aux.add(rs5.getString(1));  // idbodega empresa
+					aux.add(rs5.getString(3));  // id de cliente
+					aux.add(rs5.getString(4));  // id del proyecto
+					aux.add(tipoCliente); 		 // tipo de cliente interno o externo
+					aux.add(rs5.getString(5));  // nombre bodega o empresa
+					aux.add(rutClie);  			// rut del cliente
+					aux.add(nickClie);  		// nombre del cliente
+					aux.add(nomProy);  			// nombre del proyecto
+					aux.add(comuna);  			// comuna
+					aux.add(nameSucursal);  	//10 nameSucursal
+					lista.add(aux);
 				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs5.getString(1)); // es cliente interno
-				aux.add(rs5.getString(2));  // idbodega empresa
-				aux.add(rs5.getString(3));  // id de cliente
-				aux.add(rs5.getString(4));  // id del proyecto
-				aux.add(rs5.getString(10));  // tipo de cliente interno o externo
-				aux.add(rs5.getString(5));  // nombre bodega o empresa
-				aux.add(rs5.getString(6));  // rut del cliente
-				aux.add(rs5.getString(7));  // nombre del cliente
-				aux.add(rs5.getString(8));  // nombre del proyecto
-				aux.add(rs5.getString(9));  // comuna
-				aux.add(nameSucursal);  //10 nameSucursal
-				lista.add(aux);
+				
 			}
+			
+			
 			rs5.close();
 			smt5.close();
 		} catch (SQLException e) {

@@ -76,6 +76,47 @@ import viewsMnuOdo.html.*;
 public class HomeController extends Controller {
 	
 	
+	public Result ping() {
+    	boolean flag = false;
+    	try {
+			Connection con1 = dbRead.getConnection(dbRead);
+			PreparedStatement smt1 = con1
+					.prepareStatement("select pais from mada.paises where pais='CHILE';");
+			ResultSet rs1 = smt1.executeQuery();
+			if(rs1.next()) {
+				flag = true;
+			}else {
+				flag=false;
+			}
+			rs1.close();
+			smt1.close();
+			con1.close();
+			
+			Connection con2 = dbWrite.getConnection();
+			PreparedStatement smt2 = con2
+					.prepareStatement("select pais from mada.paises where pais='CHILE';");
+			ResultSet rs2 = smt2.executeQuery();
+			if(rs2.next()) {
+				flag = true;
+			}else {
+				flag=false;
+			}
+			rs2.close();
+			smt2.close();
+			con2.close();
+		} catch (SQLException e) {
+			flag=false;
+			e.printStackTrace();
+		}
+    	if(flag) {
+    		return ok("OK");
+    	}else {
+    		return ok("FALLO");
+    	}
+    }
+	
+	
+	
     //=============================================
     // DEFINICIONES DE VARIABLES Y CLASES GLOBALES
     //=============================================
