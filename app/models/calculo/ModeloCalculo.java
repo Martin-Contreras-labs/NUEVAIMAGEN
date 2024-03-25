@@ -61,7 +61,7 @@ public class ModeloCalculo {
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
-	public static List<ModeloCalculo> valorTotalporBodega(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
+	public static List<ModeloCalculo> valorTotalporBodega(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
 		
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
@@ -201,25 +201,26 @@ public class ModeloCalculo {
 		//SUMA INVENTARIO INICIAL MAS GUIAS Y APLICA LOS AJUSTES A ESTADOS DE PAGO
 		Map<Long,Calc_AjustesEP> mapResumenAjustePorBodega = Calc_AjustesEP.mapResumenAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD);
 		
-		for (Long v : listaBodegas.values()) {
+		for (Long id_bod : listaBodegas.values()) {
 			
-			
-			for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			for (Map.Entry<Long, Double> entry : mapTasas.entrySet()) {
     	  		Long k = entry.getKey();
-				Double aux = mapFijaTasas.get(v + "_" +k);
-				if(aux != null) {
-					entry.setValue(aux);
+    	  		Double v= entry.getValue();
+				Double aux2 = mapFijaTasas.get(id_bod + "_" +k);
+				if(aux2 != null) {
+					tasas.put(k, aux2);
+				}else {
+					tasas.put(k, v);
 				}
 			}
-			
-			
 			
 			
 			
 			Double totVenta = (double) 0, totArriendo = (double) 0, totCfi = (double) 0, totTot = (double) 0;
 			Double maestroTotVenta = (double) 0, maestroTotArriendo = (double) 0, maestroTotCfi = (double) 0, maestroTotTot = (double) 0;
 			
-			ModeloCalculo ini = invInicial.get(v);
+			ModeloCalculo ini = invInicial.get(id_bod);
 			if(ini!=null) {
 				totVenta += ini.totalVenta;
 				totArriendo += ini.totalArriendo;
@@ -232,7 +233,7 @@ public class ModeloCalculo {
 				maestroTotTot += ini.maestroTotalTotal;
 				
 			}
-			ModeloCalculo per = guias.get(v);
+			ModeloCalculo per = guias.get(id_bod);
 			if(per!=null) {
 				totVenta += per.totalVenta;
 				totArriendo += per.totalArriendo;
@@ -245,7 +246,7 @@ public class ModeloCalculo {
 				maestroTotTot += per.maestroTotalTotal;
 			}
 			//OBTIENE Y APLICA LOS AJUSTES A ESTADOS DE PAGO
-			Calc_AjustesEP ajustes = mapResumenAjustePorBodega.get(v);
+			Calc_AjustesEP ajustes = mapResumenAjustePorBodega.get(id_bod);
 			Double ajusteArriendo = (double) 0, ajusteVenta = (double) 0;
 			if(ajustes!=null) {
 				Double tasaCambio = tasas.get(ajustes.id_moneda); 
@@ -256,7 +257,7 @@ public class ModeloCalculo {
 				ajusteVenta = ajustes.ajusteSobreVenta * tasaCambio;
 			}
 			ModeloCalculo aux = new ModeloCalculo();
-			aux.id_bodegaEmpresa = v;
+			aux.id_bodegaEmpresa = id_bod;
 			aux.totalVenta = totVenta + ajusteVenta;
 			aux.totalArriendo = totArriendo + ajusteArriendo;
 			aux.totalCfi = totCfi;

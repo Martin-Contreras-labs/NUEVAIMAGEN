@@ -221,7 +221,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 									</tr>
 									
 									
-									@if(mapDiccionario.get("nEmpresa").equals("DEMO")){
+									@if(mapPermiso.get("parametro.fijaTasas")!=null && mapPermiso.get("parametro.fijaTasas").equals("1")) {
 										<tr>
 											<td style="text-align:left;">Fijar tasas de cambio: </td>
 											<td style="text-align:left;">

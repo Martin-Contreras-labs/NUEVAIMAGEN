@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,7 +96,7 @@ public class ModCalc_GuiasPer {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	public static List<ModCalc_GuiasPer> resumenGuiasPer(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas, 
+	public static List<ModCalc_GuiasPer> resumenGuiasPer(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {	
 		
 //		SON FUNCIONES QUE ALIMENTAN ESTA FUNCION
@@ -113,15 +114,19 @@ public class ModCalc_GuiasPer {
 		List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
 		List<Inventarios> guiasPer = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
 		
+		
 		//DETERMINA LOS TOTALES DE GUIAS DEL PERIODO
 		for(int i=0; i<guiasPer.size(); i++) {
 			
-			
-			for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			for (Map.Entry<Long, Double> entry : mapTasas.entrySet()) {
     	  		Long k = entry.getKey();
-				Double aux = mapFijaTasas.get(guiasPer.get(i).id_bodegaEmpresa + "_" +k);
+    	  		Double v= entry.getValue();
+    	  		Double aux = mapFijaTasas.get(guiasPer.get(i).id_bodegaEmpresa + "_" +k);
 				if(aux != null) {
-					entry.setValue(aux);
+					tasas.put(k, aux);
+				}else {
+					tasas.put(k, v);
 				}
 			}
 			

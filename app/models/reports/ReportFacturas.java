@@ -114,12 +114,12 @@ public class ReportFacturas {
 		return (lista);
 	}
 	
-	public static List<List<String>> reportEstadoInicial10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas, 
+	public static List<List<String>> reportEstadoInicial10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
 		
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
-		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, mapTasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		List<ModCalc_InvInicial> resumenInvInicial = new ArrayList<ModCalc_InvInicial>();
 		for(ModCalc_InvInicial x: resumenInvInicialAll) {
 			if((long)x.id_bodegaEmpresa==(long)id_bodegaEmpresa) {
@@ -148,6 +148,20 @@ public class ReportFacturas {
 			Calc_Precio precios = mapPrecios.get(keyPrecio);
 			Double precioReposicion = (double) 0, precioArriendo_dia = (double) 0, tasaCambio = (double) 0;
 			Long id_moneda = (long) 1;
+			
+			
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			for (Map.Entry<Long, Double> entry : mapTasas.entrySet()) {
+    	  		Long k = entry.getKey();
+    	  		Double v= entry.getValue();
+				Double aux2 = mapFijaTasas.get(resumenInvInicial.get(i).id_bodegaEmpresa + "_" +k);
+				if(aux2 != null) {
+					tasas.put(k, aux2);
+				}else {
+					tasas.put(k, v);
+				}
+			}
+			
 			if(precios!=null) {
 				precioReposicion = precios.precioReposicion;
 				precioArriendo_dia = precios.precioArriendo_dia;

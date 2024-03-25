@@ -3309,7 +3309,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-	    			
+	    		
 	    		try {
 	        		Connection con = dbRead.getConnection(dbRead);
 	        		
