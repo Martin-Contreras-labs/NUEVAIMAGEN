@@ -113,9 +113,11 @@ listaAconfirmar: List[List[String]])
 		let aux = "";
 		for(let i=0; i<filas; i++){
 			$(".checkVal")[i].value = "1";
+			let cantidad = $(".cantCant")[i].value;
+			cantidad = cantidad.replace(/,/g,'');
 			
 			aux += ""+$(".idCompra")[i].value + "," + $(".idSucursal")[i].value  
-					+ "," + $(".idEquipo")[i].value + "," + $(".cantCant")[i].value 
+					+ "," + $(".idEquipo")[i].value + "," + cantidad 
 					+ "," + $(".idBodDest")[i].value + ";"
 			$("#cambiosDeEstados").val(aux);
 		}
