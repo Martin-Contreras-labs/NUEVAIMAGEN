@@ -1490,10 +1490,19 @@ public class MnuCotizar extends Controller {
 	       	}else {
 	    	  	Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
 	    	  	String sinDetalle = form.get("sinDetalle");
+	    	  	String selectGrupos = form.get("selectGrupos");
 				try {
 	    			Connection con = db.getConnection();
 	    			Cotizacion cotizacion = Cotizacion.find(con, s.baseDato,id_cotizacion);
-	    			String fileNamePdf = FormCotiza.generaPdfCotizaArrVta(con, s.baseDato, id_cotizacion, mapeoDiccionario, cotizacion, mapeoPermiso, sinDetalle);
+	    			
+	    			String fileNamePdf = null;
+	    			
+	    			if(selectGrupos.length()>0) {
+	    				fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, "0", cotizacion, mapeoPermiso, sinDetalle, selectGrupos);
+	    			}else {
+	    				fileNamePdf = FormCotiza.generaPdfCotizaArrVta(con, s.baseDato, id_cotizacion, mapeoDiccionario, cotizacion, mapeoPermiso, sinDetalle);
+	    			}
+	    			
 		       		con.close();
 		       		String titulo = "COTIZACION DE "+ mapeoDiccionario.get("ARRIENDO");
 		       		//String url = "%2FcotizaListaImprimir%2F";

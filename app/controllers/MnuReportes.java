@@ -56,6 +56,7 @@ import models.tables.Sucursal;
 import models.tables.TasasCambio;
 import models.tables.TipoAjustes;
 import models.tables.TipoAjustesVenta;
+import models.tables.TipoBodega;
 import models.tables.TipoEstado;
 import models.tables.TipoReferencia;
 import models.tables.UnidadTiempo;
@@ -150,12 +151,21 @@ public class MnuReportes extends Controller {
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			
 	    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
 	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
 	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, 
-	    					mapPLista, moneda, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+
+	    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
+	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+	    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+	    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+	    			
+	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda, 
+	    					tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+	    			
 	    			con.close();
 	    			
 	    			return ok(reportInventarioEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
@@ -249,8 +259,16 @@ public class MnuReportes extends Controller {
 	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
 	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, 
-	    					mapPLista, moneda, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+	    			
+	    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
+	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+	    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+	    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+	    			
+	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda, 
+	    					tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+	    			
 	    			File file = ReportInventarios.reportInventarioGeneralExcel(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
 	    			if(file!=null) {
 		       			con.close();
@@ -339,7 +357,7 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o TODO
+	       		String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o todo
 	       		String fechaCorte = form.get("fechaCorte").trim();
 	       		try {
 	    			Connection con = dbRead.getConnection(dbRead);
@@ -2396,15 +2414,32 @@ public class MnuReportes extends Controller {
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
-    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(con, s.baseDato, mapeoDiccionario, datos, "0");
-    			String grafInversion = valorizado.get(2);
-    			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(con, s.baseDato, mapeoDiccionario, datos, "0");
     			
-    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-    			List<String> valorizadoPorBodega = ReportEjecutivos.graficoDistribucionResumenValorizadoPorBodega(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-    			List<String> graficoPotencialPorMesYGrupo = ReportEjecutivos.graficoPotencialPorMesYGrupo(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			Map<Long, Double> mapEquivalencia = UnidadTiempo.equivalencia(con,s.baseDato);
+    			
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+    			
+    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
+    			String grafInversion = valorizado.get(2);
+    			
+    			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(mapeoDiccionario, datos, "0", mapTipoBodega);
+
+    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal, 
+    					mapTipoBodega, mapEquipo);
+    			
+    			List<String> valorizadoPorBodega = ReportEjecutivos.graficoDistribucionResumenValorizadoPorBodega(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
+    					mapPCompra, tasasCorte, dec);
+    			
+    			List<String> graficoPotencialPorMesYGrupo = ReportEjecutivos.graficoPotencialPorMesYGrupo(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
+    					tasasCorte, mapPLista, mapEquivalencia, dec);
+    			
     			con.close();
     			return ok(reporteEjecutivo1.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,grafInversion,graficoOcupacionValorizado,valorizadoPorBodega,graficoPotencialPorMesYGrupo));
         	} catch (SQLException e) {
@@ -2433,10 +2468,19 @@ public class MnuReportes extends Controller {
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
-    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
     			
-    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(con, s.baseDato, mapeoDiccionario, datos, "0");
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+    			
+    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
+    			
     			String grafInversion = valorizado.get(2);
     			File file = ReportEjecutivos.graficoInversion(s.baseDato, grafInversion, mapeoDiccionario);
     			if(file!=null) {
@@ -2467,7 +2511,13 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<String> grafOcupacion = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
+    			
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			
+    			List<String> grafOcupacion = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal, 
+    					mapTipoBodega, mapEquipo);
+    			
     			File file = ReportEjecutivos.graficoOcupacion(s.baseDato, grafOcupacion, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -2502,10 +2552,19 @@ public class MnuReportes extends Controller {
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
-    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
     			
-    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(con, s.baseDato, mapeoDiccionario, datos, "0");
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+    			
+    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
+    			
     			
     			File file = ReportEjecutivos.graficoValorizadoGrupo(s.baseDato, valorizado, mapeoDiccionario);
     			if(file!=null) {
@@ -2541,10 +2600,18 @@ public class MnuReportes extends Controller {
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
-    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
     			
-    			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(con, s.baseDato, mapeoDiccionario, datos, "0");
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+    			
+    			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(mapeoDiccionario, datos, "0", mapTipoBodega);
     			
     			File file = ReportEjecutivos.graficoUnidades(s.baseDato, porUnidades, mapeoDiccionario);
     			if(file!=null) {
@@ -2575,7 +2642,16 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<String> valorizadoPorBodega = ReportEjecutivos.graficoDistribucionResumenValorizadoPorBodega(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
+    			
+    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+    			Fechas hoy = Fechas.hoy();
+    			
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			
+    			List<String> valorizadoPorBodega = ReportEjecutivos.graficoDistribucionResumenValorizadoPorBodega(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
+    					mapPCompra, tasasCorte, dec);
+    			
     			File file = ReportEjecutivos.graficoValorizadoBodega(s.baseDato, valorizadoPorBodega, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -2605,7 +2681,17 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<String> graficoPotencialPorMesYGrupo = ReportEjecutivos.graficoPotencialPorMesYGrupo(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
+    			
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Fechas hoy = Fechas.hoy();
+    			
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long, Double> mapEquivalencia = UnidadTiempo.equivalencia(con,s.baseDato);
+    			
+    			List<String> graficoPotencialPorMesYGrupo = ReportEjecutivos.graficoPotencialPorMesYGrupo(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
+    					tasasCorte, mapPLista, mapEquivalencia, dec);
+    			
     			File file = ReportEjecutivos.graficoPotencial(s.baseDato, graficoPotencialPorMesYGrupo, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -2803,9 +2889,28 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<String> valorizado = ReportGraficos.graficoDistribucionResumenValorizado(con, s.baseDato, mapeoDiccionario, filtroGrupos, s.aplicaPorSucursal, s.id_sucursal);
-    			List<String> porUnidades = ReportGraficos.graficoDistribucionResumenPorUnidades(con, s.baseDato, mapeoDiccionario, filtroGrupos, s.aplicaPorSucursal, s.id_sucursal);
+    			
+    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+    			Fechas hoy = Fechas.hoy();
+
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+
+    			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
+    			
+    			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(mapeoDiccionario, datos, "0", mapTipoBodega);
+    			
     			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
+    			
     			String subtitulo="RESUMEN POR "+mapeoDiccionario.get("BODEGA")+"/INTERNA y "+mapeoDiccionario.get("BODEGA")+"/PROYECTO";
     			con.close();
     			return ok(reportGraficoMovResumen.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,vistaCheckBox,subtitulo));
@@ -2877,15 +2982,32 @@ public class MnuReportes extends Controller {
     				subtitulo = "DETALLE POR "+mapeoDiccionario.get("BODEGA")+"/PROYECTO";
     			}
     			
-    			List<String> valorizado = ReportGraficos.graficoDistribucionGrupoBodegasValorizado(con, s.baseDato, mapeoDiccionario, filtroGrupos, filtroBodegas, idTipoBodega, s.aplicaPorSucursal, s.id_sucursal);
-    			List<String> porUnidades = ReportGraficos.graficoDistribucionGrupoBodegasPorUnidades(con, s.baseDato, mapeoDiccionario, filtroGrupos, filtroBodegas,idTipoBodega, s.aplicaPorSucursal, s.id_sucursal);
+    			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+    			Fechas hoy = Fechas.hoy();
+    			
+    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+    					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+    			
+    			List<String> valorizado = ReportGraficos.graficoDistribucionGrupoBodegasValorizado(mapeoDiccionario, filtroGrupos, filtroBodegas, idTipoBodega, 
+    					s.aplicaPorSucursal, s.id_sucursal, datos);
+    			
+    			List<String> porUnidades = ReportGraficos.graficoDistribucionGrupoBodegasPorUnidades(mapeoDiccionario, filtroGrupos, filtroBodegas,idTipoBodega, 
+    					s.aplicaPorSucursal, s.id_sucursal, datos);
     		
     			String filtroPorNombreBodega = valorizado.get(2);
     			String filtroPorNombreGrupo = valorizado.get(3);
     			
     			List<Grupo> listGrupos = Grupo.allFiltroPorNombre(con, s.baseDato, filtroPorNombreGrupo);
-    			List<BodegaEmpresa> listBodegas2 = BodegaEmpresa.allFiltroPorNombre(con, s.baseDato, filtroPorNombreBodega);
     			
+    			List<BodegaEmpresa> listBodegas2 = BodegaEmpresa.allFiltroPorNombre(con, s.baseDato, filtroPorNombreBodega);
 
     			con.close();
     			return ok(reportGraficoMovPorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,listBodegas2,vistaCheckBox,idTipoBodega,subtitulo));
@@ -2968,7 +3090,13 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<String> graficoOcupacionValorizado = ReportGraficos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
+    			
+    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+    			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+    			
+    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal, 
+    					mapTipoBodega, mapEquipo);
+    			
     			List<String> graficoOcupacionUnidades = ReportGraficos.graficoOcupacionPorGrupoUnidades(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(reportGraficoMovUso.render(mapeoDiccionario,mapeoPermiso,userMnu,graficoOcupacionValorizado,graficoOcupacionUnidades));

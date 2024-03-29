@@ -141,26 +141,49 @@ public class MnuBajas extends Controller {
     			try {
 	    			Connection con = db.getConnection();
 	    			String arrIdBajas = form.get("cambiosDeEstados").trim();
+	    			
 	    			if(arrIdBajas.length()>0) {
-	    				String listIdBaja = "";
+	    				
 	    				String[] arr = arrIdBajas.split(";");
+	    				
+	    				String insertMovimiento = "";
+	    				
 	    				for(int i=0; i<arr.length; i++) {
+	    					
 	    					String[] detalle = arr[i].split(",");
-	    					Long id_baja = Long.parseLong(detalle[0]);
-	    					Long id_equipo = Long.parseLong(detalle[1]);
-	    					Double cantidad = Double.parseDouble(detalle[2]);
-	    					Movimiento auxMov = new Movimiento();
-	    					auxMov.setId_bodegaEmpresa((long)1);
-	    					auxMov.setId_equipo(id_equipo);
-	    					auxMov.setId_tipoMovimiento((long)2);
-	    					auxMov.setCantidad(cantidad);
-	    					auxMov.setId_baja(id_baja);
-	    					if(Movimiento.createMovimientoBaja(con, s.baseDato, auxMov)) {
-	    						FormBaja.cambiaAconfirmada(con, s.baseDato, id_baja);
-	    						listIdBaja += id_baja+", ";
+	    					
+	    					String id_bodegaEmpresa = "1";
+	    					String id_equipo = detalle[1];
+	    					String id_tipoMovimiento = "2";
+	    					String cantidad = detalle[2];
+	    					String id_baja = detalle[0];
+	    					String id_actaBaja = detalle[3];
+	    					String fecha_actaBaja = detalle[4];
+	    					
+	    					insertMovimiento += "('"
+	    							+ id_bodegaEmpresa + "','"
+	    							+ id_equipo + "','"
+	    							+ id_tipoMovimiento + "','"
+	    							+ cantidad + "','"
+	    							+ id_baja + "','"
+	    							+ id_actaBaja + "','"
+	    							+ fecha_actaBaja + "'),";
+	    					
+	    				}
+	    				
+	    				if(insertMovimiento.length() > 2) {
+	    					insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
+	    					if(Movimiento.createMovimientoBaja(con, s.baseDato, insertMovimiento)) {
+		    					String listIdBaja = "";
+		    					for(int i=0; i<arr.length; i++) {
+		    						String[] detalle = arr[i].split(",");
+		    						String id_baja = detalle[0];
+		    						listIdBaja += id_baja + ",";
+		    						FormBaja.cambiaAconfirmada(con, s.baseDato, Long.parseLong(id_baja));
+		    					}
+		    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "baja", (long)0, "confirma", "confirma bajas id: "+listIdBaja);
 	    					}
 	    				}
-	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "baja", (long)0, "confirma", "confirma bajas id: "+listIdBaja);
 	    			}
 	    			con.close();
 	    			return redirect("/home/");

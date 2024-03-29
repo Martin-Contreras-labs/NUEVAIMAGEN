@@ -1253,7 +1253,7 @@ public class MnuPlanes extends Controller {
 	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("compraIngreso")==null) {
+	    			if(mapeoPermiso.get("planHojaVida")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}

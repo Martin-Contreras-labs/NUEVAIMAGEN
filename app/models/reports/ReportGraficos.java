@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 
-import models.tables.Compra;
-import models.tables.Moneda;
-import models.tables.Precio;
-import models.utilities.Fechas;
 
 
 public class ReportGraficos {
@@ -27,43 +23,8 @@ public class ReportGraficos {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	
-	public static List<String> graficoDistribucionResumenValorizado(Connection con, String db, Map<String, String> mapeoDiccionario, String filtroGrupos, String esPorSucursal, String id_sucursal) {
-		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
-		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
-		Fechas hoy = Fechas.hoy();
-		List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, db, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, mapeoDiccionario.get("ARRIENDO"), 
-				mapeoDiccionario, esPorSucursal, id_sucursal);
-		List<String> graficos2 = ReportEjecutivos.graficoDistribucionResumenValorizado(con, db, mapeoDiccionario, datos, filtroGrupos);
-		return (graficos2);
-	}
-	
-	
-	
-	public static List<String> graficoDistribucionResumenPorUnidades(Connection con, String db, Map<String, String> mapeoDiccionario, String filtroGrupos, String esPorSucursal, String id_sucursal) {
-		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
-		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
-		Fechas hoy = Fechas.hoy();
-		List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, db, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, mapeoDiccionario.get("ARRIENDO"), 
-				mapeoDiccionario, esPorSucursal, id_sucursal);
-		List<String> graficos2 = ReportEjecutivos.graficoDistribucionResumenPorUnidades(con, db, mapeoDiccionario, datos, filtroGrupos);
-		return (graficos2);
-	}
-	
-	
-	
-	public static List<String> graficoDistribucionGrupoBodegasValorizado(Connection con, String db, Map<String, String> mapeoDiccionario, String filtroGrupos, String filtroBodegas, 
-			String idTipoBodega, String esPorSucursal, String id_sucursal) {
-		
-		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
-		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
-		Fechas hoy = Fechas.hoy();
-		
-		List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, db, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, mapeoDiccionario.get("ARRIENDO"), 
-				mapeoDiccionario, esPorSucursal, id_sucursal);
+	public static List<String> graficoDistribucionGrupoBodegasValorizado(Map<String, String> mapeoDiccionario, String filtroGrupos, String filtroBodegas, 
+			String idTipoBodega, String esPorSucursal, String id_sucursal, List<List<String>> datos) {
 		
 		Map<String,Double> mapNombGruposVsCompra = new HashMap<String,Double>();
 		Map<String,Double> mapNombBodegasVsCompra = new HashMap<String,Double>();
@@ -241,16 +202,8 @@ public class ReportGraficos {
 		return (graficos2);
 	}
 	
-	public static List<String> graficoDistribucionGrupoBodegasPorUnidades(Connection con, String db, Map<String, String> mapeoDiccionario, String filtroGrupos, String filtroBodegas, 
-			String idTipoBodega, String esPorSucursal, String id_sucursal) {
-		
-		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
-		Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, db);
-		Fechas hoy = Fechas.hoy();
-		
-		List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, db, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, mapeoDiccionario.get("ARRIENDO"), 
-				mapeoDiccionario, esPorSucursal, id_sucursal);
+	public static List<String> graficoDistribucionGrupoBodegasPorUnidades(Map<String, String> mapeoDiccionario, String filtroGrupos, String filtroBodegas, 
+			String idTipoBodega, String esPorSucursal, String id_sucursal, List<List<String>> datos) {
 		
 		Map<String,Double> mapNombGruposVsCantidad = new HashMap<String,Double>();
 		Map<String,Double> mapNombBodegasVsCantidad = new HashMap<String,Double>();
@@ -418,10 +371,6 @@ public class ReportGraficos {
 	}
 	
 	
-	public static List<String> graficoOcupacionPorGrupoValorizado(Connection con, String db, String pais, String esPorSucursal, String id_sucursal) {
-		List<String> resultado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, db, pais, esPorSucursal, id_sucursal);
-		return (resultado);
-	}
 	
 	public static List<String> graficoOcupacionPorGrupoUnidades(Connection con, String db, String pais, String esPorSucursal, String id_sucursal) {
 		List<java.sql.Date> listFechas = new ArrayList<java.sql.Date>();

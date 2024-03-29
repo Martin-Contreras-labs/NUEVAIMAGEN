@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listado: List[List[String]])
+listaAconfirmar: List[List[String]])
 
     	
 @main("") {
@@ -26,9 +26,10 @@ listado: List[List[String]])
 							</TR>
 						</thead>
 						<tbody>
-							@for(lista1 <- listado){
+							@for(lista1 <- listaAconfirmar){
 								<TR>
 									<td style="text-align:center;" width="120px">
+										<div style="display:none">@lista1.get(1)</div>
 										@utilities.Fechas.DDMMAA(lista1.get(1))
 									</td>
 									<td style="text-align:center;">@lista1.get(2)</td>
@@ -48,7 +49,7 @@ listado: List[List[String]])
 									</td>
 									<td  style="text-align:center;">
 										<input type="checkbox" id="@lista1.get(0)" value ="0" 
-											onchange="cambiaEstado(id, value, '@lista1.get(9)','@lista1.get(6)')"></td>
+											onchange="cambiaEstado(id, value, '@lista1.get(9)','@lista1.get(6)', '@lista1.get(10)','@lista1.get(1)')"></td>
 									</td>
 								</TR>
 				 			}
@@ -89,15 +90,15 @@ listado: List[List[String]])
 		  document.getElementById('formDescargaDocumento').submit();
 	}
 	
-	const cambiaEstado = (id_baja, valor, id_equipo, cantidad) => {
+	const cambiaEstado = (id_baja, valor, id_equipo, cantidad, id_actaBaja, fecha_actaBaja) => {
 		cantidad = cantidad.replace(/,/g,'');
 		if(valor==0) {
 			document.getElementById(id_baja).value ="1";
-			let aux = ""+$("#cambiosDeEstados").val()+id_baja + "," + id_equipo + "," + cantidad + ";"
+			let aux = ""+$("#cambiosDeEstados").val()+id_baja + "," + id_equipo + "," + cantidad + "," + id_actaBaja + "," + fecha_actaBaja + ";"
 			$("#cambiosDeEstados").val(aux);
 		}else{
 			document.getElementById(id_baja).value ="0";
-			let aux = ""+id_baja + "," + id_equipo + "," + cantidad + ";"
+			let aux = ""+id_baja + "," + id_equipo + "," + cantidad + "," + id_actaBaja + "," + fecha_actaBaja + ";"
 			$("#cambiosDeEstados").val($("#cambiosDeEstados").val().replace(aux,""));
 		}
 		

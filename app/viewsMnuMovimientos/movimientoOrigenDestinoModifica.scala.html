@@ -937,6 +937,7 @@ sinVenta: String)
 					flag = false;
 				}
 			}
+			
 			if(flag){
 				aux += id_tipoEstado+":"+parseFloat(cantEstado)+";";
 				$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
@@ -944,6 +945,7 @@ sinVenta: String)
 				aux = aux.replace(buscar,id_tipoEstado+":"+parseFloat(cantEstado)+";");
 				$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
 			}
+			
 			if(esReparable==1 && cantEstado>0){
 			    
 			    let modalReparaciones="<div id='reparaciones' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>"+

@@ -33,7 +33,7 @@ listaAconfirmar: List[List[String]])
 							@for(lista1 <- listaAconfirmar){
 								<TR>
 									<td  style="text-align:center;">
-										<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(3))</div>
+										<div style="display:none">@lista1.get(3)</div>
 										@utilities.Fechas.DDMMAA(lista1.get(3))
 									</td>
 									<td  style="text-align:center;">@lista1.get(4)</td>
@@ -46,13 +46,17 @@ listaAconfirmar: List[List[String]])
 									<td  style="text-align:left;">@lista1.get(12)</td>
 									<td  style="text-align:left;">@lista1.get(9)</td>
 									<td  style="text-align:center;">
+									
 										<input type="hidden" class="idCompra" value="@lista1.get(0)">
 										<input type="hidden" class="idEquipo" value="@lista1.get(10)">
 										<input type="hidden" class="cantCant" value="@lista1.get(8)">
 										<input type="hidden" class="idBodDest" value="@lista1.get(2)">
 										<input type="hidden" class="idSucursal" value="@lista1.get(13)">
+										<input type="hidden" class="idFactura" value="@lista1.get(14)">
+										<input type="hidden" class="fechaFactura" value="@lista1.get(3)">
+										
 										<input type="checkbox" class="checkVal" id="@lista1.get(0)" value ="0" 
-										onchange="cambiaEstado(id,value,'@lista1.get(10)','@lista1.get(8)','@lista1.get(2)','@lista1.get(13)')">
+										onchange="cambiaEstado(id,value,'@lista1.get(10)','@lista1.get(8)','@lista1.get(2)','@lista1.get(13)','@lista1.get(14)','@lista1.get(3)')">
 									</td>
 								</TR>
 				 			}
@@ -92,15 +96,15 @@ listaAconfirmar: List[List[String]])
 	});
 	
 	
-	const cambiaEstado = (id_compra, valor, id_equipo, cantidad, id_bodegaDestino, id_sucursal) => {
+	const cambiaEstado = (id_compra, valor, id_equipo, cantidad, id_bodegaDestino, id_sucursal, id_factura, fecha_factura) => {
 		cantidad = cantidad.replace(/,/g,'');
 		if(valor==0) {
 			document.getElementById(id_compra).value ="1";
-			let aux = ""+$("#cambiosDeEstados").val()+id_compra + "," + id_sucursal  + "," + id_equipo + "," + cantidad + "," + id_bodegaDestino + ";"
+			let aux = ""+$("#cambiosDeEstados").val()+id_compra + "," + id_sucursal  + "," + id_equipo + "," + cantidad + "," + id_bodegaDestino + "," + id_factura + "," + fecha_factura + ";"
 			$("#cambiosDeEstados").val(aux);
 		}else{
 			document.getElementById(id_compra).value ="0";
-			let aux = ""+id_compra + "," + id_sucursal + "," + id_equipo + "," + cantidad + "," + id_bodegaDestino + ";"
+			let aux = ""+id_compra + "," + id_sucursal + "," + id_equipo + "," + cantidad + "," + id_bodegaDestino  + "," + id_factura + "," + fecha_factura + ";"
 			$("#cambiosDeEstados").val($("#cambiosDeEstados").val().replace(aux,""));
 		}
 		
@@ -117,17 +121,18 @@ listaAconfirmar: List[List[String]])
 			cantidad = cantidad.replace(/,/g,'');
 			
 			aux += ""+$(".idCompra")[i].value + "," + $(".idSucursal")[i].value  
-					+ "," + $(".idEquipo")[i].value + "," + cantidad 
-					+ "," + $(".idBodDest")[i].value + ";"
+					+ "," + $(".idEquipo")[i].value 
+					+ "," + cantidad 
+					+ "," + $(".idBodDest")[i].value 
+					+ "," + $(".idFactura")[i].value 
+					+ "," + $(".fechaFactura")[i].value 
+					+ ";"
 			$("#cambiosDeEstados").val(aux);
 		}
 	}
 	
 	
 </script>
-
-
-
 
 		
 		

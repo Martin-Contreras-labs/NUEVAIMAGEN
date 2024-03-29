@@ -747,7 +747,7 @@ public class FormCotiza {
 			Double totalPrecioVenta = (double)0;
 			Double totalReposicion = (double)0;
 			
-			String moneda = "";
+			String moneda = Moneda.find(con, db, (long) 1).getNickName();
 			
 			int contFilasTabla = 0;
 			table = doc.getTables().get(2);
@@ -769,7 +769,6 @@ public class FormCotiza {
 				Map<String,Long> mapDecimal = Moneda.numeroDecimalxNombre(con, db);
 				
 				
-				
 				table.createRow();
 				contFilasTabla++;
 				contFilasTabla++;
@@ -777,19 +776,10 @@ public class FormCotiza {
 				cell=row.getCell(0);setCelda(cell,"Arial",8,1,"2b5079","Solucion",false);
 				cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079",cotizacion.getNameCotizaSolucion(),false);
 				cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079","GL",false);
-				cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079","1",false);
+				cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079","1.00",false);
 				cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
 				
 				Long nroDecimal = mapDecimal.get(moneda);
-//				if(nroDecimal != null) {
-//					totalArriendo = DecimalFormato.formato(totalPrecio, nroDecimal);
-//				}else {
-//					totalArriendo = DecimalFormato.formato(totalPrecio, (long)0);
-//				}
-				//cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079","xx",false);
-				
-
-				
 				
 				table.createRow();
 				for(int i=0; i<detalleCoti.size(); i++) {
@@ -797,6 +787,7 @@ public class FormCotiza {
 						idMoneda = detalleCoti.get(i).getId_moneda();
 						String codigo = detalleCoti.get(i).getCodigo();
 						String equipo = detalleCoti.get(i).getEquipo();
+						String unidad = detalleCoti.get(i).getUnidad();
 						String cantidad = detalleCoti.get(i).getCantidad();
 						moneda = detalleCoti.get(i).getMoneda();
 						String puVenta = detalleCoti.get(i).getPrecioReposicion();
@@ -855,8 +846,8 @@ public class FormCotiza {
 							row = table.getRow(contFilasTabla);
 							cell=row.getCell(0);setCelda(cell,"Arial",8,1,"2b5079",codigo,false);
 							cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079",equipo,false);
-							cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079","GL",false);
-							cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079","1",false);
+							cell=row.getCell(2);setCelda(cell,"Arial",8,2,"2b5079",unidad,false);
+							cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",cantidad,false);
 							cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
 							
 							nroDecimal = mapDecimal.get(moneda);
@@ -1173,9 +1164,20 @@ public class FormCotiza {
 				out.close();
 
 				String archivoPdf = "CotizaArriendo_"+cotizacion.numero+".pdf";
-				path = db+"/"+archivoPdf;
-				Archivos.grabarArchivo(tmp, path);
-				Cotizacion.modifyXCampo(con, db, "pdfArriendo", archivoPdf, id_cotizacion);
+				
+				if(selectGrupos.length()>0) {
+					archivoPdf = "CotizaArrVta_"+cotizacion.numero+".pdf";
+					path = db+"/"+archivoPdf;
+					Archivos.grabarArchivo(tmp, path);
+					Cotizacion.modifyXCampo(con, db, "pdfArrVta", archivoPdf, id_cotizacion);
+					
+				}else {
+					path = db+"/"+archivoPdf;
+					Archivos.grabarArchivo(tmp, path);
+					Cotizacion.modifyXCampo(con, db, "pdfArriendo", archivoPdf, id_cotizacion);
+				}
+				
+				
 				
 				return(archivoPdf);
 				

@@ -32,11 +32,10 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
 import models.tables.Compra;
+import models.tables.Equipo;
 import models.tables.Moneda;
-import models.tables.Precio;
 import models.tables.TasasCambio;
 import models.tables.TipoBodega;
-import models.tables.UnidadTiempo;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 
@@ -46,7 +45,8 @@ public class ReportEjecutivos {
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
-	public static List<String> graficoDistribucionResumenValorizado(Connection con, String db, Map<String, String> mapeoDiccionario, List<List<String>> datos, String filtroGrupos) {
+	public static List<String> graficoDistribucionResumenValorizado(Map<String, String> mapeoDiccionario, List<List<String>> datos, String filtroGrupos,
+			Map<Long,TipoBodega> mapTipoBodega) {
 		
 		Map<String,Double> mapNombGruposVsCompra = new HashMap<String,Double>();
 		Map<String,Double> mapTipBodegaNombGruposVsCompra = new HashMap<String,Double>();
@@ -101,7 +101,7 @@ public class ReportEjecutivos {
 		String categorias2 = "[";
 		String series2 = "[";
 
-		TipoBodega tipoBod = TipoBodega.find(con, db, (long)1);
+		TipoBodega tipoBod = mapTipoBodega.get((long)1);
 		series2 += "{name: '" + tipoBod.nombre + "', data: [";
 		for (String grupo : nomGrupos) {
 			categorias2 += "'" +  grupo + "',";
@@ -123,7 +123,7 @@ public class ReportEjecutivos {
 		categorias2 = categorias2.substring(0,categorias2.length()-1)+"]";
 		series2 = series2.substring(0,series2.length()-1)+"]},";
 		
-		tipoBod = TipoBodega.find(con, db, (long)2);
+		tipoBod = mapTipoBodega.get((long)2);
 		series2 += "{name: '" + tipoBod.nombre + "', data: [";
 		for (String grupo : nomGrupos) {
 			Double total = mapNombGruposVsCompra.get(grupo);
@@ -158,7 +158,8 @@ public class ReportEjecutivos {
 		return (graficos2);
 	}
 	
-	public static List<String> graficoDistribucionResumenPorUnidades(Connection con, String db, Map<String, String> mapeoDiccionario, List<List<String>> datos, String filtroGrupos) {
+	public static List<String> graficoDistribucionResumenPorUnidades(Map<String, String> mapeoDiccionario, List<List<String>> datos, String filtroGrupos,
+			Map<Long,TipoBodega> mapTipoBodega) {
 		
 		Map<String,Double> mapNombGruposVsCantidad = new HashMap<String,Double>();
 		Map<String,Double> mapTipBodegaNombGruposVsCantidad = new HashMap<String,Double>();
@@ -214,7 +215,7 @@ public class ReportEjecutivos {
 		String categorias2 = "[";
 		String series2 = "[";
 
-		TipoBodega tipoBod = TipoBodega.find(con, db, (long)1);
+		TipoBodega tipoBod = mapTipoBodega.get((long)1);
 		series2 += "{name: '" + tipoBod.nombre + "', data: [";
 		for (String grupo : nomGrupos) {
 			categorias2 += "'" +  grupo + "',";
@@ -236,7 +237,7 @@ public class ReportEjecutivos {
 		categorias2 = categorias2.substring(0,categorias2.length()-1)+"]";
 		series2 = series2.substring(0,series2.length()-1)+"]},";
 		
-		tipoBod = TipoBodega.find(con, db, (long)2);
+		tipoBod = mapTipoBodega.get((long)2);
 		series2 += "{name: '" + tipoBod.nombre + "', data: [";
 		for (String grupo : nomGrupos) {
 			Double total = mapNombGruposVsCantidad.get(grupo);
@@ -263,7 +264,8 @@ public class ReportEjecutivos {
 		return (graficos2);
 	}
 	
-	public static List<String> graficoOcupacionPorGrupoValorizado(Connection con, String db, String pais, String esPorSucursal, String id_sucursal) {
+	public static List<String> graficoOcupacionPorGrupoValorizado(Connection con, String db, String pais, String esPorSucursal, String id_sucursal,
+			Map<Long,TipoBodega> mapTipoBodega, Map<Long,Equipo> mapEquipo) {
 		List<java.sql.Date> listFechas = new ArrayList<java.sql.Date>();
 		
 		String condSucursal = "";
@@ -292,22 +294,15 @@ public class ReportEjecutivos {
 		
 		List<List<List<String>>> aux = new ArrayList<List<List<String>>>();
 		
-		
-		
-		
-		
 		List<String> tipoBodegas = new ArrayList<String>();
 		List<String> grupos = new ArrayList<String>();
 		List<List<String>> datos = new ArrayList<List<String>>();
+		
+		
 		try {
-			PreparedStatement smt7 = con
-					.prepareStatement(" select tipoBodega.nombre from `"+db+"`.tipoBodega where id=2;");
-			ResultSet rs7 = smt7.executeQuery();
-			while (rs7.next()) {
-				tipoBodegas.add(rs7.getString(1));  //nombre de tipobodega
-			}
-			rs7.close();
-			smt7.close();
+
+			TipoBodega tipoBod = mapTipoBodega.get((long)2);
+			tipoBodegas.add(tipoBod.getNombre());
 			
 			PreparedStatement smt8 = con
 					.prepareStatement(" select " +
@@ -323,41 +318,44 @@ public class ReportEjecutivos {
 			
 			PreparedStatement smt9 = con
 					.prepareStatement("select "
-							+ " ifnull(ifnull(guia.fecha,factura.fecha),actaBaja.fecha),"
-							+ " concat(tipoBodega.id, '_', movimiento.id_equipo),"
-							+ " tipoBodega.nombre, "
-							+ " grupo.nombre,  "
+							+ " ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja),"
+							+ " bodegaEmpresa.esInterna, "
 							+ " movimiento.id_equipo, "
 							+ " if(movimiento.id_tipoMovimiento=2,-1,1)*movimiento.cantidad"
 							+ " from `"+db+"`.movimiento"
-							+ " left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo  "
-							+ " left join `"+db+"`.grupo on grupo.id = equipo.id_grupo"
 							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia  "
-							+ " left join `"+db+"`.compra on compra.id = movimiento.id_compra  "
-							+ " left join `"+db+"`.factura on factura.id = compra.id_factura  "
-							+ " left join `"+db+"`.baja on baja.id = movimiento.id_baja  "
-							+ " left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  "
-							+ " left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna"
-							+ " where ifnull(ifnull(guia.fecha,factura.fecha),actaBaja.fecha) is not null" + condSucursal
+							+ " where ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja) is not null" + condSucursal
 							+ ";");
+
 			ResultSet rs9 = smt9.executeQuery();
+			
 			while (rs9.next()) {
+				String id_tipoBodega = "0";
+				String nomTipoBodega = "";
+				TipoBodega tipoBodega = mapTipoBodega.get(rs9.getLong(2));
+				if(tipoBodega != null) {
+					id_tipoBodega = tipoBodega.getId().toString();
+					nomTipoBodega = tipoBodega.getNombre();
+				}
+				
+				String nomGrupo = "";
+				Equipo equipo = mapEquipo.get(rs9.getLong(3));
+				if(equipo != null) {
+					nomGrupo = equipo.getGrupo();
+				}
+				
 				List<String> aux1 = new ArrayList<String>();
 				aux1.add(rs9.getString(1));
-				aux1.add(rs9.getString(2));
+				aux1.add(id_tipoBodega+"_"+rs9.getString(3));
+				aux1.add(nomTipoBodega);
+				aux1.add(nomGrupo);
 				aux1.add(rs9.getString(3));
 				aux1.add(rs9.getString(4));
-				aux1.add(rs9.getString(5));
-				aux1.add(rs9.getString(6));
 				datos.add(aux1);
 			}
 			rs9.close();
 			smt9.close();
-			
-			
-			
-			
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -531,17 +529,14 @@ public class ReportEjecutivos {
 		return (resultado);
 	}
 	
-	public static List<String> graficoDistribucionResumenValorizadoPorBodega(Connection con, String db, String pais, String esPorSucursal, String id_sucursal) {
+	public static List<String> graficoDistribucionResumenValorizadoPorBodega(Connection con, String db, String pais, String esPorSucursal, String id_sucursal,
+			Map<Long,List<Double>> mapPCompra, Map<Long,Double> tasasCorte, Map<Long,Long> dec) {
 		List<String> bodega = new ArrayList<String>();
 		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " where bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
-		Fechas fecha = Fechas.hoy();
-		Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, db, fecha.getFechaStrAAMMDD(), pais);
 		
 		Map<String,Double> mapLista = new HashMap<String,Double>();
 		
@@ -558,7 +553,7 @@ public class ReportEjecutivos {
 							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;");
 			
 			ResultSet rs6 = smt6.executeQuery();
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+		
 			while (rs6.next()) {
 				
 				List<Double> auxMap = mapPCompra.get(rs6.getLong(2));
@@ -652,11 +647,11 @@ public class ReportEjecutivos {
 			}
 			
 			Double auxLista = mapLista.get(bodegaSinCeros.get(j)+"_"+bodegaSinCeros.get(j));
-			DecimalFormat dec = new DecimalFormat("0");
+			DecimalFormat decFormat = new DecimalFormat("0");
 			
 			List<String> auxceros = new ArrayList<>(ceros);
 			
-			auxceros.set(j, dec.format(auxLista/1000));
+			auxceros.set(j, decFormat.format(auxLista/1000));
 			
 			String dePaso = auxceros.toString();
 			
@@ -673,7 +668,8 @@ public class ReportEjecutivos {
 		return (graficos);
 	}
 	
-	public static List<String> graficoPotencialPorMesYGrupo(Connection con, String db, String pais, String esPorSucursal, String id_sucursal) {
+	public static List<String> graficoPotencialPorMesYGrupo(Connection con, String db, String pais, String esPorSucursal, String id_sucursal,
+			Map<Long,Double> tasasCorte, Map<Long,List<Double>> mapPLista, Map<Long, Double> mapEquivalencia, Map<Long,Long> dec) {
 		List<String> tipoBodegas = new ArrayList<String>();
 		
 		String condSucursal = "";
@@ -682,14 +678,13 @@ public class ReportEjecutivos {
 		}
 		
 		List<String> grupos = new ArrayList<String>();
-		Fechas corte = Fechas.hoy();
-		Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, db, corte.getFechaStrAAMMDD(), pais);
-		Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, db, Long.parseLong(id_sucursal));
+		
+		
 		
 		Map<String,Double> mapListaGrupoTipBod = new HashMap<String,Double>();
 		Map<String,Double> mapListaGrupo = new HashMap<String,Double>();
 		
-		Map<Long, Double> mapEquivalencia = UnidadTiempo.equivalencia(con,db);
+		
 		try {
 			PreparedStatement smt6 = con
 					.prepareStatement(" select " +
@@ -706,7 +701,7 @@ public class ReportEjecutivos {
 							" group by tipoBodega.nombre,movimiento.id_equipo " +
 							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre,grupo.nombre,equipo.nombre;");
 			ResultSet rs6 = smt6.executeQuery();
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+			
 			while (rs6.next()) {
 				
 				List<Double> auxIdMoneda = mapPLista.get(rs6.getLong(3));
@@ -801,8 +796,8 @@ public class ReportEjecutivos {
 				if(auxLista!=null) {
 					total = total + auxLista;
 				}
-				DecimalFormat dec = new DecimalFormat("0");
-				series = series + dec.format(total/1000) + aux3;
+				DecimalFormat decFormat = new DecimalFormat("0");
+				series = series + decFormat.format(total/1000) + aux3;
 			}
 			series = series + "]}" + aux2;
 		}

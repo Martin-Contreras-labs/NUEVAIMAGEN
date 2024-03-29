@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], listTipoEstado: List[tables.TipoEstado],
-contactos: String)
+contactos: String, direccion: String)
     			
     	
 @main("") {
@@ -57,26 +57,26 @@ contactos: String)
 					<TR>
 						<th colspan="1" style="text-align: left;">CLIENTE:</th>
 						<td colspan="2" style="text-align: left;">@bodegaOrigen.getNickCliente()</td>
-						<th colspan="1" style="text-align: left;">EMPLEADO:</th>
+						<th colspan="1" style="text-align: left;"></th>
 						<td colspan="2" style="text-align: left;"></td>
 					</TR>
 					<TR>
-						<th colspan="1" style="text-align: left;">PROYECTO/BODEGA:</th>
+						<th colspan="1" style="text-align: left;">@mapDiccionario.get("BODEGA") (PROYECTO):</th>
 						<td colspan="2" style="text-align: left;">@bodegaOrigen.getNombre().toUpperCase() (@bodegaOrigen.getNickProyecto())</td>
-						<th colspan="1" style="text-align: left;">CONTACTO:</th>
-						<td colspan="2" style="text-align: left;"></td>
+						<th colspan="1" style="text-align: left;">DIRECCION PROYECTO:</th>
+						<td colspan="2" style="text-align: left;">@direccion</td>
 					</TR>
 					<TR>
 						<th colspan="1" style="text-align: left;">TRANSPORTE:</th>
 						<td colspan="2" style="text-align: left;"></td>
-						<th colspan="1" style="text-align: left;">TELEFONO CONTACTO:</th>
+						<th colspan="1" style="text-align: left;">FONO CONTACTO TRANSPORTE:</th>
 						<td colspan="2" style="text-align: left;"></td>
+					</TR>
+					<TR>
+						<th colspan="6" style="text-align: left;">CONTACTOS @mapDiccionario.get("BODEGA"): @contactos</th>
 					</TR>
 					<TR style="vertical-align: middle;">
 						<th colspan="6" style="text-align: left;">MATERIAL PARA RECOGER</th>
-					</TR>
-					<TR>
-						<th colspan="6" style="text-align: left;">@contactos<BR><BR></th>
 					</TR>
 				</table>
 				<hr>

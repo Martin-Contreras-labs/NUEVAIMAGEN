@@ -104,9 +104,9 @@ public class FormRedimensionar {
 					}
 				}
 			}
-			if(form.id_a_redimensionar!=null && detalle.length() > 2) {
-				detalle = detalle.substring(0,detalle.length()-1);
+			if(form.id_a_redimensionar!=null) {
 				if(detalle.length()>2) {
+					detalle = detalle.substring(0,detalle.length()-1);
 					if(!Redimensionar.create(con, db, detalle)) {
 						ActaRedimensionar.delete(con, db, id_actaRedimensionar);
 					}else {
@@ -181,22 +181,43 @@ public class FormRedimensionar {
 		formCompra.numeroFactura = Factura.nuevoNumero(con, db, formCompra.id_proveedor);
 		formCompra.fechaFactura = hoy.getFechaStrAAMMDD();
 		formCompra.observaciones = "Compra generada desde redimensionar Nro: "+ id_actaRedimensionar;
+		
 		if(FormCompra.create(con, db, formCompra, null, "0", id_usuario)) {
 			Long id_factura = Factura.findIdFactura(con, db, formCompra.numeroFactura, formCompra.id_proveedor);
+			
 			List<List<String>> listCompra = Compra.allPorFactura(con, db, id_factura);
+			String insertMovimiento = "";
 			for(List<String> x: listCompra) {
-				Movimiento auxMov = new Movimiento();
-				auxMov.setId_bodegaEmpresa(Long.parseLong(x.get(1)));
-				auxMov.setId_equipo(Long.parseLong(x.get(2)));
-				auxMov.setId_tipoMovimiento((long)1);
-				auxMov.setCantidad(Double.parseDouble(x.get(3)));
-				auxMov.setId_compra(Long.parseLong(x.get(0)));
-				if(Movimiento.createMovimientoCompra(con, db, auxMov)) {
-					Compra.actualizaPorCampo(con, db, "esModificable", Long.parseLong(x.get(0)), "0");
+				
+				String id_bodegaEmpresa = x.get(1);
+				String id_equipo = x.get(2);
+				String id_tipoMovimiento = "1";
+				String camtidad = x.get(3);
+				String id_compra = x.get(0);
+				String fecha_factura = x.get(4);
+				
+				insertMovimiento += "('"
+						+ id_bodegaEmpresa + "','"
+						+ id_equipo + "','"
+						+ id_tipoMovimiento + "','"
+						+ camtidad + "','"
+						+ id_compra + "','"
+						+ id_factura + "','"
+						+ fecha_factura + "'),";
+			}
+			
+			if(insertMovimiento.length() > 2) {
+				insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
+				if(Movimiento.createMovimientoCompra(con, db, insertMovimiento)) {
+					for(List<String> x: listCompra) {
+						String id_compra = x.get(0);
+						Compra.actualizaPorCampo(con, db, "esModificable", Long.parseLong(id_compra), "0");
+					}
+					Registro.modificaciones(con, db, id_usuario, userName, "factura", id_factura, "create", 
+							"ingresa nueva compra confirmada nro: "+formCompra.numeroFactura+" desde acta redimensionar id: "+id_actaRedimensionar);
 				}
 			}
-			Registro.modificaciones(con, db, id_usuario, userName, "factura", id_factura, "create", 
-					"ingresa nueva compra confirmada nro: "+formCompra.numeroFactura+" desde acta redimensionar id: "+id_actaRedimensionar);
+			
 		}
 		
 		
@@ -208,20 +229,38 @@ public class FormRedimensionar {
 		if(FormBaja.create(con, db, mapeoPermiso, formBaja, null)) {
 			Long id_actaBaja = ActaBaja.findIdActaBaja(con, db, numActaBaja);
 			List<Baja> listBaja = Baja.allPorIdActaBaja(con, db, id_actaBaja);
+			String insertMovimiento = "";
 			for(Baja x: listBaja) {
-				Long id_baja = x.getId();
-				Long id_equipo = x.getId_equipo();
-				Double cantidad = x.getCantidad();
-				Movimiento auxMov = new Movimiento();
-				auxMov.setId_bodegaEmpresa((long)1);
-				auxMov.setId_equipo(id_equipo);
-				auxMov.setId_tipoMovimiento((long)2);
-				auxMov.setCantidad(cantidad);
-				auxMov.setId_baja(id_baja);
-				if(Movimiento.createMovimientoBaja(con, db, auxMov)) {
-					FormBaja.cambiaAconfirmada(con, db, id_baja);
+				
+				String id_bodegaEmpresa = "1";
+				String id_equipo = x.getId_equipo().toString();
+				String id_tipoMovimiento = "2";
+				String cantidad = x.getCantidad().toString();
+				String id_baja = x.getId().toString();
+				String fecha_actaBaja = x.getFecha_actaBaja();
+				
+				insertMovimiento += "('"
+						+ id_bodegaEmpresa + "','"
+						+ id_equipo + "','"
+						+ id_tipoMovimiento + "','"
+						+ cantidad + "','"
+						+ id_baja + "','"
+						+ id_actaBaja + "','"
+						+ fecha_actaBaja + "'),";
+			}
+			
+			if(insertMovimiento.length() > 2) {
+				insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
+				if(Movimiento.createMovimientoBaja(con, db, insertMovimiento)) {
+					for(Baja x: listBaja) {
+						Long id_baja = x.getId();
+						FormBaja.cambiaAconfirmada(con, db, id_baja);
+					}
+					Registro.modificaciones(con, db, id_usuario, userName, "actaBaja", id_actaBaja, "create", 
+							"ingresa nueva actaBaja confirmada nro: "+numActaBaja+" desde acta redimensionar id: "+id_actaRedimensionar);
 				}
 			}
+			
 			Registro.modificaciones(con, db, id_usuario, userName, "actaBaja", id_actaBaja, "create", 
 					"ingresa nueva actaBaja confirmada nro: "+numActaBaja+" desde acta redimensionar id: "+id_actaRedimensionar);
 		}

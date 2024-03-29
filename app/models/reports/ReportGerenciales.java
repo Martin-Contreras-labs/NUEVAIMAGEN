@@ -86,11 +86,7 @@ public class ReportGerenciales {
 		Long inicioMes = Long.parseLong(listIniFinMes2Anios.get(0).get(2));
 		
 		
-		/*aux.add(desdeSql);
-			aux.add(hastaSql);
-			aux.add(strAnioMes); // 2 anioMes
-			aux.add(strAnioMes.substring(4,6)+"-"+strAnioMes.substring(0,4)); // 3 mes-Anio
-			aux.add(strAnioMes.substring(0,4)); // 4 Anio*/
+		// ACTUALIZA SIEMPRE LOS ULTIMOS 4 MESES INCLUIDO EL ACTUAL (EN LA VISTA SON 3 MESES)
 		
 		//AQUI DEBO ELIMINAR DEL LA TABLA HISTORICA reportGerencial POR ANIO COMPLETO SI DESEO ACTUALIZAR TODO o aumentar los 4 meses de acualizacion. 
 		//AQUI resto 4 meses para grabar en historico.

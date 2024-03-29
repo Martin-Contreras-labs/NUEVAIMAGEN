@@ -22,6 +22,8 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
 						<form id='formArrVta' method='post' action='/pdfCotizaArrVta/' onsubmit="return validarForm();">
 							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
 							<input type="hidden" id="sinDetCotArrVta" name="sinDetalle" value="0">
+							<input type="hidden" id="selectGrupos" name="selectGrupos" value="">
+							
 							@if(mapPermiso.get("parametro.cotizaCon_o_sinDetalle")!=null && mapPermiso.get("parametro.cotizaCon_o_sinDetalle").equals("1")){
 								<input type="button"  value="PDF @mapDiccionario.get("Arriendo") y Venta" class="btn btn-secondary btn-sm rounded-pill btn-block" onclick="$('#modalArrVta').modal('show');">
 							}else{
@@ -69,7 +71,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
 						<form id='formCFI' method='post' action='/pdfCotizaArriendo/' onsubmit="return validarForm();">
 							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
 							<input type="hidden" id="sinDetCotArr" name="sinDetalle" value="0">
-							<input type="hidden" id="selectGrupos" name="selectGrupos" value="">
+							<input type="hidden" id="noSeConsidera" name="selectGrupos" value="">
 							
 							<div class="input-group">
 						  		<div class="input-group-prepend">
@@ -94,17 +96,8 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
 	  									<label class="form-check-label" for="radio2b"></label>
 									</div>
 									
-									<div class="form-check" onchange="$('#sinDetCotArr').val('2'); ">
-	  									<input type="radio" class="form-check-input" id="radio3b" name="optradioB" value="option3" 
-											onclick='$("#modalCFI").modal("hide"); $("#modalSelectGrupos").modal("show")'>POR GRUPO (selectivo)
-	  									<label class="form-check-label" for="radio2b"></label>
-									</div>
-									
 									<br>
 								}
-						  		
-							
-							
 							<div class='row'>
 								<div class='col-sm-12' style='text-align:center'>
 									<input type="submit" id="btnSubmit3" class="btn btn-sm btn-primary" value='Generar' onclick='$("#modalCFI").modal("hide")'>
@@ -112,50 +105,6 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
 								</div>
 							</div>
 						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<div id='modalSelectGrupos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
-				<div class='modal-content'>
-					<div class='modal-header'>
-					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-					          <span aria-hidden='true'>&times;</span>
-					        </button>
-					</div>
-					<div class='modal-body'>
-							<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
-								<thead style="background-color: #eeeeee">
-									<TR>
-										<TH>GRUPO</TH>
-										<th></th>
-									</TR>
-								</thead>
-								<tbody>
-									@for(lista <- listGrupos){
-										<tr>
-											<td>
-												@lista.getNombre()
-											</td>
-											<td  style="text-align:center;">
-												<input type="checkbox" id="check_@lista.getId()" value ="0" 
-													onchange="cambiaEstado(id, value, '@lista.getId()')"></td>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						  		
-							
-							
-							<div class='row'>
-								<div class='col-sm-12' style='text-align:center'>
-									<input type="button" class="btn btn-sm btn-primary" value='Seleccionar' onclick='$("#modalSelectGrupos").modal("hide"); $("#modalCFI").modal("show")'>
-									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
-								</div>
-							</div>
 					</div>
 				</div>
 			</div>
@@ -217,7 +166,13 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
   									<input type="radio" class="form-check-input" id="radio2c" name="optradioC" value="option2">SIN DETALLE
   									<label class="form-check-label" for="radio2c"></label>
 								</div>
-							
+								<div class="form-check" onchange="$('#sinDetCotArrVta').val('2'); ">
+	  									<input type="radio" class="form-check-input" id="radio3c" name="optradioC" value="option3" 
+											onclick='$("#modalArrVta").modal("hide"); $("#modalSelectGrupos").modal("show")'>POR GRUPO (selectivo)
+	  									<label class="form-check-label" for="radio2b"></label>
+								</div>
+									
+								<br>
 							
 							<div class='row'>
 								<div class='col-sm-12' style='text-align:center'>
@@ -248,7 +203,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
   									<input type="radio" class="form-check-input" id="radio2a" name="optradioA" value="option2">SIN DETALLE
   									<label class="form-check-label" for="radio2a"></label>
 								</div>
-							
+								<br>
 							
 							<div class='row'>
 								<div class='col-sm-12' style='text-align:center'>
@@ -257,6 +212,50 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo] )
 								</div>
 							</div>
 						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id='modalSelectGrupos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+							<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>
+										<TH>GRUPO</TH>
+										<th></th>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista <- listGrupos){
+										<tr>
+											<td>
+												@lista.getNombre()
+											</td>
+											<td  style="text-align:center;">
+												<input type="checkbox" id="check_@lista.getId()" value ="0" 
+													onchange="cambiaEstado(id, value, '@lista.getId()')"></td>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						  		
+							
+							
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="button" class="btn btn-sm btn-primary" value='Seleccionar' onclick='$("#modalSelectGrupos").modal("hide"); $("#modalArrVta").modal("show")'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
 					</div>
 				</div>
 			</div>

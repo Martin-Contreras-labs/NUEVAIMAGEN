@@ -308,7 +308,16 @@ public class FormMovimiento {
 						rs.close();
 						
 						String auxId_equipo_id_coti = "";
-						for(int i=0; i<listMov.size(); i++) {
+						Map<String,Long> mapAux = new HashMap<String,Long>();
+						for(Movimiento x: listMov) {
+							mapAux.put(x.getId_equipo()+"_"+x.getId_cotizacion(), x.getId_equipo());
+						}
+						
+				        for (Map.Entry<String, Long> entry : mapAux.entrySet()) {
+				        	String clave = entry.getKey();
+				        	Long id_equipo = entry.getValue();
+							
+							
 							
 							for(int j=0; j<listEstad.size(); j++) {
 								if(listEstad.get(j).length() > 0) {
@@ -319,11 +328,14 @@ public class FormMovimiento {
 									
 									String[] estados = auxEstado[0].split(";");
 									
-									String id_equipo_id_coti = listMov.get(i).getId_equipo()+"_"+listMov.get(i).getId_cotizacion();
+									String id_equipo_id_coti = clave;
+									
 									Long id_movimiento = mapIdEqVsIdMov.get(id_equipo_id_coti);
 									
 									if(id_movimiento!=null && ! id_equipo_id_coti.equals(auxId_equipo_id_coti) && id_equipo_id_coti.equals(auxId_EquipoId_coti)) {
+										
 										auxId_EquipoId_coti = id_equipo_id_coti;
+										
 										for(int k=0; k<estados.length; k++) {
 											if(estados[k].length()>2) {
 												String[] auxEst = estados[k].split(":");
@@ -337,7 +349,7 @@ public class FormMovimiento {
 												auxMov.add(Double.parseDouble(id_movimiento.toString()));					//0 id_movimiento
 												auxMov.add(Double.parseDouble(auxEst[0]));									//1 id_tipoEstado
 												auxMov.add(Double.parseDouble(auxEst[1]));									//2 cantidad
-												auxMov.add(Double.parseDouble(listMov.get(i).getId_equipo().toString()));	//3 id_equipo
+												auxMov.add(Double.parseDouble(id_equipo.toString()));						//3 id_equipo
 												listaIdMovIdTipEstCant.add(auxMov);
 											}
 										}

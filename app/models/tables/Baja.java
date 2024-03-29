@@ -46,11 +46,10 @@ public class Baja {
 	public Long id_movimiento;
 	public Long esModificable;
 	public String fechaConfirma;
-
-	
+	public String fecha_actaBaja;
 
 	public Baja(Long id, Long id_actaBaja, Long id_equipo, Double cantidad, String motivo, Long id_movimientoOrigen,
-			Long id_movimiento, Long esModificable, String fechaConfirma) {
+			Long id_movimiento, Long esModificable, String fechaConfirma, String fecha_actaBaja) {
 		super();
 		this.id = id;
 		this.id_actaBaja = id_actaBaja;
@@ -61,6 +60,7 @@ public class Baja {
 		this.id_movimiento = id_movimiento;
 		this.esModificable = esModificable;
 		this.fechaConfirma = fechaConfirma;
+		this.fecha_actaBaja = fecha_actaBaja;
 	}
 
 	public Baja() {super();}
@@ -79,23 +79,14 @@ public class Baja {
 	public void setId_movimientoOrigen(Long id_movimientoOrigen) {this.id_movimientoOrigen = id_movimientoOrigen;}
 	public Long getId_movimiento() {return id_movimiento;}
 	public void setId_movimiento(Long id_movimiento) {this.id_movimiento = id_movimiento;}
-
-
-	public Long getEsModificable() {
-		return esModificable;
-	}
-
-	public void setEsModificable(Long esModificable) {
-		this.esModificable = esModificable;
-	}
-
-	public String getFechaConfirma() {
-		return fechaConfirma;
-	}
-
-	public void setFechaConfirma(String fechaConfirma) {
-		this.fechaConfirma = fechaConfirma;
-	}
+	public String getFecha_actaBaja() {return fecha_actaBaja;}
+	public void setFecha_actaBaja(String fecha_actaBaja) {this.fecha_actaBaja = fecha_actaBaja;}
+	public Long getEsModificable() {return esModificable;}
+	public void setEsModificable(Long esModificable) {this.esModificable = esModificable;}
+	public String getFechaConfirma() {return fechaConfirma;}
+	public void setFechaConfirma(String fechaConfirma) {this.fechaConfirma = fechaConfirma;}
+	
+	
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
@@ -203,13 +194,25 @@ public class Baja {
 		List<Baja> lista = new ArrayList<Baja>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select " +
-							" id, id_actaBaja, id_equipo, cantidad, motivo, id_movimientoOrigen, id_movimiento, esModificable, fechaConfirma " +
-							" from `"+db+"`.baja where id_actaBaja = ?;");
+					.prepareStatement(" select"
+							+ " baja.id,"
+							+ " baja.id_actaBaja,"
+							+ " baja.id_equipo,"
+							+ " baja.cantidad,"
+							+ " baja.motivo,"
+							+ " baja.id_movimientoOrigen,"
+							+ " baja.id_movimiento,"
+							+ " baja.esModificable,"
+							+ " baja.fechaConfirma, "
+							+ " actaBaja.fecha"
+							+ " from `"+db+"`.baja"
+							+ " left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja "
+							+ " where id_actaBaja = ?;");
 			smt.setLong(1, id_actaBaja);
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				Baja aux = new Baja(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getDouble(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getLong(8), rs.getString(9));
+				Baja aux = new Baja(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getDouble(4), rs.getString(5), rs.getLong(6), 
+						rs.getLong(7), rs.getLong(8), rs.getString(9), rs.getString(10));
 				lista.add(aux);
 			}
 			rs.close();
@@ -224,13 +227,25 @@ public class Baja {
 		Map<Long,Baja> map = new HashMap<Long,Baja>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select " +
-							" id, id_actaBaja, id_equipo, cantidad, motivo, id_movimientoOrigen, id_movimiento, esModificable, fechaConfirma " +
-							" from `"+db+"`.baja where id_actaBaja = ? and esModificable=1 and fechaConfirma is null;");
+					.prepareStatement(" select "
+							+ " baja.id,"
+							+ " baja.id_actaBaja,"
+							+ " baja.id_equipo,"
+							+ " baja.cantidad,"
+							+ " baja.motivo,"
+							+ " baja.id_movimientoOrigen,"
+							+ " baja.id_movimiento,"
+							+ " baja.esModificable, "
+							+ " baja.fechaConfirma, "
+							+ " actaBaja.fecha"
+							+ " from `"+db+"`.baja"
+							+ " left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja "
+							+ " where id_actaBaja = ? and esModificable=1 and fechaConfirma is null;");
 			smt.setLong(1, id_actaBaja);
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				Baja aux = new Baja(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getDouble(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getLong(8), rs.getString(9));
+				Baja aux = new Baja(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getDouble(4), rs.getString(5), rs.getLong(6), 
+						rs.getLong(7), rs.getLong(8), rs.getString(9), rs.getString(10));
 				map.put(rs.getLong(3), aux);
 			}
 			rs.close();
@@ -245,13 +260,25 @@ public class Baja {
 		Map<Long,Baja> map = new HashMap<Long,Baja>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select " +
-							" id, id_actaBaja, id_equipo, cantidad, motivo, id_movimientoOrigen, id_movimiento, esModificable, fechaConfirma " +
-							" from `"+db+"`.baja where id_actaBaja = ?;");
+					.prepareStatement(" select "
+							+ " baja.id,"
+							+ " baja.id_actaBaja,"
+							+ " baja.id_equipo,"
+							+ " baja.cantidad,"
+							+ " baja.motivo,"
+							+ " baja.id_movimientoOrigen,"
+							+ " baja.id_movimiento,"
+							+ " baja.esModificable, "
+							+ " baja.fechaConfirma, "
+							+ " actaBaja.fecha"
+							+ " from `"+db+"`.baja"
+							+ " left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja "
+							+ " where id_actaBaja = ?;");
 			smt.setLong(1, id_actaBaja);
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				Baja aux = new Baja(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getDouble(4), rs.getString(5), rs.getLong(6), rs.getLong(7), rs.getLong(8), rs.getString(9));
+				Baja aux = new Baja(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getDouble(4), rs.getString(5), rs.getLong(6), 
+						rs.getLong(7), rs.getLong(8), rs.getString(9), rs.getString(10));
 				map.put(rs.getLong(3), aux);
 			}
 			rs.close();
@@ -283,7 +310,18 @@ public class Baja {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select baja.id, fecha, numero, codigo, equipo.nombre, unidad.nombre, cantidad, motivo, actaBajaPDF, equipo.id "
+					.prepareStatement(" select"
+							+ " baja.id,"
+							+ " fecha,"
+							+ " numero,"
+							+ " codigo,"
+							+ " equipo.nombre,"
+							+ " unidad.nombre,"
+							+ " cantidad,"
+							+ " motivo,"
+							+ " actaBajaPDF,"
+							+ " equipo.id, "
+							+ " actaBaja.id "
 							+ "	from `"+db+"`.baja "
 							+ "	left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja "
 							+ "	left join `"+db+"`.equipo on equipo.id = baja.id_equipo "
@@ -292,11 +330,9 @@ public class Baja {
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();
-				String fecha = null;		
-				if (rs.getDate(2) != null) {fecha = myformatfecha.format(rs.getDate(2));}
 				String cantidad = myformatdouble2.format(rs.getLong(7));
 				aux.add(rs.getString(1));		// 0 id_baja
-				aux.add(fecha);					// 1 fecha acta baja
+				aux.add(rs.getString(2));		// 1 fecha acta baja
 				aux.add(rs.getString(3));		// 2 numero de acta
 				aux.add(rs.getString(4));		// 3 codigo equipo
 				aux.add(rs.getString(5));		// 4 equipo
@@ -305,6 +341,7 @@ public class Baja {
 				aux.add(rs.getString(8));		// 7 motivo
 				aux.add(rs.getString(9));		// 8 doc adjunto
 				aux.add(rs.getString(10));		// 9 id_equipo
+				aux.add(rs.getString(10));		// 10 id_actaBaja
 				lista.add(aux);
 			}
 			rs.close();

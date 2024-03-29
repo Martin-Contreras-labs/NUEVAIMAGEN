@@ -96,7 +96,7 @@ listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosGrup
 		<div class="noprint">
 			<form>
 				<div align="left">
-					Graficar por EMPRESA:
+					Graficar por @mapDiccionario.get("BODEGA"):
 					<select class="input-large" id="selectGrafico" name="cod_region" style="text-align:left;height:24px" onChange="graficar()">
 						<option value="-1">seleccionar</option>
 						@for((lista,index) <- listSeleccion.zipWithIndex){

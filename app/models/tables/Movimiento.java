@@ -50,10 +50,15 @@ public class Movimiento {
 	public Long id_cotizacion;
 	public Double cantCliente;
 	
-	public Movimiento(Long id, Long id_compra, Long id_bodegaOrigen,
-			Long id_bodegaEmpresa, Long id_equipo, Long id_tipoMovimiento,
-			Long id_guia, Double cantidad, Long id_baja, Long bloqueoPorBaja,
-			Double exceso, Long esNuevo, Long esVenta, Long id_otDespachado, Long id_cotizacion, Double cantCliente) {
+	public Long id_factura;
+	public String fecha_factura;
+	public Long id_actaBaja;
+	public String fecha_actaBaja;
+	
+	public Movimiento(Long id, Long id_compra, Long id_bodegaOrigen, Long id_bodegaEmpresa, Long id_equipo,
+			Long id_tipoMovimiento, Long id_guia, Double cantidad, Long id_baja, Long bloqueoPorBaja, Double exceso,
+			Long esNuevo, Long esVenta, Long id_otDespachado, Long id_cotizacion, Double cantCliente, Long id_factura,
+			String fecha_factura, Long id_actaBaja, String fecha_actaBaja) {
 		super();
 		this.id = id;
 		this.id_compra = id_compra;
@@ -71,6 +76,10 @@ public class Movimiento {
 		this.id_otDespachado = id_otDespachado;
 		this.id_cotizacion = id_cotizacion;
 		this.cantCliente = cantCliente;
+		this.id_factura = id_factura;
+		this.fecha_factura = fecha_factura;
+		this.id_actaBaja = id_actaBaja;
+		this.fecha_actaBaja = fecha_actaBaja;
 	}
 
 	public Movimiento() {super();}
@@ -107,6 +116,14 @@ public class Movimiento {
 	public void setId_cotizacion(Long id_cotizacion) {this.id_cotizacion = id_cotizacion;}
 	public Double getCantCliente() {return cantCliente;}
 	public void setCantCliente(Double cantCliente) {this.cantCliente = cantCliente;}
+	public Long getId_factura() {return id_factura;}
+	public void setId_factura(Long id_factura) {this.id_factura = id_factura;}
+	public String getFecha_factura() {return fecha_factura;}
+	public void setFecha_factura(String fecha_factura) {this.fecha_factura = fecha_factura;}
+	public Long getId_actaBaja() {return id_actaBaja;}
+	public void setId_actaBaja(Long id_actaBaja) {this.id_actaBaja = id_actaBaja;}
+	public String getFecha_actaBaja() {return fecha_actaBaja;}
+	public void setFecha_actaBaja(String fecha_actaBaja) {this.fecha_actaBaja = fecha_actaBaja;}
 
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
@@ -132,13 +149,18 @@ public class Movimiento {
 							" movimiento.esVenta, " +
 							" movimiento.id_otDespachado, " +
 							" movimiento.id_cotizacion, " +
-							" movimiento.cantCliente " +
+							" movimiento.cantCliente, " +
+							" movimiento.id_factura, " +
+							" movimiento.fecha_factura, " +
+							" movimiento.id_actaBaja, " +
+							" movimiento.fecha_actaBaja " +
 							" from `"+db+"`.movimiento;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
-						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),rs.getDouble(16)));
+						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20)));
 			}
 			rs.close();
 			smt.close();
@@ -168,7 +190,11 @@ public class Movimiento {
 							" movimiento.esVenta, " +
 							" movimiento.id_otDespachado, " +
 							" movimiento.id_cotizacion, " +
-							" movimiento.cantCliente " +
+							" movimiento.cantCliente, " +
+							" movimiento.id_factura, " +
+							" movimiento.fecha_factura, " +
+							" movimiento.id_actaBaja, " +
+							" movimiento.fecha_actaBaja " +
 							" from `"+db+"`.movimiento " +
 							" where id_bodegaEmpresa = ?;");
 			smt.setLong(1, id_bodegaEmpresa);
@@ -177,7 +203,8 @@ public class Movimiento {
 			while (rs.next()) {
 				lista.add(new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
-						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),rs.getDouble(16)));
+						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20)));
 			}
 			rs.close();
 			smt.close();
@@ -207,7 +234,11 @@ public class Movimiento {
 							" movimiento.esVenta, " +
 							" movimiento.id_otDespachado, " +
 							" movimiento.id_cotizacion, " +
-							" movimiento.cantCliente " +
+							" movimiento.cantCliente, " +
+							" movimiento.id_factura, " +
+							" movimiento.fecha_factura, " +
+							" movimiento.id_actaBaja, " +
+							" movimiento.fecha_actaBaja " +
 							" from `"+db+"`.movimiento " +
 							" where id_equipo = ?;");
 			smt.setLong(1, id_equipo);
@@ -215,7 +246,8 @@ public class Movimiento {
 			while (rs.next()) {
 				lista.add(new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
-						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),rs.getDouble(16)));
+						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20)));
 			}
 			rs.close();
 			smt.close();
@@ -230,22 +262,7 @@ public class Movimiento {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement(" select " +
-							" movimiento.id, " +
-							" movimiento.id_compra, " +
-							" movimiento.id_bodegaOrigen, " +
-							" movimiento.id_bodegaEmpresa, " +
-							" movimiento.id_equipo, " +
-							" movimiento.id_tipoMovimiento, " +
-							" movimiento.id_guia, " +
-							" movimiento.cantidad, " +
-							" movimiento.id_baja, " +
-							" movimiento.bloqueoPorBaja, " +
-							" movimiento.exceso, " +
-							" movimiento.esNuevo, " +
-							" movimiento.esVenta, " +
-							" movimiento.id_otDespachado, " +
-							" movimiento.id_cotizacion, " +
-							" movimiento.cantCliente " +
+							" movimiento.id " +
 							" from `"+db+"`.movimiento " +
 							" where id_cotizacion = ?;");
 			smt.setLong(1, id_cotizacion);
@@ -284,7 +301,11 @@ public class Movimiento {
 							" movimiento.esVenta, " +
 							" movimiento.id_otDespachado, " +
 							" movimiento.id_cotizacion, " +
-							" movimiento.cantCliente " +
+							" movimiento.cantCliente, " +
+							" movimiento.id_factura, " +
+							" movimiento.fecha_factura, " +
+							" movimiento.id_actaBaja, " +
+							" movimiento.fecha_actaBaja " +
 							" from `"+db+"`.movimiento " +
 							" where id = ?;");
 			smt.setLong(1, id_movimiento);
@@ -292,7 +313,8 @@ public class Movimiento {
 			if (rs.next()) {
 				aux = new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
-						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),rs.getDouble(16));
+						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20));
 			}
 			rs.close();
 			smt.close();
@@ -589,17 +611,12 @@ public class Movimiento {
 	}
 	
 	
-	public static boolean createMovimientoCompra(Connection con, String db, Movimiento mov) {
+	public static boolean createMovimientoCompra(Connection con, String db, String insertMovimiento) {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_compra) " +
-							" VALUES (?,?,?,?,?)");	
-			smt.setLong(1, mov.getId_bodegaEmpresa());
-			smt.setLong(2, mov.getId_equipo());
-			smt.setLong(3, mov.getId_tipoMovimiento());
-			smt.setDouble(4, mov.getCantidad());
-			smt.setLong(5, mov.getId_compra());
+					.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_compra,id_factura,fecha_factura) " +
+							" VALUES " + insertMovimiento +";");
 			smt.executeUpdate();
 			smt.close();
 			flag = true;
@@ -609,17 +626,12 @@ public class Movimiento {
 		return (flag);
 	}
 	
-	public static boolean createMovimientoBaja(Connection con, String db, Movimiento mov) {
+	public static boolean createMovimientoBaja(Connection con, String db, String insertMovimiento) {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_baja) " +
-							" VALUES (?,?,?,?,?)");	
-			smt.setLong(1, mov.getId_bodegaEmpresa());
-			smt.setLong(2, mov.getId_equipo());
-			smt.setLong(3, mov.getId_tipoMovimiento());
-			smt.setDouble(4, mov.getCantidad());
-			smt.setLong(5, mov.getId_baja());
+					.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_baja,id_actaBaja,fecha_actaBaja) " +
+							" VALUES "+insertMovimiento+";");
 			smt.executeUpdate();
 			smt.close();
 			flag = true;

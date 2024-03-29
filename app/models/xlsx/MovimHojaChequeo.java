@@ -40,7 +40,7 @@ public class MovimHojaChequeo {
 	
 	
 	public static File hojaChequeoAgrupadoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, 
-			List<TipoEstado> listTipoEstado, String contactos, String sinCant) {
+			List<TipoEstado> listTipoEstado, String contactos, String direccion, String sinCant) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -117,13 +117,25 @@ public class MovimHojaChequeo {
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("PROYECTO/BODEGA: "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
+			cell.setCellValue(mapDiccionario.get("BODEGA") + " (PROYECTO): "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
+			
+			row = hoja1.createRow(7);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("DIRECCION PROYECTO: "+direccion);
+			
+			row = hoja1.createRow(8);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CONTACTOS "+mapDiccionario.get("BODEGA")+":"+contactos);
 			
 			// encabezado de la tabla
 			
 			int posCell = 0;
 			int posColl = 0;
-			row = hoja1.createRow(8);
+			row = hoja1.createRow(10);
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 7*1000);
@@ -205,7 +217,7 @@ public class MovimHojaChequeo {
 			
 			
 			//DETALLE DE LA TABLA
-			int posRow = 9;
+			int posRow = 11;
 			for(int i=0; i<listEquipBodOrigen.size(); i++){
 				row = hoja1.createRow(posRow);
 				posCell = 0;
@@ -307,7 +319,7 @@ public class MovimHojaChequeo {
 	}
 	
 	public static File hojaChequeoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, 
-			List<TipoEstado> listTipoEstado, String contactos, String sinCant) {
+			List<TipoEstado> listTipoEstado, String contactos, String direccion, String sinCant) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -382,13 +394,25 @@ public class MovimHojaChequeo {
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("PROYECTO/BODEGA: "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
+			cell.setCellValue(mapDiccionario.get("BODEGA") + " (PROYECTO): "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
+			
+			row = hoja1.createRow(7);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("DIRECCION PROYECTO: "+direccion);
+			
+			row = hoja1.createRow(8);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CONTACTOS "+mapDiccionario.get("BODEGA")+":"+contactos);
 			
 			// encabezado de la tabla
 			
 			int posCell = 0;
 			int posColl = 0;
-			row = hoja1.createRow(8);
+			row = hoja1.createRow(10);
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 7*1000);
@@ -474,7 +498,7 @@ public class MovimHojaChequeo {
 			
 			
 			//DETALLE DE LA TABLA
-			int posRow = 9;
+			int posRow = 11;
 			for(int i=0; i<listEquipBodOrigen.size(); i++){
 				row = hoja1.createRow(posRow);
 				posCell = 0;

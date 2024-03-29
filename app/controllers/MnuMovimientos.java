@@ -30,6 +30,7 @@ import models.tables.Equipo;
 import models.tables.Grupo;
 import models.tables.Guia;
 import models.tables.Movimiento;
+import models.tables.Proyecto;
 import models.tables.Sucursal;
 import models.tables.TipoEstado;
 import models.tables.TipoReparacion;
@@ -1934,17 +1935,19 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
     			
     			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
-    			String contactos = "CONTACTOS: ";
+    			String contactos = "";
            	   	if(listContactos.size() == 0) {
            		   contactos="";
            	   	}
            	   	for(ContactoBodegaEmpresa c: listContactos) {
-           		 String nombre = c.getNombre().toLowerCase();
+           		 String nombre = c.getNombre();
            		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
            	   	}
-           	   
+           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+           	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+           	   	
     			con.close();
-    			return ok(hojaChequeoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos));
+    			return ok(hojaChequeoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos, direccion));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -2005,14 +2008,18 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	           		   contactos="";
 	           	   	}
 	           	   	for(ContactoBodegaEmpresa c: listContactos) {
-	           		 String nombre = c.getNombre().toLowerCase();
+	           		 String nombre = c.getNombre();
 	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
 	           	   	}
+	           	   	
+	           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+	        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+	        	   	
 	           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
 	           	   	if(sinCant == null) {
 	           	   		sinCant = "0";
 	           	   	}
-	    			File file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, sinCant);
+	    			File file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, direccion, sinCant);
 		       		if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("HojaChequeoPorCodigo.xlsx"));
@@ -2121,11 +2128,15 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
            		   contactos="";
            	   	}
            	   	for(ContactoBodegaEmpresa c: listContactos) {
-           		 String nombre = c.getNombre().toLowerCase();
+           		 String nombre = c.getNombre();
            		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
            	   	}
+           	   	
+           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+        	   	
     			con.close();
-    			return ok(hojaChequeoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos));
+    			return ok(hojaChequeoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos, direccion));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -2196,14 +2207,19 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	           		   contactos="";
 	           	   	}
 	           	   	for(ContactoBodegaEmpresa c: listContactos) {
-	           		 String nombre = c.getNombre().toLowerCase();
+	           		 String nombre = c.getNombre();
 	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
 	           	   	}
+	           	   	
+	           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+	        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+	        	   	
+	        	   	
 	           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
 	           	   	if(sinCant == null) {
 	           	   		sinCant = "0";
 	           	   	}
-	    			File file = MovimHojaChequeo.hojaChequeoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, sinCant);
+	    			File file = MovimHojaChequeo.hojaChequeoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, direccion, sinCant);
 		       		if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("HojaChequeoPorCodigoYCoti.xlsx"));
@@ -2328,11 +2344,15 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	           		   contactos="";
 	           	   	}
 	           	   	for(ContactoBodegaEmpresa c: listContactos) {
-	           		 String nombre = c.getNombre().toLowerCase();
+	           		 String nombre = c.getNombre();
 	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
 	           	   	}
+	           	   	
+	           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+	        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+	        	   	
 	    			con.close();
-	    			return ok(hojaChequeoDetallePorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado, idGrupos, contactos));
+	    			return ok(hojaChequeoDetallePorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado, idGrupos, contactos, direccion));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -2410,14 +2430,18 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		           		   contactos="";
 		           	   	}
 		           	   	for(ContactoBodegaEmpresa c: listContactos) {
-		           		 String nombre = c.getNombre().toLowerCase();
+		           		 String nombre = c.getNombre();
 		           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
 		           	   	}
+		           	   	
+		           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+		        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+		        	   	
 		           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
 		           	   	if(sinCant == null) {
 		           	   		sinCant = "0";
 		           	   	}
-	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado,contactos,sinCant);
+	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado,contactos,direccion,sinCant);
 	    			}
 		       		if(file!=null) {
 		       			con.close();

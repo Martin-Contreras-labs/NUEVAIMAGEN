@@ -279,7 +279,8 @@ public class Compra {
 							" equipo.id, " +
 							" factura.observaciones, " +
 							" sucursal.nombre, " +
-							" bodegaEmpresa.id_sucursal " +
+							" bodegaEmpresa.id_sucursal, " +
+							" factura.id " +
 							" from `"+db+"`.factura " +
 							" left join `"+db+"`.compra on compra.id_factura = factura.id " +
 							" left join `"+db+"`.equipo on equipo.id = compra.id_equipo " +
@@ -294,7 +295,7 @@ public class Compra {
 				aux.add(rs.getString(1));							// 0 compra.id
 				aux.add(rs.getString(2));							// 1 esModificable
 				aux.add(rs.getString(10));							// 2 bodegaEmpresa.id destino
-				aux.add(myformatfecha.format(rs.getDate(3)));		// 3 factura.fecha
+				aux.add(rs.getString(3));							// 3 factura.fecha
 				aux.add(rs.getString(4));							// 4 factura.numero
 				aux.add(rs.getString(5));							// 5 equipo.codigo
 				aux.add(rs.getString(6));							// 6 equipo.nombre
@@ -305,6 +306,7 @@ public class Compra {
 				aux.add(rs.getString(12));							// 11 equipo.id
 				aux.add(rs.getString(13));							// 12 nameSucursal
 				aux.add(rs.getString(14));							// 13 id sucursal
+				aux.add(rs.getString(15));							// 14 id factura
 				lista.add(aux);
 			}
 			rs.close();
@@ -474,8 +476,10 @@ public class Compra {
 							" compra.id, " +
 							" compra.id_bodegaEmpresa, " +
 							" compra.id_equipo, " +
-							" compra.cantidad " +
+							" compra.cantidad, " +
+							" factura.fecha " +
 							" from `"+db+"`.compra " +
+							" left join `"+db+"`.factura on factura.id = compra.id_factura " +
 							" where compra.id_factura = ?;");
 			smt.setLong(1, id_factura);
 			ResultSet rs = smt.executeQuery();
@@ -485,6 +489,7 @@ public class Compra {
 				aux.add(rs.getString(2));								// 1 id_bodegaEmpresa
 				aux.add(rs.getString(3));								// 2 id_equipo
 				aux.add(rs.getString(4));								// 3 cantidad
+				aux.add(rs.getString(5));								// 4 fecha_factura
 				lista.add(aux);
 				
 			}

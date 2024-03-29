@@ -70,11 +70,9 @@ public class FormCompra {
 				detalle += "('"+id_factura+"','"+form.id_equipo.get(i)+"','"+form.cantidad.get(i).replaceAll(",", "")+"','"+form.id_monedaCompra.get(i)+"','"+
 						form.puCompra.get(i).replaceAll(",", "")+"','"+form.id_bodegaDestino.get(i)+"'),";
 			}
-			if(form.id_equipo!=null) {
-				detalle = detalle.substring(0,detalle.length()-1);
-			}
 			
 			if(detalle.length()>2) {
+				detalle = detalle.substring(0,detalle.length()-1);
 				if(!Compra.create(con, db, detalle)) {
 					Factura.delete(con, db, id_factura);
 				}else {
@@ -101,10 +99,9 @@ public class FormCompra {
 				detalle += "('"+id_factura+"','"+form.id_equipo.get(i)+"','"+form.cantidad.get(i).replaceAll(",", "")+"','"+form.id_monedaCompra.get(i)+"','"+
 						form.puCompra.get(i).replaceAll(",", "")+"','"+form.id_bodegaDestino.get(i)+"'),";
 			}
-			if(form.id_equipo!=null) {
-				detalle = detalle.substring(0,detalle.length()-1);
-			}
+			
 			if(detalle.length()>2) {
+				detalle = detalle.substring(0,detalle.length()-1);
 				Compra.create(con, db, detalle);
 			}
 			String path = "0";

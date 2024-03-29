@@ -891,26 +891,48 @@ public class MnuCompras extends Controller {
 	    			String arrIdCompras = form.get("cambiosDeEstados").trim();
 	    			
 	    			if(arrIdCompras.length()>0) {
-	    				String listIdCompra = "";
+	    				
 	    				String[] arr = arrIdCompras.split(";");
+	    				String insertMovimiento = "";
 	    				for(int i=0; i<arr.length; i++) {
+	    					
 	    					String[] detalle = arr[i].split(",");
 	    					
-	    					Movimiento auxMov = new Movimiento();
+	    					String id_bodegaEmpresa = detalle[4];
+	    					String id_equipo = detalle[2];
+	    					String id_tipoMovimiento = "1";
+	    					String cantidad = detalle[3];
+	    					String id_compra = detalle[0];
+	    					String id_factura = detalle[5];
+	    					String fecha_factura = detalle[6];
 	    					
-	    					auxMov.setId_bodegaEmpresa(Long.parseLong(detalle[4]));
-	    					auxMov.setId_equipo(Long.parseLong(detalle[2]));
-	    					auxMov.setId_tipoMovimiento((long)1);
-	    					auxMov.setCantidad(Double.parseDouble(detalle[3]));
-	    					auxMov.setId_compra(Long.parseLong(detalle[0]));
+	    					insertMovimiento += "('"
+	    							+ id_bodegaEmpresa + "','"
+	    							+ id_equipo + "','"
+	    							+ id_tipoMovimiento + "','"
+	    							+ cantidad + "','"
+	    							+ id_compra + "','"
+	    							+ id_factura + "','"
+	    							+ fecha_factura + "'),";
 	    					
-	    					
-	    					if(Movimiento.createMovimientoCompra(con, s.baseDato, auxMov)) {
-	    						Compra.actualizaPorCampo(con, s.baseDato, "esModificable", Long.parseLong(detalle[0]), "0");
-	    						listIdCompra += detalle[0]+", ";
+	    				}
+	    				
+	    				if(insertMovimiento.length() > 2) {
+	    					insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
+	    					if(Movimiento.createMovimientoCompra(con, s.baseDato, insertMovimiento)) {
+		    					String listIdCompra = "";
+		    					for(int i=0; i<arr.length; i++) {
+		    						String[] detalle = arr[i].split(",");
+		    						String id_compra = detalle[0];
+		    						listIdCompra += id_compra + ",";
+		    						Compra.actualizaPorCampo(con, s.baseDato, "esModificable", Long.parseLong(id_compra), "0");
+		    					}
+		    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "compra", (long)0, "confirma", "confirma compras id: "+listIdCompra);
 	    					}
 	    				}
-	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "compra", (long)0, "confirma", "confirma compras id: "+listIdCompra);
+	    				
+	    				
+	    				
 	    			}
 	    			con.close();
 	    			return redirect("/home/");
