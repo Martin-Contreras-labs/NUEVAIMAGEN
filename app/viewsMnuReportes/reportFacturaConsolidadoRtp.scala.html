@@ -65,7 +65,8 @@ datos: List[List[String]], fecha: String, cantMeses: String, categorias: List[St
 			@for(lista <- datos.tail){
 				<TR>
 					<td style="text-align:left;">@Html(lista.get(0))</td>
-					@for(lista2 <- lista.tail){
+					<td style="text-align:left;">@Html(lista.get(1))</td>
+					@for(lista2 <- lista.tail.tail){
 						<td style="text-align:right;">@lista2</td>
 					}
 				</TR>

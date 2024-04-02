@@ -37,6 +37,7 @@ import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Compra;
+import models.tables.Cotizacion;
 import models.tables.Equipo;
 import models.tables.Grupo;
 import models.tables.ListaPrecio;
@@ -474,7 +475,7 @@ public class ReportInventarios {
 		return (map);
 	}
 	
-	public static List<List<String>> reportInventarioGeneralXEquipo(Connection con, String db, Long id_equipo, String fechaCorte, String tipo, 
+	public static List<List<String>> reportInventarioGeneralXEquipo(Connection con, String db, Equipo equipo, String fechaCorte, String tipo, 
 			Map<Long,List<Double>> mapPCompra, Map<Long,List<Double>> mapPLista, Map<Long,String> moneda, Map<String,String> mapeoDiccionario,
 			String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
@@ -486,7 +487,14 @@ public class ReportInventarios {
 		
 		Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, db,fechaCorte, mapeoDiccionario.get("pais"));
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-		Map<String,List<Double>> mapPBodega = ListaPrecio.mapListaPreciosEquiposPorEquipo(con, db, id_equipo);
+		Map<String,List<Double>> mapPBodega = ListaPrecio.mapListaPreciosEquiposPorEquipo(con, db, equipo.getId());
+		Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, db);
+		Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+		
+		Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
+		Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
+		Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);
+		
 		String condicionaSuma = "";
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
 			condicionaSuma = " if("
@@ -501,43 +509,25 @@ public class ReportInventarios {
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), ";
 		}
-		Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, db);
+		
 		try {
 			PreparedStatement smt6 = con
 					.prepareStatement(" select " +
-							" movimiento.id_bodegaEmpresa, " +
-							" bodegaEmpresa.nombre, " +
-							" grupo.id, " +
-							" grupo.nombre, " +
-							" movimiento.id_equipo, " +
-							" equipo.codigo, " +
-							" equipo.nombre, " +
-							" unidad.nombre, " +
-							condicionaSuma +
-							" if(guia.id>0,guia.fecha,if(factura.id>0,factura.fecha,actaBaja.fecha)), " +
-							" bodegaEmpresa.esInterna, " +
-							" tipoBodega.nombre, " +
-							" cliente.nickName, " +
-							" ifnull(movimiento.id_cotizacion,0), "+
-							" ifnull(cotizacion.numero,0), " +
-							" bodegaEmpresa.id_sucursal " +
+							/*1*/" movimiento.id_bodegaEmpresa, " +
+							/*2*/" bodegaEmpresa.nombre, " +
+							/*3*/condicionaSuma +
+							/*4*/" if(guia.id>0,guia.fecha,if(id_factura.id>0,fecha_factura,fecha_actaBaja)), " +
+							/*5*/" bodegaEmpresa.esInterna, " +
+							/*6*/" ifnull(movimiento.id_cotizacion,0), "+
+							/*7*/" bodegaEmpresa.id_sucursal, " +
+							/*8*/" bodegaEmpresa.id_cliente, " +
+							/*9*/" movimiento.id_cotizacion " +
 							" from `"+db+"`.movimiento " +
-							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
-							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
 							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" left join `"+db+"`.compra on compra.id = movimiento.id_compra " +
-							" left join `"+db+"`.factura on factura.id = compra.id_factura " +
-							" left join `"+db+"`.baja on baja.id = movimiento.id_baja " +
-							" left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
-							" where (bodegaEmpresa.vigente = 1 or bodegaEmpresa.vigente = 0) " +
-							" and (guia.fecha is null or guia.fecha<=?) " +
-							" and (factura.fecha is null or factura.fecha<=?) " +
-							" and (actaBaja.fecha is null or actaBaja.fecha<=?) " +
+							" where (guia.fecha is null or guia.fecha<=?) " +
+							" and (fecha_factura is null or fecha_factura<=?) " +
+							" and (fecha_actaBaja is null or fecha_actaBaja<=?) " +
 							" and movimiento.id_equipo = ? "+
 							condSucursal+
 							" group by movimiento.id_bodegaEmpresa,movimiento.id_equipo " +
@@ -545,63 +535,62 @@ public class ReportInventarios {
 			smt6.setString(1, fechaCorte.trim());
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
-			smt6.setLong(4, id_equipo);
+			smt6.setLong(4, equipo.id);
 			ResultSet rs6 = smt6.executeQuery();
 			
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			while (rs6.next()) {
-				if(rs6.getDouble(9)!=0){
+				if(rs6.getDouble(3)!=0){
 					
 					String nameSucursal = "";
-					Sucursal sucursal = mapSucursal.get(rs6.getLong(16));
+					Sucursal sucursal = mapSucursal.get(rs6.getLong(7));
 					if(sucursal!=null) {
 						nameSucursal = sucursal.getNombre();
 					}
 					
-					List<Double> auxMap = mapPCompra.get(rs6.getLong(5));
+					List<Double> auxMap = mapPCompra.get(equipo.getId());
 					Long idMonedaCompra = (long)1;
 					Double ultimaCompra = (double)0;
 					if(auxMap!=null) {
-						idMonedaCompra=auxMap.get(1).longValue();
+						idMonedaCompra = auxMap.get(1).longValue();
 						ultimaCompra = auxMap.get(0);
 					}
-					auxMap = mapPLista.get(rs6.getLong(5));
+					auxMap = mapPLista.get(equipo.getId());
 					Long idMonedaVentaArr = (long)1;
 					Double precioVenta = (double)0;
 					Double precioArriendo = (double)0;
 					Long idUnidadTiempo = (long)2;
+					String nomUnidadTiempo = mapUnidadTiempo.get(idUnidadTiempo).getNombre();
+					
 					if(auxMap!=null) {
-						idMonedaVentaArr=auxMap.get(3).longValue();
-						precioVenta=auxMap.get(0);
-						precioArriendo=auxMap.get(1);
-						idUnidadTiempo=auxMap.get(2).longValue();
+						idMonedaVentaArr = auxMap.get(3).longValue();
+						precioVenta = auxMap.get(0);
+						precioArriendo = auxMap.get(1);
+						idUnidadTiempo = auxMap.get(2).longValue();
+						nomUnidadTiempo = mapUnidadTiempo.get(idUnidadTiempo).getNombre();
 					}
 					
-					String unidadTiempo = "";
-					if(mapUnidadTiempo != null && mapUnidadTiempo.get(idUnidadTiempo)!=null) {
-						unidadTiempo = mapUnidadTiempo.get(idUnidadTiempo).getNombre();
+					String nickMonedaCompra = moneda.get(idMonedaCompra);
+					String nickMonedaVentaArr = moneda.get(idMonedaVentaArr);
+					
+					String nomTipoBod = "";
+					Long esInterna = rs6.getLong(5);
+					TipoBodega tipoBodega = mapTipoBodega.get(esInterna);
+					if(tipoBodega!=null) {
+						nomTipoBod = tipoBodega.getNombre();
 					}
 					
-						if(rs6.getLong(11)!=1){
-							idUnidadTiempo=(long)2;
-							try {
-								idUnidadTiempo = mapPBodega.get(rs6.getString(5)+"_"+rs6.getString(14)).get(3).longValue();
-							}catch(Exception e) {};
-							idMonedaVentaArr=(long)1;
-							try {
-								idMonedaVentaArr=mapPBodega.get(rs6.getString(5)+"_"+rs6.getString(14)).get(2).longValue();
-							}catch(Exception e) {};
-							precioVenta=(double)0;
-							try {
-								precioVenta = mapPBodega.get(rs6.getString(5)+"_"+rs6.getString(14)).get(0);
-							}catch(Exception e) {};
-							precioArriendo=(double)0;
-							try {
-								precioArriendo = mapPBodega.get(rs6.getString(5)+"_"+rs6.getString(14)).get(1);
-							}catch(Exception e) {};
-							if(mapUnidadTiempo != null && mapUnidadTiempo.get(idUnidadTiempo)!=null) {
-								unidadTiempo = mapUnidadTiempo.get(idUnidadTiempo).getNombre();
+					String id_cotizacion = rs6.getString(6);
+						if(esInterna != (long) 1 ){
+							idMonedaVentaArr = (long)1;
+							precioVenta = (double)0;
+							precioArriendo = (double)0;
+							List<Double> aux = mapPBodega.get(equipo.getId()+"_"+id_cotizacion);
+							if(aux!=null) {
+								idMonedaVentaArr = aux.get(2).longValue();
+								precioVenta = aux.get(0);
+								precioArriendo = aux.get(1);
 							}
+							
 						}
 						
 					Double tasaCompra = tasasCorte.get(idMonedaCompra);
@@ -612,7 +601,21 @@ public class ReportInventarios {
 					if(tasaVenta==null||tasaVenta==0) {
 						tasaVenta=(double)1;
 					}
-						
+					
+					String nickCliente = "";
+					Cliente cliente = mapCliente.get(rs6.getLong(8));
+					if(cliente!=null) {
+						nickCliente = cliente.getNickName();
+					}
+					
+					String nroCoti = "0";
+					Cotizacion coti = mapCotizacion.get(rs6.getLong(9));
+					if(coti!=null) {
+						nroCoti = coti.getNumero().toString();
+					}
+					
+					
+					
 					switch(dec.get(idMonedaCompra).toString()) {
 						 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
 						 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
@@ -638,38 +641,32 @@ public class ReportInventarios {
 					}
 	
 					List<String> aux = new ArrayList<String>();
-					aux.add(rs6.getString(5));  							//  0 id equipo
-					aux.add(rs6.getString(12));   							//  1 tipo de cliente					
+					aux.add(equipo.getId().toString());  					//  0 id equipo
+					aux.add(nomTipoBod);   									//  1 tipo de cliente					
 					aux.add(rs6.getString(2));  							//  2 nombre bodega o empresa
-					aux.add(rs6.getString(4));  							//  3 nombre grupo
-					aux.add(rs6.getString(6));  							//  4 codigo equipo
-					aux.add(rs6.getString(7));  							//  5 nombre equipo
-					aux.add(moneda.get(idMonedaCompra));  					//  6 nickname moneda
+					aux.add(equipo.getGrupo());  							//  3 nombre grupo
+					aux.add(equipo.getCodigo());  							//  4 codigo equipo
+					aux.add(equipo.getNombre());  							//  5 nombre equipo
+					aux.add(nickMonedaCompra);  							//  6 nickname moneda
 					aux.add(myformatdouble.format(ultimaCompra));			//  7 precio compra ultima por unidad
-					
-					aux.add(moneda.get(idMonedaVentaArr)); 					//  8 nickname moneda de venta - arriendo
+					aux.add(nickMonedaVentaArr); 							//  8 nickname moneda de venta - arriendo
 					aux.add(myformatdoubleV.format(precioVenta)); 			//  9 precio venta/reposicion por unidad
-					aux.add(unidadTiempo);									// 10 unidad de tiempo o medida arriendo
+					aux.add(nomUnidadTiempo);								// 10 unidad de tiempo o medida arriendo
 					aux.add(myformatdoubleV.format(precioArriendo)); 		// 11 precio arriendo por unidad
-					
-					
-					aux.add(rs6.getString(8));  							// 12 unidad de medida
-					aux.add(myformatdouble2.format(rs6.getDouble(9)));  	// 13 cantidad
-					Double total = rs6.getDouble(9)*ultimaCompra;
+					aux.add(equipo.getUnidad());  							// 12 unidad de medida
+					aux.add(myformatdouble2.format(rs6.getDouble(3)));  	// 13 cantidad
+					Double total = rs6.getDouble(3)*ultimaCompra;
 					aux.add(myformatdouble.format(total));  				// 14 valor total de compra
-					Double repos = rs6.getDouble(9)*precioVenta;
-					aux.add(myformatdoubleV.format(repos)); 					// 15 valor total de reposicion o venta
-					
-				// aux.add(myformatdouble2.format(tasaMoneda.get(rs6.getString(5)))); 		// 11 tasa
-					
-					aux.add(myformatMonedaOrigen.format(total*tasaCompra)); 			// 16 total pesos compra
-					aux.add(myformatMonedaOrigen.format(repos*tasaVenta)); 			// 17 total pesos venta
+					Double repos = rs6.getDouble(3)*precioVenta;
+					aux.add(myformatdoubleV.format(repos)); 				// 15 valor total de reposicion o venta
+					aux.add(myformatMonedaOrigen.format(total*tasaCompra)); // 16 total pesos compra
+					aux.add(myformatMonedaOrigen.format(repos*tasaVenta)); 	// 17 total pesos venta
 					aux.add(rs6.getString(1));  							// 18 id bodega o empresa
-					aux.add(rs6.getString(11));  							// 19 esInterna
-					aux.add(rs6.getString(13));  							// 20 cliente nickName
-					aux.add(rs6.getString(14));  							// 21 id cotizacion
-					aux.add(rs6.getString(15));  							// 22 numero cotizacion
-					aux.add(nameSucursal);  							// 23 nameSucursal
+					aux.add(esInterna.toString());  						// 19 esInterna
+					aux.add(nickCliente);  									// 20 cliente nickName
+					aux.add(id_cotizacion);  								// 21 id cotizacion
+					aux.add(nroCoti);  										// 22 numero cotizacion
+					aux.add(nameSucursal);  								// 23 nameSucursal
 					lista.add(aux);
 				}
 			}
@@ -682,7 +679,7 @@ public class ReportInventarios {
 		return (lista);
 	}
 	
-	public static List<List<String>> trazaEquipoEnBodega(Connection con, String db, Long idBodega,Long idEquipo, String tipo, Map<String,String> mapeoDiccionario) {
+	public static List<List<String>> trazaEquipoEnBodega(Connection con, String db, Long id_bodegaEmpresa, Long id_equipo, String tipo, Map<String,String> mapeoDiccionario) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		String filtraTipo="";
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
@@ -718,8 +715,8 @@ public class ReportInventarios {
 									" and movimiento.id_equipo=? "+ filtraTipo+
 							" and ifnull(guia.numero,ifnull(concat ('compra(',factura.numero,')'),concat('baja(',actaBaja.numero,')'))) is not null "+
 							" order by guia.fecha desc;");
-			smt5.setLong(1, idBodega);
-			smt5.setLong(2, idEquipo);
+			smt5.setLong(1, id_bodegaEmpresa);
+			smt5.setLong(2, id_equipo);
 			ResultSet rs5 = smt5.executeQuery();
 			while (rs5.next()) {
 				List<String> aux = new ArrayList<String>();

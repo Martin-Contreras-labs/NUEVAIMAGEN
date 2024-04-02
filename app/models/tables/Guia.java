@@ -1481,46 +1481,60 @@ public class Guia {
 			
 			PreparedStatement smt = con
 					.prepareStatement(" select distinct " +
-							" max(movimiento.id) as idMovimiento, " +
-							" guia.id as idGuia,  " +
-							" movimiento.id_equipo as idEquipo, " +
-							" equipo.id_grupo as idGrupo, " +
-							" movimiento.id_bodegaEmpresa as idBodDest, " +
-							" grupo.nombre as grupo, " +
-							" equipo.codigo, " +
-							" equipo.nombre, " +
-							" unidad.nombre, " +
-							" sum(movimiento.cantidad)," +
-							" sum(movimiento.exceso),  " +
-							" movimiento.esVenta,  " +
-							" movimiento.esNuevo,  " +
-							" equipo.img, " +
-							" movimiento.id_cotizacion, " +
-							" ifnull(cotizacion.numero,0),  " +
-							" guia.observaciones, " +
-							" sum(movimiento.cantCliente)" +
+							/*1*/" max(movimiento.id) as idMovimiento, " +
+							/*2*/" guia.id as idGuia,  " +
+							/*3*/" movimiento.id_equipo as idEquipo, " +
+							/*4*/" movimiento.id_bodegaEmpresa as idBodDest, " +
+							/*5*/" sum(movimiento.cantidad)," +
+							/*6*/" sum(movimiento.exceso),  " +
+							/*7*/" movimiento.esVenta,  " +
+							/*8*/" movimiento.esNuevo,  " +
+							/*9*/" movimiento.id_cotizacion, " +
+							/*10*/" guia.observaciones, " +
+							/*11*/" sum(movimiento.cantCliente)" +
 							" from `"+db+"`.guia   " +
 							" left join `"+db+"`.movimiento on movimiento.id_guia = guia.id " +
-							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
-							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
-							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
-							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
 							" where guia.id = ? and movimiento.id_bodegaEmpresa=? " +
-							" group by id_equipo, movimiento.id_cotizacion " +
-							" order by equipo.nombre;");
+							" group by movimiento.id_equipo, movimiento.id_cotizacion;");
 			smt.setLong(1, id_guia);
 			smt.setLong(2, id_bodegaEmpresa);
 			
 			ResultSet rs = smt.executeQuery();
+			
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+			Map<Long,Cotizacion> mapCoti = Cotizacion.mapAll(con, db);
+			
+			
 			while (rs.next()) {
 				
 				String pventa = "0", pventaTotal = "0", parriendo = "0", nmoneda = "", utarriendo = "", dglobal = "0", dgrupo = "0", dequipo = "0", varriendo= "0", dcomp = "0", idMoneda = "1";
 				
-				ListaPrecio listaPrecio = mapListaPrecio.get(rs.getString(3)+"_"+rs.getString(15));
+				ListaPrecio listaPrecio = mapListaPrecio.get(rs.getString(3)+"_"+rs.getString(9));
 				
+				Equipo equipo = mapEquipo.get(rs.getLong(3));
+				Long id_grupo = (long)0;
+				String codEquipo = "";
+				String nomEquipo = "";
+				String unEquipo = "";
+				String grupo = "";
+				String imgEquipo = "";
+				if(equipo != null) {
+					id_grupo = equipo.getId_grupo();
+					codEquipo = equipo.getCodigo();
+					nomEquipo = equipo.getNombre();
+					unEquipo = equipo.getUnidad();
+					grupo = equipo.getGrupo();
+					imgEquipo = equipo.getImg();
+				}
 				
+				Cotizacion coti = mapCoti.get(rs.getLong(9));
+				Long numCoti = (long)0;
+				if(coti!=null) {
+					numCoti = coti.getNumero();
+				}
 				
-				if(listaPrecio!=null) {
+				if(listaPrecio!=null && equipo!=null) {
+					
 					Long id_moneda = listaPrecio.getId_moneda();
 					if(id_moneda == null) {id_moneda=(long)1;}
 					Long decimal = dec.get(id_moneda);
@@ -1553,21 +1567,21 @@ public class Guia {
 					dcomp = myformatdouble2.format(auxDcomp*100)+" %";
 					idMoneda = listaPrecio.getId_moneda().toString();
 					Double auxpventa = Double.parseDouble(pventa.replaceAll(",", "").trim());
-					Double auxpventaTotal = auxpventa * rs.getDouble(10);
+					Double auxpventaTotal = auxpventa * rs.getDouble(5);
 					pventaTotal = myformatdouble.format(auxpventaTotal);
 				}
 				
 				Double KG = mapPeso.get(rs.getLong(3)); if(KG==null) {KG = (double) 0;}
 				Double M2 = mapSuperficie.get(rs.getLong(3)); if(M2==null) M2 = (double) 0;
 				
-				String cantidad = myformatdouble2.format(rs.getDouble(10));
-				String cantCliente = myformatdouble2.format(rs.getDouble(18));
-				String difCantCliente = myformatdouble2.format(rs.getDouble(10) - rs.getDouble(18));
+				String cantidad = myformatdouble2.format(rs.getDouble(5));
+				String cantCliente = myformatdouble2.format(rs.getDouble(11));
+				String difCantCliente = myformatdouble2.format(rs.getDouble(5) - rs.getDouble(11));
 				
 				
 				String exceso = myformatdouble2.format((double)0);
 				
-				Double auxExceso = mapExcesos.get(rs.getString(3)+"_"+rs.getString(15));
+				Double auxExceso = mapExcesos.get(rs.getString(3)+"_"+rs.getString(9));
 				if(auxExceso!=null) {
 					exceso = myformatdouble2.format(auxExceso);
 				}
@@ -1593,11 +1607,11 @@ public class Guia {
 				aux.add(idMovActual.toString());		//  0 id idMovimiento linea de mov actual BODEGA DE ORIGEN
 				aux.add(rs.getString(2)); 				//  1 id idGuia
 				aux.add(rs.getString(3)); 				//  2 id idEquipo
-				aux.add(rs.getString(4)); 				//  3 id idGrupo
-				aux.add(rs.getString(6)); 				//  4 nombre grupo
-				aux.add(rs.getString(7)); 				//  5 codigo equipo
-				aux.add(rs.getString(8)); 				//  6 nombre equipo
-				aux.add(rs.getString(9)); 				//  7 nombre unidad
+				aux.add(id_grupo.toString()); 			//  3 id idGrupo
+				aux.add(grupo);			 				//  4 nombre grupo
+				aux.add(codEquipo); 					//  5 codigo equipo
+				aux.add(nomEquipo); 					//  6 nombre equipo
+				aux.add(unEquipo); 						//  7 nombre unidad
 				aux.add(cantidad); 						//  8 cantidad
 				
 				aux.add(pventa);  						//  9 precio de venta en moneda de origen
@@ -1611,16 +1625,16 @@ public class Guia {
 				aux.add(dcomp); 						// 17 descuento total compuesto
 				aux.add(exceso); 						// 18 exceso
 				aux.add(idMovActual.toString());		// 19 id idMovimiento linea de mov anterior a la actual
-				aux.add(rs.getString(12));				// 20 esVenta
-				aux.add(rs.getString(13));				// 21 esNuevo
-				aux.add(rs.getString(14));				// 22 img
-				aux.add(id_coti.toString());				// 23 idCotizacion
-				aux.add(rs.getString(16));				// 24 numero de Cotizacion
+				aux.add(rs.getString(7));				// 20 esVenta
+				aux.add(rs.getString(8));				// 21 esNuevo
+				aux.add(imgEquipo);						// 22 img
+				aux.add(id_coti.toString());							// 23 idCotizacion
+				aux.add(numCoti.toString());							// 24 numero de Cotizacion
 				aux.add(myformatdouble2.format(KG));					//25 peso unitario en kg
 				aux.add(myformatdouble2.format(M2));					//26 superficie unitario en m2
-				aux.add(myformatdouble2.format(KG*rs.getDouble(10)));	//27 total por cant por peso en kg
-				aux.add(myformatdouble2.format(M2*rs.getDouble(10)));	//28 total por cant por superficie en m2
-				aux.add(rs.getString(17));								//29 observaciones de guia
+				aux.add(myformatdouble2.format(KG*rs.getDouble(5)));	//27 total por cant por peso en kg
+				aux.add(myformatdouble2.format(M2*rs.getDouble(5)));	//28 total por cant por superficie en m2
+				aux.add(rs.getString(10));								//29 observaciones de guia
 				aux.add(idMoneda);										//30 id moneda
 				aux.add(estadosDeEquipos);								//31 string estados
 				aux.add(reparDeEquipos);								//32 string reparaciones
@@ -1628,6 +1642,7 @@ public class Guia {
 				
 				aux.add(cantCliente);									//34 cantidad que dice el cliente 
 				aux.add(difCantCliente);								//35 diferencia con cliente 
+				
 				
 				listaDetalle.add(aux);
 			}

@@ -380,6 +380,10 @@ public class Movimiento {
 				aux.add(auxDet.get(34)); 	//18 cantidad que dice el cliente
 				aux.add(auxDet.get(35)); 	//19 diferencia con cliente
 				
+				aux.add(listEquipBodOrigen.get(i).get(10)); 	//20 id_ot
+				aux.add(listEquipBodOrigen.get(i).get(11)); 	//21 numero de ot 
+				aux.add(listEquipBodOrigen.get(i).get(12)); 	//22 fecha de ot
+				
 			}else {
 				aux.add("0.00"); 	// 10 CANTIDAD
 				aux.add("0"); 		// 11 esVenta
@@ -392,6 +396,10 @@ public class Movimiento {
 				
 				aux.add("0.00"); 	//18 cantidad que dice el cliente
 				aux.add("0.00"); 	//19 diferencia con cliente
+				
+				aux.add(listEquipBodOrigen.get(i).get(10)); 	//20 id_ot
+				aux.add(listEquipBodOrigen.get(i).get(11)); 	//21 numero de ot 
+				aux.add(listEquipBodOrigen.get(i).get(12)); 	//22 fecha de ot
 				
 			}
 			

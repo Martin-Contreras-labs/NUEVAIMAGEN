@@ -33,6 +33,7 @@ import org.apache.poi.util.TempFile;
 
 import models.calculo.Calc_BodegaEmpresa;
 import models.calculo.Calc_Precio;
+import models.calculo.Inventarios;
 import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
@@ -62,10 +63,9 @@ public class ReportFacturas {
 	
 	
 	
-	public static List<List<String>> reportFacturaProyecto(Connection con, String db, List<ModeloCalculo> listado, String esPorSucursal, String id_sucursal) {
+	public static List<List<String>> reportFacturaProyecto(List<ModeloCalculo> listado, Map<Long,List<String>> mapBodega) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
-		Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, db, esPorSucursal, id_sucursal);
 		for(int i=0; i<listado.size(); i++) {
 			List<String> aux = mapBodega.get(listado.get(i).id_bodegaEmpresa);
 			if(aux != null) lista.add(aux);
@@ -114,12 +114,17 @@ public class ReportFacturas {
 		return (lista);
 	}
 	
-	public static List<List<String>> reportEstadoInicial10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
+	public static List<List<String>> reportEstadoInicial10(String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
+			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios,
+			List<Long> listIdGuia_fechaCorte, List<Inventarios> inventario,
+			Map<String,String> mapFecha_primera_guia, Map<Long,Cotizacion> mapAllConfirmadas, Map<Long,String> mapMoneda, Map<Long,Equipo> mapAllEquipos, Map<Long,Long> dec) {
 		
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
-		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, mapTasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		
+		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, mapTasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+				listIdGuia_fechaCorte, inventario);
+		
 		List<ModCalc_InvInicial> resumenInvInicial = new ArrayList<ModCalc_InvInicial>();
 		for(ModCalc_InvInicial x: resumenInvInicialAll) {
 			if((long)x.id_bodegaEmpresa==(long)id_bodegaEmpresa) {
@@ -127,13 +132,7 @@ public class ReportFacturas {
 			}
 		}
 		
-		Map<String,String> mapFecha_primera_guia = ModCalc_InvInicial.mapFecha_primera_guiaDeCoti(con, db,desdeAAMMDD, id_bodegaEmpresa);
-		Map<Long,Cotizacion> mapAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, db, id_bodegaEmpresa);
 		
-		Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, db);
-		Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, db);
-		
-		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
 		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
 		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
@@ -145,8 +144,11 @@ public class ReportFacturas {
 		for(int i=0; i<resumenInvInicial.size(); i++) {
 			List<String> aux = new ArrayList<String>();
 			String keyPrecio = resumenInvInicial.get(i).id_bodegaEmpresa.toString()+"_"+resumenInvInicial.get(i).id_equipo.toString()+"_"+resumenInvInicial.get(i).id_cotizacion.toString();
+			
 			Calc_Precio precios = mapPrecios.get(keyPrecio);
-			Double precioReposicion = (double) 0, precioArriendo_dia = (double) 0, tasaCambio = (double) 0;
+			Double precioReposicion = (double) 0; 
+			Double precioArriendo_dia = (double) 0;
+			Double tasaCambio = (double) 0;
 			Long id_moneda = (long) 1;
 			
 			
@@ -254,9 +256,9 @@ public class ReportFacturas {
 		return(lista);
 	}
 	
-	public static List<List<String>> resumenTotalesPorProyecto(Connection con, String db, List<ModeloCalculo> listado) {
+	public static List<List<String>> resumenTotalesPorProyecto(List<ModeloCalculo> listado, Map<Long,Long> dec) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+		
 		switch(dec.get((long) 1).toString()) {
 		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
 		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
@@ -307,11 +309,13 @@ public class ReportFacturas {
 		return(lista);
 	}
 	
-	public static List<List<String>> reportEstadoResumen10(Connection con, String db, List<List<String>> inicioPer, List<List<String>> guiasPer,
+	public static List<List<String>> reportEstadoResumen10(String db, List<List<String>> inicioPer, List<List<String>> guiasPer,
 			Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,  
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
+			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios,
+			List<Long> listIdGuia_entreFechas,  Map<String,String> mapPermanencias, Map<Long,Long> dec, Map<Long,Cotizacion> mapCotizaciones, 
+			Map<Long,Equipo> mapEquipo, Map<Long,String> mapMoneda, List<Inventarios> guiasPeriodo) {
+
 		
-	
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		for(int i=0;i<inicioPer.size();i++){
@@ -327,7 +331,10 @@ public class ReportFacturas {
 			}
 		}
 		
-		Map<String,List<List<String>>> mapDetalle = ReportFacturas.mapReportPorGuia10(con, db, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		Map<String,List<List<String>>> mapDetalle = ReportFacturas.mapReportPorGuia10(db, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+				listIdGuia_entreFechas, guiasPeriodo, mapPermanencias, dec, mapCotizaciones, mapEquipo, mapMoneda);
+			
+		
 		
 		for(int i=0;i<guiasPer.size();i++){
 			List<List<String>> detGuia = mapDetalle.get(guiasPer.get(i).get(8));
@@ -362,7 +369,6 @@ public class ReportFacturas {
             }
         }
 		
-		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long) 1).toString()) {
 		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
 		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
@@ -443,25 +449,30 @@ public class ReportFacturas {
 		return(lista);
 	}
 	
-	public static Map<String,List<List<String>>> mapReportPorGuia10(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD,String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
+	public static Map<String,List<List<String>>> mapReportPorGuia10(String db, Long id_bodegaEmpresa, String desdeAAMMDD,String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
+			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, 
+			List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<String,String> mapPermanencias, Map<Long,Long> dec, Map<Long,Cotizacion> mapCotizaciones, 
+			Map<Long,Equipo> mapEquipo, Map<Long,String> mapMoneda) {
+		
 		Map<String,List<List<String>>> map = new HashMap<String,List<List<String>>>();
 		
-		List<ModCalc_GuiasPer> guiasPerAll = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-		List<ModCalc_GuiasPer> guiasPer = new ArrayList<ModCalc_GuiasPer>();
+		
+		List<ModCalc_GuiasPer> guiasPerAll = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+				listIdGuia_entreFechas, guiasPer, mapPermanencias);
+		
+		List<ModCalc_GuiasPer> guiasPeriodo = new ArrayList<ModCalc_GuiasPer>();
 		for(ModCalc_GuiasPer x: guiasPerAll) {
 			if((long)x.id_bodegaEmpresa==(long)id_bodegaEmpresa) {	
 				if(Math.abs(x.cantidad) > 0.001) {
-					guiasPer.add(x);
+					guiasPeriodo.add(x);
 				}
 			}
 		}
 		
 		
-		Map<Long,Cotizacion> mapCotizaciones = Cotizacion.mapAllConfirmadasUnaBodega(con, db, id_bodegaEmpresa);
 		
-		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
-		Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, db);
+		
+		
 		Long flagId_Guia = (long) 0;
 		
 		List<String> detalle = new ArrayList<String>();
@@ -469,23 +480,23 @@ public class ReportFacturas {
 		
 		
 		//ordena la lista por id_empresa y  id_guia alfabeticamente ascendente
-		for(int k=0;k<(guiasPer.size()-1);k++){
-            for(int j=k+1;j<guiasPer.size();j++){
-            	String A = guiasPer.get(k).id_bodegaEmpresa+"_"+guiasPer.get(k).id_guia;
-            	String B = guiasPer.get(j).id_bodegaEmpresa+"_"+guiasPer.get(j).id_guia;
+		for(int k=0;k<(guiasPeriodo.size()-1);k++){
+            for(int j=k+1;j<guiasPeriodo.size();j++){
+            	String A = guiasPeriodo.get(k).id_bodegaEmpresa+"_"+guiasPeriodo.get(k).id_guia;
+            	String B = guiasPeriodo.get(j).id_bodegaEmpresa+"_"+guiasPeriodo.get(j).id_guia;
                 if(A.compareToIgnoreCase(B)>0){
                     //Intercambiamos valores
-                	ModCalc_GuiasPer listaAuxiliar=guiasPer.get(k);
-                    guiasPer.set(k, guiasPer.get(j));
-                    guiasPer.set(j, listaAuxiliar);
+                	ModCalc_GuiasPer listaAuxiliar=guiasPeriodo.get(k);
+                    guiasPeriodo.set(k, guiasPeriodo.get(j));
+                    guiasPeriodo.set(j, listaAuxiliar);
                 }
             }
         }
 		
-		for(int i=0; i<guiasPer.size(); i++) {
+		for(int i=0; i<guiasPeriodo.size(); i++) {
 			
-			if(guiasPer.get(i).cantidad != 0 || i == guiasPer.size()-1) {
-				if((flagId_Guia - guiasPer.get(i).id_guia) != 0) {
+			if(guiasPeriodo.get(i).cantidad != 0 || i == guiasPeriodo.size()-1) {
+				if((flagId_Guia - guiasPeriodo.get(i).id_guia) != 0) {
 					if(flagId_Guia>0) {
 						//ordena la lista por grupo y nombre equipo alfabeticamente ascendente
 						for(int k=0;k<(lista.size()-1);k++){
@@ -503,12 +514,12 @@ public class ReportFacturas {
 						map.put(detalle.get(1)+"_"+detalle.get(4), lista);
 						lista = new ArrayList<List<String>>();
 					}
-					flagId_Guia = guiasPer.get(i).id_guia;
+					flagId_Guia = guiasPeriodo.get(i).id_guia;
 				}
 				
 				
-				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-				switch(dec.get(guiasPer.get(i).id_moneda).toString()) {
+				
+				switch(dec.get(guiasPeriodo.get(i).id_moneda).toString()) {
 				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
 				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
 				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
@@ -526,11 +537,11 @@ public class ReportFacturas {
 				
 				detalle = new ArrayList<String>();
 				
-				Long id_equipo = guiasPer.get(i).id_equipo;
+				Long id_equipo = guiasPeriodo.get(i).id_equipo;
 				
 				Equipo equipo = mapEquipo.get(id_equipo);
-				Cotizacion cotizacion = mapCotizaciones.get(guiasPer.get(i).id_cotizacion);
-				String moneda = mapMoneda.get(guiasPer.get(i).id_moneda);
+				Cotizacion cotizacion = mapCotizaciones.get(guiasPeriodo.get(i).id_cotizacion);
+				String moneda = mapMoneda.get(guiasPeriodo.get(i).id_moneda);
 				String grupo = "", numCoti  = "", codEquip = "", nomEquip = "", unidad = "";
 				Double dctoArriendo = (double)0, dctoVenta = (double)0;
 				
@@ -552,38 +563,38 @@ public class ReportFacturas {
 				}
 				
 				detalle.add("0"); 															// 0 idMovimiento --NO SE OCUPA--
-				detalle.add(guiasPer.get(i).id_bodegaEmpresa.toString().trim()); 			// 1 idBodegaEmpresa
+				detalle.add(guiasPeriodo.get(i).id_bodegaEmpresa.toString().trim()); 			// 1 idBodegaEmpresa
 				detalle.add(id_equipo.toString()); 											// 2 idEquipo
 				detalle.add("0"); 															// 3 idTipoMovimiento --NO SE OCUPA--
-				detalle.add(guiasPer.get(i).id_guia.toString().trim()); 					// 4 idGuia
+				detalle.add(guiasPeriodo.get(i).id_guia.toString().trim()); 					// 4 idGuia
 				detalle.add("0"); // 5 idUnidad --NO SE OCUPA--
 				detalle.add("0"); // 6 idUnidadTiempo --NO SE OCUPA--
-				detalle.add(guiasPer.get(i).id_moneda.toString()); // 7 idMoneda 
+				detalle.add(guiasPeriodo.get(i).id_moneda.toString()); // 7 idMoneda 
 				detalle.add(grupo); 														// 8 nombre de grupo
 				detalle.add(numCoti); 														// 9 numero cotizacion
 				detalle.add(codEquip); 														// 10 codigo equipo
 				detalle.add(nomEquip); 														// 11 nombre equipo
 				detalle.add(unidad); 														// 12 unidad
-				detalle.add(myformatdouble2.format(guiasPer.get(i).cantidad)); 					// 13 cantidad
+				detalle.add(myformatdouble2.format(guiasPeriodo.get(i).cantidad)); 					// 13 cantidad
 				detalle.add(moneda); 														// 14 moneda
-				detalle.add(myformatdouble.format(guiasPer.get(i).pVenta));					// 15 precio de venta en moneda original
+				detalle.add(myformatdouble.format(guiasPeriodo.get(i).pVenta));					// 15 precio de venta en moneda original
 				if(db.equals("madaHohe")){
-					detalle.add(myformatdouble.format(guiasPer.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
+					detalle.add(myformatdouble.format(guiasPeriodo.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
 				}else {
-					detalle.add(myformatdouble4.format(guiasPer.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
+					detalle.add(myformatdouble4.format(guiasPeriodo.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
 				}
-				detalle.add(myformatint.format(guiasPer.get(i).dias)); 						// 17 cantidad de dias a cobrar
-				detalle.add(myformatdouble2.format(guiasPer.get(i).tasaCambio));			// 18 tasa de cambio
-				detalle.add(myformatMonedaOrigen.format(guiasPer.get(i).totalArriendo)); 	// 19 total arriendo en pesos con recargos
-				detalle.add(myformatMonedaOrigen.format(guiasPer.get(i).totalVenta));							// 20 total venta en pesos
-				detalle.add(guiasPer.get(i).esVenta.toString().trim()); 										// 21 es venta (1);
-				detalle.add(myformatdouble.format(guiasPer.get(i).totalCfi/guiasPer.get(i).tasaCambio)); 		// 22 cfi en moneda de origen;
-				detalle.add(myformatMonedaOrigen.format(guiasPer.get(i).totalCfi)); 							// 23 cfi en moneda pesos;
+				detalle.add(myformatint.format(guiasPeriodo.get(i).dias)); 						// 17 cantidad de dias a cobrar
+				detalle.add(myformatdouble2.format(guiasPeriodo.get(i).tasaCambio));			// 18 tasa de cambio
+				detalle.add(myformatMonedaOrigen.format(guiasPeriodo.get(i).totalArriendo)); 	// 19 total arriendo en pesos con recargos
+				detalle.add(myformatMonedaOrigen.format(guiasPeriodo.get(i).totalVenta));							// 20 total venta en pesos
+				detalle.add(guiasPeriodo.get(i).esVenta.toString().trim()); 										// 21 es venta (1);
+				detalle.add(myformatdouble.format(guiasPeriodo.get(i).totalCfi/guiasPeriodo.get(i).tasaCambio)); 		// 22 cfi en moneda de origen;
+				detalle.add(myformatMonedaOrigen.format(guiasPeriodo.get(i).totalCfi)); 							// 23 cfi en moneda pesos;
 				detalle.add(myformatdouble2.format(dctoArriendo*100)+" %");  										//24 % dcto arriendo
 				detalle.add(myformatdouble2.format(dctoVenta*100)+" %"); 											// 25 % dcto venta
 				lista.add(detalle);
 				
-				if(i == guiasPer.size()-1) {
+				if(i == guiasPeriodo.size()-1) {
 					
 					//ordena la lista por grupo y nombre equipo alfabeticamente ascendente
 					for(int k=0;k<(lista.size()-1);k++){
@@ -2322,7 +2333,7 @@ public class ReportFacturas {
 			
 			for(int j=0;j<resumenSubtotales.size();j++){
 				
-				BodegaEmpresa bodega = mapBodega.get(proyectos.get(i).get(5));
+				BodegaEmpresa bodega = mapBodega.get(proyectos.get(i).get(5).toUpperCase());
 				
 				if(bodega!=null) {
 					List<String> aux = new ArrayList<String>();
@@ -3082,6 +3093,1140 @@ public class ReportFacturas {
 				listaRs.add(aux6);
 		}
 		return(listaRs);
+	}
+	
+	public static File exportaProformaExcelResumen0(String db, Map<String,String> mapDiccionario, List<List<String>> proyectos, Fechas desde, Fechas hasta,
+			Double uf, Double usd, Double eur, List<List<String>> resumenTotales, List<List<String>> resumenPorGrupoYProyecto, List<List<String>> resumenPorProyectoGrupoYdetalle) {
+		
+		File tmp = TempFile.createTempFile("tmp","null");
+		
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+            Workbook libro = WorkbookFactory.create(formato);
+            formato.close();
+            
+            // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+            CellStyle titulo = libro.createCellStyle();
+            Font font = libro.createFont();
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setColor((short)4);
+            font.setFontHeight((short)(14*20));
+            titulo.setFont(font);
+            
+            CellStyle subtitulo = libro.createCellStyle();
+            Font font2 = libro.createFont();
+            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setColor((short)0);
+            font2.setFontHeight((short)(12*20));
+            subtitulo.setFont(font2);
+            
+            CellStyle encabezado = libro.createCellStyle();
+            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+            encabezado.setBorderTop(CellStyle.BORDER_THIN);
+            encabezado.setBorderRight(CellStyle.BORDER_THIN);
+            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setFillForegroundColor((short)19);
+            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            
+            CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+            detalle.setBorderTop(CellStyle.BORDER_THIN);
+            detalle.setBorderRight(CellStyle.BORDER_THIN);
+            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            CellStyle pie = libro.createCellStyle();
+            pie.setBorderBottom(CellStyle.BORDER_THIN);
+            pie.setBorderTop(CellStyle.BORDER_THIN);
+            pie.setBorderRight(CellStyle.BORDER_THIN);
+            pie.setBorderLeft(CellStyle.BORDER_THIN);
+            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setFillForegroundColor((short)19);
+            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            
+            
+            
+            
+            //titulos del archivo
+            
+            libro.setSheetName(0, "EP PROFORMA RESUMEN");
+            Sheet hoja1 = libro.getSheetAt(0);
+            
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.createRow(1);
+            cell = row.createCell(1);
+            cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("REPORTE RESUMEN Y DETALLE POR TODOS LOS PROYECTOS (INCLUIDOS AJUSTES DE EP)");
+			
+			row = hoja1.createRow(2);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+			
+			row = hoja1.createRow(3);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+			
+			row = hoja1.createRow(5);
+            cell = row.createCell(1);
+            cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PERIODO: desde " + desde.getFechaStrDDMMAA()  + " hasta " + hasta.getFechaStrDDMMAA());
+			
+			
+			//anchos de columnas
+			for(int i=1; i<17; i++) {
+				hoja1.setColumnWidth(i, 6*1000);
+			}
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+            byte[] bytes = IOUtils.toByteArray(x);
+            x.close();
+            int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+	        //set top-left corner for the image
+	        anchor.setCol1(13);
+	        anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+			
+			
+			// encabezado de la tabla
+			
+			int posRow = 8;
+			
+			row = hoja1.createRow(posRow);
+			int posCell = 0;
+			
+			posCell++;
+            cell = row.createCell(posCell);
+            cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("RESUMEN POR PROYECTOS  (INCLUYE AJUSTES A EP):");
+			
+			posRow += 2;
+			posCell = 0;
+			
+			row = hoja1.createRow(posRow);
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUCURSAL");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
+		
+			if(mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("Nro CARGO");
+			}else{
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(mapDiccionario.get("RUT")+" CLIENTE");
+				
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("NOMBRE CLIENTE");
+			}
+		
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE PROYECTO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CFI (en "+mapDiccionario.get("Pesos")+")");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SubTotal "+mapDiccionario.get("ARRIENDO"));
+		        
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SubTotal VENTA");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ajustes "+mapDiccionario.get("ARRIENDO"));
+
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ajustes VENTA");
+		        
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL (en "+mapDiccionario.get("Pesos")+")");
+				
+		       
+	        String auxNumero="";
+	        Double venta=(double)0;
+	        Double arriendo=(double)0;
+	        Double cfi=(double)0;
+	        Double totaltotal=(double)0;
+	        Double ajusteArriendo=(double)0;
+	        Double ajusteVenta=(double)0;
+	        
+	        
+	        
+	        
+	        
+			for(int i=0;i<proyectos.size();i++){
+				for(int j=0;j<resumenTotales.size();j++){
+					if(proyectos.get(i).get(1).equals(resumenTotales.get(j).get(0))){
+							
+						posRow++;
+						posCell = 0;
+				        row = hoja1.createRow(posRow);
+						
+				        posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(proyectos.get(i).get(14));
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(proyectos.get(i).get(5));
+							
+						if(mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+						}else{
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(proyectos.get(i).get(6));
+							
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(proyectos.get(i).get(7));
+						}
+				        
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(proyectos.get(i).get(8));
+				        
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            Double aux = Double.parseDouble(resumenTotales.get(j).get(3).replaceAll(",", ""));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						cfi += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            aux = Double.parseDouble(resumenTotales.get(j).get(1).replaceAll(",", ""));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						arriendo += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            aux = Double.parseDouble(resumenTotales.get(j).get(2).replaceAll(",", ""));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						venta += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            aux = Double.parseDouble(resumenTotales.get(j).get(5).replaceAll(",", ""));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						ajusteArriendo += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            aux = Double.parseDouble(resumenTotales.get(j).get(6).replaceAll(",", ""));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						ajusteVenta += aux;
+						
+						posCell++; 
+			            cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+			            aux = Double.parseDouble(resumenTotales.get(j).get(4).replaceAll(",", ""));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(aux);
+						totaltotal += aux;
+					}
+				}
+			}
+			
+			posRow++;
+			posCell = 0;
+	        row = hoja1.createRow(posRow);
+			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+			
+			if(mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
+			}else{
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
+				
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
+			}
+			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            Double aux = cfi;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = arriendo;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = venta;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = ajusteArriendo;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = ajusteVenta;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = totaltotal;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			
+			//datos de RESUMEN POR FAMILIAS Y PROYECTOS:
+			
+			posRow += 4;
+			posCell = 0;
+	        row = hoja1.createRow(posRow);
+	        
+	        posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("RESUMEN POR FAMILIAS Y PROYECTOS (SIN AJUSTES A EP):");
+	        
+			posRow += 2;
+			posCell = 0;
+	        row = hoja1.createRow(posRow);
+	        
+	        posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FAMILIA/GRUPO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
+	        
+			if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(mapDiccionario.get("RUT")+" CLIENTE");
+				
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("NOMBRE CLIENTE");
+			}
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE PROYECTO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CFI (en "+mapDiccionario.get("Pesos")+")");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(mapDiccionario.get("ARRIENDO")+" (en "+mapDiccionario.get("Pesos")+")");
+		        
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("VENTA (en "+mapDiccionario.get("Pesos")+")");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL (en "+mapDiccionario.get("Pesos")+")");
+			
+			
+			venta = (double)0;
+	        arriendo = (double)0;
+	        cfi = (double)0;
+	        totaltotal = (double)0;
+			
+	        for(int i=0;i<resumenPorGrupoYProyecto.size()-2;i++){
+	        	
+	        	posRow++;
+				posCell = 0;
+		        row = hoja1.createRow(posRow);
+		        
+		        if(resumenPorGrupoYProyecto.get(i).get(3).equals("SUBTOTAL")||resumenPorGrupoYProyecto.get(i).get(0).equals("TOTAL")){
+		        	posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(0));
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(1));
+					
+					if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+						posCell++;
+						cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(2));
+						
+						posCell++;
+						cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(3));
+					}
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(8));
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(4).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					cfi += aux;
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(5).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					arriendo += aux;
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(6).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					venta += aux;
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(7).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					totaltotal += aux;
+					
+		        }else {
+		        	posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(0));
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(1));
+					
+					if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+						posCell++;
+						cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(2));
+						
+						posCell++;
+						cell = row.createCell(posCell);
+			            cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(3));
+					}
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorGrupoYProyecto.get(i).get(8));
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            if(resumenPorGrupoYProyecto.get(i).get(4).equals("")) {
+		            	aux = (double)0;
+		            }else {
+		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(4).replaceAll(",", ""));
+		            }
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					cfi += aux;
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            if(resumenPorGrupoYProyecto.get(i).get(5).equals("")) {
+		            	aux = (double)0;
+		            }else {
+		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(5).replaceAll(",", ""));
+		            }
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					arriendo += aux;
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            if(resumenPorGrupoYProyecto.get(i).get(6).equals("")) {
+		            	aux = (double)0;
+		            }else {
+		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(6).replaceAll(",", ""));
+		            }
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					venta += aux;
+					
+					posCell++; 
+		            cell = row.createCell(posCell);
+		            cell.setCellStyle(detalle);
+		            if(resumenPorGrupoYProyecto.get(i).get(7).equals("")) {
+		            	aux = (double)0;
+		            }else {
+		            	aux = Double.parseDouble(resumenPorGrupoYProyecto.get(i).get(7).replaceAll(",", ""));
+		            }
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					totaltotal += aux;
+					
+		        }
+	        }
+	        
+	        posRow++;
+			posCell = 0;
+	        row = hoja1.createRow(posRow);
+	        
+	        posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+	        
+			if(!mapDiccionario.get("nEmpresa").equals("CIHLA")) {
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
+				
+				posCell++;
+				cell = row.createCell(posCell);
+	            cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
+			}
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = cfi/2;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = arriendo/2;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = venta/2;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(pie);
+            aux = totaltotal/2;
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(aux);
+			
+			
+			// llena RESUMEN POR PROYECTO Y FAMILIA
+			
+			posRow += 4;
+			posCell = 0;
+	        row = hoja1.createRow(posRow);
+	        
+	        posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("DETALLE POR PROYECTO (INCLUYE AJUSTES A EP):");
+			
+			posRow++;
+			
+			for(int i=0;i<resumenPorProyectoGrupoYdetalle.size();i++){
+				
+				posRow++;
+				posCell = 0;
+		        row = hoja1.createRow(posRow);
+		        
+		        if(resumenPorProyectoGrupoYdetalle.get(i).get(1).equals("PROYECTO")){
+		        	
+		        	posRow++;
+					posCell = 0;
+			        row = hoja1.createRow(posRow);
+			        
+		        	posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
+			        
+					for(int j=0;j<14;j++){
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+					}
+		        }else {
+		        	if(resumenPorProyectoGrupoYdetalle.get(i).get(1).equals("GRUPO")){
+		        		posRow++;
+						posCell = 0;
+				        row = hoja1.createRow(posRow);
+				        
+			        	posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(subtitulo);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
+						
+		        	}else {
+		        		if(resumenPorProyectoGrupoYdetalle.get(i).get(1).equals("INVENTARIO")){
+		        			posRow++;
+							posCell = 0;
+					        row = hoja1.createRow(posRow);
+					        
+				        	posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
+		        			
+							posRow++;
+							posCell = 0;
+					        row = hoja1.createRow(posRow);
+					        
+					        posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("Nro.Coti");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("CODIGO");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("EQUIPO");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("UN");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("CANTIDAD");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("MONEDA");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("P.Venta");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(mapDiccionario.get("ARR")+" x DIA");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("DIAS");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("TASA CAMBIO");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("CFI (en "+mapDiccionario.get("Pesos")+")");
+							
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(mapDiccionario.get("ARRIENDO")+" (en "+mapDiccionario.get("Pesos")+")");
+						        
+							posCell++;
+							cell = row.createCell(posCell);
+				            cell.setCellStyle(subtitulo);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("VENTA (en "+mapDiccionario.get("Pesos")+")");
+		        			
+		        		}else {
+		        			if(resumenPorProyectoGrupoYdetalle.get(i).get(1).equals("DETALLE")){
+			        			posRow++;
+								posCell = 0;
+						        row = hoja1.createRow(posRow);
+						        
+					        	posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
+			        			
+								posRow++;
+								posCell = 0;
+						        row = hoja1.createRow(posRow);
+						        
+						        posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("Nro.Coti");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("CODIGO");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("EQUIPO");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("UN");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("CANTIDAD");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("MONEDA");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("P.Venta");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(mapDiccionario.get("ARR")+" x DIA");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("DIAS");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("TASA CAMBIO");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+					            cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("CFI (en "+mapDiccionario.get("Pesos")+")");
+								
+								posCell++;
+								cell = row.createCell(posCell);
+					            cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(mapDiccionario.get("ARRIENDO")+" (en "+mapDiccionario.get("Pesos")+")");
+							        
+								posCell++;
+								cell = row.createCell(posCell);
+					            cell.setCellStyle(subtitulo);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue("VENTA (en "+mapDiccionario.get("Pesos")+")");
+			        			
+			        		}else {
+			        			if(resumenPorProyectoGrupoYdetalle.get(i).get(0).equals("TOTAL")){
+			        				posRow++;
+									posCell = 0;
+							        row = hoja1.createRow(posRow);
+							        
+						        	posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellStyle(subtitulo);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
+				        			
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellStyle(subtitulo);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(1));
+				        			
+									posCell++; 
+						            cell = row.createCell(posCell+13);
+						            cell.setCellStyle(detalle);
+						            aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(14).replaceAll(",", ""));
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+			        			}else {
+			        				
+			        				posCell = 0;
+							        
+							        posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(0));
+									
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(1));
+									
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(2));
+									
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(3));
+									
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(4));
+									
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(5));
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(6).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(6).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+									
+									posCell++;
+									cell = row.createCell(posCell);
+									cell.setCellStyle(subtitulo);
+									cell.setCellType(Cell.CELL_TYPE_STRING);
+									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(7));
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(8).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(8).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(9).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(9).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(10).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(10).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+									
+									if(auxNumero.equals("TOTAL")){
+										posCell++;
+										cell = row.createCell(posCell);
+										cell.setCellStyle(subtitulo);
+										cell.setCellType(Cell.CELL_TYPE_STRING);
+										cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(11));
+									}else {
+										posCell++; 
+							            cell = row.createCell(posCell);
+							            if(resumenPorProyectoGrupoYdetalle.get(i).get(11).equals("")) {
+							            	aux = (double)0;
+							            }else {
+							            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(11).replaceAll(",", ""));
+							            }
+										cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+										cell.setCellValue(aux);
+									}
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(12).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(12).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(13).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(13).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+									
+									posCell++; 
+						            cell = row.createCell(posCell);
+						            if(resumenPorProyectoGrupoYdetalle.get(i).get(14).equals("")) {
+						            	aux = (double)0;
+						            }else {
+						            	aux = Double.parseDouble(resumenPorProyectoGrupoYdetalle.get(i).get(14).replaceAll(",", ""));
+						            }
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(aux);
+			        			}
+			        		}
+		        		}
+		        	}
+		        }
+			}
+			
+			
+			
+			posRow = posRow + 5;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+			Hyperlink hiper = helper.createHyperlink(0);
+			hiper.setAddress("https://www.inqsol.cl");
+			cell.setHyperlink(hiper);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+			
+
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        }
+		return tmp;
+		
 	}
 	
 	public static File exportaProformaExcelResumen(String db, Map<String,String> mapDiccionario, List<List<String>> proyectos, Fechas desde, Fechas hasta,

@@ -2,15 +2,16 @@ package models.apiRest;
 
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_BodegaEmpresa;
 import models.calculo.Calc_Precio;
+import models.calculo.Inventarios;
 import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
@@ -18,6 +19,7 @@ import models.reports.ReportFacturas;
 import models.tables.AjustesEP;
 import models.tables.BodegaEmpresa;
 import models.tables.Guia;
+import models.tables.Moneda;
 
 
 
@@ -126,18 +128,38 @@ public class ResumenDetallePorPeriodo {
 		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 		
-   		try {
 			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");
 			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 			
-			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
-			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, db, valorTotalPorBodega);  						// RESUMEN INICIAL DEL REPORTE
-			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(con, db, valorTotalPorBodega, esPorSucursal, id_sucursal); 
+			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+			List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
+			List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
+			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, db, "0", "0");
+			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+			
+			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
+		
+		
+	
+			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+			
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPerAux, mapPermanencias);
+			
+			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+			
+			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
+			
+			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+			
+			
+			
 			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con, db, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO
 			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con, db, guiasPeriodo);  									// RESUMEN POR ESTADOS DE PAGO
 			
@@ -239,15 +261,6 @@ public class ResumenDetallePorPeriodo {
 				}
 			}
 			
-			
-			con.close();
-    	} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		
-		
-		
 		
 		return (datos);
 	}

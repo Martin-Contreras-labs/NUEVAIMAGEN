@@ -26,8 +26,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
+import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_BodegaEmpresa;
 import models.calculo.Calc_Precio;
+import models.calculo.Inventarios;
 import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
@@ -70,6 +72,8 @@ public class ReportFacturaConsolidado {
 		Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
+		
+		Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
     	
     	for(int i=0;i<listaFechas.size();i++) {
     		
@@ -88,9 +92,23 @@ public class ReportFacturaConsolidado {
 				tasas.put((long)4,Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));	// el id 4 es uf
     		}
     		
-    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
+
+			
+			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+			List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
+			List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
+			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+
+			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+			
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPerAux, mapPermanencias);
+			
+			List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+			
+
     		
     		mapTotales.put(desdeAAMMDD, calculo);
     		for(int k=0;k<calculo.size();k++) {
@@ -356,6 +374,8 @@ public class ReportFacturaConsolidado {
 			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 			
+			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
+			
 			for(int i=0;i<listaFechas.size();i++) {
 	    		
 	    		String desdeAAMMDD = listaFechas.get(i).get(1);
@@ -373,9 +393,20 @@ public class ReportFacturaConsolidado {
 					tasas.put((long)4,Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));	// el id 4 es uf
 	    		}
 	    		
-	    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-	    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupo(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
+	    		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+				List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
+				List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+		
+				List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+				
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPerAux, mapPermanencias);
+				
+				List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				
 	    		
 	    		mapTotales.put(desdeAAMMDD, calculo);
 	    		for(int k=0;k<calculo.size();k++) {
@@ -704,6 +735,8 @@ public class ReportFacturaConsolidado {
 		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
 		
+		Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
+		
 		for(int i=0;i<listaFechas.size();i++) {
     		
     		String desdeAAMMDD = listaFechas.get(i).get(1);
@@ -721,10 +754,20 @@ public class ReportFacturaConsolidado {
 				tasas.put((long)4,Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));	// el id 4 es uf
     		}
     		
-    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    		List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupoYEquipo(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
-    		
+    		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+			List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
+			List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
+			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+	
+			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+			
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPerAux, mapPermanencias);
+			
+			List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+			
     		mapTotales.put(desdeAAMMDD, calculo);
     		for(int k=0;k<calculo.size();k++) {
     			String idBodega = calculo.get(k).id_bodegaEmpresa.toString();

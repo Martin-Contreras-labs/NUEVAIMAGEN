@@ -96,8 +96,9 @@ public class ModCalc_GuiasPer {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	public static List<ModCalc_GuiasPer> resumenGuiasPer(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {	
+	public static List<ModCalc_GuiasPer> resumenGuiasPer(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
+			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, 
+			List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<String,String> mapPermanencias) {	
 		
 //		SON FUNCIONES QUE ALIMENTAN ESTA FUNCION
 //		List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");
@@ -111,8 +112,6 @@ public class ModCalc_GuiasPer {
 		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 		Calc_BodegaEmpresa bodegaEmpresa = new Calc_BodegaEmpresa();
 		Long baseCalculo = (long) 1;
-		List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
-		List<Inventarios> guiasPer = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
 		
 		
 		//DETERMINA LOS TOTALES DE GUIAS DEL PERIODO
@@ -235,7 +234,13 @@ public class ModCalc_GuiasPer {
 							Long id_equipo = guiasPer.get(i).id_equipo;
 							Long id_bodegaEmpresa = guiasPer.get(i).id_bodegaEmpresa;
 							Long id_cotizacion = guiasPer.get(i).id_cotizacion;
-							Long auxPerm = ModCalc_GuiasPer.diasFechaMinGuiaPorEquipo(con, db, auxFechaGuia, id_equipo, id_bodegaEmpresa, id_cotizacion, guiasPer.get(i).id_guia);
+							
+							String fechMin = mapPermanencias.get(id_equipo+"_"+id_bodegaEmpresa+"-"+id_cotizacion);
+							Fechas minCal = Fechas.obtenerFechaDesdeStrAAMMDD(fechMin);
+							Fechas guiaCal = Fechas.obtenerFechaDesdeStrAAMMDD(auxFechaGuia);
+							int perm = Fechas.diasEntreFechas(minCal.fechaCal, guiaCal.fechaCal);
+							Long auxPerm = (long) perm;
+							
 							if(auxPerm<diasGuia) {
 								auxPerm=diasGuia;
 							}
@@ -371,25 +376,25 @@ public class ModCalc_GuiasPer {
 		return lista;
 	}
 	
-	public static Long diasFechaMinGuiaPorEquipo(Connection con, String db, String fechaGuia, Long id_equipo, Long id_bodegaEmpresa, Long id_cotizacion, Long id_guia){
-		Long xx = (long) 3600;
+	public static Map<String,String> mapDiasFechaMinGuiaPorEquipo(Connection con, String db){
+		Map<String,String> map = new HashMap<String,String>();
 		try {
 			PreparedStatement smt3 = con
-					.prepareStatement(" select datediff('"+fechaGuia+"',min(fecha)), " 
-						+ " movimiento.id_cotizacion " 
+					.prepareStatement(" select min(guia.fecha), " 
+						+ " movimiento.id_equipo, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion " 
 						+ " from `"+db+"`.movimiento  " 
 						+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia " 
-						+ " where id_equipo='"+id_equipo.toString().trim()+"' " 
-						+ " and id_tipoMovimiento=1 and id_bodegaEmpresa='"+id_bodegaEmpresa.toString().trim()+"' " 
-						+ " and movimiento.id_cotizacion='"+id_cotizacion.toString().trim()+"' "
-						+ " group by movimiento.id_equipo, movimiento.id_cotizacion;");
+						+ " where id_tipoMovimiento = 1"
+						+ " group by movimiento.id_equipo, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion;");
 			ResultSet rs3 = smt3.executeQuery();
-			if (rs3.next()) xx = rs3.getLong(1);
+			 while(rs3.next()) {
+				 map.put(rs3.getString(2)+"_"+rs3.getString(3)+"_"+rs3.getString(4), rs3.getString(1));
+			 }
 			rs3.close();smt3.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return xx;
+		return map;
 	}
 	
 	

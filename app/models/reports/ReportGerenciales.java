@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_AjustesEpOdo;
 import models.calculo.Calc_BodegaEmpresa;
 import models.calculo.Calc_Precio;
@@ -713,7 +714,24 @@ public class ReportGerenciales {
 			Map<Long,BodegaEmpresa> mapBodegas, Long id_grupo, Map<Long,Long> mapDec, Map<String,ListaPrecioServicio> mapPreciosOdo, Map<Long,Long> mapIdEquipoVsIdGrupo,
 			String esPorSucursal, String id_sucursal){
 		
-		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		
+		
+		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+		List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+		List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
+		List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
+		List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+
+		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+		
+		Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
+		
+		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPerAux, mapPermanencias);
+		
+		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+		
 		if(id_grupo > 0) {
 			List<ModCalc_InvInicial> aux = new ArrayList<ModCalc_InvInicial>();
 			for(ModCalc_InvInicial x: inventarioInicial) {
@@ -724,7 +742,6 @@ public class ReportGerenciales {
 			inventarioInicial = aux;
 		}
 		
-		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		if(id_grupo > 0) {
 			List<ModCalc_GuiasPer> aux = new ArrayList<ModCalc_GuiasPer>();
 			for(ModCalc_GuiasPer x: guiasPeriodo) {
@@ -734,11 +751,6 @@ public class ReportGerenciales {
 			}
 			guiasPeriodo = aux;
 		}
-		
-		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
-		
-		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, hastaAAMMDD);
-		
 		
 		List<Inventarios> inventario = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		if(id_grupo > 0) {
@@ -834,8 +846,22 @@ public class ReportGerenciales {
 			String esPorSucursal, String id_sucursal){
 		
 		
+		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+		List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+		List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
+		List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
+		List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+
+		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
 		
-		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
+		Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
+		
+		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPerAux, mapPermanencias);
+		
+		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+		
 		if(id_grupo > 0) {
 			List<ModCalc_InvInicial> aux = new ArrayList<ModCalc_InvInicial>();
 			for(ModCalc_InvInicial x: inventarioInicial) {
@@ -846,7 +872,6 @@ public class ReportGerenciales {
 			inventarioInicial = aux;
 		}
 		
-		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
 		if(id_grupo > 0) {
 			List<ModCalc_GuiasPer> aux = new ArrayList<ModCalc_GuiasPer>();
 			for(ModCalc_GuiasPer x: guiasPeriodo) {
@@ -857,10 +882,7 @@ public class ReportGerenciales {
 			guiasPeriodo = aux;
 		}
 		
-		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodegaSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo);
-		
-		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, hastaAAMMDD);
-		
+
 		
 		List<Inventarios> inventario = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		if(id_grupo > 0) {

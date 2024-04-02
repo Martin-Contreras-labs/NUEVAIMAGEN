@@ -3179,9 +3179,6 @@ public class MnuCotizar extends Controller {
 				mapAuxBodExternas.forEach((k,v)->{
 					listaBodExternasVigentes.add(k);
 				});
-				mapAuxBodExternas.clear();
-				mapAllDespachado.clear();
-				mapAllCotizadoConOt.clear();
 				Map<Long, Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 				mapAuxEquipos.forEach((k, v) -> {
 					Equipo aux = mapEquipo.get(k);
@@ -3189,8 +3186,6 @@ public class MnuCotizar extends Controller {
 						listaEquipos.add(aux);
 					}
 				});
-				mapAuxEquipos.clear();
-				mapEquipo.clear();
 				/*******************************************************************************************/
     			
     			
@@ -3371,10 +3366,6 @@ public class MnuCotizar extends Controller {
 				mapAuxBodInternas.forEach((k,v)->{
 					listaBodExternasVigentes.add(k);
 				});
-				mapAuxBodInternas.clear();
-				mapAllDespachado.clear();
-				mapAllCotizadoConOt.clear();
-				mapAuxBodExternas.clear();
 				Map<Long, Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 				mapAuxEquipos.forEach((k, v) -> {
 					Equipo aux = mapEquipo.get(k);
@@ -3382,8 +3373,6 @@ public class MnuCotizar extends Controller {
 						listaEquipos.add(aux);
 					}
 				});
-				mapAuxEquipos.clear();
-				mapEquipo.clear();
 				/*******************************************************************************************/
 				
 				File file = CotizacionEnExcel.reportOtSaldosExcel(s.baseDato, mapeoDiccionario, mapAllPorDespachar, mapAllStockBodInt, listaBodExternasVigentes, listaBodInternas, listaEquipos);
@@ -3550,9 +3539,6 @@ public class MnuCotizar extends Controller {
 		        });
 				
 				
-				mapAuxBodExternas.clear();
-				mapAllDespachado.clear();
-				mapAllCotizadoConOt.clear();
 				Map<Long, Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 				mapAuxEquipos.forEach((k, v) -> {
 					Equipo aux = mapEquipo.get(k);
@@ -3560,8 +3546,6 @@ public class MnuCotizar extends Controller {
 						listaEquipos.add(aux);
 					}
 				});
-				mapAuxEquipos.clear();
-				mapEquipo.clear();
 				/*******************************************************************************************/
     			
     			
@@ -3793,9 +3777,6 @@ public class MnuCotizar extends Controller {
 		            }
 		        });
 				
-				mapAuxBodExternas.clear();
-				mapAllDespachado.clear();
-				mapAllCotizadoConOt.clear();
 				Map<Long, Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 				mapAuxEquipos.forEach((k, v) -> {
 					Equipo aux = mapEquipo.get(k);
@@ -3803,8 +3784,6 @@ public class MnuCotizar extends Controller {
 						listaEquipos.add(aux);
 					}
 				});
-				mapAuxEquipos.clear();
-				mapEquipo.clear();
 				/*******************************************************************************************/
 				
 				File file = CotizacionEnExcel.reportOtSaldosPorOtExcel(s.baseDato, mapeoDiccionario, mapAllPorDespachar, mapAllStockBodInt, listaBodExternasVigentes, listaBodInternas, listaEquipos);

@@ -184,6 +184,8 @@ sinVenta: String)
 						<thead style="background-color: #eeeeee">
 							<TR>
 								<TH>GRUPO</TH>
+								<TH>Nro.@mapDiccionario.get("OT")</TH>
+								<TH with="80px">Fecha<br>@mapDiccionario.get("OT")</TH>
 								<TH>Nro.COTI</TH>
 								<TH>CODIGO</TH>
 								<TH>EQUIPO</TH>
@@ -224,14 +226,28 @@ sinVenta: String)
 										@lista1.get(2)
 									</td>
 									
+									@if(lista1.get(10).equals("0") || lista1.get(10).equals("")){
+										<td style="text-align: center;">--</td>
+									}else{
+										<td style="text-align:center;" class="sorting_2">
+											<a href="#" onclick="verOt('@lista1.get(10)')">
+												<kbd style="background-color: rgb(90, 200, 245)">
+													<font color="green">@lista1.get(11)</font>
+												</kbd>
+											</a>
+										</td>
+									}
+									
+									<td style="text-align: center;">
+										<div style="display: none;"> @utilities.Fechas.AAMMDD(lista1.get(12))</div>
+										@lista1.get(12)
+									</td>
 									
 									@if(lista1.get(3).equals("0") || lista1.get(3).equals("")){
 										<td style="text-align: center;">--</td>
 									}else{
-										<td style="text-align: center;"><a href="#" onclick="buscaCotizacion('@lista1.get(3)')">@lista1.get(3)</a></td>
+										<td style="text-align: center;">@lista1.get(3)</td>
 									}
-									
-									
 									
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');"><div class="codigo">@lista1.get(4)</div></a></td>
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(5)</a></td>
@@ -362,7 +378,8 @@ sinVenta: String)
 							">
 					</div>
 					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
-						<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block" onclick="modificaMovimientos();" style="visibility:hidden">
+						<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block" 
+							onclick="modificaMovimientos();" style="visibility:hidden">
 					</div>
 				</div>
 			</div>
@@ -501,6 +518,27 @@ sinVenta: String)
 	  </div>
 	</div>
 	
+	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>@mapDiccionario.get("ORDEN_DE_TRABAJO")</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaOt'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 	@modalListaTransportistas(mapDiccionario, listaTransporte)
 	
 }
@@ -508,26 +546,28 @@ sinVenta: String)
 
 <style>
 	#tablaPrincipal td:nth-child(2) { text-align: center; }
-	#tablaPrincipal td:nth-child(3) { text-align: left; }
-	#tablaPrincipal td:nth-child(5) { text-align: right; }
-	#tablaPrincipal td:nth-child(6) { text-align: right; }
-	#tablaPrincipal td:nth-child(7) { text-align: center; }
+	#tablaPrincipal td:nth-child(3) { text-align: center; }
+	#tablaPrincipal td:nth-child(4) { text-align: center; }
+	#tablaPrincipal td:nth-child(5) { text-align: left; }
+	#tablaPrincipal td:nth-child(7) { text-align: right; }
 	#tablaPrincipal td:nth-child(8) { text-align: right; }
-	#tablaPrincipal td:nth-child(9) { text-align: right; }
-	#tablaPrincipal td:nth-child(10) { text-align: center; }
-	#tablaPrincipal td:nth-child(11) { text-align: center; }
-	#tablaPrincipal td:nth-child(12) { text-align: right; }
-	#tablaPrincipal td:nth-child(13) { text-align: right; }
+	#tablaPrincipal td:nth-child(9) { text-align: center; }
+	#tablaPrincipal td:nth-child(10) { text-align: right; }
+	#tablaPrincipal td:nth-child(11) { text-align: right; }
+	#tablaPrincipal td:nth-child(12) { text-align: center; }
+	#tablaPrincipal td:nth-child(13) { text-align: center; }
 	#tablaPrincipal td:nth-child(14) { text-align: right; }
+	#tablaPrincipal td:nth-child(15) { text-align: right; }
+	#tablaPrincipal td:nth-child(16) { text-align: right; }
 	@if(bodegaOrigen.esInterna!=1){
-		#tablaPrincipal td:nth-child(15) { vertical-align: middle; display:none; }
+		#tablaPrincipal td:nth-child(17) { vertical-align: middle; display:none; }
 		@for((est,index) <- listTipoEstado.zipWithIndex){
-			#tablaPrincipal td:nth-child(@(index+16)) { vertical-align: middle; }
+			#tablaPrincipal td:nth-child(@(index+18)) { vertical-align: middle; }
 		}
 		
-		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+16)) { text-align: right; vertical-align: middle;}
-		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+17)) { text-align: right; vertical-align: middle;}
 		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+18)) { text-align: right; vertical-align: middle;}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+19)) { text-align: right; vertical-align: middle;}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+20)) { text-align: right; vertical-align: middle;}
 	}
 </style>
 
@@ -573,7 +613,7 @@ sinVenta: String)
 		$('#tablaPrincipal').DataTable({
 		    	"fixedHeader": true,
 		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
-		    	"order": [[ 2, "asc" ]],
+		    	"order": [[ 4, "asc" ]],
 		    	"language": {
 		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 		        }
@@ -716,16 +756,16 @@ sinVenta: String)
 			let tabla = document.getElementById("tablaPrincipal");
 			let validaCantidades = 0;
 			for(i=1; i<tabla.rows.length-1; i++){
-				let cantidad = $(".cantidad",tabla.rows[i].cells[8]).val();
-				let exceso = $(".exceso",tabla.rows[i].cells[11]).val();
+				let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+				let exceso = $(".exceso",tabla.rows[i].cells[13]).val();
 				cantidad = cantidad.replace(/,/g,'');
 				exceso = exceso.replace(/,/g,'');
 				validaCantidades += parseFloat(cantidad) + parseFloat(exceso);
 			}
 			if(validaCantidades > 0){
 				for(i=1; i<tabla.rows.length-1; i++){
-					let cantidad = $(".cantidad",tabla.rows[i].cells[8]).val();
-					let exceso = $(".exceso",tabla.rows[i].cells[11]).val();
+					let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+					let exceso = $(".exceso",tabla.rows[i].cells[13]).val();
 					cantidad = cantidad.replace(/,/g,'');
 					exceso = exceso.replace(/,/g,'');
 					let total = parseFloat(cantidad) + parseFloat(exceso);
@@ -840,12 +880,8 @@ sinVenta: String)
 		let auxM2 = "<div class='M2' id='M2_"+id_equipo+"_0'>0.00</div>";
 		
 		
-		
-		
-		
-		
 		let row = $('#tablaPrincipal').dataTable().fnAddData( [
-			grupo,"0",codigo,equipo,KG,M2,UN,stock,cantidad,esVenta,esNuevo,exceso,auxKG,auxM2,
+			grupo,"--","","--",codigo,equipo,KG,M2,UN,stock,cantidad,esVenta,esNuevo,exceso,auxKG,auxM2,
 				@if(bodegaOrigen.esInterna!=1){
 					"<input type='hidden' name='estados[]'   id='estados_"+id_equipo+"_0'><input type='hidden' name='reparaciones[]'   id='reparaciones_"+id_equipo+"_0'>",
 					@for((est,index) <- listTipoEstado.zipWithIndex){
@@ -881,12 +917,12 @@ sinVenta: String)
 			var tableReg = document.getElementById("tablaPrincipal");
 			for (var i = 1; i < tableReg.rows.length; i++){
 				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
-				if(cellsOfRow[2].innerHTML == codigo){
+				if(cellsOfRow[4].innerHTML == codigo){
 					if("@sinVenta" == "1"){
-						cellsOfRow[9].style.display = 'none';
-						cellsOfRow[10].style.display = 'none';
+						cellsOfRow[11].style.display = 'none';
+						cellsOfRow[12].style.display = 'none';
 					}else{
-						cellsOfRow[10].style.display = 'none';
+						cellsOfRow[12].style.display = 'none';
 					}
 					
 				}
@@ -894,7 +930,7 @@ sinVenta: String)
 		tblPrincipal = $('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
-	    	"order": [[ 2, "asc" ]],
+	    	"order": [[ 4, "asc" ]],
 	    	"language": {
 	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 	        }
@@ -1133,7 +1169,7 @@ sinVenta: String)
 	
 	const verificaMovimientos = () =>{
 		$('#tablaPrincipal').dataTable().fnAddData( [
-			"TOTALES","","","","","","","","<div id='totalCant'>1.00</div>","","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+			"TOTALES","","","","","","","","","","<div id='totalCant'>1.00</div>","","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
 				@if(bodegaOrigen.esInterna!=1){
 					"",
 					@for((est,index) <- listTipoEstado.zipWithIndex){
@@ -1149,10 +1185,10 @@ sinVenta: String)
 			for (var i = 1; i < tableReg.rows.length; i++){
 				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
 					if("@sinVenta" == "1"){
-						cellsOfRow[9].style.display = 'none';
-						cellsOfRow[10].style.display = 'none';
+						cellsOfRow[11].style.display = 'none';
+						cellsOfRow[12].style.display = 'none';
 					}else{
-						cellsOfRow[10].style.display = 'none';
+						cellsOfRow[12].style.display = 'none';
 					}
 			}
 			
@@ -1167,10 +1203,10 @@ sinVenta: String)
 		let totDifCliente = 0;
 		
 		for(i=1; i<tabla.rows.length-1; i++){
-			let cantidad = $(".cantidad",tabla.rows[i].cells[8]).val();
-			let exceso = $(".exceso",tabla.rows[i].cells[11]).val();
-			let kg = $(".KG",tabla.rows[i].cells[12]).text();
-			let m2 = $(".M2",tabla.rows[i].cells[13]).text();
+			let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+			let exceso = $(".exceso",tabla.rows[i].cells[13]).val();
+			let kg = $(".KG",tabla.rows[i].cells[14]).text();
+			let m2 = $(".M2",tabla.rows[i].cells[15]).text();
 			cantidad = cantidad.replace(/,/g,'');
 			exceso = exceso.replace(/,/g,'');
 			kg = kg.replace(/,/g,'');
@@ -1219,7 +1255,7 @@ sinVenta: String)
 		$('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[-1, 15, 50, 100, 200], ["ALL", 15, 50, 100, 200]],
-	    	"order": [[ 2, "asc" ]],
+	    	"order": [[ 4, "asc" ]],
 	    	"language": {
 	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 	        }
@@ -1237,7 +1273,7 @@ sinVenta: String)
 		tblPrincipal = $('#tablaPrincipal').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
-	    	"order": [[ 2, "asc" ]],
+	    	"order": [[ 4, "asc" ]],
 	    	"language": {
 	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 	        }
@@ -1370,6 +1406,24 @@ sinVenta: String)
 	const validarForm2 = () =>{
 		$("#btnSubmit2").attr('disabled',true);
 		return(true);
+	}
+	
+	const verOt = (id_ot) => {
+		var formData = new FormData();
+	  	formData.append('id_ot',id_ot);
+        $.ajax({
+            url: "/verOtAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaOt').innerHTML = respuesta;
+	     		$('#modalVerOt').modal('show');
+	     	}
+        });
 	}
 
 	

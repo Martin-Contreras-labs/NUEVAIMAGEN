@@ -429,9 +429,13 @@ POST    /reportFacturaProyectoDetalle/			controllers.MnuReportes.reportFacturaPr
 POST    /reportFacturaProyectoDetExcel/			controllers.MnuReportes.reportFacturaProyectoDetExcel(request: Request)
 POST    /generarProformaPdfXlsxXmlJson/			controllers.MnuReportes.generarProformaPdfXlsxXmlJson(request: Request)
 
+GET     /reportFacturaPeriodoResumen0/			controllers.MnuReportes.reportFacturaPeriodoResumen0(request: Request)
+POST    /reportFacturaResumen0/					controllers.MnuReportes.reportFacturaResumen0(request: Request)
 GET     /reportFacturaPeriodoResumen/			controllers.MnuReportes.reportFacturaPeriodoResumen(request: Request)
 POST    /reportFacturaResumen/					controllers.MnuReportes.reportFacturaResumen(request: Request)
-POST    /reportFacturaResumenJson/					controllers.MnuReportes.reportFacturaResumenJson(request: Request)
+
+POST    /reportFacturaResumenJson/				controllers.MnuReportes.reportFacturaResumenJson(request: Request)
+POST    /reportFacturaResumenExcel0/			controllers.MnuReportes.reportFacturaResumenExcel0(request: Request)
 POST    /reportFacturaResumenExcel/				controllers.MnuReportes.reportFacturaResumenExcel(request: Request)
 
 GET     /reportFacturaConsolidado/				controllers.MnuReportes.reportFacturaConsolidado(request: Request)

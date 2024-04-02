@@ -42,15 +42,15 @@ public class Calc_AjustesEP {
 	}
 
 
-	public static Map<Long,Calc_AjustesEP> mapResumenAjustePorBodega (Connection con, String db, String desdeAAMMDD, String hastaAAMMDD) {
+	public static Map<Long,Calc_AjustesEP> mapResumenAjustePorBodega (String desdeAAMMDD, String hastaAAMMDD, List<Calc_AjustesEP> listaAjustes) {
 		Map<Long,Calc_AjustesEP> map = new HashMap<Long,Calc_AjustesEP>();
-		List<Calc_AjustesEP> lista = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
+		
 		Long flagId_Bodega = (long) 0;
 		Double ajusteArriendo = (double) 0, ajusteVenta = (double) 0;
 		
 		Long id_bodegaEmpresa = (long) 0;
-		for(int i=0; i<lista.size(); i++) {
-			if((flagId_Bodega - lista.get(i).id_bodegaEmpresa) != 0) {
+		for(int i=0; i<listaAjustes.size(); i++) {
+			if((flagId_Bodega - listaAjustes.get(i).id_bodegaEmpresa) != 0) {
 				if(flagId_Bodega>0) {
 					Calc_AjustesEP aux = new Calc_AjustesEP();
 					aux.id_bodegaEmpresa = id_bodegaEmpresa;
@@ -59,27 +59,27 @@ public class Calc_AjustesEP {
 					map.put(aux.id_bodegaEmpresa, aux);
 				}
 				ajusteArriendo = ajusteVenta = (double) 0;
-				flagId_Bodega = lista.get(i).id_bodegaEmpresa;
+				flagId_Bodega = listaAjustes.get(i).id_bodegaEmpresa;
 			}
 			
-			id_bodegaEmpresa = lista.get(i).id_bodegaEmpresa;
+			id_bodegaEmpresa = listaAjustes.get(i).id_bodegaEmpresa;
 			
 			
-			if(lista.get(i).id_tipoAjuste==1) {
-				if(lista.get(i).id_tipoAjusteVenta==1) {
-					ajusteArriendo = ajusteArriendo + lista.get(i).totalAjuste * -1;
+			if(listaAjustes.get(i).id_tipoAjuste==1) {
+				if(listaAjustes.get(i).id_tipoAjusteVenta==1) {
+					ajusteArriendo = ajusteArriendo + listaAjustes.get(i).totalAjuste * -1;
 				}else {
-					ajusteVenta = ajusteVenta + lista.get(i).totalAjuste * -1;
+					ajusteVenta = ajusteVenta + listaAjustes.get(i).totalAjuste * -1;
 				}
 			}else {
-				if(lista.get(i).id_tipoAjusteVenta==1) {
-					ajusteArriendo = ajusteArriendo + lista.get(i).totalAjuste;
+				if(listaAjustes.get(i).id_tipoAjusteVenta==1) {
+					ajusteArriendo = ajusteArriendo + listaAjustes.get(i).totalAjuste;
 				}else {
-					ajusteVenta = ajusteVenta + lista.get(i).totalAjuste;
+					ajusteVenta = ajusteVenta + listaAjustes.get(i).totalAjuste;
 				}
 			}
 			
-			if(i == lista.size()-1) {
+			if(i == listaAjustes.size()-1) {
 				Calc_AjustesEP aux = new Calc_AjustesEP();
 				aux.id_bodegaEmpresa = id_bodegaEmpresa;
 				aux.ajusteSobreArriendo = ajusteArriendo;

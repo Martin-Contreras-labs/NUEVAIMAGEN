@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: Double)
+desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: Double, nroDec: Long)
     	
 	<!-- ANCLA CABECERAS DE TABLAS -->
 	<style type="text/css"> 
@@ -211,36 +211,67 @@ desde: utilities.Fechas, hasta: utilities.Fechas, uf: Double, usd: Double, eur: 
 	    						+ "</thead>"
 	    						+ "<tbody>";
 			
+			
+									let totCfi = 0;
+									let totArr = 0;
+									let totVta = 0;
+									let totTot = 0;
+			
 									let auxGrupo = "0";
 	    							for(var i in jsonPorPyGJson){
 		
-		
-											if(jsonPorPyGJson[i][0] != "") {
-												auxGrupo = jsonPorPyGJson[i][0];
-											}else{
+										if(jsonPorPyGJson[i][0] != "") {
+											auxGrupo = jsonPorPyGJson[i][0];
+										}else{
+											
+		    								if(jsonPorPyGJson[i][3] != "SUBTOTAL" && jsonPorPyGJson[i][3] != "TOTAL"){
+			
+												let cfi = jsonPorPyGJson[i][4].replace(/,/g,'');
+												let arr = jsonPorPyGJson[i][5].replace(/,/g,'');
+												let vta = jsonPorPyGJson[i][6].replace(/,/g,'');
+												let tot = jsonPorPyGJson[i][7].replace(/,/g,'');
 												
-			    								if(jsonPorPyGJson[i][3] != "SUBTOTAL" && jsonPorPyGJson[i][3] != "TOTAL"){
-													tablaFamilias += "<TR>";
-			    											tablaFamilias += "<td style=\"text-align:left;\">"+auxGrupo+"</td>"
-															+ "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][9]+"</td>"
-			    											+ "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][1]+"</td>";
-			    											if(!'@mapDiccionario.get("nEmpresa")' == "CIHLA"){
-			    												tablaFamilias += "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][2]+"</td>"
-			    														+ "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][3]+"</td>";
-			    											}
-			    											tablaFamilias += "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][8]+"</td>"
-			    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][4]+"</td>"
-			    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][5]+"</td>"
-			    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][6]+"</td>"
-			    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][7]+"</td>";
-													tablaFamilias += "</TR>";
-			    								}
-							
-											}
+												if(tot.length > 1){
+													totCfi += parseFloat(cfi);
+													totArr += parseFloat(arr);
+													totVta += parseFloat(vta);
+													totTot += parseFloat(tot);
+												}
+												
+												
+			
+												tablaFamilias += "<TR>";
+		    											tablaFamilias += "<td style=\"text-align:left;\">"+auxGrupo+"</td>"
+														+ "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][9]+"</td>"
+		    											+ "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][1]+"</td>";
+		    											if(!'@mapDiccionario.get("nEmpresa")' == "CIHLA"){
+		    												tablaFamilias += "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][2]+"</td>"
+		    														+ "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][3]+"</td>";
+		    											}
+		    											tablaFamilias += "<td style=\"text-align:left;\">"+jsonPorPyGJson[i][8]+"</td>"
+		    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][4]+"</td>"
+		    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][5]+"</td>"
+		    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][6]+"</td>"
+		    													+ "<td style=\"text-align:right;\">"+jsonPorPyGJson[i][7]+"</td>";
+												tablaFamilias += "</TR>";
+		    								}
+						
+										}
 		
 	    							}
-	    							tablaFamilias += "</tbody>"
-	    									+ "</table>";
+	    							tablaFamilias += "</tbody><tfoot>"
+											+ "<tr>"
+												+ "<td>TOTALES</td>"
+												+ "<td></td>"
+												+ "<td></td>"
+												+ "<td></td>"
+												+ "<td style=\"text-align:right;\">"+formatStandar(totCfi,'@nroDec')+"</td>"
+												+ "<td style=\"text-align:right;\">"+formatStandar(totArr,'@nroDec')+"</td>"
+												+ "<td style=\"text-align:right;\">"+formatStandar(totVta,'@nroDec')+"</td>"
+												+ "<td style=\"text-align:right;\">"+formatStandar(totTot,'@nroDec')+"</td>"
+											+ "</tr>"
+											+ "<tr></tr>"
+	    									+ "</tfoot></table>";
 						
 					document.getElementById('resumenPorPyGJson').innerHTML = tablaFamilias;
 				}

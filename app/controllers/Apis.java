@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import models.utilities.DatabaseExecutionContext;
+import models.utilities.DatabaseRead;
 import models.utilities.Fechas;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,8 +22,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.apiRest.InventariosFechaCorte;
 import models.apiRest.MovimientosEntreFechas;
 import models.apiRest.ResumenDetallePorPeriodo;
+import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_BodegaEmpresa;
 import models.calculo.Calc_Precio;
+import models.calculo.Inventarios;
 import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
@@ -36,6 +37,7 @@ import models.tables.AjustesEP;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Diccionario;
+import models.tables.Moneda;
 import models.tables.Proyecto;
 import play.db.Database;
 import play.libs.Json;
@@ -47,15 +49,16 @@ import views.html.madaApis;
 
 public class Apis extends Controller {
 	
-	public static Database db;
-	public static DatabaseExecutionContext executionContext;
+	public static Database dbWrite = HomeController.dbWrite;
+	public static DatabaseRead dbRead = HomeController.dbRead;
+	//public static DatabaseExecutionContext executionContext;
 	
-    @SuppressWarnings("static-access")
-	@Inject
-    public Apis(Database db, DatabaseExecutionContext executionContext) {
-	    this.db = db;
-	    this.executionContext = executionContext;
-	}
+//    @SuppressWarnings("static-access")
+//	@Inject
+//    public Apis(Database db, DatabaseExecutionContext executionContext) {
+//	    this.db = db;
+//	    this.executionContext = executionContext;
+//	}
     
     static DecimalFormat sinFormato = new DecimalFormat("0.00");
 	
@@ -63,7 +66,7 @@ public class Apis extends Controller {
     public static Map<String,String> mapeoDicc(String baseDato){
     	Map<String,String> map = new HashMap<String,String>();
     	try {
-    		Connection con = db.getConnection();
+    		Connection con = dbRead.getConnection(dbRead);
 			map = Diccionario.mapDiccionario(con, baseDato);
 			con.close();
 			return(map);
@@ -111,7 +114,7 @@ public class Apis extends Controller {
 		
 		String baseDato = "0";
 		try {
-   			Connection con = db.getConnection();
+   			Connection con = dbWrite.getConnection();
    			
    			Calendar fechaToken = Calendar.getInstance();
    			java.sql.Timestamp auxFecha = null;
@@ -188,7 +191,7 @@ public class Apis extends Controller {
 	   		
    		if(apiUser!=null && apiKey!=null) {
    			try {
-	   			Connection con = db.getConnection();
+   				Connection con = dbRead.getConnection(dbRead);
 	   			
 	   			// VALIDA CREDENCIAL:
 	   			String baseDato = null;
@@ -273,7 +276,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			List<BodegaEmpresa> lista = BodegaEmpresa.all(con, baseDato);
 	   			JsonNode rsJson =  Json.toJson(lista);
 	   			con.close();
@@ -301,7 +304,7 @@ public class Apis extends Controller {
 		if(!baseDato.equals("0")) {
 			Map<String,String> mapeoDiccionario = mapeoDicc(baseDato);
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			List<MovimientosEntreFechas> lista = MovimientosEntreFechas.movimientosEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
 	   			con.close();
@@ -325,7 +328,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			BodegaEmpresa aux = BodegaEmpresa.findXIdBodega(con, baseDato, id_bodegaEmpresa);
 	   			JsonNode rsJson =  Json.toJson(aux);
 	   			con.close();
@@ -349,7 +352,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			Cliente aux = Cliente.find(con, baseDato, id_cliente);
 	   			JsonNode rsJson =  Json.toJson(aux);
 	   			con.close();
@@ -373,7 +376,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			Proyecto aux = Proyecto.find(con, baseDato, id_proyecto);
 	   			JsonNode rsJson =  Json.toJson(aux);
 	   			con.close();
@@ -398,7 +401,7 @@ public class Apis extends Controller {
 		if(!baseDato.equals("0")) {
 			Map<String,String> mapeoDiccionario = mapeoDicc(baseDato);
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			List<InventariosFechaCorte> lista = InventariosFechaCorte.inventariosFechaCorte(con, baseDato, fechaCorte, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
 	   			con.close();
@@ -423,7 +426,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			ResumenDetallePorPeriodo resumen = ResumenDetallePorPeriodo.inventariosFechaCorte(con, baseDato, desdeAAMMDD, hastaAAMMDD, uf, usd, eur,"0","1");
 	   			JsonNode rsJson =  Json.toJson(resumen);
 	   			con.close();
@@ -447,27 +450,47 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 			try {
-	   			Connection con = db.getConnection();
-	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
-	   			Map<Long,Double> tasas = new HashMap<Long,Double>();
-	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-	    		String permisoPorBodega = "";
-    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
-    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
-    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
-    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
-    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
+	   			Connection con = dbRead.getConnection(dbRead);
     			
-    			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios);
-    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
-    			
-    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(con, baseDato, valorTotalPorBodega);
-	   			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(con, baseDato, valorTotalPorBodega, "0", "0");
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
+	    			String permisoPorBodega = "";
+	    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
+	    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
+	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
+	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
+	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
+	    			
+	    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, baseDato, desdeAAMMDD);
+	    			List<Inventarios> inventario = Inventarios.inventario(con, baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+	    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+	    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, baseDato, "0", "0");
+	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, baseDato);
+	    			
+	    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
+				
+				con.close();
+			
+			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_entreFechas, guiasPer, mapPermanencias);
+			
+			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+			
+			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
+			
+			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+			
+	   			
 	   			
 	   			List<List<String>> rs = new ArrayList<List<String>>();
     			
@@ -508,7 +531,6 @@ public class Apis extends Controller {
     			}
     			String rsJson = Json.toJson(rs).toString();
     			
-	   			con.close();
 	   			return ok("{\"datos\":"+rsJson.toString()+",\"desde\":\""+desdeAAMMDD+"\",\"hasta\":\""+hastaAAMMDD+"\",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -532,7 +554,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			// KEY = id_bodega _ id_equipo _ id_cotizacion _ tipo:
 	   			Map<String,List<String>> mapArr = ReportHohe.listaMatrizEquiposHOHE2Coti(con, baseDato, "ARRIENDO", fechaCorte);
 	   			Map<String,List<String>> mapVta = ReportHohe.listaMatrizEquiposHOHE2Coti(con, baseDato, "VENTA", fechaCorte);
@@ -660,7 +682,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			String permisoPorBodega = "";
 	   			Fechas finMesFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
@@ -745,7 +767,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			String permisoPorBodega = "";
     			List<AjustesEP> lista = AjustesEP.allPorPeriodos(con, baseDato, desdeAAMMDD, hastaAAMMDD, permisoPorBodega,  "0", "0");
@@ -800,7 +822,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-	   			Connection con = db.getConnection();
+				Connection con = dbRead.getConnection(dbRead);
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			List<List<String>> datos = ReportBodegas.estadoBodegas(con, baseDato);
 	   			List<List<String>> rs = new ArrayList<List<String>>();
@@ -853,7 +875,7 @@ public class Apis extends Controller {
 			}
 			if(!baseDato.equals("0")) {
 				try {
-		   			Connection con = db.getConnection();
+					Connection con = dbRead.getConnection(dbRead);
 		   			List<List<String>> lista = ReportHohe.datosResumen(con, baseDato, desdeAAMMDD, hastaAAMMDD);
 		   			List<List<String>> l = ReportHohe.reporteHoheResumenJson(desdeAAMMDD, hastaAAMMDD, lista);
 	       			JsonNode rsJson =  Json.toJson(l);

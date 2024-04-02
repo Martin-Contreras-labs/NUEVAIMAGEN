@@ -62,7 +62,7 @@ import play.mvc.Result;
 import views.html.*;
 import viewsMnuMovimientos.html.*;
 
-public class MnuMovimientos extends Controller implements WSBodyReadables, WSBodyWritables{
+public class MnuMovimientos2 extends Controller implements WSBodyReadables, WSBodyWritables{
 	
 	
 	
@@ -78,7 +78,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	public final MailerClient mailerClient;
 	
 	@Inject
-	  public MnuMovimientos(WSClient ws, MailerClient mailerClient) {
+	  public MnuMovimientos2(WSClient ws, MailerClient mailerClient) {
 	    this.ws = ws;
 	    this.mailerClient = mailerClient;
 	  }
@@ -542,7 +542,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			}
 	    			
 	    			if (archivos != null) {
-	    				MnuMovimientos.grabarFilesThread grabarFile = new MnuMovimientos.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
+	    				MnuMovimientos2.grabarFilesThread grabarFile = new MnuMovimientos2.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 		    			grabarFile.run();
 	    			}
 	    			
@@ -821,8 +821,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				mapAux.put(Long.parseLong(l.get(0)), Long.parseLong(l.get(0)));
 	    			});
 	    			
-	    			Map<Long,List<String>> mapAuxiliar = new HashMap<Long,List<String>>();
-	    			
 	    			mapEquipo.forEach((k,v)->{
 	    				Long aux = mapAux.get(k);
 	    				if(aux==null) {
@@ -837,12 +835,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	        				aux2.add(myformatdouble2.format(v.getM2())); 	// 7 M2 por equipo
 	        				aux2.add(v.getUnidad());						// 8 unidad
 	        				aux2.add(myformatdouble2.format((double)0));	// 9 stock disponible
-	        				mapAuxiliar.put(v.getId(), aux2);
+	        				listEquipNoEnBodOrigen.add(aux2);
 	    				}
-	    			});
-	    			
-	    			mapAuxiliar.forEach((k,v)->{
-	    				listEquipNoEnBodOrigen.add(v);
 	    			});
 	    			
 	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
@@ -853,6 +847,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			
 	    			List<List<String>> detalleMovimiento = detalleMovimientoMasSinSaldo.get(0);
 	    			
+	    			List<List<String>> equipSinSaldo = detalleMovimientoMasSinSaldo.get(1);
 	    			
 	    			Long permiteExcedentes = (long) 0;
 	    			if(guia.tipoGuia.equals(mapeoDiccionario.get("Despacho"))) {
@@ -863,6 +858,10 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				permiteExcedentes = (long) 1;
 	    			}
 	    			
+	    			
+	    			for(List<String> l: equipSinSaldo) {
+	    				listEquipNoEnBodOrigen.add(l);
+	    			}
 	    			
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
 	    			
@@ -1017,7 +1016,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			    			}
 			    			
 			    			if (archivos != null) {
-			    				MnuMovimientos.grabarFilesThread grabarFile = new MnuMovimientos.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
+			    				MnuMovimientos2.grabarFilesThread grabarFile = new MnuMovimientos2.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 				    			grabarFile.start();
 			    			}
 			    			

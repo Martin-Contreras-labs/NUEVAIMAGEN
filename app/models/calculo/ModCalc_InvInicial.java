@@ -79,8 +79,9 @@ public class ModCalc_InvInicial {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	public static List<ModCalc_InvInicial> resumenInvInicial(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios) {
+	public static List<ModCalc_InvInicial> resumenInvInicial(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
+			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios,
+			List<Long> listIdGuia_fechaCorte, List<Inventarios> inventario) {
 		
 //		SON FUNCIONES QUE ALIMENTAN ESTA FUNCION
 //		String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
@@ -90,8 +91,8 @@ public class ModCalc_InvInicial {
 //		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 		
 		List<ModCalc_InvInicial> listado = new ArrayList<ModCalc_InvInicial>();
-		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
-		List<Inventarios> inventario = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+		//List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
+		//List<Inventarios> inventario = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		
 		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
