@@ -106,6 +106,7 @@ public class ReportGerenciales {
 		
 		
 		//revisa y llena historico a partir del ultimo ingreso
+		String insertReportGerencial = "";
 		for(int i=0; i<listIniFinMes2Anios.size(); i++){
 			
 			Long compara = Long.parseLong(listIniFinMes2Anios.get(i).get(2));
@@ -140,9 +141,27 @@ public class ReportGerenciales {
 				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
-				ReportGerenciales.actualizaTablaReportGerencial(con, db, datos, listIniFinMes2Anios.get(i).get(2), id_grupo);
+				String anioMes = listIniFinMes2Anios.get(i).get(2);
+				String categoria = anioMes.substring(4,6)+"-"+anioMes.substring(0,4);
+				Double ventaParcial = Double.parseDouble(datos.get(4));
+				Double ventaReal = Double.parseDouble(datos.get(4));
+				Double ventaPrecioLista = Double.parseDouble(datos.get(5));
+				Double precioReposicion = Double.parseDouble(datos.get(6));
+				Double precioCompra = Double.parseDouble(datos.get(7));
 				
+				insertReportGerencial += "('"+anioMes.trim()+"','"
+											+categoria+"','"
+											+precioCompra+"','"
+											+precioReposicion+"','"
+											+ventaReal+"','"
+											+ventaPrecioLista+"','"
+											+ventaParcial+"','"
+											+id_grupo+"'),";
 			}
+		}
+		if(insertReportGerencial.length()>2) {
+			insertReportGerencial = insertReportGerencial.substring(0,insertReportGerencial.length()-1);
+			ReportGerenciales.actualizaTablaReportGerencial(con, db, insertReportGerencial);
 		}
 		
 		
@@ -382,6 +401,7 @@ public class ReportGerenciales {
 		
 		
 		//revisa y llena historico a partir del ultimo ingreso
+		String insertReportGerencial="";
 		for(int i=0; i<listIniFinMes2Anios.size(); i++){
 			
 			Long compara = Long.parseLong(listIniFinMes2Anios.get(i).get(2));
@@ -416,12 +436,31 @@ public class ReportGerenciales {
 				List<String> datos = ReportGerenciales.resumenTotalMesAnioSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
-				ReportGerenciales.actualizaTablaReportGerencial(con, db, datos, listIniFinMes2Anios.get(i).get(2), id_grupo);
+				String anioMes = listIniFinMes2Anios.get(i).get(2);
+				String categoria = anioMes.substring(4,6)+"-"+anioMes.substring(0,4);
+				Double ventaParcial = Double.parseDouble(datos.get(4));
+				Double ventaReal = Double.parseDouble(datos.get(4));
+				Double ventaPrecioLista = Double.parseDouble(datos.get(5));
+				Double precioReposicion = Double.parseDouble(datos.get(6));
+				Double precioCompra = Double.parseDouble(datos.get(7));
 				
+				insertReportGerencial += "('"+anioMes.trim()+"','"
+						+categoria+"','"
+						+precioCompra+"','"
+						+precioReposicion+"','"
+						+ventaReal+"','"
+						+ventaPrecioLista+"','"
+						+ventaParcial+"','"
+						+id_grupo+"'),";
 			}
 		}
 		
+		if(insertReportGerencial.length()>2) {
+			insertReportGerencial = insertReportGerencial.substring(0,insertReportGerencial.length()-1);
+			ReportGerenciales.actualizaTablaReportGerencial(con, db, insertReportGerencial);
+		}
 		
+
 		//trae historico desde tabla reportGerencial
 		List<ReportGerenciales> historia = ReportGerenciales.datosHistoria(con, db, inicioMes, AAMM_menos4, id_grupo);
 		
@@ -767,7 +806,7 @@ public class ReportGerenciales {
 		List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		
-		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		Double vtaOdo = (double)0;
 		for(List<String> lista: resumenTotalesPorProyecto) {
 			String tot = lista.get(7).replaceAll(",", "").trim();
@@ -899,7 +938,7 @@ public class ReportGerenciales {
 		List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		
-		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		Double vtaOdo = (double)0;
 		for(List<String> lista: resumenTotalesPorProyecto) {
 			String tot = lista.get(7).replaceAll(",", "").trim();
@@ -973,26 +1012,12 @@ public class ReportGerenciales {
 	}
 	
 	
-	public static void actualizaTablaReportGerencial(Connection con, String db, List<String> datos, String anioMes, Long id_grupo) {
-		String categoria = anioMes.substring(4,6)+"-"+anioMes.substring(0,4);
-		Double ventaParcial = Double.parseDouble(datos.get(4));
-		Double ventaReal = Double.parseDouble(datos.get(4));
-		Double ventaPrecioLista = Double.parseDouble(datos.get(5));
-		Double precioReposicion = Double.parseDouble(datos.get(6));
-		Double precioCompra = Double.parseDouble(datos.get(7));
+	public static void actualizaTablaReportGerencial(Connection con, String db, String insertReportGerencial) {
 		try { 
 		  PreparedStatement smt = con
 				  .prepareStatement("insert into `"+db+"`.reportGerencial "
 				  		+ " (anioMes,categoria,precioCompra,precioReposicion,precioReal,precioLista,ventaParcial,id_grupo) "
-				  		+ " values (?,?,?,?,?,?,?,?);");
-		  smt.setLong(1, Long.parseLong(anioMes.trim()));
-		  smt.setString(2, categoria.trim());
-		  smt.setDouble(3, precioCompra);
-		  smt.setDouble(4, precioReposicion);
-		  smt.setDouble(5, ventaReal);
-		  smt.setDouble(6, ventaPrecioLista);
-		  smt.setDouble(7, ventaParcial);
-		  smt.setLong(8, id_grupo);
+				  		+ " values "+insertReportGerencial+";");
 		  smt.executeUpdate();
 		  smt.close();
 		} catch (SQLException e) {

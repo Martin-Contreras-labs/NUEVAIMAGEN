@@ -79,7 +79,7 @@ listOt: List[List[String]])
 												<div id="txtBtn">Reemplazar</div>
 											}
 					    					<input type="file" id="docAdjunto_@lista1.get(0)" name="docAdjunto" 
-												onchange="LimitAttach(this.form, this.form.docAdjunto.value, '@lista1.get(0)'); 
+												onchange="LimitAttach(this.form, this.form.docAdjunto.value, '@lista1.get(1)'); 
 												 	document.getElementById('mostrarmostrar').style.display='none';
 													$('#form_@lista1.get(0)').submit();">
 										</span>
@@ -216,7 +216,7 @@ listOt: List[List[String]])
 	}
 	
 	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
-	const LimitAttach = (form, file, id_ot) => {
+	const LimitAttach = (form, file, id_coti) => {
 		let allowSubmit = false;
 		if (!file) return;
 		while (file.indexOf("\\") != -1){
@@ -227,7 +227,7 @@ listOt: List[List[String]])
 			if (extArray[i] == extencion) { allowSubmit = true; break; }
 		}
 		if (allowSubmit) {
-			var file = $("#docAdjunto_"+id_ot)[0].files[0];
+			var file = $("#docAdjunto_"+id_coti)[0].files[0];
 			var fileSize = file.size; //tamaño del archivo
 			if(fileSize>100000000){
 				alert("Se permiten únicamente archivos que no superen los 100 MB,"

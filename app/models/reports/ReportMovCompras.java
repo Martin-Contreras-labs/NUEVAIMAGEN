@@ -313,7 +313,7 @@ public class ReportMovCompras {
 	}
 	
 	
-	public static File movComprasPeriodoExcel(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, String fechaDesde, String fechaHasta) {
+	public static File movComprasPeriodoExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, String fechaDesde, String fechaHasta) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		

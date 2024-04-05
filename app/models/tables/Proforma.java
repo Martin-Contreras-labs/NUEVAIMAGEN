@@ -385,7 +385,7 @@ public class Proforma {
 	}
 
 	
-	public static Proforma createSinNada(Connection con, String db,String hoy) {
+	public static Proforma createSinNada(Connection con, String db, String hoy) {
 		Long idProforma = (long)0;
 		Double index = Math.random();
 		try {

@@ -51,7 +51,7 @@ public class ReportOdo {
 	
 	
 	
-	public static List<List<String>> resumenTotalesPorProyecto(Connection con, String db, List<VentaServicio> listVentaServicio, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
+	public static List<List<String>> resumenTotalesPorProyecto(String db, List<VentaServicio> listVentaServicio, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
 			Map<Long,Long> mapDec, Map<Long,Double> mapTotalAjustePorBodega,
 			Map<Long,BodegaEmpresa> mapBodegas, Map<String,ListaPrecioServicio> mapPrecios, Long id_grupo, Map<Long,Long> mapIdEquipoVsIdGrupo) {
 		List<List<String>> lista = new ArrayList<List<String>>();

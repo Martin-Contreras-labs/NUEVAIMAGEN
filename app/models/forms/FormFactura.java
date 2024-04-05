@@ -92,9 +92,10 @@ public class FormFactura {
 			List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, 
 			List<List<String>> detalleAjuste, String conDetalle, 
 			List<List<String>> inicioPer, List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, List<List<String>> finalPer,
-			Double uf, Double usd, Double eur, String oc) {
+			Double uf, Double usd, Double eur, String oc,
+			Map<Long,Long> dec, EmisorTributario emisorTributario, BodegaEmpresa bodegaEmpresa) {
 		
-			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.id_bodegaEmpresa);
+			
 			
 			File tmp = TempFile.createTempFile("tmp","null");
 	       
@@ -128,7 +129,7 @@ public class FormFactura {
     			//cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",proforma.docRef,false);
     			cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",bodegaEmpresa.comercial,false);
     			
-    			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+    			
     			
     			
     			
@@ -178,13 +179,21 @@ public class FormFactura {
 	   				}
     			}
     			
-    			EmisorTributario emisorTributario = EmisorTributario.find(con, db);
+    			
     			proforma.setNeto(totalPrecio);
     			
     			proforma.setIva(proforma.neto * emisorTributario.tasaIva/100);
-    			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && bodegaEmpresa.getId()>0) {
-    				 proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+    			
+    			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+		        	if(bodegaEmpresa!=null) {
+		        		Double aux = bodegaEmpresa.getIvaBodega();
+		        		if(aux > 0) {
+		        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+		        		}
+		        		
+		        	}
 		        }
+    			
     			
     			proforma.setTotal(proforma.neto+proforma.iva);
     			
@@ -226,8 +235,15 @@ public class FormFactura {
 				proforma.setNeto(totalPrecio+totalAjuste);
 				
     			proforma.setIva(proforma.neto * emisorTributario.tasaIva/100);
-    			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && bodegaEmpresa.getId()>0) {
-   				 proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+    			
+    			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+		        	if(bodegaEmpresa!=null) {
+		        		Double aux = bodegaEmpresa.getIvaBodega();
+		        		if(aux > 0) {
+		        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+		        		}
+		        		
+		        	}
 		        }
     			
     			proforma.setTotal(proforma.neto+proforma.iva);
@@ -976,8 +992,15 @@ public class FormFactura {
 			proforma.setNeto(totalVenta);
 			
 			proforma.setIva(proforma.neto * emisorTributario.tasaIva / 100);
-			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && bodegaEmpresa.getId()>0) {
-				 proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+			
+			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	        	if(bodegaEmpresa!=null) {
+	        		Double aux = bodegaEmpresa.getIvaBodega();
+	        		if(aux > 0) {
+	        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+	        		}
+	        		
+	        	}
 	        }
 			
 			proforma.setTotal(proforma.neto + proforma.iva);
@@ -1022,8 +1045,15 @@ public class FormFactura {
 			proforma.setNeto(totalVenta + totalAjuste);
 			
 			proforma.setIva(proforma.neto * emisorTributario.tasaIva / 100);
-			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && bodegaEmpresa.getId()>0) {
-				 proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+			
+			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	        	if(bodegaEmpresa!=null) {
+	        		Double aux = bodegaEmpresa.getIvaBodega();
+	        		if(aux > 0) {
+	        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+	        		}
+	        		
+	        	}
 	        }
 			
 			proforma.setTotal(proforma.neto+proforma.iva);

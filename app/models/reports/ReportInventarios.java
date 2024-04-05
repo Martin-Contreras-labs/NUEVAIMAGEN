@@ -516,7 +516,7 @@ public class ReportInventarios {
 							/*1*/" movimiento.id_bodegaEmpresa, " +
 							/*2*/" bodegaEmpresa.nombre, " +
 							/*3*/condicionaSuma +
-							/*4*/" if(guia.id>0,guia.fecha,if(id_factura.id>0,fecha_factura,fecha_actaBaja)), " +
+							/*4*/" if(guia.id>0,guia.fecha,if(id_factura>0,fecha_factura,fecha_actaBaja)), " +
 							/*5*/" bodegaEmpresa.esInterna, " +
 							/*6*/" ifnull(movimiento.id_cotizacion,0), "+
 							/*7*/" bodegaEmpresa.id_sucursal, " +
@@ -530,8 +530,7 @@ public class ReportInventarios {
 							" and (fecha_actaBaja is null or fecha_actaBaja<=?) " +
 							" and movimiento.id_equipo = ? "+
 							condSucursal+
-							" group by movimiento.id_bodegaEmpresa,movimiento.id_equipo " +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre,grupo.nombre,equipo.nombre;");
+							" group by movimiento.id_bodegaEmpresa,movimiento.id_equipo;");
 			smt6.setString(1, fechaCorte.trim());
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
@@ -1305,6 +1304,7 @@ public class ReportInventarios {
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
 			smt6.setLong(4, bodega.getId());
+			
 			ResultSet rs6 = smt6.executeQuery();
 			
 			while (rs6.next()) {
@@ -1961,8 +1961,7 @@ public class ReportInventarios {
 							" and (factura.fecha is null or factura.fecha<=?) " +
 							" and (actaBaja.fecha is null or actaBaja.fecha<=?) " +
 							" and grupo.id = ? " + permisoPorBodega + filtraTipo + condSucursal +
-							" group by movimiento.id_equipo  " +
-							" order by grupo.nombre,equipo.nombre;");
+							" group by movimiento.id_equipo;");
 			smt6.setString(1, fechaCorte.trim());
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
@@ -2747,8 +2746,7 @@ public class ReportInventarios {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement(" select equipo.id, equipo.codigo, equipo.nombre,equipo.id_grupo,grupo.nombre " + 
-							" from `"+db+"`.equipo left join `"+db+"`.grupo on grupo.id=equipo.id_grupo " + 
-							" order by equipo.nombre;");
+							" from `"+db+"`.equipo left join `"+db+"`.grupo on grupo.id=equipo.id_grupo;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();
@@ -2897,7 +2895,7 @@ public class ReportInventarios {
 		return (lista);
 	}
 	
-	public static File exportaReportInventarioTodo(Connection con, String db, List<List<String>> lista, Map<String,String> mapDiccionario) {
+	public static File exportaReportInventarioTodo(String db, List<List<String>> lista, Map<String,String> mapDiccionario) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -3288,7 +3286,8 @@ public class ReportInventarios {
 		return (lista);
 	}
 	
-	public static List<List<String>> reportInventarioProyectoDetalle(Connection con, String db, Long id_bodegaEmpresa, Map<String,String> mapDiccionario) {
+	public static List<List<String>> reportInventarioProyectoDetalle(Connection con, String db, Long id_bodegaEmpresa, 
+			Map<String,String> mapDiccionario) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		Map<String,Long> idMoneda = new HashMap<String,Long>();
 		Map<String,String> moneda = new HashMap<String,String>();
@@ -3332,95 +3331,131 @@ public class ReportInventarios {
 			
 			PreparedStatement smt6 = con
 					.prepareStatement(" select " +
-							" bodegaEmpresa.id,  " +
-							" bodegaEmpresa.nombre,  " +
-							" proyecto.id, " +
-							" proyecto.nickName,  " +
-							" grupo.id,  " +
-							" grupo.nombre, " +
-							" equipo.id,  " +
-							" equipo.codigo,  " +
-							" equipo.nombre,  " +
-							" unidad.nombre,  " +
-							" if("
-							+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
-							+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), " +
-							" guia.fecha,  " +
-							" bodegaEmpresa.esInterna,  " +
-							" ifnull(movimiento.id_cotizacion,0),  " +
-							" ifnull(cotizacion.numero,0)  " +
+							" movimiento.id_bodegaEmpresa,  " +
+							" movimiento.id_equipo, " +
+							" if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
+									+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), " +
+							" ifnull(movimiento.id_cotizacion,0)  " +
 							" from `"+db+"`.movimiento  " +
-							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo  " +
-							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo  " +
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia  " +
-							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad  " +
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
-							" where bodegaEmpresa.id = ? "+
-							" group by movimiento.id_bodegaEmpresa,equipo.id" + agruparPor+
-							" order by grupo.nombre,equipo.nombre;");
+							" where movimiento.id_bodegaEmpresa = ? " +
+							" group by movimiento.id_bodegaEmpresa, movimiento.id_equipo" + agruparPor +";");
 			smt6.setLong(1, id_bodegaEmpresa);
 			ResultSet rs6 = smt6.executeQuery();
 			
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+			Map<Long, BodegaEmpresa> mapBodega = BodegaEmpresa.mapAll(con, db);
+			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
+			Map<Long, Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);
+			
+			
 			while (rs6.next()) {
-				if(rs6.getDouble(11)!=0){
-					try{
-					switch(dec.get(idMoneda.get(rs6.getString(7)+"-"+rs6.getString(14))).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-					 default:  break;
-					}
-					}catch(Exception e){
-						myformatdouble = new DecimalFormat("#,##0.00");
-					}
-					List<String> aux = new ArrayList<String>();
-					aux.add(rs6.getString(1));  // 0 id bodega
-					aux.add(rs6.getString(5));  // 1 id grupo
-					aux.add(rs6.getString(7));  // 2 id equipo
-					aux.add(rs6.getString(3));  // 3 id proyecto
-					aux.add(rs6.getString(6));  // 4 nombre grupo
-					aux.add(rs6.getString(4));  // 5 nombre proyecto
-					aux.add(rs6.getString(8));  // 6 codigo equipo
-					aux.add(rs6.getString(9));  // 7 nombre equipo
-					aux.add(rs6.getString(10)); // 8 unidad de medida equipo
-					aux.add(myformatdouble2.format(rs6.getDouble(11)));  // cantidad
+				
+				Double cantidad = rs6.getDouble(3);
+				
+				if(cantidad != 0){
 					
-					String auxNickMoneda = mapDiccionario.get("CLP");
-					if(moneda.get(rs6.getString(7)+"-"+rs6.getString(14))!=null){
-						auxNickMoneda = moneda.get(rs6.getString(7)+"-"+rs6.getString(14));
+					BodegaEmpresa bodega = mapBodega.get(id_bodegaEmpresa);
+					if(bodega!=null) {
+						
+						Long id_equipo = rs6.getLong(2);
+						
+						try{
+						switch(dec.get(idMoneda.get(id_equipo+"-"+rs6.getString(14))).toString()) {
+						 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+						 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+						 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+						 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						 default:  break;
+						}
+						}catch(Exception e){
+							myformatdouble = new DecimalFormat("#,##0.00");
+						}
+						
+						Long id_grupo = (long)0;
+						Long id_proyecto = (long)0;
+						Long id_cotizacion = rs6.getLong(4);
+						
+						String nomGrupo = "";
+						String nomProyecto = "";
+						String codEquipo = "";
+						String nomEquipo = "";
+						String unidad = "";
+						
+						
+						
+						Equipo equipo = mapEquipo.get(id_equipo);
+						if(equipo!=null) {
+							id_equipo = equipo.getId();
+							id_grupo = equipo.getId_grupo();
+							nomGrupo = equipo.getGrupo();
+							codEquipo = equipo.getCodigo();
+							nomEquipo = equipo.getNombre();
+							unidad = equipo.getUnidad();
+						}
+						
+						Proyecto proyecto = mapProyecto.get(bodega.getId_proyecto());
+						if(proyecto!=null) {
+							nomProyecto = proyecto.getNickName();
+							id_proyecto = proyecto.getId();
+						}
+						
+						String auxNickMoneda = moneda.get(id_equipo+"-"+id_cotizacion);
+						if(auxNickMoneda == null){
+							auxNickMoneda = mapDiccionario.get("CLP");
+						}
+						
+						Double auxPrecioVenta = precioVenta.get(id_equipo+"-"+id_cotizacion);
+						if(auxPrecioVenta == null){
+							auxPrecioVenta = (double) 0;
+						}
+						
+						Double total = cantidad * auxPrecioVenta;
+						
+						Double auxPrecioArriendo = precioArriendo.get(id_equipo+"-"+id_cotizacion);
+						if(auxPrecioArriendo == null){
+							auxPrecioArriendo = (double) 0;
+						}
+						Double tasaArriendo = (double)0;
+						if(auxPrecioArriendo > 0 && auxPrecioVenta > 0) {
+							tasaArriendo=auxPrecioArriendo/auxPrecioVenta;
+						}
+						
+						String unTiempo = unidadTiempo.get(id_equipo+"-"+id_cotizacion);
+						if(unTiempo == null) {
+							unTiempo = "";
+						}
+						
+						total = cantidad * auxPrecioArriendo;
+						
+						Long numCotizacion = (long)0;
+						Cotizacion coti = mapCotizacion.get(id_cotizacion);
+						
+						if(coti!=null) {
+							numCotizacion = coti.getNumero();
+						}
+						
+						List<String> aux = new ArrayList<String>();
+						aux.add(id_bodegaEmpresa.toString());  	// 0 id bodega
+						aux.add(id_grupo.toString());  			// 1 id grupo
+						aux.add(id_equipo.toString());  		// 2 id equipo
+						aux.add(id_proyecto.toString());  		// 3 id proyecto
+						aux.add(nomGrupo);  					// 4 nombre grupo
+						aux.add(nomProyecto);  					// 5 nombre proyecto
+						aux.add(codEquipo);  					// 6 codigo equipo
+						aux.add(nomEquipo);  					// 7 nombre equipo
+						aux.add(unidad); 						// 8 unidad de medida equipo
+						aux.add(myformatdouble2.format(cantidad));  	// 9 cantidad
+						aux.add(auxNickMoneda);  						// 10 nickname moneda
+						aux.add(myformatdouble.format(auxPrecioVenta)); // 11 precio de venta unitario
+						aux.add(myformatdouble.format(total));  		// 12 precio de venta Total
+						aux.add(myformatdouble2.format(tasaArriendo*100)+" %"); // 13 tasa de arriendo
+						aux.add(unTiempo);  									// 14 unidad de tiempo valor arriendo
+						aux.add(myformatdouble.format(auxPrecioArriendo)); 		// 15 precio de arriendo
+						aux.add(myformatdouble.format(total));  				// 16 precio de arriendo Total
+						aux.add(id_cotizacion.toString());   					// 17 id cotizacion
+						aux.add(numCotizacion.toString());   					// 18 numero cotizacion
+						lista.add(aux);
 					}
-					aux.add(auxNickMoneda);  // nickname moneda
-	
-					Double auxPrecioVenta = (double) 0;
-					if(precioVenta.get(rs6.getString(7)+"-"+rs6.getString(14))!=null){
-						auxPrecioVenta = precioVenta.get(rs6.getString(7)+"-"+rs6.getString(14));
-					}
-					aux.add(myformatdouble.format(auxPrecioVenta)); // precio de venta unitario
-					Double total = rs6.getDouble(11)*auxPrecioVenta; 
-					aux.add(myformatdouble.format(total));  // precio de venta Total
-					Double auxPrecioArriendo = (double) 0;
-					if(precioArriendo.get(rs6.getString(7)+"-"+rs6.getString(14))!=null){
-						auxPrecioArriendo = precioArriendo.get(rs6.getString(7)+"-"+rs6.getString(14));
-					}
-					Double tasaArriendo=(double)0;
-					if(auxPrecioArriendo>0&&auxPrecioVenta>0) {
-						tasaArriendo=auxPrecioArriendo/auxPrecioVenta;
-					}
-					aux.add(myformatdouble2.format(tasaArriendo*100)+" %"); // tasa de arriendo
-					
-					aux.add(unidadTiempo.get(rs6.getString(7)+"-"+rs6.getString(14)));  // 14 unidad de tiempo valor arriendo
-					
-					aux.add(myformatdouble.format(auxPrecioArriendo)); // 15 precio de arriendo
-					total = rs6.getDouble(11)*auxPrecioArriendo; 
-					aux.add(myformatdouble.format(total));  // 16 precio de arriendo Total
-					
-					aux.add(rs6.getString(14));   // 17 id cotizacion
-					aux.add(rs6.getString(15));   // 18 numero cotizacion
-					
-					lista.add(aux);
 				}
 			}
 			rs6.close();

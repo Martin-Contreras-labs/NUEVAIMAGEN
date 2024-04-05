@@ -661,7 +661,7 @@ public class FormCotiza {
 	}
 	
 	public static String generaPdfCotizaArriendo(Connection con, String db, Long id_cotizacion, Map<String,String> mapDiccionario, String cfi, Cotizacion cotizacion, 
-			Map<String,String> mapPermiso, String sinDetalle, String selectGrupos){
+			Map<String,String> mapPermiso, String sinDetalle, String selectGrupos, String tasaIva){
 		
 		
 		List<CotizaDetalle> detalleCoti = CotizaDetalle.allPorIdCotizacion(con, db,id_cotizacion);
@@ -966,12 +966,6 @@ public class FormCotiza {
 				}
 			}
 
-
-			
-			
-			
-			
-			
 			
 			Double subTotal = totalPrecio;
 	        
@@ -982,18 +976,30 @@ public class FormCotiza {
 	        Double totalDcto = subTotal * cotizacion.getDctoArriendo();
 	        Double totalNeto = subTotal - totalDcto;
 	        
-	        Double tasaIva = emisorTributario.getTasaIva()/100;
+	        Double tasaIvaDbl = emisorTributario.getTasaIva()/100;
+	        
 	        
 	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
 	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
 	        	if(bodegaEmpresa!=null) {
-	        		tasaIva = bodegaEmpresa.getIvaBodega();
+	        		Double aux = bodegaEmpresa.getIvaBodega();
+	        		if(aux > 0) {
+	        			tasaIvaDbl = bodegaEmpresa.getIvaBodega();
+	        		} else {
+	        			tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
+	        		}
+	        	} else {
+	        		tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        	}
 	        }
 	        
-	        Double totalIva = totalNeto * tasaIva;
-	        Double total = totalNeto * (1+tasaIva);
+	        String auxTasaIva = DecimalFormato.formato(tasaIvaDbl * 100, (long)2) + " %";
 	        
+	        
+	        
+	        Double totalIva = totalNeto * tasaIvaDbl;
+	        Double total = totalNeto * (1+tasaIvaDbl);
+
 	        table = doc.getTables().get(3);
 	        
 			cell=table.getRow(0).getCell(2);
@@ -1014,11 +1020,17 @@ public class FormCotiza {
 			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalNeto),false);
 			
 			if(!db.equals("madaAndinaMontajes")) {
+				
+				cell = table.getRow(3).getCell(1);
+				String aux = cell.getText() +" "+auxTasaIva;
+				setCelda(cell,"Arial",10,1,"2b5079",aux,false);
+				
 				cell=table.getRow(3).getCell(2);
 				setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalIva),false);
 				
 				cell=table.getRow(4).getCell(2);
 				setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(total),false);
+				
 			}else {
 				cell=table.getRow(3).getCell(1);
 				setCelda(cell,"Arial",10,3,"2b5079","",false);
@@ -1128,12 +1140,6 @@ public class FormCotiza {
 				//table.createRow();
 				row = table.getRow(2);
 				cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio-auxRestar),true);
-		
-
-
-			
-			
-			
 			
 			}
 			
@@ -1189,7 +1195,7 @@ public class FormCotiza {
 	}
 	
 	public static String generaPdfCotizaVenta(Connection con, String db, Long id_cotizacion, Map<String,String> mapDiccionario, Double tasaCambio, 
-			Cotizacion cotizacion, Map<String,String> mapPermiso, String sinDetalle){
+			Cotizacion cotizacion, Map<String,String> mapPermiso, String sinDetalle, String tasaIva){
 		
 		
 		List<CotizaDetalle> detalleCoti = CotizaDetalle.allPorIdCotizacion(con, db,id_cotizacion);
@@ -1361,16 +1367,27 @@ public class FormCotiza {
 	        Double totalDcto = subTotal * cotizacion.getDctoVenta();
 	        Double totalNeto = subTotal - totalDcto;
 	        
-	        Double tasaIva = emisorTributario.getTasaIva()/100;
+	        Double tasaIvaDbl = emisorTributario.getTasaIva()/100;
+	        
 	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
 	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
 	        	if(bodegaEmpresa!=null) {
-	        		tasaIva = bodegaEmpresa.getIvaBodega();
+	        		Double aux = bodegaEmpresa.getIvaBodega();
+	        		if(aux > 0) {
+	        			tasaIvaDbl = bodegaEmpresa.getIvaBodega();
+	        		} else {
+	        			tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
+	        		}
+	        	} else {
+	        		tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        	}
 	        }
 	        
-	        Double totalIva = totalNeto * tasaIva;
-	        Double total = totalNeto * (1+tasaIva);
+	        String auxTasaIva = DecimalFormato.formato(tasaIvaDbl * 100, (long)2) + " %";
+	        
+	        
+	        Double totalIva = totalNeto * tasaIvaDbl;
+	        Double total = totalNeto * (1+tasaIvaDbl);
 	        
 	        table = doc.getTables().get(3);
 	        
@@ -1395,6 +1412,11 @@ public class FormCotiza {
 			if(!db.equals("madaMontax")) {
 				
 				if(!db.equals("madaAndinaMontajes")) {
+					
+					cell=table.getRow(3).getCell(1);
+					String aux = cell.getText()+" "+auxTasaIva;
+					setCelda(cell,"Arial",10,1,"2b5079",aux,false);
+					
 					cell=table.getRow(3).getCell(2);
 					setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalIva),false);
 					
@@ -1432,10 +1454,10 @@ public class FormCotiza {
     			setCelda(cell,"Arial",10,3,"2b5079","$ "+myformatdouble.format(totalNeto * tasaCambio),false);
     			
     			cell=table.getRow(2).getCell(2);
-    			setCelda(cell,"Arial",10,3,"2b5079","$ "+myformatdouble.format(totalNeto * tasaCambio * tasaIva),false);
+    			setCelda(cell,"Arial",10,3,"2b5079","$ "+myformatdouble.format(totalNeto * tasaCambio * tasaIvaDbl),false);
     			
     			cell=table.getRow(3).getCell(2);
-    			setCelda(cell,"Arial",10,3,"2b5079","$ "+myformatdouble.format(totalNeto * tasaCambio * (1+tasaIva)),false);
+    			setCelda(cell,"Arial",10,3,"2b5079","$ "+myformatdouble.format(totalNeto * tasaCambio * (1+tasaIvaDbl)),false);
     			
     			
 			}
@@ -1512,7 +1534,8 @@ public class FormCotiza {
 		return("0");
 	}
 	
-	public static String generaPdfCotizaArrVta(Connection con, String db, Long id_cotizacion, Map<String,String> mapDiccionario, Cotizacion cotizacion, Map<String,String> mapPermiso, String sinDetalle){
+	public static String generaPdfCotizaArrVta(Connection con, String db, Long id_cotizacion, Map<String,String> mapDiccionario, Cotizacion cotizacion, 
+			Map<String,String> mapPermiso, String sinDetalle, String tasaIva){
 		
 		
 		List<CotizaDetalle> detalleCoti = CotizaDetalle.allPorIdCotizacion(con, db,id_cotizacion);
@@ -1719,9 +1742,18 @@ public class FormCotiza {
 	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
 	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
 	        	if(bodegaEmpresa!=null) {
-	        		tasaIvaVta = bodegaEmpresa.getIvaBodega();
+	        		Double aux = bodegaEmpresa.getIvaBodega();
+	        		if(aux > 0) {
+	        			tasaIvaVta = bodegaEmpresa.getIvaBodega();
+	        		} else {
+	        			tasaIvaVta = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
+	        		}
+	        	} else {
+	        		tasaIvaVta = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        	}
 	        }
+	        
+	        String auxTasaIva = DecimalFormato.formato(tasaIvaVta * 100, (long)2) + " %";
 	        
 	        Double totalIvaVta = totalNetoVta * tasaIvaVta;
 	        Double totalVta = totalNetoVta * (1+tasaIvaVta);
@@ -1730,12 +1762,22 @@ public class FormCotiza {
 	        Double totalNetoArr = subTotalArr - totalDctoArr;
 	        
 	        Double tasaIvaArr = emisorTributario.getTasaIva()/100;
+	        
 	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
 	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
 	        	if(bodegaEmpresa!=null) {
-	        		tasaIvaArr = bodegaEmpresa.getIvaBodega();
+	        		Double aux = bodegaEmpresa.getIvaBodega();
+	        		if(aux > 0) {
+	        			tasaIvaArr = bodegaEmpresa.getIvaBodega();
+	        		} else {
+	        			tasaIvaArr = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
+	        		}
+	        	} else {
+	        		tasaIvaArr = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        	}
 	        }
+	        
+	        auxTasaIva = DecimalFormato.formato(tasaIvaArr * 100, (long)2) + " %";
 	        
 	        Double totalIvaArr = totalNetoArr * tasaIvaArr;
 	        Double totalArr = totalNetoArr * (1+tasaIvaArr);
@@ -1763,6 +1805,12 @@ public class FormCotiza {
 			cell=table.getRow(2).getCell(2);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalNetoVta),false);
 			
 			if(!db.equals("madaAndinaMontajes")) {
+				
+				
+				cell=table.getRow(3).getCell(1);
+				String aux = cell.getText()+" "+auxTasaIva;
+				setCelda(cell,"Arial",10,1,"2b5079",aux,false);
+				
 				cell=table.getRow(3).getCell(2);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalIvaVta),false);
 				cell=table.getRow(4).getCell(2);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalVta),false);
 			}else {

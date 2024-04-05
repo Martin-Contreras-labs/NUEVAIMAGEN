@@ -2419,28 +2419,21 @@ public class Ot {
 	public static List<List<String>> listOtAgregarOC(Connection con, String db, String esPorSucursal, String id_sucursal, String desde, String hasta){
 		List<List<String>> listOt = new ArrayList<List<String>>();
 		
-		List<Ot> listadoOt = Ot.allConfirmadasDesdeHasta(con, db, desde, hasta);
+		List<Cotizacion> listadoCoti = Cotizacion.allConfirmadasCon_o_SinOtDesdeHasta(con, db, desde, hasta);
+		
 		Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, db);
-		Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAllConOt(con, db);
+		Map<Long,Ot> mapOt = Ot.mapAll(con, db);
 		Map<Long,OtEstado> mapEstado = OtEstado.mapAll(con, db);
 		if(esPorSucursal.equals("1")) {
-			listadoOt.forEach(x->{
+			listadoCoti.forEach(x->{
 				if(x.id_sucursal.toString().equals(id_sucursal)) {
-					Cotizacion coti = mapCotizacion.get(x.getId_cotizacion());
-    				String numCoti = "";
-    				String fechaCoti = "";
-    				Long id_bodegaEmpresa = (long)0;
-    				String obsCoti = "";
-    				String cotiPDF = "";
-    				String cotiNumeroOC = "";
-    				if(coti!=null) {
-    					numCoti = coti.getNumero().toString();
-    					fechaCoti = Fechas.AAMMDD(coti.getFecha());
-    					id_bodegaEmpresa = coti.getId_bodegaEmpresa();
-    					obsCoti = coti.getObservaciones();
-    					cotiPDF = coti.getCotizacionPDF();
-    					cotiNumeroOC = coti.getNumeroOC();
-    				}
+
+    				String numCoti = x.getNumero().toString();
+    				String fechaCoti = Fechas.AAMMDD(x.getFecha());
+    				Long id_bodegaEmpresa = x.getId_bodegaEmpresa();
+    				String obsCoti = x.getObservaciones();
+    				String cotiPDF = x.getCotizacionPDF();
+    				String cotiNumeroOC = x.getNumeroOC();
     				
     				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
     				String nomCliente = "";
@@ -2452,15 +2445,22 @@ public class Ot {
     					nomBodega = bodega.getNombre();
     				}
     				
-    				OtEstado estado = mapEstado.get(x.getId_otEstado());
+    				Ot ot = mapOt.get(x.getId_ot());
     				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
+    				String otPDF = "0";
+    				if(ot!=null) {
+    					OtEstado estado = mapEstado.get(ot.getId_otEstado());
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				otPDF = ot.getOtPDF();
     				}
+    				
+    				
     				
     				List<String> aux = new ArrayList<String>();
     				aux.add(x.getId().toString());				// 0 id_Ot
-    				aux.add(x.getId_cotizacion().toString());	// 1 id_Cotizacion
+    				aux.add(x.getId().toString());				// 1 id_Cotizacion
     				aux.add(x.getNumero().toString());			// 2 numero de ot
     				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
     				aux.add(numCoti);							// 4 numero de cotizacion
@@ -2469,12 +2469,12 @@ public class Ot {
     				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
     				aux.add(x.getObservaciones());				// 8 observaciones de ot
     				aux.add(obsCoti);							// 9 observaciones de cotizacion
-    				aux.add(x.getOtPDF());						// 10 doc adjunto de ot
+    				aux.add(otPDF);								// 10 doc adjunto de ot
     				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
     				aux.add(nomEstado);							// 12 estado de la ot
     				aux.add(x.getFechaConfirmada());			// 13 fecha confirmado
     				aux.add(nomBodega);							// 14 nombre bodega empresa
-    				aux.add(x.getOtPDF());						// 15 orden de compra adjunta
+    				aux.add(x.getOcClientePDF());				// 15 orden de compra adjunta
     				aux.add(cotiNumeroOC);						// 16 numero de orden de compra del cliente
     				aux.add(x.nameSucursal);					// 17 sucursal
     				aux.add(x.nameComercial);					// 18 comercial
@@ -2483,22 +2483,14 @@ public class Ot {
 				}
 			});
 		}else {
-			listadoOt.forEach(x->{
-				Cotizacion coti = mapCotizacion.get(x.getId_cotizacion());
-				String numCoti = "";
-				String fechaCoti = "";
-				Long id_bodegaEmpresa = (long)0;
-				String obsCoti = "";
-				String cotiPDF = "";
-				String cotiNumeroOC = "";
-				if(coti!=null) {
-					numCoti = coti.getNumero().toString();
-					fechaCoti = Fechas.AAMMDD(coti.getFecha());
-					id_bodegaEmpresa = coti.getId_bodegaEmpresa();
-					obsCoti = coti.getObservaciones();
-					cotiPDF = coti.getCotizacionPDF();
-					cotiNumeroOC = coti.getNumeroOC();
-				}
+			listadoCoti.forEach(x->{
+
+				String numCoti = x.getNumero().toString();
+				String fechaCoti = Fechas.AAMMDD(x.getFecha());
+				Long id_bodegaEmpresa = x.getId_bodegaEmpresa();
+				String obsCoti = x.getObservaciones();
+				String cotiPDF = x.getCotizacionPDF();
+				String cotiNumeroOC = x.getNumeroOC();
 				
 				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
 				String nomCliente = "";
@@ -2510,15 +2502,20 @@ public class Ot {
 					nomBodega = bodega.getNombre();
 				}
 				
-				OtEstado estado = mapEstado.get(x.getId_otEstado());
+				Ot ot = mapOt.get(x.getId_ot());
 				String nomEstado = "";
-				if(estado!=null) {
-					nomEstado = estado.getEstado();
+				String otPDF = "0";
+				if(ot!=null) {
+					OtEstado estado = mapEstado.get(ot.getId_otEstado());
+    				if(estado!=null) {
+    					nomEstado = estado.getEstado();
+    				}
+    				otPDF = ot.getOtPDF();
 				}
 				
 				List<String> aux = new ArrayList<String>();
 				aux.add(x.getId().toString());				// 0 id_Ot
-				aux.add(x.getId_cotizacion().toString());	// 1 id_Cotizacion
+				aux.add(x.getId().toString());				// 1 id_Cotizacion
 				aux.add(x.getNumero().toString());			// 2 numero de ot
 				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
 				aux.add(numCoti);							// 4 numero de cotizacion
@@ -2527,12 +2524,12 @@ public class Ot {
 				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
 				aux.add(x.getObservaciones());				// 8 observaciones de ot
 				aux.add(obsCoti);							// 9 observaciones de cotizacion
-				aux.add(x.getOtPDF());						// 10 doc adjunto de ot
+				aux.add(otPDF);								// 10 doc adjunto de ot
 				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
 				aux.add(nomEstado);							// 12 estado de la ot
 				aux.add(x.getFechaConfirmada());			// 13 fecha confirmado
 				aux.add(nomBodega);							// 14 nombre bodega empresa
-				aux.add(x.getOtPDF());						// 15 orden de compra adjunta
+				aux.add(x.getOcClientePDF());				// 15 orden de compra adjunta
 				aux.add(cotiNumeroOC);						// 16 numero de orden de compra del cliente
 				aux.add(x.nameSucursal);					// 17 sucursal
 				aux.add(x.nameComercial);					// 18 comercial

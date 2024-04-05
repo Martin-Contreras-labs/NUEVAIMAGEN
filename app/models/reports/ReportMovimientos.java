@@ -535,7 +535,7 @@ public class ReportMovimientos {
 		return (lista);
 	}
 	
-	public static File movimientosExcelAgrupado(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto, String fechaDesde, String fechaHasta) {
+	public static File movimientosExcelAgrupado(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto, String fechaDesde, String fechaHasta) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -695,7 +695,7 @@ public class ReportMovimientos {
 	  return tmp;
 	}
 	
-	public static File movPorProyectoExcelAgrupado(Connection con, String db, List<List<String>> datos, 
+	public static File movPorProyectoExcelAgrupado(String db, List<List<String>> datos, 
 			Map<String,String> mapDiccionario, Proyecto proyecto, String concepto, String fechaDesde, String fechaHasta) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
@@ -1249,7 +1249,7 @@ public class ReportMovimientos {
 		return (lista);
 	}
 	
-	public static File movimientosExcelIE(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto) {
+	public static File movimientosExcelIE(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -1648,7 +1648,7 @@ public class ReportMovimientos {
 		return (lista);
 	}
 
-	public static File estadosExcel(Connection con, String db, List<TipoEstado> listTipoEstados, Map<Long,List<List<String>>> mapDatos, BodegaEmpresa bodega, Map<String,String> mapDiccionario) {
+	public static File estadosExcel(String db, List<TipoEstado> listTipoEstados, Map<Long,List<List<String>>> mapDatos, BodegaEmpresa bodega, Map<String,String> mapDiccionario) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -2051,7 +2051,7 @@ public class ReportMovimientos {
 				ResultSet rs3 = smt3.executeQuery();
 				List<List<String>> listaCodigos = new ArrayList<List<String>>();
 				
-				
+				Double factor = UnidadTiempo.equivalencia(con, db).get(rs3.getLong(8));
 				
 				while (rs3.next()) {
 					List<String> aux = new ArrayList<String>();
@@ -2064,7 +2064,7 @@ public class ReportMovimientos {
 					 default:  break;
 					}
 					
-					Double factor = UnidadTiempo.equivalencia(con, db).get(rs3.getLong(8));
+					
 					aux.add(rs3.getString(1)); //grupo
 					aux.add(rs3.getString(2));  //codigo
 					aux.add(rs3.getString(3));  //equipo
@@ -2688,7 +2688,7 @@ public class ReportMovimientos {
 		return (lista);
 	}
 	
-	public static File movimientosExcel(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto, String fechaDesde, String fechaHasta) {
+	public static File movimientosExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto, String fechaDesde, String fechaHasta) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -2942,7 +2942,7 @@ public class ReportMovimientos {
 		return (lista);
 	}
 	
-	public static File estadosExcelPeriodo(Connection con, String db, Map<String,String> mapDiccionario, String desdeAAMMDD, String hastaAAMMDD, List<List<String>> listado) {
+	public static File estadosExcelPeriodo(String db, Map<String,String> mapDiccionario, String desdeAAMMDD, String hastaAAMMDD, List<List<String>> listado) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -3498,7 +3498,7 @@ public class ReportMovimientos {
 		return (lista);
 	}
 	
-	public static File reporteMovSoloBodInternas3Excel(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String fechaDesde, String fechaHasta) {
+	public static File reporteMovSoloBodInternas3Excel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String fechaDesde, String fechaHasta) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		

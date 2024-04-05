@@ -607,7 +607,7 @@ public class ReportExcedentes {
 		return (lista);
 	}
 	
-	public static File excedentesExcelEquipo(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, Equipo equipo) {
+	public static File excedentesExcelEquipo(String db, List<List<String>> datos, Map<String,String> mapDiccionario, Equipo equipo) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		

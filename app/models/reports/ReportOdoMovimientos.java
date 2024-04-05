@@ -193,7 +193,7 @@ public class ReportOdoMovimientos {
 		return (lista);
 	}
 	
-	public static File movimientosOdoCantidadExcel(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String fechaDesde, String fechaHasta) {
+	public static File movimientosOdoCantidadExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String fechaDesde, String fechaHasta) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -360,7 +360,7 @@ public class ReportOdoMovimientos {
 	}
 	
 	
-	public static File movimientosOdoValorizadoExcel(Connection con, String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String fechaDesde, String fechaHasta, List<List<String>> listaAjustes) {
+	public static File movimientosOdoValorizadoExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String fechaDesde, String fechaHasta, List<List<String>> listaAjustes) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		

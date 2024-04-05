@@ -1581,6 +1581,20 @@ public class Cotizacion {
 			
 			if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
 				EmisorTributario emisor = EmisorTributario.find(con, db);
+				
+				Double tasaIva = emisor.getTasaIva()/100;
+				
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
+		        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
+		        	if(bodegaEmpresa!=null) {
+		        		Double aux = bodegaEmpresa.getIvaBodega();
+		        		if(aux > 0) {
+		        			tasaIva = bodegaEmpresa.getIvaBodega();
+		        		}
+		        		
+		        	}
+		        }
+				
 				vista=vista+		
 					"<TR>"+
 
@@ -1588,9 +1602,9 @@ public class Cotizacion {
 							"<TH colspan='1' style= 'text-align: right;'></TH>"+
 							"<TH colspan='6' style= 'text-align: right;'>IVA </TH>"+
 									
-							"<TH style='text-align:right;'>"+formatDecimal.format(totalReposicion*emisor.getTasaIva()/100)+"</TH>"+
-							"<TH style='text-align:right;'>"+formatDecimal.format(totalArriendoConDcto*emisor.getTasaIva()/100)+"</TH>"+
-							"<TH style='text-align:right;'>"+formatDecimal.format(totalVentaConDcto*emisor.getTasaIva()/100)+"</div></TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalReposicion * tasaIva)+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalArriendoConDcto * tasaIva)+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalVentaConDcto * tasaIva)+"</div></TH>"+
 							"<TH style='text-align:right;'></TH>";
 							if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
 								vista += "<TH style='text-align:right; display:none;'></TH>";
@@ -1605,9 +1619,9 @@ public class Cotizacion {
 							"<TH colspan='1' style= 'text-align: right;'></TH>"+
 							"<TH colspan='6' style= 'text-align: right;'>TOTAL CON IVA </TH>"+
 									
-							"<TH style='text-align:right;'>"+formatDecimal.format(totalReposicion*(1+emisor.getTasaIva()/100))+"</TH>"+
-							"<TH style='text-align:right;'>"+formatDecimal.format(totalArriendoConDcto*(1+emisor.getTasaIva()/100))+"</TH>"+
-							"<TH style='text-align:right;'>"+formatDecimal.format(totalVentaConDcto*(1+emisor.getTasaIva()/100))+"</div></TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalReposicion * (1+tasaIva))+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalArriendoConDcto * (1+tasaIva))+"</TH>"+
+							"<TH style='text-align:right;'>"+formatDecimal.format(totalVentaConDcto * (1+tasaIva))+"</div></TH>"+
 							"<TH style='text-align:right;'></TH>";
 							if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
 								vista += "<TH style='text-align:right; display:none;'></TH>";
@@ -2869,15 +2883,29 @@ public class Cotizacion {
 				
 				
 				if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
+					
+					Double tasaIva = emisor.getTasaIva()/100;
+					
+//					if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
+//			        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
+//			        	if(bodegaEmpresa!=null) {
+//			        		Double aux = bodegaEmpresa.getIvaBodega();
+//			        		if(aux > 0) {
+//			        			tasaIva = bodegaEmpresa.getIvaBodega();
+//			        		}
+//			        		
+//			        	}
+//			        }
+					
 					vista +=
 							"<TR>"+
 									"<TH colspan='8' style= 'text-align: right;'></TH>"+
 									"<TH colspan='1' style= 'text-align: right;'></TH>"+
 									"<TH colspan='6' style= 'text-align: right;'>IVA </TH>"+
 											
-									"<TH style='text-align:right;'>"+formatDecimal.format(totalRepos*emisor.getTasaIva()/100)+"</TH>"+
-									"<TH style='text-align:right;'>"+formatDecimal.format(totalArr*emisor.getTasaIva()/100)+"</TH>"+
-									"<TH style='text-align:right;'>"+formatDecimal.format(totalVta*emisor.getTasaIva()/100)+"</div></TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalRepos * tasaIva)+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalArr * tasaIva)+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalVta * tasaIva)+"</div></TH>"+
 									"<TH style='text-align:right;'></TH>";
 									if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
 										vista += "<TH style='text-align:right; display:none'></TH>";
@@ -2892,9 +2920,9 @@ public class Cotizacion {
 									"<TH colspan='1' style= 'text-align: right;'></TH>"+
 									"<TH colspan='6' style= 'text-align: right;'>TOTAL CON IVA </TH>"+
 											
-									"<TH style='text-align:right;'>"+formatDecimal.format(totalRepos*(1+emisor.getTasaIva()/100))+"</TH>"+
-									"<TH style='text-align:right;'>"+formatDecimal.format(totalArr*(1+emisor.getTasaIva()/100))+"</TH>"+
-									"<TH style='text-align:right;'>"+formatDecimal.format(totalVta*(1+emisor.getTasaIva()/100))+"</div></TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalRepos * (1+tasaIva))+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalArr * (1+tasaIva))+"</TH>"+
+									"<TH style='text-align:right;'>"+formatDecimal.format(totalVta * (1+tasaIva))+"</div></TH>"+
 									"<TH style='text-align:right;'></TH>";
 									if(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
 										vista += "<TH style='text-align:right; display:none'></TH>";

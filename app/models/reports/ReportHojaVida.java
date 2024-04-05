@@ -77,10 +77,12 @@ public class ReportHojaVida {
 		Fechas hoy = Fechas.hoy();
 		Map<Long,Double> tasas = TasasCambio.mapTasasPorFecha(con, db, hoy.getFechaStrAAMMDD(), pais);	
 		
+		Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
+		Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);
+		
 		for(int i=0;i<equipos.size();i++){
 			Long idEquipo =Long.parseLong(equipos.get(i).get(0).trim());
-			Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
-			Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);		
+					
 			Double factor = equivalencia.get((long)(double)precios.get(idEquipo).get(2));
 			Double idMoneda = precios.get(idEquipo).get(3);
 			Double tasa = tasas.get((long) Math.round(idMoneda));
@@ -696,11 +698,12 @@ public class ReportHojaVida {
 		
 		Map<String,String> vta = reportVtaRealXequipoPeriodo(con, db,periodo,pais);
 		
+		Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
+		Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);	
 		
 		for(int i=0;i<equipos.size();i++){
 			Long idEquipo=Long.parseLong(equipos.get(i).get(0).trim());
-			Map<Long,List<Double>> precios = Precio.maestroPListaPorSucursal(con, db, id_sucursal);
-			Map<Long,Double> equivalencia = UnidadTiempo.equivalencia(con, db);		
+				
 			Double factor = equivalencia.get((long)(double)precios.get(idEquipo).get(2));
 			Double idMoneda = precios.get(idEquipo).get(3);
 			Double tasa = tasas.get((long) Math.round(idMoneda));

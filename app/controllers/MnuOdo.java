@@ -1936,7 +1936,7 @@ public class MnuOdo extends Controller {
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			con.close();
 		    			return ok(reportProfProyOdo.render(mapeoDiccionario,mapeoPermiso,userMnu,resumenTotalesPorProyecto,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD),archivoPDF));
 		        	} catch (SQLException e) {
@@ -1979,7 +1979,7 @@ public class MnuOdo extends Controller {
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			File file = ReportOdo.exportaProformaExcelProyectos(s.baseDato, mapeoDiccionario, resumenTotalesPorProyecto, desdeAAMMDD, hastaAAMMDD, uf, usd, eur);
 		    			
@@ -2705,7 +2705,7 @@ public class MnuOdo extends Controller {
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			Map<String, List<List<String>>> mapAgrupado =  new HashMap<String, List<List<String>>>();
 		    			Map<String, List<List<String>>> mapDetallado =  new HashMap<String, List<List<String>>>();
@@ -2774,7 +2774,7 @@ public class MnuOdo extends Controller {
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			Map<String, List<List<String>>> mapAgrupado =  new HashMap<String, List<List<String>>>();
 		    			Map<String, List<List<String>>> mapDetallado =  new HashMap<String, List<List<String>>>();
@@ -2994,7 +2994,7 @@ public class MnuOdo extends Controller {
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, 
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, 
 		    					mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			con.close();
 		    			return ok(reporteMovOdoCantLista.render(mapeoDiccionario,mapeoPermiso,userMnu,resumenTotalesPorProyecto,fechaDesde,fechaHasta));
@@ -3049,27 +3049,29 @@ public class MnuOdo extends Controller {
 		       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 		       		String fechaDesde = form.get("fechaDesde").trim();
 		       		String fechaHasta = form.get("fechaHasta").trim();
+		       		
+		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			List<List<String>> datos = null;
+	    			BodegaEmpresa bodega = null;
+	    			
 		       		try {
 		    			Connection con = db.getConnection();
-		    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-		    			List<List<String>> datos = ReportOdoMovimientos.movimientoOdoCantidad(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
-		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-		    			File file = ReportOdoMovimientos.movimientosOdoCantidadExcel(con, s.baseDato, datos, mapeoDiccionario, bodega, fechaDesde, fechaHasta);
-		    			if(file!=null) {
-			       			con.close();
-			       			return ok(file,false,Optional.of("MovimientoOdoPorBodegaCantidad.xlsx"));
-			       		}else {
-			       			con.close();
-			       			return ok("");
-			       		}
-		        	} catch (SQLException e) {
+		    			datos = ReportOdoMovimientos.movimientoOdoCantidad(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+		    			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+		    			con.close();
+		       		} catch (SQLException e) {
 		    			e.printStackTrace();
 		    		}
-		       		return ok("");
+		       		
+		       		if(datos!=null && bodega!=null) {
+		    			File file = ReportOdoMovimientos.movimientosOdoCantidadExcel(s.baseDato, datos, mapeoDiccionario, bodega, fechaDesde, fechaHasta);
+		    			if(file!=null) {
+			       			return ok(file,false,Optional.of("MovimientoOdoPorBodegaCantidad.xlsx"));
+			       		}
+			       	}
 		       	}
-	    	}else {
-	    		return ok("");
 	    	}
+	    	return ok("");
 		}
 		
 		//====================================================================================
@@ -3140,7 +3142,7 @@ public class MnuOdo extends Controller {
 		    			Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
 		    			
-		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(con, s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+		    			List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		    			
 		    			
 		    			con.close();
@@ -3403,7 +3405,7 @@ public class MnuOdo extends Controller {
 		    			}
 
 		    			
-		    			File file = ReportOdoMovimientos.movimientosOdoValorizadoExcel(con, s.baseDato, datos, mapeoDiccionario, bodega, desdeAAMMDD, hastaAAMMDD, listaAjustes);
+		    			File file = ReportOdoMovimientos.movimientosOdoValorizadoExcel(s.baseDato, datos, mapeoDiccionario, bodega, desdeAAMMDD, hastaAAMMDD, listaAjustes);
 		    			if(file!=null) {
 			       			con.close();
 			       			return ok(file,false,Optional.of("MovimientoOdoPorBodegaValorizado.xlsx"));

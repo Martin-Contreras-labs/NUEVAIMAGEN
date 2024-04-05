@@ -1492,31 +1492,27 @@ public class MnuCompras extends Controller {
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		Long id_proveedor = Long.parseLong(form.get("id_proveedor"));
+	       		List<List<String>> datos = null;
+	       		Map<String,String> mapeoDiccionario = null;
 	       		try {
 	    			Connection con = db.getConnection();
-	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			String filtroPorProveedor = "";
 	    			if(id_proveedor > 0) {
 	    				filtroPorProveedor = " and proveedor.id = " + id_proveedor;
 	    			}
-		    			
-	    			List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor);
-	    			File file = ReportMovCompras.movComprasPeriodoExcel(con, s.baseDato, datos, mapeoDiccionario, fechaDesde, fechaHasta);
-	    			if(file!=null) {
-		       			con.close();
-		       			return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
-		       		}else {
-		       			con.close();
-		       			return ok("");
-		       		}
-	        	} catch (SQLException e) {
+	    			datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor);
+	    			con.close();
+	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		return ok("");
+	       		if(mapeoDiccionario!=null && datos!=null) {
+	       			File file = ReportMovCompras.movComprasPeriodoExcel(s.baseDato, datos, mapeoDiccionario, fechaDesde, fechaHasta);
+	       			return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
+	       		}
 	       	}
-    	}else {
-    		return ok("");
     	}
+    	return ok("");
 	}
 
 }

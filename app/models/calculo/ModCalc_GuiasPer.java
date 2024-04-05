@@ -221,7 +221,6 @@ public class ModCalc_GuiasPer {
 						totalCfi = guiasPer.get(i).cantidad * precioVenta * tasaCfi * tasaCambio;
 						maestroTotalCfi = (double)0;
 						
-						
 						//modifica arriendo si existe precio minimo y aplica
 						Long permanenciaMinima = (long) 0;
 						Double precioMinimo = (double) 0;
@@ -235,21 +234,21 @@ public class ModCalc_GuiasPer {
 							Long id_bodegaEmpresa = guiasPer.get(i).id_bodegaEmpresa;
 							Long id_cotizacion = guiasPer.get(i).id_cotizacion;
 							
-							String fechMin = mapPermanencias.get(id_equipo+"_"+id_bodegaEmpresa+"-"+id_cotizacion);
-							Fechas minCal = Fechas.obtenerFechaDesdeStrAAMMDD(fechMin);
-							Fechas guiaCal = Fechas.obtenerFechaDesdeStrAAMMDD(auxFechaGuia);
-							int perm = Fechas.diasEntreFechas(minCal.fechaCal, guiaCal.fechaCal);
-							Long auxPerm = (long) perm;
-							
-							if(auxPerm<diasGuia) {
-								auxPerm=diasGuia;
-							}
-							if(auxPerm<=permanenciaMinima){
-								totalArriendo = guiasPer.get(i).cantidad  * precios.precioMinimo * tasaCambio;
+							String fechMin = mapPermanencias.get(id_equipo+"_"+id_bodegaEmpresa+"_"+id_cotizacion);
+							if(fechMin!=null) {
+								Fechas minCal = Fechas.obtenerFechaDesdeStrAAMMDD(fechMin);
+								Fechas guiaCal = Fechas.obtenerFechaDesdeStrAAMMDD(auxFechaGuia);
+								int perm = Fechas.diasEntreFechas(minCal.fechaCal, guiaCal.fechaCal);
+								Long auxPerm = (long) perm;
+								
+								if(auxPerm<diasGuia) {
+									auxPerm=diasGuia;
+								}
+								if(auxPerm<=permanenciaMinima){
+									totalArriendo = guiasPer.get(i).cantidad  * precios.precioMinimo * tasaCambio;
+								}
 							}
 						}
-							
-						
 					}
 				}else {
 					totalVenta = guiasPer.get(i).cantidad * precioVenta * tasaCambio;
@@ -386,6 +385,7 @@ public class ModCalc_GuiasPer {
 						+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia " 
 						+ " where id_tipoMovimiento = 1"
 						+ " group by movimiento.id_equipo, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion;");
+
 			ResultSet rs3 = smt3.executeQuery();
 			 while(rs3.next()) {
 				 map.put(rs3.getString(2)+"_"+rs3.getString(3)+"_"+rs3.getString(4), rs3.getString(1));

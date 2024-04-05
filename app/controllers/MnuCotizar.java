@@ -214,10 +214,20 @@ public class MnuCotizar extends Controller {
     			List<CotizaSolucion> listSoluciones = CotizaSolucion.all(con, s.baseDato);
     			
     			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+    			Double tasaIva = emisor.tasaIva/100;
+    			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+    	        	if(bodega!=null) {
+    	        		Double aux = bodega.getIvaBodega();
+    	        		if(aux > 0) {
+    	        			tasaIva = bodega.getIvaBodega();
+    	        		}
+    	        		
+    	        	}
+    	        }
     			
     			con.close();
     			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,numDecParaTot,listRegiones, jsonListUnTiempo, 
-    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, emisor.tasaIva/100));
+    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, tasaIva));
     			
         	} catch (SQLException e) {
     			e.printStackTrace();
@@ -712,10 +722,20 @@ public class MnuCotizar extends Controller {
 	    			List<CotizaSolucion> listSoluciones = CotizaSolucion.all(con, s.baseDato);
 	    			
 	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+	    			Double tasaIva = emisor.tasaIva/100;
+	    			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	    	        	if(bodega!=null) {
+	    	        		Double aux = bodega.getIvaBodega();
+	    	        		if(aux > 0) {
+	    	        			tasaIva = bodega.getIvaBodega();
+	    	        		}
+	    	        		
+	    	        	}
+	    	        }
 	    			
 	    			con.close();
 	    			return ok(cotizaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos, numDecParaTot, listRegiones, jsonListUnTiempo, 
-	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, emisor.tasaIva/100));
+	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, tasaIva));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1370,8 +1390,12 @@ public class MnuCotizar extends Controller {
     			Cotizacion coti = Cotizacion.find(con, s.baseDato, id_cotizacion);
     			String tabla = Cotizacion.vistaModalVerCotizacion(con, s.baseDato, coti, mapeoDiccionario, mapeoPermiso);
     			List<Grupo> listGrupos = Grupo.allConEquipos(con, s.baseDato);
+    			
+    			EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
+    			String tasaIva = emisorTributario.getTasaIva() + " %";
+    					
     			con.close();
-    			return ok(cotizaImprimir.render(mapeoDiccionario,mapeoPermiso,userMnu,id_cotizacion, tabla, listGrupos));
+    			return ok(cotizaImprimir.render(mapeoDiccionario,mapeoPermiso,userMnu,id_cotizacion, tabla, listGrupos, tasaIva));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -1426,10 +1450,12 @@ public class MnuCotizar extends Controller {
 	    	  	String cfi = form.get("cfi").trim();
 	    	  	String sinDetalle = form.get("sinDetalle");
 	    	  	String selectGrupos = form.get("selectGrupos");
+	    	  	String tasaIva = form.get("tasaIva").trim();
 				try {
 	    			Connection con = db.getConnection();
 	    			Cotizacion cotizacion = Cotizacion.find(con, s.baseDato,id_cotizacion);
-	    			String fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, cfi, cotizacion, mapeoPermiso, sinDetalle, selectGrupos);
+	    			String fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, cfi, cotizacion, mapeoPermiso, 
+	    					sinDetalle, selectGrupos, tasaIva);
 		       		
 		       		String titulo = "COTIZACION DE "+ mapeoDiccionario.get("ARRIENDO");
 		       		//String url = "%2FcotizaListaImprimir%2F";
@@ -1459,10 +1485,12 @@ public class MnuCotizar extends Controller {
 	    	  	Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
 	    	  	Double tasaCambio = Double.parseDouble(form.get("tipoCambio").replaceAll(",", "").trim());
 	    	  	String sinDetalle = form.get("sinDetalle");
+	    	  	String tasaIva = form.get("tasaIva").trim();
 				try {
 	    			Connection con = db.getConnection();
 	    			Cotizacion cotizacion = Cotizacion.find(con, s.baseDato,id_cotizacion);
-	    			String fileNamePdf = FormCotiza.generaPdfCotizaVenta(con, s.baseDato, id_cotizacion, mapeoDiccionario, tasaCambio, cotizacion, mapeoPermiso, sinDetalle);
+	    			String fileNamePdf = FormCotiza.generaPdfCotizaVenta(con, s.baseDato, id_cotizacion, mapeoDiccionario, tasaCambio, cotizacion, mapeoPermiso, 
+	    					sinDetalle, tasaIva);
 		       		
 		       		String titulo = "COTIZACION DE VENTA";
 		       		//String url = "%2FcotizaListaImprimir%2F";
@@ -1491,6 +1519,7 @@ public class MnuCotizar extends Controller {
 	    	  	Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
 	    	  	String sinDetalle = form.get("sinDetalle");
 	    	  	String selectGrupos = form.get("selectGrupos");
+	    	  	String tasaIva = form.get("tasaIva").trim();
 				try {
 	    			Connection con = db.getConnection();
 	    			Cotizacion cotizacion = Cotizacion.find(con, s.baseDato,id_cotizacion);
@@ -1498,9 +1527,11 @@ public class MnuCotizar extends Controller {
 	    			String fileNamePdf = null;
 	    			
 	    			if(selectGrupos.length()>0) {
-	    				fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, "0", cotizacion, mapeoPermiso, sinDetalle, selectGrupos);
+	    				fileNamePdf = FormCotiza.generaPdfCotizaArriendo(con, s.baseDato, id_cotizacion, mapeoDiccionario, "0", cotizacion, mapeoPermiso, sinDetalle, 
+	    						selectGrupos, tasaIva);
 	    			}else {
-	    				fileNamePdf = FormCotiza.generaPdfCotizaArrVta(con, s.baseDato, id_cotizacion, mapeoDiccionario, cotizacion, mapeoPermiso, sinDetalle);
+	    				fileNamePdf = FormCotiza.generaPdfCotizaArrVta(con, s.baseDato, id_cotizacion, mapeoDiccionario, cotizacion, mapeoPermiso, sinDetalle,
+	    						tasaIva);
 	    			}
 	    			
 		       		con.close();
@@ -5299,7 +5330,7 @@ public class MnuCotizar extends Controller {
     	}
     }
     
-    public Result grabarOcPdf(Http.Request request, Long id_ot) {
+    public Result grabarOcPdf(Http.Request request, Long id_coti) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
@@ -5307,14 +5338,15 @@ public class MnuCotizar extends Controller {
 			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
 			try {
     			Connection con = db.getConnection();
+    			Cotizacion coti= Cotizacion.find(con, s.baseDato, id_coti);
     			String path = "0";
-				if (docAdjunto != null) {
-					String nombreArchivoSinExtencion = "ocCliente_Ot_ID_" + id_ot;
+				if (docAdjunto != null && coti !=null) {
+					String nombreArchivoSinExtencion = "ocCliente_Coti_Nro_" + coti.getNumero();
 					path = Archivos.grabarArchivos(docAdjunto, s.baseDato, nombreArchivoSinExtencion);
-					Ot.modifyXCampo(con, s.baseDato, "otPDF", path, id_ot);
+					Cotizacion.modifyXCampo(con, s.baseDato, "ocClientePDF", path, id_coti);
 				}
-				Ot ot = Ot.find(con, s.baseDato, id_ot);
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ot", id_ot, "update", "agrega orden de compra a ot nro: "+ot.getNumero());
+				
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotizacion", id_coti, "update", "agrega orden de compra a coti nro: "+coti.getNumero());
 				con.close();
 				return redirect("/routes2/otListaAgregarOCPeriodo/");
 			} catch (SQLException e) {
