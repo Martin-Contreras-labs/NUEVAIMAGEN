@@ -612,7 +612,7 @@ public class ModeloCalculo {
 		return(listado);
 	}
 	
-	public static List<ModeloCalculo> valorTotalporBodegaYGrupoYEquipo(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
+	public static List<ModeloCalculo> valorTotalporBodegaYGrupoYEquipo(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
 		Map<String,String> listaBodegasEquipo = new HashMap<String,String>();

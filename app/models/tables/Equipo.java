@@ -405,66 +405,77 @@ public class Equipo {
 			smt1.setLong(1, id_equipo);
 			ResultSet rs1 = smt1.executeQuery();
 			if(rs1.next()) {
+				System.out.println(smt1);
 				flag=true;
 			}else {
 				smt1 = con.prepareStatement("select * from `"+db+"`.planMantencion WHERE id_equipo = ?;");
 				smt1.setLong(1, id_equipo);
 				rs1 = smt1.executeQuery();
 				if(rs1.next()) {
+					System.out.println(smt1);
 					flag=true;
 				}else {
 					smt1 = con.prepareStatement("select * from `"+db+"`.hojaVida WHERE id_equipo = ?;");
 					smt1.setLong(1, id_equipo);
 					rs1 = smt1.executeQuery();
 					if(rs1.next()) {
+						System.out.println(smt1);
 						flag=true;
 					}else {
 						smt1 = con.prepareStatement("select * from `"+db+"`.reparacionEquipoTMP WHERE id_equipo = ?;");
 						smt1.setLong(1, id_equipo);
 						rs1 = smt1.executeQuery();
 						if(rs1.next()) {
+							System.out.println(smt1);
 							flag=true;
 						}else {
 							smt1 = con.prepareStatement("select * from `"+db+"`.compra WHERE id_equipo = ?;");
 							smt1.setLong(1, id_equipo);
 							rs1 = smt1.executeQuery();
 							if(rs1.next()) {
+								System.out.println(smt1);
 								flag=true;
 							}else {
 								smt1 = con.prepareStatement("select * from `"+db+"`.baja WHERE id_equipo = ?;");
 								smt1.setLong(1, id_equipo);
 								rs1 = smt1.executeQuery();
 								if(rs1.next()) {
+									System.out.println(smt1);
 									flag=true;
 								}else {
 									smt1 = con.prepareStatement("select * from `"+db+"`.adicional WHERE id_equipo = ?;");
 									smt1.setLong(1, id_equipo);
 									rs1 = smt1.executeQuery();
 									if(rs1.next()) {
+										System.out.println(smt1);
 										flag=true;
 									}else {
 										smt1 = con.prepareStatement("select * from `"+db+"`.adicionalAuxiliarDePaso WHERE id_equipo = ?;");
 										smt1.setLong(1, id_equipo);
 										rs1 = smt1.executeQuery();
 										if(rs1.next()) {
+											System.out.println(smt1);
 											flag=true;
 										}else {
 											smt1 = con.prepareStatement("select * from `"+db+"`.cotizaDetalle WHERE id_equipo = ?;");
 											smt1.setLong(1, id_equipo);
 											rs1 = smt1.executeQuery();
 											if(rs1.next()) {
+												System.out.println(smt1);
 												flag=true;
 											}else {
 												smt1 = con.prepareStatement("select * from `"+db+"`.cronograma WHERE id_equipo = ?;");
 												smt1.setLong(1, id_equipo);
 												rs1 = smt1.executeQuery();
 												if(rs1.next()) {
+													System.out.println(smt1);
 													flag=true;
 												}else {
 													smt1 = con.prepareStatement("select * from `"+db+"`.equipoServicio WHERE id_equipo = ?;");
 													smt1.setLong(1, id_equipo);
 													rs1 = smt1.executeQuery();
 													if(rs1.next()) {
+														System.out.println(smt1);
 														flag=true;
 													}else {
 														smt1 = con.prepareStatement("select * from `"+db+"`.redimensionar WHERE id_equipoRedimensionar = ? or id_equipoOrigen = ?;");
@@ -472,6 +483,7 @@ public class Equipo {
 														smt1.setLong(2, id_equipo);
 														rs1 = smt1.executeQuery();
 														if(rs1.next()) {
+															System.out.println(smt1);
 															flag=true;
 														}
 													}

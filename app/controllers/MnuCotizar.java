@@ -4475,7 +4475,8 @@ public class MnuCotizar extends Controller {
 	    				String listaIdEliminados = Movimiento.listaIdEliminados(con, s.baseDato, id_guia);
 	    				if(Movimiento.delete(con, s.baseDato, id_guia)) {
 	    					if(OtDespachado.eliminarDespacho(con, s.baseDato, id_guia)) {
-	    						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "otDespachado", id_guia, "delete",  "elimina despacho guia nro "+guia.numero+" de fecha "+guia.fecha+" y sus movimientos asociados id: "+listaIdEliminados);
+	    						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "otDespachado", id_guia, "delete",  "elimina despacho guia nro "+guia.numero+" de fecha "+guia.fecha+
+	    								" y sus movimientos asociados id: "+listaIdEliminados);
 	    						if(OtDespachado.existenDespachosAsociados(con, s.baseDato, id_ot)) {
 	    							con.close();
 			            			return redirect("/otListaDespachoModificarPeriodo/");

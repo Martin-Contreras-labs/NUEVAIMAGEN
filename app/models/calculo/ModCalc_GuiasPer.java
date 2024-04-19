@@ -97,8 +97,8 @@ public class ModCalc_GuiasPer {
 	
 	
 	public static List<ModCalc_GuiasPer> resumenGuiasPer(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, 
-			List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<String,String> mapPermanencias) {	
+			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, 
+			List<Inventarios> guiasPer, Map<String,String> mapPermanencias) {	
 		
 //		SON FUNCIONES QUE ALIMENTAN ESTA FUNCION
 //		List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");

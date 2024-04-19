@@ -331,8 +331,8 @@ public class ReportFacturas {
 			}
 		}
 		
-		Map<String,List<List<String>>> mapDetalle = ReportFacturas.mapReportPorGuia10(db, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
-				listIdGuia_entreFechas, guiasPeriodo, mapPermanencias, dec, mapCotizaciones, mapEquipo, mapMoneda);
+		Map<String,List<List<String>>> mapDetalle = ReportFacturas.mapReportPorGuia10(db, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+				guiasPeriodo, mapPermanencias, dec, mapCotizaciones, mapEquipo, mapMoneda);
 			
 		
 		
@@ -450,15 +450,15 @@ public class ReportFacturas {
 	}
 	
 	public static Map<String,List<List<String>>> mapReportPorGuia10(String db, Long id_bodegaEmpresa, String desdeAAMMDD,String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
-			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, 
-			List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<String,String> mapPermanencias, Map<Long,Long> dec, Map<Long,Cotizacion> mapCotizaciones, 
+			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, 
+			List<Inventarios> guiasPer, Map<String,String> mapPermanencias, Map<Long,Long> dec, Map<Long,Cotizacion> mapCotizaciones, 
 			Map<Long,Equipo> mapEquipo, Map<Long,String> mapMoneda) {
 		
 		Map<String,List<List<String>>> map = new HashMap<String,List<List<String>>>();
 		
 		
-		List<ModCalc_GuiasPer> guiasPerAll = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
-				listIdGuia_entreFechas, guiasPer, mapPermanencias);
+		List<ModCalc_GuiasPer> guiasPerAll = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+				guiasPer, mapPermanencias);
 		
 		List<ModCalc_GuiasPer> guiasPeriodo = new ArrayList<ModCalc_GuiasPer>();
 		for(ModCalc_GuiasPer x: guiasPerAll) {

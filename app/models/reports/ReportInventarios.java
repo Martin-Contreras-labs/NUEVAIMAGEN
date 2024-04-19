@@ -2787,7 +2787,7 @@ public class ReportInventarios {
 				Long idMonedaCompra = (long)1;
 				Double ultimaCompra = (double)0;
 				if(auxMap!=null) {
-					idMonedaCompra=auxMap.get(1).longValue();
+					idMonedaCompra = auxMap.get(1).longValue();
 					ultimaCompra = auxMap.get(0);
 				}
 				
@@ -2834,8 +2834,6 @@ public class ReportInventarios {
 			rs3.close();
 			smt3.close();
 			
-			Map<Long,List<Double>> ultimoPrecio = Compra.ultimoPrecio(con, db);
-			
 			for(int i=0;i<listaEquipos.size();i++) {
 				List<String> aux = new ArrayList<String>();
 				aux.add(listaEquipos.get(i).get(0)); // 0 idEquipo
@@ -2858,13 +2856,7 @@ public class ReportInventarios {
 					aux.add(compra.get(0)); // 4 unidad
 					aux.add(compra.get(1)); // 5 cantidad
 					aux.add(compra.get(2)); // 6 moneda
-					
-					List<Double> pcompraAux = ultimoPrecio.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-					String pcompra = "0,00";
-					if(pcompraAux!=null) {
-						pcompra = myformatdouble2.format( pcompraAux.get(0));
-					}
-					aux.add(pcompra); // 7 precioCompra unitario
+					aux.add(compra.get(3)); // 7 precioCompra unitario
 				}
 				List<String> precio = mapListaPrecios.get(listaEquipos.get(i).get(0));
 				if(precio==null) {
@@ -3205,6 +3197,8 @@ public class ReportInventarios {
 	public static List<List<String>> reportInventarioProyecto(Connection con, String db, String permisoPorBodega, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
+		permisoPorBodega = permisoPorBodega.replaceAll("movimiento", "bodegaEmpresa").replaceAll("id_bodegaEmpresa", "id");
+		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
@@ -3221,7 +3215,7 @@ public class ReportInventarios {
 							+ " bodegaEmpresa.nombre,"
 							+ " bodegaEmpresa.id_sucursal"
 							+ " from `"+db+"`.bodegaEmpresa "
-							+ " where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 "+condSucursal+";");
+							+ " where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 "+condSucursal+permisoPorBodega+";");
 			ResultSet rs5 = smt5.executeQuery();
 			Map<Long,Long> mapIdBodegas = Movimiento.mapAllIdBodEnMov(con, db);
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
@@ -3409,7 +3403,7 @@ public class ReportInventarios {
 							auxPrecioVenta = (double) 0;
 						}
 						
-						Double total = cantidad * auxPrecioVenta;
+						Double totalVta = cantidad * auxPrecioVenta;
 						
 						Double auxPrecioArriendo = precioArriendo.get(id_equipo+"-"+id_cotizacion);
 						if(auxPrecioArriendo == null){
@@ -3425,7 +3419,7 @@ public class ReportInventarios {
 							unTiempo = "";
 						}
 						
-						total = cantidad * auxPrecioArriendo;
+						Double totalArr = cantidad * auxPrecioArriendo;
 						
 						Long numCotizacion = (long)0;
 						Cotizacion coti = mapCotizacion.get(id_cotizacion);
@@ -3447,11 +3441,11 @@ public class ReportInventarios {
 						aux.add(myformatdouble2.format(cantidad));  	// 9 cantidad
 						aux.add(auxNickMoneda);  						// 10 nickname moneda
 						aux.add(myformatdouble.format(auxPrecioVenta)); // 11 precio de venta unitario
-						aux.add(myformatdouble.format(total));  		// 12 precio de venta Total
+						aux.add(myformatdouble.format(totalVta));  		// 12 precio de venta Total
 						aux.add(myformatdouble2.format(tasaArriendo*100)+" %"); // 13 tasa de arriendo
 						aux.add(unTiempo);  									// 14 unidad de tiempo valor arriendo
 						aux.add(myformatdouble.format(auxPrecioArriendo)); 		// 15 precio de arriendo
-						aux.add(myformatdouble.format(total));  				// 16 precio de arriendo Total
+						aux.add(myformatdouble.format(totalArr));  				// 16 precio de arriendo Total
 						aux.add(id_cotizacion.toString());   					// 17 id cotizacion
 						aux.add(numCotizacion.toString());   					// 18 numero cotizacion
 						lista.add(aux);
