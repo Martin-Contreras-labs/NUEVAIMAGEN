@@ -28,11 +28,11 @@ fechaHoy: String, tipo: String, listSucursal: List[tables.Sucursal])
 									<TH>SUCURSAL:</TH>
 									<td>
 										<select class="custom-select" name="id_sucursal">
-										@for(lista <- listSucursal){
-											<option value="@lista.getId()">@lista.getNombre()</option>
-										}
 										@if( ! mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")){
 											<option value="0">TODAS</option>
+										}
+										@for(lista <- listSucursal){
+											<option value="@lista.getId()">@lista.getNombre()</option>
 										}
 										</select>
 									</td>

@@ -910,17 +910,12 @@ public class Guia {
 			smt.setString(2, hasta);
 
 			ResultSet rs = smt.executeQuery();
-			System.out.println(1);
 			Map<Long,BodegaEmpresa> bodegas = BodegaEmpresa.mapAll(con, db);
 			Map<Long,Ot> ots = Ot.mapAll(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			
 			Map<Long,List<Long>> mapIdvsNumCotiSucur = Cotizacion.mapIdvsNumCotiSucur(con, db);
 			Map<Long,List<String>> mapIdvsFechActEnvio = Ot.mapIdvsFechActEnvio(con, db);
-			
-			System.out.println(2);
-			
-			
 			
 			while (rs.next()) {
 
@@ -1021,7 +1016,6 @@ public class Guia {
 		} catch (SQLException e) {
 				e.printStackTrace();
 		}
-		System.out.println(3);
 		return (aux);
 	}
 	

@@ -180,7 +180,10 @@
 								<a class="dropdown-item dropdown-toggle" href="#">@mapDiccionario.get("Ordenes_de_trabajo")</a>
 								<ul class="dropdown-menu">
 									@if(mapPermiso.get("otIngreso")!=null){
-										<li><a class="dropdown-item" href="/otListaCotizaSinOt/">Hacer @mapDiccionario.get("OT")</a></li>
+										<a class="dropdown-item" href="/otListaCotizaSinOt/">Hacer @mapDiccionario.get("OT")</a>
+									}
+									
+									@if(mapPermiso.get("otElimina")!=null){
 										<a class="dropdown-item" href="/otListaEliminar/">Eliminar @mapDiccionario.get("OT")</a>
 									}
 									

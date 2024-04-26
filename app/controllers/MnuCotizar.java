@@ -4481,11 +4481,13 @@ public class MnuCotizar extends Controller {
 	    							con.close();
 			            			return redirect("/otListaDespachoModificarPeriodo/");
 	    						} else {
-	    							Ot.cambiar_a_NoConfirmada(con, s.baseDato, id_ot);
-	    							String msg = "Se elimino el último o único despacho asociado a esta órden, para volver a "
-	    									+ "despachar desde la misma es necesario volver a confirmar la órden, cambio su estado de confirmada a no confirmada";
-			    					con.close();
-			        				return ok(mensajes.render("/otListaDespachoModificarPeriodo/",msg));
+	    							if(Ot.cambiar_a_NoConfirmada(con, s.baseDato, id_ot)) {
+	    								Ot.eliminarListaPrecio(con, s.baseDato, id_ot);
+	    								String msg = "Se elimino el último o único despacho asociado a esta órden, para volver a "
+		    									+ "despachar desde la misma es necesario volver a confirmar la órden, cambio su estado de confirmada a no confirmada";
+				    					con.close();
+				        				return ok(mensajes.render("/otListaDespachoModificarPeriodo/",msg));
+	    							}
 	    						}
 	    					}else {
 	    						String msg = "No es posible eliminar este despacho, se presentó un problema";
@@ -4525,10 +4527,7 @@ public class MnuCotizar extends Controller {
 	       		if(form.get("id_guia").trim() == null) {
 	       			return redirect("/home/");
 	       		}
-	       		
-	       		
-	       		
-	       		
+	       	
 	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
 	       		
 	       		try {

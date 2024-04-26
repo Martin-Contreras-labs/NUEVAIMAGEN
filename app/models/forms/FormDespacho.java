@@ -185,11 +185,9 @@ public class FormDespacho {
 							Long id_moneda = (long)1;
 							Long id_unidadTiempo = (long)4;
 							
-							
 							ListaPrecio listaPrecio = mapListaPrecio.get(listOtDespachado.get(i).getId_equipoDespacho()+"_"+listOtDespachado.get(i).getId_cotizacion());
 							
 							if( listaPrecio == null ) {
-								
 								List<Double> precioOrigen = mapDetalleCoti.get(listOtDespachado.get(i).getId_equipoDespacho());
 								
 								Precio precioMaestro =  mapPrecio.get(listOtDespachado.get(i).getId_equipoDespacho());

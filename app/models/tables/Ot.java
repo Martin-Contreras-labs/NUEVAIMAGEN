@@ -1898,8 +1898,32 @@ public class Ot {
 				smt2.close();
 				rs.close();
 				smt.close();
-				return(false);
+				return(true);
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(false);
+	}
+	
+	public static boolean eliminarListaPrecio(Connection con, String db, Long id_ot){
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id from `"+db+"`.cotizacion where id_ot=?;");
+			smt.setLong(1, id_ot);
+			ResultSet rs = smt.executeQuery();
+			if(rs.next()) {
+				PreparedStatement smt2 = con
+						.prepareStatement("delete from `"+db+"`.listaPrecio where id_cotizacion = ?;");
+				smt2.setLong(1, rs.getLong(1));
+				smt2.executeUpdate();
+				smt2.close();
+				rs.close();
+				smt.close();
+				return(true);
+			}
+			rs.close();
+			smt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
