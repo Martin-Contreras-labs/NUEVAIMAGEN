@@ -137,7 +137,41 @@ public class Comercial {
 							" from `"+db+"`.comercial " +
 							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
 							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
-							" where comercial.vigente = 1" + condSucursal +
+							" where usuario.vigente = 1 and comercial.vigente = 1 " + condSucursal +
+							" order by usuario.nombre;");
+			ResultSet rs = smt.executeQuery();
+			
+			while (rs.next()) {		
+				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6)));
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
+	public static List<Comercial> allPorIdSucursalSoloUsuariosVigentes(Connection con, String db, String esPorSucursal, String id_sucursal) {
+		List<Comercial> lista = new ArrayList<Comercial>();
+		
+		String condSucursal = "";
+		if(esPorSucursal.equals("1")) {
+			condSucursal = " and usuario.id_sucursal = " + id_sucursal;
+		}
+		
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select " + 
+							" comercial.id, " + 
+							" comercial.observaciones, " + 
+							" comercial.vigente, " + 
+							" sucursal.nombre, " + 
+							" usuario.nombre, " + 
+							" usuario.id_sucursal " +
+							" from `"+db+"`.comercial " +
+							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
+							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
+							" where usuario.vigente = 1 " + condSucursal +
 							" order by usuario.nombre;");
 			ResultSet rs = smt.executeQuery();
 			

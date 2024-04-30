@@ -3754,7 +3754,7 @@ public class MnuTablas extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<Comercial> listComercial = Comercial.allPorIdSucursalVig(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+    			List<Comercial> listComercial = Comercial.allPorIdSucursalSoloUsuariosVigentes(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
     			List<Usuario> listUsuario = Usuario.allUsuariosNoEnComercial(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(comercialMantencion.render(mapeoDiccionario,mapeoPermiso,userMnu,listComercial,listUsuario));

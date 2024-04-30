@@ -602,6 +602,11 @@ public class HomeController extends Controller {
     }
    
     public Result inicio() throws InterruptedException {
+    	
+    	//return ok("SISTEMA EN MANTENCION......");
+    	
+    	
+    	
     	try {
     		List<String> lista = new ArrayList<String>();
 			Connection con = dbRead.getConnection(dbRead);

@@ -669,7 +669,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			+ "<TR>"
 				+ "<TH colspan=\"8\" style=\"background-color: white\"></TH>"
 				+ "<TH style=\"text-align:center\">"
-					+ "Aplica_Factor<br><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+					+ "<div id=\"titAplicarFactorRepos\">Aplica_Factor</div><input type=\"text\" class=\"form-control rounded-pill height23px right\""
 					+ " style='background-color: #ffc107'"
 					+ " id=\"btnAplicarFactorRepos\""
 					+ " value=\"1.00\""
@@ -687,9 +687,9 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 					+ "<br><input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
 				+ "</TH>"
 			+ "<TH style=\"text-align:center\">"
-				+ "Aplica_Factor<br><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+				+ "<div id=\"titAplicarFactorArr\">Aplica_Factor</div><input type=\"text\" class=\"form-control rounded-pill height23px right\""
 						+ " style='background-color: #ffc107'"
-						+ " id=\"btnAplicarFactorRepos\""
+						+ " id=\"btnAplicarFactorArr\""
 						+ " value=\"1.00\""
 						+ " onkeypress=\"return ingresoDouble(event,value)\""
 						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
@@ -1223,8 +1223,10 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			document.getElementById('selSucursal').disabled = true;
 			document.getElementById('selComercial').disabled = true;
 			$('#btnAplicarTasa').hide();
-			$('#btnAplicarFactor').hide();
+			$('#titAplicarFactorRepos').hide();
 			$('#btnAplicarFactorRepos').hide();
+			$('#titAplicarFactorArr').hide();
+			$('#btnAplicarFactorArr').hide();
 			$('#btnAplicarPerm').hide();
 			
 	
@@ -1261,10 +1263,12 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		document.getElementById('selSucursal').disabled = false;
 		document.getElementById('selComercial').disabled = false;
 		$('#btnAplicarTasa').show();
-		$('#btnAplicarFactor').show();
+		$('#titAplicarFactorRepos').show();
 		$('#btnAplicarFactorRepos').show();
+		$('#titAplicarFactorArr').show();
+		$('#btnAplicarFactorArr').show();
 		$('#btnAplicarPerm').show();
-		
+			
 		verificando = 0;
 	}
 	

@@ -917,10 +917,6 @@ public class Guia {
 			Map<Long,List<Long>> mapIdvsNumCotiSucur = Cotizacion.mapIdvsNumCotiSucur(con, db);
 			Map<Long,List<String>> mapIdvsFechActEnvio = Ot.mapIdvsFechActEnvio(con, db);
 			
-			
-			
-			
-			
 			while (rs.next()) {
 
 				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));

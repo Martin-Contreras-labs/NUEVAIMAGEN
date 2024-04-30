@@ -161,8 +161,11 @@ public class FormMovimiento {
 	
 	
 	
-	public static List<List<Double>> create (Connection con, String db, FormMovimiento form, String id_userCrea, String id_userMoficica) {
+	public static List<List<Double>> create (Connection con, String db, FormMovimiento form, String id_userCrea, String id_userMoficica,
+			Map<String,Movimiento> mapStock) {
+		
 		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db, form.id_bodegaOrigen);
+		
 		List<List<Double>> listaIdMovIdTipEstCant = new ArrayList<List<Double>>();
 		
 		Guia aux = new Guia();
@@ -180,7 +183,6 @@ public class FormMovimiento {
 		aux.setFotos(form.fotos);
 		
 		Guia guia = Guia.create(con, db, aux, id_userCrea, id_userMoficica);
-		
 		
 		if(guia!=null) {
 			
@@ -200,6 +202,19 @@ public class FormMovimiento {
 				if(form.exceso!=null) {
 					exceso =Double.parseDouble(form.exceso.get(i).replaceAll(",", ""));
 				}
+				
+				// verifica y corrige cantidades en caso de devoluciones
+				if(bodegaOrigen.getEsInterna() == (long)2) {
+					Movimiento mov = mapStock.get(form.id_equipo.get(i)+"_"+form.id_cotizacion.get(i));
+					if(mov != null) {
+						if(mov.getCantidad() < cantidad) {
+							Double dif = cantidad - mov.getCantidad();
+							cantidad = mov.getCantidad();
+							exceso += dif;
+						}
+					}
+				}
+				// fin verifica
 				
 				if(form.cantCliente!=null) {
 					cantCliente =Double.parseDouble(form.cantCliente.get(i).replaceAll(",", ""));

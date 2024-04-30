@@ -141,7 +141,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 	    				soloArriendo = (long) 0;
 	    			}
-	    			Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
@@ -153,7 +153,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			
 	    			Map<Long,List<String>> mapEquipSinSaldo = new HashMap<Long,List<String>>();
 	    			
-	    			map.forEach((k,v)->{
+	    			mapStock.forEach((k,v)->{
 	    				Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    				if(equipo!=null) {
 	    					Grupo grupo = mapGrupo.get(equipo.getId_grupo());
@@ -533,7 +533,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			form.docAnexo = nombreDocAdjunto;
 	    			form.fotos = "0";
 	    			
-	    			List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0");
+	    			Long soloArriendo = (long) 1;
+	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+	    				soloArriendo = (long) 0;
+	    			}
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
+	    			
+	    			List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0", mapStock);
 	    			
 	    			FormMovimiento.insertPreciosNuevos(con, s.baseDato, form, mapeoDiccionario);
 	    			
@@ -748,6 +754,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 					}
 	    			
 	    			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+	    			List<List<String>> listEquipBodOrigenConStock = new ArrayList<List<String>>();
 	    			
 	    			Long soloArriendo = (long) 1;
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
@@ -811,13 +818,18 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        				aux.add(numOt);										// 11 numero ot
 		        				aux.add(fechOt);									// 12 fecha ot
 		        				listEquipBodOrigen.add(aux);
+		        				
+		        				if(v.getCantidad()>0) {
+		        					listEquipBodOrigenConStock.add(aux);
+		        				}
+		        				
 	    					}
 	    				//}
 	    			});
 	    			
 	    			List<List<String>> listEquipNoEnBodOrigen = new ArrayList<List<String>>();
 	    			Map<Long,Long> mapAux = new HashMap<Long,Long>();
-	    			listEquipBodOrigen.forEach(l->{
+	    			listEquipBodOrigenConStock.forEach(l->{
 	    				mapAux.put(Long.parseLong(l.get(0)), Long.parseLong(l.get(0)));
 	    			});
 	    			
@@ -1008,7 +1020,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			    			form.docAnexo = nombreDocAdjunto;
 			    			form.fotos = auxGuia.fotos;
 			    			
-		    				List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, id_userCrea.toString(), s.id_usuario);
+			    			Long soloArriendo = (long) 1;
+			    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+			    				soloArriendo = (long) 0;
+			    			}
+			    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
+			    			
+		    				List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, id_userCrea.toString(), s.id_usuario, mapStock);
 		    				
 			    			FormMovimiento.insertPreciosNuevos(con, s.baseDato, form, mapeoDiccionario);
 			    			
@@ -1971,12 +1989,12 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
     				soloArriendo = (long) 0;
     			}
-    			Map<String,Movimiento> map = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
     			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
     			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
     			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-    			map.forEach((k,v)->{
+    			mapStock.forEach((k,v)->{
     				if(v.getCantidad()>0) {
     					Equipo equipo = mapEquipo.get(v.getId_equipo());
     					if(equipo!=null) {
@@ -2045,12 +2063,12 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 	    				soloArriendo = (long) 0;
 	    			}
-	    			Map<String,Movimiento> map = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
 	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-	    			map.forEach((k,v)->{
+	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {
@@ -2155,13 +2173,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
     				soloArriendo = (long) 0;
     			}
-    			Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
     			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
     			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
     			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
     			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-    			map.forEach((k,v)->{
+    			mapStock.forEach((k,v)->{
     				if(v.getCantidad()>0) {
     					Equipo equipo = mapEquipo.get(v.getId_equipo());
     					if(equipo!=null) {
@@ -2234,13 +2252,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 	    				soloArriendo = (long) 0;
 	    			}
-	    			Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
 	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
 	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-	    			map.forEach((k,v)->{
+	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {
@@ -2370,13 +2388,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 	    				soloArriendo = (long) 0;
 	    			}
-	    			Map<String,Movimiento> map = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
 	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			
-	    			map.forEach((k,v)->{
+	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {
@@ -2458,12 +2476,12 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 	    				soloArriendo = (long) 0;
 	    			}
-	    			Map<String,Movimiento> map = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
 	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-	    			map.forEach((k,v)->{
+	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {

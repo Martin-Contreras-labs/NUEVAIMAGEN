@@ -113,7 +113,6 @@ public class Compra {
 					List<Double> aux2 = new ArrayList<Double>();
 					aux2.add(rs.getDouble(2)); // 0 precio
 					aux2.add(rs.getDouble(3)); // 1 id moneda
-					
 					aux.put(rs.getLong(1),aux2);  // k= idequipo, v = precio, id_moneda
 				}
 				rs.close();

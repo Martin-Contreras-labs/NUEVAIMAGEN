@@ -4475,16 +4475,19 @@ public class MnuCotizar extends Controller {
 	    				String listaIdEliminados = Movimiento.listaIdEliminados(con, s.baseDato, id_guia);
 	    				if(Movimiento.delete(con, s.baseDato, id_guia)) {
 	    					if(OtDespachado.eliminarDespacho(con, s.baseDato, id_guia)) {
-	    						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "otDespachado", id_guia, "delete",  "elimina despacho guia nro "+guia.numero+" de fecha "+guia.fecha+" y sus movimientos asociados id: "+listaIdEliminados);
+	    						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "otDespachado", id_guia, "delete",  "elimina despacho guia nro "+guia.numero+" de fecha "+guia.fecha+
+	    								" y sus movimientos asociados id: "+listaIdEliminados);
 	    						if(OtDespachado.existenDespachosAsociados(con, s.baseDato, id_ot)) {
 	    							con.close();
 			            			return redirect("/otListaDespachoModificarPeriodo/");
 	    						} else {
-	    							Ot.cambiar_a_NoConfirmada(con, s.baseDato, id_ot);
-	    							String msg = "Se elimino el último o único despacho asociado a esta órden, para volver a "
-	    									+ "despachar desde la misma es necesario volver a confirmar la órden, cambio su estado de confirmada a no confirmada";
-			    					con.close();
-			        				return ok(mensajes.render("/otListaDespachoModificarPeriodo/",msg));
+	    							if(Ot.cambiar_a_NoConfirmada(con, s.baseDato, id_ot)) {
+	    								Ot.eliminarListaPrecio(con, s.baseDato, id_ot);
+	    								String msg = "Se elimino el último o único despacho asociado a esta órden, para volver a "
+		    									+ "despachar desde la misma es necesario volver a confirmar la órden, cambio su estado de confirmada a no confirmada";
+				    					con.close();
+				        				return ok(mensajes.render("/otListaDespachoModificarPeriodo/",msg));
+	    							}
 	    						}
 	    					}else {
 	    						String msg = "No es posible eliminar este despacho, se presentó un problema";
@@ -4524,10 +4527,7 @@ public class MnuCotizar extends Controller {
 	       		if(form.get("id_guia").trim() == null) {
 	       			return redirect("/home/");
 	       		}
-	       		
-	       		
-	       		
-	       		
+	       	
 	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
 	       		
 	       		try {

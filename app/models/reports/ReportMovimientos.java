@@ -2051,9 +2051,12 @@ public class ReportMovimientos {
 				ResultSet rs3 = smt3.executeQuery();
 				List<List<String>> listaCodigos = new ArrayList<List<String>>();
 				
-				Double factor = UnidadTiempo.equivalencia(con, db).get(rs3.getLong(8));
+				
 				
 				while (rs3.next()) {
+					
+					Double factor = UnidadTiempo.equivalencia(con, db).get(rs3.getLong(8));
+					
 					List<String> aux = new ArrayList<String>();
 					
 					switch(dec.get(rs3.getLong(15)).toString()) {
@@ -2439,8 +2442,8 @@ public class ReportMovimientos {
 					aux3.add("");
 					aux3.add("");
 					aux3.add("");
-					for(int cell=11;cell<lista.get(0).size();cell++) {
-						if(cell==lista.get(0).size()-3) {
+					for(int cell=11; cell<lista.get(0).size(); cell++) {
+						if(cell == lista.get(0).size()-3) {
 							aux3.add("");
 						//	aux3.add(myformatMoneda.format(totCfi));
 						}else if(cell==lista.get(0).size()-2){
