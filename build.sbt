@@ -19,6 +19,8 @@ libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.8"
 libraryDependencies += "org.apache.poi" % "poi-scratchpad" % "3.8"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
 
+libraryDependencies += "org.apache.pdfbox" % "pdfbox" % "2.0.24"
+
 libraryDependencies += "com.typesafe.play" %% "play-mailer" % "8.0.0"
 libraryDependencies += "com.typesafe.play" %% "play-mailer-guice" % "8.0.0"
 

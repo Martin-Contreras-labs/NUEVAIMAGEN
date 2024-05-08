@@ -1210,7 +1210,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
 	   
 	    			con.close();
-	    			return ok(movimientoListar.render(mapeoDiccionario,mapeoPermiso,userMnu,listaGuias, listaTransporte));
+	    			return ok(movimientoListar.render(mapeoDiccionario,mapeoPermiso,userMnu,listaGuias, listaTransporte, desdeAAMMDD, hastaAAMMDD));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1229,6 +1229,10 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgError));
 	       	}else {
+	       		
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		
 	       		try {
 	    			Connection con = db.getConnection();
 	    		//	
@@ -1239,7 +1243,14 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
 	    			
-	    			List<Guia> listaGuias = Guia.all(con, s.baseDato);
+	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+	    			if(permisoPorBodega.trim().length() > 5) {
+	    				permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
+		    			permisoPorBodega = permisoPorBodega.replaceAll("and ", " ");
+		    			permisoPorBodega = " and (" + permisoPorBodega + " or " + permisoPorBodega.replaceAll("`guia`.`id_bodegaDestino`", "`guia`.`id_bodegaOrigen`") + ") ";
+	    			}
+	    			
+	    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNeg(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
 	    			File file = Guia.movimientoListarExcel(s.baseDato, listaGuias, mapeoDiccionario);
 	   
 	    			if(file!=null) {

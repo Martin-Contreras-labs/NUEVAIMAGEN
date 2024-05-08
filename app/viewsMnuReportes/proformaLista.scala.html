@@ -8,13 +8,89 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 		@barraTitulo(mapDiccionario, "LISTADO DE EP/PROFORMA (FACTURAS)", "")
 
 		<div class="noprint">
-			<div align="center">
-				@for(anio <-listAnios){
-					<a href="#" onclick="location.href='/proformaLista/@anio'">
-						<kbd style="background-color: #73C6B6">@anio</kbd>
-					</a>
-				}
+			<div class="row">
+				<div class="col-1"></div>
+			  	<div class="col-5">
+						<button type="button"  id="btnEnvioMasivo" class="btn btn-sm btn-warning" 
+							onclick="$('#modalGeneraUnPdf').modal('show');">
+							Genera un PDF multiple
+						</button>
+			  	</div>
+			  	<div class="col-6">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								@for(anio <-listAnios){
+									<a href="#" onclick="location.href='/proformaLista/@anio'">
+										<kbd style="background-color: #73C6B6">@anio</kbd>
+									</a>
+								}
+							</td>
+						</tr>
+					</table>
+				</div>
 			</div>
+		</div>
+			
+			<div id='modalGeneraUnPdf' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+				<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+					<div class='modal-content'>
+						<div class='modal-header'>
+							GENERAR PDF UNICO
+						        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+						          <span aria-hidden='true'>&times;</span>
+						        </button>
+						</div>
+						<div class='modal-body'>
+							<form id="excel" class="formulario" method="post" action="/routes2/proformaListaPdf/"  onsubmit="return validarForm();">
+								<input type="hidden" name = "year" value = "@year">
+								<table class="table table-sm table-bordered table-condensed table-fluid">
+									<thead style="background-color: #eeeeee">
+										<TR>
+											<TH>DESDE NRO:</TH>
+											<td>
+												<input type="text" class="form-control center"
+													id="nroIni"
+													name="nroIni"
+													onfocus="value = value.replace(/,/g,'')"
+													onkeypress="return ingresoInt(event,value)"
+													autocomplete="off"
+													onchange="if(value=='') {value='';}"
+													required>
+									        	<div class="input-group">
+											</td>
+										</TR>
+										<TR>
+											<TH>HASTA NRO:</TH>
+											<td>
+												<input type="text" class="form-control center"
+													id="nroFin"
+													name="nroFin"
+													onfocus="value = value.replace(/,/g,'')"
+													onkeypress="return ingresoInt(event,value)"
+													autocomplete="off"
+													onchange="if(value=='') {value='';}"
+													required>
+									        	<div class="input-group">
+											</td>
+										</TR>
+									</thead>
+								</table>
+								<br>
+								<div class='row'>
+									<div class='col-sm-12' style='text-align:center'>
+										<input type="submit" id="btnSubmit" value='Generar PDF' class="btn btn-primary btn-sm rounded-pill btn-block">
+										<br>
+										<input type='button' class='btn btn-sm btn-warning' value='Cancelar' onclick='$("#btnSubmit").attr("disabled",false);' data-dismiss='modal'>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+	
+	
 			<table class="table table-sm table-condensed table-fluid">
 				<tr>
 					<td width="25%">
@@ -413,6 +489,21 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 
 
 <script type="text/javascript">
+
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		let flag = true;
+		var desde = document.getElementById('nroIni').value;
+		var hasta = document.getElementById('nroFin').value;
+		if(parseFloat(desde) > parseFloat(hasta)){
+			flag = false;
+			alertify.alert('EL NUMERO DESDE NO PUEDE SER MAYOR AL NUMERO HASTA', function () {
+				$("#btnSubmit").attr('disabled',false);
+				return(flag);
+     		});
+		}
+		return(flag);
+	}
 
 	$(document).ready(function() {
 		

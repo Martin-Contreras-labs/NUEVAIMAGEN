@@ -10,29 +10,42 @@ desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
 	@modalContactoCliente()
 	@modalContactoProyecto()
 	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera1"></div><div id="msgEspera2"></div></h1></div>
+	
 	<div id="mostrarmostrar" style="display:none;">
 		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","PROCESO DE EP/FACTURACION PROFORMA")
-		<div class="row  justify-content-md-center">
+		
 		
 			<div class="noprint">
-				<table class="table table-sm table-condensed table-fluid">
-					<tr>
-						<td>
-							<div align="center">
-								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
-									Exportar a Excel
-								</button>
-								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
-									Imprimir
-								</button>
-								<button type="button"  class="btn btn-sm btn-success" 
-									onclick="history.go(-1);return false;">
-									Volver
-								</button>
-							</div>
-						</td>
-					</tr>
-				</table>
+				<div class="row">
+					<div class="col-1"></div>
+				  	<div class="col-5">
+						@if(mapPermiso.get("parametro.envioMasivoProformas")!=null && mapPermiso.get("parametro.envioMasivoProformas").equals("1")){
+							<button type="button"  id="btnEnvioMasivo" class="btn btn-sm btn-warning" 
+								onclick="this.setAttribute('disabled', 'true'); document.getElementById('enCarga').style.display='block'; $('#modalEnvioMasivo').modal('show');">
+								ENVIO MASIVO A: "Listado de Proformas"
+							</button>
+						}
+				  	</div>
+				  	<div class="col-6">
+						<table class="table table-sm table-condensed table-fluid">
+							<tr>
+								<td>
+										<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+											Exportar a Excel
+										</button>
+										<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+											Imprimir
+										</button>
+										<button type="button"  class="btn btn-sm btn-success" 
+											onclick="history.go(-1);return false;">
+											Volver
+										</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
 			</div>
 			
 			<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoExcel/">
@@ -42,6 +55,12 @@ desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
 				<input type="hidden" name="usd" value="@usd">
 				<input type="hidden" name="eur" value="@eur">
 			</form>
+			
+			
+			
+			
+			
+		<div class="row  justify-content-md-center">
 			
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<div class="noprint">
@@ -88,12 +107,197 @@ desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
 			</div>
 		</div>
 	</div>
+	
+	<div id='modalEnvioMasivo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+			<div class='modal-content'>
+				<div class='modal-header'>
+					ENVIO MASIVO PROFORMAS
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div class="input-group">
+
+					        	
+					        	<div class="input-group">
+								  <div class="input-group-prepend">
+								    <div class="input-group-text">
+								      <input type="radio" name="optradio" checked onchange="envioDeVentas = 0;">
+								    </div>
+								  </div>
+								  <input type="text" class="form-control" value="Envio de proformas ALQUILER" disabled>
+								</div>
+								
+								<div class="input-group">
+								  <div class="input-group-prepend">
+								    <div class="input-group-text">
+								      <input type="radio" name="optradio" onchange="envioDeVentas = 1;">
+								    </div>
+								  </div>
+								  <input type="text" class="form-control" value="Envio de proformas VENTAS" disabled>
+								</div>
+					</div>
+					<br>
+					<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<input type="button" class="btn btn-sm btn-primary" value='Enviar' onclick='envioMasivo1();' data-dismiss='modal'>
+							<input type='button' class='btn btn-sm btn-warning' value='Cancelar' 
+								onclick='$("#btnEnvioMasivo").prop("disabled",false); document.getElementById("enCarga").style.display="none";'
+								data-dismiss='modal'>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+			<form id="envioMasivoListadoProforma" class="formulario" method="post" action="/routes2/envioMasivoListadoProforma2/">
+				<input type="hidden" name="fechaDesde" value="@fechaDesde">
+				<input type="hidden" name="fechaHasta" value="@fechaHasta">
+				<input type="hidden" name="uf" value="@uf">
+				<input type="hidden" name="usd" value="@usd">
+				<input type="hidden" name="eur" value="@eur">
+				<input type="esVenta" id="esVenta" name="esVenta" value="@eur">
+			</form>
 
 
 }
 
 
 <script type="text/javascript">
+
+
+	
+	let recorrer = document.querySelectorAll(".arr").length;
+	let contador = 0;
+	let envioDeVentas = 0;
+		
+	let classArr = document.querySelectorAll(".arr");
+	let classVta = document.querySelectorAll(".vta");
+	let classGranTotal = document.querySelectorAll(".granTotal");
+	let classIdBodega = document.querySelectorAll(".idBodega");
+
+	let resultado = 'Creadas y enviadas con exito proformas a "Listado de Proformas" las Nros: ';
+
+	const envioMasivo1 = () =>{
+		
+		document.getElementById('enCarga').style.display="block";
+		
+		if(envioDeVentas == 0){
+			if (contador < recorrer) {
+				$("#esVenta").val(envioDeVentas);
+				document.getElementById('envioMasivoListadoProforma').submit();
+				
+				/*
+				let valorArr = classArr[contador].textContent.replace(/,/g,'');
+				let valorGranTotal = classGranTotal[contador].textContent.replace(/,/g,'');
+				if(parseFloat(valorGranTotal)>0 && parseFloat(valorArr)>0){
+					envioMasivo2(classIdBodega[contador].value, envioDeVentas);
+				}else{
+					contador++;
+					envioMasivo1();
+				}
+				*/
+			}else{
+				alertify.alert("No existen proformas de alquiler a enviar", function () { });
+				document.getElementById('enCarga').style.display="none";
+			}
+		}else{
+			if (contador < recorrer) {
+				$("#esVenta").val(envioDeVentas);
+				document.getElementById('envioMasivoListadoProforma').submit();
+				/*
+				let valorVta = classVta[contador].textContent.replace(/,/g,'');
+				let valorGranTotal = classGranTotal[contador].textContent.replace(/,/g,'');
+				if(parseFloat(valorGranTotal)>0 && parseFloat(valorVta)>0){
+					envioMasivo2(classIdBodega[contador].value, envioDeVentas);
+				}else{
+					contador++;
+					envioMasivo1();
+				}
+				*/
+			}else{
+				alertify.alert("No existen proformas de venta a enviar", function () { });
+				document.getElementById('enCarga').style.display="none";
+			}
+		}
+		
+	}
+	
+	
+	/*
+
+	const envioMasivo2 = (id_bodega, esVenta) =>{
+		
+		$("#msgEspera1").text("Creando proforma de linea "+(contador + 1)+" de "+recorrer);
+		$("#msgEspera2").text("NO CERRAR VENTANA NI DUPLICAR MIENTRAS NO FINALICE EL PROCESO");
+		
+		
+		if(contador < recorrer){
+				let valorArr = classArr[contador].textContent.replace(/,/g,'');
+				let valorVta = classVta[contador].textContent.replace(/,/g,'');
+				let valorGranTotal = classGranTotal[contador].textContent.replace(/,/g,'');
+				
+				let valorCompara = valorArr;
+				if(esVenta == 1){
+					valorCompara = valorVta;
+				}
+				
+				if(parseFloat(valorGranTotal)>0 && parseFloat(valorCompara)>0){
+					var formData = new FormData();
+					formData.append('idBodega',id_bodega);
+				  	formData.append('fechaDesde','@fechaDesde');
+					formData.append('fechaHasta','@fechaHasta');
+					formData.append('uf','@uf');
+					formData.append('usd','@usd');
+					formData.append('eur','@eur');
+					formData.append('esVenta',esVenta);
+			        $.ajax({
+			            url: "/routes2/envioMasivoListadoProforma/",
+			            type: "POST",
+			            method: "POST",
+			            data: formData,
+			            cache: false,
+			            contentType: false,
+				     	processData: false,
+				     	success: function(rs){
+							if(rs == "error"){
+				     			alertify.alert('Se presento un error, no fueron subidas las imagenes', function () {
+				     				document.getElementById("imagen").value = "";
+				     			});
+				     		}else{
+				     			contador++;
+								resultado += rs+", ";
+								if(contador < recorrer){
+									envioMasivo2(classIdBodega[contador].value, esVenta);
+								}else{
+									envioMasivo2(0, esVenta);
+								}
+				     		}
+				     	}
+			        });
+				}else{
+					contador++;
+					if(contador < recorrer){
+						envioMasivo2(classIdBodega[contador].value, esVenta);
+					}else{
+						envioMasivo2(0, esVenta);
+					}
+				}
+		
+		}else{
+			alertify.alert(resultado, function () { 
+				location.href ='/proformaLista/0';
+			});
+			document.getElementById('enCarga').style.display="none";
+		}
+		
+	}
+	*/
+
 	let flag = true;
 	$(document).ready(function() {
 

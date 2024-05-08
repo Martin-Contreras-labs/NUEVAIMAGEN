@@ -1716,11 +1716,11 @@ public class Guia {
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			//anchos de columnas
-			for(int i=1; i<6; i++) {
+			for(int i=1; i<12; i++) {
 				hoja1.setColumnWidth(i, 5*1000);
 			}
-			hoja1.setColumnWidth(6, 10*1000);
-			hoja1.setColumnWidth(7, 10*1000);
+			hoja1.setColumnWidth(8, 10*1000);
+			hoja1.setColumnWidth(10, 10*1000);
             
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -1755,6 +1755,12 @@ public class Guia {
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Nro "+mapDiccionario.get("OT"));
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro COTI");
 			
 			posCell++;
@@ -1779,7 +1785,19 @@ public class Guia {
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUCURSAL DESDE");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DESDE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUCURSAL HASTA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
@@ -1803,7 +1821,18 @@ public class Guia {
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(listaGuias.get(i).getNumeroCotizacion());
+					if(listaGuias.get(i).getNumeroCotizacion() > 0){
+						cell.setCellValue(listaGuias.get(i).getNumeroOt());
+					}
+					
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					if(listaGuias.get(i).getNumeroCotizacion() > 0){
+						cell.setCellValue(listaGuias.get(i).getNumeroCotizacion());
+					}
 					
 					posCell++;
 					cell = row.createCell(posCell);
@@ -1827,7 +1856,19 @@ public class Guia {
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(listaGuias.get(i).getNameSucursalOrigen());
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getBodegaOrigen());
+					
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(listaGuias.get(i).getNameSucursalDestino());
 					
 					posCell++;
 					cell = row.createCell(posCell);

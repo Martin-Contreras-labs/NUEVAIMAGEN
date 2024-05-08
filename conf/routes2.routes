@@ -292,6 +292,9 @@ GET     /reportEstadoBodegas/				controllers.MnuReportes.reportEstadoBodegas(req
 POST	/reportEstadoBodegasExcel/			controllers.MnuReportes.reportEstadoBodegasExcel(request: Request)
 
 
+POST	/envioMasivoListadoProforma2/			controllers.MnuReportes.envioMasivoListadoProforma2(request: Request)
+POST	/proformaListaPdf/						controllers.MnuReportes.proformaListaPdf(request: Request)
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU BODEGA
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

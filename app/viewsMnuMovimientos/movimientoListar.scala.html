@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista])
+listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fechaDesde: String, fechaHasta: String)
 
     	
 @main("") {
@@ -12,6 +12,35 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista])
 		@barraTitulo(mapDiccionario, "MOVIMIENTOS Y DESPACHOS EFECTUADOS","(SIN IMAGENES)")
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+			
+			
+			
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				
+				<form id="excel" class="formulario" method="post" action="/movimientoListarExcel/">
+					<input type="hidden" name="fechaDesde" value="@fechaDesde">
+					<input type="hidden" name="fechaHasta" value="@fechaHasta">
+				</form>
 		
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">
