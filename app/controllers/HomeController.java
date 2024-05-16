@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -174,7 +176,6 @@ public class HomeController extends Controller {
 				this.porProyecto = null;
 				this.id_sucursal = null;
 				this.aplicaPorSucursal = null;
-				e.printStackTrace();
 			}
 		}
     	
@@ -192,6 +193,14 @@ public class HomeController extends Controller {
     //=============================================
     // FUNCIONES GLOBALES
     //=============================================
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    
+    public static boolean isValidEmail(String email) {
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+    
     public static Map<String,String> mapPermisos(Http.Request request){
     	Map<String,String> map = new HashMap<String,String>();
     	Sessiones s = new Sessiones(request);

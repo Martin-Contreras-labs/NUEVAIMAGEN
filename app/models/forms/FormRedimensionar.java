@@ -90,20 +90,33 @@ public class FormRedimensionar {
 			}
 		}
 		
+		Map<Long,Long> mapAux = new HashMap<Long,Long>();
 		ActaRedimensionar actaRedimensionar = new ActaRedimensionar(form);
 		Long id_actaRedimensionar = ActaRedimensionar.create(con, db, actaRedimensionar);
 		if(id_actaRedimensionar > 0) {
 			String detalle = "";
+			// agrega todos los que indican equipo a redimensionar
 			for(int i=0; form.id_a_redimensionar!=null && i<form.id_a_redimensionar.size(); i++) {
 				Double cantBaja = mapCantBaja.get(form.id_a_redimensionar.get(i));
 				if(cantBaja != null && (double) cantBaja > (double) 0) {
 					Double aux = Double.parseDouble(form.cantEquipoRedimensionar.get(i).replaceAll(",", ""));
+					aux += cantBaja;
+					
 					if(aux > 0) {
+						mapAux.put(form.id_a_redimensionar.get(i), form.id_a_redimensionar.get(i));
 						detalle += "('"+id_actaRedimensionar+"','"+form.id_a_redimensionar.get(i)+"','"+cantBaja
 								+"','"+form.id_redimensionar.get(i)+"','"+form.cantEquipoRedimensionar.get(i).replaceAll(",", "")+"','"+form.id_bodegaDestino.get(i)+"'),";
 					}
 				}
 			}
+			//agrega solo para acta de baja los equipos con cant baja pero que no tienen equipo a redimensionar
+			for (Map.Entry<Long, Double> entry : mapCantBaja.entrySet()) {
+	            Long auxRedim = mapAux.get(entry.getKey());
+	            if(auxRedim == null) {
+	            	detalle += "('"+id_actaRedimensionar+"','"+entry.getKey()+"','"+entry.getValue()+"','0','0','0'),";
+	            }
+	        }
+			
 			if(form.id_a_redimensionar!=null) {
 				if(detalle.length()>2) {
 					detalle = detalle.substring(0,detalle.length()-1);
@@ -187,23 +200,28 @@ public class FormRedimensionar {
 			
 			List<List<String>> listCompra = Compra.allPorFactura(con, db, id_factura);
 			String insertMovimiento = "";
+			
 			for(List<String> x: listCompra) {
 				
 				String id_bodegaEmpresa = x.get(1);
 				String id_equipo = x.get(2);
 				String id_tipoMovimiento = "1";
-				String camtidad = x.get(3);
+				String cantidad = x.get(3);
 				String id_compra = x.get(0);
 				String fecha_factura = x.get(4);
 				
-				insertMovimiento += "('"
-						+ id_bodegaEmpresa + "','"
-						+ id_equipo + "','"
-						+ id_tipoMovimiento + "','"
-						+ camtidad + "','"
-						+ id_compra + "','"
-						+ id_factura + "','"
-						+ fecha_factura + "'),";
+				Double cant = Double.parseDouble(cantidad);
+				if (cant>0) {
+					insertMovimiento += "('"
+							+ id_bodegaEmpresa + "','"
+							+ id_equipo + "','"
+							+ id_tipoMovimiento + "','"
+							+ cantidad + "','"
+							+ id_compra + "','"
+							+ id_factura + "','"
+							+ fecha_factura + "'),";
+				}
+				
 			}
 			
 			if(insertMovimiento.length() > 2) {
@@ -239,14 +257,18 @@ public class FormRedimensionar {
 				String id_baja = x.getId().toString();
 				String fecha_actaBaja = x.getFecha_actaBaja();
 				
-				insertMovimiento += "('"
-						+ id_bodegaEmpresa + "','"
-						+ id_equipo + "','"
-						+ id_tipoMovimiento + "','"
-						+ cantidad + "','"
-						+ id_baja + "','"
-						+ id_actaBaja + "','"
-						+ fecha_actaBaja + "'),";
+				Double cant = Double.parseDouble(cantidad);
+				if (cant>0) {
+					insertMovimiento += "('"
+							+ id_bodegaEmpresa + "','"
+							+ id_equipo + "','"
+							+ id_tipoMovimiento + "','"
+							+ cantidad + "','"
+							+ id_baja + "','"
+							+ id_actaBaja + "','"
+							+ fecha_actaBaja + "'),";
+				}
+				
 			}
 			
 			if(insertMovimiento.length() > 2) {

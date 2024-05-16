@@ -468,7 +468,8 @@ public class ListaPrecio {
 				aux.add(rs.getDouble(12));				//  1 precio de arriendo con dctos aplicados
 				aux.add(rs.getDouble(8)); 				//  2 id unidadTiempo
 				aux.add(rs.getDouble(2)); 				//  3 idMoneda
-				lista.put(rs.getString(14)+"_"+rs.getString(13)+"_"+rs.getString(1), aux); // key = id_bodegaEmpresa + id_cotizacion + id_equipo
+				lista.put(rs.getString(14)+"_"+rs.getString(13)+"_"+rs.getString(1), aux); 
+				// key = id_bodegaEmpresa + id_cotizacion + id_equipo
 			}
 			rs.close();
 			smt.close();

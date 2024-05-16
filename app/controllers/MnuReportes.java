@@ -55,6 +55,7 @@ import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Grupo;
 import models.tables.Moneda;
+import models.tables.Parametros;
 import models.tables.Precio;
 import models.tables.Proforma;
 import models.tables.Proyecto;
@@ -2818,6 +2819,100 @@ public class MnuReportes extends Controller {
     // MNU reporteGerencial2   Reportes/Reporte Gerencial/Resumen KG movidos
     //====================================================================================
 	
+	public Result reportGerenKGPorPeriodo0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = dbRead.getConnection(dbRead);
+    			
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("reporteGerencial2")==null) {
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			
+    			Fechas hoy = Fechas.hoy();
+    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			con.close();
+    			return ok(reportGerenKGPorPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    		return ok(mensajes.render("/",msgError));
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Result reportGerenKGPorPeriodo1(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		try {
+	    			Connection con = dbRead.getConnection(dbRead);
+	    			HashMap<String, Object> map = ReportKilos.reportKgArrPorGrupoPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<String> cabecera1 = (List<String>) map.get("cabecera1");
+	    			List<String> cabecera2 = (List<String>) map.get("cabecera2");
+	    			List<List<String>> datos = (List<List<String>>) map.get("datos");
+	    			con.close();
+	    			return ok(reportGerenKGPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,cabecera1,cabecera2,datos, desdeAAMMDD, hastaAAMMDD));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Result reportGerenKGPorPeriodo1Excel(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("desde").trim();
+	       		String hastaAAMMDD = form.get("hasta").trim();
+	       		try {
+	    			Connection con = dbRead.getConnection(dbRead);
+	    			HashMap<String, Object> map = ReportKilos.reportKgArrPorGrupoPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<String> cabecera1 = (List<String>) map.get("cabecera1");
+	    			List<String> cabecera2 = (List<String>) map.get("cabecera2");
+	    			List<List<String>> datos = (List<List<String>>) map.get("datos");
+	    			File file = ReportKilos.reportGerenKGPorPeriodo1Excel(s.baseDato, mapeoDiccionario, cabecera1, cabecera2, datos, desdeAAMMDD, hastaAAMMDD);
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+	   		return ok("");
+    	}else {
+    		return ok("");
+    	}
+    }
+	
 	public Result reporteGerencialKG(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -3483,6 +3578,13 @@ public class MnuReportes extends Controller {
 			this.form = form;
 		}
 		public void run() {
+			try {
+    			Connection con0 = dbWrite.getConnection();
+    					Parametros.modify(con0, s.baseDato, "envioMasivoProformas", (long)2);
+	    		con0.close();
+            } catch (SQLException e) {
+    			e.printStackTrace();
+    		}
 			Map<Long,Double> tasas = new HashMap<Long,Double>();
     		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
     		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -3492,7 +3594,8 @@ public class MnuReportes extends Controller {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			String nros = "";
 			try {
-    			Connection con = dbWrite.getConnection();
+    			Connection con = dbRead.getConnection(dbRead);
+    					Parametros.modify(con, s.baseDato, "envioMasivoProformas", (long)2);
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
@@ -3586,7 +3689,13 @@ public class MnuReportes extends Controller {
 					email.addTo(eMail);
 		   		    mailerClient.send(email);
                 }
-			
+                try {
+        			Connection con2 = dbWrite.getConnection();
+        					Parametros.modify(con2, s.baseDato, "envioMasivoProformas", (long)1);
+    	    		con2.close();
+                } catch (SQLException e) {
+        			e.printStackTrace();
+        		}
 		}
 		
 	}
@@ -3732,13 +3841,19 @@ public class MnuReportes extends Controller {
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		if(mailDestino != null) {
-	       			MnuReportes.envioMasivoListadoProforma0 generar = new MnuReportes.envioMasivoListadoProforma0(desdeAAMMDD, hastaAAMMDD, uf, usd, eur, esVenta, mailDestino, s, form);
-	       			generar.start();
-	    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos u horas para recibir el correo, dependiendo de la cantidad de proformas a generar.";
-	    			return ok(mensajes.render("/home/",mensaje));
+	       		
+	       		if(HomeController.isValidEmail(mailDestino)) {
+	       			if(mailDestino != null) {
+		       			MnuReportes.envioMasivoListadoProforma0 generar = new MnuReportes.envioMasivoListadoProforma0(desdeAAMMDD, hastaAAMMDD, uf, usd, eur, esVenta, mailDestino, s, form);
+		       			generar.start();
+		    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos u horas para recibir el correo, dependiendo de la cantidad de proformas a generar.";
+		    			return ok(mensajes.render("/home/",mensaje));
+		       		}else {
+		       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
+		       			return ok(mensajes.render("/home/",mensaje));
+		       		}
 	       		}else {
-	       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
+	       			String mensaje = "No es posible generar la solicitud debido a que el mail que existe en la configuración de su usuario no es valido";
 	       			return ok(mensajes.render("/home/",mensaje));
 	       		}
 	       	}
@@ -3747,184 +3862,6 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}
 	}
-	
-//	public Result envioMasivoListadoProforma(Http.Request request) {
-//		Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//    		 
-//    		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
-//    		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-//	   		if (formEsVenta.hasErrors() || form.idBodega==null) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//	       	}else {
-//	       		String desdeAAMMDD = form.fechaDesde;
-//	       		String hastaAAMMDD = form.fechaHasta;
-//	       		Double uf = Double.parseDouble(form.uf.replaceAll(",", "").trim());
-//	       		Double usd = Double.parseDouble(form.usd.replaceAll(",", "").trim());
-//	       		Double eur = Double.parseDouble(form.eur.replaceAll(",", "").trim());
-//	       		Long id_bodegaEmpresa = Long.parseLong(form.idBodega.trim());
-//	       		String esVenta = formEsVenta.get("esVenta").trim();
-//	       		
-//	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
-//	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-//	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-//	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-//	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-//	    			
-//	    		try {
-//	    			Connection con = dbWrite.getConnection();
-//	    			
-//		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-//		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-//		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-//		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-//		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-//		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-//		    			
-//		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-//		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-//		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-//		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-//		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-//		    			
-//		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-//	    			
-//		    			Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-//		    			
-//		    			Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
-//		    			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-//		    			Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
-//		    			List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-//		    			
-//		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-//		    			Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-//		    			Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-//		    			
-//		    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-//		    			
-//		    			String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-//		    			
-//		    			Fechas hoy = Fechas.hoy();
-//		    			Proforma proforma = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
-//		    			
-//		    			Long cantDec = dec.get((long)1);
-//	    			
-//		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
-//		    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-//		    			
-//		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
-//		    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
-//		    					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-//		 
-//		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
-//		    					listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
-//		    					listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-//		    			
-//		    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-//		    			Calendar hastaMas1 = hasta.getFechaCal();
-//		    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
-//		    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-//		    			
-//		    			listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
-//		    			inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-//	    			
-//		    		con.close();
-//		    			
-//	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
-//	    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-//	    			
-//	    			
-//	    			List<String> fechas = new ArrayList<String>();
-//	    			fechas.add(desdeAAMMDD);
-//	    			fechas.add(hastaAAMMDD);
-//	    			fechas.add(Fechas.DDMMAA(desdeAAMMDD));
-//	    			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-//	    			List<Double> tasaCambio = new ArrayList<Double>();
-//	    			tasaCambio.add(uf);
-//	    			tasaCambio.add(usd);
-//	    			tasaCambio.add(eur);
-//	    			
-//	    			
-//	    			  proforma.setFecha(hoy.getFechaStrAAMMDD());
-//					  proforma.setDesde(desdeAAMMDD);
-//					  proforma.setHasta(hastaAAMMDD);
-//					  proforma.setId_cliente(cliente.id);
-//					  proforma.setId_bodegaEmpresa(bodega.id);
-//					  proforma.setId_proyecto(proyecto.id);
-//					  proforma.setDocRef("--");
-//					  proforma.setEpExcelMov("PRmov_" + proforma.id + "_proformaArriendo.xlsx");
-//					  proforma.setEpExcelEp("PRep_" + proforma.id + "_proformaArriendo.xlsx");
-//					  proforma.setProformaPdf("PRpdf" + proforma.id + "_proformaArriendo.pdf");
-//					  proforma.setProformaXml("PRxml" + proforma.id + "_proformaArriendo.xml");
-//					  proforma.setDocAnexo("0");
-//					  proforma.setDescuento((double)0);
-//					  proforma.setNeto((double)0);
-//					  proforma.setIva((double)0);
-//					  proforma.setTotal((double)0);
-//					  proforma.setTipo(mapeoDiccionario.get("Arriendo"));
-//	    			
-//					  File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
-//			    				inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
-//			    				resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
-//					
-//					String fileOutNameDetalle = s.baseDato+"/"+proforma.getEpExcelEp();
-//	    			Archivos.grabarArchivo(file, fileOutNameDetalle);
-//	    			
-//	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-//	    			if(esVenta.equals("1")) {
-//	    				concepto = "VENTA";
-//	    			}
-//	    			
-//	    			
-//	    			Connection con2 = dbWrite.getConnection();
-//	    			
-//		    			List<List<String>> datos = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDD, hastaAAMMDD, usd, eur, uf);
-//		    			String fileOutNameMovimientos = proforma.getEpExcelMov();
-//		    			file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, desdeAAMMDD, hastaAAMMDD);
-//		    			Archivos.grabarArchivo(file, s.baseDato+"/"+fileOutNameMovimientos);
-//	    			
-//		    			XmlFacturaReferencias referencias = new XmlFacturaReferencias();
-//		    			if(form.tpoDocRef!=null) {
-//							  referencias.tpoDocRef = form.tpoDocRef;
-//							  referencias.folioRef = form.folioRef;
-//							  referencias.fchRef = form.fchRef;
-//							  referencias.razonRef = form.razonRef;
-//							  referencias.obs = "";
-//						}
-//	 	            
-//		    			EmisorTributario emisorTributario = EmisorTributario.find(con2, s.baseDato);
-//		    			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proforma.id_bodegaEmpresa);
-//		    			
-//		 	           if(esVenta.equals("0")) {
-//		 	        	   // genera PDF de arriendo, XML, JSON y guarda json en proforma
-//		 	        	   	proforma.setTipo(mapeoDiccionario.get("Arriendo"));
-//		 	        	    String conDetalle = mapeoPermiso.get("parametro.proformaInvConCompra");
-//			 	            FormFactura.generaProformaArriendo(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-//									resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, listGuiasPer, mapReportPorGuia10, finalPer, uf, usd, eur, oc,
-//									dec, emisorTributario, bodegaEmpresa);
-//			 	            
-//		    			}else {
-//		    				// genera PDF de venta, XML, JSON y guarda json en proforma
-//		    				proforma.setTipo("Venta");
-//				 	        FormFactura.generaProformaVenta(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-//									cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc);
-//		    			}
-//	 	           con2.close();
-//	 	          return ok(proforma.id.toString());
-//	 	          
-//	    		} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//	    		return ok("ERROR");
-//	       	}
-//	    		
-//    	}else {
-//    		return ok("ERROR");
-//    	}
-//	}
-	
 	
 	public Result reportFacturaProyectoDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
@@ -5421,20 +5358,24 @@ public class MnuReportes extends Controller {
 	    					usuario = null;
 	    				}
 	    			}
-	    			
-	    			
 	    			con.close();
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		if(map !=null && mailDestino != null) {
-	       			MnuReportes.proformaListaPdf0 generar = new MnuReportes.proformaListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
-	    			generar.start();
-	    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
-	    			return ok(mensajes.render("/home/",mensaje));
-	       			
-	       		}else {
-	       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
+	       		
+	       		if(HomeController.isValidEmail(mailDestino)) {
+	       			if(map !=null && mailDestino != null) {
+		       			MnuReportes.proformaListaPdf0 generar = new MnuReportes.proformaListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
+		    			generar.start();
+		    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
+		    			return ok(mensajes.render("/home/",mensaje));
+		       			
+		       		}else {
+		       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
+		       			return ok(mensajes.render("/home/",mensaje));
+		       		}
+	       		}else{
+	       			String mensaje = "No es posible generar la solicitud debido a que el mail que existe en la configuración de su usuario no es valido";
 	       			return ok(mensajes.render("/home/",mensaje));
 	       		}
 	       	}

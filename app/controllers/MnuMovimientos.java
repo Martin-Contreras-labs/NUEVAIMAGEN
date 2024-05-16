@@ -592,10 +592,15 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
     			
+//    			Fechas hoy = Fechas.hoy();
+//    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+//    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+//    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			
     			Fechas hoy = Fechas.hoy();
-    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.addDias(hoy.getFechaCal(), 5).getFechaStrAAMMDD();
+    			String desde = Fechas.addDias(hoy.getFechaCal(), -26).getFechaStrAAMMDD();
+    			
     			con.close();
     			return ok(movimientoSelectModificarPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
         	} catch (SQLException e) {

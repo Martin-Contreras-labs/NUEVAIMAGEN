@@ -180,8 +180,8 @@ public class MnuRedimensionar extends Controller {
 	    				Equipo eqRedimensionar = mapEquipo.get(x.getId_equipoRedimensionar());
 	    				List<String> destino = mapBodega.get(x.id_bodegaDestino);
 	    				
-	    				if(eqOrigen!=null && eqRedimensionar!=null && destino !=null) {
-	    					
+	    				//if(eqOrigen!=null && eqRedimensionar!=null && destino !=null) {
+	    				if(eqOrigen!=null) {
 	    					String cantOrigen = DecimalFormato.formato(x.getCant_equipoOrigen(), (long)2);
 	    					String cantRedimensionar = DecimalFormato.formato(x.getCantEquipoRedimensionar(), (long)2);
 	    					
@@ -221,13 +221,21 @@ public class MnuRedimensionar extends Controller {
 		    					auxCod = eqOrigen.getCodigo();
 	    					}
 	    					
+	    					if(eqRedimensionar != null && destino != null) {
+	    						aux.add(eqRedimensionar.getCodigo());
+		    					aux.add(eqRedimensionar.getNombre());
+		    					aux.add(eqRedimensionar.getUnidad());
+		    					aux.add(cantRedimensionar);
+		    					aux.add(destino.get(5));
+	    					}else {
+	    						aux.add("");
+	    						aux.add("");
+	    						aux.add("");
+	    						aux.add("");
+	    						aux.add("");
+	    					}
 	    					
-	    					aux.add(eqRedimensionar.getCodigo());
-	    					aux.add(eqRedimensionar.getNombre());
-	    					aux.add(eqRedimensionar.getUnidad());
-	    					aux.add(cantRedimensionar);
 	    					
-	    					aux.add(destino.get(5));
 	    					
 	    					detalle.add(aux);
 	    				}

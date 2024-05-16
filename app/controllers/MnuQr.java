@@ -810,6 +810,20 @@ public class MnuQr extends Controller {
 						   }
 						}
 					}
+					
+					//ORDENA LA LISTA DESC
+					for(int j=0;j<lista.size();j++) {
+			            for(int i=0;i<lista.size()-j;i++) {
+			                if (i+1!=lista.size() && lista.get(i+1).get(0).compareToIgnoreCase(lista.get(i).get(0))>0) {
+			                    List<String> auxOrden;
+			                    auxOrden=lista.get(i);
+			                    lista.set(i,lista.get(i+1));
+			                    lista.set(i+1, auxOrden);
+			                }
+			            }
+			        }
+					
+					
     	    		con.close();
     	    		return ok(ubicacionQr.render(nEmpresa.toUpperCase(), base, equipo, stock, ubicacion, lista));
     	    	} catch (SQLException e) {

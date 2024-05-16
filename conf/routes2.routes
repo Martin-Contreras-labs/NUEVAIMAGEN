@@ -295,6 +295,13 @@ POST	/reportEstadoBodegasExcel/			controllers.MnuReportes.reportEstadoBodegasExc
 POST	/envioMasivoListadoProforma2/			controllers.MnuReportes.envioMasivoListadoProforma2(request: Request)
 POST	/proformaListaPdf/						controllers.MnuReportes.proformaListaPdf(request: Request)
 
+
+GET     /reportGerenKGPorPeriodo0/					controllers.MnuReportes.reportGerenKGPorPeriodo0(request: Request)
+POST    /reportGerenKGPorPeriodo1/					controllers.MnuReportes.reportGerenKGPorPeriodo1(request: Request)
+POST    /reportGerenKGPorPeriodo1Excel/				controllers.MnuReportes.reportGerenKGPorPeriodo1Excel(request: Request)
+
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU BODEGA
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

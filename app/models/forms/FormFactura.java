@@ -117,6 +117,14 @@ public class FormFactura {
     			table = doc.getTables().get(0);
     			row=table.getRow(1);cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079",Fechas.DDMMAA(proforma.fecha),false);
     			row=table.getRow(2);cell=row.getCell(2);setCelda(cell,"Arial",12,2,"2b5079",proforma.id.toString(),false);
+    			
+    			Proyecto proyecto = Proyecto.find(con, db, bodegaEmpresa.id_proyecto);
+    			String dirProyecto = "";
+    			if(proyecto.id > 0) {
+    				dirProyecto = proyecto.getDireccion() + ", "+ proyecto.getComuna() + ", " + proyecto.getCiudad();
+    			}
+    			
+    			
     			table= doc.getTables().get(1);
     			cell=table.getRow(0).getCell(1);setCelda(cell,"Arial",10,1,"2b5079",cliente.nombre,false);
     			cell=table.getRow(1).getCell(1);setCelda(cell,"Arial",10,1,"2b5079",cliente.rut,false);
@@ -129,6 +137,8 @@ public class FormFactura {
     			//cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",proforma.docRef,false);
     			cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",bodegaEmpresa.comercial,false);
     			
+    			cell=table.getRow(5).getCell(2);setCelda(cell,"Arial",9,1,"000000","DIR_PROY:",false);
+    			cell=table.getRow(5).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",dirProyecto,false);
     			
     			
     			
@@ -896,6 +906,14 @@ public class FormFactura {
 			table = doc.getTables().get(0);
 			row=table.getRow(1);cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079",Fechas.DDMMAA(proforma.fecha),false);
 			row=table.getRow(2);cell=row.getCell(2);setCelda(cell,"Arial",12,2,"2b5079",proforma.id.toString(),false);
+			
+			Proyecto proyecto = Proyecto.find(con, db, bodegaEmpresa.id_proyecto);
+			String dirProyecto = "";
+			if(proyecto.id > 0) {
+				dirProyecto = proyecto.getDireccion() + ", "+ proyecto.getComuna() + ", " + proyecto.getCiudad();
+			}
+			
+			
 			table= doc.getTables().get(1);
 			cell=table.getRow(0).getCell(1);setCelda(cell,"Arial",10,1,"2b5079",cliente.nombre,false);
 			cell=table.getRow(1).getCell(1);setCelda(cell,"Arial",10,1,"2b5079",cliente.rut,false);
@@ -907,6 +925,9 @@ public class FormFactura {
 			cell=table.getRow(3).getCell(3);setCelda(cell,"Arial",10,1,"2b5079","de "+Fechas.DDMMAA(proforma.desde)+" a "+Fechas.DDMMAA(proforma.hasta),false);
 			//cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",proforma.docRef,false);
 			cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",bodegaEmpresa.comercial,false);
+			
+			cell=table.getRow(5).getCell(2);setCelda(cell,"Arial",9,1,"000000","DIR_PROY:",false);
+			cell=table.getRow(5).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",dirProyecto,false);
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			switch(dec.get((long) 1).toString()) {
