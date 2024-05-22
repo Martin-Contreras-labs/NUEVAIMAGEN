@@ -46,6 +46,7 @@ import models.reports.ReportInventarios;
 import models.reports.ReportKilos;
 import models.reports.ReportMovimientos;
 import models.reports.ReportTrazabilidades;
+import models.reports.ReportVentas;
 import models.tables.AjustesEP;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
@@ -6189,6 +6190,115 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
+	
+	//====================================================================================
+    // MNU reportFacturaDetalleProyecto   Reportes/Proforma/Ventas por Periodo
+    //====================================================================================
+	
+	public Result reportVentasPorPeriodo0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    		try {
+    			Connection con = dbRead.getConnection(dbRead);
+    			
+    			if(mapeoPermiso.get("reportVentasPorPeriodo")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Fechas hoy = Fechas.hoy();
+    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+    			con.close();
+    			return ok(reportVentasPorPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+
+	public Result reportVentasPorPeriodo1(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
+	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	       			Connection con = dbRead.getConnection(dbRead);
+	    			List<List<String>> datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
+	    			con.close();
+	    			return ok(reportVentasPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, 
+	    					Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok(mensajes.render("/",msgError));
+	       	}
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	public Result reportVentasPorPeriodo1Excel(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
+	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	    			Connection con = dbRead.getConnection(dbRead);
+	    			List<List<String>> datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
+	    			File file = ReportVentas.reportVentasPorPeriodo1Excel(s.baseDato, mapeoDiccionario, datos, desdeAAMMDD, hastaAAMMDD);
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("ReportVentasPorPeriodo.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+	   		return ok("");
+    	}else {
+    		return ok("");
+    	}
+    }
 	
 	//====================================================================================
     // MNU reportesHOHE   Reportes/Proforma/todo SOLO HOHE

@@ -300,6 +300,9 @@ GET     /reportGerenKGPorPeriodo0/					controllers.MnuReportes.reportGerenKGPorP
 POST    /reportGerenKGPorPeriodo1/					controllers.MnuReportes.reportGerenKGPorPeriodo1(request: Request)
 POST    /reportGerenKGPorPeriodo1Excel/				controllers.MnuReportes.reportGerenKGPorPeriodo1Excel(request: Request)
 
+GET     /reportVentasPorPeriodo0/					controllers.MnuReportes.reportVentasPorPeriodo0(request: Request)
+POST    /reportVentasPorPeriodo1/					controllers.MnuReportes.reportVentasPorPeriodo1(request: Request)
+POST    /reportVentasPorPeriodo1Excel/				controllers.MnuReportes.reportVentasPorPeriodo1Excel(request: Request)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

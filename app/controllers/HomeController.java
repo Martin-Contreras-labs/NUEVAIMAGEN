@@ -612,7 +612,7 @@ public class HomeController extends Controller {
    
     public Result inicio() throws InterruptedException {
     	
-    	//return ok("SISTEMA EN MANTENCION......");
+ //   	return ok("SISTEMA EN MANTENCION......");
     	
     	
     	
@@ -640,6 +640,7 @@ public class HomeController extends Controller {
     }
     
     public Result home(Http.Request request) {
+  //  	return ok("SISTEMA EN MANTENCION......");
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
