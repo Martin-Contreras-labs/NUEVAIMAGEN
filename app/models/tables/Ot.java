@@ -2472,21 +2472,25 @@ public class Ot {
     				Ot ot = mapOt.get(x.getId_ot());
     				String nomEstado = "";
     				String otPDF = "0";
+    				String numeroOt = "";
+    				String fechaOt = "";
     				if(ot!=null) {
     					OtEstado estado = mapEstado.get(ot.getId_otEstado());
         				if(estado!=null) {
         					nomEstado = estado.getEstado();
         				}
         				otPDF = ot.getOtPDF();
+        				numeroOt = ot.getNumero().toString();
+        				fechaOt = Fechas.AAMMDD(ot.getFecha());
     				}
     				
     				
     				
     				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_Ot
+    				aux.add(x.getId_ot().toString());				// 0 id_Ot
     				aux.add(x.getId().toString());				// 1 id_Cotizacion
-    				aux.add(x.getNumero().toString());			// 2 numero de ot
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
+    				aux.add(numeroOt);			// 2 numero de ot
+    				aux.add(fechaOt);		// 3 fecha de ot
     				aux.add(numCoti);							// 4 numero de cotizacion
     				aux.add(fechaCoti);							// 5 fecha de cotizacion
     				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
@@ -2529,19 +2533,23 @@ public class Ot {
 				Ot ot = mapOt.get(x.getId_ot());
 				String nomEstado = "";
 				String otPDF = "0";
+				String numeroOt = "";
+				String fechaOt = "";
 				if(ot!=null) {
 					OtEstado estado = mapEstado.get(ot.getId_otEstado());
     				if(estado!=null) {
     					nomEstado = estado.getEstado();
     				}
     				otPDF = ot.getOtPDF();
+    				numeroOt = ot.getNumero().toString();
+    				fechaOt = Fechas.AAMMDD(ot.getFecha());
 				}
 				
 				List<String> aux = new ArrayList<String>();
-				aux.add(x.getId().toString());				// 0 id_Ot
+				aux.add(x.getId_ot().toString());				// 0 id_Ot
 				aux.add(x.getId().toString());				// 1 id_Cotizacion
-				aux.add(x.getNumero().toString());			// 2 numero de ot
-				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
+				aux.add(numeroOt);			// 2 numero de ot
+				aux.add(fechaOt);		// 3 fecha de ot
 				aux.add(numCoti);							// 4 numero de cotizacion
 				aux.add(fechaCoti);							// 5 fecha de cotizacion
 				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa

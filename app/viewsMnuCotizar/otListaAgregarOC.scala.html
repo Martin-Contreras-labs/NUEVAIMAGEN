@@ -36,11 +36,14 @@ listOt: List[List[String]])
 							<TR>
 								<td style="text-align:left;">@lista1.get(17)</td>
 								<td style="text-align:center;">
-									<a href="#" onclick="verOt('@lista1.get(0)')">
-										<kbd style="background-color: rgb(90, 200, 245)">
-											<font color="green">@lista1.get(2)</font>
-										</kbd>
-									</a>
+									@if( ! lista1.get(0).equals("0")){
+										<a href="#" onclick="verOt('@lista1.get(0)')">
+											<kbd style="background-color: rgb(90, 200, 245)">
+												<font color="green">@lista1.get(2)</font>
+											</kbd>
+										</a>
+									}
+									
 								</td>
 								<td style="text-align:center;">
 									<div style="display:none">@lista1.get(3)</div>
