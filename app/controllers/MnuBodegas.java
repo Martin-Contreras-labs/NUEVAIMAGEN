@@ -94,7 +94,7 @@ public class MnuBodegas extends Controller {
     			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
     			List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
     			Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
-    			List<Moneda> listMon = Moneda.all(con, s.baseDato);
+    			List<Moneda> listMon = Moneda.allSinMonPrincipal(con, s.baseDato);
     			con.close();
     			return ok(bodegaCrear.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listTipoBodega,listRegiones,listSucursal,sucursal, s.aplicaPorSucursal, listMon));
         	} catch (SQLException e) {
@@ -211,7 +211,7 @@ public class MnuBodegas extends Controller {
 	    			TipoBodega tipoBodega = TipoBodega.find(con, s.baseDato, bodegaEmpresa.getEsInterna());
 	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 	    			List<Comercial> listComercial = Comercial.allPorIdSucursalVig(con, s.baseDato, s.aplicaPorSucursal, bodegaEmpresa.getId_sucursal().toString());
-	    			List<Moneda> listMon = Moneda.all(con, s.baseDato);
+	    			List<Moneda> listMon = Moneda.allSinMonPrincipal(con, s.baseDato);
 	    			List<List<String>> fijaTasas = BodegaEmpresa.listaFijaTasas(con, s.baseDato, id_bodegaEmpresa);
 	    			con.close();
 	    			return ok(bodegaModificar.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,tipoBodega,bodegaEmpresa,listRegiones,listComercial, 

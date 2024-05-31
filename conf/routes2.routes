@@ -304,6 +304,10 @@ GET     /reportVentasPorPeriodo0/					controllers.MnuReportes.reportVentasPorPer
 POST    /reportVentasPorPeriodo1/					controllers.MnuReportes.reportVentasPorPeriodo1(request: Request)
 POST    /reportVentasPorPeriodo1Excel/				controllers.MnuReportes.reportVentasPorPeriodo1Excel(request: Request)
 
+GET     /reporteEstadosPer0/				controllers.MnuReportes.reporteEstadosPer0(request: Request)
+POST    /reporteEstadosPer1/				controllers.MnuReportes.reporteEstadosPer1(request: Request)
+POST    /reporteEstadosPer1Excel/			controllers.MnuReportes.reporteEstadosPer1Excel(request: Request)
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU BODEGA

@@ -38,6 +38,7 @@ listBodegas: List[List[String]])
 							<td style="text-align:left;">
 								<select class="custom-select" 
 									name="id_bodegaAsociada">
+									<option value="0">No asociada</option>
 									@for(lista <- listBodegas){
 										<option value="@lista.get(1)">@lista.get(5)</option>
 									}

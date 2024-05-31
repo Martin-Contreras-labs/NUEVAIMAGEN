@@ -893,13 +893,13 @@
 							<li class="dropdown-submenu pull-left">
 								<a class="dropdown-item dropdown-toggle" href="#">Estados</a>
 								<ul class="dropdown-menu">
-									@if(mapPermiso.get("reportFacturaDetalleProyecto")!=null){
-										<li><a class="dropdown-item" href='/reporteEstadosTodos/'>Estados por @mapDiccionario.get("Bodega")/Proyecto</a></li>
-										<li><a class="dropdown-item" href='/reporteEstadosAll0/'>Reparaciones por @mapDiccionario.get("Bodega")/Proyecto</a></li>
-									}
 									@if(mapPermiso.get("reportEstados")!=null){
-										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reporteEstadosTodos/'>Estados por @mapDiccionario.get("Bodega")/Proyecto</a></li>
 										<li><a class="dropdown-item" href='/reporteEstadosPeriodo0/'>Estados por Periodo</a></li>
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reporteEstadosAll0/'>Reparaciones por @mapDiccionario.get("Bodega")/Proyecto</a></li>
+										<li><a class="dropdown-item" href='/routes2/reporteEstadosPer0/'>Reparaciones por Periodo</a></li>
+										
 									}
 								</ul>
 							</li>

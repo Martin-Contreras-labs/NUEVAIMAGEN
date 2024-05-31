@@ -547,6 +547,7 @@ public class Guia {
 							" from `"+db+"`.guia " +
 							" where guia.numero = ?;" );
 			smt.setLong(1, numeroGuia);
+			
 			ResultSet rs = smt.executeQuery();
 			Map<Long,BodegaEmpresa> bodegas = BodegaEmpresa.mapAll(con, db);
 			Map<Long,Ot> ots = Ot.mapAll(con, db);

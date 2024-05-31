@@ -79,7 +79,11 @@ public class TipoEstado {
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				BodegaEmpresa bodegaAsociada = BodegaEmpresa.findXIdBodega(con, db, rs.getLong(5));
-				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),bodegaAsociada.nombre,rs.getLong(6)));
+				String nombreBodega = "No asociada";
+				if(bodegaAsociada != null) {
+					nombreBodega = bodegaAsociada.nombre;
+				}
+				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6)));
 			}
 			rs.close();
 			smt.close();
@@ -98,7 +102,11 @@ public class TipoEstado {
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				BodegaEmpresa bodegaAsociada = BodegaEmpresa.findXIdBodega(con, db, rs.getLong(5));
-				aux = new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),bodegaAsociada.nombre,rs.getLong(6));
+				String nombreBodega = "No asociada";
+				if(bodegaAsociada != null) {
+					nombreBodega = bodegaAsociada.nombre;
+				}
+				aux = new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6));
 			}
 			rs.close();
 			smt.close();

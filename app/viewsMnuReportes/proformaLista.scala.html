@@ -42,7 +42,7 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 						        </button>
 						</div>
 						<div class='modal-body'>
-							<form id="excel" class="formulario" method="post" action="/routes2/proformaListaPdf/"  onsubmit="return validarForm();">
+							<form class="formulario" method="post" action="/routes2/proformaListaPdf/"  onsubmit="return validarForm();">
 								<input type="hidden" name = "year" value = "@year">
 								<table class="table table-sm table-bordered table-condensed table-fluid">
 									<thead style="background-color: #eeeeee">
@@ -183,19 +183,19 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 						<tr>
 							<td style= "text-align: center;">@lista1.get(16)</td>
 							<td style= "text-align: center;">@lista1.get(0)</td>
-							<td style= "text-align: center;">
+							<td style= "text-align: center; min-width:80px">
 								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(2))</div>
 								@lista1.get(2)
 							</td>
-							<td style= "text-align: center;">
+							<td style= "text-align: center; min-width:80px">
 								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(3))</div>
 								@lista1.get(3)
 							</td>
-							<td style= "text-align: center;">
+							<td style= "text-align: center; min-width:80px	">
 								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(4))</div>
 								@lista1.get(4)
 							</td>
-							<td style= "text-align: center;">@lista1.get(5)</td>
+							<td style= "text-align: center;" min-width:80px>@lista1.get(5)</td>
 							<td style= "text-align: left;">@lista1.get(6)</td>
 							<td style= "text-align: left;">@lista1.get(22)</td>
 							<td style= "text-align: left;">@lista1.get(7)</td>

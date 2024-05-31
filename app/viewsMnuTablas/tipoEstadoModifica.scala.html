@@ -39,6 +39,7 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 							<select class="custom-select" 
 								id="id_bodegaAsociada" 
 								onchange="modificarTipoEstado(id);">
+								<option value="0">No asociada</option>
 								@for(lista <- listBodegas){
 									<option value="@lista.get(1)">@lista.get(5)</option>
 								}

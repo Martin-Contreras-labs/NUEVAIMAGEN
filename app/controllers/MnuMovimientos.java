@@ -870,7 +870,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			
 	    			List<List<String>> detalleMovimiento = detalleMovimientoMasSinSaldo.get(0);
 	    			
-	    			
 	    			Long permiteExcedentes = (long) 0;
 	    			if(guia.tipoGuia.equals(mapeoDiccionario.get("Despacho"))) {
 	    				permiteExcedentes = (long) 0;

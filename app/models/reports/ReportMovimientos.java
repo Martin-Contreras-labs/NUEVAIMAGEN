@@ -3070,7 +3070,7 @@ public class ReportMovimientos {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("CANTIDAD");
+			cell.setCellValue("CANTIDAD ESTADO");
 			
 			posCell++; 
             cell = row.createCell(posCell);

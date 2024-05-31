@@ -2240,7 +2240,7 @@ public class MnuReportes extends Controller {
 	}
 	
 	//====================================================================================
-    // MNU reportEstados   Reportes/Estados/Detallado Todo Bodegas Vigentes)
+    // MNU reportEstados   Reportes/Estados/Reparaciones por Bodega/Proyecto
     //====================================================================================
 	
 	public Result reporteEstadosAll0(Http.Request request) {
@@ -2319,6 +2319,102 @@ public class MnuReportes extends Controller {
 	    			if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("ReporteEstadosTodo.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	       	}
+    	}else {
+    		return ok("");
+    	}
+	}
+	
+	//====================================================================================
+    // MNU reportEstados   Reportes/Estados/Reparaciones por Periodo
+    //====================================================================================
+	
+	public Result reporteEstadosPer0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    		try {
+    			Connection con = dbRead.getConnection(dbRead);
+    			if(mapeoPermiso.get("reporteMovimientos0")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Fechas hoy = Fechas.hoy();
+    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			con.close();
+    			return ok(reporteEstadosPer0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	public Result reporteEstadosPer1(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	    			Connection con = dbRead.getConnection(dbRead);
+	    			if(mapeoPermiso.get("reportEstados")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+	    			List<List<String>> datos = ReportInventarios.reportInventarioEstadosPorPer(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD);
+	    			con.close();
+	    			return ok(reporteEstadosPer1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, desdeAAMMDD, hastaAAMMDD));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    		return ok(mensajes.render("/",msgError));
+	    	}
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	public Result reporteEstadosPer1Excel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("desdeAAMMDD").trim();
+	       		String hastaAAMMDD = form.get("hastaAAMMDD").trim();
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	    			Connection con = dbRead.getConnection(dbRead);
+	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+	    			List<List<String>> datos = ReportInventarios.reportInventarioEstadosPorPer(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD);
+	    			File file = ReportInventarios.reportInventarioEstadosPorPerExcel(s.baseDato, mapeoDiccionario, datos, desdeAAMMDD, hastaAAMMDD);
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("ReporteEstadosPorPeriodo.xlsx"));
 		       		}else {
 		       			con.close();
 		       			return ok("");
@@ -6277,7 +6373,6 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection(dbRead);

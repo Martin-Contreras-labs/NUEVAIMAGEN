@@ -107,6 +107,25 @@ public class Moneda {
 		return (lista);
 	}
 	
+	public static List<Moneda> allSinMonPrincipal(Connection con, String db) {
+		List<Moneda> lista = new ArrayList<Moneda>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("SELECT id,nombre,nickName,numeroDecimales " +
+							" FROM `"+db+"`.moneda where id <> 1 order by nickName");
+			ResultSet resultado = smt.executeQuery();
+			while (resultado.next()) {
+				lista.add(new Moneda(resultado.getLong(1),resultado.getString(2),
+						resultado.getString(3),resultado.getLong(4)));
+			}
+			resultado.close();
+			smt.close();
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return (lista);
+	}
+	
 	public static boolean modifyDecimales(Connection con,String db, Long id_moneda, Long numeroDecimales) {
 		boolean flag = false;
 		try {
