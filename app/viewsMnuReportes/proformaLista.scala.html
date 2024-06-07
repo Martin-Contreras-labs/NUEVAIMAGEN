@@ -36,7 +36,7 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 				<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
 					<div class='modal-content'>
 						<div class='modal-header'>
-							GENERAR PDF UNICO
+							GENERAR PDF UNICO<br>(debe ser máximo de 100 en 100)
 						        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
 						          <span aria-hidden='true'>&times;</span>
 						        </button>
@@ -141,6 +141,7 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 						<TH>RUT</TH>
 						<TH>CLIENTE</TH>
 						<TH>SUCURSAL</TH>
+						<TH>COMERCIAL</TH>
 						<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
 						<TH>Total<br>NETO</TH>
 						<TH>Total<br>IVA</TH>
@@ -198,6 +199,7 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 							<td style= "text-align: center;" min-width:80px>@lista1.get(5)</td>
 							<td style= "text-align: left;">@lista1.get(6)</td>
 							<td style= "text-align: left;">@lista1.get(22)</td>
+							<td style= "text-align: left;">@lista1.get(23)</td>
 							<td style= "text-align: left;">@lista1.get(7)</td>
 							<td style= "text-align: right;">@lista1.get(8)</td>
 							<td style= "text-align: right;">@lista1.get(9)</td>
@@ -502,6 +504,16 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 				return(flag);
      		});
 		}
+		let aux =  parseFloat(hasta) - parseFloat(desde);
+		if(aux > 100){
+			flag = false;
+			alertify.alert('LA CANTIDAD DE PROFORMAS SELECCIONADAS NO PUEDE SER MAYOR A 100', function () {
+				$("#btnSubmit").attr('disabled',false);
+				return(flag);
+     		});
+		}
+		
+		
 		return(flag);
 	}
 

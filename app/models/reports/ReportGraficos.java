@@ -31,7 +31,7 @@ public class ReportGraficos {
 		Map<String,Double> mapGrupoBodegaNombBodegaVsCompra = new HashMap<String,Double>();
 		
 		Map<String,String> mapFiltroBodegas = new HashMap<String,String>();
-		if(!filtroBodegas.equals("0") && filtroBodegas.length()>0) {
+		if(!filtroBodegas.equals("0") && filtroBodegas.length()>1) {
 			filtroBodegas = filtroBodegas.substring(1,filtroBodegas.length()-1);
 			String[] arrFiltroBodega = filtroBodegas.split(",");
 			for(int i=0; i<arrFiltroBodega.length; i++) {
@@ -40,7 +40,7 @@ public class ReportGraficos {
 		}
 		
 		Map<String,String> mapFiltroGrupo = new HashMap<String,String>();
-		if(!filtroGrupos.equals("0") && filtroGrupos.length()>0) {
+		if(!filtroGrupos.equals("0") && filtroGrupos.length()>1) {
 			filtroGrupos = filtroGrupos.substring(1,filtroGrupos.length()-1);
 			String[] arrFiltroGrupo = filtroGrupos.split(",");
 			for(int i=0; i<arrFiltroGrupo.length; i++) {
@@ -168,12 +168,12 @@ public class ReportGraficos {
 					series2 += "{name: '" + bodega + "', data: [" + series3;
 				}
 		}
-		if(categorias2.length()>0) {
+		if(categorias2.length()>1) {
 			categorias2 = "["+categorias2.substring(0,categorias2.length()-1)+"]";
 		}else {
 			categorias2 = "[]";
 		}
-		if(series2.length()>0) {
+		if(series2.length()>1) {
 			series2 = "["+series2.substring(0,series2.length()-1)+"]";
 		}else {
 			series2 = "[]";
@@ -191,13 +191,21 @@ public class ReportGraficos {
 		for(String x: nomBodegas){
 			listNomBodegas += "'"+x+"',";
 		};
-		graficos2.add(listNomBodegas.substring(0,listNomBodegas.length()-1).trim());
+		
+		if(listNomBodegas.length()>1) {
+			graficos2.add(listNomBodegas.substring(0,listNomBodegas.length()-1).trim());
+		}
+		
 		
 		String listNomGrupos = " ";
 		for(String x: nomGrupos){
 			listNomGrupos += "'"+x+"',";
 		};
-		graficos2.add(listNomGrupos.substring(0,listNomGrupos.length()-1).trim());
+		
+		if(listNomGrupos.length()>1) {
+			graficos2.add(listNomGrupos.substring(0,listNomGrupos.length()-1).trim());
+		}
+		
 		
 		return (graficos2);
 	}
@@ -210,7 +218,7 @@ public class ReportGraficos {
 		Map<String,Double> mapGrupoBodegaNombBodegaVsCantidad = new HashMap<String,Double>();
 		
 		Map<String,String> mapFiltroBodegas = new HashMap<String,String>();
-		if(!filtroBodegas.equals("0") && filtroBodegas.length()>0) {
+		if(!filtroBodegas.equals("0") && filtroBodegas.length()>1) {
 			filtroBodegas = filtroBodegas.substring(1,filtroBodegas.length()-1);
 			String[] arrFiltroBodega = filtroBodegas.split(",");
 			for(int i=0; i<arrFiltroBodega.length; i++) {
@@ -219,7 +227,7 @@ public class ReportGraficos {
 		}
 		
 		Map<String,String> mapFiltroGrupo = new HashMap<String,String>();
-		if(!filtroGrupos.equals("0") && filtroGrupos.length()>0) {
+		if(!filtroGrupos.equals("0") && filtroGrupos.length()>1) {
 			filtroGrupos = filtroGrupos.substring(1,filtroGrupos.length()-1);
 			String[] arrFiltroGrupo = filtroGrupos.split(",");
 			for(int i=0; i<arrFiltroGrupo.length; i++) {
@@ -352,12 +360,12 @@ public class ReportGraficos {
 				}
 		}
 		
-		if(categorias2.length()>0) {
+		if(categorias2.length()>1) {
 			categorias2 = "["+categorias2.substring(0,categorias2.length()-1)+"]";
 		}else {
 			categorias2 = "[]";
 		}
-		if(series2.length()>0) {
+		if(series2.length()>1) {
 			series2 = "["+series2.substring(0,series2.length()-1)+"]";
 		}else {
 			series2 = "[]";

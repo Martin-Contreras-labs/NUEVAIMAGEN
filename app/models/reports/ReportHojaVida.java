@@ -38,7 +38,7 @@ public class ReportHojaVida {
 			}
 			rs22.close();
 			smt22.close();
-			if(listaCond.length()>0) {
+			if(listaCond.length()>1) {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				PreparedStatement smt1 = con
 						.prepareStatement(" select distinct id_equipo, codigo,nombre " +
@@ -653,8 +653,10 @@ public class ReportHojaVida {
 			}
 			rs22.close();smt22.close();
 			
+			if(listaCond.length()>1) {
+				listaCond = listaCond.substring(0,listaCond.length()-1);
+			}
 			
-			listaCond = listaCond.substring(0,listaCond.length()-1);
 			
 			PreparedStatement smt1 = con
 					.prepareStatement(" select distinct id_equipo, codigo,nombre " +

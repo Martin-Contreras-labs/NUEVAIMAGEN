@@ -908,7 +908,8 @@ public class OtOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-				.prepareStatement("update `"+db+"`.otOdo set esEliminable = ?, confirmada = ?, fechaConfirmada = ? where id in "+listadoIdOtConfirmar+";");
+				.prepareStatement("update `"+db+"`.otOdo set esEliminable = ?, confirmada = ?, fechaConfirmada = ? "
+						+ " where id in "+listadoIdOtConfirmar+";");
 			smt.setString(1, "0");
 			smt.setString(2, "1");
 			smt.setString(3, Fechas.hoy().getFechaStrAAMMDD());
@@ -945,66 +946,31 @@ public class OtOdo {
 				aux.add("'"+rs2.getString(9)+"'");
 				auxLista.add(aux);
 			}
-			String paraInsert = auxLista.toString();
-			paraInsert = paraInsert.substring(1,paraInsert.length()-1);
-			paraInsert = paraInsert.replaceAll("\\[", "\\(");
-			paraInsert = paraInsert.replaceAll("\\]", ")");
 			smt2.close();
 			rs2.close();
 			
-			PreparedStatement smt3 = con
-					.prepareStatement("insert into `"+db+"`.listaPrecioServicio (id_bodegaEmpresa, id_servicio, id_moneda, fecha, precio, aplicaMinimo, cantMinimo, precioAdicional, id_cotiOdo) values "+paraInsert+";");
-			smt3.executeUpdate();
-			smt3.close();
+			String paraInsert = auxLista.toString();
+			if(paraInsert.length()>1) {
+				paraInsert = paraInsert.substring(1,paraInsert.length()-1);
+				paraInsert = paraInsert.replaceAll("\\[", "\\(");
+				paraInsert = paraInsert.replaceAll("\\]", ")");
+				
+				PreparedStatement smt3 = con
+						.prepareStatement("insert into `"+db+"`.listaPrecioServicio "
+								+ " (id_bodegaEmpresa, id_servicio, id_moneda, fecha, precio, aplicaMinimo, cantMinimo, precioAdicional, id_cotiOdo) "
+								+ " values "+paraInsert+";");
+				smt3.executeUpdate();
+				smt3.close();
+				
+				flag = true;
+			}
 			
-			flag = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return (flag);
 	}
 	
-	
-//	public static List<CotiOdoDetalle> XXXXXXXX(Connection con, String db, Long listadoIdOtConfirmar) {
-//		List<CotiOdoDetalle> lista = new ArrayList<CotiOdoDetalle>();
-//		try {
-//			PreparedStatement smt = con
-//					.prepareStatement(" select "
-//							+ " id_bodegaEmpresa, "
-//							+ " id_servicio, "
-//							+ " id_moneda, "
-//							+ " fecha, "
-//							+ " precio, "
-//							+ " aplicaMinimo, "
-//							+ " cantidadMinimo, "
-//							+ " precioAdicional, "
-//							+ " id_cotiOdo "
-//							+ " from `"+db+"`.cotiOdoDetalle "
-//							+ " left join cotiOdo on `"+db+"`.cotiOdo.id = cotiOdoDetalle.id_cotiOdo "
-//							+ " where id_otOdo in "+listadoIdOtConfirmar+";");
-//			ResultSet rs = smt.executeQuery();
-//			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-//			while (rs.next()) {
-//				Long idMoneda = rs.getLong(4);
-//				Long numDec = dec.get(idMoneda);
-//				if(numDec == null) {
-//					numDec = (long)0;
-//				}
-//				String precio = DecimalFormato.formato(rs.getDouble(5),numDec);
-//				String cantidad = DecimalFormato.formato(rs.getDouble(6),(long)2);
-//				String totalVenta = DecimalFormato.formato((rs.getDouble(5)*rs.getDouble(6)), numDec);
-//				String cantidadMinimo = DecimalFormato.formato(rs.getDouble(8),(long)2);
-//				String precioAdicional = DecimalFormato.formato(rs.getDouble(9),numDec);
-//				lista.add(new CotiOdoDetalle(rs.getLong(1),rs.getLong(2),rs.getLong(3),
-//						rs.getLong(4),precio,cantidad,rs.getLong(7),cantidadMinimo,precioAdicional,
-//						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),totalVenta));
-//			}
-//			rs.close();smt.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return (lista);
-//	}
 	
 	public static boolean modifyFechaEnvio(Connection con, String db, String fechaActualizacion, String fechaEnvio, Long id_otOdo) {
 		boolean flag = false;

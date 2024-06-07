@@ -1431,8 +1431,9 @@ public class MnuPlanes extends Controller {
 	    					
 	    				}
 	    				
-	    				insert = insert.substring(0,insert.length()-1);
+	    				
 		    			if(insert.length()>2) {
+		    				insert = insert.substring(0,insert.length()-1);
 		    				HojaVida.insert(con, s.baseDato, insert);
 		    			}
 		    			

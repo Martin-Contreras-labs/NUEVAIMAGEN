@@ -252,7 +252,7 @@ public class FormCotizaOdo {
 							form.precioAdicional.get(i).replaceAll(",", "")+"'),";
 				}
 			}
-			if(form.id_servicio!=null) {
+			if(form.id_servicio!=null && detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
 			}
 			if(detalle.length()>2) {
@@ -291,7 +291,7 @@ public class FormCotizaOdo {
 							form.precioAdicional.get(i).replaceAll(",", "")+"'),";
 				}
 			}
-			if(form.id_servicio!=null) {
+			if(form.id_servicio!=null && detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
 			}
 			if(detalle.length()>2) {

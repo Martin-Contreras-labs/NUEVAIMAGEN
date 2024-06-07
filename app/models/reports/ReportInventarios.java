@@ -2330,7 +2330,7 @@ public class ReportInventarios {
 			rs21.close();
 			smt21.close();
 			
-			if(listaCond2.length()>0) {
+			if(listaCond2.length()>1) {
 				listaCond2 = listaCond2.substring(0,listaCond2.length()-1);
 				
 				PreparedStatement smt2 = con
@@ -4031,7 +4031,7 @@ public class ReportInventarios {
 			rs2.close();smt2.close();
 			
 			
-			if(listaCond.length()>0) {
+			if(listaCond.length()>1) {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				
 				PreparedStatement smt1 = con

@@ -384,7 +384,7 @@ public class PlanMantencion {
 			rs2.close();
 			smt2.close();
 			
-			if(listaCond.length()>0) {
+			if(listaCond.length()>1) {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				listaCond = " where equipo.vigente=1 and equipo.id not in ("+listaCond+") ";
 			}

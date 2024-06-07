@@ -1753,7 +1753,7 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 			rs20.close();smt20.close();
 			
 			
-			if(listaCond.length()>0) {
+			if(listaCond.length()>1) {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				
 				PreparedStatement smt = con
@@ -1794,7 +1794,7 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 			}
 			rs21.close();smt21.close();
 			
-			if(listaCond2.length()>0) {
+			if(listaCond2.length()>1) {
 				listaCond2 = listaCond2.substring(0,listaCond2.length()-1);
 				PreparedStatement smt2 = con
 						.prepareStatement(" select " + 
@@ -1924,7 +1924,7 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 			}
 			rs21.close();smt21.close();
 			
-			if(listaCond2.length()>0) {
+			if(listaCond2.length()>1) {
 				listaCond2 = listaCond2.substring(0,listaCond2.length()-1);
 				PreparedStatement smt2 = con
 						.prepareStatement(" select " + 

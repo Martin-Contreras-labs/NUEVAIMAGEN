@@ -48,6 +48,7 @@ public class BodegaEmpresa {
 	public Long id_comercial;
 	public String nameComercial;
 	
+	public Long vigente;
 	
 	
 	
@@ -55,7 +56,7 @@ public class BodegaEmpresa {
 			Double tasaArriendo, Double tasaCfi, Long cobraDiaDespacho, Long nDiaGraciaEnvio, Long nDiaGraciaRegreso,
 			Double factorM2Viga, Long baseCalculo, Long tratoDevoluciones, String nombreTipoBodega, String nickCliente,
 			String nickProyecto,String comercial, String rutCliente, String pep, Double ivaBodega, Long id_sucursal, 
-			String nameSucursal, Long id_comercial, String nameComercial) {
+			String nameSucursal, Long id_comercial, String nameComercial, Long vigente) {
 		super();
 		this.id = id;
 		this.esInterna = esInterna;
@@ -82,6 +83,7 @@ public class BodegaEmpresa {
 		this.nameSucursal = nameSucursal;
 		this.id_comercial = id_comercial;
 		this.nameComercial = nameComercial;
+		this.vigente = vigente;
 		
 		if(id_comercial.toString().equals("0")) {
 			this.nameComercial = comercial;
@@ -166,6 +168,14 @@ public class BodegaEmpresa {
 
 	public void setNameComercial(String nameComercial) {
 		this.nameComercial = nameComercial;
+	}
+
+	public Long getVigente() {
+		return vigente;
+	}
+
+	public void setVigente(Long vigente) {
+		this.vigente = vigente;
 	}
 
 
@@ -267,7 +277,8 @@ public class BodegaEmpresa {
 								" ifnull(bodegaEmpresa.pep,''), "+
 								" ifnull(bodegaEmpresa.ivaBodega,0), "+
 								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial "+
+								" bodegaEmpresa.id_comercial, "+
+								" bodegaEmpresa.vigente "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -295,7 +306,7 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24)));
 				}
 				rs.close();
 				smt.close();
@@ -332,7 +343,8 @@ public class BodegaEmpresa {
 								" ifnull(bodegaEmpresa.pep,''), "+
 								" ifnull(bodegaEmpresa.ivaBodega,0), "+
 								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial "+
+								" bodegaEmpresa.id_comercial, "+
+								" bodegaEmpresa.vigente "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -361,7 +373,7 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24)));
 				}
 				rs.close();
 				smt.close();
@@ -398,7 +410,8 @@ public class BodegaEmpresa {
 								" ifnull(bodegaEmpresa.pep,''), "+
 								" ifnull(bodegaEmpresa.ivaBodega,0), "+
 								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial "+
+								" bodegaEmpresa.id_comercial, "+
+								" bodegaEmpresa.vigente "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -427,7 +440,7 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24)));
 				}
 				rs.close();
 				smt.close();
@@ -466,7 +479,8 @@ public class BodegaEmpresa {
 									" ifnull(bodegaEmpresa.pep,''), "+
 									" ifnull(bodegaEmpresa.ivaBodega,0), "+
 									" bodegaEmpresa.id_sucursal, "+
-									" bodegaEmpresa.id_comercial "+
+									" bodegaEmpresa.id_comercial, "+
+									" bodegaEmpresa.vigente "+
 									" from `"+db+"`.bodegaEmpresa " +
 									" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 									" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -495,7 +509,7 @@ public class BodegaEmpresa {
 								rs.getLong(14),rs.getLong(15),rs.getString(12),
 								rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 								rs.getString(20),rs.getDouble(21),
-								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial));
+								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24)));
 					}
 					rs.close();
 					smt.close();
@@ -535,7 +549,8 @@ public class BodegaEmpresa {
 									" ifnull(bodegaEmpresa.pep,''), "+
 									" ifnull(bodegaEmpresa.ivaBodega,0), "+
 									" bodegaEmpresa.id_sucursal, "+
-									" bodegaEmpresa.id_comercial "+
+									" bodegaEmpresa.id_comercial, "+
+									" bodegaEmpresa.vigente "+
 									" from `"+db+"`.bodegaEmpresa " +
 									" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 									" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -564,7 +579,7 @@ public class BodegaEmpresa {
 								rs.getLong(14),rs.getLong(15),rs.getString(12),
 								rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 								rs.getString(20),rs.getDouble(21),
-								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial));
+								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24)));
 					}
 					rs.close();
 					smt.close();
@@ -602,7 +617,8 @@ public class BodegaEmpresa {
 								" ifnull(bodegaEmpresa.pep,''), "+
 								" ifnull(bodegaEmpresa.ivaBodega,0), "+
 								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial "+
+								" bodegaEmpresa.id_comercial, "+
+								" bodegaEmpresa.vigente "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -632,7 +648,7 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial);
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24));
 				}
 				rs.close();
 				smt.close();
@@ -669,7 +685,8 @@ public class BodegaEmpresa {
 								" ifnull(bodegaEmpresa.pep,''), "+
 								" ifnull(bodegaEmpresa.ivaBodega,0), "+
 								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial "+
+								" bodegaEmpresa.id_comercial, "+
+								" bodegaEmpresa.vigente "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -699,7 +716,7 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial);
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24));
 				}
 				rs.close();
 				smt.close();
@@ -1333,11 +1350,14 @@ public class BodegaEmpresa {
 			                Double v = entry.getValue();
 			    	  		insertar += "("+id_bodegaEmpresa+","+k+","+v+"),";
 			    	  	}
-			    	  	insertar = insertar.substring(0,insertar.length()-1);
-			    	  	PreparedStatement smt3 = con
-								.prepareStatement("insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";");
-			    		smt3.executeUpdate();
-			    	  	smt3.close();
+			    	  	if(insertar.length()>2) {
+			    	  		insertar = insertar.substring(0,insertar.length()-1);
+				    	  	PreparedStatement smt3 = con
+									.prepareStatement("insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";");
+				    		smt3.executeUpdate();
+				    	  	smt3.close();
+			    	  	}
+			    	  	
 		    	  	}
 		    	  	
 		    	  	
@@ -1423,11 +1443,14 @@ public class BodegaEmpresa {
 		                Double v = entry.getValue();
 		    	  		insertar += "("+form.id_bodegaEmpresa+","+k+","+v+"),";
 		    	  	}
-		    	  	insertar = insertar.substring(0,insertar.length()-1);
-		    	  	PreparedStatement smt3 = con
-							.prepareStatement("insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";");
-		    		smt3.executeUpdate();
-		    	  	smt3.close();
+		    	  	if(insertar.length()>2) {
+		    	  		insertar = insertar.substring(0,insertar.length()-1);
+			    	  	PreparedStatement smt3 = con
+								.prepareStatement("insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";");
+			    		smt3.executeUpdate();
+			    	  	smt3.close();
+		    	  	}
+		    	  	
 	    	  	}
 				flag = true;
 			}

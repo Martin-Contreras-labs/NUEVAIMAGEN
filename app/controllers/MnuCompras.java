@@ -734,7 +734,10 @@ public class MnuCompras extends Controller {
 	    	    				
 	    	    				smt.executeUpdate();
 	    	    				smt.close();
-	    	    				selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
+	    	    				if(selEquipos.length()>1) {
+	    	    					selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
+	    	    				}
+	    	    				
 	    	    				PreparedStatement smt2 = con
 	    	    						.prepareStatement("Select id from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
 	    	    				ResultSet rs2 = smt2.executeQuery();
@@ -752,13 +755,16 @@ public class MnuCompras extends Controller {
 	    	    					}
 	    	    					
 	    	    				}
-	    	    				datos = datos.substring(0,datos.length()-1);
-	    	    				PreparedStatement smt3 = con
-	    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
-	    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
-	    	    								+ " values "+datos+";");
-	    	    				smt3.executeUpdate();
-	    	    				smt3.close();
+	    	    				if(datos.length()>1) {
+	    	    					datos = datos.substring(0,datos.length()-1);
+		    	    				PreparedStatement smt3 = con
+		    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
+		    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+		    	    								+ " values "+datos+";");
+		    	    				smt3.executeUpdate();
+		    	    				smt3.close();
+	    	    				}
+	    	    				
 	    	    			}
 		    				
 		    				

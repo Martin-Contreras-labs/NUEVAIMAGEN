@@ -121,7 +121,7 @@ public class FormDespacho {
 					valores += "('"+id_ot+"','"+id_guia+"','"+id_cotizaDetalle+"','"+id_equipoOrigen+"','"+id_equipoDespacho+"','"+cantidadDespacho+"','"+cantidadRebajaOt+"','"+id_bodegaOrigen+"','"+esVenta+"','"+id_cotizacion+"'),";
 				}
 			}
-			if(valores.length()>0){
+			if(valores.length()>10){
 				valores = valores.substring(0, valores.length()-1);
 				try {
 					PreparedStatement smt = con
@@ -145,7 +145,7 @@ public class FormDespacho {
 							"('"+id_bodegaDestino+"','"+id_equipo+"','1','"+id_guia+"','"+cantidad+"','"+id_bodegaOrigen+"','"+esVenta+"','"+esNuevo+"','"+id_otDespachado+"','"+id_cotizacion+"'),";
 					}
 					
-					if(valores.length()>0){
+					if(valores.length()>10){
 						valores = valores.substring(0, valores.length()-1);
 						PreparedStatement smt2 = con
 								.prepareStatement("INSERT INTO `"+db+"`.movimiento "
@@ -253,7 +253,7 @@ public class FormDespacho {
 							valores += k;
 						}
 						
-						if(valores.length()>0){
+						if(valores.length()>10){
 							valores = valores.substring(0, valores.length()-1);
 							PreparedStatement smt3 = con
 									.prepareStatement("INSERT INTO `"+db+"`.listaPrecio "

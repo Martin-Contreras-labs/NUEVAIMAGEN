@@ -601,10 +601,9 @@ public class FormCotiza {
 							form.esVenta.get(i)+"'),";
 				}
 			}
-			if(form.id_equipo!=null) {
+			
+			if(form.id_equipo!=null && detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
-			}
-			if(detalle.length()>2) {
 				if(!CotizaDetalle.create(con, db, detalle)) {
 					Cotizacion.delete(con, db, id_cotizacion);
 				}else {
@@ -641,10 +640,9 @@ public class FormCotiza {
 							form.esVenta.get(i)+"'),";
 				}
 			}
-			if(form.id_equipo!=null) {
+
+			if(form.id_equipo!=null && detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
-			}
-			if(detalle.length()>2) {
 				if(CotizaDetalle.delete(con, db, form.id_cotizacion)) {
 					CotizaDetalle.create(con, db, detalle);
 					String path = "0";

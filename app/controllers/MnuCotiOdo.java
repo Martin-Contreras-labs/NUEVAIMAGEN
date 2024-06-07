@@ -896,7 +896,7 @@ public class MnuCotiOdo extends Controller {
 	       		String listadoIdCotiConfirmar = form.get("cambiosDeEstados").trim();
     			try {
 	    			Connection con = db.getConnection();
-	    			if(listadoIdCotiConfirmar.length()>0) {
+	    			if(listadoIdCotiConfirmar.length()>1) {
 	    				listadoIdCotiConfirmar = "("+listadoIdCotiConfirmar.substring(0,listadoIdCotiConfirmar.length()-1)+")";
 	    				CotiOdo.confirmar(con, s.baseDato, listadoIdCotiConfirmar);
 	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotiOdo", (long)0, "confirma", "confirma coti odo id: "+listadoIdCotiConfirmar);
@@ -1161,7 +1161,7 @@ public class MnuCotiOdo extends Controller {
 	       		String listadoIdOtOdoConfirmar = form.get("cambiosDeEstados").trim();
     			try {
 	    			Connection con = db.getConnection();
-	    			if(listadoIdOtOdoConfirmar.length()>0) {
+	    			if(listadoIdOtOdoConfirmar.length()>1) {
 	    				listadoIdOtOdoConfirmar = "("+listadoIdOtOdoConfirmar.substring(0,listadoIdOtOdoConfirmar.length()-1)+")";
 	    				OtOdo.confirmar(con, s.baseDato, listadoIdOtOdoConfirmar);
 	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "otOdo", (long)0, "confirma", "confirma ot odo id: "+listadoIdOtOdoConfirmar);

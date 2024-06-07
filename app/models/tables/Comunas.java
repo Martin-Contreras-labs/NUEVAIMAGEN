@@ -45,7 +45,7 @@ public class Comunas {
 		if(cod_region==null) cod_region="";
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT codigo,nombre FROM `"+db+"`.comunas WHERE left(codigo,2) = ?;");
+					.prepareStatement("SELECT codigo,nombre FROM `"+db+"`.comunas WHERE left(codigo,2) = ? order by nombre;");
 			smt.setString(1, cod_region.trim());
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {

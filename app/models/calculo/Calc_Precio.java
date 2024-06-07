@@ -193,7 +193,7 @@ public class Calc_Precio {
 			}
 			rs2.close();smt2.close();
 			
-			if(lista.length()>0) {
+			if(lista.length()>1) {
 				lista=lista.substring(0,lista.length()-1);
 				PreparedStatement smt = con
 						.prepareStatement(" select " +

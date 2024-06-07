@@ -583,14 +583,17 @@ public class Precio {
 			}
 			rs2.close();
 			smt2.close();
-			aux = aux.substring(0,aux.length()-1);
+			if(aux.length()>5) {
+				aux = aux.substring(0,aux.length()-1);
+				
+				PreparedStatement smt = con
+						.prepareStatement("INSERT INTO `"+db+"`.precio (id_sucursal, id_equipo, fecha) VALUES " + aux +");");
+				smt.executeUpdate();
+				smt.close();
+				
+				flag = true;
+			}
 			
-			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.precio (id_sucursal, id_equipo, fecha) VALUES " + aux +");");
-			smt.executeUpdate();
-			smt.close();
-			
-			flag = true;
 			
 		} catch (SQLException e) {
 				e.printStackTrace();

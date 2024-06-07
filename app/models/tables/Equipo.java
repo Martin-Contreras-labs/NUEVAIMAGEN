@@ -556,15 +556,18 @@ public class Equipo {
 				for(Sucursal s: listSucursal) {
 					 datos += "("+id_equipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+s.getId()+"),";
 				}
-				datos = datos.substring(0,datos.length()-1);
+				if(datos.length()>10) {
+					datos = datos.substring(0,datos.length()-1);
+					
+					
+					PreparedStatement smt3 = con
+							.prepareStatement("insert into `"+db+"`.precio "
+									+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+									+ " values "+datos+";");
+					smt3.executeUpdate();
+					smt3.close();
+				}
 				
-				
-				PreparedStatement smt3 = con
-						.prepareStatement("insert into `"+db+"`.precio "
-								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
-								+ " values "+datos+";");
-				smt3.executeUpdate();
-				smt3.close();
 			}
 			
 			smt2.close();

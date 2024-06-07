@@ -353,7 +353,7 @@ public class Inventarios {
 			rs2.close();smt2.close();
 			
 			
-			if(listaCond.length()>0) {
+			if(listaCond.length()>1) {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				
 				PreparedStatement smt1 = con
@@ -404,7 +404,7 @@ public class Inventarios {
 				listaCond = listaCond + rs20.getString(1) + ",";
 			}
 			rs20.close();smt20.close();
-			if(listaCond.length()>0) {
+			if(listaCond.length()>1) {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				
 				PreparedStatement smt = con

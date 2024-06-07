@@ -751,6 +751,21 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
 	    			BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaDestino());
 	    			
+	    			
+	    			if(bodegaOrigen!=null && bodegaOrigen.getVigente() == (long)0) {
+	    				String msg = "No es posible modificar este movimiento, origen o destino esta no vigente, o ambos no vigentes";
+    					con.close();
+        				return ok(mensajes.render("/movimientoSelectModificarPeriodo/",msg));
+	    			}
+	    			
+	    			if(bodegaDestino!=null && bodegaDestino.getVigente() == (long)0) {
+	    				String msg = "No es posible modificar este movimiento, origen o destino esta no vigente, o ambos no vigentes";
+    					con.close();
+        				return ok(mensajes.render("/movimientoSelectModificarPeriodo/",msg));
+	    			}
+	    			
+	    			
+	    			
 	    			List<List<String>> detalleGuia = new ArrayList<List<String>>();
 					if((long) bodegaOrigen.esInterna == (long) 1) {
 						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaDestino(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
@@ -955,12 +970,12 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	        				con.close();
 	            			return redirect("/movimientoSelectModificarPeriodo/");
 	    				}else {
-	    					String msg = "No es posible eliminar este movimiento, su eliminacion provocaría inventarios negativos";
+	    					String msg = "No es posible eliminar este movimiento, o su eliminacion provocaría inventarios negativos, o el origen y/o destino esta no vigente";
 	    					con.close();
 	        				return ok(mensajes.render("/movimientoSelectModificarPeriodo/",msg));
 	    				}
 	    			}else {
-	    				String msg = "No es posible eliminar este movimiento, su eliminacion provocaría inventarios negativos";
+	    				String msg = "No es posible eliminar este movimiento, o su eliminacion provocaría inventarios negativos, o el origen y/o destino esta no vigente";
 	    				con.close();
 	    				return ok(mensajes.render("/movimientoSelectModificarPeriodo/",msg));
 	    			}

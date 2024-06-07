@@ -52,7 +52,7 @@ public class ReportEjecutivos {
 		Map<String,Double> mapTipBodegaNombGruposVsCompra = new HashMap<String,Double>();
 		
 		Map<String,String> mapFitroGrupo = new HashMap<String,String>();
-		if(!filtroGrupos.equals("0") && filtroGrupos.length()>0) {
+		if(!filtroGrupos.equals("0") && filtroGrupos.length()>1) {
 			filtroGrupos = filtroGrupos.substring(1,filtroGrupos.length()-1);
 			String[] arrFiltroGrupo = filtroGrupos.split(",");
 			for(int i=0; i<arrFiltroGrupo.length; i++) {
@@ -120,8 +120,14 @@ public class ReportEjecutivos {
 				}
 			}
         }
-		categorias2 = categorias2.substring(0,categorias2.length()-1)+"]";
-		series2 = series2.substring(0,series2.length()-1)+"]},";
+		if(categorias2.length()>2) {
+			categorias2 = categorias2.substring(0,categorias2.length()-1)+"]";
+		}
+		
+		if(series2.length()>2) {
+			series2 = series2.substring(0,series2.length()-1)+"]},";
+		}
+		
 		
 		tipoBod = mapTipoBodega.get((long)2);
 		series2 += "{name: '" + tipoBod.nombre + "', data: [";
@@ -141,14 +147,22 @@ public class ReportEjecutivos {
 				}
 			}
         }
-		series2 = series2.substring(0,series2.length()-1)+"]}]";
+		
+		if(series2.length()>2) {
+			series2 = series2.substring(0,series2.length()-1)+"]}]";
+		}
+		
 
 		String inversion2 = "[";
 		for (Map.Entry<String, Double> entry : mapNombGruposVsCompra.entrySet()) {
 			DecimalFormat dec = new DecimalFormat("0");
 			inversion2 += "['"+entry.getKey()+"',"+dec.format(entry.getValue()/1000)+"],";
         }
-		inversion2 = inversion2.substring(0,inversion2.length()-1)+"]";
+		
+		if(inversion2.length()>2) {
+			inversion2 = inversion2.substring(0,inversion2.length()-1)+"]";
+		}
+		
 		
 		List<String> graficos2 = new ArrayList<String>();
 		graficos2.add(categorias2);
@@ -165,7 +179,7 @@ public class ReportEjecutivos {
 		Map<String,Double> mapTipBodegaNombGruposVsCantidad = new HashMap<String,Double>();
 		
 		Map<String,String> mapFitroGrupo = new HashMap<String,String>();
-		if(!filtroGrupos.equals("0") && filtroGrupos.length()>0) {
+		if(!filtroGrupos.equals("0") && filtroGrupos.length()>1) {
 			filtroGrupos = filtroGrupos.substring(1,filtroGrupos.length()-1);
 			String[] arrFiltroGrupo = filtroGrupos.split(",");
 			for(int i=0; i<arrFiltroGrupo.length; i++) {
@@ -234,8 +248,15 @@ public class ReportEjecutivos {
 				}
 			}
         }
-		categorias2 = categorias2.substring(0,categorias2.length()-1)+"]";
-		series2 = series2.substring(0,series2.length()-1)+"]},";
+
+		if(categorias2.length()>2) {
+			categorias2 = categorias2.substring(0,categorias2.length()-1)+"]";
+		}
+		
+		if(series2.length()>2) {
+			series2 = series2.substring(0,series2.length()-1)+"]},";
+		}
+		
 		
 		tipoBod = mapTipoBodega.get((long)2);
 		series2 += "{name: '" + tipoBod.nombre + "', data: [";
@@ -255,7 +276,11 @@ public class ReportEjecutivos {
 				}
 			}
         }
-		series2 = series2.substring(0,series2.length()-1)+"]}]";
+		
+		if(series2.length()>2) {
+			series2 = series2.substring(0,series2.length()-1)+"]}]";
+		}
+		
 		
 		List<String> graficos2 = new ArrayList<String>();
 		graficos2.add(categorias2);

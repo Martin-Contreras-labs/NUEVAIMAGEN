@@ -71,7 +71,7 @@ public class FormCompra {
 						form.puCompra.get(i).replaceAll(",", "")+"','"+form.id_bodegaDestino.get(i)+"'),";
 			}
 			
-			if(detalle.length()>2) {
+			if(detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
 				if(!Compra.create(con, db, detalle)) {
 					Factura.delete(con, db, id_factura);
@@ -100,7 +100,7 @@ public class FormCompra {
 						form.puCompra.get(i).replaceAll(",", "")+"','"+form.id_bodegaDestino.get(i)+"'),";
 			}
 			
-			if(detalle.length()>2) {
+			if(detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
 				Compra.create(con, db, detalle);
 			}

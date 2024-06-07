@@ -5409,6 +5409,13 @@ public class MnuReportes extends Controller {
 					email.addAttachment("proformas.pdf", outputFile);
 		   		    mailerClient.send(email);
                 } catch (Exception x) {
+                	
+                	x.printStackTrace();
+                	
+                	long fileSizeInBytes = outputFile.length();
+                    double fileSizeInKB = (double) fileSizeInBytes / 1024;
+                    double fileSizeInMB = fileSizeInKB / 1024;
+
                 	Email email = new Email();
 		    		String asunto = "Lista de proformas desde nro: "+desdeNro+" hasta nro: "+hastaNro;
 		   			String desde = "desde MADA <informaciones@inqsol.cl>";
@@ -5416,10 +5423,12 @@ public class MnuReportes extends Controller {
 					email.setFrom(desde);
 					email.setBodyHtml("<html><body>" +
 							" <p><b>NO EXISTEN PDF ASOCIADOS EN EL RANGO SOLICITADO</b></p>" +
+							" <p><b>TAMAÑO FILE: "+fileSizeInMB+" MB</b></p>" +
 		   		    		" <p>Nota: por favor no responder este correo</p>" +
 		   		    		" </body></html>");
 					email.addTo(eMail);
 		   		    mailerClient.send(email);
+		   		    
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -5465,7 +5474,7 @@ public class MnuReportes extends Controller {
 		       			MnuReportes.proformaListaPdf0 generar = new MnuReportes.proformaListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
 		    			generar.start();
 		    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
-		    			return ok(mensajes.render("/home/",mensaje));
+		    			return ok(mensajes.render("/proformaLista/"+year,mensaje));
 		       			
 		       		}else {
 		       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";

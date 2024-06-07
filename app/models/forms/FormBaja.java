@@ -160,7 +160,7 @@ public class FormBaja {
 				}
 			}
 			if(form.id_equipo!=null) {
-				if(detalle.length()>2) {
+				if(detalle.length()>10) {
 					detalle = detalle.substring(0,detalle.length()-1);
 					if(!Baja.create(con, db, detalle)) {
 						ActaBaja.delete(con, db, id_actaBaja);
@@ -370,7 +370,7 @@ public class FormBaja {
 					detalle += "('"+id_actaBaja+"','"+form.id_equipo.get(i)+"','"+form.cantidad.get(i).replaceAll(",", "")+"','"+form.motivo.get(i)+"'),";
 				}
 			}
-			if(form.id_equipo!=null) {
+			if(form.id_equipo!=null && detalle.length()>10) {
 				detalle = detalle.substring(0,detalle.length()-1);
 				Baja.create(con, db, detalle);
 				ActaBaja.modifyXCampo(con, db, "fecha", form.fecha, id_actaBaja);

@@ -207,10 +207,13 @@ public class CPanel {
 				if(aux2>0) aux3 = (double) Math.round(aux1/aux2*100)/100;
 				listPRvsPL += aux3.toString() + ",";
 			}
-			listPRvsPL = listPRvsPL.substring(0,listPRvsPL.length()-1) + "]";
-			String aux3 = "{ name: '"+emprVig.get(i).pais+"', type: 'spline', yAxis: 0, data: "+listPRvsPL+", tooltip: {valueSuffix: ' '}},";
-			aux.add(aux3);
-			categorias = series.get(6);
+			if(listPRvsPL.length()>1) {
+				listPRvsPL = listPRvsPL.substring(0,listPRvsPL.length()-1) + "]";
+				String aux3 = "{ name: '"+emprVig.get(i).pais+"', type: 'spline', yAxis: 0, data: "+listPRvsPL+", tooltip: {valueSuffix: ' '}},";
+				aux.add(aux3);
+				categorias = series.get(6);
+			}
+			
 		}
 		resultado.add(categorias);
 		for(int i=0; i< aux.size(); i++) {

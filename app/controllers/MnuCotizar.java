@@ -4553,6 +4553,23 @@ public class MnuCotizar extends Controller {
 	    			String cabezeraOt = Ot.vistaCabezeraOt(con, s.baseDato, ot, coti, mapeoDiccionario);
 	    			BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato, coti.getId_bodegaEmpresa());
 	    			
+	    			
+	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
+	    			
+	    			
+	    			if(bodegaOrigen!=null && bodegaOrigen.getVigente() == (long)0) {
+	    				String msg = "No es posible modificar este movimiento, origen o destino esta no vigente, o ambos no vigentes";
+    					con.close();
+        				return ok(mensajes.render("/otListaDespachoModificarPeriodo/",msg));
+	    			}
+	    			
+	    			if(bodegaDestino!=null && bodegaDestino.getVigente() == (long)0) {
+	    				String msg = "No es posible modificar este movimiento, origen o destino esta no vigente, o ambos no vigentes";
+    					con.close();
+        				return ok(mensajes.render("/otListaDespachoModificarPeriodo/",msg));
+	    			}
+	    			
+	    			
 	    			Map<Long,Double> mapDespachado = OtDespachado.mapSumaDespachadoPorIdOtCantEquiv(con, s.baseDato, ot.getId());
 	    			List<CotizaDetalle> detalleOrigen = CotizaDetalle.allPorIdCotizacion(con, s.baseDato, ot.getId_cotizacion());
 	    			List<List<String>> detOrigen = new ArrayList<List<String>>();
@@ -4877,7 +4894,7 @@ public class MnuCotizar extends Controller {
 	    			
 	    			String fechaGuia = Fechas.AAMMDD(guia.getFecha());
 	    			
-	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
+	    			
 	    			
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
 	    	
@@ -5707,7 +5724,10 @@ public class MnuCotizar extends Controller {
 		    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
 		    	    				smt.executeUpdate();
 		    	    				smt.close();
-		    	    				selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
+		    	    				if(selEquipos.length()>1) {
+		    	    					selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
+		    	    				}
+		    	    				
 		    	    				PreparedStatement smt2 = con
 		    	    						.prepareStatement("Select id from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
 		    	    				ResultSet rs2 = smt2.executeQuery();
@@ -5731,7 +5751,10 @@ public class MnuCotizar extends Controller {
 		    	    					}
 		    	    					
 		    	    				}
-		    	    				datos = datos.substring(0,datos.length()-1);
+		    	    				if(datos.length()>1) {
+		    	    					datos = datos.substring(0,datos.length()-1);
+		    	    				}
+		    	    				
 		    	    				PreparedStatement smt3 = con
 		    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
 		    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "

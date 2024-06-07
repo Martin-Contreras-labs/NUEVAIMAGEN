@@ -97,7 +97,7 @@ public class MnuCotizarSelect extends Controller {
 	       		String listSeleccionados = form.get("seleccionados").trim();
     			try {
 	    			Connection con = db.getConnection();
-	    			if(listSeleccionados.length()>0) {
+	    			if(listSeleccionados.length()>1) {
 	    				listSeleccionados = listSeleccionados.substring(0,listSeleccionados.length()-1);
 	    			}
 	    				String[] aux = listSeleccionados.split(",");

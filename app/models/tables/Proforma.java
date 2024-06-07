@@ -283,6 +283,7 @@ public class Proforma {
 			int numDec = Moneda.numeroDecimalxId(con, db, "1");
 			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
 			Map<Long,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAll(con, db);
+			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 		
 			while (rs.next()) {
 				String fecha = null;	if (rs.getString(2) != null) {fecha = myformatfecha.format(rs.getDate(2));}
@@ -300,10 +301,19 @@ public class Proforma {
 				String nomBodega = "";
 				String nameSucursal = "";
 				String auxIdSucursal = "0";
+				String nameComercial = "";
 				if(bodegaEmpresa!=null) {
 					nomBodega = bodegaEmpresa.getNombre();
 					nameSucursal = bodegaEmpresa.getNameSucursal();
 					auxIdSucursal = bodegaEmpresa.getId_sucursal().toString();
+					
+					Comercial comercial = mapComercial.get(bodegaEmpresa.getId_comercial());
+					if(comercial!=null) {
+						nameComercial = comercial.getNameUsuario();
+					}else {
+						nameComercial = bodegaEmpresa.getComercial();
+					}
+					
 				}
 				
 				String neto,iva,total = "0";
@@ -343,6 +353,7 @@ public class Proforma {
 	   			 aux.add(rs.getString(22));		//20 response si es 0 no enviado y distinto enviado
 	   			 aux.add(rs.getString(23));		//21 nro fiscal
 	   			 aux.add(nameSucursal);			//22 nameSucursal
+	   			 aux.add(nameComercial);		//23 nameComercial
 	   			 
 	   			 if(esPorSucursal.equals("1")) {
 	   				 if(auxIdSucursal.equals(id_sucursal)) {
@@ -604,6 +615,12 @@ public class Proforma {
 			for(int i=1; i<17; i++) {
 				hoja1.setColumnWidth(i, 4*1000);
 			}
+			
+			hoja1.setColumnWidth(7, 8*1000);
+			hoja1.setColumnWidth(8, 8*1000);
+			hoja1.setColumnWidth(9, 8*1000);
+			hoja1.setColumnWidth(10, 10*1000);
+			
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
             byte[] bytes = IOUtils.toByteArray(x);
@@ -678,21 +695,24 @@ public class Proforma {
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			hoja1.setColumnWidth(7, 10*1000);
 			cell.setCellValue("CLIENTE");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			hoja1.setColumnWidth(8, 10*1000);
 			cell.setCellValue("SUCURSAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			hoja1.setColumnWidth(9, 10*1000);
+			cell.setCellValue("COMERCIAL");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA")+"/PROYECTO");
 			
 			posCell++;
@@ -770,6 +790,12 @@ public class Proforma {
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(22));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(23));
 				
 				posCell++;
 				cell = row.createCell(posCell);

@@ -84,8 +84,8 @@ public class Comercial {
 
 	public static Map<Long,Comercial> mapAllComerciales(Connection con, String db){
 		Map<Long,Comercial> map = new HashMap<Long,Comercial>();
-		List<Comercial> listClientes = Comercial.all(con, db);
-		listClientes.forEach(x->{
+		List<Comercial> allComerciales = Comercial.all(con, db);
+		allComerciales.forEach(x->{
 			map.put(x.getId(), x);
 		});
 		return(map);

@@ -477,8 +477,18 @@ public class Movimiento {
 	public static boolean esPosibleEliminar(Connection con, String db, Long id_guia) {
 		boolean flag  = true;
 		Guia guia = Guia.find(con, db, id_guia);
-		BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, db , guia.id_bodegaOrigen);
-		if(bodega.esInterna == 1) {
+		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db , guia.id_bodegaOrigen);
+		BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, db , guia.id_bodegaDestino);
+		
+		if(bodegaOrigen!=null && bodegaOrigen.getVigente() == (long)0) {
+			return(false);
+		}
+		
+		if(bodegaDestino!=null && bodegaDestino.getVigente() == (long)0) {
+			return(false);
+		}
+		
+		if(bodegaOrigen.esInterna == 1) {
 			try {
 				
 				PreparedStatement smt = con

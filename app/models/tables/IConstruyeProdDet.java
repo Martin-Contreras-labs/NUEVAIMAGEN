@@ -324,8 +324,11 @@ public class IConstruyeProdDet {
 			for(String s: l) {
 				aux += "'" + s.replaceAll("'", " ") +"',";
 			}
-			aux = aux.substring(0,aux.length()-1) + "),";
-			auxInsert += aux;
+			if(aux.length()>1) {
+				aux = aux.substring(0,aux.length()-1) + "),";
+				auxInsert += aux;
+			}
+			
 		}
 		if(auxInsert.length()>2) {
 			auxInsert = auxInsert.substring(0,auxInsert.length()-1);

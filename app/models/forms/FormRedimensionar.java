@@ -118,7 +118,7 @@ public class FormRedimensionar {
 	        }
 			
 			if(form.id_a_redimensionar!=null) {
-				if(detalle.length()>2) {
+				if(detalle.length()>10) {
 					detalle = detalle.substring(0,detalle.length()-1);
 					if(!Redimensionar.create(con, db, detalle)) {
 						ActaRedimensionar.delete(con, db, id_actaRedimensionar);
@@ -224,7 +224,7 @@ public class FormRedimensionar {
 				
 			}
 			
-			if(insertMovimiento.length() > 2) {
+			if(insertMovimiento.length() > 10) {
 				insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
 				if(Movimiento.createMovimientoCompra(con, db, insertMovimiento)) {
 					for(List<String> x: listCompra) {
@@ -271,7 +271,7 @@ public class FormRedimensionar {
 				
 			}
 			
-			if(insertMovimiento.length() > 2) {
+			if(insertMovimiento.length() > 10) {
 				insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
 				if(Movimiento.createMovimientoBaja(con, db, insertMovimiento)) {
 					for(Baja x: listBaja) {

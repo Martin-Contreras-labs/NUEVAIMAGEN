@@ -290,7 +290,7 @@ public class FormMovimiento {
 					+listMov.get(i).getCantCliente()+"'),";
 			
 		}
-		if(insertMovimiento.length()>2) {
+		if(insertMovimiento.length()>10) {
 			insertMovimiento = insertMovimiento.substring(0,insertMovimiento.length()-1);
 		}else {
 			insertMovimiento = null;
@@ -377,7 +377,7 @@ public class FormMovimiento {
 		    			e.printStackTrace();
 					}
 				}
-				if(insertEstadoEquipo.length()>2) {
+				if(insertEstadoEquipo.length()>10) {
 					insertEstadoEquipo = insertEstadoEquipo.substring(0,insertEstadoEquipo.length()-1);
 				}else {
 					insertEstadoEquipo = null;
@@ -448,7 +448,7 @@ public class FormMovimiento {
 					for(String x: mapIsertReparaciones.values()) {
 						insertReparacionEquipo += x;
 					}
-					if(insertReparacionEquipo.length()>2) {
+					if(insertReparacionEquipo.length()>10) {
 						insertReparacionEquipo = insertReparacionEquipo.substring(0,insertReparacionEquipo.length()-1);
 					}else {
 						insertReparacionEquipo = null;
@@ -585,18 +585,20 @@ public class FormMovimiento {
 					insertar = insertar.substring(0, insertar.length()-1);
 					insertar += "),";
 				}
-				insertar = insertar.substring(0, insertar.length()-1);
-				PreparedStatement smt;
-				try {
-					smt = con
-							.prepareStatement(" insert into `"+db+"`.listaPrecio " +
-									" (id_bodegaEmpresa,id_equipo,id_moneda,fecha,precioVenta,precioReposicion, " +
-									" precioArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima,id_cotizacion) " +
-									" values " + insertar +";");
-					smt.executeUpdate();
-					smt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
+				if(insertar.length() > 5) {
+					insertar = insertar.substring(0, insertar.length()-1);
+					PreparedStatement smt;
+					try {
+						smt = con
+								.prepareStatement(" insert into `"+db+"`.listaPrecio " +
+										" (id_bodegaEmpresa,id_equipo,id_moneda,fecha,precioVenta,precioReposicion, " +
+										" precioArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima,id_cotizacion) " +
+										" values " + insertar +";");
+						smt.executeUpdate();
+						smt.close();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
