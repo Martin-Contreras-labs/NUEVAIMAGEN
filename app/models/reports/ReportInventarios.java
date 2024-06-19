@@ -2583,7 +2583,7 @@ public class ReportInventarios {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("UN");
+			cell.setCellValue("TOTAL");
 			
 			for(int i=0;i<titulos2.size();i++){
 				posCell++; posColl++;

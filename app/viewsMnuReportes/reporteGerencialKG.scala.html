@@ -12,6 +12,14 @@ datosActual: List[List[String]], datosAnterior: List[List[String]], datosAnterio
 			<table class="table table-sm table-condensed table-fluid">
 				<tr>
 					<td>
+						NOTA: 
+						<br>Si traslada desde @mapDiccionario("Bodega") interna a @mapDiccionario("Bodega") cliente, 
+						queda registrado como una SALIDA en la sucursal de @mapDiccionario("Bodega") cliente.
+						<br>Si el traslado es a la inversa queda registrado como una ENTRADA en la sucursal de @mapDiccionario("Bodega") cliente.
+					</td>
+				</tr>
+				<tr>
+					<td>
 						<div align="center">
 							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
 								Exportar a Excel

@@ -34,6 +34,7 @@ public class Grupo {
 			PreparedStatement smt = con
 					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo");
 			ResultSet rs = smt.executeQuery();
+			map.put((long)0, new Grupo((long)0,"sin grupo"));
 			while (rs.next()) {
 				map.put(rs.getLong(1), new Grupo(rs.getLong(1),rs.getString(2)));
 			}
@@ -51,6 +52,7 @@ public class Grupo {
 			PreparedStatement smt = con
 					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo");
 			ResultSet rs = smt.executeQuery();
+			map.put("sin grupo", new Grupo((long)0,"sin grupo"));
 			while (rs.next()) {
 				map.put(rs.getString(2).toUpperCase(), new Grupo(rs.getLong(1),rs.getString(2)));
 			}

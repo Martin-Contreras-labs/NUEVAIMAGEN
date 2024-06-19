@@ -894,14 +894,12 @@ public class FormMovimiento {
     			
     			int contLinea = 0;
     			
-    			// SOLO APLICA HOHE y ALZATEC
-    			if( mapDiccionario.get("nEmpresa").equals("ALZATEC") && (long)bodegaOrigen.getEsInterna()==(long)1){
+    			if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && (long)bodegaOrigen.getEsInterna()==(long)1 ){
 					row = table.getRow(0);
 					texto = mapDiccionario.get("ARRIENDO");
 					setCelda(row.getCell(4),"Arial",8,2,"000000",texto,false);
 					setCelda(row.getCell(5),"Arial",8,2,"000000",texto,false);
 				}
-    			// FIN SOLO APLICA HOHE y ALZATEC
     			
 				for(int i=0; i<detalleGuia.size(); i++) {
 					
@@ -925,19 +923,15 @@ public class FormMovimiento {
 					Double puDbl = Double.parseDouble(puStr.replaceAll(",", ""));
 					mapPrecioRepos.put(detalleGuia.get(i).get(5), puDbl);
 					
-    				// SOLO APLICA HOHE y ALZATEC
-	    				Long esVenta = Long.parseLong(detalleGuia.get(i).get(20).trim());
-	    				if( (mapDiccionario.get("nEmpresa").equals("HOHE") || mapDiccionario.get("nEmpresa").equals("ALZATEC")) 
-	    						&& esVenta==0) {
-	    					puStr = detalleGuia.get(i).get(16); 
-	    					if(puStr.trim().equals("")) {
-	    						puStr = "0";
-	    						}
-	    					puDbl = Double.parseDouble(puStr.replaceAll(",", ""));
-	    				}
-    				// FIN SOLO APLICA HOHE y ALZATEC
-	    				
-	    				
+    				Long esVenta = Long.parseLong(detalleGuia.get(i).get(20).trim());
+    				if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && (long)bodegaOrigen.getEsInterna()==(long)1 && esVenta==0) {
+    					puStr = detalleGuia.get(i).get(16); 
+    					if(puStr.trim().equals("")) {
+    						puStr = "0";
+    						}
+    					puDbl = Double.parseDouble(puStr.replaceAll(",", ""));
+    				}
+    				
 	    			Double totalPrecio = puDbl * cantDbl;
 	    			// DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA
 	    			Long id_moneda = Long.parseLong(detalleGuia.get(i).get(30).trim());
