@@ -19,6 +19,7 @@ import models.api.ApiIConstruyeOC;
 import models.forms.FormCompra;
 import models.forms.FormEquipoGraba;
 import models.reports.ReportMovCompras;
+import models.tables.Atributo;
 import models.tables.Baja;
 import models.tables.BodegaEmpresa;
 import models.tables.Compra;
@@ -220,7 +221,7 @@ public class MnuCompras extends Controller {
 	    					}
 	    					
 	    					String nickMoneda = detalle.get(11).toUpperCase().trim().toUpperCase();
-	    					moneda = mapMoneda.get(nickMoneda);
+	    					moneda = mapMoneda.get(nickMoneda.toUpperCase());
 	    					if(moneda == null) {
 	    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda);
 	    						if(equivalenciasMonedas == null) {
@@ -229,7 +230,7 @@ public class MnuCompras extends Controller {
 	    						}else {
 	    							nickMoneda = equivalenciasMonedas.equivEnMada;
 	    						}
-	    						moneda = mapMoneda.get(nickMoneda);
+	    						moneda = mapMoneda.get(nickMoneda.toUpperCase());
 	    					}
 	    					
 	    					String codEquipo = detalle.get(6).toUpperCase().trim().toUpperCase();
@@ -709,14 +710,37 @@ public class MnuCompras extends Controller {
 	    	    			List<String> codigos = new ArrayList<String>();
 	    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
 	    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
+	    	    			
+	    	    			Map<String,List<String>> mapKgM2 = new HashMap<String,List<String>>();
+	    	    			
 	    	    			for(List<String> l: listaExcel) {
 								Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+								
+								
 	    	    				if(equipo == null) {
+	    	    					String KG = l.get(3);
+	    	    					String M2 = l.get(4);
+	    	    					Double cantKG = (double)0;
+	    	    					Double cantM2 = (double)0;
+	    	    					
+	    	    					try { cantKG = Double.parseDouble(KG);
+									}catch(Exception e) {}
+	    	    					
+	    	    					try { cantM2 = Double.parseDouble(M2);
+									}catch(Exception e) {}
+	    	    					
 	    	    					Long id_grupo = (long)0;
 	    	    					Grupo grupo = mapGrupo.get(l.get(0));
 	    	    					if(grupo != null) {
 	    	    						id_grupo = grupo.getId();
 	    	    					}
+	    	    					
+	    	    					List<String> auxKgM2 = new ArrayList<String>();
+	    	    					auxKgM2.add(id_grupo.toString()); 	// 0 id grupo
+	    	    					auxKgM2.add(cantKG.toString()); 	// 1 cant kg
+	    	    					auxKgM2.add(cantM2.toString()); 	// 2 cant m2
+	    	    					mapKgM2.put(l.get(1), auxKgM2);
+	    	    					
 	    	    					Long id_unidad = (long)1;
 	    	    					Unidad unidad = mapUnidad.get(l.get(5));
 	    	    					if(unidad != null) {
@@ -727,7 +751,11 @@ public class MnuCompras extends Controller {
 	    	    					selEquipos += "'"+l.get(1)+"',";
 	    	    				}
 	    					}
+	    	    			
+	    	    			
+	    	    			
 	    	    			if(newEquipos.length()>1) {
+	    	    				
 	    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
 	    	    				PreparedStatement smt = con
 	    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
@@ -738,29 +766,66 @@ public class MnuCompras extends Controller {
 	    	    					selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
 	    	    				}
 	    	    				
+	    	    				Map<String,String> mapIdEquipVsCodEquip = new HashMap<String,String>();
 	    	    				PreparedStatement smt2 = con
-	    	    						.prepareStatement("Select id from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
+	    	    						.prepareStatement("Select id, codigo from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
 	    	    				ResultSet rs2 = smt2.executeQuery();
 	    	    				List<String> idsEquipo = new ArrayList<String>();
 	    	    				while(rs2.next()) {
 	    	    					idsEquipo.add(rs2.getString(1));
+	    	    					mapIdEquipVsCodEquip.put(rs2.getString(1), rs2.getString(2));
 	    	    				}
 	    	    				smt2.close();
 	    	    				rs2.close();
+	    	    				
+	    	    				
 	    	    				String datos = "";
 	    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
-	    	    				for(String x:idsEquipo){
+	    	    				
+	    	    				String datosKgM2 = "";
+	    	    				Map<String,String> mapGrupoKG = Atributo.mapIdGrupoVsIdAtributo_KG(con, s.baseDato);
+	    	    				Map<String,String> mapGrupoM2 = Atributo.mapIdGrupoVsIdAtributo_M2(con, s.baseDato);
+	    	    				
+	    	    				for(String idEquipo: idsEquipo){
 	    	    					for(Sucursal sucursal: listSucursal) {
-	    	    						datos += "("+x+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+sucursal.getId()+"),";
+	    	    						datos += "("+idEquipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+sucursal.getId()+"),";
 	    	    					}
 	    	    					
+	    	    					String codEquip = mapIdEquipVsCodEquip.get(idEquipo);
+	    	    					if(codEquip != null) {
+	    	    						List<String> KgM2 = mapKgM2.get(codEquip);
+	    	    						String idGrupo = KgM2.get(0);
+	    	    						String KG = KgM2.get(1);
+	    	    						String M2 = KgM2.get(2);
+	    	    						
+	    	    						String idAtributo = mapGrupoKG.get(idGrupo);
+	    	    						if(idAtributo!=null) {
+	    	    							datosKgM2 +=  "("+idEquipo+","+idAtributo+","+KG+"),";
+	    	    						}
+	    	    						
+	    	    						idAtributo = mapGrupoM2.get(idGrupo);
+	    	    						if(idAtributo!=null) {
+	    	    							datosKgM2 +=  "("+idEquipo+","+idAtributo+","+M2+"),";
+	    	    						}
+	    	    					}
 	    	    				}
+	    	    				
 	    	    				if(datos.length()>1) {
 	    	    					datos = datos.substring(0,datos.length()-1);
 		    	    				PreparedStatement smt3 = con
 		    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
 		    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
 		    	    								+ " values "+datos+";");
+		    	    				smt3.executeUpdate();
+		    	    				smt3.close();
+	    	    				}
+	    	    				
+	    	    				if(datosKgM2.length()>1) {
+	    	    					datosKgM2 = datosKgM2.substring(0,datosKgM2.length()-1);
+		    	    				PreparedStatement smt3 = con
+		    	    						.prepareStatement("insert into `"+s.baseDato+"`.atributoEquipo "
+		    	    								+ " (id_equipo, id_atributo,numAtributo) "
+		    	    								+ " values "+datosKgM2+";");
 		    	    				smt3.executeUpdate();
 		    	    				smt3.close();
 	    	    				}
@@ -805,7 +870,7 @@ public class MnuCompras extends Controller {
 										}
 									}
 									
-									Moneda mon = mapMoneda.get(l.get(7));
+									Moneda mon = mapMoneda.get(l.get(7).toUpperCase());
 									if(mon == null) {
 										mon = Moneda.find(con, s.baseDato, (long)1);
 									}

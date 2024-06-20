@@ -190,7 +190,7 @@ public class Precio {
 				if(monedaCompra.get(rs.getLong(2))!=null) {
 					monedaCompraAux = monedaCompra.get(rs.getLong(2));
 				}
-				Long auxDecimal = decCompra.get(monedaCompraAux);
+				Long auxDecimal = decCompra.get(monedaCompraAux.toUpperCase());
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
 				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
@@ -301,7 +301,7 @@ public class Precio {
 				if(monedaCompra.get(rs.getLong(2))!=null) {
 					monedaCompraAux = monedaCompra.get(rs.getLong(2));
 				}
-				Long auxDecimal = decCompra.get(monedaCompraAux);
+				Long auxDecimal = decCompra.get(monedaCompraAux.toUpperCase());
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
 				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
@@ -393,7 +393,7 @@ public class Precio {
 				if(monedaCompra.get(rs.getLong(2))!=null) {
 					monedaCompraAux = monedaCompra.get(rs.getLong(2));
 				}
-				Long auxDecimal = decCompra.get(monedaCompraAux);
+				Long auxDecimal = decCompra.get(monedaCompraAux.toUpperCase());
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
 				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
@@ -527,7 +527,7 @@ public class Precio {
 				if(monedaCompraAux==null) {
 					monedaCompraAux = mapDiccionario.get("CLP");
 				}
-				switch(decCompra.get(monedaCompraAux).toString()) {
+				switch(decCompra.get(monedaCompraAux.toUpperCase()).toString()) {
 				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
 				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
 				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000"); break;
@@ -901,7 +901,7 @@ public class Precio {
     	                        		Long aux2 = aux.longValue();
     	                        		dato = df.format(aux2);
     	                        	}
-    	                			Equipo equipo = mapEquipos.get(dato);
+    	                			Equipo equipo = mapEquipos.get(dato.toUpperCase());
     	                			if(equipo == null) {
     	                				mensaje.add("error en fila "+(fila+1)+": Codigo ["+dato+"] no existe en mada o el equipo esta no vigente.");
     	                        		flag = false;

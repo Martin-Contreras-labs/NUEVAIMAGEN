@@ -297,7 +297,7 @@ public class MnuPlanes extends Controller {
 			    						PlanMantencion.create(con, s.baseDato, equipo.getId());
 			    					}
 			    					
-			    					Moneda moneda = mapMoneda.get(nickMoneda);
+			    					Moneda moneda = mapMoneda.get(nickMoneda.toUpperCase());
 			    					if(moneda == null) {
 			    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda);
 			    						if(equivalenciasMonedas == null) {
@@ -306,7 +306,7 @@ public class MnuPlanes extends Controller {
 			    						}else {
 			    							nickMoneda = equivalenciasMonedas.equivEnMada;
 			    						}
-			    						moneda = mapMoneda.get(nickMoneda);
+			    						moneda = mapMoneda.get(nickMoneda.toUpperCase());
 			    					}
 			    					
 			    					Proveedor proveedor = mapRutProveedor.get(rut_proveedor);
@@ -572,7 +572,7 @@ public class MnuPlanes extends Controller {
 			    						mapPlanMantencion.put(codigo_equipo.trim(), aux);
 			    					}
 			    					
-			    					Moneda moneda = mapMoneda.get(nickMoneda.trim());
+			    					Moneda moneda = mapMoneda.get(nickMoneda.trim().toUpperCase());
 			    					if(moneda == null) {
 			    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda.trim());
 			    						if(equivalenciasMonedas == null) {
@@ -581,7 +581,7 @@ public class MnuPlanes extends Controller {
 			    						}else {
 			    							nickMoneda = equivalenciasMonedas.equivEnMada.trim();
 			    						}
-			    						moneda = mapMoneda.get(nickMoneda.trim());
+			    						moneda = mapMoneda.get(nickMoneda.trim().toUpperCase());
 			    					}
 			    					
 			    					Proveedor proveedor = mapRutProveedor.get(rut_proveedor.trim());
@@ -1384,7 +1384,7 @@ public class MnuPlanes extends Controller {
 	    					}
 	    					
 	    					String nickMoneda = detalle.get(11).toUpperCase().trim().toUpperCase();
-	    					moneda = mapMoneda.get(nickMoneda);
+	    					moneda = mapMoneda.get(nickMoneda.toUpperCase());
 	    					if(moneda == null) {
 	    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda);
 	    						if(equivalenciasMonedas == null) {
@@ -1393,7 +1393,7 @@ public class MnuPlanes extends Controller {
 	    						}else {
 	    							nickMoneda = equivalenciasMonedas.equivEnMada;
 	    						}
-	    						moneda = mapMoneda.get(nickMoneda);
+	    						moneda = mapMoneda.get(nickMoneda.toUpperCase());
 	    					}
 	    					
 	    					detalle.set(14, id_equipo.toString());

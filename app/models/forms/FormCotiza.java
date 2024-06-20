@@ -777,7 +777,7 @@ public class FormCotiza {
 				cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079","1.00",false);
 				cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
 				
-				Long nroDecimal = mapDecimal.get(moneda);
+				Long nroDecimal = mapDecimal.get(moneda.toUpperCase());
 				
 				table.createRow();
 				for(int i=0; i<detalleCoti.size(); i++) {
@@ -848,7 +848,7 @@ public class FormCotiza {
 							cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",cantidad,false);
 							cell=row.getCell(4);setCelda(cell,"Arial",7,2,"2b5079",moneda,false);
 							
-							nroDecimal = mapDecimal.get(moneda);
+							nroDecimal = mapDecimal.get(moneda.toUpperCase());
 							if(nroDecimal != null) {
 								totalArriendo = DecimalFormato.formato(auxTotalArriendo, nroDecimal);
 							}else {

@@ -163,7 +163,7 @@ public class Equipo {
 		Map<String,Equipo> map = new HashMap<String,Equipo>();
 		List<Equipo> lista = Equipo.allAll(con, db);
 		for(int i=0; i<lista.size(); i++) {
-			map.put(lista.get(i).codigo, lista.get(i));
+			map.put(lista.get(i).codigo.toUpperCase(), lista.get(i));
 		}
 		return map;
 	}
@@ -172,7 +172,7 @@ public class Equipo {
 		Map<String,Equipo> map = new HashMap<String,Equipo>();
 		List<Equipo> lista = Equipo.allVigentes(con, db);
 		for(int i=0; i<lista.size(); i++) {
-			map.put(lista.get(i).codigo, lista.get(i));
+			map.put(lista.get(i).codigo.toUpperCase(), lista.get(i));
 		}
 		return map;
 	}

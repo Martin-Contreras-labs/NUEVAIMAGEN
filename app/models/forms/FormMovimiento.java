@@ -1356,7 +1356,7 @@ public class FormMovimiento {
         							String moneda = x.get(13);
         							Double cant = Double.parseDouble(x.get(12).replaceAll(",", ""));
     								Double total = cant * precio;
-    								Long nroDec = mapDecimal.get(moneda);
+    								Long nroDec = mapDecimal.get(moneda.toUpperCase());
     								if(nroDec==null) {
     									nroDec = (long)0;
     								}
@@ -1368,7 +1368,7 @@ public class FormMovimiento {
     								String moneda = x.get(6);
     								Double cant = Double.parseDouble(x.get(9).replaceAll(",", ""));
     								Double total = cant * precio;
-    								Long nroDec = mapDecimal.get(moneda);
+    								Long nroDec = mapDecimal.get(moneda.toUpperCase());
     								if(nroDec==null) {
     									nroDec = (long)0;
     								}

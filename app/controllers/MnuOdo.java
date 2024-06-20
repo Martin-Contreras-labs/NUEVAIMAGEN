@@ -3250,7 +3250,7 @@ public class MnuOdo extends Controller {
 		    					pu = listPu.get(1);
 		    					tasa = listPu.get(2);
 		    					
-		    					Long dec = mapDecXnick.get(mon);
+		    					Long dec = mapDecXnick.get(mon.toUpperCase());
 		    					if(dec==null) {
 		    						dec = (long)1;
 		    					}
@@ -3378,7 +3378,7 @@ public class MnuOdo extends Controller {
 		    					pu = listPu.get(1);
 		    					tasa = listPu.get(2);
 		    					
-		    					Long dec = mapDecXnick.get(mon);
+		    					Long dec = mapDecXnick.get(mon.toUpperCase());
 		    					if(dec==null) {
 		    						dec = (long)1;
 		    					}

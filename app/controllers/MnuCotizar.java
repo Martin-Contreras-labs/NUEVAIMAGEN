@@ -5907,7 +5907,7 @@ public class MnuCotizar extends Controller {
 			    	    					listaConPrecio.get(i).set(19,DecimalFormato.formato(m2, (long)2));
 			    	    					
 			    	    					
-			    	    					Moneda moneda = mapMoneda.get(lexcel.get(6).trim());
+			    	    					Moneda moneda = mapMoneda.get(lexcel.get(6).trim().toUpperCase());
 		    	    						if(moneda == null) {
 		    	    							moneda = Moneda.find(con, s.baseDato, (long)1);
 		    	    						}

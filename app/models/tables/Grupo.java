@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -212,11 +213,27 @@ public class Grupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.grupo (nombre) VALUES (?)");		
+					.prepareStatement("INSERT INTO `"+db+"`.grupo (nombre) VALUES (?)", Statement.RETURN_GENERATED_KEYS);		
 			smt.setString(1, nombreGrupo.trim());
 			smt.executeUpdate();
-			smt.close();
+			
+			Long id_grupo = (long)0;
+			ResultSet rs1 = smt.getGeneratedKeys();
+            if (rs1.next()) {
+            	id_grupo = rs1.getLong(1);
+            }
+            smt.close();
+            rs1.close();
+			
+            PreparedStatement smt2 = con
+					.prepareStatement("INSERT INTO `"+db+"`.atributo (id_grupo, atributo) "
+							+ " (select '"+id_grupo+"', atributo from `"+db+"`.atributo where id_grupo = 1)");
+			smt2.executeUpdate();
+			smt2.close();
+			
 			flag = true;
+			
+			
 		} catch (SQLException e) {
 				e.printStackTrace();
 		}

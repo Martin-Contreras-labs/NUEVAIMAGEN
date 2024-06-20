@@ -266,7 +266,7 @@ public class Atributo{
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("select id_equipo,numAtributo from `"+db+"`.atributoEquipo where id_atributo "
-							+ "in (select id from `"+db+"`.atributo where atributo like '%peso%');"); 
+							+ "in (select id from `"+db+"`.atributo where atributo like '%peso%' or atributo like '%kg%');"); 
 	
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
@@ -499,8 +499,43 @@ public class Atributo{
 			}
         return (vistaHtml);
     } 
-
 	
+	public static Map<String,String> mapIdGrupoVsIdAtributo_KG(Connection con, String db) {
+		Map<String,String> map = new HashMap<String,String>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id, id_grupo, atributo, id_unidad, esNumerico "
+							+ " from `"+db+"`.atributo "
+							+ " where atributo like '%peso%' or atributo like '%kg%';"); 
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getString(2), rs.getString(1));
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
+	
+	public static Map<String,String> mapIdGrupoVsIdAtributo_M2(Connection con, String db) {
+		Map<String,String> map = new HashMap<String,String>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id, id_grupo, atributo, id_unidad, esNumerico "
+							+ " from `"+db+"`.atributo "
+							+ " where atributo like '%m2%'"); 
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getString(2), rs.getString(1));
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
+
 	
 
 }

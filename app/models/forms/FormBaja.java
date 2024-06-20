@@ -87,7 +87,7 @@ public class FormBaja {
 						auxPcompra = Double.parseDouble(pcompra.replaceAll(",", ""));
 					}
 					Double total = v.getCantidad() * auxPcompra;
-					Long auxDecimal = decCompra.get(moneda);
+					Long auxDecimal = decCompra.get(moneda.toUpperCase());
 					if(auxDecimal==null) auxDecimal = (long)2;
 					switch(auxDecimal.toString()) {
 	   				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
@@ -205,7 +205,7 @@ public class FormBaja {
 			
 			if(baja == null && bodOrigen != null) {
 				
-				Long auxDecimal = decCompra.get(bodOrigen.get(10));
+				Long auxDecimal = decCompra.get(bodOrigen.get(10).toUpperCase());
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
    				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
@@ -240,7 +240,7 @@ public class FormBaja {
 				Double pcXstock = stock * auxPcompra;
 				Double pcXcant = cant * auxPcompra;
 				
-				Long auxDecimal = decCompra.get(bodOrigen.get(10));
+				Long auxDecimal = decCompra.get(bodOrigen.get(10).toUpperCase());
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
    				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
@@ -289,7 +289,7 @@ public class FormBaja {
 						total = stock * Double.parseDouble(pcompra.replaceAll(",", ""));
 					}
 					
-					Long auxDecimal = decCompra.get(mon);
+					Long auxDecimal = decCompra.get(mon.toUpperCase());
 					if(auxDecimal==null) auxDecimal = (long)2;
 					switch(auxDecimal.toString()) {
 	   				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;

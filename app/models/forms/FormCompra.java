@@ -18,7 +18,10 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import models.tables.Compra;
 import models.tables.Equipo;
 import models.tables.Factura;
+import models.tables.Grupo;
+import models.tables.Moneda;
 import models.tables.Proveedor;
+import models.tables.Unidad;
 import models.utilities.Archivos;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
@@ -176,6 +179,10 @@ public class FormCompra {
             	return (mensaje);
             }
             Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, db);
+            Map<String,Grupo> mapGrupos = Grupo.mapAllPorNombre(con, db);
+            Map<String,Unidad> mapUnidades = Unidad.mapPorNombre(con, db);
+            Map<String,Moneda> mapMonedas = Moneda.mapNickMonedas(con, db);
+            
             boolean flag = true;
             int fila = 4;
             int x = 4;
@@ -183,6 +190,46 @@ public class FormCompra {
             	fila++;
             	row = hoja1.getRow(x++);
             	if(row!=null) {
+            		//valida grupo
+            		cell = row.getCell(1);
+            		if(cell!=null) {
+            			String nomGrupo = cell.getStringCellValue().trim();
+            			if( ! nomGrupo.equals("")) {
+            				Grupo grupo = mapGrupos.get(nomGrupo.toUpperCase());
+                			if(grupo == null) {
+                				mensaje.set(0,"ERR1: EL GRUPO: "+nomGrupo+" NO EXISTE EN MADA");
+                    			return (mensaje);
+                			}
+            			}
+            		}
+            		
+            		//valida unidad
+            		cell = row.getCell(6);
+            		if(cell!=null) {
+            			String nomUnidad = cell.getStringCellValue().trim();
+            			if( ! nomUnidad.equals("")) {
+            				Unidad unidad = mapUnidades.get(nomUnidad.toUpperCase());
+                			if(unidad == null) {
+                				mensaje.set(0,"ERR2: LA UNIDAD: "+nomUnidad+" NO EXISTE EN MADA");
+                    			return (mensaje);
+                			}
+            			}
+            		}
+            		
+            		//valida moneda
+            		cell = row.getCell(8);
+            		if(cell!=null) {
+            			String nickMoneda = cell.getStringCellValue().trim();
+            			if( ! nickMoneda.equals("")) {
+            				Moneda moneda = mapMonedas.get(nickMoneda.toUpperCase());
+                			if(moneda == null) {
+                				mensaje.set(0,"ERR3: LA MONEDA: "+nickMoneda+" NO EXISTE EN MADA");
+                    			return (mensaje);
+                			}
+            			}
+            		}
+            		
+            		//valida equipo
             		cell = row.getCell(2);
                 	if(cell!=null) {
                 		boolean noEsBlanco = true;

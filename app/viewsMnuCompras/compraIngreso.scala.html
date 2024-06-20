@@ -256,9 +256,9 @@ listSucursales: List[tables.Sucursal])
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <h5 class="modal-title">EXISTE EQUIPOS EN LA PLANTILLA EXCEL QUE NO EXISTEN EN MADA</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
+	       		<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				 	<span aria-hidden='true'>&times;</span>
+				</button>
 	      </div>
 	      <div class="modal-body">
 				<div class="col-sm-12" style="text-align:center">
@@ -462,6 +462,29 @@ listSucursales: List[tables.Sucursal])
 	   				<div class='row'>
 						<div class='col-sm-12' style='text-align:center'>
 							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>CERRAR</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalRevisarEquiposNuevos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-md' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="listaRevisarEquiposNuevos"></div>
+					<br><br>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' 
+							style='font-size: 10px;' data-dismiss='modal'
+							onclick="location.reload()">CERRAR</button>
 						</div>
 					</div>
 				</div>
@@ -1007,6 +1030,10 @@ listSucursales: List[tables.Sucursal])
 					}else if(rs[0].substring(0,7) == "EQUIPOS"){
 						rsGlobal = rs;
 						$("#msgNuevosCodigos").modal('show');
+					}else if(rs[0].substring(0,4) == "ERR1" || rs[0].substring(0,4) == "ERR2" || rs[0].substring(0,4) == "ERR3"){
+						alertify.alert(rs[0], function () { 
+							location.reload();
+						});
 					}else{
 						alertify.alert("SE PRESENTO UN PROBLEMA", function () { 
 							location.reload();
@@ -1028,9 +1055,10 @@ listSucursales: List[tables.Sucursal])
 		for(var i in rsGlobal){
 			mensaje += rsGlobal[i];
 		}
-		alertify.alert(mensaje, function () { 
-			location.reload();
-		});
+		
+		document.getElementById("listaRevisarEquiposNuevos").innerHTML =  mensaje;
+		$("#modalRevisarEquiposNuevos").modal('show');
+		
 	}
 	
 	const validarForm2 = () =>{

@@ -41,11 +41,11 @@ public class Moneda {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("SELECT nickName,numeroDecimales from `"+db+"`.moneda");
-			ResultSet resultado = smt.executeQuery();
-			while (resultado.next()) {
-				decimales.put(resultado.getString(1),resultado.getLong(2));
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				decimales.put(rs.getString(1).toUpperCase(),rs.getLong(2));
 			}
-			resultado.close();
+			rs.close();
 			smt.close();
 		} catch (SQLException e) {
 				e.printStackTrace();
@@ -214,7 +214,7 @@ public class Moneda {
 		Map<String,Moneda> map = new HashMap<String,Moneda>();
 		List<Moneda> all = Moneda.all(con, db);
 		for(int i=0; i<all.size(); i++) {
-			map.put(all.get(i).nickName, all.get(i));
+			map.put(all.get(i).nickName.toUpperCase(), all.get(i));
 		}
 		return map;
 	}
