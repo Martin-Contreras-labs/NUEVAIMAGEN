@@ -117,7 +117,10 @@ public class Coti8columnas extends Controller {
 	    	                        		Long aux2 = aux.longValue();
 	    	                        		dato = df.format(aux2);
 	    	                        	}
-	    	                			Equipo equipo = mapEquipos.get(dato.toUpperCase());
+	    	                			if(dato!=null) {
+	    	                				dato = dato.toUpperCase().trim();
+	    	                			}
+	    	                			Equipo equipo = mapEquipos.get(dato);
 	    	                			if(equipo == null) {
 	    	                				mensaje.add("error en fila "+(fila+1)+": Codigo ["+dato+"] no existe en mada o el equipo esta no vigente.");
 	    	                        		flag = false;

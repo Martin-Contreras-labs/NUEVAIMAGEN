@@ -221,7 +221,10 @@ public class MnuPlanes extends Controller {
 			    					break;
 			    				}
 			    				
-			    				Equipo equipo = mapEquipo.get(codigo_equipo.toUpperCase());
+	    	    				if(codigo_equipo!=null) {
+	    	    					codigo_equipo = codigo_equipo.trim().toUpperCase();
+	    	    				}
+			    				Equipo equipo = mapEquipo.get(codigo_equipo);
 			    				if(equipo==null) {
 			    					listCodNoExiste += codigo_equipo + ", ";
 			    					codigoNoExiste = true;
@@ -291,13 +294,21 @@ public class MnuPlanes extends Controller {
 			    						tipoTrabajo = auxTipoTrabajo;
 			    					}
 			    					
+			    					if(codigo_equipo!=null) {
+		    	    					codigo_equipo = codigo_equipo.trim().toUpperCase();
+		    	    				}
+			    					
 			    					PlanMantencion planMantencion = mapPlanMantencion.get(codigo_equipo);
-			    					Equipo equipo = mapEquipo.get(codigo_equipo.toUpperCase());
+			    					Equipo equipo = mapEquipo.get(codigo_equipo);
 			    					if(planMantencion==null) {
 			    						PlanMantencion.create(con, s.baseDato, equipo.getId());
 			    					}
 			    					
-			    					Moneda moneda = mapMoneda.get(nickMoneda.toUpperCase());
+	    	    					if(nickMoneda!=null) {
+	    	    						nickMoneda = nickMoneda.trim().toUpperCase();
+	    	    					}
+	    	    					
+			    					Moneda moneda = mapMoneda.get(nickMoneda);
 			    					if(moneda == null) {
 			    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda);
 			    						if(equivalenciasMonedas == null) {
@@ -502,12 +513,17 @@ public class MnuPlanes extends Controller {
 				    			boolean codigoNoExiste = false;
 				    			String listCodNoExiste = "";
 				    			for(int i=1; i<listado.size(); i++) {
-				    				String codigo_equipo = listado.get(i).get(0).trim();
+				    				String codigo_equipo = listado.get(i).get(0);
 				    				if(codigo_equipo.length()==0) {
 				    					sinCodigo = true;
 				    					break;
 				    				}
-				    				Equipo equipo = mapEquipo.get(codigo_equipo.trim().toUpperCase());
+				    				
+			    					if(codigo_equipo!=null) {
+		    	    					codigo_equipo = codigo_equipo.trim().toUpperCase();
+		    	    				}
+			    					
+				    				Equipo equipo = mapEquipo.get(codigo_equipo);
 				    				if(equipo==null) {
 				    					listCodNoExiste += codigo_equipo + ", ";
 				    					codigoNoExiste = true;
@@ -542,7 +558,7 @@ public class MnuPlanes extends Controller {
 				    			Map<String, Long> mapAuxIconstruye = IConstruye.mapNumOcVsIdDoc(con, s.baseDato);
 				    			Map<String,PlanMantencion> mapPlanMantencion = PlanMantencion.mapPorCodigoEquipo(con, s.baseDato);
 			    				for(List<String> l: listado) {
-			    					String codigo_equipo = l.get(0).trim();
+			    					String codigo_equipo = l.get(0);
 			    					String nomFamilia = l.get(1).trim();
 			    					String nomBodega = l.get(2).trim();
 			    					String cod_CCcost_iconstruye = l.get(11).trim();	//corresponde al cod centro costo de iconstruye
@@ -564,15 +580,22 @@ public class MnuPlanes extends Controller {
 			    						mapTipoTrabajo.put(cod_CCcost_iconstruye.trim().trim(), tipoTrabajo);
 			    					}
 			    					
-			    					PlanMantencion planMantencion = mapPlanMantencion.get(codigo_equipo.trim());
-			    					Equipo equipo = mapEquipo.get(codigo_equipo.trim().toUpperCase());
+			    					if(codigo_equipo!=null) {
+		    	    					codigo_equipo = codigo_equipo.trim().toUpperCase();
+		    	    				}
+			    				
+			    					PlanMantencion planMantencion = mapPlanMantencion.get(codigo_equipo);
+			    					Equipo equipo = mapEquipo.get(codigo_equipo);
 			    					if(planMantencion==null) {
 			    						PlanMantencion.create(con, s.baseDato, equipo.getId());
-			    						PlanMantencion aux = PlanMantencion.findPorCodigo(con, s.baseDato, codigo_equipo.trim());
-			    						mapPlanMantencion.put(codigo_equipo.trim(), aux);
+			    						PlanMantencion aux = PlanMantencion.findPorCodigo(con, s.baseDato, codigo_equipo);
+			    						mapPlanMantencion.put(codigo_equipo, aux);
 			    					}
 			    					
-			    					Moneda moneda = mapMoneda.get(nickMoneda.trim().toUpperCase());
+			    					if(nickMoneda!=null) {
+	    	    						nickMoneda = nickMoneda.trim().toUpperCase();
+	    	    					}
+			    					Moneda moneda = mapMoneda.get(nickMoneda);
 			    					if(moneda == null) {
 			    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda.trim());
 			    						if(equivalenciasMonedas == null) {
@@ -1377,7 +1400,10 @@ public class MnuPlanes extends Controller {
 	    					Unidad unidad = new Unidad();
 	    					Moneda moneda = new Moneda();
 	    					
-	    					String nomUnidad = detalle.get(9).toUpperCase().trim();
+	    					String nomUnidad = detalle.get(9);
+	    					if(nomUnidad!=null) {
+	    						nomUnidad = nomUnidad.toUpperCase().trim();
+	    					}
 	    					unidad = mapUnidad.get(nomUnidad);
 	    					if(unidad == null) {
 	    						unidad = Unidad.create(con, s.baseDato, nomUnidad);
@@ -1393,7 +1419,10 @@ public class MnuPlanes extends Controller {
 	    						}else {
 	    							nickMoneda = equivalenciasMonedas.equivEnMada;
 	    						}
-	    						moneda = mapMoneda.get(nickMoneda.toUpperCase());
+	    						if(nickMoneda!=null) {
+    	    						nickMoneda = nickMoneda.trim().toUpperCase();
+    	    					}
+	    						moneda = mapMoneda.get(nickMoneda);
 	    					}
 	    					
 	    					detalle.set(14, id_equipo.toString());

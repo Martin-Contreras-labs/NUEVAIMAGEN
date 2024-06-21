@@ -5676,7 +5676,11 @@ public class MnuCotizar extends Controller {
 		    	    			Map<String,Long> mapCodEqVsIdUnTiempo = new HashMap<String,Long>();
 		    	    			
 		    					for(List<String> l: listaExcel) {
-									Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+		    						String codEquipo = l.get(1);
+		    						if(codEquipo!=null) {
+		    							codEquipo = codEquipo.trim().toUpperCase();
+		    						}
+									Equipo equipo = mapEquipos.get(codEquipo);
 		    	    				if(equipo == null) {
 		    	    					Long id_grupo = (long)0;
 		    	    					Grupo grupo = mapGrupo.get(l.get(0));
@@ -5684,7 +5688,11 @@ public class MnuCotizar extends Controller {
 		    	    						id_grupo = grupo.getId();
 		    	    					}
 		    	    					Long id_unidad = (long)1;
-		    	    					Unidad unidad = mapUnidad.get(l.get(3));
+		    	    					String nomUnidad = l.get(3);
+		    	    					if(nomUnidad!=null) {
+		    	    						nomUnidad = nomUnidad.toUpperCase().trim();
+		    	    					}
+		    	    					Unidad unidad = mapUnidad.get(nomUnidad);
 		    	    					if(unidad != null) {
 		    	    						id_unidad = unidad.getId();
 		    	    					}
@@ -5906,8 +5914,12 @@ public class MnuCotizar extends Controller {
 			    	    					listaConPrecio.get(i).set(18,DecimalFormato.formato(kg, (long)2)); 
 			    	    					listaConPrecio.get(i).set(19,DecimalFormato.formato(m2, (long)2));
 			    	    					
+			    	    					String mon = lexcel.get(6);
+			    	    					if(mon!=null) {
+			    	    						mon = lexcel.get(6).trim().toUpperCase();
+			    	    					}
 			    	    					
-			    	    					Moneda moneda = mapMoneda.get(lexcel.get(6).trim().toUpperCase());
+			    	    					Moneda moneda = mapMoneda.get(mon);
 		    	    						if(moneda == null) {
 		    	    							moneda = Moneda.find(con, s.baseDato, (long)1);
 		    	    						}

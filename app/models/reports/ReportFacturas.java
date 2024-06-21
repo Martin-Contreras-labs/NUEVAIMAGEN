@@ -5131,7 +5131,11 @@ public class ReportFacturas {
 									cell.setCellValue(resumenPorProyectoGrupoYdetalle.get(i).get(2));
 									
 									String nameGrupo = "";
-									Equipo equipo = mapEquipo.get(resumenPorProyectoGrupoYdetalle.get(i).get(3).toUpperCase());
+									String codEquipo = resumenPorProyectoGrupoYdetalle.get(i).get(3);
+									if(codEquipo!=null) {
+										codEquipo = codEquipo.trim().toUpperCase();
+									}
+									Equipo equipo = mapEquipo.get(codEquipo);
 									if(equipo != null) {
 										nameGrupo = equipo.getGrupo();
 									}

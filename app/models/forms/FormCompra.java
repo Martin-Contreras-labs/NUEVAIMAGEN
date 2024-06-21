@@ -254,7 +254,10 @@ public class FormCompra {
                         		Long aux2 = aux.longValue();
                         		dato = df.format(aux2);
                         	}
-                			Equipo equipo = mapEquipos.get(dato.toUpperCase());
+                			if(dato!=null) {
+                				dato = dato.toUpperCase().trim();
+                			}
+                			Equipo equipo = mapEquipos.get(dato);
                 			if(equipo == null) {
                 				mensaje.add("En fila "+fila+": Codigo ["+dato+"] no existe en mada.<br>");
                         		flag = false;

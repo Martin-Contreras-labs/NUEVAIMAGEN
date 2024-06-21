@@ -194,7 +194,10 @@ public class MnuRedimensionar extends Controller {
 	    						auxPcompra = Double.parseDouble(pcompra.replaceAll(",", ""));
 	    					}
 	    					Double total = x.getCant_equipoOrigen() * auxPcompra;
-	    					Long numDec = decCompra.get(moneda.toUpperCase());
+	    					if(moneda != null) {
+	    						moneda = moneda.toUpperCase();
+	    					}
+	    					Long numDec = decCompra.get(moneda);
 	    					if(numDec==null) {
 	    						numDec = (long)0;
 	    					}
@@ -348,7 +351,10 @@ public class MnuRedimensionar extends Controller {
 	    						auxPcompra = Double.parseDouble(pcompra.replaceAll(",", ""));
 	    					}
 	    					Double total = x.getCant_equipoOrigen() * auxPcompra;
-	    					Long numDec = decCompra.get(moneda.toUpperCase());
+	    					if(moneda != null) {
+	    						moneda = moneda.toUpperCase();
+	    					}
+	    					Long numDec = decCompra.get(moneda);
 	    					if(numDec==null) {
 	    						numDec = (long)0;
 	    					}
@@ -493,7 +499,10 @@ public class MnuRedimensionar extends Controller {
 	    						auxPcompra = Double.parseDouble(pcompra.replaceAll(",", ""));
 	    					}
 	    					Double total = x.getCant_equipoOrigen() * auxPcompra;
-	    					Long numDec = decCompra.get(moneda.toUpperCase());
+	    					if(moneda != null) {
+	    						moneda = moneda.toUpperCase();
+	    					}
+	    					Long numDec = decCompra.get(moneda);
 	    					if(numDec==null) {
 	    						numDec = (long)0;
 	    					}

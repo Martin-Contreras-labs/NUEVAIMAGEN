@@ -260,7 +260,7 @@ public class PlanMantencion {
 				String fecha = null;
 				if (rs.getDate(2) != null) {fecha = myformatfecha.format(rs.getDate(2));}
 				Double difEstimMenosProxMant = proximaMantencion - estimado;
-				map.put(rs.getString(10), new PlanMantencion(rs.getLong(1),fecha,rs.getLong(3),
+				map.put(rs.getString(10).toUpperCase(), new PlanMantencion(rs.getLong(1),fecha,rs.getLong(3),
 					myformatdouble2.format(rs.getDouble(4)),
 					myformatdouble2.format(rs.getDouble(5)),
 					myformatdouble2.format(rs.getDouble(6)),

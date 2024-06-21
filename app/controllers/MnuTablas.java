@@ -263,7 +263,11 @@ public class MnuTablas extends Controller {
 		    			Map<Long, Precio> mapPrecio = Precio.mapPreciosLista(con, s.baseDato, mapeoDiccionario, id_sucursal);
 		    			Fechas hoy = Fechas.hoy();
     	    			for(List<String> l: listaExcel) {
-							Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+    	    				String codEquipo = l.get(1);
+    	    				if(codEquipo!=null) {
+    	    					codEquipo = codEquipo.trim().toUpperCase();
+    	    				}
+							Equipo equipo = mapEquipos.get(codEquipo);
 							
 							if(equipo != null) {
 								Precio precio = mapPrecio.get(equipo.getId());

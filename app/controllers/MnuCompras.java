@@ -214,14 +214,21 @@ public class MnuCompras extends Controller {
 	    					Moneda moneda = new Moneda();
 	    					Equipo equipo = new Equipo();
 	    					
-	    					String nomUnidad = detalle.get(9).toUpperCase().trim();
+	    					String nomUnidad = detalle.get(9);
+	    					if(nomUnidad!=null) {
+	    						nomUnidad = nomUnidad.toUpperCase().trim();
+	    					}
+	    					
 	    					unidad = mapUnidad.get(nomUnidad);
 	    					if(unidad == null) {
 	    						unidad = Unidad.create(con, s.baseDato, nomUnidad);
 	    					}
 	    					
-	    					String nickMoneda = detalle.get(11).toUpperCase().trim().toUpperCase();
-	    					moneda = mapMoneda.get(nickMoneda.toUpperCase());
+	    					String nickMoneda = detalle.get(11);
+							if(nickMoneda!=null) {
+	    						nickMoneda = nickMoneda.trim().toUpperCase();
+	    					}
+	    					moneda = mapMoneda.get(nickMoneda);
 	    					if(moneda == null) {
 	    						EquivalenciasMonedas equivalenciasMonedas = mapEquivalenciasMonedas.get(nickMoneda);
 	    						if(equivalenciasMonedas == null) {
@@ -230,11 +237,18 @@ public class MnuCompras extends Controller {
 	    						}else {
 	    							nickMoneda = equivalenciasMonedas.equivEnMada;
 	    						}
-	    						moneda = mapMoneda.get(nickMoneda.toUpperCase());
+	    						
+								if(nickMoneda!=null) {
+    	    						nickMoneda = nickMoneda.trim().toUpperCase();
+    	    					}
+	    						moneda = mapMoneda.get(nickMoneda);
 	    					}
 	    					
-	    					String codEquipo = detalle.get(6).toUpperCase().trim().toUpperCase();
-	    					equipo = mapEquipo.get(codEquipo.toUpperCase());
+	    					String codEquipo = detalle.get(6);
+	    					if(codEquipo!=null) {
+	    						codEquipo = codEquipo.toUpperCase().trim().toUpperCase();
+	    					}
+	    					equipo = mapEquipo.get(codEquipo);
 	    					if(equipo == null) {
 	    						String nombEquipo = detalle.get(7).toUpperCase().trim();
 	    						FormEquipoGraba aux = new FormEquipoGraba();
@@ -714,7 +728,11 @@ public class MnuCompras extends Controller {
 	    	    			Map<String,List<String>> mapKgM2 = new HashMap<String,List<String>>();
 	    	    			
 	    	    			for(List<String> l: listaExcel) {
-								Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+	    	    				String codEquipo = l.get(1);
+	    						if(codEquipo!=null) {
+	    							codEquipo = codEquipo.trim().toUpperCase();
+	    						}
+								Equipo equipo = mapEquipos.get(codEquipo);
 								
 								
 	    	    				if(equipo == null) {
@@ -742,7 +760,13 @@ public class MnuCompras extends Controller {
 	    	    					mapKgM2.put(l.get(1), auxKgM2);
 	    	    					
 	    	    					Long id_unidad = (long)1;
-	    	    					Unidad unidad = mapUnidad.get(l.get(5));
+	    	    					
+	    	    					String nomUnidad = l.get(5);
+	    	    					if(nomUnidad!=null) {
+	    	    						nomUnidad = nomUnidad.toUpperCase().trim();
+	    	    					}
+	    	    					
+	    	    					Unidad unidad = mapUnidad.get(nomUnidad);
 	    	    					if(unidad != null) {
 	    	    						id_unidad = unidad.getId();
 	    	    					}
@@ -854,7 +878,11 @@ public class MnuCompras extends Controller {
 	    	    			Map<String,Moneda> mapMoneda = Moneda.mapNickMonedas(con, s.baseDato);
 	    	    			List<List<String>> lista = new ArrayList<List<String>>();
 	    	    			for(List<String> l: listaExcel) {
-								Equipo equipo = mapEquipos.get(l.get(1).toUpperCase());
+	    	    				String codEquipo = l.get(1);
+	    						if(codEquipo!=null) {
+	    							codEquipo = codEquipo.trim().toUpperCase();
+	    						}
+								Equipo equipo = mapEquipos.get(codEquipo);
 								BodegaEmpresa bodega = mapBodega.get(l.get(9).toUpperCase());
 								if(equipo!=null && bodega!=null) {
 									List<String> aux = new ArrayList<String>();
@@ -869,8 +897,12 @@ public class MnuCompras extends Controller {
 											cant = "0.00";
 										}
 									}
+									String nickMoneda = l.get(7);
+									if(nickMoneda!=null) {
+	    	    						nickMoneda = nickMoneda.trim().toUpperCase();
+	    	    					}
 									
-									Moneda mon = mapMoneda.get(l.get(7).toUpperCase());
+									Moneda mon = mapMoneda.get(nickMoneda);
 									if(mon == null) {
 										mon = Moneda.find(con, s.baseDato, (long)1);
 									}
