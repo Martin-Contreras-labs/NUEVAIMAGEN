@@ -204,7 +204,7 @@ public class FormCotiza {
 							" equipo.codigo," + 
 							" equipo.nombre," + 
 							" unidad.nombre," + 
-							" grupo.id, " +
+							" ifnull(grupo.id,0), " +
 							" ifnull(grupo.nombre,''), " +
 							" equipo.vigente " +
 							" from `"+db+"`.equipo  "+
@@ -407,7 +407,6 @@ public class FormCotiza {
 		}else {
 			lista2 = lista;
 		}
-		
 		return (lista2);
 	}
 	

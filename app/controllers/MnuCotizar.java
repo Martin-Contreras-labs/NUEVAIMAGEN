@@ -5658,8 +5658,9 @@ public class MnuCotizar extends Controller {
 		    					if(l.get(2).trim().equals("")) {
 		    						l.set(2, "1");
 		    					}
-		    					mapListaExcel.put(l.get(1), l);
+		    					mapListaExcel.put(l.get(1).toUpperCase().trim(), l);
 		    				}
+		    				
 		    				
 		    				if(mapListaExcel.size() != listaExcel.size()) {
 		    					con.close();
@@ -5669,17 +5670,57 @@ public class MnuCotizar extends Controller {
 		    					Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, s.baseDato);
 		    					String newEquipos = "";
 		    					String selEquipos = "";
+		    					List<Long> idsMonedas = new ArrayList<Long>();
+		    					List<Long> idsUnTiempo = new ArrayList<Long>();
+		    					
+		    					List<Double> valPVta = new ArrayList<Double>();
+		    					List<Double> valPArr = new ArrayList<Double>();
+		    					
+		    					
 		    	    			List<String> codigos = new ArrayList<String>();
 		    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
 		    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
 		    	    			Map<String,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempoPorNombre(con, s.baseDato);
-		    	    			Map<String,Long> mapCodEqVsIdUnTiempo = new HashMap<String,Long>();
+		    	    			
+		    	    			
+		    	    			Map<String,Moneda> mapMoneda = Moneda.mapNickMonedas(con, s.baseDato);
+		    	    			
+		    	    			Long id_moneda2 = (long) 1;
+	    	    				Long auxCont = (long)0;
+	    	    				PreparedStatement smt01 = con
+	    	    						.prepareStatement("select id_moneda, count(id_moneda) from `"+s.baseDato+"`.precio "
+	    	    								+ " group by id_moneda;");
+	    	    				ResultSet rs01 = smt01.executeQuery();
+	    	    				while(rs01.next()) {
+	    	    					if(auxCont < rs01.getLong(2)) {
+	    	    						auxCont = rs01.getLong(2);
+	    	    						id_moneda2 = rs01.getLong(1);
+	    	    					}
+	    	    				}
+	    	    				smt01.close();
+	    	    				rs01.close();
+	    	    				
+	    	    				Long idAuxUnTiempo = (long) 2;
+		    					PreparedStatement smtAux = con
+	    	    						.prepareStatement("select count(id_unidadTiempo), id_unidadTiempo from `"+s.baseDato+"`.precio group by id_unidadTiempo;");
+	    	    				ResultSet rsAux = smtAux.executeQuery();
+	    	    				Long aux = (long)0;
+	    	    				while(rsAux.next()) {
+	    	    					if(rsAux.getLong(1) > aux) {
+	    	    						aux = rsAux.getLong(1);
+	    	    						idAuxUnTiempo = rsAux.getLong(2);
+	    	    					}
+	    	    				}
+	    	    				smtAux.close();
+	    	    				rsAux.close();
+	    	    				
 		    	    			
 		    					for(List<String> l: listaExcel) {
 		    						String codEquipo = l.get(1);
 		    						if(codEquipo!=null) {
 		    							codEquipo = codEquipo.trim().toUpperCase();
 		    						}
+		    						
 									Equipo equipo = mapEquipos.get(codEquipo);
 		    	    				if(equipo == null) {
 		    	    					Long id_grupo = (long)0;
@@ -5696,35 +5737,58 @@ public class MnuCotizar extends Controller {
 		    	    					if(unidad != null) {
 		    	    						id_unidad = unidad.getId();
 		    	    					}
-		    	    					newEquipos += "('"+l.get(1)+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"'),";
-		    	    					codigos.add(l.get(1));
-		    	    					selEquipos += "'"+l.get(1)+"',";
 		    	    					
-		    	    					UnidadTiempo unidadTiempo = mapUnidadTiempo.get(l.get(8));
-		    	    					if(unidadTiempo != null) {
-		    	    						mapCodEqVsIdUnTiempo.put(l.get(1), unidadTiempo.getId());
-		    	    						
+		    	    					String mon = l.get(6);
+		    	    					if(mon!=null) {
+		    	    						mon = l.get(6).trim().toUpperCase();
 		    	    					}
 		    	    					
+	    	    						Moneda moneda = mapMoneda.get(mon);
+	    	    						if(moneda == null) {
+	    	    							moneda = Moneda.find(con, s.baseDato, id_moneda2);
+	    	    						}
+	    	    						
+	    	    						String unTiempo = l.get(8);
+		    	    					if(unTiempo!=null) {
+		    	    						unTiempo = l.get(8).trim().toUpperCase();
+		    	    					}
 		    	    					
+	    	    						UnidadTiempo unidadTiempo = mapUnidadTiempo.get(unTiempo);
+	    	    						if(unidadTiempo == null) {
+	    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, idAuxUnTiempo);
+	    	    						}
+	    	    						
+	    		    					Double puVentaDbl = (double)0;
+	    	    						String puVentaStr = l.get(7);
+	    	    						if(puVentaStr!=null) {
+	    	    							try {
+	    	    								puVentaDbl = Double.parseDouble(puVentaStr);
+	    	    							}catch(Exception e){}
+	    	    						}
+	    	    						valPVta.add(puVentaDbl);
+	    	    						
+	    	    						Double puArrDbl = (double)0;
+	    	    						String puArrStr = l.get(7);
+	    	    						if(puArrStr!=null) {
+	    	    							try {
+	    	    								puArrDbl = Double.parseDouble(puArrStr);
+	    	    							}catch(Exception e){}
+	    	    						}
+	    	    						valPArr.add(puArrDbl);
+	    	    						
+	    	    						
+		    	    					newEquipos += "('"+codEquipo+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"'),";
+		    	    					codigos.add(l.get(1));
+		    	    					selEquipos += "'"+l.get(1)+"',";
+		    	    					idsMonedas.add(moneda.getId());
+		    	    					idsUnTiempo.add(unidadTiempo.getId());
 		    	    					
 		    	    				}
 		    					}
 		    					
-		    					Long idAuxUnTiempo = (long) 2;
-		    					PreparedStatement smtAux = con
-	    	    						.prepareStatement("select count(id_unidadTiempo), id_unidadTiempo from `"+s.baseDato+"`.precio group by id_unidadTiempo;");
-	    	    				ResultSet rsAux = smtAux.executeQuery();
-	    	    				Long aux = (long)0;
-	    	    				while(rsAux.next()) {
-	    	    					if(rsAux.getLong(1) > aux) {
-	    	    						aux = rsAux.getLong(1);
-	    	    						idAuxUnTiempo = rsAux.getLong(2);
-	    	    					}
-	    	    				}
-	    	    				smtAux.close();
-	    	    				rsAux.close();
 		    					
+		    					
+	    	    				
 		    					
 	    	    				if(newEquipos.length()>1) {
 		    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
@@ -5747,15 +5811,19 @@ public class MnuCotizar extends Controller {
 		    	    				rs2.close();
 		    	    				String datos = "";
 		    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
-		    	    				for(String x:idsEquipo){
+		    	    				for(int i=0; i<idsEquipo.size(); i++){
+		    	    					
+		    	    					Long id_moneda = idsMonedas.get(i);
+	    	    						Long  id_unidadTiempo = idsUnTiempo.get(i);
+		    	    					Double precioVenta = valPVta.get(i);
+		    	    					Double precioArriendo = valPArr.get(i);
+		    	    					Double tasaArriendo = (double)0;
+		    	    					if(precioVenta>0) {
+		    	    						tasaArriendo = precioArriendo/precioVenta;
+		    	    					}
+		    	    					
 		    	    					for(Sucursal sucursal: listSucursal) {
-		    	    						
-		    	    						Long id_unidadTiempo = mapCodEqVsIdUnTiempo.get(x);
-		    	    						if(id_unidadTiempo == null) {
-		    	    							id_unidadTiempo = idAuxUnTiempo;
-		    	    						}
-		    	    						
-		    	    						datos += "("+x+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0',"+id_unidadTiempo+",'0','0',"+sucursal.getId()+"),";
+		    	    						datos += "("+idsEquipo.get(i)+",'"+id_moneda+"','"+Fechas.hoy().getFechaStrAAMMDD()+"','"+precioVenta+"','"+precioVenta+"','"+tasaArriendo+"',"+id_unidadTiempo+",'"+precioArriendo+"','0','0',"+sucursal.getId()+"),";
 		    	    					}
 		    	    					
 		    	    				}
@@ -5765,11 +5833,13 @@ public class MnuCotizar extends Controller {
 		    	    				
 		    	    				PreparedStatement smt3 = con
 		    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
-		    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+		    	    								+ " (id_equipo,id_moneda,fecha, precioVenta, precioReposicion, tasaArriendo, id_unidadTiempo, precioArriendo, precioMinimo, permanenciaMinima, id_sucursal) "
 		    	    								+ " values "+datos+";");
 		    	    				smt3.executeUpdate();
 		    	    				smt3.close();
 		    	    			}
+	    	    				
+	    	    				
 	    	    				
 	    	    				
 	    	    				
@@ -5809,8 +5879,6 @@ public class MnuCotizar extends Controller {
 		    	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 		    	    			
 		    	    			
-		    	    			Map<String,Moneda> mapMoneda = Moneda.mapNickMonedas(con, s.baseDato);
-		    	    			Map<String,UnidadTiempo> maUnTiempo = UnidadTiempo.mapUnidadTiempoPorNombre(con, s.baseDato);
 		    	    			for(int i=0;i<listaConPrecio.size();i++){
 		    	    				
 		    	    				Long decimal = Long.parseLong(listaConPrecio.get(i).get(20));
@@ -5818,7 +5886,6 @@ public class MnuCotizar extends Controller {
 		    	    					List<String> lexcel = mapListaExcel.get(listaConPrecio.get(i).get(1).toUpperCase());
 		    	    					
 		    	    					if(lexcel!=null) {
-		    	    						
 		    	    						//CANTIDAD
 		    	    						Double cantDbl = (double) 1;
 		    	    						String cantStr = "1.00";
@@ -5918,20 +5985,24 @@ public class MnuCotizar extends Controller {
 			    	    					if(mon!=null) {
 			    	    						mon = lexcel.get(6).trim().toUpperCase();
 			    	    					}
-			    	    					
 			    	    					Moneda moneda = mapMoneda.get(mon);
-		    	    						if(moneda == null) {
-		    	    							moneda = Moneda.find(con, s.baseDato, (long)1);
+			    	    					if(moneda == null) {
+		    	    							moneda = Moneda.find(con, s.baseDato, id_moneda2);
+		    	    							id_moneda2 = moneda.getId();
 		    	    						}
+			    	    					
+			    	    					String unTiempo = lexcel.get(8);
+			    	    					if(unTiempo!=null) {
+			    	    						unTiempo = lexcel.get(8).trim().toUpperCase();
+			    	    					}
+		    	    						UnidadTiempo unidadTiempo = mapUnidadTiempo.get(unTiempo);
+		    	    						if(unidadTiempo == null) {
+		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, (long)4);
+		    	    						}
+		    	    						
 		    	    						listaConPrecio.get(i).set(8, moneda.getId().toString());
 		    	    						listaConPrecio.get(i).set(4, moneda.getNickName());
 		    	    						listaConPrecio.get(i).set(20, moneda.getNumeroDecimales().toString());
-			    	    					
-			    	    					
-		    	    						UnidadTiempo unidadTiempo = maUnTiempo.get(lexcel.get(8).trim());
-		    	    						if(unidadTiempo == null) {
-		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, idAuxUnTiempo);
-		    	    						}
 		    	    						listaConPrecio.get(i).set(9, unidadTiempo.getId().toString());
 		    	    						listaConPrecio.get(i).set(6, unidadTiempo.getNombre());
 			    	    					
@@ -5947,7 +6018,6 @@ public class MnuCotizar extends Controller {
 		    	    				l.add(l.get(24).replaceAll(",", "").replaceAll("%", ""));
 		    	    				l.add(l.get(7).replaceAll(",", ""));
 		    	    				l.add(l.get(12).replaceAll(",", ""));
-		    	    				
 		    	    				l.add(l.get(13).replaceAll(",", ""));
 		    	    				l.add(l.get(14).replaceAll(",", ""));
 		    	    				l.add(l.get(15).replaceAll(",", ""));
