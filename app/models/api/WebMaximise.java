@@ -319,7 +319,7 @@ public class WebMaximise {
 					+ "			&lt;TRANTYPE_IND&gt;G&lt;/TRANTYPE_IND&gt;\n"
 					+ "			&lt;REF_CODE&gt;"+rutCliente+"&lt;/REF_CODE&gt;\n"
 					+ "			&lt;TAX_CODE&gt;IDF&lt;/TAX_CODE&gt;\n"
-					+ "			&lt;TAX_PER&gt;"+(emisorTributario.getTasaIva()/100)+"&lt;/TAX_PER&gt;\n"
+					+ "			&lt;TAX_PER&gt;"+(emisorTributario.getTasaIva())+"&lt;/TAX_PER&gt;\n"
 					+ "			&lt;ACCT_CODE&gt;11010701&lt;/ACCT_CODE&gt;\n"
 					+ "			&lt;BRAN_CODE&gt;"+sucurMaximise+"&lt;/BRAN_CODE&gt;\n"
 					+ "			&lt;PROFIT_CODE /&gt;\n"

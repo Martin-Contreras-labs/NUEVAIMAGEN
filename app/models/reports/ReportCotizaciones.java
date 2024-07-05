@@ -33,6 +33,7 @@ import models.tables.Atributo;
 import models.tables.Cliente;
 import models.tables.CotizaEstado;
 import models.tables.CotizaSolucion;
+import models.tables.Ot;
 import models.tables.Proyecto;
 import models.tables.Sucursal;
 import models.tables.TasasCambio;
@@ -207,7 +208,8 @@ public class ReportCotizaciones {
 							+ " cotizaDetalle.precioArriendo," // 12
 							+ " cotizaDetalle.permanencia," // 13
 							+ " cotizaDetalle.id_equipo,"  // 14
-							+ " ifnull(ot.fecha,'')"  	// 15
+							+ " ifnull(ot.fecha,''),"  	// 15
+							+ " cotizacion.id"  	// 16
 							+ " from `"+db+"`.cotizaDetalle"
 							+ " left join `"+db+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
 							+ " left join `"+db+"`.ot on ot.id_cotizacion = cotizacion.id"
@@ -246,7 +248,7 @@ public class ReportCotizaciones {
 					mesAnioOT = fechaOT[0] + "" + fechaOT[1];
 				}
 				
-				String key = mesAnio +"_"+rs.getString(2)+"_"+rs.getString(3)+"_"+rs.getString(4)+"_"+rs.getString(5)+"_"+rs.getString(6)+"_"+rs.getString(7)+"_"+mesAnioOT;
+				String key = mesAnio +"_"+rs.getString(2)+"_"+rs.getString(3)+"_"+rs.getString(4)+"_"+rs.getString(5)+"_"+rs.getString(6)+"_"+rs.getString(7)+"_"+mesAnioOT+"_"+rs.getString(16);
 				
 				
 				Double cantidad = rs.getDouble(8);
@@ -314,15 +316,18 @@ public class ReportCotizaciones {
 			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
 			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
 			Map<Long,CotizaEstado> mapEstado = CotizaEstado.mapAll(con, db);
+			Map<Long,Ot> mapOt = Ot.mapAll_idCoti_vs_Ot(con, db);
 			
 			for (Map.Entry<String, List<Double>> entry : mapDatosAux.entrySet()) {
 	            String[] key = entry.getKey().split("_");
 	            List<Double> value = entry.getValue();
 	            
+	            String idCotizacion = "";
 	            String mesAnio = key[0];
 	            String mesAnioOT = "";
-	            if(key.length == 8) {
+	            if(key.length == 9) {
 	            	mesAnioOT = key[7];
+	            	idCotizacion = key[8];
 	            }
 	            String nameSucursal = "";
 	            String nameComercial = "";
@@ -359,6 +364,16 @@ public class ReportCotizaciones {
 	            CotizaEstado estado = mapEstado.get(Long.parseLong(key[6]));
 	            if(estado != null) {
 	            	nameEstado = estado.getEstado();
+	            	if(estado.getId() == (long)-2) {
+	            		Ot ot = mapOt.get(Long.parseLong(idCotizacion));
+	            		if(ot != null) {
+	            			if(ot.getConfirmada() == (long)0) {
+	            				nameEstado = nameEstado + " (PEND)";
+	            			}else {
+	            				nameEstado = nameEstado + " (CONF)";
+	            			}
+	            		}
+	            	}
 	            }
 	           
 	            List<String> aux = new ArrayList<String>();

@@ -110,7 +110,7 @@ public class UnidadTiempo {
 							" FROM `"+db+"`.unidadTiempo");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				aux.put(rs.getString(2),new UnidadTiempo(rs.getLong(1),rs.getString(2)));
+				aux.put(rs.getString(2).toUpperCase(),new UnidadTiempo(rs.getLong(1),rs.getString(2)));
 			}
 			rs.close();
 			smt.close();

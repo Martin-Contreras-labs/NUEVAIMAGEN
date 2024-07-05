@@ -275,6 +275,15 @@ public class Ot {
 		return(map);
 	}
 	
+	public static Map<Long,Ot> mapAll_idCoti_vs_Ot(Connection con, String db){
+		Map<Long,Ot> map = new HashMap<Long,Ot>();
+		List<Ot> lista = Ot.all(con, db);
+		lista.forEach(l->{
+			map.put(l.getId_cotizacion(), l);
+		});
+		return(map);
+	}
+	
 	public static Map<Long,List<String>> mapIdvsFechActEnvio(Connection con,String db) {
 		Map<Long,List<String>> map = new HashMap<Long,List<String>>();
 		try {
@@ -600,10 +609,22 @@ public class Ot {
 		List<Ot> lista = new ArrayList<Ot>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select " +
-							" ot.id, ot.id_cotizacion, ot.numero, ot.fecha, ot.otPDF, ot.esEliminable, " +
-							" ot.id_otEstado, ifnull(ot.fechaConfirmada,''), ot.confirmada, ifnull(ot.observaciones,''), cotizacion.id_sucursal, cotizacion.id_comercial,  " +
-							" ifnull(ot.fechaActualizacion,''), ifnull(ot.fechaEnvio,''), ot.notaOtEstado " +
+					.prepareStatement(" select " 
+							+ " ot.id,"
+							+ " ot.id_cotizacion,"
+							+ " ot.numero,"
+							+ " ot.fecha,"
+							+ " ot.otPDF,"
+							+ " ot.esEliminable,"
+							+ " ot.id_otEstado,"
+							+ " ifnull(ot.fechaConfirmada,''),"
+							+ " ot.confirmada,"
+							+ " ifnull(ot.observaciones,''),"
+							+ " cotizacion.id_sucursal,"
+							+ " cotizacion.id_comercial,  " 
+							+ " ifnull(ot.fechaActualizacion,''),"
+							+ " ifnull(ot.fechaEnvio,''),"
+							+ " ot.notaOtEstado " +
 							" from `"+db+"`.ot  " +
 							" left join `"+db+"`.cotizacion on cotizacion.id = ot.id_cotizacion " +
 							" where (ot.fecha between ? and ?) " +
@@ -2199,7 +2220,7 @@ public class Ot {
 		
 		return(listOt);
 	}
-	
+
 	public static List<List<String>> listOtRevisar(Connection con, String db, String esPorSucursal, String id_sucursal, String desde, String hasta){
 		List<List<String>> listOt = new ArrayList<List<String>>();
 		List<Ot> listadoOt = Ot.allDesdeHasta(con, db, desde, hasta);

@@ -36,6 +36,7 @@ import models.tables.Sucursal;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
+import models.utilities.GenParesColumnExcel;
 
 
 public class ReportKilos {
@@ -326,7 +327,7 @@ public class ReportKilos {
 			
 			
 			//anchos de columnas
-			for(int i=1; i<17; i++) {
+			for(int i=1; i<40; i++) {
 				hoja1.setColumnWidth(i, 4*1000);
 			}
 			hoja1.setColumnWidth(1, 6*1000);
@@ -388,7 +389,6 @@ public class ReportKilos {
 				cell.setCellValue(cabecera2.get(i));
 			}
 			
-			
 			for(int i=0; i<datos.size(); i++){
 				posRow++;
 				row = hoja1.createRow(posRow);
@@ -420,14 +420,19 @@ public class ReportKilos {
             cell.setCellStyle(detalle);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
+			
+			
+			
+			Map<Long,String> mapColumn = GenParesColumnExcel.pares();
+			
 			for(int i=1; i<cabecera2.size(); i++){
 				posCell++;
-				String startCell = obtenerCoordenadaCelda(11, posCell + 1);
-				String endCell = obtenerCoordenadaCelda(posRow, posCell + 1);
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				cell.setCellFormula("SUM(" + startCell + ":" + endCell + ")");
+				String de = mapColumn.get((long)posCell) + 11;
+				String a = mapColumn.get((long)posCell) + posRow;
+				cell.setCellFormula("SUM(" + de + ":" + a + ")");
 			}
 			
 			

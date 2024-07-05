@@ -235,6 +235,7 @@ POST	/otDetalleDespachoImg/				controllers.MnuCotizar.otDetalleDespachoImg(reque
 
 GET		/otListaRevisarPeriodo/				controllers.MnuCotizar.otListaRevisarPeriodo(request: Request)
 POST	/otListaRevisar/					controllers.MnuCotizar.otListaRevisar(request: Request)
+POST	/otListaRevisarExcel/				controllers.MnuCotizar.otListaRevisarExcel(request: Request)
 POST	/revisarOt/							controllers.MnuCotizar.revisarOt(request: Request)
 POST	/trazaEqOtAjax/						controllers.MnuCotizar.trazaEqOtAjax(request: Request)
 POST	/otRevisarExcel/					controllers.MnuCotizar.otRevisarExcel(request: Request)

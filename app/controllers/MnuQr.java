@@ -797,6 +797,8 @@ public class MnuQr extends Controller {
 						for (Map.Entry<Long,Double> entry : mapStockPorBod.entrySet()) {
 							Long id_bodega = entry.getKey();
 							BodegaEmpresa bodega = mapBodega.get(id_bodega);
+							
+							
 						   if(bodega!=null) {
 							   List<String> aux = new ArrayList<String>();
 							   if((long) bodega.getEsInterna() == (long)1) {
@@ -806,7 +808,18 @@ public class MnuQr extends Controller {
 							   }
 							   aux.add(bodega.getNombre());
 							   aux.add(entry.getValue().toString());
-							   lista.add(aux);
+							   
+							   
+							   if(nEmpresa.equals("GFS") ) {
+								   if( bodega.getEsInterna() == (long)1) {
+									   lista.add(aux);
+								   }
+							   }else {
+								   lista.add(aux);
+							   }
+							   
+							   
+							   
 						   }
 						}
 					}

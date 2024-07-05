@@ -1483,6 +1483,15 @@ sinVenta: String)
 						let esVenta1 = document.querySelectorAll(".esVenta1");
 						let verificaStock = document.querySelectorAll(".verificaStock");
 						let mensajes = "";
+						
+						const mapCodAux = new Map();
+						for (let i = 0; i < codigos.length; i++) {
+							mapCodAux.set(codigos[i].textContent.toUpperCase(),codigos[i].textContent.toUpperCase());
+						}
+						
+						
+						const mapCodReves = new Map(Object.entries(rs["map"]));
+						let flagMsg = false;
 						for (let i = 0; i < codigos.length; i++) {
 							let aux = rs["map"][codigos[i].textContent.toUpperCase()];
 							document.getElementById('btnCargaExcel').style.visibility = 'hidden';
@@ -1490,21 +1499,33 @@ sinVenta: String)
 								let valores = aux;
 								let codigo = valores[0].toUpperCase();
 								let cant = valores[2].replace(/,/g,'');
-								let stock = valores[1].replace(/,/g,'');
+								let stock = verificaStock[i].textContent.replace(/,/g,'');
 								if(parseFloat(cant) > parseFloat(stock)){
 									cantidades[i].value = formatStandar(stock,2);
 									mensajes += "La cantidad en codigo "+codigo+" supera el stock, cantidad = "+formatStandar(cant,2)+" y stock = "+formatStandar(stock,2)+", se coloca el stock.<br>";
 								}else{
 									cantidades[i].value = formatStandar(cant,2);
+									let detStock = parseFloat(stock) - parseFloat(cant);
+									verificaStock[i].textContent = formatStandar(detStock,2);
 								}
 								esVenta0[i].value = valores[3];
 								if(esVenta0[i].value == "1"){
 									esVenta1[i].checked = true;
 								}
 							}else{
-								mensajes += "El codigo "+codigos[i].textContent+" no esta en lo disponible, no se considera.\n";
+								flagMsg = true;
 							}
 						}
+						if(flagMsg){
+							for (let [key, value] of mapCodReves) {
+								aux = mapCodAux.get(`${key}`);
+								if(aux == null){
+									mensajes += "El codigo "+codigos[i].textContent+" no esta en el disponible, no se considera.\n";
+								}
+							}
+						}
+						
+								
 						verificaMovimientos();
 						if(mensajes.length > 5){
 							alertify.alert("ALERTA:<br> " + mensajes);

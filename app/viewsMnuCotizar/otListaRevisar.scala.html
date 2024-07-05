@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listOt: List[List[String]])
+listOt: List[List[String]], fechaDesde: String, fechaHasta: String)
 
     	
 @main("") {
@@ -14,10 +14,41 @@ listOt: List[List[String]])
 		@barraTitulo(mapDiccionario, "REVISAR "+mapDiccionario.get("Ordenes_de_trabajo").toUpperCase(),"(confirmadas y pendientes de confirmar)")
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+			
+			
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<form id="excel" class="formulario" method="post" action="/routes2/otListaRevisarExcel/">
+					<input type="hidden" name="fechaDesde" value="@fechaDesde">
+					<input type="hidden" name="fechaHasta" value="@fechaHasta">
+				</form>
+				
+				
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">
 						<TR>
 							<TH>SUCURSAL</TH>
+							<TH>COMERCIAL</TH>
 							<TH>Nro.@mapDiccionario.get("OT")</TH>
 							<TH style="min-width:80px;">FECHA<br>@mapDiccionario.get("OT")</TH>
 							<TH style="min-width:80px;">CONFIRMADA<br>@mapDiccionario.get("OT")</TH>
@@ -42,6 +73,7 @@ listOt: List[List[String]])
 						@for(lista1 <- listOt){
 							<TR>
 								<td style="text-align:left;">@lista1.get(15)</td>
+								<td style="text-align:left;">@lista1.get(16)</td>
 								<td style="text-align:center;">
 									<a href="#" onclick="verOt('@lista1.get(0)')">
 										<kbd style="background-color: rgb(90, 200, 245)">

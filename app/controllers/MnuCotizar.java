@@ -65,6 +65,7 @@ import models.utilities.Registro;
 import models.utilities.UserMnu;
 import models.xlsx.CotizacionEnExcel;
 import models.xlsx.OtEnExcel;
+import models.xlsx.OtListaRevisarEnExcel;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.db.Database;
@@ -2892,11 +2893,55 @@ public class MnuCotizar extends Controller {
 	    			
 	    			List<List<String>> listOt = Ot.listOtRevisar(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
 	    			con.close();
-	    			return ok(otListaRevisar.render(mapeoDiccionario,mapeoPermiso,userMnu,listOt));
+	    			return ok(otListaRevisar.render(mapeoDiccionario,mapeoPermiso,userMnu,listOt,desdeAAMMDD,hastaAAMMDD));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
 	       	}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+    }
+    
+    public Result otListaRevisarExcel(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgError));
+	       	}else {
+	       		
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		
+	       		try {
+	    			Connection con = db.getConnection();
+	    		//	
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("otRevisa")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			
+	    			List<List<String>> listOt = Ot.listOtRevisar(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
+	    			File file = OtListaRevisarEnExcel.otListaRevisarExcel(s.baseDato, listOt, mapeoDiccionario);
+	   
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("ListaDeMovimientos.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	    			
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    		
     		return ok(mensajes.render("/",msgError));
     	}else {
     		return ok(mensajes.render("/",msgError));
@@ -5997,7 +6042,7 @@ public class MnuCotizar extends Controller {
 			    	    					}
 		    	    						UnidadTiempo unidadTiempo = mapUnidadTiempo.get(unTiempo);
 		    	    						if(unidadTiempo == null) {
-		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, (long)4);
+		    	    							unidadTiempo = UnidadTiempo.find(con, s.baseDato, idAuxUnTiempo);
 		    	    						}
 		    	    						
 		    	    						listaConPrecio.get(i).set(8, moneda.getId().toString());
