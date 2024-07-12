@@ -696,7 +696,7 @@ oc: String)
 								<td style="text-align: left;"><a href="#" onclick="buscaEquipo('@inicial.get(9)');">@inicial.get(10)</a></td>
 								
 								<td style="text-align: center;">@inicial.get(11)</td>
-								<td style="text-align: right;">@inicial.get(12)</td>
+								<td class="cantInvFin" style="text-align: right;">@inicial.get(12)</td>
 								<td style="text-align: center;">@inicial.get(13)</td>
 								@if(inicial.get(19).trim().equals("0") && mapDiccionario.get("nEmpresa").equals("SANTAFE")){
 									<td style="text-align: right;"></td>
@@ -720,7 +720,7 @@ oc: String)
 										</td>
 										<td style="text-align: right;">@inicial.get(25)</td>
 									}
-									<td style="text-align: right;">@inicial.get(14)</td>
+									<td class="pVentaInvFin" style="text-align: right;">@inicial.get(14)</td>
 									@if(!mapPermiso.get("parametro.proforma_ocultaTasaArriendo").equals("1")){
 										<td style="text-align: right;">
 											<div id="finalPer@index"></div>
@@ -756,7 +756,7 @@ oc: String)
 									</td>
 									<td style="text-align: right;">@inicial.get(24)</td>
 								}
-								<td style="text-align: right;">@inicial.get(15)</td>
+								<td class="pArrDiaInvFin" style="text-align: right;">@inicial.get(15)</td>
 								<td style="text-align: right;">@inicial.get(16)</td>
 								<td style="text-align: right;">@inicial.get(17)</td>
 								<td style="text-align: right;">@inicial.get(18)</td>
@@ -765,6 +765,43 @@ oc: String)
 							</TR>
 			 			}
 			 		</tbody>
+					<tfoot>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">TOTAL CANT x PU</TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							@if(mapPermiso.get("parametro.proforma_conDctosCoti").equals("1")){
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH id="totPvtaInvFin" style="text-align: right;vertical-align:top;background-color:#eeeeee;"></TH>
+							}else{
+								<TH id="totPvtaInvFin"  style="text-align: right;vertical-align:top;background-color:#eeeeee;"></TH>
+							}
+							@if(!mapPermiso.get("parametro.proforma_ocultaTasaArriendo").equals("1")){
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							}
+							@if(mapPermiso.get("parametro.proforma_conDctosCoti").equals("1")){
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH id="totParrDiaInvFin" style="text-align: right;vertical-align:top;background-color:#eeeeee;"></TH>
+							}else{
+								<TH id="totParrDiaInvFin" style="text-align: right;vertical-align:top;background-color:#eeeeee;"></TH>
+							}
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							@if(mapDiccionario.get("nEmpresa").equals("EMIN") && tasaCambio.get(0).equals("1")){
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							}else{
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+								<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;"></TH>
+							}
+					</tfoot>
 			 	</table>
 			</div>
 			</div>
@@ -977,6 +1014,31 @@ oc: String)
 						
 						
 						
+						
+						
+						let pArrDiaInvFin = document.querySelectorAll('.pArrDiaInvFin');
+						let pVentaInvFin = document.querySelectorAll('.pVentaInvFin');
+						let cantInvFin = document.querySelectorAll('.cantInvFin');
+						
+						let totVtaFin = 0;
+						let totArrFin = 0;
+						
+						for (let i = 0; i < cantInvFin.length; i++) {
+							let cantFin = cantInvFin[i].textContent.replace(/,/g,'');
+							let pVtaFin = pVentaInvFin[i].textContent.replace(/,/g,'');
+							let pArrFin = pArrDiaInvFin[i].textContent.replace(/,/g,'');
+							
+							totVtaFin += parseFloat(cantFin) * parseFloat(pVtaFin);
+							totArrFin += parseFloat(cantFin) * parseFloat(pArrFin);
+							
+						}
+						
+						
+						$("#totParrDiaInvFin").text(formatStandar(totVtaFin, cantDec));
+						$("#totPvtaInvFin").text(formatStandar(totArrFin, cantDec));
+						
+						console.log(formatStandar(totVtaFin, cantDec));
+						console.log(formatStandar(totArrFin, cantDec));
 			   });
 				
 		

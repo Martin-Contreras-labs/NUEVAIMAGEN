@@ -2373,12 +2373,18 @@ public class Ot {
     				Long id_bodegaEmpresa = (long)0;
     				String obsCoti = "";
     				String cotiPDF = "";
+    				String nroOcCliente = "";
+    				String ocAdjunta = "";
+    				String contratoAdjunto = "";
     				if(coti!=null) {
     					numCoti = coti.getNumero().toString();
     					fechaCoti = Fechas.AAMMDD(coti.getFecha());
     					id_bodegaEmpresa = coti.getId_bodegaEmpresa();
     					obsCoti = coti.getObservaciones();
     					cotiPDF = coti.getCotizacionPDF();
+    					nroOcCliente = coti.getNumeroOC();
+    					ocAdjunta = coti.getOcClientePDF();
+    					contratoAdjunto = coti.getContratoPDF();
     				}
     				
     				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
@@ -2408,6 +2414,9 @@ public class Ot {
     				aux.add(x.nameComercial);					// 14 comercial
     				aux.add(x.getFechaActualizacion());			// 15 getFechaActualizacion
     				aux.add(x.getFechaEnvio());					// 16 getFechaEnvio
+    				aux.add(nroOcCliente);						// 17 Nro OC cliente
+    				aux.add(ocAdjunta);							// 18 orden de compra adjunta
+    				aux.add(contratoAdjunto);					// 19 pdf contrato pdf anexado
 					listOt.add(aux);
 				}
 			});
@@ -2419,12 +2428,18 @@ public class Ot {
 				Long id_bodegaEmpresa = (long)0;
 				String obsCoti = "";
 				String cotiPDF = "";
+				String nroOcCliente = "";
+				String ocAdjunta = "";
+				String contratoAdjunto = "";
 				if(coti!=null) {
 					numCoti = coti.getNumero().toString();
 					fechaCoti = Fechas.AAMMDD(coti.getFecha());
 					id_bodegaEmpresa = coti.getId_bodegaEmpresa();
 					obsCoti = coti.getObservaciones();
 					cotiPDF = coti.getCotizacionPDF();
+					nroOcCliente = coti.getNumeroOC();
+					ocAdjunta = coti.getOcClientePDF();
+					contratoAdjunto = coti.getContratoPDF();
 				}
 				
 				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
@@ -2454,6 +2469,9 @@ public class Ot {
 				aux.add(x.nameComercial);					// 14 comercial
 				aux.add(x.getFechaActualizacion());			// 15 getFechaActualizacion
 				aux.add(x.getFechaEnvio());					// 16 getFechaEnvio
+				aux.add(nroOcCliente);						// 17 Nro OC cliente
+				aux.add(ocAdjunta);							// 18 orden de compra adjunta
+				aux.add(contratoAdjunto);					// 19 pdf contrato pdf anexado
 				listOt.add(aux);
 			});
 		}

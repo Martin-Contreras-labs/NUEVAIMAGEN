@@ -29,8 +29,14 @@ listOt: List[List[String]])
 								<TH>PROYECTO</TH>
 								<TH>OBSERVACIONES<br>@mapDiccionario.get("OT")</TH>
 								<TH>OBSERVACIONES<br>COTIZACION</TH>
-								<TH>DOC<br>@mapDiccionario.get("OT")</TH>
-								<TH>DOC<br>COTI</TH>
+								
+								<TH>NRO OC<br>CLIENTE</TH>
+								<TH>OC CLIENTE<br>ADJUNTO</TH>
+								<TH>CONTRATO<br>ADJUNTO</TH>
+								
+								
+								<TH>DOC ANEXO<br>@mapDiccionario.get("OT")</TH>
+								<TH>DOC ANEXO<br>COTI</TH>
 								<TH>ULTIMA<br>ACTUALIZACION</TH>
 								<TH>ESTIMACION<br>DE ENTREGA</TH>
 								<TH>CONFIRMAR</TH>
@@ -67,6 +73,30 @@ listOt: List[List[String]])
 									<td style="text-align:left;"><a href="#" onclick="buscaProyecto('@lista1.get(7)')">@lista1.get(7)</a></td>
 									<td style="text-align:left;">@lista1.get(8)</td>
 									<td style="text-align:left;">@lista1.get(9)</td>
+									
+									
+									<td style="text-align:left;">@lista1.get(17)</td>
+									<td style="text-align:center;">
+										@if(lista1.get(18).equals("0")){
+											--
+										}else{
+											<a href="#" onclick="descargaDocumento('@lista1.get(18)')">
+												<kbd style="background-color: #7F8C8D">doc</kbd>
+											</a>
+										}
+									</td>
+									<td style="text-align:center;">
+										@if(lista1.get(19).equals("0")){
+											--
+										}else{
+											<a href="#" onclick="descargaDocumento('@lista1.get(19)')">
+												<kbd style="background-color: #7F8C8D">doc</kbd>
+											</a>
+										}
+									</td>
+										
+									
+									
 									<td style="text-align:center;">
 										@if(lista1.get(10).equals("0")){
 											--

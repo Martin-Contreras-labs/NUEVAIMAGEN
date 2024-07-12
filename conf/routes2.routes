@@ -251,7 +251,7 @@ POST	/hacerContrato/						controllers.MnuCotizar.hacerContrato(request: Request)
 
 GET		/otListaAgregarOCPeriodo/			controllers.MnuCotizar.otListaAgregarOCPeriodo(request: Request)
 POST	/otListaAgregarOC/					controllers.MnuCotizar.otListaAgregarOC(request: Request)
-POST	/grabarOcPdf/:id_ot					controllers.MnuCotizar.grabarOcPdf(request: Request, id_ot: Long)
+POST	/grabarOcPdf/:id_ot,:de,:a			controllers.MnuCotizar.grabarOcPdf(request: Request, id_ot: Long, de: String, a: String)
 POST	/oc_cotiClienteAjax/				controllers.MnuCotizar.oc_cotiClienteAjax(request: Request)
 
 

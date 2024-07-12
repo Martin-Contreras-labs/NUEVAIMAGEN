@@ -695,8 +695,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
+				 
+				  java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
 				  
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -770,7 +777,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -815,7 +830,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -861,7 +884,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -910,7 +941,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -956,7 +995,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -1005,7 +1052,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -1051,7 +1106,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -1097,7 +1160,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -1143,7 +1214,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -1233,8 +1312,16 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
 				lista.add(new Cotizacion(
-					rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),rs.getDouble(8),rs.getDouble(9), // 10
+						dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),rs.getDouble(8),rs.getDouble(9), // 10
 					rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19), //20
 					
 					rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), //30
@@ -1248,51 +1335,6 @@ public class Cotizacion {
 		}
 		return (lista);
 	}
-	/*
-	try{
-		PreparedStatement smt = con
-				.prepareStatement(" select "
-						+ " id, id_bodegaEmpresa, id_cliente, id_proyecto, numero, fecha, cotizacionPDF, dctoArriendo, dctoVenta, esModificable, "
-						+ " ifnull(fechaConfirmada,''), confirmada, contratoPDF, ocClientePDF, numeroOC, ifnull(fechaOC,''), ifnull(fechaContrato,''), "
-						+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
-						+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
-						+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-						+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
-						+ " from `"+db+"`.cotizacion "
-						+ " where id>0 and esModificable=0 and (cotizacion.fecha between ? and ?);");
-		smt.setString(1, desde);
-		smt.setString(2, hasta);
-		ResultSet rs = smt.executeQuery();
-		Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-		Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-		Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
-		while (rs.next()) {
-			String nameSucursal = "Sin Sucursal";
-			String nameComercial = "Sin Comercial";
-			Sucursal sucursal = mapSucursal.get(rs.getLong(40));
-			Comercial comercial = mapComercial.get(rs.getLong(41));
-			if(sucursal!=null) {
-				nameSucursal = sucursal.nombre;
-			}
-			if(comercial!=null) {
-				nameComercial = comercial.nameUsuario;
-			}
-			String nameSolucion = "";
-			CotizaSolucion cotizaSolucion = mapCotizaSolucion.get(rs.getLong(42));
-			if(cotizaSolucion!=null) {
-				nameSolucion = cotizaSolucion.getSolucion();
-			}
-			lista.add(new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
-				rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
-				rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
-				rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
-				rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-				rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
-		}
-	} catch (SQLException e) {
-		e.printStackTrace();
-	}
-	*/
 	
 	public static boolean delete(Connection con, String db, Long id_cotizacion) {
 		boolean flag = false;
@@ -1358,7 +1400,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				aux = new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				aux = new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 						rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 						rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 						rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
@@ -1406,7 +1456,15 @@ public class Cotizacion {
 				if(cotizaSolucion!=null) {
 					nameSolucion = cotizaSolucion.getSolucion();
 				}
-				aux = new Cotizacion(rs.getTimestamp(29), rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(29);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(29);
+				  }
+				  
+				aux = new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 						rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 						rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 						rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),

@@ -403,7 +403,15 @@ public class CotiOdo {
 							+ " from `"+db+"`.cotiOdo  where id>0;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 					rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 					rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -445,7 +453,15 @@ public class CotiOdo {
 							+ " from `"+db+"`.cotiOdo  where id>0 and id_cotizaEstado=1 order by fecha desc, numero desc;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -487,7 +503,15 @@ public class CotiOdo {
 							+ " where id>0 and esModificable=1 and id_cotizaEstado=1;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -529,7 +553,15 @@ public class CotiOdo {
 							+ " where id>0;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+				
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -571,7 +603,15 @@ public class CotiOdo {
 							+ " where id>0 and esModificable=1;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -613,7 +653,15 @@ public class CotiOdo {
 							+ " where id>0 and esModificable=0 and id_cotizaEstado=1 and id_otOdo=0;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -655,7 +703,15 @@ public class CotiOdo {
 							+ " where id>0 and id_cotizaEstado=1 and id_otOdo=0;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -697,7 +753,15 @@ public class CotiOdo {
 							+ " where id>0 and esModificable=0;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -740,7 +804,15 @@ public class CotiOdo {
 			smt.setLong(1, year);
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				lista.add(new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				lista.add(new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23)));
 			}
@@ -813,7 +885,15 @@ public class CotiOdo {
 			smt.setLong(1, id_cotiOdo);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
-				aux = new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				aux = new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23));
 			}
@@ -857,7 +937,15 @@ public class CotiOdo {
 			smt.setLong(1, numero);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
-				aux = new CotiOdo(rs.getTimestamp(1), rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
+
+				java.util.Date dateCreacion = null;
+				  try {
+					  dateCreacion = rs.getTimestamp(1);
+				  }catch(Exception e){
+					  dateCreacion = rs.getDate(1);
+				  }
+				  
+				aux = new CotiOdo(dateCreacion, rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getString(7),rs.getString(8),
 						rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13),rs.getString(14), rs.getString(15),rs.getString(16),
 						rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getLong(21),rs.getString(22),rs.getLong(23));
 			}

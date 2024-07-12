@@ -5377,11 +5377,9 @@ public class MnuCotizar extends Controller {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
-	    			
 	    			List<List<String>> listOt = Ot.listOtAgregarOC(con,s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
-
 	    			con.close();
-	    			return ok(otListaAgregarOC.render(mapeoDiccionario,mapeoPermiso,userMnu,listOt));
+	    			return ok(otListaAgregarOC.render(mapeoDiccionario,mapeoPermiso,userMnu,listOt,desdeAAMMDD,hastaAAMMDD));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -5392,25 +5390,34 @@ public class MnuCotizar extends Controller {
     	}
     }
     
-    public Result grabarOcPdf(Http.Request request, Long id_coti) {
+    public Result grabarOcPdf(Http.Request request, Long id_coti, String desdeAAMMDD, String hastaAAMMDD) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+    		
     		Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
 			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
 			try {
     			Connection con = db.getConnection();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			
     			Cotizacion coti= Cotizacion.find(con, s.baseDato, id_coti);
     			String path = "0";
 				if (docAdjunto != null && coti !=null) {
 					String nombreArchivoSinExtencion = "ocCliente_Coti_Nro_" + coti.getNumero();
 					path = Archivos.grabarArchivos(docAdjunto, s.baseDato, nombreArchivoSinExtencion);
 					Cotizacion.modifyXCampo(con, s.baseDato, "ocClientePDF", path, id_coti);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotizacion", id_coti, "update", "agrega orden de compra a coti nro: "+coti.getNumero());
 				}
 				
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotizacion", id_coti, "update", "agrega orden de compra a coti nro: "+coti.getNumero());
-				con.close();
-				return redirect("/routes2/otListaAgregarOCPeriodo/");
+    			if(mapeoPermiso.get("otAgregaOC")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			List<List<String>> listOt = Ot.listOtAgregarOC(con,s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
+    			con.close();
+    			return ok(otListaAgregarOC.render(mapeoDiccionario,mapeoPermiso,userMnu,listOt,desdeAAMMDD,hastaAAMMDD));
 			} catch (SQLException e) {
     			e.printStackTrace();
     		}

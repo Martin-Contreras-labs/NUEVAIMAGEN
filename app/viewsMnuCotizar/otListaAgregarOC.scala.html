@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listOt: List[List[String]])
+listOt: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 
     	
 @main("") {
@@ -74,7 +74,7 @@ listOt: List[List[String]])
 											onchange="actualizaOC(id, '@lista1.get(1)')">
 								</td>
 								<td style="text-align:center;">
-									<form id="form_@lista1.get(0)"action="/routes2/grabarOcPdf/@lista1.get(0)" enctype="multipart/form-data" method="POST">
+									<form id="form_@lista1.get(0)"action="/routes2/grabarOcPdf/@lista1.get(1),@desdeAAMMDD,@hastaAAMMDD" enctype="multipart/form-data" method="POST">
 										<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
 											@if(lista1.get(15).equals("0")){
 												<div id="txtBtn">Adjuntar</div>
@@ -230,7 +230,6 @@ listOt: List[List[String]])
 			if (extArray[i] == extencion) { allowSubmit = true; break; }
 		}
 		if (allowSubmit) {
-			var file = $("#docAdjunto_"+id_coti)[0].files[0];
 			var fileSize = file.size; //tamaño del archivo
 			if(fileSize>100000000){
 				alert("Se permiten únicamente archivos que no superen los 100 MB,"
