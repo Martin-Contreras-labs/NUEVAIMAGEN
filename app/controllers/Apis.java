@@ -66,7 +66,7 @@ public class Apis extends Controller {
     public static Map<String,String> mapeoDicc(String baseDato){
     	Map<String,String> map = new HashMap<String,String>();
     	try {
-    		Connection con = dbRead.getConnection(dbRead);
+    		Connection con = dbRead.getConnection();
 			map = Diccionario.mapDiccionario(con, baseDato);
 			con.close();
 			return(map);
@@ -276,7 +276,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			List<BodegaEmpresa> lista = BodegaEmpresa.all(con, baseDato);
 	   			JsonNode rsJson =  Json.toJson(lista);
 	   			con.close();
@@ -304,7 +304,7 @@ public class Apis extends Controller {
 		if(!baseDato.equals("0")) {
 			Map<String,String> mapeoDiccionario = mapeoDicc(baseDato);
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			List<MovimientosEntreFechas> lista = MovimientosEntreFechas.movimientosEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
 	   			con.close();
@@ -328,7 +328,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			BodegaEmpresa aux = BodegaEmpresa.findXIdBodega(con, baseDato, id_bodegaEmpresa);
 	   			JsonNode rsJson =  Json.toJson(aux);
 	   			con.close();
@@ -352,7 +352,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			Cliente aux = Cliente.find(con, baseDato, id_cliente);
 	   			JsonNode rsJson =  Json.toJson(aux);
 	   			con.close();
@@ -376,7 +376,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			Proyecto aux = Proyecto.find(con, baseDato, id_proyecto);
 	   			JsonNode rsJson =  Json.toJson(aux);
 	   			con.close();
@@ -401,7 +401,7 @@ public class Apis extends Controller {
 		if(!baseDato.equals("0")) {
 			Map<String,String> mapeoDiccionario = mapeoDicc(baseDato);
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			List<InventariosFechaCorte> lista = InventariosFechaCorte.inventariosFechaCorte(con, baseDato, fechaCorte, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
 	   			con.close();
@@ -426,7 +426,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			ResumenDetallePorPeriodo resumen = ResumenDetallePorPeriodo.inventariosFechaCorte(con, baseDato, desdeAAMMDD, hastaAAMMDD, uf, usd, eur,"0","1");
 	   			JsonNode rsJson =  Json.toJson(resumen);
 	   			con.close();
@@ -456,7 +456,7 @@ public class Apis extends Controller {
     		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
     		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 			try {
-	   			Connection con = dbRead.getConnection(dbRead);
+	   			Connection con = dbRead.getConnection();
     			
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	    			String permisoPorBodega = "";
@@ -554,7 +554,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			// KEY = id_bodega _ id_equipo _ id_cotizacion _ tipo:
 	   			Map<String,List<String>> mapArr = ReportHohe.listaMatrizEquiposHOHE2Coti(con, baseDato, "ARRIENDO", fechaCorte);
 	   			Map<String,List<String>> mapVta = ReportHohe.listaMatrizEquiposHOHE2Coti(con, baseDato, "VENTA", fechaCorte);
@@ -682,7 +682,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			String permisoPorBodega = "";
 	   			Fechas finMesFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
@@ -767,7 +767,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			String permisoPorBodega = "";
     			List<AjustesEP> lista = AjustesEP.allPorPeriodos(con, baseDato, desdeAAMMDD, hastaAAMMDD, permisoPorBodega,  "0", "0");
@@ -822,7 +822,7 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			try {
-				Connection con = dbRead.getConnection(dbRead);
+				Connection con = dbRead.getConnection();
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			List<List<String>> datos = ReportBodegas.estadoBodegas(con, baseDato);
 	   			List<List<String>> rs = new ArrayList<List<String>>();
@@ -875,7 +875,7 @@ public class Apis extends Controller {
 			}
 			if(!baseDato.equals("0")) {
 				try {
-					Connection con = dbRead.getConnection(dbRead);
+					Connection con = dbRead.getConnection();
 		   			List<List<String>> lista = ReportHohe.datosResumen(con, baseDato, desdeAAMMDD, hastaAAMMDD);
 		   			List<List<String>> l = ReportHohe.reporteHoheResumenJson(desdeAAMMDD, hastaAAMMDD, lista);
 	       			JsonNode rsJson =  Json.toJson(l);

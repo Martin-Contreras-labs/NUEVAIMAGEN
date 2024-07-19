@@ -55,10 +55,12 @@ public class Movimiento {
 	public Long id_actaBaja;
 	public String fecha_actaBaja;
 	
+	public Long nroGuia;
+	
 	public Movimiento(Long id, Long id_compra, Long id_bodegaOrigen, Long id_bodegaEmpresa, Long id_equipo,
 			Long id_tipoMovimiento, Long id_guia, Double cantidad, Long id_baja, Long bloqueoPorBaja, Double exceso,
 			Long esNuevo, Long esVenta, Long id_otDespachado, Long id_cotizacion, Double cantCliente, Long id_factura,
-			String fecha_factura, Long id_actaBaja, String fecha_actaBaja) {
+			String fecha_factura, Long id_actaBaja, String fecha_actaBaja, Long nroGuia) {
 		super();
 		this.id = id;
 		this.id_compra = id_compra;
@@ -80,6 +82,7 @@ public class Movimiento {
 		this.fecha_factura = fecha_factura;
 		this.id_actaBaja = id_actaBaja;
 		this.fecha_actaBaja = fecha_actaBaja;
+		this.nroGuia = nroGuia;
 	}
 
 	public Movimiento() {super();}
@@ -125,6 +128,14 @@ public class Movimiento {
 	public String getFecha_actaBaja() {return fecha_actaBaja;}
 	public void setFecha_actaBaja(String fecha_actaBaja) {this.fecha_actaBaja = fecha_actaBaja;}
 
+	public Long getNroGuia() {
+		return nroGuia;
+	}
+
+	public void setNroGuia(Long nroGuia) {
+		this.nroGuia = nroGuia;
+	}
+
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
@@ -153,14 +164,15 @@ public class Movimiento {
 							" movimiento.id_factura, " +
 							" movimiento.fecha_factura, " +
 							" movimiento.id_actaBaja, " +
-							" movimiento.fecha_actaBaja " +
+							" movimiento.fecha_actaBaja, " +
+							" movimiento.nroGuia " +
 							" from `"+db+"`.movimiento;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
 						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
-						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20)));
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20),rs.getLong(21)));
 			}
 			rs.close();
 			smt.close();
@@ -194,7 +206,8 @@ public class Movimiento {
 							" movimiento.id_factura, " +
 							" movimiento.fecha_factura, " +
 							" movimiento.id_actaBaja, " +
-							" movimiento.fecha_actaBaja " +
+							" movimiento.fecha_actaBaja, " +
+							" movimiento.nroGuia " +
 							" from `"+db+"`.movimiento " +
 							" where id_bodegaEmpresa = ?;");
 			smt.setLong(1, id_bodegaEmpresa);
@@ -204,7 +217,7 @@ public class Movimiento {
 				lista.add(new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
 						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
-						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20)));
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20),rs.getLong(21)));
 			}
 			rs.close();
 			smt.close();
@@ -238,7 +251,8 @@ public class Movimiento {
 							" movimiento.id_factura, " +
 							" movimiento.fecha_factura, " +
 							" movimiento.id_actaBaja, " +
-							" movimiento.fecha_actaBaja " +
+							" movimiento.fecha_actaBaja, " +
+							" movimiento.nroGuia " +
 							" from `"+db+"`.movimiento " +
 							" where id_equipo = ?;");
 			smt.setLong(1, id_equipo);
@@ -247,7 +261,7 @@ public class Movimiento {
 				lista.add(new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
 						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
-						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20)));
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20),rs.getLong(21)));
 			}
 			rs.close();
 			smt.close();
@@ -305,7 +319,8 @@ public class Movimiento {
 							" movimiento.id_factura, " +
 							" movimiento.fecha_factura, " +
 							" movimiento.id_actaBaja, " +
-							" movimiento.fecha_actaBaja " +
+							" movimiento.fecha_actaBaja, " +
+							" movimiento.nroGuia " +
 							" from `"+db+"`.movimiento " +
 							" where id = ?;");
 			smt.setLong(1, id_movimiento);
@@ -314,7 +329,7 @@ public class Movimiento {
 				aux = new Movimiento(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 						rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getDouble(8),rs.getLong(9),
 						rs.getLong(10),rs.getDouble(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
-						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20));
+						rs.getDouble(16),rs.getLong(17),rs.getString(18),rs.getLong(19),rs.getString(20),rs.getLong(21));
 			}
 			rs.close();
 			smt.close();
@@ -611,17 +626,18 @@ public class Movimiento {
 				}
 				rs.close();
 				smt4.close();
-			}else {
-				PreparedStatement smt4 = con
-						.prepareStatement(" delete from `"+db+"`.movimiento where id_guia = ?;");
-				smt4.setLong(1, id_guia);
-				ResultSet rs = smt4.executeQuery();
-				while(rs.next()) {
-					lista.add(rs.getString(1));
-				}
-				rs.close();
-				smt4.close();
 			}
+//			else {
+//				PreparedStatement smt4 = con
+//						.prepareStatement(" delete from `"+db+"`.movimiento where id_guia = ?;");
+//				smt4.setLong(1, id_guia);
+//				ResultSet rs = smt4.executeQuery();
+//				while(rs.next()) {
+//					lista.add(rs.getString(1));
+//				}
+//				rs.close();
+//				smt4.close();
+//			}
 		} catch (SQLException e) {
 				e.printStackTrace();
 		}

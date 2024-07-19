@@ -230,13 +230,14 @@ public class FormMovimiento {
 				auxMov.setId_bodegaEmpresa(form.id_bodegaOrigen);
 				auxMov.setId_equipo(form.id_equipo.get(i));
 				auxMov.setId_tipoMovimiento((long)2);
-				auxMov.setId_guia(guia.id);
+				auxMov.setId_guia(guia.getId());
 				auxMov.setCantidad(cantidad);
 				auxMov.setExceso(exceso);
 				auxMov.setId_bodegaOrigen((long)0);
 				auxMov.setEsVenta(form.esVenta.get(i));
 				auxMov.setEsNuevo(form.esNuevo.get(i));
 				auxMov.setId_cotizacion(id_cotizacion);
+				auxMov.setNroGuia(guia.getNumero());
 				//agrega a la lista
 				listMov.add(auxMov);
 				//agrega estados y reparaciones en impares
@@ -251,7 +252,7 @@ public class FormMovimiento {
 				auxMov.setId_bodegaEmpresa(form.id_bodegaDestino);
 				auxMov.setId_equipo(form.id_equipo.get(i));
 				auxMov.setId_tipoMovimiento((long)1);
-				auxMov.setId_guia(guia.id);
+				auxMov.setId_guia(guia.getId());
 				auxMov.setCantidad(cantidad);
 				auxMov.setExceso((double)0);
 				auxMov.setId_bodegaOrigen(form.id_bodegaOrigen);
@@ -259,6 +260,7 @@ public class FormMovimiento {
 				auxMov.setEsNuevo(form.esNuevo.get(i));
 				auxMov.setId_cotizacion((long)0);
 				auxMov.setCantCliente(cantCliente);
+				auxMov.setNroGuia(guia.getNumero());
 				//agrega a la lista
 				listMov.add(auxMov);
 			}
@@ -287,7 +289,8 @@ public class FormMovimiento {
 					+listMov.get(i).getEsNuevo()+"','"
 					+listMov.get(i).getId_cotizacion()+"','"
 					+random+"','"
-					+listMov.get(i).getCantCliente()+"'),";
+					+listMov.get(i).getCantCliente()+"','"
+					+listMov.get(i).getNroGuia()+"'),";
 			
 		}
 		if(insertMovimiento.length()>10) {
@@ -300,7 +303,7 @@ public class FormMovimiento {
 			try {
 				PreparedStatement smt = con
 						.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
-								+ " id_bodegaOrigen, esVenta, esNuevo, id_cotizacion, random, cantCliente) "
+								+ " id_bodegaOrigen, esVenta, esNuevo, id_cotizacion, random, cantCliente, nroGuia ) "
 								+ " VALUES "+insertMovimiento+";");
 				
 				smt.executeUpdate();

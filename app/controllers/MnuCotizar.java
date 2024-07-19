@@ -1439,9 +1439,10 @@ public class MnuCotizar extends Controller {
     
     public Result pdfCotizaArriendo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		 
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
@@ -1475,9 +1476,10 @@ public class MnuCotizar extends Controller {
     
     public Result pdfCotizaVenta(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		 
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
@@ -1509,9 +1511,10 @@ public class MnuCotizar extends Controller {
     
     public Result pdfCotizaArrVta(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		 
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
@@ -4348,9 +4351,11 @@ public class MnuCotizar extends Controller {
     
     public Result grabaDespacho(Http.Request request) {
     	Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     		 
     		FormDespacho form = formFactory.form(FormDespacho.class).withDirectFieldAccess(true).bindFromRequest(request).get();
     		if (form.id_bodegaDestino==null || form.id_ot==null) {
@@ -4958,9 +4963,11 @@ public class MnuCotizar extends Controller {
 	
 	public Result modificaDespacho(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		 
     		FormDespacho form = formFactory.form(FormDespacho.class).withDirectFieldAccess(true).bindFromRequest(request).get();
     		if (form.id_bodegaDestino==null || form.id_ot==null) {
@@ -5547,10 +5554,10 @@ public class MnuCotizar extends Controller {
     
     public Result datosContrato(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    		
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {

@@ -494,9 +494,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	
 	public Result movimientoAplicar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		
     		FormMovimiento form = formFactory.form(FormMovimiento.class).withDirectFieldAccess(true).bindFromRequest(request).get();
     		if (form.id_bodegaDestino==null || form.numeroGuia==null) {
@@ -540,7 +540,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
 	    			
 	    			List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0", mapStock);
-	    			
+	    			zz
 	    			FormMovimiento.insertPreciosNuevos(con, s.baseDato, form, mapeoDiccionario);
 	    			
 	    			if(listaIdMovIdTipEstCant.size()>0) {
@@ -991,9 +991,11 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	
 	public Result movimientoAplicarCambios(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		
     		FormMovimiento form = formFactory.form(FormMovimiento.class).withDirectFieldAccess(true).bindFromRequest(request).get();
     		String titulo = "MOVIMIENTOS ENTRE "+mapeoDiccionario.get("BODEGA")+" O PROYECTOS";

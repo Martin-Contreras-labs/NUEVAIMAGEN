@@ -134,22 +134,27 @@ public class FormDespacho {
 					
 					valores = "";
 					for(int i=0;i<listOtDespachado.size();i++){
+						
 						Long id_equipo = listOtDespachado.get(i).getId_equipoDespacho();
 						Double cantidad = listOtDespachado.get(i).getCantidadDespacho();
 						Long esVenta = listOtDespachado.get(i).getEsVenta();
 						Long esNuevo = (long)0;
 						Long id_otDespachado = listOtDespachado.get(i).getId();
 						Long id_cotizacion = listOtDespachado.get(i).getId_cotizacion();
+						Long nroGuia = guia.getNumero();
+						Double random1 = Math.random();
+						Double random2 = Math.random();
 						valores +=
-							"('"+id_bodegaOrigen+"','"+id_equipo+"','2','"+id_guia+"','"+cantidad+"','0','"+esVenta+"','"+esNuevo+"','"+id_otDespachado+"','0'),"+
-							"('"+id_bodegaDestino+"','"+id_equipo+"','1','"+id_guia+"','"+cantidad+"','"+id_bodegaOrigen+"','"+esVenta+"','"+esNuevo+"','"+id_otDespachado+"','"+id_cotizacion+"'),";
+							"('"+id_bodegaOrigen+"','"+id_equipo+"','2','"+id_guia+"','"+cantidad+"','0','"+esVenta+"','"+esNuevo+"','"+id_otDespachado+"','0','"+random1+"','"+nroGuia+"'),"+
+							"('"+id_bodegaDestino+"','"+id_equipo+"','1','"+id_guia+"','"+cantidad+"','"+id_bodegaOrigen+"','"+esVenta+"','"+esNuevo+"','"+id_otDespachado+"','"+id_cotizacion+"','"+random2+"','"+nroGuia+"'),";
 					}
 					
 					if(valores.length()>10){
 						valores = valores.substring(0, valores.length()-1);
 						PreparedStatement smt2 = con
 								.prepareStatement("INSERT INTO `"+db+"`.movimiento "
-									+ "(id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, id_bodegaOrigen, esVenta, esNuevo, id_otDespachado, id_cotizacion) "
+									+ "(id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, id_bodegaOrigen, "
+									+ " esVenta, esNuevo, id_otDespachado, id_cotizacion, random, nroGuia) "
 									+ " values "+valores+";");
 						smt2.executeUpdate();
 						smt2.close();
