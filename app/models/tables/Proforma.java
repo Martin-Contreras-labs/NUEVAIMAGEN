@@ -228,7 +228,7 @@ public class Proforma {
 		Long year = Long.parseLong(aux[0]);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT year(min(fecha)) FROM `"+db+"`.proforma;" );
+					.prepareStatement(" select year(min(fecha)) from `"+db+"`.proforma;" );
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {	
 				year = resultado.getLong(1);	
@@ -401,7 +401,7 @@ public class Proforma {
 		Double index = Math.random();
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.proforma (fecha,random) values (?,?);");
+					.prepareStatement("insert into `"+db+"`.proforma (fecha,random) values (?,?);");
 			smt1.setString(1,hoy.trim());
 			smt1.setDouble(2, index);
 			smt1.executeUpdate();
@@ -425,7 +425,7 @@ public class Proforma {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.proforma SET fecha=?,desde=?,hasta=?,id_cliente=?,id_bodegaEmpresa=?, " +
+					.prepareStatement("update `"+db+"`.proforma set fecha=?,desde=?,hasta=?,id_cliente=?,id_bodegaEmpresa=?, " +
 							" id_proyecto=?,docRef=?,epExcelMov=?,epExcelEp=?,proformaPdf=?,docAnexo=?,descuento=?,neto=?,iva=?,total=?,tipo=?,proformaXml=? " +
 							" WHERE id = ?");
 			smt.setString(1, aux.fecha.trim());
@@ -459,7 +459,7 @@ public class Proforma {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.proforma SET xmlEnviado=1 WHERE id = ?");
+					.prepareStatement("update `"+db+"`.proforma set xmlEnviado=1 WHERE id = ?");
 			smt.setLong(1, idProforma);
 			smt.executeUpdate();
 			smt.close();
@@ -474,7 +474,7 @@ public class Proforma {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.proforma SET jsonGenerado=? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.proforma set jsonGenerado=? WHERE id = ?");
 			smt.setString(1, jsonApi);
 			smt.setLong(2, id_proforma);
 			smt.executeUpdate();
@@ -505,7 +505,7 @@ public class Proforma {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.proforma SET response=? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.proforma set response=? WHERE id = ?");
 			smt.setString(1, response);
 			smt.setLong(2, id_proforma);
 			smt.executeUpdate();
@@ -521,7 +521,7 @@ public class Proforma {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.proforma SET nroFiscal=? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.proforma set nroFiscal=? WHERE id = ?");
 			smt.setString(1, nroFiscal);
 			smt.setLong(2, id_proforma);
 			smt.executeUpdate();

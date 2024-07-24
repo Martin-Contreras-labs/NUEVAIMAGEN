@@ -505,8 +505,8 @@ public class CotizaDetalle {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.cotizaDetalle (id_cotizacion, id_equipo, id_moneda, precioVenta, precioReposicion, precioArriendo, id_unidadTiempo, cantidad, permanencia, esVenta)"
-							+ " VALUES "+detalle+";");
+					.prepareStatement("insert into `"+db+"`.cotizaDetalle (id_cotizacion, id_equipo, id_moneda, precioVenta, precioReposicion, precioArriendo, id_unidadTiempo, cantidad, permanencia, esVenta)"
+							+ " values "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();
 			flag = true;

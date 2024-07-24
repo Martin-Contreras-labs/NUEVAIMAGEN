@@ -52,8 +52,8 @@ public class ReportOdoMovimientos {
 		
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT ventaServicio.fecha, operadorServicio.nombre " +
-							" FROM `"+db+"`.ventaServicio " +
+					.prepareStatement(" select  ventaServicio.fecha, operadorServicio.nombre " +
+							" from `"+db+"`.ventaServicio " +
 							" left join `"+db+"`.operadorServicio on operadorServicio.id = ventaServicio.id_operador " +
 							" where ventaServicio.id_bodegaEmpresa =  ? and fecha between ? and ? " +
 							" group by ventaServicio.fecha "+

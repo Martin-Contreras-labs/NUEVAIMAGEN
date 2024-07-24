@@ -107,9 +107,9 @@ public class Redimensionar {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.redimensionar "
+					.prepareStatement("insert into `"+db+"`.redimensionar "
 							+ " (id_actaRedimensionar, id_equipoOrigen, cantEquipoOrigen, id_equipoRedimensionar, cantEquipoRedimensionar, id_bodegaDestino)"
-							+ " VALUES "+detalle+";");
+							+ " values "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();
 			flag = true;

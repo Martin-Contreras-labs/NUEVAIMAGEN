@@ -187,8 +187,8 @@ public class ContactoBodegaEmpresa {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.contactoBodegaEmpresa (id_bodegaEmpresa,nombre,cargo,fijo,movil,mail) " +
-							" VALUES (?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.contactoBodegaEmpresa (id_bodegaEmpresa,nombre,cargo,fijo,movil,mail) " +
+							" values (?,?,?,?,?,?)");
 			smt.setLong(1, aux.id_bodega);
 			smt.setString(2, aux.nombre.trim());
 			smt.setString(3, aux.cargo.trim());
@@ -208,7 +208,7 @@ public class ContactoBodegaEmpresa {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-						.prepareStatement("DELETE FROM `"+db+"`.contactoBodegaEmpresa WHERE id = ?");
+						.prepareStatement("delete from `"+db+"`.contactoBodegaEmpresa WHERE id = ?");
 				smt1.setLong(1, id_contactoBodegaEmpresa);
 				smt1.executeUpdate();
 				smt1.close();
@@ -222,7 +222,7 @@ public class ContactoBodegaEmpresa {
 	public static boolean modificaPorCampo(Connection con, String db, String campo, Long id_contacto, String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.contactoBodegaEmpresa set `" + campo + "` = ? WHERE id = ?;");	
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.contactoBodegaEmpresa set `" + campo + "` = ? WHERE id = ?;");	
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_contacto);
 			smt.executeUpdate();

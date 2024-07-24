@@ -32,8 +32,8 @@ public class TipoMantencion {
 		List<TipoMantencion> lista = new ArrayList<TipoMantencion>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoMantencion");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoMantencion");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new TipoMantencion(resultado.getLong(1),resultado.getString(2)));
@@ -50,8 +50,8 @@ public class TipoMantencion {
 		 Map<String,TipoMantencion> map = new HashMap<String,TipoMantencion>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoMantencion");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoMantencion");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				map.put(resultado.getString(2), new TipoMantencion(resultado.getLong(1),resultado.getString(2)));
@@ -68,8 +68,8 @@ public class TipoMantencion {
 		TipoMantencion aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoMantencion where id = ?;");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoMantencion where id = ?;");
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

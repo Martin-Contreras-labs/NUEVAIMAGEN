@@ -311,7 +311,7 @@ public class ListaPrecio {
 			Double numero = myformatdouble.parse(valor.trim()).doubleValue();
 			java.sql.Date sqlDate = new java.sql.Date(fecha.getTime());
 			PreparedStatement smt1 = con
-						.prepareStatement("UPDATE `"+db+"`.listaPrecio SET `" + campo + "` = ?, fecha = ?" +
+						.prepareStatement("update `"+db+"`.listaPrecio set `" + campo + "` = ?, fecha = ?" +
 								" WHERE id_bodegaEmpresa = ? and id_equipo = ? and id_cotizacion = ?;");
 			smt1.setDouble(1, numero);
 			smt1.setDate(2, sqlDate);
@@ -323,7 +323,7 @@ public class ListaPrecio {
 	
 			if(campo.equals("precioVenta")) {
 				PreparedStatement smt2 = con
-						.prepareStatement("UPDATE `"+db+"`.listaPrecio SET precioReposicion = precioVenta WHERE id_bodegaEmpresa = ? and id_equipo = ? and id_cotizacion = ?;");
+						.prepareStatement("update `"+db+"`.listaPrecio set precioReposicion = precioVenta WHERE id_bodegaEmpresa = ? and id_equipo = ? and id_cotizacion = ?;");
 				smt2.setLong(1, id_bodegaEmpresa);
 				smt2.setLong(2, id_equipo);
 				smt2.setLong(3, id_cotizacion);

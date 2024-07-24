@@ -150,7 +150,7 @@ public class PrecioVariableServicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("UPDATE `"+db+"`.precioVariableServicio set precio=? where id_bodegaEmpresa=? and id_servicio=? and fecha=? and id_cotiOdo=?;");
+					.prepareStatement("update `"+db+"`.precioVariableServicio set precio=? where id_bodegaEmpresa=? and id_servicio=? and fecha=? and id_cotiOdo=?;");
 			smt2.setString(1, valor);
 			smt2.setLong(2, id_bodegaEmpresa);
 			smt2.setLong(3, id_servicio);

@@ -232,8 +232,8 @@ public class TipoReparacion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.tipoReparacion (id_tipoEstado,id_moneda,sigla," +
-							" nombre,descripcion,precio) VALUES (?,?,?,?,?,?)");		
+					.prepareStatement("insert into `"+db+"`.tipoReparacion (id_tipoEstado,id_moneda,sigla," +
+							" nombre,descripcion,precio) values (?,?,?,?,?,?)");		
 			smt.setLong(1,aux.id_tipoEstado);
 			smt.setLong(2,aux.id_moneda);
 			smt.setString(3,aux.sigla.trim());
@@ -253,7 +253,7 @@ public class TipoReparacion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("Select * FROM `"+db+"`.reparacionEquipo WHERE id_tipoReparacion = ?");
+					.prepareStatement("Select * from `"+db+"`.reparacionEquipo WHERE id_tipoReparacion = ?");
 			smt.setLong(1, id_tipoReparacion);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -272,7 +272,7 @@ public class TipoReparacion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("DELETE FROM `"+db+"`.tipoReparacion WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.tipoReparacion WHERE id = ?");
 			smt1.setLong(1, id_tipoReparacion);
 			smt1.executeUpdate();
 			smt1.close();
@@ -286,7 +286,7 @@ public class TipoReparacion {
 	public static boolean modificaPorCampo(Connection con,String db,String campo,Long id_tipoReparacion,String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.tipoReparacion set `" + campo + "` = ? WHERE id = ?;");		
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.tipoReparacion set `" + campo + "` = ? WHERE id = ?;");		
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_tipoReparacion);
 			smt.executeUpdate();

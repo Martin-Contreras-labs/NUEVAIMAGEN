@@ -179,7 +179,7 @@ public class OtOdo {
 		Long year = Long.parseLong(aux[0]);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT year(min(fecha)) FROM `"+db+"`.otOdo;" );
+					.prepareStatement(" select year(min(fecha)) from `"+db+"`.otOdo;" );
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {	
 				year = resultado.getLong(1);	
@@ -218,7 +218,7 @@ public class OtOdo {
 		Long numeroOt=(long) 1;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT max(numero)+1 from `"+db+"`.otOdo;");
+					.prepareStatement(" select max(numero)+1 from `"+db+"`.otOdo;");
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				if(rs.getLong(1)>1) {
@@ -237,7 +237,7 @@ public class OtOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT numero from `"+db+"`.otOdo where numero = ?;");
+					.prepareStatement(" select numero from `"+db+"`.otOdo where numero = ?;");
 			smt.setLong(1, numeroOt);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -255,7 +255,7 @@ public class OtOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT id_cotiOdo from `"+db+"`.otOdo where id_cotiOdo = ?;");
+					.prepareStatement(" select id_cotiOdo from `"+db+"`.otOdo where id_cotiOdo = ?;");
 			smt.setLong(1, id_cotiOdo);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -327,7 +327,7 @@ public class OtOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.otOdo SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.otOdo set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_ot);
 			smt.executeUpdate();
@@ -893,7 +893,7 @@ public class OtOdo {
 			smt2.close();
 			
 			PreparedStatement smt3 = con
-					.prepareStatement("UPDATE `"+db+"`.cotiOdo SET id_otOdo = 0, id_bodegaEmpresa = 0, esModificable = 1, confirmada = 0, fechaConfirmada = null WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.cotiOdo set id_otOdo = 0, id_bodegaEmpresa = 0, esModificable = 1, confirmada = 0, fechaConfirmada = null WHERE id = ?;");
 			smt3.setLong(1, aux.getId_cotiOdo());
 			smt3.executeUpdate();
 			smt3.close();
@@ -976,7 +976,7 @@ public class OtOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.otOdo SET  fechaActualizacion = ?, fechaEnvio = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.otOdo set  fechaActualizacion = ?, fechaEnvio = ? WHERE id = ?;");
 			
 			if (fechaEnvio != null && !fechaEnvio.equals("")) {
 				smt.setString(1, fechaActualizacion);
@@ -1000,7 +1000,7 @@ public class OtOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.otOdo SET  id_operadorServicio = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.otOdo set  id_operadorServicio = ? WHERE id = ?;");
 			smt.setString(1, id_operadorServicio);
 			smt.setLong(2, id_otOdo);
 			smt.executeUpdate();

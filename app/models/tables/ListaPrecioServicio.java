@@ -234,7 +234,7 @@ public class ListaPrecioServicio {
 		
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select "
 							+ " listaPrecioServicio.id_bodegaEmpresa, "
 							+ " bodegaEmpresa.nombre, "
 							+ " bodegaEmpresa.id_sucursal "
@@ -745,7 +745,7 @@ public class ListaPrecioServicio {
 		try {
 			Fechas hoy = Fechas.hoy();
 			PreparedStatement smt1 = con
-						.prepareStatement("UPDATE `"+db+"`.listaPrecioServicio SET `" + campo + "` = ?, fecha = ?" +
+						.prepareStatement("update `"+db+"`.listaPrecioServicio set `" + campo + "` = ?, fecha = ?" +
 								" WHERE id_bodegaEmpresa = ? and id_servicio = ? and id_cotiOdo = ?;");
 			smt1.setString(1, valor);
 			smt1.setString(2, hoy.getFechaStrAAMMDD());

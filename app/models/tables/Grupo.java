@@ -33,7 +33,7 @@ public class Grupo {
 		Map<Long,Grupo> map = new HashMap<Long,Grupo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo");
+					.prepareStatement("select id,nombre from `"+db+"`.grupo");
 			ResultSet rs = smt.executeQuery();
 			map.put((long)0, new Grupo((long)0,"sin grupo"));
 			while (rs.next()) {
@@ -51,7 +51,7 @@ public class Grupo {
 		Map<String,Grupo> map = new HashMap<String,Grupo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo");
+					.prepareStatement("select id,nombre from `"+db+"`.grupo");
 			ResultSet rs = smt.executeQuery();
 			map.put("sin grupo", new Grupo((long)0,"sin grupo"));
 			while (rs.next()) {
@@ -69,7 +69,7 @@ public class Grupo {
 		List<Grupo> lista = new ArrayList<Grupo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo order by nombre");
+					.prepareStatement("select id,nombre from `"+db+"`.grupo order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new Grupo(resultado.getLong(1),resultado.getString(2)));
@@ -88,7 +88,7 @@ public class Grupo {
 			filtroPorNombreGrupo = " where nombre in ("+filtroPorNombreGrupo+") ";
 			try {
 				PreparedStatement smt = con
-						.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo "+filtroPorNombreGrupo+" order by nombre");
+						.prepareStatement("select id,nombre from `"+db+"`.grupo "+filtroPorNombreGrupo+" order by nombre");
 				ResultSet resultado = smt.executeQuery();
 				while (resultado.next()) {
 					lista.add(new Grupo(resultado.getLong(1),resultado.getString(2)));
@@ -108,7 +108,7 @@ public class Grupo {
 			filtroPorIdGrupo = " where id in ("+filtroPorIdGrupo+") ";
 			try {
 				PreparedStatement smt = con
-						.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo "+filtroPorIdGrupo+" order by nombre");
+						.prepareStatement("select id,nombre from `"+db+"`.grupo "+filtroPorIdGrupo+" order by nombre");
 				ResultSet resultado = smt.executeQuery();
 				while (resultado.next()) {
 					lista.add(new Grupo(resultado.getLong(1),resultado.getString(2)));
@@ -127,7 +127,7 @@ public class Grupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.equipo WHERE id_grupo = ?");
+					.prepareStatement("Select * from `"+db+"`.equipo WHERE id_grupo = ?");
 			smt1.setLong(1, id);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {
@@ -145,7 +145,7 @@ public class Grupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.grupo WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.grupo WHERE id = ?");
 			smt.setLong(1, id);
 			smt.executeUpdate();
 			smt.close();
@@ -160,7 +160,7 @@ public class Grupo {
 		Grupo aux = new Grupo();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo WHERE id = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.grupo WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -178,7 +178,7 @@ public class Grupo {
 		Long aux = (long) 1;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT min(id) FROM `"+db+"`.grupo;" );
+					.prepareStatement("select min(id) from `"+db+"`.grupo;" );
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
 				aux = resultado.getLong(1);
@@ -195,7 +195,7 @@ public class Grupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.grupo WHERE upper(nombre) = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.grupo WHERE upper(nombre) = ?" );
 			smt.setString(1, nombre_grupo.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -213,7 +213,7 @@ public class Grupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.grupo (nombre) VALUES (?)", Statement.RETURN_GENERATED_KEYS);		
+					.prepareStatement("insert into `"+db+"`.grupo (nombre) values (?)", Statement.RETURN_GENERATED_KEYS);		
 			smt.setString(1, nombreGrupo.trim());
 			smt.executeUpdate();
 			
@@ -226,7 +226,7 @@ public class Grupo {
             rs1.close();
 			
             PreparedStatement smt2 = con
-					.prepareStatement("INSERT INTO `"+db+"`.atributo (id_grupo, atributo) "
+					.prepareStatement("insert into `"+db+"`.atributo (id_grupo, atributo) "
 							+ " (select '"+id_grupo+"', atributo from `"+db+"`.atributo where id_grupo = 1)");
 			smt2.executeUpdate();
 			smt2.close();
@@ -244,7 +244,7 @@ public class Grupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.grupo SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.grupo set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_grupo);
 			smt.executeUpdate();
@@ -281,7 +281,7 @@ public class Grupo {
 		Long aux = (long)0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id FROM `"+db+"`.grupo where (upper(nombre))=(upper(?))" );
+					.prepareStatement("select id from `"+db+"`.grupo where (upper(nombre))=(upper(?))" );
 			smt.setString(1, nombre);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

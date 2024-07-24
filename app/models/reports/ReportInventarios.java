@@ -3956,7 +3956,7 @@ public class ReportInventarios {
 		
 		try {
 			PreparedStatement smt5 = con
-					.prepareStatement(" SELECT "
+					.prepareStatement(" select  "
 							+ " id_bodegaEmpresa, "
 							+ " tipoEstado.id, "
 							+ " guia.numero, "

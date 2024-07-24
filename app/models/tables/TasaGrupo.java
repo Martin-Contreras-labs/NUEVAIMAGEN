@@ -76,7 +76,7 @@ public class TasaGrupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.tasaGrupo SET tasaArriendo = ? " +
+					.prepareStatement("update `"+db+"`.tasaGrupo set tasaArriendo = ? " +
 							" WHERE id_bodegaEmpresa = ? and id_grupo = ?");
 			smt.setDouble(1, tasa);
 			smt.setLong(2, id_bodegaEmpresa);
@@ -111,7 +111,7 @@ public class TasaGrupo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.tasaGrupo (id_bodegaEmpresa,id_grupo,tasaArriendo) VALUES (?,?,?);");		
+					.prepareStatement("insert into `"+db+"`.tasaGrupo (id_bodegaEmpresa,id_grupo,tasaArriendo) values (?,?,?);");		
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setLong(2, id_grupo);
 			smt.setDouble(3, (double)0);

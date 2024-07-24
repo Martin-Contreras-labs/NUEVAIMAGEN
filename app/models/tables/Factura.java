@@ -157,7 +157,7 @@ public class Factura {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT id FROM `"+db+"`.factura where numero = ? and id_proveedor = ?;" );
+					.prepareStatement(" select id from `"+db+"`.factura where numero = ? and id_proveedor = ?;" );
 			smt.setLong(1, numeroFactura);
 			smt.setLong(2, id_proveedor);
 			ResultSet resultado = smt.executeQuery();
@@ -176,7 +176,7 @@ public class Factura {
 		Long aux = (long) 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT id FROM `"+db+"`.factura where numero = ? and id_proveedor = ?;" );
+					.prepareStatement(" select id from `"+db+"`.factura where numero = ? and id_proveedor = ?;" );
 			smt.setLong(1, numeroFactura);
 			smt.setLong(2, id_proveedor);
 			ResultSet rs = smt.executeQuery();
@@ -194,7 +194,7 @@ public class Factura {
 	public static Long nuevoNumero(Connection con, String db, Long id_proveedor) {
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT max(numero) FROM `"+db+"`.factura where id_proveedor = ?;" );
+					.prepareStatement(" select max(numero) from `"+db+"`.factura where id_proveedor = ?;" );
 			smt.setLong(1, id_proveedor);
 			ResultSet rs = smt.executeQuery();
 			Long aux = (long) 0;
@@ -214,8 +214,8 @@ public class Factura {
 		Long id_factura = (long) 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.factura (id_proveedor,numero,fecha, observaciones, numOcIConstruye, id_userCrea) " +
-							" VALUES (?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.factura (id_proveedor,numero,fecha, observaciones, numOcIConstruye, id_userCrea) " +
+							" values (?,?,?,?,?,?)");
 			smt.setLong(1, factura.getId_proveedor());
 			smt.setLong(2, factura.getNumero());
 			smt.setString(3, factura.getFecha());
@@ -246,7 +246,7 @@ public class Factura {
 			smt2.executeUpdate();
 			smt2.close();
 			PreparedStatement smt1 = con
-					.prepareStatement("DELETE FROM `"+db+"`.factura WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.factura WHERE id = ?");
 			smt1.setLong(1, id_factura);
 			smt1.executeUpdate();
 			smt1.close();
@@ -261,7 +261,7 @@ public class Factura {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.factura SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.factura set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_factura);
 			smt.executeUpdate();

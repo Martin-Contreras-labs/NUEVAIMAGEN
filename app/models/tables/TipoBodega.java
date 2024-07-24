@@ -42,7 +42,7 @@ public class TipoBodega {
 		List<TipoBodega> lista = new ArrayList<TipoBodega>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.tipoBodega order by nombre");
+					.prepareStatement("select id,nombre from `"+db+"`.tipoBodega order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new TipoBodega(resultado.getLong(1),resultado.getString(2)));
@@ -59,7 +59,7 @@ public class TipoBodega {
 		TipoBodega aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.tipoBodega WHERE id = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.tipoBodega WHERE id = ?" );
 			smt.setLong(1, id_tipoBodega);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

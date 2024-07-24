@@ -214,8 +214,8 @@ public class Compra {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.compra (id_factura, id_equipo, cantidad, id_moneda, precioUnidad, id_bodegaEmpresa)"
-							+ " VALUES "+detalle+";");
+					.prepareStatement("insert into `"+db+"`.compra (id_factura, id_equipo, cantidad, id_moneda, precioUnidad, id_bodegaEmpresa)"
+							+ " values "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();
 			flag = true;
@@ -229,7 +229,7 @@ public class Compra {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.compra SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.compra set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_compra);
 			smt.executeUpdate();

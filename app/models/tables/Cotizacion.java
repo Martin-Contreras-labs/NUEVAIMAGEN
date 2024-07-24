@@ -556,7 +556,7 @@ public class Cotizacion {
 		Long year = Long.parseLong(aux[0]);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT year(min(fecha)) FROM `"+db+"`.cotizacion;" );
+					.prepareStatement(" select year(min(fecha)) from `"+db+"`.cotizacion;" );
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {	
 				year = resultado.getLong(1);	
@@ -576,7 +576,7 @@ public class Cotizacion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.cotizacion SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.cotizacion set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_cotizacion);
 			smt.executeUpdate();
@@ -1342,13 +1342,13 @@ public class Cotizacion {
 		if((long)cotizacion.getEsModificable() == (long)1 && !Ot.existeIdCoti(con, db, id_cotizacion) && !Movimiento.existeMovAsosiado_a_Coti(con, db, id_cotizacion)) {
 			try {
 				PreparedStatement smt1 = con
-						.prepareStatement("DELETE FROM `"+db+"`.cotizaDetalle WHERE id_cotizacion = ?");
+						.prepareStatement("delete from `"+db+"`.cotizaDetalle WHERE id_cotizacion = ?");
 				smt1.setLong(1, id_cotizacion);
 				smt1.executeUpdate();
 				smt1.close();
 				
 				PreparedStatement smt3 = con
-						.prepareStatement("DELETE FROM `"+db+"`.cotizacion WHERE id = ?");
+						.prepareStatement("delete from `"+db+"`.cotizacion WHERE id = ?");
 				smt3.setLong(1, id_cotizacion);
 				smt3.executeUpdate();
 				smt3.close();
@@ -1791,7 +1791,7 @@ public class Cotizacion {
 		Long numeroCoti=(long) 1;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT ifnull(max(numero)+1,1) from `"+db+"`.cotizacion;");
+					.prepareStatement(" select ifnull(max(numero)+1,1) from `"+db+"`.cotizacion;");
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				numeroCoti = rs.getLong(1);
@@ -1811,7 +1811,7 @@ public class Cotizacion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT numero from `"+db+"`.cotizacion where numero = ?;");
+					.prepareStatement(" select numero from `"+db+"`.cotizacion where numero = ?;");
 			smt.setLong(1, numeroCoti);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -1872,9 +1872,9 @@ public class Cotizacion {
 		Long id_cotizacion = (long)0;
 		try {
 			PreparedStatement smt = con
-				.prepareStatement("INSERT INTO `"+db+"`.cotizacion (id_bodegaEmpresa,id_cliente,id_proyecto," +
+				.prepareStatement("insert into `"+db+"`.cotizacion (id_bodegaEmpresa,id_cliente,id_proyecto," +
 								"numero,fecha, observaciones, dctoArriendo, dctoVenta, id_userCrea, id_comercial, id_sucursal, id_cotizaSolucion) " +
-								" VALUES (?,?,?,?,?,?,?,?,?,?,?,?);");
+								" values (?,?,?,?,?,?,?,?,?,?,?,?);");
 			smt.setLong(1, cotizacion.getId_bodegaEmpresa());
 			smt.setLong(2, cotizacion.getId_cliente());
 			smt.setLong(3, cotizacion.getId_proyecto());

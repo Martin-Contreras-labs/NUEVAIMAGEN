@@ -37,8 +37,8 @@ public class TipoReferencia {
 		List<TipoReferencia> lista = new ArrayList<TipoReferencia>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT codigo,concepto " +
-							" FROM `"+db+"`.tipoReferencia");
+					.prepareStatement("select codigo,concepto " +
+							" from `"+db+"`.tipoReferencia");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new TipoReferencia(resultado.getString(1),resultado.getString(2)));
@@ -55,7 +55,7 @@ public class TipoReferencia {
 		TipoReferencia aux = new TipoReferencia();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT codigo,concepto FROM `"+db+"`.tipoReferencia WHERE codigo=?");
+					.prepareStatement("select codigo,concepto from `"+db+"`.tipoReferencia WHERE codigo=?");
 			smt.setString(1, codigo);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

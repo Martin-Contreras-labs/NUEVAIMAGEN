@@ -285,8 +285,8 @@ public class CotiOdoDetalle {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.cotiOdoDetalle (id_cotiOdo, id_servicio, id_moneda, precio, cantidad, aplicaMinimo, cantidadMinimo, precioAdicional)"
-							+ " VALUES "+detalle+";");
+					.prepareStatement("insert into `"+db+"`.cotiOdoDetalle (id_cotiOdo, id_servicio, id_moneda, precio, cantidad, aplicaMinimo, cantidadMinimo, precioAdicional)"
+							+ " values "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();
 			flag = true;

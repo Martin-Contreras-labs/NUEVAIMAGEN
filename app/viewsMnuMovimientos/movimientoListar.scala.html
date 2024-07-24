@@ -57,6 +57,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 							<TH>SUCURSAL<br>HASTA</TH>
 							<TH>HASTA<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
 							<TH>SELECT</TH>
+							<TH>TOTAL<BR>KG</TH>
 							<TH>GUIA<br>PDF</TH>
 							@if(!mapPermiso.get("parametro.movimientoListar-descargaXLSX").equals("1")){
 								<TH>GUIA<br>EXCEL</TH>
@@ -125,6 +126,9 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 									<a href="/movimientoDetalleGuia/@lista1.getId()">
 										<kbd style="background-color: #73C6B6">select</kbd>
 									</a>
+								</td>
+								<td style="text-align:right;">
+									@lista1.getTotalKg()
 								</td>
 								<td  style="text-align:center;">
 									@if(lista1.getGuiaPDF().equals("0")){

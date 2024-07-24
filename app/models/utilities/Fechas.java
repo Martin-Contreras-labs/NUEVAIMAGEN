@@ -146,7 +146,7 @@ public class Fechas{
 		java.sql.Date auxSql = new java.sql.Date(auxUtil.getTime());
 		String auxStr = myformatfecha.format(auxUtil);
 		String auxStrDDMMAA = myformatDDMMAA.format(auxUtil);
-		String auxStrAAMMDD = myformatAAMMDD.format(auxUtil);
+		String auxStrAAMMDD = fechaSqlComoTexto;
 		fecha.setFechaCal(auxCal);
 		fecha.setFechaSql(auxSql);
 		fecha.setFechaStr(auxStr);
@@ -167,7 +167,7 @@ public class Fechas{
         auxCal.setTime(auxUtil);
 		java.sql.Date auxSql = new java.sql.Date(auxUtil.getTime());
 		String auxStr = myformatfecha.format(auxUtil);
-		String auxStrDDMMAA = myformatDDMMAA.format(auxUtil);
+		String auxStrDDMMAA = fechaStrComoTexto;
 		String auxStrAAMMDD = myformatAAMMDD.format(auxUtil);
 		fecha.setFechaCal(auxCal);
 		fecha.setFechaSql(auxSql);

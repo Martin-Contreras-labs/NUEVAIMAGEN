@@ -221,8 +221,8 @@ public class CotiBiblioteca{
 		Long id_cotiBiblioteca = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.cotiBiblioteca (cliente,proyecto,numCotizaciones,idCotizaciones,id_sucursal,neto,iva,total) " +
-							" VALUES (?,?,?,?,?,?,?,?)");		
+					.prepareStatement("insert into `"+db+"`.cotiBiblioteca (cliente,proyecto,numCotizaciones,idCotizaciones,id_sucursal,neto,iva,total) " +
+							" values (?,?,?,?,?,?,?,?)");		
 			smt.setString(1, cotiBiblioteca.getCliente());
 			smt.setString(2, cotiBiblioteca.getProyecto());
 			smt.setString(3, cotiBiblioteca.getNumCotizaciones());
@@ -310,7 +310,7 @@ public class CotiBiblioteca{
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("DELETE FROM `"+db+"`.cotiBiblioteca WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.cotiBiblioteca WHERE id = ?");
 			smt2.setString(1,id_cotiBiblioteca);
 			smt2.executeUpdate();
 			smt2.close();

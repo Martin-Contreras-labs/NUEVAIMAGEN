@@ -42,7 +42,6 @@ import models.tables.VentaServicio;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 import models.utilities.Inicio;
-import models.utilities.Integridad;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
 import models.utilities.VerificarCaptcha;
@@ -207,7 +206,6 @@ public class MnuOdoAppWeb extends Controller {
 							
 		    			}else {
 		    				Registro.accesos(con, inicio.getBaseDato(), userName);
-							Integridad.verifica(con, inicio.getBaseDato(), inicio.id.toString());
 							Long esMoroso = Registro.esMoroso(con, inicio.getBaseDato());
 		    				con.close();
 							return ok(vistaPrincipal.render(mapeoDiccionario,mapeoPermiso,userMnu,esMoroso))

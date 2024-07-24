@@ -302,7 +302,7 @@ public class FormMovimiento {
 		if(insertMovimiento!=null && insertMovimiento.length()>2) {
 			try {
 				PreparedStatement smt = con
-						.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
+						.prepareStatement("insert into  `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
 								+ " id_bodegaOrigen, esVenta, esNuevo, id_cotizacion, random, cantCliente, nroGuia ) "
 								+ " VALUES "+insertMovimiento+";");
 				
@@ -681,7 +681,7 @@ public class FormMovimiento {
 		for(int j=0; j<listMov.size(); j++) {
 			try {
 				PreparedStatement smt = con
-						.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
+						.prepareStatement("insert into  `"+db+"`.movimiento (id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, exceso,"
 								+ " id_bodegaOrigen, esVenta, esNuevo, id_cotizacion, random) "
 								+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 				smt.setLong(1, listMov.get(j).getId_bodegaEmpresa());
@@ -1258,12 +1258,16 @@ public class FormMovimiento {
 	    			cell = row.getCell(4);
 	    			texto = myformatdouble0.format(granTotalEst2);
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+	    			
 	    			cell = row.getCell(5);
 	    			texto = myformatdouble0.format(granTotalEst3);
 	    			if(mapDiccionario.get("nEmpresa").equals("MDP ANDAMIOS")) {
 	   					texto = "";
 	   				}
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+	    			
+	    			
+	    			
 	    			
 	    			
 	    			cell = row.getCell(6);
@@ -1296,6 +1300,26 @@ public class FormMovimiento {
     	    			texto = myformatdouble0.format(granTotalPeso);
     	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
     	    			cell = row.getCell(10);
+    	    			texto = myformatdouble0.format(granTotalM2);
+    	    			if( mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
+		    				texto = "";
+		    			}
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    				}
+    				
+    				if(mapDiccionario.get("nEmpresa").equals("ALZATEC")) {
+    					cell = row.getCell(6);
+    					texto = myformatdouble0.format(granTotalEst4);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			cell = row.getCell(7);
+    	    			texto = myformatdouble0.format(granTotalUnidades);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			cell = row.getCell(8);
+    	    			texto = myformatdouble0.format(granTotalPeso);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			cell = row.getCell(9);
     	    			texto = myformatdouble0.format(granTotalM2);
     	    			if( mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
 		    				texto = "";
@@ -1451,6 +1475,9 @@ public class FormMovimiento {
     					
     				}
     			}
+				
+				Guia.modificaPorCampo(con, db, "totalKg", guia.getId(), granTotalPeso.toString());
+				
 				
 				
 				// Write the output to a file word

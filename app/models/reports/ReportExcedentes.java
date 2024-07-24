@@ -176,11 +176,11 @@ public class ReportExcedentes {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT distinct " +
+					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre " +
-							" FROM `"+db+"`.movimiento " +
+							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
 							" where id_bodegaEmpresa =  ? and numero is not null " +

@@ -347,7 +347,7 @@ public class Equipo {
 	public static boolean cambiarGrupo(Connection con, String db, Long id_grupo, Long id_equipo) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt1 = con.prepareStatement("UPDATE `"+db+"`.equipo set id_grupo = ? WHERE id = ?;");
+			PreparedStatement smt1 = con.prepareStatement("update `"+db+"`.equipo set id_grupo = ? WHERE id = ?;");
 			smt1.setLong(1, id_grupo);
 			smt1.setLong(2, id_equipo);
 			smt1.executeUpdate();
@@ -384,7 +384,7 @@ public class Equipo {
 	public static boolean modificaPorCampo(Connection con, String db, String campo, Long id_equipo, String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.equipo set `" + campo + "` = ? WHERE id = ?;");
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.equipo set `" + campo + "` = ? WHERE id = ?;");
 			if(campo.equals("codigo")) valor = valor.replaceAll("\\,","").trim().toUpperCase();
 			if(campo.equals("nombre")) valor = valor.trim();
 			smt.setString(1, valor.trim());
@@ -497,10 +497,10 @@ public class Equipo {
 	public static boolean delete(Connection con, String db, Long idEquipo) {
 		boolean flag = false;
 		try {
-			PreparedStatement smta = con.prepareStatement("DELETE FROM `"+db+"`.equipo WHERE id = ?");
+			PreparedStatement smta = con.prepareStatement("delete from `"+db+"`.equipo WHERE id = ?");
 			smta.setLong(1, idEquipo);smta.executeUpdate();
 			smta.close();
-			PreparedStatement smt8 = con.prepareStatement("DELETE from `"+db+"`.precio WHERE id_equipo = ?");
+			PreparedStatement smt8 = con.prepareStatement("delete from `"+db+"`.precio WHERE id_equipo = ?");
 			smt8.setLong(1, idEquipo);smt8.executeUpdate();
 			smt8.close();
 			PreparedStatement smt9 = con.prepareStatement("delete from `"+db+"`.precioHistorico WHERE id_equipo = ?");
@@ -529,8 +529,8 @@ public class Equipo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad) " +
-							" VALUES (?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad) " +
+							" values (?,?,?,?,?)");
 			smt.setLong(1, aux.id_fabrica);
 			smt.setString(2, aux.codigo.replaceAll("\\,","").trim().toUpperCase());
 			smt.setString(3, aux.nombre.trim());

@@ -34,8 +34,8 @@ public class UsuarioTipo {
 		boolean flag=true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT porProyecto " +
-							" FROM `"+db+"`.tipoUsuario WHERE id = ?" );
+					.prepareStatement("select porProyecto " +
+							" from `"+db+"`.tipoUsuario WHERE id = ?" );
 			smt.setLong(1, idTipoUsuario);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -55,7 +55,7 @@ public class UsuarioTipo {
 		List<UsuarioTipo> lista = new ArrayList<UsuarioTipo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,tipo,descripcion FROM `"+db+"`.tipoUsuario");
+					.prepareStatement("select id,tipo,descripcion from `"+db+"`.tipoUsuario");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new UsuarioTipo(resultado.getLong(1),resultado.getString(2),resultado.getString(3)));

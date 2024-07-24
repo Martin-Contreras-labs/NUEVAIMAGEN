@@ -288,7 +288,7 @@ public class CotiOdo {
 		Long year = Long.parseLong(aux[0]);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT year(min(fecha)) FROM `"+db+"`.cotiOdo;" );
+					.prepareStatement(" select year(min(fecha)) from `"+db+"`.cotiOdo;" );
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {	
 				year = resultado.getLong(1);	
@@ -308,7 +308,7 @@ public class CotiOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.cotiOdo SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.cotiOdo set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_cotiOdo);
 			smt.executeUpdate();
@@ -828,13 +828,13 @@ public class CotiOdo {
 		if((long)cotiOdo.getEsModificable() == (long)1 && !OtOdo.existeIdOdoCoti(con, db, id_cotiOdo) && !VentaServicio.existenVentaAsociado(con, db, id_cotiOdo)) {
 			try {
 				PreparedStatement smt1 = con
-						.prepareStatement("DELETE FROM `"+db+"`.cotiOdoDetalle WHERE id_cotiOdo = ?");
+						.prepareStatement("delete from `"+db+"`.cotiOdoDetalle WHERE id_cotiOdo = ?");
 				smt1.setLong(1, id_cotiOdo);
 				smt1.executeUpdate();
 				smt1.close();
 				
 				PreparedStatement smt3 = con
-						.prepareStatement("DELETE FROM `"+db+"`.cotiOdo WHERE id = ?");
+						.prepareStatement("delete from `"+db+"`.cotiOdo WHERE id = ?");
 				smt3.setLong(1, id_cotiOdo);
 				smt3.executeUpdate();
 				smt3.close();
@@ -1093,7 +1093,7 @@ public class CotiOdo {
 		Long numeroCoti=(long) 1;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT ifnull(max(numero)+1,1) from `"+db+"`.cotiOdo;");
+					.prepareStatement(" select ifnull(max(numero)+1,1) from `"+db+"`.cotiOdo;");
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				numeroCoti = rs.getLong(1);
@@ -1113,7 +1113,7 @@ public class CotiOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT numero from `"+db+"`.cotiOdo where numero = ?;");
+					.prepareStatement(" select numero from `"+db+"`.cotiOdo where numero = ?;");
 			smt.setLong(1, numeroCoti);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -1155,9 +1155,9 @@ public class CotiOdo {
 		Long id_cotiOdo = (long)0;
 		try {
 			PreparedStatement smt = con
-				.prepareStatement("INSERT INTO `"+db+"`.cotiOdo (id_bodegaEmpresa,id_cliente,id_proyecto," +
+				.prepareStatement("insert into `"+db+"`.cotiOdo (id_bodegaEmpresa,id_cliente,id_proyecto," +
 								"numero,fecha, observaciones, dctoOdo) " +
-								" VALUES (?,?,?,?,?,?,?);");
+								" values (?,?,?,?,?,?,?);");
 			smt.setLong(1, cotiOdo.getId_bodegaEmpresa());
 			smt.setLong(2, cotiOdo.getId_cliente());
 			smt.setLong(3, cotiOdo.getId_proyecto());

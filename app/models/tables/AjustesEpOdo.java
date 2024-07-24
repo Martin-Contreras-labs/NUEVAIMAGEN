@@ -233,7 +233,7 @@ public class AjustesEpOdo {
 		boolean flag=true;
 		try {
 			PreparedStatement smt = con
-						.prepareStatement("UPDATE `"+db+"`.ajustesEpOdo SET ajustePDF = ?  WHERE id = ?");
+						.prepareStatement("update `"+db+"`.ajustesEpOdo set ajustePDF = ?  WHERE id = ?");
 				smt.setString(1, ajustePDF.trim());
 				smt.setLong(2, idAjuste);
 				smt.executeUpdate();

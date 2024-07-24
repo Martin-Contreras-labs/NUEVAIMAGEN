@@ -65,7 +65,7 @@ public class DctoGrupo{
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.dctoGrupo SET tasaDescto = ? " +
+					.prepareStatement("update `"+db+"`.dctoGrupo set tasaDescto = ? " +
 							" WHERE id_bodegaEmpresa = ? and id_grupo = ?");
 			smt.setDouble(1, tasaDcto);
 			smt.setLong(2, id_bodegaEmpresa);
@@ -100,7 +100,7 @@ public class DctoGrupo{
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.dctoGrupo (id_bodegaEmpresa,id_grupo,tasaDescto) VALUES (?,?,?);");		
+					.prepareStatement("insert into `"+db+"`.dctoGrupo (id_bodegaEmpresa,id_grupo,tasaDescto) values (?,?,?);");		
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setLong(2, id_grupo);
 			smt.setDouble(3, (double)0);

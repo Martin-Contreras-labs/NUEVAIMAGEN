@@ -289,7 +289,7 @@ public class ProformaOdo {
 		Double index = Math.random();
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.proformaOdo (fecha,random) values (?,?);");
+					.prepareStatement("insert into `"+db+"`.proformaOdo (fecha,random) values (?,?);");
 			smt1.setString(1,hoy.trim());
 			smt1.setDouble(2, index);
 			smt1.executeUpdate();
@@ -313,7 +313,7 @@ public class ProformaOdo {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.proformaOdo SET fecha=?,desde=?,hasta=?,id_cliente=?,id_bodegaEmpresa=?, " +
+					.prepareStatement("update `"+db+"`.proformaOdo set fecha=?,desde=?,hasta=?,id_cliente=?,id_bodegaEmpresa=?, " +
 							" id_proyecto=?,docRef=?,epExcelMov=?,epExcelEp=?,proformaPdf=?,docAnexo=?,descuento=?,neto=?,iva=?,total=?,proformaXml=? " +
 							" WHERE id = ?");
 			smt.setString(1, aux.fecha.trim());

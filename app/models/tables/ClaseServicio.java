@@ -32,7 +32,7 @@ public class ClaseServicio {
 		Map<Long,ClaseServicio> map = new HashMap<Long,ClaseServicio>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.claseServicio");
+					.prepareStatement("select id,nombre from `"+db+"`.claseServicio");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				map.put(rs.getLong(1), new ClaseServicio(rs.getLong(1),rs.getString(2)));
@@ -49,7 +49,7 @@ public class ClaseServicio {
 		List<ClaseServicio> lista = new ArrayList<ClaseServicio>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.claseServicio order by nombre");
+					.prepareStatement("select id,nombre from `"+db+"`.claseServicio order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
@@ -68,7 +68,7 @@ public class ClaseServicio {
 			filtroPorNombreClase = " where nombre in ("+filtroPorNombreClase+") ";
 			try {
 				PreparedStatement smt = con
-						.prepareStatement("SELECT id,nombre FROM `"+db+"`.claseServicio "+filtroPorNombreClase+" order by nombre");
+						.prepareStatement("select id,nombre from `"+db+"`.claseServicio "+filtroPorNombreClase+" order by nombre");
 				ResultSet resultado = smt.executeQuery();
 				while (resultado.next()) {
 					lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
@@ -88,7 +88,7 @@ public class ClaseServicio {
 			filtroPorIdClase = " where id in ("+filtroPorIdClase+") ";
 			try {
 				PreparedStatement smt = con
-						.prepareStatement("SELECT id,nombre FROM `"+db+"`.claseServicio "+filtroPorIdClase+" order by nombre");
+						.prepareStatement("select id,nombre from `"+db+"`.claseServicio "+filtroPorIdClase+" order by nombre");
 				ResultSet resultado = smt.executeQuery();
 				while (resultado.next()) {
 					lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
@@ -107,7 +107,7 @@ public class ClaseServicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.servicio WHERE id_claseServicio = ?");
+					.prepareStatement("Select * from `"+db+"`.servicio WHERE id_claseServicio = ?");
 			smt1.setLong(1, id_clase);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {
@@ -125,7 +125,7 @@ public class ClaseServicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.claseServicio WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.claseServicio WHERE id = ?");
 			smt.setLong(1, id_clase);
 			smt.executeUpdate();
 			smt.close();
@@ -140,7 +140,7 @@ public class ClaseServicio {
 		ClaseServicio aux = new ClaseServicio();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.claseServicio WHERE id = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.claseServicio WHERE id = ?" );
 			smt.setLong(1, id_clase);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -158,7 +158,7 @@ public class ClaseServicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.claseServicio WHERE upper(nombre) = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.claseServicio WHERE upper(nombre) = ?" );
 			smt.setString(1, nombre_clase.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -176,7 +176,7 @@ public class ClaseServicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.claseServicio (nombre) VALUES (?)");		
+					.prepareStatement("insert into `"+db+"`.claseServicio (nombre) values (?)");		
 			smt.setString(1, nombre_clase.trim());
 			smt.executeUpdate();
 			smt.close();
@@ -191,7 +191,7 @@ public class ClaseServicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.claseServicio SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.claseServicio set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_clase);
 			smt.executeUpdate();
@@ -228,7 +228,7 @@ public class ClaseServicio {
 		Long aux = (long)0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id FROM `"+db+"`.claseServicio where (upper(nombre))=(upper(?))" );
+					.prepareStatement("select id from `"+db+"`.claseServicio where (upper(nombre))=(upper(?))" );
 			smt.setString(1, nombre);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

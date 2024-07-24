@@ -211,7 +211,7 @@ public class Ot {
 		Long year = Long.parseLong(aux[0]);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT year(min(fecha)) FROM `"+db+"`.ot;" );
+					.prepareStatement(" select year(min(fecha)) from `"+db+"`.ot;" );
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {	
 				year = resultado.getLong(1);	
@@ -308,7 +308,7 @@ public class Ot {
 		Long numeroOt=(long) 1;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT max(numero)+1 from `"+db+"`.ot;");
+					.prepareStatement(" select max(numero)+1 from `"+db+"`.ot;");
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				if(rs.getLong(1)>1) {
@@ -327,7 +327,7 @@ public class Ot {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT numero from `"+db+"`.ot where numero = ?;");
+					.prepareStatement(" select numero from `"+db+"`.ot where numero = ?;");
 			smt.setLong(1, numeroOt);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -345,7 +345,7 @@ public class Ot {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT id_cotizacion from `"+db+"`.ot where id_cotizacion = ?;");
+					.prepareStatement(" select id_cotizacion from `"+db+"`.ot where id_cotizacion = ?;");
 			smt.setLong(1, id_coti);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -439,7 +439,7 @@ public class Ot {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.ot SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.ot set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_ot);
 			smt.executeUpdate();
@@ -455,7 +455,7 @@ public class Ot {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.ot SET  fechaActualizacion = ?, fechaEnvio = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.ot set  fechaActualizacion = ?, fechaEnvio = ? WHERE id = ?;");
 			
 			if (fechaEnvio != null && !fechaEnvio.equals("")) {
 				smt.setString(1, fechaActualizacion);
@@ -1872,7 +1872,7 @@ public class Ot {
 			}
 			
 			PreparedStatement smt3 = con
-					.prepareStatement("UPDATE `"+db+"`.cotizacion SET id_ot = 0, id_bodegaEmpresa = ?, esModificable = 1, confirmada = 0, fechaConfirmada = null, id_cotizaEstado=1 WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.cotizacion set id_ot = 0, id_bodegaEmpresa = ?, esModificable = 1, confirmada = 0, fechaConfirmada = null, id_cotizaEstado=1 WHERE id = ?;");
 			smt3.setLong(1, id_bodegaEmpresa);
 			smt3.setLong(2, aux.getId_cotizacion());
 			smt3.executeUpdate();

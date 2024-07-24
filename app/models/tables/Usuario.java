@@ -115,10 +115,10 @@ public class Usuario {
 		Usuario aux = null;
 		try {
 			PreparedStatement smt = con
-						.prepareStatement("SELECT usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
+						.prepareStatement("select usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
 								" usuario.id_tipoUsuario, tipoUsuario.porProyecto, ifnull(tipoUsuario.tipo,''), ifnull(usuario.email,''), ifnull(usuario.fono,''), " +
 								" ifnull(usuario.observaciones,''), usuario.vigente, usuario.id_sucursal, sucursal.nombre " +
-								" FROM `"+db+"`.usuario " +
+								" from `"+db+"`.usuario " +
 								" left join `"+db+"`.tipoUsuario on tipoUsuario.id = id_tipoUsuario " +
 								" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal " +
 								" where usuario.id = ?" );
@@ -144,7 +144,7 @@ public class Usuario {
 	public static boolean modify(Connection con,String db, Usuario user) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.usuario "
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.usuario "
 					+ " SET	userName = ?, userKey = ?, nombre = ?, cargo = ?, id_tipoUsuario=?, email=?, fono=?, observaciones=? "
 					+ " WHERE id = ?");
 			smt.setString(1, user.getUserName().trim());
@@ -169,8 +169,8 @@ public class Usuario {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("SELECT usuario.id, userName " +
-							" FROM `"+db+"`.usuario " +
+					.prepareStatement("select usuario.id, userName " +
+							" from `"+db+"`.usuario " +
 							" where upper(usuario.userName) = ?" );
 			smt2.setString(1, userName.toUpperCase());
 			ResultSet rs2 = smt2.executeQuery();
@@ -272,10 +272,10 @@ public class Usuario {
 		List<Usuario> lista = new ArrayList<Usuario>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
+					.prepareStatement("select usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
 							 	" usuario.id_tipoUsuario, tipoUsuario.porProyecto, ifnull(tipoUsuario.tipo,''), ifnull(usuario.email,''), ifnull(usuario.fono,''), " +
 							 	" ifnull(usuario.observaciones,''), usuario.vigente, usuario.id_sucursal, sucursal.nombre " +
-								" FROM `"+db+"`.usuario " +
+								" from `"+db+"`.usuario " +
 								" left join `"+db+"`.tipoUsuario on tipoUsuario.id = id_tipoUsuario " +
 								" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal " +
 								" where usuario.id>1 order by userName");
@@ -302,10 +302,10 @@ public class Usuario {
 		
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
+					.prepareStatement("select usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
 						 		" usuario.id_tipoUsuario, tipoUsuario.porProyecto, ifnull(tipoUsuario.tipo,''), ifnull(usuario.email,''), ifnull(usuario.fono,''), " +
 						 		" ifnull(usuario.observaciones,''), usuario.vigente, usuario.id_sucursal, sucursal.nombre " +
-								" FROM `"+db+"`.usuario " +
+								" from `"+db+"`.usuario " +
 								" left join `"+db+"`.tipoUsuario on tipoUsuario.id = usuario.id_tipoUsuario " +
 								" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal " +
 								" where usuario.id>1 and usuario.vigente=1 " + condSucursal +
@@ -326,7 +326,7 @@ public class Usuario {
 	public static boolean modificaPorCampo(Connection con,String db,String campo,Long id_usuario,String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.usuario set `" + campo + "` = ? WHERE id = ?;");		
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.usuario set `" + campo + "` = ? WHERE id = ?;");		
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_usuario);
 			smt.executeUpdate();
@@ -345,13 +345,13 @@ public class Usuario {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.usuario WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.usuario WHERE id = ?");
 			smt.setLong(1, id_usuario);
 			smt.executeUpdate();
 			smt.close();
 			
 			PreparedStatement smt2 = con
-					.prepareStatement("DELETE FROM `"+db+"`.permisoPorBodegaEmpresa WHERE id_usuario = ?");
+					.prepareStatement("delete from `"+db+"`.permisoPorBodegaEmpresa WHERE id_usuario = ?");
 			smt2.setLong(1, id_usuario);
 			smt2.executeUpdate();
 			smt2.close();
@@ -385,8 +385,8 @@ public class Usuario {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.usuario (userName, userKey, nombre, cargo, id_tipoUsuario, email, fono, observaciones)"
-							+ " VALUES (?,?,?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.usuario (userName, userKey, nombre, cargo, id_tipoUsuario, email, fono, observaciones)"
+							+ " values (?,?,?,?,?,?,?,?)");
 			smt.setString(1, aux.userName.trim());
 			smt.setString(2, aux.userKey.trim());
 			smt.setString(3, aux.nombre.trim());
@@ -408,7 +408,7 @@ public class Usuario {
 		List<List<Long>> lista = new ArrayList<List<Long>>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id, porProyecto FROM `"+db+"`.tipoUsuario;");
+					.prepareStatement("select id, porProyecto from `"+db+"`.tipoUsuario;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<Long> aux = new ArrayList<Long>();
@@ -434,10 +434,10 @@ public class Usuario {
 		
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
+					.prepareStatement("select usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
 							 	" usuario.id_tipoUsuario, tipoUsuario.porProyecto, ifnull(tipoUsuario.tipo,''), ifnull(usuario.email,''), ifnull(usuario.fono,''), " +
 							 	" ifnull(usuario.observaciones,''), usuario.vigente, usuario.id_sucursal, sucursal.nombre " +
-								" FROM `"+db+"`.usuario " +
+								" from `"+db+"`.usuario " +
 								" left join `"+db+"`.tipoUsuario on tipoUsuario.id = id_tipoUsuario " +
 								" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal " +
 								" left join `"+db+"`.comercial on comercial.id = usuario.id " +

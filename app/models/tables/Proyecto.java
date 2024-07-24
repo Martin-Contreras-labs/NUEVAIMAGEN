@@ -211,7 +211,7 @@ public class Proyecto {
 	public static boolean modificaPorCampo(Connection con,String db,String campo,Long id_proyecto,String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.proyecto set `" + campo + "` = ? WHERE id = ?;");		
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.proyecto set `" + campo + "` = ? WHERE id = ?;");		
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_proyecto);
 			smt.executeUpdate();
@@ -246,12 +246,12 @@ public class Proyecto {
 		boolean flag = false;
 		try {
 			PreparedStatement smt3 = con
-					.prepareStatement("DELETE FROM `"+db+"`.contactoProyecto WHERE id_proyecto = ?");
+					.prepareStatement("delete from `"+db+"`.contactoProyecto WHERE id_proyecto = ?");
 			smt3.setLong(1, id_proyecto);
 			smt3.executeUpdate();
 			smt3.close();
 			PreparedStatement smt4 = con
-					.prepareStatement("DELETE FROM `"+db+"`.proyecto WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.proyecto WHERE id = ?");
 			smt4.setLong(1, id_proyecto);
 			smt4.executeUpdate();
 			smt4.close();
@@ -267,8 +267,8 @@ public class Proyecto {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.proyecto (nombre,nickName,direccion,cod_region,cod_comuna,ciudad) " +
-							" VALUES (?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.proyecto (nombre,nickName,direccion,cod_region,cod_comuna,ciudad) " +
+							" values (?,?,?,?,?,?)");
 			smt.setString(1, aux.nombre.trim());
 			smt.setString(2, aux.nickName.trim());
 			smt.setString(3, aux.direccion.trim());

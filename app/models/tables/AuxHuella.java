@@ -23,7 +23,7 @@ public class AuxHuella {
 		Long aux = (long)0;
 		try {
 			PreparedStatement smt = con
-							.prepareStatement("Select huella FROM `"+base+"`.`auxHuella` where id_usuario=?;");
+							.prepareStatement("Select huella from `"+base+"`.`auxHuella` where id_usuario=?;");
 			smt.setString(1, id_usuario);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {

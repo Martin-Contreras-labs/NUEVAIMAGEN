@@ -161,7 +161,7 @@ public class Sucursal {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.cotizacion WHERE id_sucursal = ?");
+					.prepareStatement("Select * from `"+db+"`.cotizacion WHERE id_sucursal = ?");
 			smt1.setLong(1, id_sucursal);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {
@@ -169,14 +169,14 @@ public class Sucursal {
 			}else {
 				
 				PreparedStatement smt2 = con
-						.prepareStatement("Select * FROM `"+db+"`.usuario WHERE id_sucursal = ?");
+						.prepareStatement("Select * from `"+db+"`.usuario WHERE id_sucursal = ?");
 				smt2.setLong(1, id_sucursal);
 				ResultSet rs2 = smt2.executeQuery();
 				if (rs2.next()) {
 					flag = true;
 				}else {
 					PreparedStatement smt3 = con
-							.prepareStatement("Select * FROM `"+db+"`.bodegaEmpresa WHERE id_sucursal = ?");
+							.prepareStatement("Select * from `"+db+"`.bodegaEmpresa WHERE id_sucursal = ?");
 					smt3.setLong(1, id_sucursal);
 					ResultSet rs3 = smt3.executeQuery();
 					if (rs3.next()) {
@@ -200,13 +200,13 @@ public class Sucursal {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.sucursal WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.sucursal WHERE id = ?");
 			smt.setLong(1, id_sucursal);
 			smt.executeUpdate();
 			smt.close();
 			
 			PreparedStatement smt2 = con
-					.prepareStatement("DELETE FROM `"+db+"`.precio WHERE id_sucursal = ?");
+					.prepareStatement("delete from `"+db+"`.precio WHERE id_sucursal = ?");
 			smt2.setLong(1, id_sucursal);
 			smt2.executeUpdate();
 			smt2.close();
@@ -222,7 +222,7 @@ public class Sucursal {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.sucursal WHERE upper(nombre) = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.sucursal WHERE upper(nombre) = ?" );
 			smt.setString(1, nombre_sucursal.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -240,7 +240,7 @@ public class Sucursal {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.sucursal (nombre) VALUES (?);", Statement.RETURN_GENERATED_KEYS);		
+					.prepareStatement("insert into `"+db+"`.sucursal (nombre) values (?);", Statement.RETURN_GENERATED_KEYS);		
 			smt.setString(1, nombreSucursal.trim().toUpperCase());
 			smt.executeUpdate();
 			
@@ -270,7 +270,7 @@ public class Sucursal {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.sucursal SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.sucursal set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim().toUpperCase());
 			smt.setLong(2, id_sucursal);
 			smt.executeUpdate();

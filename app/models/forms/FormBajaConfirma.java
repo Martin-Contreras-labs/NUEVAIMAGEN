@@ -54,7 +54,7 @@ public class FormBajaConfirma {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.compra (id_factura, id_equipo, cantidad, id_moneda, precioUnidad,id_bodegaEmpresa)"
+					.prepareStatement("insert into  `"+db+"`.compra (id_factura, id_equipo, cantidad, id_moneda, precioUnidad,id_bodegaEmpresa)"
 							+ " VALUES "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();

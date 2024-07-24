@@ -52,8 +52,8 @@ public class OtEstado {
 		try {
 
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado " +
-							" FROM `"+db+"`.otEstado");
+					.prepareStatement("select id,estado " +
+							" from `"+db+"`.otEstado");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new OtEstado(resultado.getLong(1),resultado.getString(2)));
@@ -70,8 +70,8 @@ public class OtEstado {
 		OtEstado aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado " +
-							" FROM `"+db+"`.otEstado WHERE id = ?" );
+					.prepareStatement("select id,estado " +
+							" from `"+db+"`.otEstado WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -90,7 +90,7 @@ public class OtEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.ot WHERE id_otEstado = ?");
+					.prepareStatement("Select * from `"+db+"`.ot WHERE id_otEstado = ?");
 			smt1.setLong(1, id_otEstado);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {
@@ -108,7 +108,7 @@ public class OtEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.otEstado WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.otEstado WHERE id = ?");
 			smt.setLong(1, id_otEstado);
 			smt.executeUpdate();
 			smt.close();
@@ -123,7 +123,7 @@ public class OtEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado FROM `"+db+"`.otEstado WHERE upper(estado) = ?" );
+					.prepareStatement("select id,estado from `"+db+"`.otEstado WHERE upper(estado) = ?" );
 			smt.setString(1, nombre_estado.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -141,7 +141,7 @@ public class OtEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.otEstado SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.otEstado set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_otEstado);
 			smt.executeUpdate();
@@ -157,7 +157,7 @@ public class OtEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.otEstado (estado) VALUES (?)");		
+					.prepareStatement("insert into `"+db+"`.otEstado (estado) values (?)");		
 			smt.setString(1, nombre_estado.trim());
 			smt.executeUpdate();
 			smt.close();

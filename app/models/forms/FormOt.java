@@ -71,7 +71,7 @@ public class FormOt {
 			}
 			
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.ot (id_cotizacion, numero, fecha, observaciones, id_userCrea, fechaActualizacion, fechaEnvio) " +
+					.prepareStatement("insert into  `"+db+"`.ot (id_cotizacion, numero, fecha, observaciones, id_userCrea, fechaActualizacion, fechaEnvio) " +
 							" VALUES (?,?,?,?,?,?,?)");
 			smt.setLong(1, form.id_cotizacion);
 			smt.setLong(2, form.numeroOt);

@@ -104,7 +104,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
     			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternasExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigInterExterConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(movimientoSelectBodegaOrigen.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
         	} catch (SQLException e) {
@@ -540,7 +540,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
 	    			
 	    			List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0", mapStock);
-	    			zz
+	    			
 	    			FormMovimiento.insertPreciosNuevos(con, s.baseDato, form, mapeoDiccionario);
 	    			
 	    			if(listaIdMovIdTipEstCant.size()>0) {
@@ -1229,7 +1229,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			
 	    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNeg(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
-	   
+	    			
 	    			con.close();
 	    			return ok(movimientoListar.render(mapeoDiccionario,mapeoPermiso,userMnu,listaGuias, listaTransporte, desdeAAMMDD, hastaAAMMDD));
 	        	} catch (SQLException e) {

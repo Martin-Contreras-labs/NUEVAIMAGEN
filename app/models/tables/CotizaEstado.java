@@ -53,7 +53,7 @@ public class CotizaEstado {
 		List<CotizaEstado> lista = new ArrayList<CotizaEstado>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado FROM `"+db+"`.cotizaEstado");
+					.prepareStatement("select id,estado from `"+db+"`.cotizaEstado");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				if(rs.getLong(1) > 0) {
@@ -72,7 +72,7 @@ public class CotizaEstado {
 		List<CotizaEstado> lista = new ArrayList<CotizaEstado>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado FROM `"+db+"`.cotizaEstado");
+					.prepareStatement("select id,estado from `"+db+"`.cotizaEstado");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new CotizaEstado(rs.getLong(1),rs.getString(2)));
@@ -89,8 +89,8 @@ public class CotizaEstado {
 		CotizaEstado aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado " +
-							" FROM `"+db+"`.cotizaEstado WHERE id = ?" );
+					.prepareStatement("select id,estado " +
+							" from `"+db+"`.cotizaEstado WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -109,7 +109,7 @@ public class CotizaEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.cotizacion WHERE id_cotizaEstado = ?");
+					.prepareStatement("Select * from `"+db+"`.cotizacion WHERE id_cotizaEstado = ?");
 			smt1.setLong(1, id_cotizaEstado);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {
@@ -119,7 +119,7 @@ public class CotizaEstado {
 			smt1.close();
 			
 			PreparedStatement smt2 = con
-					.prepareStatement("Select * FROM `"+db+"`.cotiOdo WHERE id_cotizaEstado = ?");
+					.prepareStatement("Select * from `"+db+"`.cotiOdo WHERE id_cotizaEstado = ?");
 			smt2.setLong(1, id_cotizaEstado);
 			ResultSet rs2 = smt2.executeQuery();
 			if (rs2.next()) {
@@ -137,7 +137,7 @@ public class CotizaEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.cotizaEstado WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.cotizaEstado WHERE id = ?");
 			smt.setLong(1, id_cotizaEstado);
 			smt.executeUpdate();
 			smt.close();
@@ -152,7 +152,7 @@ public class CotizaEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,estado FROM `"+db+"`.cotizaEstado WHERE upper(estado) = ?" );
+					.prepareStatement("select id,estado from `"+db+"`.cotizaEstado WHERE upper(estado) = ?" );
 			smt.setString(1, nombre_estado.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -170,7 +170,7 @@ public class CotizaEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.cotizaEstado SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.cotizaEstado set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_cotizaEstado);
 			smt.executeUpdate();
@@ -186,7 +186,7 @@ public class CotizaEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.cotizaEstado (estado) VALUES (?)");		
+					.prepareStatement("insert into `"+db+"`.cotizaEstado (estado) values (?)");		
 			smt.setString(1, nombre_estado.trim());
 			smt.executeUpdate();
 			smt.close();

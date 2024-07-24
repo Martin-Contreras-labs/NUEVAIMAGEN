@@ -288,10 +288,10 @@ public class OtDespachado {
 		List<OtDespachado> lista = new ArrayList<OtDespachado>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT id,id_ot,id_guia,id_cotizaDetalle, " +
+					.prepareStatement(" select id,id_ot,id_guia,id_cotizaDetalle, " +
 							" id_equipoOrigen,id_equipoDespacho,cantidadDespacho,cantidadRebajaOt, " +
 							" id_bodegaOrigen,esVenta, id_cotizacion" +
-							" FROM `"+db+"`.otDespachado order by id_ot;");
+							" from `"+db+"`.otDespachado order by id_ot;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new OtDespachado(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
@@ -309,10 +309,10 @@ public class OtDespachado {
 		List<OtDespachado> lista = new ArrayList<OtDespachado>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" SELECT id,id_ot,id_guia,id_cotizaDetalle, " +
+					.prepareStatement(" select id,id_ot,id_guia,id_cotizaDetalle, " +
 							" id_equipoOrigen,id_equipoDespacho,cantidadDespacho,cantidadRebajaOt, " +
 							" id_bodegaOrigen,esVenta, id_cotizacion" +
-							" FROM `"+db+"`.otDespachado" +
+							" from `"+db+"`.otDespachado" +
 							" where id_ot=? and id_guia=?;");
 			smt.setLong(1, id_ot);
 			smt.setLong(2, id_guia);

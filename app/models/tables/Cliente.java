@@ -433,7 +433,7 @@ public class Cliente {
 		boolean flag = false;
 		if(campo.equals("rut")) campo = campo.replaceAll("[\\,\\.]","").trim();
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.cliente set `"+campo+"` = ? WHERE id = ?;");	
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.cliente set `"+campo+"` = ? WHERE id = ?;");	
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_cliente);
 			smt.executeUpdate();
@@ -467,12 +467,12 @@ public class Cliente {
 		boolean flag = false;
 		try {
 			PreparedStatement smt3 = con
-					.prepareStatement("DELETE FROM `"+db+"`.contactoCliente WHERE id_cliente = ?");
+					.prepareStatement("delete from `"+db+"`.contactoCliente WHERE id_cliente = ?");
 			smt3.setLong(1, idCliente);
 			smt3.executeUpdate();
 			smt3.close();
 			PreparedStatement smt4 = con
-					.prepareStatement("DELETE FROM `"+db+"`.cliente WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.cliente WHERE id = ?");
 			smt4.setLong(1, idCliente);
 			smt4.executeUpdate();
 			smt4.close();
@@ -487,9 +487,9 @@ public class Cliente {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.cliente (rut,nombre,nickName,direccion,cod_region,cod_comuna,ciudad," + 
+					.prepareStatement("insert into `"+db+"`.cliente (rut,nombre,nickName,direccion,cod_region,cod_comuna,ciudad," + 
 							"giro,mailFactura,fonoContacto,rutRepresentante1,nombreRepresentante1,rutRepresentante2,nombreRepresentante2,contactoFactura,formaDePago,especialidad) " +
-							" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+							" values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			String rut = aux.rut.trim().replaceAll("[\\,\\.]","").trim();
 			smt.setString(1, rut);
 			smt.setString(2, aux.nombre.trim());

@@ -782,7 +782,7 @@ public class MnuCompras extends Controller {
 	    	    				
 	    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
 	    	    				PreparedStatement smt = con
-	    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
+	    	    						.prepareStatement("insert into  `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
 	    	    				
 	    	    				smt.executeUpdate();
 	    	    				smt.close();

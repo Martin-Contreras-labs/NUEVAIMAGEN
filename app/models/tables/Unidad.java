@@ -41,7 +41,7 @@ public class Unidad{
 		List<Unidad> lista = new ArrayList<Unidad>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.unidad");
+					.prepareStatement("select id,nombre from `"+db+"`.unidad");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new Unidad(resultado.getLong(1),resultado.getString(2)));
@@ -67,7 +67,7 @@ public class Unidad{
 		Unidad aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.unidad where nombre = ?;");
+					.prepareStatement("select id,nombre from `"+db+"`.unidad where nombre = ?;");
 			smt.setString(1, unidad.trim());
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
@@ -89,7 +89,7 @@ public class Unidad{
 			smt.executeUpdate();
 			smt.close();
 			PreparedStatement smt2 = con
-					.prepareStatement("SELECT max(id) FROM `"+db+"`.unidad");
+					.prepareStatement("select max(id) from `"+db+"`.unidad");
 			ResultSet rs2 = smt2.executeQuery();
 			if (rs2.next()) {
 				aux = new Unidad(rs2.getLong(1),nombre);

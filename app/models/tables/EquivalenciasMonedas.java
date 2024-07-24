@@ -25,8 +25,8 @@ public class EquivalenciasMonedas {
 		Map<String,EquivalenciasMonedas> map = new HashMap<String,EquivalenciasMonedas>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT nickMoneda,equivEnMada " +
-							" FROM `"+db+"`.equivalenciasMonedas;" );
+					.prepareStatement("select nickMoneda,equivEnMada " +
+							" from `"+db+"`.equivalenciasMonedas;" );
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				map.put(resultado.getString(1), new EquivalenciasMonedas(resultado.getString(1),resultado.getString(2)));

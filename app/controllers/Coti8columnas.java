@@ -451,7 +451,7 @@ public class Coti8columnas extends Controller {
 		            cell.setCellFormula("MAX(R"+linea+":Y"+linea+")");
 		            evaluator.evaluateFormulaCell(cell);
 		            
-		            // SELECT cantidades
+		            // select  cantidades
 					cell = row.createCell(27);
 		            cell.setCellStyle(detalle);
 		            cell.setCellFormula("SUMPRODUCT(R$9:Y$9,R"+linea+":Y"+linea+")");
@@ -524,7 +524,7 @@ public class Coti8columnas extends Controller {
 		            cell.setCellFormula("IF(AE"+linea+"=1,N"+linea+"*AA"+linea+"*M"+linea+",AA"+linea+"*P"+linea+"*AC"+linea+"*M"+linea+")");
 		            evaluator.evaluateFormulaCell(cell);
 		            
-		            // SELECT totales
+		            // select  totales
 					cell = row.createCell(42);
 		            cell.setCellStyle(detalle);
 		            cell.setCellFormula("IF(AE"+linea+"=1,N"+linea+"*AB"+linea+"*M"+linea+",AB"+linea+"*P"+linea+"*AC"+linea+"*M"+linea+")");

@@ -179,8 +179,8 @@ public class Baja {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("INSERT INTO `"+db+"`.baja (id_actaBaja, id_equipo, cantidad, motivo)"
-							+ " VALUES "+detalle+";");
+					.prepareStatement("insert into `"+db+"`.baja (id_actaBaja, id_equipo, cantidad, motivo)"
+							+ " values "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();
 			flag = true;

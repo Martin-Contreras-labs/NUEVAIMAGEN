@@ -165,7 +165,7 @@ public class Fabrica {
 	public static boolean modificaPorCampo(Connection con, String db,String campo,Long id_fabrica,String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.fabrica set " + campo + " = ? WHERE id = ?;");		
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.fabrica set " + campo + " = ? WHERE id = ?;");		
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_fabrica);
 			smt.executeUpdate();
@@ -199,7 +199,7 @@ public class Fabrica {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("DELETE FROM `"+db+"`.fabrica WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.fabrica WHERE id = ?");
 			smt1.setLong(1, id_fabrica);
 			smt1.executeUpdate();
 			smt1.close();
@@ -214,8 +214,8 @@ public class Fabrica {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.fabrica (nombre,nickName,direccion,cod_region,cod_comuna, ciudad) " +
-							" VALUES (?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.fabrica (nombre,nickName,direccion,cod_region,cod_comuna, ciudad) " +
+							" values (?,?,?,?,?,?)");
 			smt.setString(1, aux.nombre.trim());
 			smt.setString(2, aux.nickName.trim());
 			smt.setString(3, aux.direccion.trim());

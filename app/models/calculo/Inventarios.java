@@ -308,6 +308,46 @@ public class Inventarios {
 	}
 	
 	
+	public static Map<Long,Long> mapBodegasVigYnoVigConStock (Connection con, String db){
+		Map<Long,Long> map = new HashMap<Long,Long>();
+		try {
+			PreparedStatement smt2 = con
+					.prepareStatement(" select movimiento.id_bodegaEmpresa " + 
+							" from `"+db+"`.movimiento " +
+							" group by movimiento.id_bodegaEmpresa "+
+							" having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0");
+			ResultSet rs2 = smt2.executeQuery();
+			while (rs2.next()) {
+				map.put(rs2.getLong(1), rs2.getLong(1));
+			}
+			rs2.close();smt2.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+	}
+	return(map);
+	}
+	
+	public static Map<Long,Long> mapBodegasVigConStock (Connection con, String db){
+		Map<Long,Long> map = new HashMap<Long,Long>();
+		try {
+			PreparedStatement smt2 = con
+					.prepareStatement(" select movimiento.id_bodegaEmpresa " + 
+							" from `"+db+"`.movimiento " +
+							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  " +
+							" where bodegaEmpresa.vigente = 1 "+
+							" group by movimiento.id_bodegaEmpresa "+
+							" having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0");
+			ResultSet rs2 = smt2.executeQuery();
+			while (rs2.next()) {
+				map.put(rs2.getLong(1), rs2.getLong(1));
+			}
+			rs2.close();smt2.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+	}
+	return(map);
+	}
+	
 	//obtiene listado de bodegas que poseen inventario positivo mayor que cero con o sin fecha de corte
 	public static List<List<String>> listaBodegasConStock(Connection con, String db, String fechaCorte, String permisoPorBodega,
 			String esPorSucursal, String id_sucursal, String tipo) {

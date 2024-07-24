@@ -32,8 +32,8 @@ public class TipoPlan {
 		List<TipoPlan> lista = new ArrayList<TipoPlan>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoPlan order by nombre");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoPlan order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new TipoPlan(resultado.getLong(1),resultado.getString(2)));
@@ -50,8 +50,8 @@ public class TipoPlan {
 		Map<String,TipoPlan> map = new HashMap<String,TipoPlan>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoPlan order by nombre");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoPlan order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				map.put(resultado.getString(2), new TipoPlan(resultado.getLong(1),resultado.getString(2)));
@@ -68,8 +68,8 @@ public class TipoPlan {
 		TipoPlan aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoPlan WHERE id = ?" );
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoPlan WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -87,7 +87,7 @@ public class TipoPlan {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.tipoPlan WHERE upper(nombre) = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.tipoPlan WHERE upper(nombre) = ?" );
 			smt.setString(1, nombre_tipo.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -108,7 +108,7 @@ public class TipoPlan {
 		int falso = 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.tipoPlan (nombre) VALUES (?)");		
+					.prepareStatement("insert into `"+db+"`.tipoPlan (nombre) values (?)");		
 			smt.setString(1, trabajo.trim());
 			smt.executeUpdate();
 			smt.close();
@@ -124,7 +124,7 @@ public class TipoPlan {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.tipoPlan SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.tipoPlan set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_grupo);
 			smt.executeUpdate();
@@ -140,7 +140,7 @@ public class TipoPlan {
 		int falso = 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("Select * FROM `"+db+"`.hojaVida WHERE id_tipoPlan = ?");
+					.prepareStatement("Select * from `"+db+"`.hojaVida WHERE id_tipoPlan = ?");
 			smt.setLong(1, id_tipoPlan);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -148,7 +148,7 @@ public class TipoPlan {
 			}else{
 				
 				PreparedStatement smt1 = con
-						.prepareStatement("DELETE FROM `"+db+"`.tipoPlan WHERE id = ?");
+						.prepareStatement("delete from `"+db+"`.tipoPlan WHERE id = ?");
 				smt1.setLong(1, id_tipoPlan);
 				smt1.executeUpdate();
 				smt1.close();

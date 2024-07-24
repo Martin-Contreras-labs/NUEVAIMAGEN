@@ -26,7 +26,7 @@ public class Regiones {
 		List<Regiones> lista = new ArrayList<Regiones>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT codigo,nombre FROM `"+db+"`.regiones order by nombre");
+					.prepareStatement("select codigo,nombre from `"+db+"`.regiones order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new Regiones(resultado.getString(1),resultado.getString(2)));
@@ -43,7 +43,7 @@ public class Regiones {
 		Regiones aux = new Regiones();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT codigo,nombre FROM `"+db+"`.regiones where nombre = ?" );
+					.prepareStatement("select codigo,nombre from `"+db+"`.regiones where nombre = ?" );
 			smt.setString(1, nombre.trim());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

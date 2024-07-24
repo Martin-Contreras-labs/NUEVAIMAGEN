@@ -90,7 +90,7 @@ public class Inicio {
 		}
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("SELECT id, empresa, baseDato, vigente, logoEmpresa " +
+					.prepareStatement("select  id, empresa, baseDato, vigente, logoEmpresa " +
 							" from empresa where UPPER(empresa) = ? and UPPER(pais) = ?" );
 			smt1.setString(1, empresa.toUpperCase().trim());
 			smt1.setString(2, pais.toUpperCase().trim());
@@ -101,8 +101,8 @@ public class Inicio {
 				}else{
 					String db = rs1.getString(3);
 					PreparedStatement smt = con
-							.prepareStatement("SELECT usuario.id, userName, userKey, nombre, cargo, " +
-									"id_tipoUsuario,porProyecto, tipo, email, id_sucursal FROM `"+db+"`.usuario " +
+							.prepareStatement("select  usuario.id, userName, userKey, nombre, cargo, " +
+									"id_tipoUsuario,porProyecto, tipo, email, id_sucursal from `"+db+"`.usuario " +
 									"left join `"+db+"`.tipoUsuario on tipoUsuario.id = id_tipoUsuario " +
 									" where UPPER(userName) = ?" );
 					smt.setString(1, usuario.toUpperCase().trim());
@@ -137,7 +137,7 @@ public class Inicio {
 		
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("SELECT id, empresa, baseDato, vigente, logoEmpresa " +
+					.prepareStatement("select  id, empresa, baseDato, vigente, logoEmpresa " +
 							" from mada.empresa where UPPER(empresa) = ? and UPPER(pais) = ?" );
 			smt1.setString(1, empresa.toUpperCase().trim());
 			smt1.setString(2, pais.toUpperCase().trim());
@@ -148,8 +148,8 @@ public class Inicio {
 				}else{
 					String db = rs1.getString(3);
 					PreparedStatement smt = con
-							.prepareStatement("SELECT usuario.id, userName, userKey, nombre, cargo, " +
-									"id_tipoUsuario,porProyecto, tipo, email, id_sucursal FROM `"+db+"`.usuario " +
+							.prepareStatement("select  usuario.id, userName, userKey, nombre, cargo, " +
+									"id_tipoUsuario,porProyecto, tipo, email, id_sucursal from `"+db+"`.usuario " +
 									"left join `"+db+"`.tipoUsuario on tipoUsuario.id = id_tipoUsuario " +
 									" where UPPER(userName) = ? and vigente=1;" );
 					smt.setString(1, usuario.toUpperCase().trim());

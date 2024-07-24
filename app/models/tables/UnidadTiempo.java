@@ -32,8 +32,8 @@ public class UnidadTiempo {
 		List<UnidadTiempo> lista = new ArrayList<UnidadTiempo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.unidadTiempo");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.unidadTiempo");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new UnidadTiempo(resultado.getLong(1),resultado.getString(2)));
@@ -50,8 +50,8 @@ public class UnidadTiempo {
 		UnidadTiempo aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.unidadTiempo where id=?;");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.unidadTiempo where id=?;");
 			smt.setLong(1, id_unidadTiempo);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -70,8 +70,8 @@ public class UnidadTiempo {
 		Map<Long,Double> aux = new HashMap<Long,Double>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,factor " +
-							" FROM `"+db+"`.unidadTiempo");
+					.prepareStatement("select id,factor " +
+							" from `"+db+"`.unidadTiempo");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				aux.put(rs.getLong(1),rs.getDouble(2));
@@ -88,8 +88,8 @@ public class UnidadTiempo {
 		Map<Long,UnidadTiempo> aux = new HashMap<Long,UnidadTiempo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.unidadTiempo");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.unidadTiempo");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				aux.put(rs.getLong(1),new UnidadTiempo(rs.getLong(1),rs.getString(2)));
@@ -106,8 +106,8 @@ public class UnidadTiempo {
 		Map<String,UnidadTiempo> aux = new HashMap<String,UnidadTiempo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.unidadTiempo");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.unidadTiempo");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				aux.put(rs.getString(2).toUpperCase(),new UnidadTiempo(rs.getLong(1),rs.getString(2)));

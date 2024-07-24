@@ -91,7 +91,7 @@ public class ActaBaja {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.actaBaja SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.actaBaja set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_actaBaja);
 			smt.executeUpdate();
@@ -167,8 +167,8 @@ public class ActaBaja {
 		Long id_acta = (long)0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.actaBaja (numero,fecha,observaciones) " +
-								" VALUES (?,?,?)");
+					.prepareStatement("insert into  `"+db+"`.actaBaja (numero,fecha,observaciones) " +
+								" values (?,?,?)");
 			smt.setLong(1, actaBaja.getNumero());
 			smt.setString(2, actaBaja.getFecha());
 			smt.setString(3, actaBaja.getObservaciones());
@@ -200,7 +200,7 @@ public class ActaBaja {
 				flag = false;
 			}else{			
 				PreparedStatement smt = con
-						.prepareStatement("DELETE FROM `"+db+"`.actaBaja WHERE id = ?;");
+						.prepareStatement("delete from `"+db+"`.actaBaja WHERE id = ?;");
 				smt.setLong(1, id_actaBaja);
 				smt.executeUpdate();
 				smt.close();

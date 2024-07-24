@@ -101,8 +101,8 @@ public class ActaRedimensionar {
 		Long id_acta = (long)0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.actaRedimensionar (numero,fecha,observaciones) " +
-								" VALUES (?,?,?);",Statement.RETURN_GENERATED_KEYS);
+					.prepareStatement("insert into  `"+db+"`.actaRedimensionar (numero,fecha,observaciones) " +
+								" values (?,?,?);",Statement.RETURN_GENERATED_KEYS);
 			smt.setLong(1, actaRedireccionar.getNumero());
 			smt.setString(2, actaRedireccionar.getFecha());
 			smt.setString(3, actaRedireccionar.getObservaciones());
@@ -129,12 +129,12 @@ public class ActaRedimensionar {
 			ResultSet resultado1 = smt1.executeQuery();
 			if (resultado1.next()) {
 				PreparedStatement smt = con
-						.prepareStatement("DELETE FROM `"+db+"`.actaRedimensionar WHERE id = ?;");
+						.prepareStatement("delete from `"+db+"`.actaRedimensionar WHERE id = ?;");
 				smt.setLong(1, id_actaRedimensionar);
 				smt.executeUpdate();
 				smt.close();
 				PreparedStatement smt2 = con
-						.prepareStatement("DELETE FROM `"+db+"`.redimensionar WHERE id_actaRedimensionar = ?;");
+						.prepareStatement("delete from `"+db+"`.redimensionar WHERE id_actaRedimensionar = ?;");
 				smt2.setLong(1, id_actaRedimensionar);
 				smt2.executeUpdate();
 				smt2.close();
@@ -152,7 +152,7 @@ public class ActaRedimensionar {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.actaRedimensionar SET `"+campo+"` = ? WHERE id = ?;");
+					.prepareStatement("update `"+db+"`.actaRedimensionar set `"+campo+"` = ? WHERE id = ?;");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_actaRedimensionar);
 			smt.executeUpdate();

@@ -31,8 +31,8 @@ public class Parametros {
 		List<Parametros> lista = new ArrayList<Parametros>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT nombre, valor, observaciones, esModificable,id " +
-							" FROM `"+db+"`.parametros order by nombre");
+					.prepareStatement("select nombre, valor, observaciones, esModificable,id " +
+							" from `"+db+"`.parametros order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new Parametros(resultado.getString(1),resultado.getLong(2),resultado.getString(3),resultado.getLong(4),resultado.getLong(5)));
@@ -50,7 +50,7 @@ public class Parametros {
 		try {
 
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.parametros SET valor = ? where nombre = ?;");
+					.prepareStatement("update `"+db+"`.parametros set valor = ? where nombre = ?;");
 			smt.setLong(1, valor);
 			smt.setString(2, nombreParametro);
 			smt.executeUpdate();

@@ -359,7 +359,7 @@ public class Proveedor {
 		boolean flag = false;
 		try {
 			if(campo.equals("rut")) valor = valor.trim().replaceAll("[\\,\\.]","").trim();
-			PreparedStatement smt = con.prepareStatement("UPDATE `"+db+"`.proveedor set " + campo + " = ? WHERE id = ?;");		
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.proveedor set " + campo + " = ? WHERE id = ?;");		
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_proveedor);
 			smt.executeUpdate();
@@ -376,8 +376,8 @@ public class Proveedor {
 		boolean flag=true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.proveedor (rut,nombre,nickName,direccion,cod_region,cod_comuna,ciudad,formaDePago,especialidad) " +
-							" VALUES (?,?,?,?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.proveedor (rut,nombre,nickName,direccion,cod_region,cod_comuna,ciudad,formaDePago,especialidad) " +
+							" values (?,?,?,?,?,?,?,?,?)");
 			String rut = aux.rut.trim().replaceAll("[\\,\\.]","").trim();
 			smt.setString(1, rut);
 			smt.setString(2, aux.nombre.trim());
@@ -401,7 +401,7 @@ public class Proveedor {
 		Long aux = (long)0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.proveedor (nickName) VALUES (?);",Statement.RETURN_GENERATED_KEYS);
+					.prepareStatement("insert into `"+db+"`.proveedor (nickName) values (?);",Statement.RETURN_GENERATED_KEYS);
 			smt.setString(1, nickName);
 			smt.executeUpdate();
 			
@@ -422,8 +422,8 @@ public class Proveedor {
 		boolean flag=true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.proveedor (rut, nombre, nickName) " +
-							" VALUES (?,?,?)");
+					.prepareStatement("insert into `"+db+"`.proveedor (rut, nombre, nickName) " +
+							" values (?,?,?)");
 			String rut = aux.rut.trim().replaceAll("[\\,\\.]","").trim();
 			smt.setString(1, rut);
 			smt.setString(2, aux.nombre.trim());
@@ -460,7 +460,7 @@ public class Proveedor {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.proveedor WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.proveedor WHERE id = ?");
 			smt.setLong(1, id_proveedor);
 			smt.executeUpdate();
 			smt.close();

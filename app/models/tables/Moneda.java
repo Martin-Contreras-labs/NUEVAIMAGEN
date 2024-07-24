@@ -40,7 +40,7 @@ public class Moneda {
 		Map<String,Long> decimales = new HashMap<String,Long>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT nickName,numeroDecimales from `"+db+"`.moneda");
+					.prepareStatement("select nickName,numeroDecimales from `"+db+"`.moneda");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				decimales.put(rs.getString(1).toUpperCase(),rs.getLong(2));
@@ -57,7 +57,7 @@ public class Moneda {
 		int decimales=0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,numeroDecimales from `"+db+"`.moneda where id =?;");
+					.prepareStatement("select id,numeroDecimales from `"+db+"`.moneda where id =?;");
 			smt.setString(1, id_moneda.trim());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -75,7 +75,7 @@ public class Moneda {
 		Map<Long,Long> decimales = new HashMap<Long,Long>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,numeroDecimales from `"+db+"`.moneda");
+					.prepareStatement("select id,numeroDecimales from `"+db+"`.moneda");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				decimales.put(resultado.getLong(1),resultado.getLong(2));
@@ -92,8 +92,8 @@ public class Moneda {
 		List<Moneda> lista = new ArrayList<Moneda>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre,nickName,numeroDecimales " +
-							" FROM `"+db+"`.moneda order by nickName");
+					.prepareStatement("select id,nombre,nickName,numeroDecimales " +
+							" from `"+db+"`.moneda order by nickName");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new Moneda(resultado.getLong(1),resultado.getString(2),
@@ -111,8 +111,8 @@ public class Moneda {
 		List<Moneda> lista = new ArrayList<Moneda>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre,nickName,numeroDecimales " +
-							" FROM `"+db+"`.moneda where id <> 1 order by nickName");
+					.prepareStatement("select id,nombre,nickName,numeroDecimales " +
+							" from `"+db+"`.moneda where id <> 1 order by nickName");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new Moneda(resultado.getLong(1),resultado.getString(2),
@@ -130,7 +130,7 @@ public class Moneda {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.moneda SET numeroDecimales = ? " +
+					.prepareStatement("update `"+db+"`.moneda set numeroDecimales = ? " +
 							" WHERE id = ?");
 			smt.setLong(1, numeroDecimales);
 			smt.setLong(2, id_moneda);
@@ -165,8 +165,8 @@ public class Moneda {
 		Moneda aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre,nickName,numeroDecimales " +
-							" FROM `"+db+"`.moneda WHERE id = ?" );
+					.prepareStatement("select id,nombre,nickName,numeroDecimales " +
+							" from `"+db+"`.moneda WHERE id = ?" );
 			smt.setLong(1, id_moneda);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -185,8 +185,8 @@ public class Moneda {
 		Moneda aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre,nickName,numeroDecimales " +
-							" FROM `"+db+"`.moneda WHERE id = ?" );
+					.prepareStatement("select id,nombre,nickName,numeroDecimales " +
+							" from `"+db+"`.moneda WHERE id = ?" );
 			smt.setString(1, nickName);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -231,7 +231,7 @@ public class Moneda {
 			smt.close();
 			
 			PreparedStatement smt2 = con
-					.prepareStatement("SELECT max(id) FROM `"+db+"`.unidad");
+					.prepareStatement("select max(id) from `"+db+"`.unidad");
 			ResultSet rs2 = smt2.executeQuery();
 			if (rs2.next()) {
 				aux = Moneda.find(con, db, rs2.getLong(1));

@@ -281,7 +281,7 @@ public class IConstruyeProdDet {
 		Map<String,Long> map = new HashMap<String,Long>();
 		try {
 			PreparedStatement smt = con
-							.prepareStatement("Select N_OC, Cod_Maestro, Glosa, Codigo_C_C, Sub_Total, id FROM `"+base+"`.`iConstruyeProdDet`;");
+							.prepareStatement("Select N_OC, Cod_Maestro, Glosa, Codigo_C_C, Sub_Total, id from `"+base+"`.`iConstruyeProdDet`;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				map.put(rs.getString(1)+"_"+rs.getString(2)+"_"+rs.getString(3)+"_"+rs.getString(4)+"_"+rs.getString(5), rs.getLong(6));

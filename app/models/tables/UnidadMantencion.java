@@ -30,8 +30,8 @@ public class UnidadMantencion {
 		List<UnidadMantencion> lista = new ArrayList<UnidadMantencion>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.unidadMantencion ");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.unidadMantencion ");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new UnidadMantencion(resultado.getLong(1),resultado.getString(2)));
@@ -48,8 +48,8 @@ public class UnidadMantencion {
 		UnidadMantencion aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.unidadMantencion WHERE id = ?" );
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.unidadMantencion WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {

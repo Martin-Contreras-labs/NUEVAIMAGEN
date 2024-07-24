@@ -74,8 +74,8 @@ public class CPanel {
 		}
 		try {
 			PreparedStatement smt = con
-				.prepareStatement("SELECT id, userName, userKey, nombre, cargo, id_tipoUsuario, fono, email, empresa " +
-						" FROM madaCPanel.usuario where UPPER(userName) = ? and UPPER(empresa) = ? and userKey = BINARY ?;" );
+				.prepareStatement("select  id, userName, userKey, nombre, cargo, id_tipoUsuario, fono, email, empresa " +
+						" from madaCPanel.usuario where UPPER(userName) = ? and UPPER(empresa) = ? and userKey = BINARY ?;" );
 				smt.setString(1, userName.trim());
 				smt.setString(2, empresa.trim());
 				smt.setString(3, userKey.trim());
@@ -542,8 +542,8 @@ public class CPanel {
 		CPanel aux = new CPanel();
 		try {
 			PreparedStatement smt = con
-				.prepareStatement("SELECT id, userName, userKey, nombre, cargo, id_tipoUsuario, fono, email, empresa " +
-						" FROM madaCPanel.usuario where id = ?;" );
+				.prepareStatement("select  id, userName, userKey, nombre, cargo, id_tipoUsuario, fono, email, empresa " +
+						" from madaCPanel.usuario where id = ?;" );
 				smt.setString(1, idUserCpanel);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {

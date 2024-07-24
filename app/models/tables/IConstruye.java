@@ -27,7 +27,7 @@ public class IConstruye {
 		Map<String,Long> map = new HashMap<String,Long>();
 		try {
 			PreparedStatement smt = con
-							.prepareStatement("Select idDoc, numOc FROM `"+base+"`.`iConstruye`;");
+							.prepareStatement("Select idDoc, numOc from `"+base+"`.`iConstruye`;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				map.put(rs.getString(2), rs.getLong(1));

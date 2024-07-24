@@ -170,7 +170,7 @@ public class AjustesEP {
 		boolean flag=true;
 		try {
 			PreparedStatement smt = con
-						.prepareStatement("UPDATE `"+db+"`.ajustesEP SET ajustePDF = ?  WHERE id = ?");
+						.prepareStatement("update `"+db+"`.ajustesEP set ajustePDF = ?  WHERE id = ?");
 				smt.setString(1, ajustePDF.trim());
 				smt.setLong(2, idAjuste);
 				smt.executeUpdate();

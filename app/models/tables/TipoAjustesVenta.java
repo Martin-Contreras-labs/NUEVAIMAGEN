@@ -24,7 +24,7 @@ public class TipoAjustesVenta {
 		List<TipoAjustesVenta> lista = new ArrayList<TipoAjustesVenta>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,ajusteVenta FROM `"+db+"`.`tipoAjusteVenta` order by ajusteVenta");
+					.prepareStatement("select id,ajusteVenta from `"+db+"`.`tipoAjusteVenta` order by ajusteVenta");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new TipoAjustesVenta(rs.getLong(1),rs.getString(2)));

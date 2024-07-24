@@ -41,7 +41,7 @@ public class UnidadServicio{
 		List<UnidadServicio> lista = new ArrayList<UnidadServicio>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.unidadServicio order by nombre;");
+					.prepareStatement("select id,nombre from `"+db+"`.unidadServicio order by nombre;");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new UnidadServicio(resultado.getLong(1),resultado.getString(2)));
@@ -58,7 +58,7 @@ public class UnidadServicio{
 		UnidadServicio aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.unidadServicio where id = ?;");
+					.prepareStatement("select id,nombre from `"+db+"`.unidadServicio where id = ?;");
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
 				aux = new UnidadServicio(resultado.getLong(1),resultado.getString(2));

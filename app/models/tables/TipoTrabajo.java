@@ -32,8 +32,8 @@ public class TipoTrabajo {
 		List<TipoTrabajo> lista = new ArrayList<TipoTrabajo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoTrabajo order by nombre");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoTrabajo order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				lista.add(new TipoTrabajo(resultado.getLong(1),resultado.getString(2)));
@@ -50,8 +50,8 @@ public class TipoTrabajo {
 		Map<String,TipoTrabajo> map = new HashMap<String,TipoTrabajo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoTrabajo order by nombre");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoTrabajo order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				map.put(resultado.getString(2), new TipoTrabajo(resultado.getLong(1),resultado.getString(2)));
@@ -68,8 +68,8 @@ public class TipoTrabajo {
 		Map<String,TipoTrabajo> map = new HashMap<String,TipoTrabajo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoTrabajo order by nombre");
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoTrabajo order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				map.put(resultado.getString(1), new TipoTrabajo(resultado.getLong(1),resultado.getString(2)));
@@ -86,8 +86,8 @@ public class TipoTrabajo {
 		Map<String,TipoTrabajo> map = new HashMap<String,TipoTrabajo>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id, nombre, cod_CCcost_iconstruye " +
-							" FROM `"+db+"`.tipoTrabajo order by nombre");
+					.prepareStatement("select id, nombre, cod_CCcost_iconstruye " +
+							" from `"+db+"`.tipoTrabajo order by nombre");
 			ResultSet resultado = smt.executeQuery();
 			while (resultado.next()) {
 				map.put(resultado.getString(3), new TipoTrabajo(resultado.getLong(1),resultado.getString(2)));
@@ -104,8 +104,8 @@ public class TipoTrabajo {
 		TipoTrabajo aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoTrabajo WHERE id = ?" );
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoTrabajo WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -123,8 +123,8 @@ public class TipoTrabajo {
 		TipoTrabajo aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre " +
-							" FROM `"+db+"`.tipoTrabajo WHERE cod_CCcost_iconstruye = ?" );
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoTrabajo WHERE cod_CCcost_iconstruye = ?" );
 			smt.setString(1, cod_CCcost_iconstruye);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -142,7 +142,7 @@ public class TipoTrabajo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,nombre FROM `"+db+"`.tipoTrabajo WHERE upper(nombre) = ?" );
+					.prepareStatement("select id,nombre from `"+db+"`.tipoTrabajo WHERE upper(nombre) = ?" );
 			smt.setString(1, nombre_tipo.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -163,7 +163,7 @@ public class TipoTrabajo {
 		int falso = 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.tipoTrabajo (nombre) VALUES (?)");		
+					.prepareStatement("insert into `"+db+"`.tipoTrabajo (nombre) values (?)");		
 			smt.setString(1, trabajo.trim());
 			smt.executeUpdate();
 			smt.close();
@@ -182,7 +182,7 @@ public class TipoTrabajo {
 		int falso = 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.tipoTrabajo (cod_CCcost_iconstruye, nombre) VALUES (?, ?)");		
+					.prepareStatement("insert into `"+db+"`.tipoTrabajo (cod_CCcost_iconstruye, nombre) values (?, ?)");		
 			smt.setString(1, cod_CCcost_iconstruye);
 			smt.setString(2, trabajo.trim());
 			smt.executeUpdate();
@@ -199,7 +199,7 @@ public class TipoTrabajo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.tipoTrabajo SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.tipoTrabajo set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_grupo);
 			smt.executeUpdate();
@@ -215,7 +215,7 @@ public class TipoTrabajo {
 		int falso = 0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("Select * FROM `"+db+"`.hojaVida WHERE id_tipoTrabajo = ?");
+					.prepareStatement("Select * from `"+db+"`.hojaVida WHERE id_tipoTrabajo = ?");
 			smt.setLong(1, id_tipoTrabajo);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -223,7 +223,7 @@ public class TipoTrabajo {
 			}else{
 				
 				PreparedStatement smt1 = con
-						.prepareStatement("DELETE FROM `"+db+"`.tipoTrabajo WHERE id = ?");
+						.prepareStatement("delete from `"+db+"`.tipoTrabajo WHERE id = ?");
 				smt1.setLong(1, id_tipoTrabajo);
 				smt1.executeUpdate();
 				smt1.close();

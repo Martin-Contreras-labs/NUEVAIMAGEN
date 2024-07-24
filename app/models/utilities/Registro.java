@@ -43,7 +43,7 @@ public class Registro {
 		boolean flag = true;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.registroModificaciones " +
+					.prepareStatement("insert into  `"+db+"`.registroModificaciones " +
 							" (id_user, userName, tabla, id_tabla, accion, descripcion)"
 							+ " VALUES (?,?,?,?,?,?)");
 			smt.setLong(1, Long.parseLong(id_usuario.trim()));

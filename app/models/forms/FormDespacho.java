@@ -125,7 +125,7 @@ public class FormDespacho {
 				valores = valores.substring(0, valores.length()-1);
 				try {
 					PreparedStatement smt = con
-							.prepareStatement("INSERT INTO `"+db+"`.otDespachado "
+							.prepareStatement("insert into  `"+db+"`.otDespachado "
 								+ "(id_ot, id_guia, id_cotizaDetalle, id_equipoOrigen, id_equipoDespacho, cantidadDespacho, cantidadRebajaOt, id_bodegaOrigen, esVenta, id_cotizacion) "
 								+ " values "+valores+";");
 					smt.executeUpdate();
@@ -152,7 +152,7 @@ public class FormDespacho {
 					if(valores.length()>10){
 						valores = valores.substring(0, valores.length()-1);
 						PreparedStatement smt2 = con
-								.prepareStatement("INSERT INTO `"+db+"`.movimiento "
+								.prepareStatement("insert into  `"+db+"`.movimiento "
 									+ "(id_bodegaEmpresa, id_equipo, id_tipoMovimiento, id_guia, cantidad, id_bodegaOrigen, "
 									+ " esVenta, esNuevo, id_otDespachado, id_cotizacion, random, nroGuia) "
 									+ " values "+valores+";");
@@ -261,7 +261,7 @@ public class FormDespacho {
 						if(valores.length()>10){
 							valores = valores.substring(0, valores.length()-1);
 							PreparedStatement smt3 = con
-									.prepareStatement("INSERT INTO `"+db+"`.listaPrecio "
+									.prepareStatement("insert into  `"+db+"`.listaPrecio "
 										+ "(id_bodegaEmpresa, id_equipo, id_moneda, fecha, precioVenta, precioReposicion, precioArriendo, id_unidadTiempo, id_cotizacion) "
 										+ " values "+valores+";");
 							smt3.executeUpdate();

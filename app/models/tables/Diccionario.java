@@ -17,7 +17,7 @@ public class Diccionario {
 		Map<String,String> map = new HashMap<String,String>();
 		try {
 			PreparedStatement smt = con
-				.prepareStatement("SELECT palabra, equiv FROM `"+db+"`.diccionario;" );
+				.prepareStatement("select palabra, equiv from `"+db+"`.diccionario;" );
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				map.put(rs.getString(1), rs.getString(2));

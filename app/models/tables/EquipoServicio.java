@@ -113,7 +113,7 @@ public class EquipoServicio {
 		
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select "
 							+ " equipoServicio.id_bodegaEmpresa, "
 							+ " bodegaEmpresa.nombre, "
 							+ " bodegaEmpresa.id_sucursal "
@@ -200,7 +200,7 @@ public class EquipoServicio {
 		
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select "
 							+ " equipoServicio.id_bodegaEmpresa, "
 							+ " equipoServicio.id_equipo, "
 							+ " equipoServicio.vigente, "
@@ -263,7 +263,7 @@ public class EquipoServicio {
 		List<EquipoServicio> lista = new ArrayList<EquipoServicio>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select "
 							+ " equipoServicio.id_bodegaEmpresa, "
 							+ " equipoServicio.id_equipo, "
 							+ " equipoServicio.vigente, "
@@ -311,7 +311,7 @@ public class EquipoServicio {
 		String cond = "";
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select "
 							+ " equipoServicio.id_equipo from `"+db+"`.equipoServicio where id_bodegaEmpresa = ? ");
 			smt1.setLong(1, bodega.getId());
 			ResultSet rs1 = smt1.executeQuery();
@@ -323,7 +323,7 @@ public class EquipoServicio {
 			}
 			
 			PreparedStatement smt = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select "
 							+ " equipo.id, "
 							+ " grupo.nombre, "
 							+ " equipo.codigo, "

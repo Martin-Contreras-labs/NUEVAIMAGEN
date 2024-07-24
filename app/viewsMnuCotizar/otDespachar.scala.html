@@ -522,11 +522,11 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 	
 		td = tr.insertCell(tr.cells.length);
 		td.setAttribute ('style', 'text-align:right;');
-		td.innerHTML ="<div class='kg' id='"+cont+"_kgTot'>0.00</div>";
+		td.innerHTML ="<div class='kg' id='"+cont+"_kgTot'>"+formatStandar2(saldo*selKg)+"</div>";
 		
 		td = tr.insertCell(tr.cells.length);
 		td.setAttribute ('style', 'text-align:right;');
-		td.innerHTML ="<div class='m2' id='"+cont+"_m2Tot'>0.00</div>";
+		td.innerHTML ="<div class='m2' id='"+cont+"_m2Tot'>"+formatStandar2(saldo*selM2)+"</div>";
 		
 		td = tr.insertCell(tr.cells.length);
 		td.setAttribute ('style', 'display:none');

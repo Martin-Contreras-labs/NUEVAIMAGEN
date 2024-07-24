@@ -107,7 +107,7 @@ public class FormContratoOdo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.cliente SET "
+					.prepareStatement("update `"+db+"`.cliente set "
 							+ " rut = ?,"
 							+ " nombre = ?,"
 							+ " direccion = ?,"
@@ -165,7 +165,7 @@ public class FormContratoOdo {
 			
 			
 			PreparedStatement smt2 = con
-					.prepareStatement("UPDATE `"+db+"`.cotiOdo SET "
+					.prepareStatement("update `"+db+"`.cotiOdo set "
 							+ fechaContrato
 							+ " numeroContrato = ?,"
 							+ " notasAlContrato=? "

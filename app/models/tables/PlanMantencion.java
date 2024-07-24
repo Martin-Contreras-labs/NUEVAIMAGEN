@@ -442,7 +442,7 @@ public class PlanMantencion {
 		boolean flag = false;
 		try {	
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.planMantencion (id_equipo,fechaReset) VALUES (?,?)");
+					.prepareStatement("insert into `"+db+"`.planMantencion (id_equipo,fechaReset) values (?,?)");
 			java.sql.Date hoy = new java.sql.Date(new java.util.Date().getTime());
 			smt.setLong(1, id_equipo);
 			smt.setDate(2, hoy);

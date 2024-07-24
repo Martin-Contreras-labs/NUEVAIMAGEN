@@ -68,13 +68,13 @@ public class ReportMovimientos {
 		try {
 			
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT distinct " +
+					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
 							" ifnull(guia.numGuiaCliente,'') "+
-							" FROM `"+db+"`.movimiento " +
+							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
 							" where id_bodegaEmpresa =  ? and numero is not null " +
@@ -867,13 +867,13 @@ public class ReportMovimientos {
 		Map<String,Double> excedentes = ReportExcedentes.totalExcedentesPorNumCotiCodyBod(con, db, id_bodegaEmpresa);
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT distinct " +
+					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
 							" ifnull(guia.numGuiaCliente,'') "+
-							" FROM `"+db+"`.movimiento " +
+							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
 							" where id_bodegaEmpresa =  ? and numero is not null " +
@@ -961,13 +961,13 @@ public class ReportMovimientos {
 				
 				
 				PreparedStatement smt100 = con
-						.prepareStatement(" SELECT distinct " +
+						.prepareStatement(" select  distinct " +
 								" guia.numero, " +
 								" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 								" tipoMovimiento.nombre, " +
 								" guia.fecha, " +
 								" ifnull(guia.numGuiaCliente,'') "+
-								" FROM `"+db+"`.movimiento " +
+								" from `"+db+"`.movimiento " +
 								" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 								" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
 								" where  movimiento.esVenta= ? and id_bodegaEmpresa =  ? and numero is not null " +
@@ -1417,7 +1417,7 @@ public class ReportMovimientos {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT distinct " +
+					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre " +
@@ -1854,13 +1854,13 @@ public class ReportMovimientos {
 		
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement(" SELECT distinct " +
+					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
 							" ifnull(guia.numGuiaCliente,'') "+
-							" FROM `"+db+"`.movimiento " +
+							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
 							" where id_bodegaEmpresa =  ? and numero is not null " +
@@ -3279,14 +3279,14 @@ public class ReportMovimientos {
 		
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("SELECT distinct "
+					.prepareStatement("select  distinct "
 							+ " if(movimiento.id_compra > 0,factura.numero,guia.numero) as numero,  "
 							+ " if(movimiento.id_compra > 0,concat(day(factura.fecha),'/',month(factura.fecha),'/',year(factura.fecha)),concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha))) as fecha,   "
 							+ " if(movimiento.id_compra > 0,'Factura',if(guia.id_bodegaDestino=1,'Baja',if(movimiento.id_tipoMovimiento=2 and movimiento.esVenta=1,'Venta',if(tipoMovimiento.id=1,'Entrada','Salida')))) as tipo, "
 							+ " if(movimiento.id_guia=0,factura.fecha,guia.fecha) as fecha,  "
 							+ " ifnull(guia.numGuiaCliente,''),  "
 							+ " id_tipoMovimiento "
-							+ " FROM `"+db+"`.movimiento  "
+							+ " from `"+db+"`.movimiento  "
 							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia  "
 							+ " left join `"+db+"`.compra on compra.id = movimiento.id_compra"
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura"
@@ -3675,14 +3675,14 @@ public class ReportMovimientos {
 		
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("SELECT "
+					.prepareStatement("select  "
 							+ " guia.numero, "
 							+ " concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)), "
 							+ " tipoMovimiento.nombre, "
 							+ " guia.fecha, "
 							+ " ifnull(guia.numGuiaCliente,''), "
 							+ " bodegaEmpresa.nombre "
-							+ " FROM `"+db+"`.movimiento "
+							+ " from `"+db+"`.movimiento "
 							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa "
 							+ " left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento "

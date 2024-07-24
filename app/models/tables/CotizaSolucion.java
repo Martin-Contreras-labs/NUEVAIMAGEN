@@ -53,7 +53,7 @@ public class CotizaSolucion {
 		List<CotizaSolucion> lista = new ArrayList<CotizaSolucion>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,solucion FROM `"+db+"`.cotizaSolucion");
+					.prepareStatement("select id,solucion from `"+db+"`.cotizaSolucion");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				if(rs.getLong(1) > 0) {
@@ -72,7 +72,7 @@ public class CotizaSolucion {
 		List<CotizaSolucion> lista = new ArrayList<CotizaSolucion>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,solucion FROM `"+db+"`.cotizaSolucion");
+					.prepareStatement("select id,solucion from `"+db+"`.cotizaSolucion");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new CotizaSolucion(rs.getLong(1),rs.getString(2)));
@@ -89,8 +89,8 @@ public class CotizaSolucion {
 		CotizaSolucion aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,solucion " +
-							" FROM `"+db+"`.cotizaSolucion WHERE id = ?" );
+					.prepareStatement("select id,solucion " +
+							" from `"+db+"`.cotizaSolucion WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -109,7 +109,7 @@ public class CotizaSolucion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.cotizacion WHERE id_cotizaSolucion = ?");
+					.prepareStatement("Select * from `"+db+"`.cotizacion WHERE id_cotizaSolucion = ?");
 			smt1.setLong(1, id_cotizaSolucion);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {
@@ -119,7 +119,7 @@ public class CotizaSolucion {
 			smt1.close();
 			
 			PreparedStatement smt2 = con
-					.prepareStatement("Select * FROM `"+db+"`.cotiOdo WHERE id_cotizaSolucion = ?");
+					.prepareStatement("Select * from `"+db+"`.cotiOdo WHERE id_cotizaSolucion = ?");
 			smt2.setLong(1, id_cotizaSolucion);
 			ResultSet rs2 = smt2.executeQuery();
 			if (rs2.next()) {
@@ -137,7 +137,7 @@ public class CotizaSolucion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("DELETE FROM `"+db+"`.cotizaSolucion WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.cotizaSolucion WHERE id = ?");
 			smt.setLong(1, id_cotizaSolucion);
 			smt.executeUpdate();
 			smt.close();
@@ -152,7 +152,7 @@ public class CotizaSolucion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("SELECT id,solucion FROM `"+db+"`.cotizaSolucion WHERE upper(solucion) = ?" );
+					.prepareStatement("select id,solucion from `"+db+"`.cotizaSolucion WHERE upper(solucion) = ?" );
 			smt.setString(1, nombre_solucion.toUpperCase());
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -170,7 +170,7 @@ public class CotizaSolucion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("UPDATE `"+db+"`.cotizaSolucion SET `"+campo+"` = ? WHERE id = ?");
+					.prepareStatement("update `"+db+"`.cotizaSolucion set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_cotizaSolucion);
 			smt.executeUpdate();
@@ -186,7 +186,7 @@ public class CotizaSolucion {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.cotizaSolucion (solucion) VALUES (?)");		
+					.prepareStatement("insert into `"+db+"`.cotizaSolucion (solucion) values (?)");		
 			smt.setString(1, nombre_solucion.trim());
 			smt.executeUpdate();
 			smt.close();

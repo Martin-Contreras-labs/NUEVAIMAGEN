@@ -4934,6 +4934,7 @@ public class MnuCotizar extends Controller {
 			    					"<TH></TH>"+
 			    					"<TH></TH>"+
 			    					"<TH></TH>"+
+			    					"<TH></TH>"+
 			    					"<TH style='text-align:right;'><div id='totalCant'>0.00</div></TH>"+
 			    					"<TH></TH>"+
 			    					"<TH style='text-align:right;'><div id='totalKG'>0.00</div></TH>"+
@@ -5852,7 +5853,7 @@ public class MnuCotizar extends Controller {
 	    	    				if(newEquipos.length()>1) {
 		    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
 		    	    				PreparedStatement smt = con
-		    	    						.prepareStatement("INSERT INTO `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
+		    	    						.prepareStatement("insert into  `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
 		    	    				smt.executeUpdate();
 		    	    				smt.close();
 		    	    				if(selEquipos.length()>1) {

@@ -561,7 +561,7 @@ public class Movimiento {
 		Boolean flag = false;
 		Guia guia = Guia.find(con, db, id_guia);
 		try {
-			if(guia.numero!=null && (long)guia.numero>(long)0) {
+			if(guia != null && guia.numero!=null) {
 				PreparedStatement smt5 = con
 						.prepareStatement("delete from `"+db+"`.estadoEquipo where id_guia = ?;");
 				smt5.setLong(1, id_guia);
@@ -575,20 +575,21 @@ public class Movimiento {
 				smt6.close();
 				
 				PreparedStatement smt4 = con
-						.prepareStatement(" delete from `"+db+"`.movimiento where id_guia = ? "
-								+ " or id_guia in (select id from `"+db+"`.guia where numGuiaCliente = ?);");
+						.prepareStatement(" delete from `"+db+"`.movimiento where id_guia = ? or id_guia in (select id from `"+db+"`.guia where numGuiaCliente = ?);");
 				smt4.setLong(1, id_guia);
-				smt4.setString(2, "from_"+guia.getNumero()); // elimina los movimientos autogenerados a traves de estados de equipo
+				smt4.setString(2, "from_"+guia.getNumero()); // elimina los movimientos autogenerados por los estados de equipo y la guia
 				smt4.executeUpdate();
 				smt4.close();
 				
 				PreparedStatement smt3 = con
 						.prepareStatement(" delete from `"+db+"`.guia where id = ? or numGuiaCliente = ?;");
 				smt3.setLong(1, id_guia);
-				smt3.setString(2, "from_"+guia.getNumero()); // elimina guias autogeneradas a traves de estados de equipo
+				smt3.setString(2, "from_"+guia.getNumero()); // elimina guia y guias autogeneradas a traves de estados de equipo
 				smt3.executeUpdate();
 				smt3.close();
-			}else {
+				
+				
+			} else {
 				PreparedStatement smt4 = con
 						.prepareStatement(" delete from `"+db+"`.movimiento where id_guia = ?;");
 				smt4.setLong(1, id_guia);
@@ -627,17 +628,6 @@ public class Movimiento {
 				rs.close();
 				smt4.close();
 			}
-//			else {
-//				PreparedStatement smt4 = con
-//						.prepareStatement(" delete from `"+db+"`.movimiento where id_guia = ?;");
-//				smt4.setLong(1, id_guia);
-//				ResultSet rs = smt4.executeQuery();
-//				while(rs.next()) {
-//					lista.add(rs.getString(1));
-//				}
-//				rs.close();
-//				smt4.close();
-//			}
 		} catch (SQLException e) {
 				e.printStackTrace();
 		}
@@ -649,8 +639,8 @@ public class Movimiento {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_compra,id_factura,fecha_factura) " +
-							" VALUES " + insertMovimiento +";");
+					.prepareStatement("insert into `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_compra,id_factura,fecha_factura) " +
+							" values " + insertMovimiento +";");
 			smt.executeUpdate();
 			smt.close();
 			flag = true;
@@ -664,8 +654,8 @@ public class Movimiento {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_baja,id_actaBaja,fecha_actaBaja) " +
-							" VALUES "+insertMovimiento+";");
+					.prepareStatement("insert into `"+db+"`.movimiento (id_bodegaEmpresa,id_equipo,id_tipoMovimiento,cantidad,id_baja,id_actaBaja,fecha_actaBaja) " +
+							" values "+insertMovimiento+";");
 			smt.executeUpdate();
 			smt.close();
 			flag = true;

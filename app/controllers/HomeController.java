@@ -54,7 +54,6 @@ import models.utilities.DatabaseExecutionContext;
 import models.utilities.DatabaseRead;
 import models.utilities.Fechas;
 import models.utilities.Inicio;
-import models.utilities.Integridad;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
 import models.utilities.VerificarCaptcha;
@@ -769,7 +768,6 @@ public class HomeController extends Controller {
 								.addingToSession(request, "aplicaPorSucursal", aplicaPorSucursal);
 	    			}else {
 	    				Registro.accesos(con, inicio.getBaseDato(), userName);
-						Integridad.verifica(con, inicio.getBaseDato(), inicio.id.toString());
 	    				con.close();
 	    				
 	    				return redirect("/home/")
@@ -956,7 +954,6 @@ public class HomeController extends Controller {
     		if(administrador.equals("esAdmin")) {
     			Connection con = dbWrite.getConnection();
         		Usuario usuario = Usuario.findXIdUser(con, baseDato, (long) 1);
-        		Integridad.verifica(con, baseDato, usuario.getId().toString());
         		Long esMoroso = Registro.esMoroso(con, baseDato);
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(baseDato, usuario.getId().toString());
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);

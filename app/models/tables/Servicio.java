@@ -309,8 +309,8 @@ public class Servicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.servicio (codigo, nombre, id_unidadServicio, id_claseServicio, descripcion, id_moneda, fecha, precio) " +
-							" VALUES (?,?,?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.servicio (codigo, nombre, id_unidadServicio, id_claseServicio, descripcion, id_moneda, fecha, precio) " +
+							" values (?,?,?,?,?,?,?,?)");
 			smt.setString(1, aux.codigo.replaceAll("\\,","").trim());
 			smt.setString(2, aux.nombre.trim());
 			smt.setLong(3, aux.id_unidadServicio);
@@ -387,7 +387,7 @@ public class Servicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("UPDATE `"+db+"`.servicio set codigo=?, nombre=?, id_unidadServicio=?, id_claseServicio=?, descripcion=?, id_moneda=?, precio=? where id=?;");
+					.prepareStatement("update `"+db+"`.servicio set codigo=?, nombre=?, id_unidadServicio=?, id_claseServicio=?, descripcion=?, id_moneda=?, precio=? where id=?;");
 			smt2.setString(1, aux.codigo.replaceAll("\\,","").trim());
 			smt2.setString(2, aux.nombre.trim());
 			smt2.setLong(3, aux.id_unidadServicio);
@@ -403,7 +403,7 @@ public class Servicio {
 			
 			if(aux.cambioElprecio.equals("1")){
 				PreparedStatement smt = con
-						.prepareStatement("UPDATE `"+db+"`.servicio set fecha=?, precio=? where id=?;");
+						.prepareStatement("update `"+db+"`.servicio set fecha=?, precio=? where id=?;");
 				smt.setString(1, Fechas.hoy().getFechaStrAAMMDD());
 				smt.setDouble(2, Double.parseDouble(aux.precio.replaceAll(",", "").trim()));
 				smt.setLong(3, aux.id);
@@ -421,7 +421,7 @@ public class Servicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("UPDATE `"+db+"`.servicio set precio=?, fecha=? where id=?;");
+					.prepareStatement("update `"+db+"`.servicio set precio=?, fecha=? where id=?;");
 			smt2.setString(1, valor);
 			smt2.setString(2, fecha);
 			smt2.setLong(3, id_servicio);
@@ -438,7 +438,7 @@ public class Servicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("UPDATE `"+db+"`.servicio set cantMinimo=?, fecha=? where id=?;");
+					.prepareStatement("update `"+db+"`.servicio set cantMinimo=?, fecha=? where id=?;");
 			smt2.setString(1, valor);
 			smt2.setString(2, fecha);
 			smt2.setLong(3, id_servicio);
@@ -455,7 +455,7 @@ public class Servicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("UPDATE `"+db+"`.servicio set precioAdicional=?, fecha=? where id=?;");
+					.prepareStatement("update `"+db+"`.servicio set precioAdicional=?, fecha=? where id=?;");
 			smt2.setString(1, valor);
 			smt2.setString(2, fecha);
 			smt2.setLong(3, id_servicio);
@@ -472,7 +472,7 @@ public class Servicio {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("Select * FROM `"+db+"`.ventaServicio WHERE id_servicio = ?");
+					.prepareStatement("Select * from `"+db+"`.ventaServicio WHERE id_servicio = ?");
 			smt1.setLong(1, id_servicio);
 			ResultSet rs1 = smt1.executeQuery();
 			if (rs1.next()) {

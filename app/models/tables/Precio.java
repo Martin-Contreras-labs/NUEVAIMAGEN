@@ -461,7 +461,7 @@ public class Precio {
 			Double numero = myformatdouble.parse(valor.trim()).doubleValue();
 			java.sql.Date sqlDate = new java.sql.Date(fecha.getTime());
 			PreparedStatement smt1 = con
-						.prepareStatement("UPDATE `"+db+"`.precio SET `" + campo + "` = ?, fecha = ?" +
+						.prepareStatement("update `"+db+"`.precio set `" + campo + "` = ?, fecha = ?" +
 								" WHERE id_sucursal = ? and id_equipo = ?;");
 			smt1.setDouble(1, numero);
 			smt1.setDate(2, sqlDate);
@@ -472,7 +472,7 @@ public class Precio {
 	
 			if(campo.equals("precioVenta")) {
 				PreparedStatement smt2 = con
-						.prepareStatement("UPDATE `"+db+"`.precio SET precioReposicion = precioVenta "
+						.prepareStatement("update `"+db+"`.precio set precioReposicion = precioVenta "
 								+ " WHERE id_sucursal = ? and id_equipo = ?;");
 				smt2.setString(1, idSucursal.trim());
 				smt2.setString(2, idEquipo.trim());
@@ -604,7 +604,7 @@ public class Precio {
 				aux = aux.substring(0,aux.length()-1);
 				
 				PreparedStatement smt = con
-						.prepareStatement("INSERT INTO `"+db+"`.precio (id_sucursal, id_equipo, fecha) VALUES " + aux +");");
+						.prepareStatement("insert into `"+db+"`.precio (id_sucursal, id_equipo, fecha) values " + aux +");");
 				smt.executeUpdate();
 				smt.close();
 				
@@ -624,8 +624,8 @@ public class Precio {
 		Fechas hoy = Fechas.hoy();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.precio (id_sucursal, id_equipo, id_moneda, fecha, precioVenta, precioReposicion) "
-							+ " VALUES (?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.precio (id_sucursal, id_equipo, id_moneda, fecha, precioVenta, precioReposicion) "
+							+ " values (?,?,?,?,?,?)");
 			smt.setLong(1, id_sucursal);
 			smt.setLong(2, id_equipo);
 			smt.setLong(3, id_moneda);
@@ -1055,7 +1055,7 @@ public class Precio {
 				tasaArriendo = pArr/pRep;
 			}
 			PreparedStatement smt1 = con
-						.prepareStatement("UPDATE `"+db+"`.precio SET precioVenta=?, precioReposicion=?, tasaArriendo=?, precioArriendo=?, precioMinimo=?, permanenciaMinima=?, fecha=? " +
+						.prepareStatement("update `"+db+"`.precio set precioVenta=?, precioReposicion=?, tasaArriendo=?, precioArriendo=?, precioMinimo=?, permanenciaMinima=?, fecha=? " +
 								" WHERE id_sucursal = ? and id_equipo = ?;");
 			smt1.setString(1, precio.getPrecioVenta());
 			smt1.setString(2, precio.getPrecioReposicion());

@@ -213,7 +213,7 @@ public class Atributo{
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("Select * FROM `"+db+"`.atributoEquipo WHERE id_atributo = ?");
+					.prepareStatement("Select * from `"+db+"`.atributoEquipo WHERE id_atributo = ?");
 			smt.setLong(1, id_atributo);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -231,8 +231,8 @@ public class Atributo{
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.atributo (id_grupo,atributo,id_unidad,esNumerico) " +
-							" VALUES (?,?,?,?)");		
+					.prepareStatement("insert into `"+db+"`.atributo (id_grupo,atributo,id_unidad,esNumerico) " +
+							" values (?,?,?,?)");		
 			smt.setLong(1, atributo.getId_grupo());
 			smt.setString(2, atributo.getAtributo().trim());
 			smt.setLong(3, atributo.getId_unidad());
@@ -250,7 +250,7 @@ public class Atributo{
 		boolean flag = false;
 		try {
 			PreparedStatement smt2 = con
-					.prepareStatement("DELETE FROM `"+db+"`.atributo WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.atributo WHERE id = ?");
 			smt2.setLong(1,id_atributo);
 			smt2.executeUpdate();
 			smt2.close();
@@ -314,7 +314,7 @@ public class Atributo{
 			ResultSet rs1 = smt1.executeQuery();
 			if(rs1.next()){
 				PreparedStatement smt2 = con
-						.prepareStatement("UPDATE `"+db+"`.atributoEquipo SET strAtributo = ?, numAtributo =  ?" +
+						.prepareStatement("update `"+db+"`.atributoEquipo set strAtributo = ?, numAtributo =  ?" +
 								" WHERE id_atributo = ? and id_equipo =  ?;" );
 				smt2.setString(1, strAtributo.trim());
 				smt2.setDouble(2, numAtributo);
@@ -356,8 +356,8 @@ public class Atributo{
 		}
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.atributoEquipo (id_equipo,id_atributo,strAtributo,numAtributo) " +
-							" VALUES (?,?,?,?);");
+					.prepareStatement("insert into `"+db+"`.atributoEquipo (id_equipo,id_atributo,strAtributo,numAtributo) " +
+							" values (?,?,?,?);");
 			smt.setLong(1, id_Equipo);
 			smt.setLong(2, id_atributo);
 			smt.setString(3, strValor.trim());

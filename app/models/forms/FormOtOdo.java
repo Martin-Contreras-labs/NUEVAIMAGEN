@@ -75,7 +75,7 @@ public class FormOtOdo {
 			
 			
 			PreparedStatement smt = con
-					.prepareStatement("INSERT INTO `"+db+"`.otOdo (id_cotiOdo, numero, fecha, observaciones, id_operadorServicio, fechaActualizacion, fechaEnvio) " +
+					.prepareStatement("insert into  `"+db+"`.otOdo (id_cotiOdo, numero, fecha, observaciones, id_operadorServicio, fechaActualizacion, fechaEnvio) " +
 							" VALUES (?,?,?,?,?,?,?)");
 			smt.setLong(1, form.id_cotiOdo);
 			smt.setLong(2, form.numeroOt);
