@@ -29,10 +29,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
-import models.tables.Atributo;
 import models.tables.Cliente;
 import models.tables.CotizaEstado;
 import models.tables.CotizaSolucion;
+import models.tables.Equipo;
 import models.tables.Ot;
 import models.tables.Proyecto;
 import models.tables.Sucursal;
@@ -220,8 +220,10 @@ public class ReportCotizaciones {
 			ResultSet rs = smt.executeQuery();
 			
 			Map<String,List<Double>> mapDatosAux = new HashMap<String,List<Double>>();
-			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, db);
+			
 			Map<String,TasasCambio> mapAllTasas = TasasCambio.mapTasasporAllFecha(con, db, pais);
+			
+			Map<Long, Equipo> mapEquipos = Equipo.mapAllAll(con, db);
 			
 			while(rs.next()) {
 				
@@ -270,9 +272,9 @@ public class ReportCotizaciones {
 						total = cantidad * precioArriendo * permanencia * valorTasa;
 					}
 					
-					Double auxPeso = mapPeso.get(id_equipo);
-					if(auxPeso!=null) {
-						peso = cantidad * auxPeso;
+					Equipo equipo = mapEquipos.get(id_equipo);
+					if(equipo != null) {
+						peso = cantidad * equipo.getKg();
 					}
 					
 					List<Double> lista = new ArrayList<Double>();
@@ -290,9 +292,9 @@ public class ReportCotizaciones {
 						total = cantidad * precioArriendo * permanencia * valorTasa;
 					}
 					
-					Double auxPeso = mapPeso.get(id_equipo);
-					if(auxPeso!=null) {
-						peso = cantidad * auxPeso;
+					Equipo equipo = mapEquipos.get(id_equipo);
+					if(equipo != null) {
+						peso = cantidad * equipo.getKg();
 					}
 					
 					total += auxMapDatos.get(0);

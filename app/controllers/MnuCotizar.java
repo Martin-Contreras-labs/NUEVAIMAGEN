@@ -27,7 +27,6 @@ import models.forms.FormDespacho;
 import models.forms.FormMovimiento;
 import models.forms.FormOt;
 import models.reports.ReportCotizaciones;
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Comercial;
@@ -4330,9 +4329,7 @@ public class MnuCotizar extends Controller {
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-	    			List<List<String>> listaEquipos = OtDespachado.listEquipoConStock(con, s.baseDato, mapeoPermiso, id_bodegaOrigen, mapGrupo, mapEquipo, mapCotizacion, mapPeso, mapM2);
+	    			List<List<String>> listaEquipos = OtDespachado.listEquipoConStock(con, s.baseDato, mapeoPermiso, id_bodegaOrigen, mapGrupo, mapEquipo, mapCotizacion);
 	    			con.close();
 	    			if(listaEquipos.size()>0) {
 	    				return ok(Json.toJson(listaEquipos).toString()).as("application/json");
@@ -4663,9 +4660,7 @@ public class MnuCotizar extends Controller {
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
-	    			List<List<String>> listEquipoConStock = OtDespachado.listEquipoConStock(con, s.baseDato, mapeoPermiso, guia.getId_bodegaOrigen(), mapGrupo, mapEquipo, mapCotizacion, mapPeso, mapM2);
+	    			List<List<String>> listEquipoConStock = OtDespachado.listEquipoConStock(con, s.baseDato, mapeoPermiso, guia.getId_bodegaOrigen(), mapGrupo, mapEquipo, mapCotizacion);
 
 	    			Map<String,Double> mapCantDespAgrupPorEquip = new HashMap<String,Double>();
 	    			List<List<String>> detalleDespachado = new ArrayList<List<String>>();
@@ -4685,15 +4680,9 @@ public class MnuCotizar extends Controller {
 		    						auxStock += Double.parseDouble(stock.get(9).replaceAll(",", ""));
 		    					}
 		    				}
-		    				Double peso = mapPeso.get(lista.getId_equipoDespacho()); 
-		    				if(peso == null){
-		    					peso = (double)0;
-		    				}
-		    				Double m2 = mapM2.get(lista.getId_equipoDespacho()); 
-		    				if(m2 == null){
-		    					m2 = (double)0;
-		    				}
-		    				Double kgTot = lista.getCantidadDespacho() * peso;
+		    				Double kg = equipo.getKg(); 
+	        				Double m2 = equipo.getM2();
+		    				Double kgTot = lista.getCantidadDespacho() * kg;
 		    				Double m2Tot = lista.getCantidadDespacho() * m2;
 		    				
 		    				List<String> aux = new ArrayList<String>();
@@ -4710,7 +4699,7 @@ public class MnuCotizar extends Controller {
 		    				aux.add(myformatdouble2.format(lista.getCantidadRebajaOt()));		// 9 cantidadRebajaOt
 		    				aux.add(myformatdouble2.format(kgTot));								// 10 kgTot
 		    				aux.add(myformatdouble2.format(m2Tot));								// 11 m2Tot
-		    				aux.add(peso.toString());											// 12 kgUni
+		    				aux.add(kg.toString());											// 12 kgUni
 		    				aux.add(m2.toString());												// 13 m2Uni
 		    				aux.add(lista.getId_cotizacion().toString());						// 14 id_cotizacion
 		    				detalleDespachado.add(aux);
@@ -6150,13 +6139,12 @@ public class MnuCotizar extends Controller {
 	    			
 	    			List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
 	    			Map<Long,Precio> mapPrecio = Precio.mapVigPorSucursal(con, s.baseDato, mapeoDiccionario, (long)1);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
 	    			
 	    			Fechas hoy = Fechas.hoy();
 	    			Map<Long,Double> mapTasas = TasasCambio.mapTasasPorFecha(con, s.baseDato, hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
 	    			Map<Long,Double> equivTiempo = UnidadTiempo.equivalencia(con, s.baseDato);
 	    			
-	    			File file = Coti8columnas.downloadPlantilla(s.baseDato, mapeoDiccionario, listEquipo, mapPrecio, mapPeso, mapTasas,equivTiempo);
+	    			File file = Coti8columnas.downloadPlantilla(s.baseDato, mapeoDiccionario, listEquipo, mapPrecio, mapTasas,equivTiempo);
 	    			con.close();
 	    			return ok(file,false,Optional.of("cotizacion8columnas.xlsx"));
 	       		} catch (SQLException e) {

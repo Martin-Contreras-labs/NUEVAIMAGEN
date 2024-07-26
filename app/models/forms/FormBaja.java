@@ -11,7 +11,6 @@ import java.util.Map;
 
 import models.calculo.Inventarios;
 import models.tables.ActaBaja;
-import models.tables.Atributo;
 import models.tables.Baja;
 import models.tables.Cotizacion;
 import models.tables.Equipo;
@@ -66,8 +65,6 @@ public class FormBaja {
 		Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, db);
 		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
 		Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);
-		Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, db);
-		Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, db);
 		List<List<String>> listEquipEnBodBaja = new ArrayList<List<String>>();
 		map.forEach((k,v)->{
 			if(v.getCantidad()>0) {
@@ -76,8 +73,8 @@ public class FormBaja {
 					Grupo grupo = mapGrupo.get(equipo.getId_grupo());
 					Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
 					Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
-					Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-					Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
+					Double kg = equipo.getKg();
+					Double m2 = equipo.getM2();
 					Precio precio = mapPrecio.get(v.getId_equipo());
 					String moneda = "", pcompra = "";
 					Double auxPcompra = (double) 0;
@@ -104,7 +101,7 @@ public class FormBaja {
 					aux.add(numCoti.toString()); 						// 3 numero cotizacion
 					aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
 					aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-					aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+					aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
 					aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
 					aux.add(equipo.getUnidad());						// 8 unidad
 					aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
@@ -288,7 +285,7 @@ public class FormBaja {
 			} else if(baja != null && bodOrigen == null) {
 				Equipo equipo = mapEquipo.get(k);
 				if(equipo!=null) {
-					Double kg = equipo.getKG();
+					Double kg = equipo.getKg();
 					Double m2 = equipo.getM2();
 					Double stock = baja.getCantidad();
 					Double cant = stock;

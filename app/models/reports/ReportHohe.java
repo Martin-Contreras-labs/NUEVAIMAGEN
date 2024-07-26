@@ -25,7 +25,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.CotizaDetalle;
@@ -55,16 +54,6 @@ public class ReportHohe {
 		List<List<String>> datos = new ArrayList<List<String>>();
 			try {
 				
-				PreparedStatement smt100 = con
-						.prepareStatement("select id from `"+db+"`.atributo where atributo like '%peso%';");
-				ResultSet rs100 = smt100.executeQuery();
-				List<String> auxLista = new ArrayList<String>();
-				while (rs100.next()) {
-					auxLista.add(rs100.getString(1));
-				}
-				rs100.close();smt100.close();
-				String condicion = auxLista.toString();
-				condicion = condicion.replace("[", "").replace("]", "");
 				
 					PreparedStatement smt = con
 							.prepareStatement(" select "
@@ -74,9 +63,8 @@ public class ReportHohe {
 						/*4*/	+ "ifnull(g.id,'NA') as id_guia, "
 						/*5*/	+ "e.id as id_equipo, "
 						/*6*/	+ "gr.id as id_grupo, "
-						/*7*/	+ "if(m.id_tipoMovimiento=2,-1,1)*m.cantidad as cantidad, "
-						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1)*m.cantidad* ifnull((select numAtributo from `"+db+"`.atributoEquipo " +
-									" where id_atributo in ("+condicion+") and id_equipo=e.id),0) as peso, "
+						/*7*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad as cantidad, "
+						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad * equipo.kg as peso, "
 						/*9*/	+ "b.nombre as bodegaEmpresa, "
 						/*10*/	+ "ifnull((select nombre from `"+db+"`.bodegaEmpresa where id = m.id_bodegaOrigen),'NA') as origen, "
 						/*11*/	+ "t.nombre as tipoMovimiento, "
@@ -112,7 +100,6 @@ public class ReportHohe {
 									" left join `"+db+"`.guia as g on g.id=m.id_guia "+
 									" left join `"+db+"`.equipo as e on e.id=m.id_equipo "+
 									" left join `"+db+"`.grupo as gr on gr.id=e.id_grupo "+
-									// " left join `"+db+"`.precio as p on p.id_equipo = m.id_equipo "+
 									" left join `"+db+"`.listaPrecio as lp on lp.id_equipo = m.id_equipo and lp.id_bodegaEmpresa = m.id_bodegaEmpresa "+ 
 									" and lp.id_cotizacion = m.id_cotizacion "+
 									" left join `"+db+"`.compra as c on c.id = m.id_compra "+
@@ -363,16 +350,6 @@ public class ReportHohe {
 		List<List<String>> datos = new ArrayList<List<String>>();
 			try {
 				
-				PreparedStatement smt100 = con
-						.prepareStatement("select id from `"+db+"`.atributo where atributo like '%peso%';");
-				ResultSet rs100 = smt100.executeQuery();
-				List<String> auxLista = new ArrayList<String>();
-				while (rs100.next()) {
-					auxLista.add(rs100.getString(1));
-				}
-				rs100.close();smt100.close();
-				String condicion = auxLista.toString();
-				condicion = condicion.replace("[", "").replace("]", "");
 				
 					PreparedStatement smt = con
 							.prepareStatement(" select "
@@ -382,9 +359,8 @@ public class ReportHohe {
 						/*4*/	+ "ifnull(g.id,'NA') as id_guia, "
 						/*5*/	+ "e.id as id_equipo, "
 						/*6*/	+ "gr.id as id_grupo, "
-						/*7*/	+ "if(m.id_tipoMovimiento=2,-1,1)*m.cantidad as cantidad, "
-						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1)*m.cantidad* ifnull((select numAtributo from `"+db+"`.atributoEquipo " +
-									" where id_atributo in ("+condicion+") and id_equipo=e.id),0) as peso, "
+						/*7*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad as cantidad, "
+						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad * equipo.kg as peso, "
 						/*9*/	+ "b.nombre as bodegaEmpresa, "
 						/*10*/	+ "ifnull((select nombre from `"+db+"`.bodegaEmpresa where id = m.id_bodegaOrigen),'NA') as origen, "
 						/*11*/	+ "t.nombre as tipoMovimiento, "
@@ -1757,7 +1733,14 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				
 				PreparedStatement smt = con
-						.prepareStatement(" select equipo.id, equipo.codigo, equipo.nombre,equipo.id_grupo,grupo.nombre " + 
+						.prepareStatement(" select"
+								+ " equipo.id,"
+								+ " equipo.codigo,"
+								+ " equipo.nombre,"
+								+ " equipo.id_grupo,"
+								+ " grupo.nombre, "
+								+ " equipo.kg,"
+								+ " equipo.m2" +
 								" from `"+db+"`.equipo left join `"+db+"`.grupo on grupo.id=equipo.id_grupo " + 
 								" where equipo.id in ("+listaCond+") " + 
 								" order by equipo.nombre;");
@@ -1854,18 +1837,12 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 			
 			
 			List<List<String>> listaBodegas = ReportInventarios.listaBodegasConStock(con, db, corte);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
 				
 			for(int i=0;i<listaEquipos.size();i++) {
-				Double kgHohe = pesos.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-				if(kgHohe==null) {
-					kgHohe = (double)0; 
-				}
-				Double supM2Hohe = m2.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-				if(supM2Hohe==null) {
-					supM2Hohe = (double)0;
-				}
+				
+				Double kg = Double.parseDouble(listaEquipos.get(i).get(6).trim());
+				Double m2 = Double.parseDouble(listaEquipos.get(i).get(7).trim());
+				
 				for(int j=0;j<listaBodegas.size();j++) {
 					Double cantAux = mapCantidades.get(listaBodegas.get(j).get(0)+"_"+listaEquipos.get(i).get(0));
 					if(cantAux==null) cantAux=(double)0;
@@ -1882,8 +1859,8 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 						aux.add(listaEquipos.get(i).get(0));	//4 id_equipo
 						aux.add(listaEquipos.get(i).get(1));	//5 codigo
 						aux.add(listaEquipos.get(i).get(2));	//6 equipo
-						aux.add(kgHohe.toString());				//7 kg
-						aux.add(supM2Hohe.toString());			//8 m2
+						aux.add(kg.toString());				//7 kg
+						aux.add(m2.toString());			//8 m2
 						aux.add(cantAux.toString());			//9 CANTIDAD
 						aux.add(tipo);							//10 tipo arr o vta
 						// MAPEA ID_BODEGA, ID_EQUIPO, TIPO(VTA ARR TODO) , LIST AUX
@@ -2008,7 +1985,7 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 					aux.add(equipo.getId().toString());			//4 id_equipo
 					aux.add(equipo.getCodigo());				//5 codigo
 					aux.add(equipo.getNombre());				//6 equipo
-					aux.add(equipo.getKG().toString());			//7 kg
+					aux.add(equipo.getKg().toString());			//7 kg
 					aux.add(equipo.getM2().toString());			//8 m2
 					aux.add(v.toString());						//9 CANTIDAD
 					aux.add(tipo);								//10 tipo arr o vta

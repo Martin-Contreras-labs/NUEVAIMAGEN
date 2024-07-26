@@ -95,6 +95,30 @@ equipo: tables.Equipo, listGrupos: List[tables.Grupo], listAtributos: List[table
 						</td>
 					</tr>
 					<tr>
+						<td style="text-align:left; vertical-align:top">PESO (KG): </td>
+						<td style="text-align:left; vertical-align:top">
+							<input type="text" class="form-control left"
+								id="kg"
+								autocomplete="off"
+								value="@equipo.getKg()"
+								onfocus="value=value.replace(/,/g,'')" 
+								onkeypress="return ingresoDouble(event,value)"
+								onchange="modificarEquipo(id); value = formatStandar(value,2);">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left; vertical-align:top">AREA (M2): </td>
+						<td style="text-align:left; vertical-align:top">
+							<input type="text" class="form-control left"
+								id="m2"
+								autocomplete="off"
+								value="@equipo.getM2()"
+								onfocus="value=value.replace(/,/g,'')" 
+								onkeypress="return ingresoDouble(event,value)"
+								onchange="modificarEquipo(id); value = formatStandar(value,2);">
+						</td>
+					</tr>
+					<tr>
 						<td colspan="2" style="text-align:left">
 							<font color="#008000"> ATRIBUTOS: 
 							@if(listAtributos.size()==0) {

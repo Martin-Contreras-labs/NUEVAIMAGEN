@@ -144,22 +144,28 @@ public class OtDespachado {
 	
 	public static List<List<String>> listSumaDespachadoPorIdOtCantDesp(Connection con, String db, Long idOt) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select otDespachado.id_ot, otDespachado.id_equipoOrigen, otDespachado.id_equipoDespacho, equipo.codigo, equipo.nombre, " +
-							" unidad.nombre,sum(cantidadDespacho),sum(cantidadRebajaOt) " +
+					.prepareStatement(" select "
+							+ " otDespachado.id_ot, "
+							+ " otDespachado.id_equipoOrigen, "
+							+ " otDespachado.id_equipoDespacho, "
+							+ " equipo.codigo, equipo.nombre, " 
+							+ " unidad.nombre,"
+							+ " sum(cantidadDespacho),"
+							+ " sum(cantidadRebajaOt), "
+							+ " equipo.kg " +
 							" from `"+db+"`.otDespachado " +
 							" left join `"+db+"`.equipo on equipo.id = otDespachado.id_equipoDespacho " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
 							" where otDespachado.id_ot=? group by otDespachado.id_equipoOrigen, otDespachado.id_equipoDespacho" +
 							" order by equipo.nombre;");
 			smt.setLong(1, idOt);
+			
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				
-				Double peso = pesos.get(rs.getLong(3));
-				if(peso==null) peso=(double)0;
+				Double kg = rs.getDouble(8);
 				
 				
 				List<String> aux = new ArrayList<String>();
@@ -172,7 +178,7 @@ public class OtDespachado {
 				aux.add(myformatdouble.format(rs.getDouble(7))); 	// 6 cantidadDespacho
 				aux.add(myformatdouble.format(rs.getDouble(8))); 	// 7 cantidadRebajaOt
 				
-				aux.add(myformatdouble.format(rs.getDouble(7) * peso)); 	// 8 total kg despachados
+				aux.add(myformatdouble.format(rs.getDouble(7) * kg)); 	// 8 total kg despachados
 				
 				lista.add(aux);
 			}
@@ -330,7 +336,7 @@ public class OtDespachado {
 	}
 	
 	public static List<List<String>> listEquipoConStock (Connection con, String db, Map<String,String> mapeoPermiso, Long id_bodegaOrigen,
-			Map<Long,Grupo> mapGrupo, Map<Long,Equipo> mapEquipo, Map<Long,Cotizacion> mapCotizacion, Map<Long,Double> mapPeso, Map<Long,Double> mapM2){
+			Map<Long,Grupo> mapGrupo, Map<Long,Equipo> mapEquipo, Map<Long,Cotizacion> mapCotizacion){
     	List<List<String>> lista = new ArrayList<List<String>>();
     	Long soloArriendo = (long) 1;
 		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
@@ -360,14 +366,8 @@ public class OtDespachado {
 					if(coti != null){
 						numCoti = coti.getNumero();
 					}
-					Double peso = mapPeso.get(v.getId_equipo()); 
-					if(peso == null){
-						peso = (double)0;
-					}
-					Double m2 = mapM2.get(v.getId_equipo()); 
-					if(m2 == null){
-						m2 = (double)0;
-					}
+					Double kg = equipo.getKg(); 
+    				Double m2 = equipo.getM2();
 					List<String> aux = new ArrayList<String>();
 					aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
 					aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
@@ -375,7 +375,7 @@ public class OtDespachado {
 					aux.add(numCoti.toString()); 						// 3 numero cotizacion
 					aux.add(codEquip); 									// 4 codigo de equipo
 					aux.add(nomEquipo); 								// 5 nombre de equipo
-					aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+					aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
 					aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
 					aux.add(unidEquip);									// 8 unidad
 					aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible

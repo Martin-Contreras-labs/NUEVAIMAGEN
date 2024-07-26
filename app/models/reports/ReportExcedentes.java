@@ -30,7 +30,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Equipo;
 import models.tables.Sucursal;
@@ -250,7 +249,9 @@ public class ReportExcedentes {
 								" equipo.nombre, " +
 								" movimiento.id_cotizacion, " +
 								" ifnull(cotizacion.numero,0), " +
-								" equipo.id " +
+								" equipo.id, " +
+								" equipo.kg, " +
+								" equipo.m2 " +
 								" from `"+db+"`.movimiento " + 
 								" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
 								" left join `"+db+"`.equipo on equipo.id=movimiento.id_equipo " + 
@@ -271,6 +272,8 @@ public class ReportExcedentes {
 					aux.add(rs3.getString(4)); //  8	3 id cotizacion
 					aux.add(rs3.getString(5)); //  9	4 numero coti
 					aux.add(rs3.getString(6)); //  10	5 idequipo
+					aux.add(rs3.getString(7)); //  10	6 kg
+					aux.add(rs3.getString(8)); //  10	7 m2
 					listaCodigos.add(aux);
 				}
 				rs3.close();
@@ -304,10 +307,6 @@ public class ReportExcedentes {
 				lista.add(fechGuia);
 				lista.add(blanco);
 				
-				
-				Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-				Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
-				
 				String auxiliarDeReparacion="";
 				for(int i=0;i<listaCodigos.size();i++){
 					String dePaso = listaCodigos.get(i).get(0)+listaCodigos.get(i).get(4)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2);
@@ -322,19 +321,19 @@ public class ReportExcedentes {
 						aux.add(listaCodigos.get(i).get(2)); //equipo
 						
 						// kg por unidad
-						Double kg = pesos.get(Long.parseLong(listaCodigos.get(i).get(5).trim()));
-						if(kg==null) {
-							aux.add(""); 
+						Double kg = Double.parseDouble(listaCodigos.get(i).get(6).trim());
+						if(kg > 0) {
+							aux.add(myformatdouble2.format(kg));
 						}else {
-							aux.add(myformatdouble2.format(kg)); 
+							aux.add(""); 
 						}
 						
 						// m2 por unidad
-						Double supM2 = m2.get(Long.parseLong(listaCodigos.get(i).get(5).trim()));
-						if(supM2==null) {
-							aux.add("");
+						Double m2 =  Double.parseDouble(listaCodigos.get(i).get(7).trim());
+						if(m2 > 0) {
+							aux.add(myformatdouble2.format(m2));
 						}else {
-							aux.add(myformatdouble2.format(supM2));
+							aux.add("");
 						}
 						aux.add("");
 						

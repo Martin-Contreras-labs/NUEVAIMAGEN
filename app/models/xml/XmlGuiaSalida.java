@@ -271,7 +271,6 @@ public class XmlGuiaSalida {
 							
 							
 					
-					Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
 					
 			
 	   				for(int i=0;i<detalleGuia.size();i++) {
@@ -309,10 +308,9 @@ public class XmlGuiaSalida {
 							String valPrcItem = auxPUnitario.toString();
 							String valMontoItem = auxPTotal.toString();
 							
-							Double KG = (double)0;
-							try{KG=pesos.get(Long.parseLong(detalleGuia.get(i).get(2).trim()));}catch(Exception e){}
-							if(KG==null) KG = (double)0;
-							Double auxTotalKG =(double) Math.round(KG*cantidad*100)/100;
+							Double kg = Double.parseDouble(detalleGuia.get(i).get(36));
+							
+							Double auxTotalKG =(double) Math.round(kg*cantidad*100)/100;
 							if(auxTotalKG==0) auxTotalKG=0.01;
 							
 							String valUnmdRef="KG";

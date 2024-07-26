@@ -372,10 +372,27 @@ public class CotizaDetalle {
 		List<CotizaDetalle> lista = new ArrayList<CotizaDetalle>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cotizaDetalle.id,id_cotizacion,id_equipo,id_moneda,precioVenta,precioReposicion,"+
-							" precioArriendo,id_unidadTiempo,cantidad,permanencia,esVenta," + 
-							" equipo.codigo,equipo.nombre,moneda.nickName,unidadTiempo.nombre,unidad.nombre,equipo.id_grupo,grupo.nombre" + 
+					.prepareStatement("select "
+							+ " cotizaDetalle.id,"
+							+ " id_cotizacion,"
+							+ " id_equipo,"
+							+ " id_moneda,"
+							+ " precioVenta,"
+							+ " precioReposicion,"
+							+ " precioArriendo,"
+							+ " id_unidadTiempo,"
+							+ " cantidad,"
+							+ " permanencia,"
+							+ " esVenta,"
+							+ " equipo.codigo,"
+							+ " equipo.nombre,"
+							+ " moneda.nickName,"
+							+ " unidadTiempo.nombre,"
+							+ " unidad.nombre,"
+							+ " equipo.id_grupo,"
+							+ " ifnull(grupo.nombre,''),"
+							+ " equipo.kg,"
+							+ " equipo.m2" + 
 							" from `"+db+"`.cotizaDetalle" + 
 							" left join `"+db+"`.equipo on equipo.id=cotizaDetalle.id_equipo" + 
 							" left join `"+db+"`.moneda on moneda.id=cotizaDetalle.id_moneda" + 
@@ -386,8 +403,6 @@ public class CotizaDetalle {
 			ResultSet rs = smt.executeQuery();
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			
 			while (rs.next()) {
 				Long idMoneda = (long) 1;
@@ -400,17 +415,15 @@ public class CotizaDetalle {
 				 default:  break;
 				}
 				
-				Double peso = pesos.get(rs.getLong(3));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(3));
-				if(sup==null) sup=(double)0;
+				Double kg = rs.getDouble(19);
+				Double m2 = rs.getDouble(20);
 				
 				String totalReposicion = myformatdouble.format(rs.getDouble(9)*rs.getDouble(6));
 				String totalArriendo = myformatdouble.format(rs.getDouble(9)*rs.getDouble(7)*rs.getDouble(10));
 				String totalVenta = myformatdouble.format(rs.getDouble(9)*rs.getDouble(5));
 				
-				String totalKG = myformatdouble2.format(rs.getDouble(9)*peso);
-				String totalM2 = myformatdouble2.format(rs.getDouble(9)*sup);
+				String totalKg = myformatdouble2.format(rs.getDouble(9)*kg);
+				String totalM2 = myformatdouble2.format(rs.getDouble(9)*m2);
 				
 				String cantidad = myformatdouble2.format(rs.getDouble(9));
 				
@@ -424,7 +437,7 @@ public class CotizaDetalle {
 						rs.getLong(4),myformatdouble.format(rs.getDouble(5)),myformatdouble.format(rs.getDouble(6)),
 						myformatdouble.format(rs.getDouble(7)),rs.getLong(8),cantidad,rs.getDouble(10),rs.getLong(11),
 						rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),totalReposicion,
-						totalArriendo,totalVenta,totalKG,totalM2,rs.getLong(17),rs.getString(18)));
+						totalArriendo,totalVenta,totalKg,totalM2,rs.getLong(17),rs.getString(18)));
 				
 			}
 			rs.close();smt.close();
@@ -438,10 +451,27 @@ public class CotizaDetalle {
 		List<CotizaDetalle> lista = new ArrayList<CotizaDetalle>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cotizaDetalle.id,id_cotizacion,id_equipo,id_moneda,precioVenta,precioReposicion,"+
-							" precioArriendo,id_unidadTiempo,cantidad,permanencia,esVenta," + 
-							" equipo.codigo,equipo.nombre,moneda.nickName,unidadTiempo.nombre,unidad.nombre,equipo.id_grupo,ifnull(grupo.nombre,'')" + 
+					.prepareStatement("select "
+							+ " cotizaDetalle.id,"
+							+ " id_cotizacion,"
+							+ " id_equipo,"
+							+ " id_moneda,"
+							+ " precioVenta,"
+							+ " precioReposicion,"
+							+ " precioArriendo,"
+							+ " id_unidadTiempo,"
+							+ " cantidad,"
+							+ " permanencia,"
+							+ " esVenta,"
+							+ " equipo.codigo,"
+							+ " equipo.nombre,"
+							+ " moneda.nickName,"
+							+ " unidadTiempo.nombre,"
+							+ " unidad.nombre,"
+							+ " equipo.id_grupo,"
+							+ " ifnull(grupo.nombre,''),"
+							+ " equipo.kg,"
+							+ " equipo.m2" + 
 							" from `"+db+"`.cotizaDetalle" + 
 							" left join `"+db+"`.equipo on equipo.id=cotizaDetalle.id_equipo" + 
 							" left join `"+db+"`.moneda on moneda.id=cotizaDetalle.id_moneda" + 
@@ -453,8 +483,6 @@ public class CotizaDetalle {
 
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			
 			while (rs.next()) {
 				Long idMoneda = (long) 1;
@@ -467,17 +495,15 @@ public class CotizaDetalle {
 				 default:  break;
 				}
 				
-				Double peso = pesos.get(rs.getLong(3));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(3));
-				if(sup==null) sup=(double)0;
+				Double kg = rs.getDouble(19);
+				Double m2 = rs.getDouble(20);
 				
 				String totalReposicion = myformatdouble.format(rs.getDouble(9)*rs.getDouble(6));
 				String totalArriendo = myformatdouble.format(rs.getDouble(9)*rs.getDouble(7)*rs.getDouble(10));
 				String totalVenta = myformatdouble.format(rs.getDouble(9)*rs.getDouble(5));
 				
-				String totalKG = myformatdouble2.format(rs.getDouble(9)*peso);
-				String totalM2 = myformatdouble2.format(rs.getDouble(9)*sup);
+				String totalKg = myformatdouble2.format(rs.getDouble(9)*kg);
+				String totalM2 = myformatdouble2.format(rs.getDouble(9)*m2);
 				
 				String cantidad = myformatdouble2.format(rs.getDouble(9));
 				
@@ -491,7 +517,7 @@ public class CotizaDetalle {
 						rs.getLong(4),myformatdouble.format(rs.getDouble(5)),myformatdouble.format(rs.getDouble(6)),
 						myformatdouble.format(rs.getDouble(7)),rs.getLong(8),cantidad,rs.getDouble(10),rs.getLong(11),
 						rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),totalReposicion,
-						totalArriendo,totalVenta,totalKG,totalM2,rs.getLong(17),rs.getString(18)));
+						totalArriendo,totalVenta,totalKg,totalM2,rs.getLong(17),rs.getString(18)));
 				
 			}
 			rs.close();smt.close();
@@ -535,10 +561,27 @@ public class CotizaDetalle {
 		List<CotizaDetalle> lista = new ArrayList<CotizaDetalle>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cotizaDetalle.id,id_cotizacion,id_equipo,id_moneda,precioVenta,precioReposicion,"+
-							" precioArriendo,id_unidadTiempo,cantidad,permanencia,esVenta," + 
-							" equipo.codigo,equipo.nombre,moneda.nickName,unidadTiempo.nombre,unidad.nombre,equipo.id_grupo,grupo.nombre" + 
+					.prepareStatement("select " 
+							+ " cotizaDetalle.id,"
+							+ " id_cotizacion,"
+							+ " id_equipo,"
+							+ " id_moneda,"
+							+ " precioVenta,"
+							+ " precioReposicion,"
+							+ " precioArriendo,"
+							+ " id_unidadTiempo,"
+							+ " cantidad,"
+							+ " permanencia,"
+							+ " esVenta,"
+							+ " equipo.codigo,"
+							+ " equipo.nombre,"
+							+ " moneda.nickName,"
+							+ " unidadTiempo.nombre,"
+							+ " unidad.nombre,"
+							+ " equipo.id_grupo,"
+							+ " ifnull(grupo.nombre,''),"
+							+ " equipo.kg,"
+							+ " equipo.m2" + 
 							" from `"+db+"`.cotizaDetalle" + 
 							" left join `"+db+"`.equipo on equipo.id=cotizaDetalle.id_equipo" + 
 							" left join `"+db+"`.moneda on moneda.id=cotizaDetalle.id_moneda" + 
@@ -549,8 +592,6 @@ public class CotizaDetalle {
 			ResultSet rs = smt.executeQuery();
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			
 			while (rs.next()) {
 				Long idMoneda = (long) 1;
@@ -563,17 +604,15 @@ public class CotizaDetalle {
 				 default:  break;
 				}
 				
-				Double peso = pesos.get(rs.getLong(3));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(3));
-				if(sup==null) sup=(double)0;
+				Double kg = rs.getDouble(19);
+				Double m2 = rs.getDouble(20);
 				
 				String totalReposicion = myformatdouble.format(rs.getDouble(9)*rs.getDouble(6));
 				String totalArriendo = myformatdouble.format(rs.getDouble(9)*rs.getDouble(7)*rs.getDouble(10));
 				String totalVenta = myformatdouble.format(rs.getDouble(9)*rs.getDouble(5));
 				
-				String totalKG = myformatdouble2.format(rs.getDouble(9)*peso);
-				String totalM2 = myformatdouble2.format(rs.getDouble(9)*sup);
+				String totalKg = myformatdouble2.format(rs.getDouble(9)*kg);
+				String totalM2 = myformatdouble2.format(rs.getDouble(9)*m2);
 				
 				String cantidad = myformatdouble2.format(rs.getDouble(9));
 				
@@ -587,7 +626,7 @@ public class CotizaDetalle {
 						rs.getLong(4),myformatdouble.format(rs.getDouble(5)),myformatdouble.format(rs.getDouble(6)),
 						myformatdouble.format(rs.getDouble(7)),rs.getLong(8),cantidad,rs.getDouble(10),rs.getLong(11),
 						rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),totalReposicion,
-						totalArriendo,totalVenta,totalKG,totalM2,rs.getLong(17),rs.getString(18)));
+						totalArriendo,totalVenta,totalKg,totalM2,rs.getLong(17),rs.getString(18)));
 				
 			}
 			rs.close();smt.close();

@@ -256,8 +256,8 @@ sinVenta: String)
 									
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');"><div class="codigo">@lista1.get(4)</div></a></td>
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(5)</a></td>
-									<td  style="text-align:right;">@lista1.get(6)</td>
-									<td  style="text-align:right;">@lista1.get(7)</td>
+									<td  class="kgUnit" style="text-align:right;">@lista1.get(6)</td>
+									<td  class="m2Unit" style="text-align:right;">@lista1.get(7)</td>
 									<td  style="text-align:center;">@lista1.get(8)</td>
 									<td  style="text-align:right;">
 										<div class="verificaStock" id="stock_@lista1.get(0)_@lista1.get(1)">@lista1.get(9)</div>
@@ -1289,7 +1289,7 @@ sinVenta: String)
 	const verificaMovimientos = () =>{
 		$('#tablaPrincipal').dataTable().fnAddData( [
 			"TOTALES","","","","","","","","","",
-			"<div id='totalCant'>1.00</div>","","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+			"<div id='totalCant'>1.00</div>","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
 				@if(bodegaOrigen.esInterna!=1){
 					"",
 					@for((est,index) <- listTipoEstado.zipWithIndex){
@@ -1299,6 +1299,7 @@ sinVenta: String)
 						"<div id='totalCantCliente'>0.00</div>","<div id='totalDifCliente'>0.00</div>",
 					}
 				}
+				"",
 		] );
 		
 		var tableReg = document.getElementById("tablaPrincipal");
@@ -1484,6 +1485,12 @@ sinVenta: String)
 						let verificaStock = document.querySelectorAll(".verificaStock");
 						let mensajes = "";
 						
+						
+						let kgs = document.querySelectorAll(".kgUnit");
+						let m2s = document.querySelectorAll(".m2Unit");
+						let KGs = document.querySelectorAll(".KG");
+						let M2s = document.querySelectorAll(".M2");
+						
 						const mapCodAux = new Map();
 						for (let i = 0; i < codigos.length; i++) {
 							mapCodAux.set(codigos[i].textContent.toUpperCase(),codigos[i].textContent.toUpperCase());
@@ -1512,6 +1519,13 @@ sinVenta: String)
 								if(esVenta0[i].value == "1"){
 									esVenta1[i].checked = true;
 								}
+								
+								let kg = kgs[i].textContent.replace(/,/g,'');
+								let m2 = m2s[i].textContent.replace(/,/g,'');
+								
+								KGs[i].textContent = formatStandar(parseFloat(cant)*parseFloat(kg),2);
+								M2s[i].textContent = formatStandar(parseFloat(cant)*parseFloat(m2),2);
+								
 							}
 						}
 						const mapCodReves = new Map(Object.entries(rs["map"]));

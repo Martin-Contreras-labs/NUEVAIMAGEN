@@ -33,7 +33,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
 import models.calculo.Inventarios;
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Compra;
@@ -1238,8 +1237,6 @@ public class ReportInventarios {
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		Long contador = (long) 0;
 		Map<Long,String> bloqueo = Movimiento.bloqueoPorBajaPorEmpresa(con, db, bodega.getId());
-		Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, db);
-		Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, db);
 		Map<String,List<Double>> mapPBodega = ListaPrecio.mapListaPreciosEquiposPorBodega(con, db, bodega.getId());
 		
 		String filtraTipo="";
@@ -1279,7 +1276,9 @@ public class ReportInventarios {
 							" tipoBodega.nombre,  " +
 							" ifnull(movimiento.id_cotizacion,0), "+
 							" ifnull(cotizacion.numero,0), " +
-							" ifnull(movimiento.id_otDespachado,0) "+
+							" ifnull(movimiento.id_otDespachado,0), "+
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
@@ -1426,19 +1425,13 @@ public class ReportInventarios {
 					aux.add(rs6.getString(15));  							// 24 numero de cotizacion
 					aux.add(rs6.getString(16));  							// 25 id otdespachado
 					
+					Double kg = rs6.getDouble(17);
+					Double m2 = rs6.getDouble(18);
 					
-					Double peso = mapPeso.get(rs6.getLong(5));
-					if(peso==null) peso=(double)0;
-					
-					Double m2 = mapM2.get(rs6.getLong(5));
-					if(m2==null) m2=(double)0;
-					
-					
-					
-					aux.add(myformatdouble2.format(peso));  // 26 peso
+					aux.add(myformatdouble2.format(kg));  // 26 peso
 					aux.add(myformatdouble2.format(m2));  // 27 m2
 					
-					aux.add(myformatdouble2.format(peso*rs6.getDouble(9)));  // 28 peso por cantidad
+					aux.add(myformatdouble2.format(kg*rs6.getDouble(9)));  // 28 peso por cantidad
 					aux.add(myformatdouble2.format(m2*rs6.getDouble(9)));  // 29 m2 por cantidad
 					
 					lista.add(aux);
@@ -2297,17 +2290,12 @@ public class ReportInventarios {
 	public static List<List<String>> listaMatrizEquipos(Connection con, String db, String permisoPorBodega, String tipo, String fechaCorte, List<List<String>> listaBodegas, Map<String,String> mapeoDiccionario) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		Map<String,Double> mapCantidades = new HashMap<String,Double>();
-		Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-		Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
 		String condicionaSuma = "";
 		String interna = "";
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, "
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad";
-// 						este if aplica si solo en inventario arriendos deseo no mostrar bodegas internas
-//					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 1, if(movimiento.esVenta=0, 1, 0))) = -0, 0, "
-//					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1 ,1, if(movimiento.esVenta=0, 1, 0)))) as cantidad";
 		}else if(tipo.equals("VENTA")) {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, "
@@ -2392,18 +2380,19 @@ public class ReportInventarios {
 				datos.add(listaEquipos.get(i).get(1));
 				datos.add(listaEquipos.get(i).get(2));
 				
-				Double kg = pesos.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-				if(kg==null) {
-					datos.add(""); 
-				}else {
+				Double kg = Double.parseDouble(listaEquipos.get(i).get(5));
+				Double m2 = Double.parseDouble(listaEquipos.get(i).get(6));
+				
+				if(kg > 0) {
 					datos.add(myformatdouble2.format(kg)); 
+				}else {
+					datos.add(""); 
 				}
 				
-				Double supM2 = m2.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-				if(supM2==null) {
-					datos.add("");
+				if(m2 > 0) {
+					datos.add(myformatdouble2.format(m2));
 				}else {
-					datos.add(myformatdouble2.format(supM2));
+					datos.add("");
 				}
 				
 				Double cantTot = (double)0;
@@ -2740,12 +2729,17 @@ public class ReportInventarios {
 		Map<String,List<String>> mapListaCompras = new HashMap<String,List<String>>();
 		Map<String,List<String>> mapListaPrecios = new HashMap<String,List<String>>();
 		Map<String,Double> mapBajas = new HashMap<String,Double>();
-		Map<Long,Double> listaPesos = Atributo.mapAtributoPESO(con, db);
-		Map<Long,Double> listaM2 = Atributo.mapAtributoM2(con, db);
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select equipo.id, equipo.codigo, equipo.nombre,equipo.id_grupo,grupo.nombre " + 
+					.prepareStatement(" select"
+							+ " equipo.id,"
+							+ " equipo.codigo,"
+							+ " equipo.nombre,"
+							+ " equipo.id_grupo,"
+							+ " grupo.nombre, "
+							+ " equipo.kg, "
+							+ " equipo.m2 " + 
 							" from `"+db+"`.equipo left join `"+db+"`.grupo on grupo.id=equipo.id_grupo;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
@@ -2755,6 +2749,8 @@ public class ReportInventarios {
 				aux.add(rs.getString(3));  // nombre equipo
 				aux.add(rs.getString(4));  // idGrupo
 				aux.add(rs.getString(5));  // nombre grupo o familia
+				aux.add(rs.getString(6)); // kg
+				aux.add(rs.getString(7)); // m2
 				listaEquipos.add(aux);
 			}
 			smt.close();
@@ -2839,11 +2835,14 @@ public class ReportInventarios {
 				aux.add(listaEquipos.get(i).get(0)); // 0 idEquipo
 				aux.add(listaEquipos.get(i).get(1)); // 1 codEquipo
 				aux.add(listaEquipos.get(i).get(2)); // 2 nomEquipo
-				Double peso = listaPesos.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-				if(peso==null) {
-					aux.add(""); // 3 peso en KG
+				
+				Double kg = Double.parseDouble(listaEquipos.get(i).get(5));
+				Double m2 = Double.parseDouble(listaEquipos.get(i).get(6));
+				
+				if(kg > 0) {
+					aux.add(myformatdouble2.format(kg)); // 3 peso en KG
 				}else {
-					aux.add(myformatdouble2.format(peso)); // 3 peso en KG
+					aux.add(""); // 3 peso en KG
 				}
 				
 				List<String> compra = mapListaCompras.get(listaEquipos.get(i).get(0));
@@ -2872,11 +2871,10 @@ public class ReportInventarios {
 				}
 				aux.add(listaEquipos.get(i).get(4)); // 12 nombre del grupo
 				
-				Double m2 = listaM2.get(Long.parseLong(listaEquipos.get(i).get(0).trim()));
-				if(m2==null) {
-					aux.add(""); // 13 superficie en M2
-				}else {
+				if(m2 > 0) {
 					aux.add(myformatdouble2.format(m2)); // 13 superficie en M2
+				}else {
+					aux.add(""); // 13 superficie en M2
 				}
 				lista.add(aux);
 			}
@@ -4076,7 +4074,9 @@ public class ReportInventarios {
 							+ " ifnull(reparacionEquipo.cantidad,''), "
 							+ " ifnull(tipoReparacion.id_moneda,''), "
 							+ " ifnull(tipoReparacion.precio,''), "
-							+ " equipo.id "
+							+ " equipo.id, "
+							+ " equipo.kg, "
+							+ " equipo.m2 "
 							+ " from `"+db+"`.estadoEquipo "
 							+ " left join `"+db+"`.guia on guia.id = estadoEquipo.id_guia "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
@@ -4094,22 +4094,20 @@ public class ReportInventarios {
 			ResultSet rs5 = smt5.executeQuery();
 			
 			Map<Long,Moneda> mapMoneda = Moneda.mapMonedas(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
 			
 			while (rs5.next()) {
 				
 				// kg por unidad
-				Double kg = pesos.get(Long.parseLong(rs5.getString(16)));
+				Double kg = rs5.getDouble(17);
 				String kgStr = "";
-				if(kg!=null) {
+				if(kg > 0) {
 					kgStr = myformatdouble2.format(kg); 
 				}
 				// m2 por unidad
-				Double supM2 = m2.get(Long.parseLong(rs5.getString(16)));
+				Double m2 = rs5.getDouble(18);
 				String m2Str = "";
-				if(supM2!=null) {
-					m2Str = myformatdouble2.format(supM2);
+				if(m2 > 0) {
+					m2Str = myformatdouble2.format(m2);
 				}
 
 				Moneda monedaVtaArr = mapMoneda.get(rs5.getLong(7));
@@ -4573,7 +4571,9 @@ public class ReportInventarios {
 							+ " ifnull(reparacionEquipo.cantidad,''), "
 							+ " ifnull(tipoReparacion.id_moneda,''), "
 							+ " ifnull(tipoReparacion.precio,''), "
-							+ " equipo.id "
+							+ " equipo.id, "
+							+ " equipo.kg, "
+							+ " equipo.m2 "
 							+ " from `"+db+"`.estadoEquipo "
 							+ " left join `"+db+"`.guia on guia.id = estadoEquipo.id_guia "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
@@ -4590,22 +4590,20 @@ public class ReportInventarios {
 			ResultSet rs5 = smt5.executeQuery();
 			
 			Map<Long,Moneda> mapMoneda = Moneda.mapMonedas(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
 			
 			while (rs5.next()) {
 				
 				// kg por unidad
-				Double kg = pesos.get(Long.parseLong(rs5.getString(16)));
+				Double kg = rs5.getDouble(17);
 				String kgStr = "";
-				if(kg!=null) {
+				if(kg > 0) {
 					kgStr = myformatdouble2.format(kg); 
 				}
 				// m2 por unidad
-				Double supM2 = m2.get(Long.parseLong(rs5.getString(16)));
+				Double m2 = rs5.getDouble(18);
 				String m2Str = "";
-				if(supM2!=null) {
-					m2Str = myformatdouble2.format(supM2);
+				if(m2 > 0) {
+					m2Str = myformatdouble2.format(m2);
 				}
 
 				Moneda monedaVtaArr = mapMoneda.get(rs5.getLong(7));

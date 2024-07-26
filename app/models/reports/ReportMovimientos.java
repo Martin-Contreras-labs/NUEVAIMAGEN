@@ -33,7 +33,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
 import models.tables.AjustesEP;
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cotizacion;
 import models.tables.Equipo;
@@ -197,7 +196,9 @@ public class ReportMovimientos {
 							" ifnull(dctoEquipo.tasaDescto,0), " +
 							" 0, " +
 							" 0, " +
-							" equipo.id " +
+							" equipo.id, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.movimiento " + 
 							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
 							" left join `"+db+"`.equipo on equipo.id=movimiento.id_equipo " + 
@@ -249,6 +250,8 @@ public class ReportMovimientos {
 				aux.add(rs3.getString(12)); //  8 id cotizacion
 				aux.add(rs3.getString(13)); //  9 numero coti
 				aux.add(rs3.getString(14)); //  10 idEquipo
+				aux.add(rs3.getString(15)); //  11 kg
+				aux.add(rs3.getString(16)); //  12 m2
 				listaCodigos.add(aux);
 			}
 			rs3.close();
@@ -284,8 +287,6 @@ public class ReportMovimientos {
 			lista.add(tipGuia);
 			lista.add(blanco);
 				
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
 			Map<Long,BodegaEmpresa> mapBodegaEmpresa = BodegaEmpresa.mapAll(con, db);
 				
 			String auxiliarDeReparacion="";
@@ -301,18 +302,18 @@ public class ReportMovimientos {
 					aux.add(listaCodigos.get(i).get(2)); //equipo
 					
 					// kg por unidad
-					Double kg = pesos.get(Long.parseLong(listaCodigos.get(i).get(10).trim()));
-					if(kg==null) {
-						aux.add(""); 
+					Double kg = Double.parseDouble(listaCodigos.get(i).get(11).trim());
+					if(kg > 0) {
+						aux.add(myformatdouble2.format(kg));
 					}else {
-						aux.add(myformatdouble2.format(kg)); 
+						aux.add(""); 
 					}
 					// m2 por unidad
-					Double supM2 = m2.get(Long.parseLong(listaCodigos.get(i).get(10).trim()));
-					if(supM2==null) {
-						aux.add("");
+					Double m2 =  Double.parseDouble(listaCodigos.get(i).get(12).trim());
+					if(m2 > 0) {
+						aux.add(myformatdouble2.format(m2));
 					}else {
-						aux.add(myformatdouble2.format(supM2));
+						aux.add("");
 					}
 						
 					Double cantStockIni = (double) 0;
@@ -1055,7 +1056,9 @@ public class ReportMovimientos {
 								" ifnull(dctoEquipo.tasaDescto,0), " +
 								" movimiento.id_cotizacion, " +
 								" ifnull(cotizacion.numero,0), " +
-								" equipo.id " +
+								" equipo.id, " +
+								" equipo.kg, " +
+								" equipo.m2 " +
 								" from `"+db+"`.movimiento " + 
 								" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
 								" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " + 
@@ -1103,6 +1106,8 @@ public class ReportMovimientos {
 					aux.add(rs3.getString(12)); //  8 id cotizacion
 					aux.add(rs3.getString(13)); //  9 numero coti
 					aux.add(rs3.getString(14)); //  10 idequipo
+					aux.add(rs3.getString(15)); //  11 kg
+					aux.add(rs3.getString(16)); //  12 m2
 					listaCodigos.add(aux);
 				}
 				rs3.close();
@@ -1162,8 +1167,7 @@ public class ReportMovimientos {
 				lista.add(guiaClie);
 				lista.add(tipGuia);
 				lista.add(blanco);
-				Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-				Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
+				
 				String auxiliarDeReparacion="";
 				
 				for(int i=0;i<listaCodigos.size();i++){
@@ -1177,18 +1181,18 @@ public class ReportMovimientos {
 						aux.add(listaCodigos.get(i).get(2)); //equipo
 						
 						// kg por unidad
-						Double kg = pesos.get(Long.parseLong(listaCodigos.get(i).get(10).trim()));
-						if(kg==null) {
-							aux.add(""); 
+						Double kg = Double.parseDouble(listaCodigos.get(i).get(11).trim());
+						if(kg > 0) {
+							aux.add(myformatdouble2.format(kg));
 						}else {
-							aux.add(myformatdouble2.format(kg)); 
+							aux.add(""); 
 						}
 						// m2 por unidad
-						Double supM2 = m2.get(Long.parseLong(listaCodigos.get(i).get(10).trim()));
-						if(supM2==null) {
-							aux.add("");
+						Double m2 = Double.parseDouble(listaCodigos.get(i).get(12).trim());
+						if(m2 > 0) {
+							aux.add(myformatdouble2.format(m2));
 						}else {
-							aux.add(myformatdouble2.format(supM2));
+							aux.add("");
 						}
 						aux.add(listaCodigos.get(i).get(3)); //moneda
 						aux.add(listaCodigos.get(i).get(4)); //precioVenta
@@ -1510,7 +1514,9 @@ public class ReportMovimientos {
 							" ifnull(listaPrecio.id_unidadTiempo,1), " + 
 							" ifnull(cotizacion.id,0), " +
 							" ifnull(cotizacion.numero,0), " +
-							" equipo.id " +
+							" equipo.id, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.estadoEquipo " + 
 							" left join `"+db+"`.movimiento on movimiento.id = estadoEquipo.id_movimiento " + 
 							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
@@ -1527,8 +1533,6 @@ public class ReportMovimientos {
 			
 			ResultSet rs3 = smt3.executeQuery();
 			
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
 					
 			List<List<String>> listaCodigos = new ArrayList<List<String>>();
 			while (rs3.next()) {
@@ -1539,16 +1543,16 @@ public class ReportMovimientos {
 				}
 				
 				// kg por unidad
-				Double kg = pesos.get(Long.parseLong(rs3.getString(11)));
+				Double kg = Double.parseDouble(rs3.getString(12));
 				String kgStr = "";
-				if(kg!=null) {
+				if(kg > 0) {
 					kgStr = myformatdouble2.format(kg); 
 				}
 				// m2 por unidad
-				Double supM2 = m2.get(Long.parseLong(rs3.getString(11)));
+				Double m2 = Double.parseDouble(rs3.getString(13));
 				String m2Str = "";
-				if(supM2!=null) {
-					m2Str = myformatdouble2.format(supM2);
+				if(m2 > 0) {
+					m2Str = myformatdouble2.format(m2);
 				}
 				
 				aux.add(rs3.getString(1));									// 0 grupo
@@ -2032,7 +2036,9 @@ public class ReportMovimientos {
 								" movimiento.id_cotizacion, " +
 								" ifNull(cotizacion.numero,0), " +
 								" equipo.id, " +
-								" ifnull(moneda.id,1) " +
+								" ifnull(moneda.id,1), " +
+								" equipo.kg, " +
+								" equipo.m2 " +
 								" from `"+db+"`.movimiento " + 
 								" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
 								" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " + 
@@ -2091,6 +2097,8 @@ public class ReportMovimientos {
 					aux.add(rs3.getString(13)); //  9 numero coti
 					aux.add(rs3.getString(14)); //  10 idEquipo
 					aux.add(rs3.getString(15)); //  11 idMoneda
+					aux.add(rs3.getString(16)); //  12 kg
+					aux.add(rs3.getString(17)); //  13 m2
 					listaCodigos.add(aux);
 				}
 				rs3.close();
@@ -2125,10 +2133,6 @@ public class ReportMovimientos {
 				lista.add(tipGuia);
 				lista.add(blanco);
 				
-				Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-				Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
-				
-				
 				String auxiliarDeReparacion="";
 				
 				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
@@ -2146,18 +2150,18 @@ public class ReportMovimientos {
 						aux.add(listaCodigos.get(i).get(2)); //equipo
 						
 						// kg por unidad
-						Double kg = pesos.get(Long.parseLong(listaCodigos.get(i).get(10).trim()));
-						if(kg==null) {
-							aux.add(""); 
+						Double kg = Double.parseDouble(listaCodigos.get(i).get(12).trim());
+						if(kg > 0) {
+							aux.add(myformatdouble2.format(kg));
 						}else {
-							aux.add(myformatdouble2.format(kg)); 
+							aux.add("");
 						}
 						// m2 por unidad
-						Double supM2 = m2.get(Long.parseLong(listaCodigos.get(i).get(10).trim()));
-						if(supM2==null) {
-							aux.add("");
+						Double m2 = Double.parseDouble(listaCodigos.get(i).get(13).trim());
+						if(m2 > 0) {
+							aux.add(myformatdouble2.format(m2));
 						}else {
-							aux.add(myformatdouble2.format(supM2));
+							aux.add("");
 						}
 						aux.add(listaCodigos.get(i).get(3)); //moneda
 						aux.add(listaCodigos.get(i).get(4)); //precioVenta
@@ -3378,7 +3382,9 @@ public class ReportMovimientos {
 							" grupo.nombre, " +
 							" equipo.codigo, " +
 							" equipo.nombre, " +
-							" equipo.id " +
+							" equipo.id, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.movimiento " + 
 							" left join `"+db+"`.equipo on equipo.id=movimiento.id_equipo " + 
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo  " + 
@@ -3398,6 +3404,8 @@ public class ReportMovimientos {
 				aux.add(rs3.getString(2));  //codigo
 				aux.add(rs3.getString(3));  //equipo
 				aux.add(rs3.getString(4)); // idEquipo
+				aux.add(rs3.getString(5)); // kg
+				aux.add(rs3.getString(6)); // m2
 				listaCodigos.add(aux);
 			}
 			rs3.close();
@@ -3437,9 +3445,6 @@ public class ReportMovimientos {
 			lista.add(tipGuia);
 			lista.add(blanco);
 				
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> m2 = Atributo.mapAtributoM2(con, db);
-				
 			for(int i=0;i<listaCodigos.size();i++){
 				
 				List<String> aux = new ArrayList<String>();
@@ -3448,18 +3453,18 @@ public class ReportMovimientos {
 				aux.add(listaCodigos.get(i).get(2)); //equipo
 				
 				// kg por unidad
-				Double kg = pesos.get(Long.parseLong(listaCodigos.get(i).get(3).trim()));
-				if(kg==null) {
-					aux.add(""); 
-				}else {
+				Double kg = Double.parseDouble(listaCodigos.get(i).get(4).trim());
+				if(kg > 0) {
 					aux.add(myformatdouble2.format(kg)); 
+				}else {
+					aux.add("");
 				}
 				// m2 por unidad
-				Double supM2 = m2.get(Long.parseLong(listaCodigos.get(i).get(3).trim()));
-				if(supM2==null) {
-					aux.add("");
+				Double m2 =  Double.parseDouble(listaCodigos.get(i).get(5).trim());
+				if(m2 > 0) {
+					aux.add(myformatdouble2.format(m2));
 				}else {
-					aux.add(myformatdouble2.format(supM2));
+					aux.add("");
 				}
 					
 				

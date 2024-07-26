@@ -2779,7 +2779,9 @@ public class Cotizacion {
 						+ " equipo.id, "
 						+ " cotizaDetalle.id_cotizacion, "
 						+ " moneda.id, "
-						+ " cotizacion.id_cotizaSolucion "
+						+ " cotizacion.id_cotizaSolucion, "
+						+ " equipo.kg, "
+						+ " equipo.m2 "
 						+ " from `"+db+"`.cotizaDetalle "
 						+ " left join `"+db+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion "
 						+ " left join `"+db+"`.equipo on equipo.id = cotizaDetalle.id_equipo "
@@ -2792,9 +2794,6 @@ public class Cotizacion {
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long, CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
 			
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
-			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			Long numDec = dec.get((long)1);
 			if(numDec == null) {
@@ -2804,13 +2803,11 @@ public class Cotizacion {
 			
 			while(rs.next()) {
 				
-				Double peso = pesos.get(rs.getLong(19));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(19));
-				if(sup==null) sup=(double)0;
+				Double kg = rs.getDouble(23);
+				Double m2 = rs.getDouble(24);
 				
-				String totalKG = myformatdouble2.format(rs.getDouble(9) * peso);
-				String totalM2 = myformatdouble2.format(rs.getDouble(9) * sup);
+				String totalKg = myformatdouble2.format(rs.getDouble(9) * kg);
+				String totalM2 = myformatdouble2.format(rs.getDouble(9) * m2);
 				
 				numDec = dec.get((long)1);
 				if(numDec==null) {
@@ -2880,7 +2877,7 @@ public class Cotizacion {
 				aux.add(reposicion);		// 15 reposicion
 				aux.add(arriendo);			// 16 arriendo
 				aux.add(venta);				// 17 venta
-				aux.add(totalKG);			// 18 KG
+				aux.add(totalKg);			// 18 KG
 				aux.add(totalM2);			// 19 M2
 				aux.add(numDec.toString());	// 20 numDec
 				aux.add(rs.getString(20));	// 21 id_cotizacion

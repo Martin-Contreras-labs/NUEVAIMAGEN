@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,7 +15,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Guia;
@@ -45,8 +43,6 @@ public class XLSX_GuiaSalida {
 		BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, db, guia.getId_bodegaDestino());
 		Cliente clienteDestino = Cliente.find(con, db, bodegaDestino.getId_cliente());
 		Proyecto proyectoDestino = Proyecto.find(con, db, bodegaDestino.getId_proyecto());
-		
-		Map<Long,Double> mapPesos = Atributo.mapAtributoPESO(con, db);
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -157,15 +153,12 @@ public class XLSX_GuiaSalida {
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatdouble.format(cant));
 				
-				Long id_equipo = Long.parseLong(detalleGuia.get(i).get(2).trim());
-				Double peso = (double)0;
-				if(mapPesos!=null) { peso = mapPesos.get(id_equipo); }
-				if(peso==null) peso = (double)0;
-				Double totPeso = peso * cant;
+				Double kg = Double.parseDouble(detalleGuia.get(i).get(36));
+				Double totKg = kg * cant;
 				
 				cell = row.getCell(9);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(myformatdouble.format(totPeso));
+				cell.setCellValue(myformatdouble.format(totKg));
 			}
 			
 			// Write the output to a file tmp

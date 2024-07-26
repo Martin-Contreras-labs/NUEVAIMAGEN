@@ -401,7 +401,9 @@ public class PlanMantencion {
 							" grupo.nombre, " +
 							" unidad.nombre, " +
 							" equipo.img, " +
-							" equipo.vigente " +
+							" equipo.vigente, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
@@ -411,23 +413,10 @@ public class PlanMantencion {
 							" group by movimiento.id_equipo " +
 							" having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0 " +
 							" order by grupo.nombre, equipo.nombre;");
-
 				ResultSet rs = smt.executeQuery();
-				Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-				Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
-				
-				
 				while (rs.next()) {
-					Double peso = pesos.get(rs.getLong(1));
-					if(peso == null) {
-						peso = (double)0;
-					}
-					Double sup = superficies.get(rs.getLong(1));
-					if(sup == null) {
-						sup=(double)0;
-					}
 						lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-								rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),peso,sup,rs.getLong(11)));
+								rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));
 				}
 				rs.close();
 				smt.close();

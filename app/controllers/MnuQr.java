@@ -179,12 +179,14 @@ public class MnuQr extends Controller {
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
 	    			List<List<String>> listAtribEquipo = MnuQr.atributosPorEquipo(con, s.baseDato, equipo.id_grupo, id_equipo);
+	    			
 	    			List<List<String>> listaFiltrada = new ArrayList<List<String>>();
 	        		for(int i=0; i<listAtribEquipo.size(); i++) {
 	        			if(listAtribEquipo.get(i).get(4).equals("1") || listAtribEquipo.get(i).get(4).equals("0")) {
 	        				listaFiltrada.add(listAtribEquipo.get(i));
 	        			}
 	        		}
+	        	
 	    			List<QrTransacEquipo> listaTransac = QrTransacEquipo.allPorIdEquipo(con, s.baseDato, id_equipo);
 	    			con.close();
 	    			return ok(qrRevisarDatos.render(mapeoDiccionario,mapeoPermiso,userMnu,equipo, listaFiltrada, listaTransac));

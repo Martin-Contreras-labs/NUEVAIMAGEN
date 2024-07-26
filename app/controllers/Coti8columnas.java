@@ -183,7 +183,7 @@ public class Coti8columnas extends Controller {
 			return(mensaje);
 		}
 
-	    public static File downloadPlantilla(String db, Map<String,String> mapDiccionario, List<Equipo> listEquipo, Map<Long,Precio> mapPrecio, Map<Long,Double> mapPeso, 
+	    public static File downloadPlantilla(String db, Map<String,String> mapDiccionario, List<Equipo> listEquipo, Map<Long,Precio> mapPrecio,  
 	    		Map<Long,Double> mapTasas, Map<Long,Double> equivTiempo) {
 			
 			File tmp = TempFile.createTempFile("tmp","null");
@@ -315,7 +315,7 @@ public class Coti8columnas extends Controller {
 		            row = hoja1.createRow(posRow+i);
 		            int linea = posRow+i+1;
 		            
-		            Double kg = mapPeso.get(listEquipo.get(i).getId());
+		            Double kg = listEquipo.get(i).getKg();
 					if(kg == null) {
 						kg = (double)0;
 					}

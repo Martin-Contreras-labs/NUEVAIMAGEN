@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,13 +48,13 @@ public class Equipo {
 	public String unidad;
 	public String img;
 	
-	public Double KG;
-	public Double M2;
+	public Double kg;
+	public Double m2;
 	
 	public Long vigente;
 
 	public Equipo(Long id, Long id_fabrica, String codigo, String nombre, Long id_grupo, Long id_unidad, String fabrica,
-			String grupo, String unidad, String img, Double kG, Double m2, Long vigente) {
+			String grupo, String unidad, String img, Double kg, Double m2, Long vigente) {
 		super();
 		this.id = id;
 		this.id_fabrica = id_fabrica;
@@ -65,8 +66,8 @@ public class Equipo {
 		this.grupo = grupo;
 		this.unidad = unidad;
 		this.img = img;
-		this.KG = kG;
-		this.M2 = m2;
+		this.kg = kg;
+		this.m2 = m2;
 		this.vigente = vigente;
 	}
 
@@ -94,10 +95,10 @@ public class Equipo {
 	public void setUnidad(String unidad) {this.unidad = unidad;}
 	public String getImg() {return img;}
 	public void setImg(String img) {this.img = img;}
-	public Double getKG() {return KG;}
-	public void setKG(Double kG) {KG = kG;}
-	public Double getM2() {return M2;}
-	public void setM2(Double m2) {M2 = m2;}
+	public Double getKg() {return kg;}
+	public void setKg(Double kg) {this.kg = kg;}
+	public Double getM2() {return m2;}
+	public void setM2(Double m2) {this.m2 = m2;}
 	public Long getVigente() {return vigente;}
 	public void setVigente(Long vigente) {this.vigente = vigente;}
 
@@ -194,7 +195,9 @@ public class Equipo {
 							" grupo.nombre, " +
 							" unidad.nombre, " +
 							" equipo.img, " +
-							" equipo.vigente " +
+							" equipo.vigente, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
@@ -202,16 +205,9 @@ public class Equipo {
 							" where equipo.vigente = 1 " +
 							" order by grupo.nombre,equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
-			
 			while (rs.next()) {
-				Double peso = pesos.get(rs.getLong(1));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(1));
-				if(sup==null) sup=(double)0;
 				lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),peso,sup,rs.getLong(11)));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));
 			}
 			rs.close();
 			smt.close();
@@ -236,23 +232,20 @@ public class Equipo {
 							" grupo.nombre, " +
 							" unidad.nombre, " +
 							" equipo.img, " +
-							" equipo.vigente " +
+							" equipo.vigente, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
 							" order by grupo.nombre,equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
+			
 			
 			while (rs.next()) {
-				Double peso = pesos.get(rs.getLong(1));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(1));
-				if(sup==null) sup=(double)0;
 				lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),peso,sup,rs.getLong(11)));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));
 			}
 			rs.close();
 			smt.close();
@@ -277,7 +270,9 @@ public class Equipo {
 							" grupo.nombre, " +
 							" unidad.nombre, " +
 							" equipo.img, " +
-							" equipo.vigente " +
+							" equipo.vigente, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
@@ -285,15 +280,9 @@ public class Equipo {
 							" where equipo.id=?;");
 			smt.setLong(1, id_equipo);
 			ResultSet rs = smt.executeQuery();
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			if (rs.next()) {
-				Double peso = pesos.get(rs.getLong(1));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(1));
-				if(sup==null) sup=(double)0;	
 				aux = new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),peso,sup,rs.getLong(11));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11));
 			}
 			rs.close();
 			smt.close();
@@ -318,7 +307,9 @@ public class Equipo {
 							" grupo.nombre, " +
 							" unidad.nombre, " +
 							" equipo.img, " +
-							" equipo.vigente " +
+							" equipo.vigente, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
@@ -326,15 +317,9 @@ public class Equipo {
 							" where upper(equipo.codigo)=?;" );
 			smt.setString(1, codigo.toUpperCase().trim());
 			ResultSet rs = smt.executeQuery();
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			if (rs.next()) {
-				Double peso = pesos.get(rs.getLong(1));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(1));
-				if(sup==null) sup=(double)0;	
 				aux = new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),peso,sup,rs.getLong(11));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11));
 			}
 			rs.close();
 			smt.close();
@@ -529,53 +514,40 @@ public class Equipo {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad) " +
-							" values (?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad,kg,m2) " +
+							" values (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			smt.setLong(1, aux.id_fabrica);
 			smt.setString(2, aux.codigo.replaceAll("\\,","").trim().toUpperCase());
 			smt.setString(3, aux.nombre.trim());
 			smt.setLong(4, aux.id_grupo);
 			smt.setLong(5, aux.id_unidad);
+			smt.setDouble(6, aux.kg);
+			smt.setDouble(7, aux.m2);
 			smt.executeUpdate();
-			smt.close();
 			
-			PreparedStatement smt2 = con
-					.prepareStatement("select id from `"+db+"`.equipo where id_fabrica=? and codigo=? and nombre=? and id_grupo=? and id_unidad=?;");
-			smt2.setLong(1, aux.id_fabrica);
-			smt2.setString(2, aux.codigo.replaceAll("\\,","").trim().toUpperCase());
-			smt2.setString(3, aux.nombre.trim());
-			smt2.setLong(4, aux.id_grupo);
-			smt2.setLong(5, aux.id_unidad);
-			ResultSet rs = smt2.executeQuery();
+			Long id_equipo = (long)0;
+			ResultSet rs = smt.getGeneratedKeys();
+            if (rs.next()) {
+            	id_equipo = rs.getLong(1);
+            }
+            smt.close();
+            rs.close();
 			
-			if(rs.next()) {
-				
-				Long id_equipo = rs.getLong(1);
-				List<Sucursal> listSucursal = Sucursal.all(con, db);
-				String datos = "";
-				for(Sucursal s: listSucursal) {
-					 datos += "("+id_equipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+s.getId()+"),";
-				}
-				if(datos.length()>10) {
-					datos = datos.substring(0,datos.length()-1);
-					
-					
-					PreparedStatement smt3 = con
-							.prepareStatement("insert into `"+db+"`.precio "
-									+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
-									+ " values "+datos+";");
-					smt3.executeUpdate();
-					smt3.close();
-				}
-				
+			List<Sucursal> listSucursal = Sucursal.all(con, db);
+			String datos = "";
+			for(Sucursal s: listSucursal) {
+				 datos += "("+id_equipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+s.getId()+"),";
 			}
-			
-			smt2.close();
-			rs.close();
-			
+			if(datos.length()>10) {
+				datos = datos.substring(0,datos.length()-1);
+				PreparedStatement smt3 = con
+						.prepareStatement("insert into `"+db+"`.precio "
+								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+								+ " values "+datos+";");
+				smt3.executeUpdate();
+				smt3.close();
+			}
 			flag = true;
-			
-			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -769,6 +741,18 @@ public class Equipo {
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("PROVEEDOR");
 					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("PESO (KG)");
+					
+					posCell++;
+					cell = row.createCell(posCell);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("AREA (M2)");
+					
 					
 					Row rowAtrib = hoja1.createRow(posRow-2);
 					Row rowNum = hoja1.createRow(posRow-1);
@@ -929,6 +913,18 @@ public class Equipo {
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 						}
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(listEquipos.get(i).getKg());
+						
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(listEquipos.get(i).getM2());
 						
 						for(List<String> atrib: listAtribGroup) {
 							List<String> list = mapAtributos.get(atrib.get(0)+"_"+atrib.get(3)+"_"+listEquipos.get(i).getId());

@@ -53,32 +53,16 @@ public class ReportKilos {
 		Map<String,Double> mapToneladas = new HashMap<String,Double>();
 		
 		try {
-			PreparedStatement smt100 = con
-					.prepareStatement("select id from `"+db+"`.atributo where atributo like '%peso%' or atributo like '%kg%';");
-			ResultSet rs100 = smt100.executeQuery();
-			List<String> auxLista = new ArrayList<String>();
-			while (rs100.next()) {
-				auxLista.add(rs100.getString(1));
-			}
-			rs100.close();
-			smt100.close();
-			
-			String condicion = auxLista.toString();
-			condicion = condicion.replace("[", "").replace("]", "");
-			if(condicion.trim().length()>0) {
-				condicion = " and id_atributo in ("+condicion+") ";
-			}
 			
 			PreparedStatement smt5 = con
 					.prepareStatement("select"
 							+ " bodegaEmpresa.id_sucursal,"
 							+ " equipo.id_grupo,"
 							+ " movimiento.id_tipoMovimiento,"
-							+ " sum(movimiento.cantidad*ifnull(atributoEquipo.numAtributo,0)/1000) as totalToneladas"
+							+ " sum(movimiento.cantidad * equipo.kg/1000) as totalToneladas"
 							+ " from `"+db+"`.movimiento"
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id=movimiento.id_bodegaEmpresa"
 							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia"
-							+ " left join `"+db+"`.atributoEquipo on atributoEquipo.id_equipo = movimiento.id_equipo "  + condicion
 							+ " left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo"
 							+ " where bodegaEmpresa.esInterna=2 and guia.fecha between ? and ?"
 							+ " group by movimiento.id_tipoMovimiento, equipo.id_grupo, bodegaEmpresa.id_sucursal;");
@@ -157,22 +141,6 @@ public class ReportKilos {
 		Map<String,List<String>> mapListaIdGrupo_Mes_Tipo = new HashMap<String,List<String>>();
 		
 		try {
-			PreparedStatement smt100 = con
-					.prepareStatement("select id from `"+db+"`.atributo where atributo like '%peso%' or atributo like '%kg%';");
-			ResultSet rs100 = smt100.executeQuery();
-			List<String> auxLista = new ArrayList<String>();
-			while (rs100.next()) {
-				auxLista.add(rs100.getString(1));
-			}
-			rs100.close();
-			smt100.close();
-			String condicion = auxLista.toString();
-			condicion = condicion.replace("[", "").replace("]", "");
-			if(condicion.trim().length()>0) {
-				condicion = " and id_atributo in ("+condicion+") ";
-			}
-			
-			
 			PreparedStatement smt5 = con
 					.prepareStatement(" select " + 
 							" year(guia.fecha)," + 
@@ -180,18 +148,16 @@ public class ReportKilos {
 							" grupo.id," + 
 							" grupo.nombre," + 
 							" movimiento.id_tipoMovimiento as tipo," + 
-							" sum(movimiento.cantidad*ifnull(atributoEquipo.numAtributo,0)/1000) as total" + 
+							" sum(movimiento.cantidad * equipo.kg/1000) as total" + 
 							" from `"+db+"`.movimiento" + 
 							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id=movimiento.id_bodegaEmpresa" + 
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia" + 
-							" left join `"+db+"`.atributoEquipo on atributoEquipo.id_equipo = movimiento.id_equipo " + condicion +
 							" left join `"+db+"`.equipo on equipo.id=movimiento.id_equipo" + 
 							" left join `"+db+"`.grupo on grupo.id=equipo.id_grupo" + 
 							" where bodegaEmpresa.esInterna=2 and year(guia.fecha)=?" + 
 							" group by year(guia.fecha),month(guia.fecha),movimiento.id_tipoMovimiento,grupo.id" + 
 							" order by grupo.nombre,guia.fecha;");
 			smt5.setLong(1, anio);
-
 			ResultSet rs5 = smt5.executeQuery();
 			while (rs5.next()) {
 				List<String> aux = new ArrayList<String>();

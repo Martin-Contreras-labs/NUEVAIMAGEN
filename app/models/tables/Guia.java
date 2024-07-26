@@ -1484,8 +1484,6 @@ public class Guia {
 		try {
 			
 			Map<String,ListaPrecio> mapListaPrecio = ListaPrecio.mapListaPrecio(con, db, id_bodegaEmpresa, pais);
-			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> mapSuperficie = Atributo.mapAtributoM2(con, db);
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			Map<Long,String> strEstados = EstadoEquipo.mapStrEstadoEquipo(con, db, id_guia);
 			Map<Long,String> strReparaciones = ReparacionEquipo.mapStrReparacionEquipo(con, db, id_guia);
@@ -1597,8 +1595,8 @@ public class Guia {
 					pventaTotal = myformatdouble.format(auxpventaTotal);
 				}
 				
-				Double KG = mapPeso.get(rs.getLong(3)); if(KG==null) {KG = (double) 0;}
-				Double M2 = mapSuperficie.get(rs.getLong(3)); if(M2==null) M2 = (double) 0;
+				Double kg = equipo.getKg();
+				Double m2 = equipo.getM2();
 				
 				String cantidad = myformatdouble2.format(rs.getDouble(5));
 				String cantCliente = myformatdouble2.format(rs.getDouble(11));
@@ -1656,10 +1654,10 @@ public class Guia {
 				aux.add(imgEquipo);						// 22 img
 				aux.add(id_coti.toString());							// 23 idCotizacion
 				aux.add(numCoti.toString());							// 24 numero de Cotizacion
-				aux.add(myformatdouble2.format(KG));					//25 peso unitario en kg
-				aux.add(myformatdouble2.format(M2));					//26 superficie unitario en m2
-				aux.add(myformatdouble2.format(KG*rs.getDouble(5)));	//27 total por cant por peso en kg
-				aux.add(myformatdouble2.format(M2*rs.getDouble(5)));	//28 total por cant por superficie en m2
+				aux.add(myformatdouble2.format(kg));					//25 peso unitario en kg
+				aux.add(myformatdouble2.format(m2));					//26 superficie unitario en m2
+				aux.add(myformatdouble2.format(kg*rs.getDouble(5)));	//27 total por cant por peso en kg
+				aux.add(myformatdouble2.format(m2*rs.getDouble(5)));	//28 total por cant por superficie en m2
 				aux.add(rs.getString(10));								//29 observaciones de guia
 				aux.add(idMoneda);										//30 id moneda
 				aux.add(estadosDeEquipos);								//31 string estados
@@ -1669,6 +1667,8 @@ public class Guia {
 				aux.add(cantCliente);									//34 cantidad que dice el cliente 
 				aux.add(difCantCliente);								//35 diferencia con cliente 
 				
+				aux.add(equipo.getKg().toString());						//36 kg unitario 
+				aux.add(equipo.getM2().toString());						//37 m2 unitario 
 				
 				listaDetalle.add(aux);
 			}

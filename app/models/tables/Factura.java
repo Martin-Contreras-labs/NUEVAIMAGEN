@@ -386,7 +386,9 @@ public class Factura {
 							" esModificable, " +
 							" compra.id, " +
 							" equipo.id, " +
-							" bodegaEmpresa.id_sucursal " +
+							" bodegaEmpresa.id_sucursal, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.factura " +
 							" left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor " +
 							" left join `"+db+"`.compra on compra.id_factura = factura.id " +
@@ -401,8 +403,6 @@ public class Factura {
 			ResultSet rs = smt.executeQuery();
 			int i=0;
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			
@@ -431,16 +431,14 @@ public class Factura {
 				aux.add(rs.getString(8));  							// 12 bodegaEmpresa.nombre as destino
 				aux.add(rs.getString(13));  						// 13 equipo.id
 				
-				Double pesoUnit = pesos.get(rs.getLong(13));
-				if(pesoUnit==null) pesoUnit=(double)0;
-				Double supUnit = superficies.get(rs.getLong(13));
-				if(supUnit==null) supUnit=(double)0;
+				Double kg = rs.getDouble(15);
+				Double m2 = rs.getDouble(16);
 				
-				aux.add(myformatdouble2.format(pesoUnit));  					// 14 kg pesoUnit
-				aux.add(myformatdouble2.format(supUnit));  						// 15 m2 supUnit
+				aux.add(myformatdouble2.format(kg));  					// 14 kg pesoUnit
+				aux.add(myformatdouble2.format(m2));  						// 15 m2 supUnit
 				
-				aux.add(myformatdouble2.format(pesoUnit*rs.getDouble(4)));  	// 16 kg total
-				aux.add(myformatdouble2.format(supUnit*rs.getDouble(4)));  		// 17 m2 total
+				aux.add(myformatdouble2.format(kg*rs.getDouble(4)));  	// 16 kg total
+				aux.add(myformatdouble2.format(m2*rs.getDouble(4)));  		// 17 m2 total
 				
 				Sucursal sucursal = mapSucursal.get(rs.getLong(14));
 				if(sucursal != null) {

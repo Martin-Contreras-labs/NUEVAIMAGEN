@@ -361,7 +361,6 @@ listVentas: List[tables.VentaServicio], listAnios: List[Long], year: Long)
 			  img.src = blobURL;
 			  img.onerror = function () {
 			    URL.revokeObjectURL(this.src);
-			    console.log("Cannot load image");
 			  };
 			  
 			  

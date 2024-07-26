@@ -448,7 +448,14 @@ public class Inventarios {
 				listaCond = listaCond.substring(0,listaCond.length()-1);
 				
 				PreparedStatement smt = con
-						.prepareStatement(" select equipo.id, equipo.codigo, equipo.nombre,equipo.id_grupo,grupo.nombre " + 
+						.prepareStatement(" select"
+								+ " equipo.id,"
+								+ " equipo.codigo,"
+								+ " equipo.nombre,"
+								+ " equipo.id_grupo,"
+								+ " grupo.nombre, "
+								+ " equipo.kg, "
+								+ " equipo.m2 " + 
 								" from `"+db+"`.equipo left join `"+db+"`.grupo on grupo.id=equipo.id_grupo " + 
 								" where equipo.id in ("+listaCond+") " + 
 								" order by equipo.nombre;");
@@ -461,6 +468,8 @@ public class Inventarios {
 					aux.add(rs.getString(3)); // nombre equipo
 					aux.add(rs.getString(4)); // idGrupo
 					aux.add(rs.getString(5)); // nombre grupo o familia
+					aux.add(rs.getString(6)); // kg
+					aux.add(rs.getString(7)); // m2
 					
 					listaEquipos.add(aux);
 				}

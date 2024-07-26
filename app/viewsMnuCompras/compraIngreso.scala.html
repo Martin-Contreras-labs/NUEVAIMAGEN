@@ -342,7 +342,7 @@ listSucursales: List[tables.Sucursal])
 						</thead>
 						<tbody>
 							@for(lista1 <- listEquipo){
-								<TR onClick="auxCodEquip='@lista1.getCodigo()'; auxNomEquip='@lista1.getNombre()'; auxKgEquip='@lista1.getKG()'; auxM2Equip='@lista1.getM2()'; auxUnEquip='@lista1.getUnidad()'; selectEquipo(@lista1.getId())" data-dismiss="modal">
+								<TR onClick="auxCodEquip='@lista1.getCodigo()'; auxNomEquip='@lista1.getNombre()'; auxKgEquip='@lista1.getKg()'; auxM2Equip='@lista1.getM2()'; auxUnEquip='@lista1.getUnidad()'; selectEquipo(@lista1.getId())" data-dismiss="modal">
 									<td  style="text-align:left;">@lista1.getGrupo()</td>
 									<td  style="text-align:left;">@lista1.getCodigo()</td>
 									<td  style="text-align:left;">@lista1.getNombre()</td>

@@ -20,7 +20,6 @@ import models.api.WebFacturacion;
 import models.api.WebMaximise;
 import models.calculo.Inventarios;
 import models.forms.FormMovimiento;
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Comercial;
 import models.tables.ContactoBodegaEmpresa;
@@ -145,8 +144,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			
 	    			Map<Long,Long> mapIdCotiVsIdOt = Ot.mapAll_idCoti_vs_idOt(con, s.baseDato);
 	    			Map<Long,Ot> mapOt = Ot.mapAll(con, s.baseDato);
@@ -177,14 +174,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
         							id_ot  = (long) 0;
         						}
         					}
-	        				Double peso = mapPeso.get(v.getId_equipo()); 
-	        				if(peso==null){
-	        					peso = (double)0;
-	        				}
-	        				Double m2 = mapM2.get(v.getId_equipo()); 
-	        				if(m2==null){
-	        					m2 = (double)0;
-	        				}
+	        				Double kg = equipo.getKg(); 
+	        				Double m2 = equipo.getM2();
 	        				
 		    				if(v.getCantidad()>0) {
 		        				List<String> aux = new ArrayList<String>();
@@ -194,7 +185,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        				aux.add(numCoti.toString()); 						// 3 numero cotizacion
 		        				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
 		        				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-		        				aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+		        				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
 		        				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
 		        				aux.add(equipo.getUnidad());						// 8 unidad
 		        				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
@@ -210,7 +201,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        				aux.add(""); 										// 3 numero cotizacion
 		        				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
 		        				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-		        				aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+		        				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
 		        				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
 		        				aux.add(equipo.getUnidad());						// 8 unidad
 		        				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
@@ -276,7 +267,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	        				aux2.add(""); 									// 3 numero cotizacion
 	        				aux2.add(v.getCodigo()); 						// 4 codigo de equipo
 	        				aux2.add(v.getNombre()); 						// 5 nombre de equipo
-	        				aux2.add(myformatdouble2.format(v.getKG())); 	// 6 KG por equipo
+	        				aux2.add(myformatdouble2.format(v.getKg())); 	// 6 KG por equipo
 	        				aux2.add(myformatdouble2.format(v.getM2())); 	// 7 M2 por equipo
 	        				aux2.add(v.getUnidad());						// 8 unidad
 	        				aux2.add(myformatdouble2.format((double)0));	// stock disponible
@@ -787,8 +778,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			Map<Long,Ot> mapOt = Ot.mapAll(con, s.baseDato);
 	    			
 	    			mapBodegaOrigen.forEach((k,v)->{
@@ -813,15 +802,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        					}
 		        				}
 		        				
-		        				Double peso = mapPeso.get(v.getId_equipo()); 
-	        					if(peso==null){
-	        						peso = (double)0;
-	        					}
-	        					
-		        				Double m2 = mapM2.get(v.getId_equipo()); 
-		        				if(m2==null){
-		        					m2 = (double)0;
-		        				}
+		        				Double kg = equipo.getKg(); 
+		        				Double m2 = equipo.getM2();
 		        				
 		        				List<String> aux = new ArrayList<String>();
 		        				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
@@ -830,7 +812,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        				aux.add(numCoti.toString()); 						// 3 numero cotizacion
 		        				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
 		        				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-		        				aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+		        				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
 		        				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
 		        				aux.add(equipo.getUnidad());						// 8 unidad
 		        				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
@@ -865,7 +847,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	        				aux2.add(""); 									// 3 numero cotizacion
 	        				aux2.add(v.getCodigo()); 						// 4 codigo de equipo
 	        				aux2.add(v.getNombre()); 						// 5 nombre de equipo
-	        				aux2.add(myformatdouble2.format(v.getKG())); 	// 6 KG por equipo
+	        				aux2.add(myformatdouble2.format(v.getKg())); 	// 6 KG por equipo
 	        				aux2.add(myformatdouble2.format(v.getM2())); 	// 7 M2 por equipo
 	        				aux2.add(v.getUnidad());						// 8 unidad
 	        				aux2.add(myformatdouble2.format((double)0));	// 9 stock disponible
@@ -2024,21 +2006,19 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
     			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
     			mapStock.forEach((k,v)->{
     				if(v.getCantidad()>0) {
     					Equipo equipo = mapEquipo.get(v.getId_equipo());
     					if(equipo!=null) {
     						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-            				Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-            				Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
+            				Double kg = equipo.getKg();
+            				Double m2 = equipo.getM2();
             				List<String> aux = new ArrayList<String>();
             				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
             				aux.add(grupo.getNombre()); 						// nombre de grupo
             				aux.add(equipo.getCodigo()); 						// codigo de equipo
             				aux.add(equipo.getNombre()); 						// nombre de equipo
-            				aux.add(myformatdouble2.format(peso)); 				// KG por equipo
+            				aux.add(myformatdouble2.format(kg)); 				// KG por equipo
             				aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
             				aux.add(equipo.getUnidad());						// unidad
             				aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
@@ -2098,21 +2078,19 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {
 	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-		        				Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-		        				Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
+	    						Double kg = equipo.getKg();
+	            				Double m2 = equipo.getM2();
 		        				List<String> aux = new ArrayList<String>();
 		        				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
 		        				aux.add(grupo.getNombre()); 						// nombre de grupo
 		        				aux.add(equipo.getCodigo()); 						// codigo de equipo
 		        				aux.add(equipo.getNombre()); 						// nombre de equipo
-		        				aux.add(myformatdouble2.format(peso)); 				// KG por equipo
+		        				aux.add(myformatdouble2.format(kg)); 				// KG por equipo
 		        				aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
 		        				aux.add(equipo.getUnidad());						// unidad
 		        				aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
@@ -2209,8 +2187,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
     			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
     			mapStock.forEach((k,v)->{
     				if(v.getCantidad()>0) {
     					Equipo equipo = mapEquipo.get(v.getId_equipo());
@@ -2218,8 +2194,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
             				Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
             				Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
-            				Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-            				Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
+            				Double kg = equipo.getKg();
+            				Double m2 = equipo.getM2();
             				List<String> aux = new ArrayList<String>();
             				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
             				aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
@@ -2227,7 +2203,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
             				aux.add(numCoti.toString()); 						// 3 numero cotizacion
             				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
             				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-            				aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+            				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
             				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
             				aux.add(equipo.getUnidad());						// 8 unidad
             				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
@@ -2288,8 +2264,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
@@ -2297,8 +2271,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
 		        				Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
 		        				Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
-		        				Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-		        				Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
+		        				Double kg = equipo.getKg();
+	            				Double m2 = equipo.getM2();
 		        				List<String> aux = new ArrayList<String>();
 		        				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
 		        				aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
@@ -2306,7 +2280,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		        				aux.add(numCoti.toString()); 						// 3 numero cotizacion
 		        				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
 		        				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-		        				aux.add(myformatdouble2.format(peso)); 				// 6 KG por equipo
+		        				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
 		        				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
 		        				aux.add(equipo.getUnidad());						// 8 unidad
 		        				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
@@ -2423,17 +2397,14 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			
 	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {
 	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-		        				Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-		        				Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
-		        				
+	    						Double kg = equipo.getKg();
+	            				Double m2 = equipo.getM2();
 		        				Long id_grupo = mapIdGrupos.get(grupo.id);
 		        				
 		        				if(id_grupo != null && id_grupo > 0) {
@@ -2442,7 +2413,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			        				aux.add(grupo.getNombre()); 						// nombre de grupo
 			        				aux.add(equipo.getCodigo()); 						// codigo de equipo
 			        				aux.add(equipo.getNombre()); 						// nombre de equipo
-			        				aux.add(myformatdouble2.format(peso)); 				// KG por equipo
+			        				aux.add(myformatdouble2.format(kg)); 				// KG por equipo
 			        				aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
 			        				aux.add(equipo.getUnidad());						// unidad
 			        				aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
@@ -2511,15 +2482,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-	    			Map<Long,Double> mapPeso = Atributo.mapAtributoPESO(con, s.baseDato);
-	    			Map<Long,Double> mapM2 = Atributo.mapAtributoM2(con, s.baseDato);
 	    			mapStock.forEach((k,v)->{
 	    				if(v.getCantidad()>0) {
 	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
 	    					if(equipo!=null) {
 	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-		        				Double peso = mapPeso.get(v.getId_equipo()); if(peso==null){peso = (double)0;};
-		        				Double m2 = mapM2.get(v.getId_equipo()); if(m2==null){m2 = (double)0;};
+	    						Double kg = equipo.getKg();
+	            				Double m2 = equipo.getM2();
 		        				
 		        				Long id_grupo = mapIdGrupos.get(grupo.id);
 		        				if(id_grupo != null && id_grupo > 0) {
@@ -2528,7 +2497,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			        				aux.add(grupo.getNombre()); 						// nombre de grupo
 			        				aux.add(equipo.getCodigo()); 						// codigo de equipo
 			        				aux.add(equipo.getNombre()); 						// nombre de equipo
-			        				aux.add(myformatdouble2.format(peso)); 				// KG por equipo
+			        				aux.add(myformatdouble2.format(kg)); 				// KG por equipo
 			        				aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
 			        				aux.add(equipo.getUnidad());						// unidad
 			        				aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible

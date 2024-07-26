@@ -3,7 +3,6 @@ package controllers;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import models.api.ApiIConstruyeOC;
 import models.forms.FormCompra;
 import models.forms.FormEquipoGraba;
 import models.reports.ReportMovCompras;
-import models.tables.Atributo;
 import models.tables.Baja;
 import models.tables.BodegaEmpresa;
 import models.tables.Compra;
@@ -610,7 +608,7 @@ public class MnuCompras extends Controller {
 	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "equipo", (long)0, "create", "crea nuevo equipo codigo: "+form.codigo);
 	    				}
     	    			con.close();
-    	    			return ok(equipo.getId()+"_"+equipo.getKG()+"_"+equipo.getM2());
+    	    			return ok(equipo.getId()+"_"+equipo.getKg()+"_"+equipo.getM2());
     				}else {
     					con.close();
     					return ok("existe");
@@ -725,8 +723,6 @@ public class MnuCompras extends Controller {
 	    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
 	    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
 	    	    			
-	    	    			Map<String,List<String>> mapKgM2 = new HashMap<String,List<String>>();
-	    	    			
 	    	    			for(List<String> l: listaExcel) {
 	    	    				String codEquipo = l.get(1);
 	    						if(codEquipo!=null) {
@@ -753,12 +749,6 @@ public class MnuCompras extends Controller {
 	    	    						id_grupo = grupo.getId();
 	    	    					}
 	    	    					
-	    	    					List<String> auxKgM2 = new ArrayList<String>();
-	    	    					auxKgM2.add(id_grupo.toString()); 	// 0 id grupo
-	    	    					auxKgM2.add(cantKG.toString()); 	// 1 cant kg
-	    	    					auxKgM2.add(cantM2.toString()); 	// 2 cant m2
-	    	    					mapKgM2.put(l.get(1), auxKgM2);
-	    	    					
 	    	    					Long id_unidad = (long)1;
 	    	    					
 	    	    					String nomUnidad = l.get(5);
@@ -770,19 +760,17 @@ public class MnuCompras extends Controller {
 	    	    					if(unidad != null) {
 	    	    						id_unidad = unidad.getId();
 	    	    					}
-	    	    					newEquipos += "('"+l.get(1)+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"'),";
+	    	    					newEquipos += "('"+l.get(1)+"','"+l.get(2)+"','"+id_unidad+"','"+id_grupo+"','"+cantKG+"','"+cantM2+"'),";
 	    	    					codigos.add(l.get(1));
 	    	    					selEquipos += "'"+l.get(1)+"',";
 	    	    				}
 	    					}
 	    	    			
-	    	    			
-	    	    			
 	    	    			if(newEquipos.length()>1) {
 	    	    				
 	    	    				newEquipos = newEquipos.substring(0,newEquipos.length()-1);
 	    	    				PreparedStatement smt = con
-	    	    						.prepareStatement("insert into  `"+s.baseDato+"`.equipo (codigo,nombre,id_unidad,id_grupo) VALUES "+newEquipos+";");
+	    	    						.prepareStatement("insert into  `"+s.baseDato+"`.equipo (codigo, nombre, id_unidad, id_grupo, kg, m2) VALUES "+newEquipos+";");
 	    	    				
 	    	    				smt.executeUpdate();
 	    	    				smt.close();
@@ -790,49 +778,7 @@ public class MnuCompras extends Controller {
 	    	    					selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
 	    	    				}
 	    	    				
-	    	    				Map<String,String> mapIdEquipVsCodEquip = new HashMap<String,String>();
-	    	    				PreparedStatement smt2 = con
-	    	    						.prepareStatement("Select id, codigo from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
-	    	    				ResultSet rs2 = smt2.executeQuery();
-	    	    				List<String> idsEquipo = new ArrayList<String>();
-	    	    				while(rs2.next()) {
-	    	    					idsEquipo.add(rs2.getString(1));
-	    	    					mapIdEquipVsCodEquip.put(rs2.getString(1), rs2.getString(2));
-	    	    				}
-	    	    				smt2.close();
-	    	    				rs2.close();
-	    	    				
-	    	    				
 	    	    				String datos = "";
-	    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
-	    	    				
-	    	    				String datosKgM2 = "";
-	    	    				Map<String,String> mapGrupoKG = Atributo.mapIdGrupoVsIdAtributo_KG(con, s.baseDato);
-	    	    				Map<String,String> mapGrupoM2 = Atributo.mapIdGrupoVsIdAtributo_M2(con, s.baseDato);
-	    	    				
-	    	    				for(String idEquipo: idsEquipo){
-	    	    					for(Sucursal sucursal: listSucursal) {
-	    	    						datos += "("+idEquipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+sucursal.getId()+"),";
-	    	    					}
-	    	    					
-	    	    					String codEquip = mapIdEquipVsCodEquip.get(idEquipo);
-	    	    					if(codEquip != null) {
-	    	    						List<String> KgM2 = mapKgM2.get(codEquip);
-	    	    						String idGrupo = KgM2.get(0);
-	    	    						String KG = KgM2.get(1);
-	    	    						String M2 = KgM2.get(2);
-	    	    						
-	    	    						String idAtributo = mapGrupoKG.get(idGrupo);
-	    	    						if(idAtributo!=null) {
-	    	    							datosKgM2 +=  "("+idEquipo+","+idAtributo+","+KG+"),";
-	    	    						}
-	    	    						
-	    	    						idAtributo = mapGrupoM2.get(idGrupo);
-	    	    						if(idAtributo!=null) {
-	    	    							datosKgM2 +=  "("+idEquipo+","+idAtributo+","+M2+"),";
-	    	    						}
-	    	    					}
-	    	    				}
 	    	    				
 	    	    				if(datos.length()>1) {
 	    	    					datos = datos.substring(0,datos.length()-1);
@@ -844,19 +790,7 @@ public class MnuCompras extends Controller {
 		    	    				smt3.close();
 	    	    				}
 	    	    				
-	    	    				if(datosKgM2.length()>1) {
-	    	    					datosKgM2 = datosKgM2.substring(0,datosKgM2.length()-1);
-		    	    				PreparedStatement smt3 = con
-		    	    						.prepareStatement("insert into `"+s.baseDato+"`.atributoEquipo "
-		    	    								+ " (id_equipo, id_atributo,numAtributo) "
-		    	    								+ " values "+datosKgM2+";");
-		    	    				smt3.executeUpdate();
-		    	    				smt3.close();
-	    	    				}
-	    	    				
 	    	    			}
-		    				
-		    				
 		    				
 	    	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -921,7 +855,7 @@ public class MnuCompras extends Controller {
 									/*0*/ aux.add(equipo.getGrupo());
 									/*1*/ aux.add(equipo.getCodigo());
 									/*2*/ aux.add(equipo.getNombre());
-									/*3*/ aux.add(DecimalFormato.formato(equipo.getKG(), (long)2));
+									/*3*/ aux.add(DecimalFormato.formato(equipo.getKg(), (long)2));
 									/*4*/ aux.add(DecimalFormato.formato(equipo.getM2(), (long)2));
 									/*5*/ aux.add(equipo.getUnidad());
 									/*6*/ aux.add(cant);

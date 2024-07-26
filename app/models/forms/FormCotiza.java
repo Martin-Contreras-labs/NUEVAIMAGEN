@@ -35,7 +35,6 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 
 import models.calculo.Inventarios;
-import models.tables.Atributo;
 import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.CotiBiblioteca;
@@ -206,7 +205,9 @@ public class FormCotiza {
 							" unidad.nombre," + 
 							" ifnull(grupo.id,0), " +
 							" ifnull(grupo.nombre,''), " +
-							" equipo.vigente " +
+							" equipo.vigente, " +
+							" equipo.kg, " +
+							" equipo.m2 " +
 							" from `"+db+"`.equipo  "+
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo "+
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad "+
@@ -214,8 +215,6 @@ public class FormCotiza {
 			ResultSet rs = smt.executeQuery();
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Double> pesos = Atributo.mapAtributoPESO(con, db);
-			Map<Long,Double> superficies = Atributo.mapAtributoM2(con, db);
 			
 			Map<String,TasaGrupo> mapTasaGrupo = TasaGrupo.mapTasaPorBodegaGrupo(con, db);
 			Map<String,TasaEquipo> mapTasaEquipo = TasaEquipo.mapTasaPorBodegaEquipo(con, db);
@@ -346,13 +345,11 @@ public class FormCotiza {
 				aux.add("0.00");  														//14 totalArriendo
 				aux.add("0.00");  														//15 totalVenta
 				
-				Double peso = pesos.get(rs.getLong(1));
-				if(peso==null) peso=(double)0;
-				Double sup = superficies.get(rs.getLong(1));
-				if(sup==null) sup=(double)0;
+				Double kg = rs.getDouble(8);
+				Double m2 = rs.getDouble(9);
 				
-				aux.add(peso.toString());  												//16 kg unitario
-				aux.add(sup.toString());  												//17 m2 unitario
+				aux.add(kg.toString());  												//16 kg unitario
+				aux.add(m2.toString());  												//17 m2 unitario
 				
 				aux.add("0.00");  														//18 total kg
 				aux.add("0.00");  														//19 total m2
