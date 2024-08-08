@@ -46,7 +46,8 @@ public class ReportFacturaConsolidado {
 	
 	
 	
-	public static List<List<String>> reportFacturaConsolidadoRtp (Connection con, String db, Fechas fecha, Long meses, String permisoPorBodega, String pais, String esPorSucursal, String id_sucursal) {
+	public static List<List<String>> reportFacturaConsolidadoRtp (Connection con, String db, Fechas fecha, Long meses, String permisoPorBodega, String pais, 
+			String esPorSucursal, String id_sucursal) {
 		
 		List<List<String>> listaFechas = new ArrayList<List<String>>();
     	for(int i=0;i<meses;i++) {
@@ -109,8 +110,9 @@ public class ReportFacturaConsolidado {
 			
 			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
 
-			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
 			
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
@@ -355,7 +357,8 @@ public class ReportFacturaConsolidado {
  	  	return tmp;
 	}
 	
-	public static List<List<String>> reportConsDetalladoRtp (Connection con, String db, Fechas fecha, Long meses, String permisoPorBodega, String pais, String esPorSucursal, String id_sucursal) {
+	public static List<List<String>> reportConsDetalladoRtp (Connection con, String db, Fechas fecha, Long meses, String permisoPorBodega, String pais, 
+			String esPorSucursal, String id_sucursal) {
 			
 			List<List<String>> listaFechas = new ArrayList<List<String>>();
 	    	for(int i=0;i<meses;i++) {
@@ -407,8 +410,9 @@ public class ReportFacturaConsolidado {
 				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
 				List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
 		
-				List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
 				
 				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
@@ -714,7 +718,8 @@ public class ReportFacturaConsolidado {
 	
 	//CONSOLIDADO POR EQUIPO
 	
-	public static List<List<String>> reportConsDetalladoPorEquipoRtp (Connection con, String db, Fechas fecha, Long meses, String permisoPorBodega, String pais, String esPorSucursal, String id_sucursal) {
+	public static List<List<String>> reportConsDetalladoPorEquipoRtp (Connection con, String db, Fechas fecha, Long meses, String permisoPorBodega, 
+			String pais, String esPorSucursal, String id_sucursal) {
 		
 		List<List<String>> listaFechas = new ArrayList<List<String>>();
     	for(int i=0;i<meses;i++) {
@@ -766,8 +771,9 @@ public class ReportFacturaConsolidado {
 			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
 			List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
 	
-			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
 			
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);

@@ -18,6 +18,7 @@ import models.calculo.Inventarios;
 import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
+import models.reports.ReportFacturas;
 import models.utilities.Fechas;
 
 
@@ -354,7 +355,6 @@ public class Ppto {
 		}
     	Map<String,List<ModeloCalculo>> mapTotales = new HashMap<String,List<ModeloCalculo>>();
     	Map<Long,Long> mapIdBodegas = new HashMap<Long,Long>();
-    	//List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");
     	List<Long> listIdBodegaEmpresa = new ArrayList<Long>();
     	listIdBodegaEmpresa.add(id_Bodega);
 		Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
@@ -376,9 +376,9 @@ public class Ppto {
     		List<Inventarios> guiasPerAux = Inventarios.guiasPer(con, db, listIdBodegaEmpresa, listIdGuia_entreFechas);
     		List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
 
-    		List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+    		ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
     				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
-    		
+    		List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
     		
     		
     		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 

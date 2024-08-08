@@ -178,7 +178,8 @@ public class ReportExcedentes {
 					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
-							" tipoMovimiento.nombre " +
+							" tipoMovimiento.nombre, " +
+							" guia.numGuiaCliente " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
@@ -188,33 +189,42 @@ public class ReportExcedentes {
 			smt1.setLong(1, id_bodegaEmpresa);
 			ResultSet rs1 = smt1.executeQuery();
 				List<String> numGuia = new ArrayList<String>();
+				List<String> numRef = new ArrayList<String>();
 				List<String> fechGuia = new ArrayList<String>();
 				List<String> blanco = new ArrayList<String>();
 				numGuia.add(" ");
+				numRef.add(" ");
 				fechGuia.add(" ");
 				blanco.add("Grupo");
 				numGuia.add(" ");
+				numRef.add(" ");
 				fechGuia.add(" ");
 				blanco.add("Nro.Coti");
 				numGuia.add(" ");
+				numRef.add(" ");
 				fechGuia.add(" ");
 				blanco.add("Código");
 				numGuia.add(" ");
+				numRef.add(" ");
 				fechGuia.add(" ");
 				blanco.add("Descripción");
 				numGuia.add(" ");
+				numRef.add(" ");
 				fechGuia.add(" ");
 				blanco.add("kg");
 				numGuia.add(" ");
+				numRef.add(" ");
 				fechGuia.add(" ");
 				blanco.add("m2");
 				
 				numGuia.add("Nro. Mov:");
+				numRef.add("Nro. Ref:");
 				fechGuia.add("Fecha:");
 				blanco.add(" ");
 				
 				while (rs1.next()) {
 					numGuia.add(rs1.getString(1));
+					numRef.add(rs1.getString(4));
 					fechGuia.add(rs1.getString(2));
 					blanco.add(" ");
 				}
@@ -223,7 +233,8 @@ public class ReportExcedentes {
 				smt1.close();
 				
 				numGuia.add("TOTAL DE");
-				fechGuia.add("EXCEDEN");
+				numRef.add("EXCEDEN");
+				fechGuia.add("");
 				blanco.add("");
 				
 				PreparedStatement smt2 = con
@@ -304,6 +315,7 @@ public class ReportExcedentes {
 				smt4.close();
 				
 				lista.add(numGuia);
+				lista.add(numRef);
 				lista.add(fechGuia);
 				lista.add(blanco);
 				
@@ -476,7 +488,7 @@ public class ReportExcedentes {
 				Double aux = (double)0;
 				for(int j=0;j<datos.get(i).size();j++){
 					String dato = datos.get(i).get(j);
-					if(i<3){
+					if(i<4){
 						posCell++; 
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);

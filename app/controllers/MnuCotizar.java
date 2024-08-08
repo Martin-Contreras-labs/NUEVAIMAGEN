@@ -5817,7 +5817,7 @@ public class MnuCotizar extends Controller {
 	    	    						valPVta.add(puVentaDbl);
 	    	    						
 	    	    						Double puArrDbl = (double)0;
-	    	    						String puArrStr = l.get(7);
+	    	    						String puArrStr = l.get(10);
 	    	    						if(puArrStr!=null) {
 	    	    							try {
 	    	    								puArrDbl = Double.parseDouble(puArrStr);
@@ -5876,6 +5876,7 @@ public class MnuCotizar extends Controller {
 		    	    					}
 		    	    					
 		    	    				}
+		    	    				
 		    	    				if(datos.length()>1) {
 		    	    					datos = datos.substring(0,datos.length()-1);
 		    	    				}
@@ -5968,9 +5969,10 @@ public class MnuCotizar extends Controller {
 		    	    						if(!auxStr.equals("")) {
 		    	    							try {
 		    	    								puVentaDbl = Double.parseDouble(auxStr);
-		    	    								if((double)puVentaDbl > (double)0) {
-		    	    									puVentaStr = DecimalFormato.formato(puVentaDbl, decimal);
+		    	    								if((double)puVentaDbl < (double)0) {
+		    	    									puVentaDbl = (double)0;
 		    	    								}
+		    	    								puVentaStr = DecimalFormato.formato(puVentaDbl, decimal);
 		    	    							}catch(Exception e){}
 		    	    						}
 		    	    						listaConPrecio.get(i).set(5, puVentaStr);
@@ -5987,12 +5989,13 @@ public class MnuCotizar extends Controller {
 		    	    						String puArrStr = listaConPrecio.get(i).get(7);
 		    	    						Double puArrDbl = Double.parseDouble(puArrStr.replaceAll(",", ""));
 		    	    						auxStr = lexcel.get(10).trim();
-		    	    						if(!auxStr.equals("")) {
+		    	    						if(! auxStr.equals("")) {
 		    	    							try {
 		    	    								puArrDbl = Double.parseDouble(auxStr);
-		    	    								if((double)puArrDbl > (double)0) {
-		    	    									puArrStr = DecimalFormato.formato(puArrDbl, decimal);
+		    	    								if((double)puArrDbl < (double)0) {
+		    	    									puArrDbl = (double)0;
 		    	    								}
+		    	    								puArrStr = DecimalFormato.formato(puArrDbl, decimal);
 		    	    							}catch(Exception e){}
 		    	    						}
 		    	    						listaConPrecio.get(i).set(7, puArrStr);

@@ -32,6 +32,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
+import models.calculo.Inventarios;
+import models.calculo.ModCalc_GuiasPer;
 import models.tables.AjustesEP;
 import models.tables.BodegaEmpresa;
 import models.tables.Cotizacion;
@@ -290,6 +292,16 @@ public class ReportMovimientos {
 			Map<Long,BodegaEmpresa> mapBodegaEmpresa = BodegaEmpresa.mapAll(con, db);
 				
 			String auxiliarDeReparacion="";
+			
+			Fechas hastaAjustar = new Fechas();
+			Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+			hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+			String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -6).getFechaStrAAMMDD();
+			String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, deAjustado, aAjustado);
+			
+			Map<Long, List<Inventarios>> mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
+			
 			for(int i=0;i<listaCodigos.size();i++){
 				
 				if(!auxiliarDeReparacion.equals(listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2))) {
@@ -397,8 +409,43 @@ public class ReportMovimientos {
 					try {
 						precioDia  = myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {};
+					
 					if(esVenta.equals("0")) {
-						arriendo = cantStockIni*dias*precioDia;
+						
+						// AJUSTES POR SALDOS DIAS DE GRACIA
+						Long nDiaGraciaEnvio = bodega.getnDiaGraciaEnvio();
+							Double ajustePorGracia = (double)0;
+							if(nDiaGraciaEnvio > 0) {
+								//List<Inventarios> guiasPer = new ArrayList<Inventarios>();
+								
+								//List<Long> auxListIdBodegaEmpresa = new ArrayList<Long>();
+								//auxListIdBodegaEmpresa.add(bodega.getId());
+								List<Inventarios> guiasPer = mapGuiasPer.get(bodega.getId());
+								
+								//guiasPer = Inventarios.guiasPer(con, db, auxListIdBodegaEmpresa, listIdGuia_entreFechas);
+								
+								for(int k=0; k<guiasPer.size(); k++) {
+									String idEquipo = listaCodigos.get(i).get(10);
+									String idCotizacion = listaCodigos.get(i).get(8);
+									if(	(long) guiasPer.get(k).id_equipo == Long.parseLong(idEquipo)
+											&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) bodega.getId()
+											&& (long) guiasPer.get(k).id_cotizacion == Long.parseLong(idCotizacion) )
+									{
+										Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+										Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
+										if(guiasPer.get(k).id_tipoMovimiento == 1) {
+											diasGuia = diasGuia - nDiaGraciaEnvio + 1;
+											if(diasGuia < 0 ) {
+												ajustePorGracia += guiasPer.get(k).cantidad * diasGuia * precioDia ;
+											}
+										}
+									}
+								}
+							}
+						// FIN AJUSTES
+							
+							arriendo = cantStockIni * dias * precioDia + ajustePorGracia;
+						
 					}else {
 						arriendo = (double)0;
 					}
@@ -435,14 +482,19 @@ public class ReportMovimientos {
 									cobraDiaDespacho = (long)1;
 								}
 								if(Double.parseDouble(cantidad.trim())>0) {
-									cantDeDespachos=cantDeDespachos+Double.parseDouble(cantidad.trim());
+									cantDeDespachos = cantDeDespachos + Double.parseDouble(cantidad.trim());
 									diasPeriodo = Math.round ( (double) (hasta.fechaCal.getTimeInMillis() - fechaGuia.fechaCal.getTimeInMillis() ) / (24 * 60 * 60 * 1000) );
 									diasPeriodo = diasPeriodo + cobraDiaDespacho-nDiaGraciaEnvio;
+									if(diasPeriodo < 0) {
+										diasPeriodo = (long)0;
+									}
 								}else {
 									diasPeriodo = Math.round ( (double) ( hasta.fechaCal.getTimeInMillis() - fechaGuia.fechaCal.getTimeInMillis() )/(24 * 60 * 60 * 1000));
-									diasPeriodo=diasPeriodo+nDiaGraciaRegreso;
+									diasPeriodo = diasPeriodo + nDiaGraciaRegreso;
 									if(tratoDevoluciones==2) diasPeriodo=diasPeriodo-1;
-									if(diasPeriodo<0) diasPeriodo=(long)0;
+									if(diasPeriodo<0) {
+										diasPeriodo=(long)0;
+									}
 								}
 								
 								if((long)baseCalculo == (long)2) {
@@ -477,9 +529,9 @@ public class ReportMovimientos {
 									
 								}
 								if(esVenta.equals("0")) {
-									arriendo=arriendo+Double.parseDouble(cantidad.trim())*diasPeriodo*precioDia;
+									arriendo = arriendo + Double.parseDouble(cantidad.trim()) *diasPeriodo * precioDia;
 								}else {
-									arriendo=arriendo+Double.parseDouble(cantidad.trim())*precioVenta;
+									arriendo = arriendo + Double.parseDouble(cantidad.trim()) * precioVenta;
 								}
 								
 							}
@@ -2137,7 +2189,14 @@ public class ReportMovimientos {
 				
 				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
 				
+				Fechas hastaAjustar = new Fechas();
+				Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+				hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+				String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -6).getFechaStrAAMMDD();
+				String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, deAjustado, aAjustado);
 				
+				Map<Long, List<Inventarios>> mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
 				
 				for(int i=0;i<listaCodigos.size();i++){
 					if(!auxiliarDeReparacion.equals(listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2))) {
@@ -2231,7 +2290,41 @@ public class ReportMovimientos {
 		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 						Double precioDia=(double)0;try {precioDia  = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {};
 						if(esVenta.equals("0")) {
-							arriendo=cantStockIni*dias*precioDia;
+							
+							// AJUSTES POR SALDOS DIAS DE GRACIA
+								Long nDiaGraciaEnvio = bodegaEmpresa.getnDiaGraciaEnvio();
+								Double ajustePorGracia = (double)0;
+								if(nDiaGraciaEnvio > 0) {
+									//List<Inventarios> guiasPer = new ArrayList<Inventarios>();
+									//List<Long> auxListIdBodegaEmpresa = new ArrayList<Long>();
+									//auxListIdBodegaEmpresa.add(bodegaEmpresa.getId());
+									
+									List<Inventarios> guiasPer = mapGuiasPer.get(bodegaEmpresa.getId());
+									
+									
+									//guiasPer = Inventarios.guiasPer(con, db, auxListIdBodegaEmpresa, listIdGuia_entreFechas);
+									for(int k=0; k<guiasPer.size(); k++) {
+										String idEquipo = listaCodigos.get(i).get(10);
+										String idCotizacion = listaCodigos.get(i).get(8);
+										if(	(long) guiasPer.get(k).id_equipo == Long.parseLong(idEquipo)
+												&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) bodegaEmpresa.getId()
+												&& (long) guiasPer.get(k).id_cotizacion == Long.parseLong(idCotizacion) )
+										{
+											Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+											Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
+											if(guiasPer.get(k).id_tipoMovimiento == 1) {
+												diasGuia = diasGuia - nDiaGraciaEnvio + 1;
+												if(diasGuia < 0 ) {
+													ajustePorGracia += guiasPer.get(k).cantidad * diasGuia * precioDia ;
+												}
+											}
+										}
+									}
+								}
+							// FIN AJUSTES
+								
+								arriendo = cantStockIni * dias * precioDia + ajustePorGracia;
+							
 						}else {
 							arriendo=(double)0;
 						}
@@ -2256,12 +2349,17 @@ public class ReportMovimientos {
 										cantDeDespachos=cantDeDespachos+Double.parseDouble(cantidad.trim());
 										diasPeriodo = Math.round ( (double) (hasta.fechaCal.getTimeInMillis() - fechaGuia.fechaCal.getTimeInMillis() ) / (24 * 60 * 60 * 1000) );
 										diasPeriodo = diasPeriodo + bodegaEmpresa.cobraDiaDespacho - bodegaEmpresa.nDiaGraciaEnvio;
+										if(diasPeriodo < 0) {
+											diasPeriodo = (long)0;
+										}
 									}else {
 										
 										diasPeriodo = Math.round ( (double) ( hasta.fechaCal.getTimeInMillis() - fechaGuia.fechaCal.getTimeInMillis() )/(24 * 60 * 60 * 1000));
 										diasPeriodo=diasPeriodo + bodegaEmpresa.nDiaGraciaRegreso;
 										if((double)bodegaEmpresa.tratoDevoluciones==(double)2) diasPeriodo=diasPeriodo-1;
-										if(diasPeriodo<0) diasPeriodo=(long)0;
+										if(diasPeriodo < 0) {
+											diasPeriodo = (long)0;
+										}
 									}
 									if((long)bodegaEmpresa.baseCalculo==(long)2) {
 										String[] mes = fechaDesde.split("-");

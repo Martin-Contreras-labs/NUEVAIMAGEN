@@ -51,6 +51,15 @@ import models.utilities.Fechas;
 
 public class ReportFacturas {
 	
+	public Map<String, Long> mapGuiasConAjuste;
+	public List<ModCalc_InvInicial> resumenInvInicial;
+	
+	public ReportFacturas(Map<String, Long> mapGuiasConAjuste, List<ModCalc_InvInicial> resumenInvInicial) {
+		super();
+		this.mapGuiasConAjuste = mapGuiasConAjuste;
+		this.resumenInvInicial = resumenInvInicial;
+	}
+
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatint = new DecimalFormat("#,##0");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
@@ -122,8 +131,11 @@ public class ReportFacturas {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		
-		List<ModCalc_InvInicial> resumenInvInicialAll = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, mapTasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+		ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, mapTasas, listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 				listIdGuia_fechaCorte, inventario);
+		List<ModCalc_InvInicial> resumenInvInicialAll = reporte.resumenInvInicial;
+		Map<String,Long> mapGuiasConAjuste = reporte.mapGuiasConAjuste;
+		
 		
 		List<ModCalc_InvInicial> resumenInvInicial = new ArrayList<ModCalc_InvInicial>();
 		for(ModCalc_InvInicial x: resumenInvInicialAll) {
@@ -204,6 +216,14 @@ public class ReportFacturas {
 			}
 			
 			
+			String keyAjuste = resumenInvInicial.get(i).id_bodegaEmpresa+"_"+resumenInvInicial.get(i).id_equipo;
+			Long diasAjuste = mapGuiasConAjuste.get(keyAjuste);
+			String ajusteDias = "";
+			if(diasAjuste != null) {
+				ajusteDias = "(*) Considera descuento por saldo de días de gracia pendientes";
+			}
+			
+			
 			aux.add(resumenInvInicial.get(i).id_bodegaEmpresa.toString()); 		// 0 idBodegaEmpresa
 			aux.add(resumenInvInicial.get(i).id_equipo.toString()); 			// 1 idEquipo
 			aux.add("0"); 														// 2 idTipoMovimiento
@@ -214,7 +234,7 @@ public class ReportFacturas {
 			aux.add(grupo); 													// 7 nombre de grupo
 			aux.add(numeroCotizacion); 											// 8 numero cotizacion
 			aux.add(codEquipo); 												// 9 codigo equipo
-			aux.add(nomEquipo + " (ARRIENDO)"); 								// 10 nombre equipo
+			aux.add(nomEquipo + " (ARRIENDO)"+ajusteDias); 								// 10 nombre equipo
 			aux.add(unEquipo); 													// 11 unidad
 			aux.add(myformatdouble2.format(resumenInvInicial.get(i).cantidad)); 	// 12 cantidad
 			aux.add(moneda); 													// 13 moneda

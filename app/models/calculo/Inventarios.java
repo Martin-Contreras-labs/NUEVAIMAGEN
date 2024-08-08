@@ -285,6 +285,68 @@ public class Inventarios {
 		
 	}
 	
+	public static Map<Long, List<Inventarios>> guiasPerAllBodegas (Connection con, String db, List<Long> listIdGuia){
+		Map<Long, List<Inventarios>> map = new HashMap<Long, List<Inventarios>>();
+		
+		String listaInGuia = listIdGuia.toString().replace("[", "").replace("]", "");
+		
+		if(listaInGuia.trim().length()>0) {
+			try {
+				PreparedStatement smt = con
+						.prepareStatement(" select "
+								+ " movimiento.id_guia, "
+								+ " movimiento.id_bodegaEmpresa, "
+								+ " equipo.id_grupo, "
+								+ " movimiento.id_equipo,  "
+								+ " movimiento.id_cotizacion,  "
+								+ " movimiento.esVenta, "
+								+ " guia.fecha, "
+								+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad), "
+								+ " movimiento.id_tipoMovimiento "
+								+ " from `"+db+"`.movimiento "
+								+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia "
+								+ " left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo "
+								+ " where movimiento.id_guia in ("+listaInGuia+") "
+								+ " group by movimiento.id_guia, movimiento.id_bodegaEmpresa, movimiento.id_equipo, "
+								+ " movimiento.id_cotizacion,  "
+								+ " movimiento.esVenta "
+								+ " order by movimiento.id_bodegaEmpresa, equipo.id_grupo, equipo.id, guia.fecha;");
+				
+				
+				ResultSet rs = smt.executeQuery();
+				while (rs.next()) {
+					
+					Inventarios aux = new Inventarios();
+					aux.id_guia = rs.getLong(1);
+					aux.id_bodegaEmpresa = rs.getLong(2);
+					aux.id_grupo = rs.getLong(3);
+					aux.id_equipo = rs.getLong(4);
+					aux.id_cotizacion = rs.getLong(5);
+					aux.esVenta = rs.getLong(6);
+					aux.fechaGuia = rs.getString(7);
+					aux.cantidad = rs.getDouble(8);
+					aux.id_tipoMovimiento = rs.getLong(9);
+					
+					List<Inventarios> lista = map.get(rs.getLong(2));
+					if(lista == null) {
+						List<Inventarios> auxLista = new ArrayList<Inventarios>();
+						auxLista.add(aux);
+						map.put(rs.getLong(2), auxLista);
+					}else {
+						lista.add(aux);
+						map.put(rs.getLong(2), lista);
+					}
+				}
+				rs.close();
+				smt.close();
+			} catch (SQLException e) {
+	    			e.printStackTrace();
+			}
+		}
+		return map;
+		
+	}
+	
 	//obtiene inventario por bodega de un determinado equipo:
 	public static Map<Long,Double> mapIdBodconCantPorUnEquipo (Connection con, String db, Long id_equipo) {
 		 Map<Long,Double> map = new HashMap<Long,Double>();

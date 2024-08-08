@@ -482,7 +482,7 @@ public class ModeloCalculo {
 	
 	public static List<ModeloCalculo> valorTotalporBodegaYGrupo(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
 			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
-		
+
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
 		Map<String,String> listaBodegasGrupo = new HashMap<String,String>();
 		Map<String,ModeloCalculo> invInicial = new HashMap<String,ModeloCalculo>();
@@ -530,7 +530,11 @@ public class ModeloCalculo {
 		flagId_Bodega = flagId_Grupo = (long) 0;
 		id_bodegaEmpresa = id_grupo = (long) 0;
 		//GUIAS DEL PERIODO:
+		 
 		for(int i=0; i<guiasPeriodo.size(); i++) {
+			
+			
+			
 			if((flagId_Bodega - guiasPeriodo.get(i).id_bodegaEmpresa) != 0) {
 				flagId_Bodega = guiasPeriodo.get(i).id_bodegaEmpresa;
 				flagId_Grupo = (long) 0;
@@ -556,6 +560,8 @@ public class ModeloCalculo {
 			totalCfi = totalCfi +  guiasPeriodo.get(i).totalCfi;
 			totalVenta = totalVenta +  guiasPeriodo.get(i).totalVenta;
 			
+			
+			
 			if(i == guiasPeriodo.size()-1) {
 				ModeloCalculo aux = new ModeloCalculo();
 				aux.id_bodegaEmpresa = id_bodegaEmpresa;
@@ -566,6 +572,7 @@ public class ModeloCalculo {
 				guias.put(id_bodegaEmpresa+"_"+id_grupo+"_Guia", aux);
 				listaBodegasGrupo.put(id_bodegaEmpresa+"_"+id_grupo, id_bodegaEmpresa+"_"+id_grupo);
 			}
+			
 		}
 		//SUMA INVENTARIO INICIAL MAS GUIAS 
 		for (String v : listaBodegasGrupo.values()) {

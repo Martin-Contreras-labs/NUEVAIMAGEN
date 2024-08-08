@@ -1188,6 +1188,8 @@ public class Guia {
 		return (aux);
 	}
 	
+	
+	
 	public static List<Guia> all(Connection con, String db) {
 		List<Guia> aux = new ArrayList<Guia>();
 		try {

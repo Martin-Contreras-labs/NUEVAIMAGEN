@@ -64,7 +64,7 @@ public class ReportHohe {
 						/*5*/	+ "e.id as id_equipo, "
 						/*6*/	+ "gr.id as id_grupo, "
 						/*7*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad as cantidad, "
-						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad * equipo.kg as peso, "
+						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad * e.kg as peso, "
 						/*9*/	+ "b.nombre as bodegaEmpresa, "
 						/*10*/	+ "ifnull((select nombre from `"+db+"`.bodegaEmpresa where id = m.id_bodegaOrigen),'NA') as origen, "
 						/*11*/	+ "t.nombre as tipoMovimiento, "
@@ -360,7 +360,7 @@ public class ReportHohe {
 						/*5*/	+ "e.id as id_equipo, "
 						/*6*/	+ "gr.id as id_grupo, "
 						/*7*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad as cantidad, "
-						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad * equipo.kg as peso, "
+						/*8*/	+ "if(m.id_tipoMovimiento=2,-1,1) * m.cantidad * e.kg as peso, "
 						/*9*/	+ "b.nombre as bodegaEmpresa, "
 						/*10*/	+ "ifnull((select nombre from `"+db+"`.bodegaEmpresa where id = m.id_bodegaOrigen),'NA') as origen, "
 						/*11*/	+ "t.nombre as tipoMovimiento, "
@@ -395,7 +395,6 @@ public class ReportHohe {
 									" and lp.id_cotizacion = m.id_cotizacion "+
 									" where b.id is not null "+
 									" and g.fecha between '"+desde+"' and '"+hasta+"';");
-
 					ResultSet rs = smt.executeQuery();
 					
 					//id_equipo vs list  0 precioVenta 1 precioArriendo 2 idUnidadTiempo 3 idMoneda
@@ -1740,8 +1739,9 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 								+ " equipo.id_grupo,"
 								+ " grupo.nombre, "
 								+ " equipo.kg,"
-								+ " equipo.m2" +
-								" from `"+db+"`.equipo left join `"+db+"`.grupo on grupo.id=equipo.id_grupo " + 
+								+ " equipo.m2"
+								+ " from `"+db+"`.equipo "
+								+ " left join `"+db+"`.grupo on grupo.id=equipo.id_grupo " + 
 								" where equipo.id in ("+listaCond+") " + 
 								" order by equipo.nombre;");
 				ResultSet rs = smt.executeQuery();

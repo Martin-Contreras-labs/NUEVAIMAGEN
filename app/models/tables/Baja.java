@@ -341,7 +341,7 @@ public class Baja {
 				aux.add(rs.getString(8));		// 7 motivo
 				aux.add(rs.getString(9));		// 8 doc adjunto
 				aux.add(rs.getString(10));		// 9 id_equipo
-				aux.add(rs.getString(10));		// 10 id_actaBaja
+				aux.add(rs.getString(11));		// 10 id_actaBaja
 				lista.add(aux);
 			}
 			rs.close();

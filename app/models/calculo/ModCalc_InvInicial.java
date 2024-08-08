@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import controllers.HomeController;
+import models.reports.ReportFacturas;
+import models.utilities.DatabaseRead;
 import models.utilities.Fechas;
 
 
@@ -79,7 +82,7 @@ public class ModCalc_InvInicial {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
-	public static List<ModCalc_InvInicial> resumenInvInicial(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
+	public static ReportFacturas resumenInvInicial(String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas, 
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios,
 			List<Long> listIdGuia_fechaCorte, List<Inventarios> inventario) {
 		
@@ -91,12 +94,29 @@ public class ModCalc_InvInicial {
 //		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 		
 		List<ModCalc_InvInicial> listado = new ArrayList<ModCalc_InvInicial>();
-		//List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
-		//List<Inventarios> inventario = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-		
 		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 		
+		
+		List<Long> listIdGuia_entreFechas =  new ArrayList<Long>();
+		Fechas hastaAjustar = new Fechas();
+		Map<Long, List<Inventarios>> mapGuiasPer = new HashMap<Long, List<Inventarios>>();
+		try {
+			DatabaseRead dbRead = HomeController.dbRead;
+			Connection con = dbRead.getConnection();
+				Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+				hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+				String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+				String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, deAjustado, aAjustado);
+				mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		Map<String, Long> mapIdEquiposConAjuste = new HashMap<String,Long>(); // map bodega VS list<idguia_dias>
 		
 		for(int i=0; i<inventario.size(); i++) {
 			
@@ -151,11 +171,49 @@ public class ModCalc_InvInicial {
 					maestroId_moneda = maestroPrecios.id_moneda;
 				}
 				
-				
 				// HACE EL CALCULO
-				if((long) inventario.get(i).esVenta == (long) 0) {
-					totalArriendo = inventario.get(i).cantidad * diasPeriodo * pArr_dia * tasaCambio;
-					maestroTotalArriendo = inventario.get(i).cantidad * diasPeriodo * maestroPArr_dia * maestroTasaCambio;
+				if((long) inventario.get(i).esVenta == (long) 0 ) {
+					
+
+					// AJUSTES POR SALDOS DIAS DE GRACIA
+							Long nDiaGraciaEnvio = (long) 0;
+							if(bodegaEmpresa!=null) { 
+								nDiaGraciaEnvio = bodegaEmpresa.nDiaGraciaEnvio;
+							} else {
+								baseCalculo = (long) 1;
+								nDiaGraciaEnvio = (long) 0;
+							}
+							Double ajustePorGracia = (double)0;
+							Double ajustePorGraciaMaestro = (double)0;
+							
+							
+							if(nDiaGraciaEnvio > 0 && (long) inventario.get(i).esVenta == (long) 0) {
+								List<Inventarios> guiasPer = mapGuiasPer.get(inventario.get(i).id_bodegaEmpresa);
+								if(guiasPer!=null) {
+									for(int k=0; k<guiasPer.size(); k++) {
+										if(		(long) guiasPer.get(k).id_equipo == (long) inventario.get(i).id_equipo 
+												&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) inventario.get(i).id_bodegaEmpresa
+												&& (long) guiasPer.get(k).id_cotizacion == (long) inventario.get(i).id_cotizacion )
+										{
+											Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+											Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
+											if(guiasPer.get(k).id_tipoMovimiento == 1) {
+												diasGuia = diasGuia - nDiaGraciaEnvio + 1;
+												if(diasGuia < 0 ) {
+													ajustePorGracia += guiasPer.get(k).cantidad * diasGuia * pArr_dia * tasaCambio;
+													ajustePorGraciaMaestro += guiasPer.get(k).cantidad * diasGuia * pArr_dia * maestroTasaCambio;
+													mapIdEquiposConAjuste.put(guiasPer.get(k).id_bodegaEmpresa+"_"+guiasPer.get(k).id_equipo, diasGuia*-1);
+												}
+											}
+										}
+									}
+								}
+							}
+					// FIN AJUSTES
+							
+					
+					totalArriendo = inventario.get(i).cantidad * (diasPeriodo) * pArr_dia * tasaCambio + ajustePorGracia;
+					maestroTotalArriendo = inventario.get(i).cantidad * (diasPeriodo) * maestroPArr_dia * maestroTasaCambio + ajustePorGraciaMaestro;
 				}
 				
 				ModCalc_InvInicial aux = new ModCalc_InvInicial();
@@ -182,8 +240,19 @@ public class ModCalc_InvInicial {
 				aux.maestroTotalTotal = maestroTotalArriendo;
 				listado.add(aux);
 			}
+			
+			
 		}
-		return(listado);
+		
+		// DEBO CREAR LA CLASE PARA RETORNAR LISTADO Y MAPEO
+		
+		mapIdEquiposConAjuste.forEach((k,v)->{
+			System.out.println(k+" => "+v);
+		});
+		
+		ReportFacturas reporte = new ReportFacturas(mapIdEquiposConAjuste,listado);
+		
+		return(reporte);
 	}
 	
 	
@@ -213,11 +282,12 @@ public class ModCalc_InvInicial {
 	}
 	
 	public static List<Long> listIdBodegaEmpresa (Connection con, String db, String permisoPorBodega){
+		// ZZZZZZZZZZZZZZZ AGREGAR FILTRO DE BODEGA si id_bodega > 0 aplicar filtro ojo con permisoPorBodega + " and id = 104;"
 		List<Long> lista = new ArrayList<Long>();
 		permisoPorBodega = permisoPorBodega.replaceAll("movimiento", "bodegaEmpresa").replaceAll("id_bodegaEmpresa", "id");
 		try {
 			PreparedStatement smt = con
-					.prepareStatement(" select id from `"+db+"`.bodegaEmpresa where esInterna = 2 and vigente = 1 " + permisoPorBodega + ";");
+					.prepareStatement(" select id from `"+db+"`.bodegaEmpresa where esInterna = 2 and vigente = 1 " + permisoPorBodega + ";"); //" and id = 900;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(rs.getLong(1));

@@ -34,6 +34,7 @@ import org.apache.poi.util.TempFile;
 import models.tables.Compra;
 import models.tables.Equipo;
 import models.tables.Moneda;
+import models.tables.Precio;
 import models.tables.TasasCambio;
 import models.tables.TipoBodega;
 import models.utilities.Archivos;
@@ -729,19 +730,17 @@ public class ReportEjecutivos {
 			
 			while (rs6.next()) {
 				
-				List<Double> auxIdMoneda = mapPLista.get(rs6.getLong(3));
-				
+				List<Double> listPLista =  mapPLista.get(rs6.getLong(3));
 				Long idMonedaCompra = (long)1;
-				if(auxIdMoneda!=null) {
-					idMonedaCompra = auxIdMoneda.get(3).longValue();
+				Double precioArriendo = (double)1;
+				Double unidadArriendo = (double)1;
+						
+				if(listPLista != null) {
+					idMonedaCompra = listPLista.get(3).longValue();
+					precioArriendo = listPLista.get(1);
+					unidadArriendo = listPLista.get(2);
 				}
-					
-				Double precioArriendo = mapPLista.get(rs6.getLong(3)).get(1);
-					if(precioArriendo==null) precioArriendo=(double)1;
-					
-				Double unidadArriendo=mapPLista.get(rs6.getLong(3)).get(2);
-					if(unidadArriendo==null) unidadArriendo=(double)1;
-					
+				
 				Double tasaArriendo = tasasCorte.get(idMonedaCompra);
 					if(tasaArriendo==null) tasaArriendo=(double)0;
 					

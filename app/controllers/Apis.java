@@ -19,6 +19,7 @@ import models.utilities.Fechas;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import controllers.HomeController.Sessiones;
 import models.apiRest.InventariosFechaCorte;
 import models.apiRest.MovimientosEntreFechas;
 import models.apiRest.ResumenDetallePorPeriodo;
@@ -478,8 +479,10 @@ public class Apis extends Controller {
 				
 				con.close();
 			
-			List<ModCalc_InvInicial> inventarioInicial = ModCalc_InvInicial.resumenInvInicial(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+			Sessiones s = new Sessiones(request);
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
 			
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);

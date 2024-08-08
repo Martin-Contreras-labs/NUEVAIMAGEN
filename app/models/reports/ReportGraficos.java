@@ -400,11 +400,12 @@ public class ReportGraficos {
 		
 		List<String> resultado = new ArrayList<String>();
 		resultado.add(categoriaFechas);
-		
+
 		List<List<List<String>>> aux = new ArrayList<List<List<String>>>();
 		for(int i=0;i<listFechas.size();i++){
 			aux.add(ReportGraficos.ocupacionUnidadesFechaYGrupo(con, db, listFechas.get(i).toString(), pais, esPorSucursal, id_sucursal));
 		}
+		
 		for(int i=0;i<aux.get(0).size();i++){
 			String aux4 = ",";if(i==aux.get(0).size()-1) aux4="";
 			String aux3 = "{"+
@@ -430,6 +431,92 @@ public class ReportGraficos {
 		return (resultado);
 	}
 	
+	
+	public static List<List<String>> ocupacionUnidadesFechaYGrupo(Connection con, String db, List<List<String>> listOcupacion, String pais, String esPorSucursal, String id_sucursal) {
+		List<String> tipoBodegas = new ArrayList<String>();
+		List<String> grupos = new ArrayList<String>();
+		
+		
+		Map<String,Double> mapListaGrupoTipBod = new HashMap<String,Double>();
+		Map<String,Double> mapListaGrupo = new HashMap<String,Double>();
+		
+		try {
+			for(List<String> lista: listOcupacion) {
+				Double total = Double.parseDouble(lista.get(4));
+				
+				Double acum1 = mapListaGrupo.get(lista.get(2));
+				if(acum1==null) {
+					acum1 = (double)0;
+				}
+				
+				Double acum2 = mapListaGrupoTipBod.get(lista.get(2)+"_"+lista.get(1));
+				if(acum2==null) {
+					acum2 = (double)0;
+				}
+				
+				mapListaGrupo.put(lista.get(2), total+acum1);
+				mapListaGrupoTipBod.put(lista.get(2)+"_"+lista.get(1), total+acum2);
+				
+			}
+			
+			PreparedStatement smt7 = con
+					.prepareStatement(" select tipoBodega.nombre from `"+db+"`.tipoBodega where id=2;");
+			ResultSet rs7 = smt7.executeQuery();
+			while (rs7.next()) {
+				tipoBodegas.add(rs7.getString(1));  //nombre de tipobodega
+			}
+			rs7.close();
+			smt7.close();
+			
+			PreparedStatement smt8 = con
+					.prepareStatement(" select " +
+							" grupo.nombre " +
+							" from `"+db+"`.grupo " +
+							" order by grupo.nombre;");
+			ResultSet rs8 = smt8.executeQuery();
+			while (rs8.next()) {
+				grupos.add(rs8.getString(1));  //nombre de grupo
+			}
+			rs8.close();
+			smt8.close();
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+	
+		Map<String,Double> suma = new HashMap<String,Double>();
+		
+		for(int j=0;j<grupos.size();j++){
+			Double total = (double) 0;
+			Double auxLista = mapListaGrupo.get(grupos.get(j));
+			if(auxLista!=null) {
+				total = total + auxLista;
+			}
+			suma.put(grupos.get(j), total);
+		}
+		
+		List<List<String>> resultado=new ArrayList<List<String>>();
+		
+		for(int j=0;j<tipoBodegas.size();j++){
+			for(int i=0;i<grupos.size();i++){
+				Double suma1 = suma.get(grupos.get(i));
+				if((double)suma1>(double)0){
+					Double total = (double) 0;
+					Double auxLista = mapListaGrupoTipBod.get(grupos.get(i)+"_"+tipoBodegas.get(j));
+					if(auxLista!=null) {
+						total = total + auxLista;
+					}
+					total= total/suma1;
+					DecimalFormat dec = new DecimalFormat("0");
+					List<String> aux= new ArrayList<String>();
+					aux.add(grupos.get(i));
+					aux.add(dec.format(total*100));
+					resultado.add(aux);
+				}
+				
+			}
+		}
+		return (resultado);
+	}
 	
 	public static List<List<String>> ocupacionUnidadesFechaYGrupo(Connection con, String db, String fechaAAMMDD, String pais, String esPorSucursal, String id_sucursal) {
 		List<String> tipoBodegas = new ArrayList<String>();
@@ -460,7 +547,7 @@ public class ReportGraficos {
 							" left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja " +
 							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
 							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" and ifnull(ifnull(guia.fecha,factura.fecha),actaBaja.fecha) <= ? " + condSucursal +
+							" where ifnull(ifnull(guia.fecha,factura.fecha),actaBaja.fecha) <= ? " + condSucursal +
 							" group by tipoBodega.nombre,movimiento.id_equipo " +
 							" order by grupo.nombre,equipo.nombre;");
 			smt6.setString(1, fechaAAMMDD);
@@ -544,7 +631,6 @@ public class ReportGraficos {
 		}
 		return (resultado);
 	}
-	
 	
 	
 	

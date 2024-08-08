@@ -656,7 +656,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		}
 		
 		let jsonDetalle = @Html(jsonDetalle);
-		
+
 		let escondeLosM2 = 0;
 		@if(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) {
 			escondeLosM2 = 1;
