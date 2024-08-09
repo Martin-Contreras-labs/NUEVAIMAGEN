@@ -330,7 +330,8 @@ POST	/clienteMantencion2/				controllers.MnuTablas.clienteMantencion2(request: R
 
 
 
-
+# SOLO DOM:
+GET     /domStockDiarioExcel0/					controllers.MnuReportes.domStockDiarioExcel0(request: Request)
 
 
 

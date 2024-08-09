@@ -194,6 +194,15 @@ public class BodegaEmpresa {
 		return (map);
 	}
 	
+	public static Map<Long,BodegaEmpresa> mapAllInternas(Connection con, String db) {
+		Map<Long,BodegaEmpresa> map = new HashMap<Long,BodegaEmpresa>();
+		List<BodegaEmpresa> lista = BodegaEmpresa.allInternas(con, db);
+		lista.forEach(x->{
+			map.put(x.getId(), x);
+		});
+		return (map);
+	}
+	
 	public static Map<String,Long> mapNombreVsId(Connection con, String db) {
 		Map<String,Long> map = new HashMap<String,Long>();
 		List<BodegaEmpresa> lista = BodegaEmpresa.all(con, db);

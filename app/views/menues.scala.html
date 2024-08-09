@@ -953,6 +953,7 @@
 								</ul>
 							</li>
 		        		}
+
 						@if(mapDiccionario.get("nEmpresa").equals("HOHE") && mapPermiso.get("reportesHOHE")!=null){
 							<div class="dropdown-divider" style="border-color:black"></div>
 							<li class="dropdown-submenu pull-left">
@@ -967,9 +968,17 @@
 								</ul>
 							</li>
 						}
+						
+						@if(mapDiccionario.get("nEmpresa").equals("DOM") && mapPermiso.get("reportesDOM")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href='/routes2/domStockDiarioExcel0/'>Stock Diario EXCEL</a>
+						}
+						
 		        	</ul>
 		        </li>
 			}
+			
+
 			
 			<!-- =================================== -->
 	        <!-- 			MENU COBRANZA	 		   	 -->  

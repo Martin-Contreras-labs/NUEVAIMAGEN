@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -6759,6 +6761,213 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
+	
+	
+	
+	//====================================================================================
+    // MNU reportesDOM   Reportes/Proforma/ SOLO DOM
+    //====================================================================================
+	
+	public Result domStockDiarioExcel0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			if(mapeoPermiso.get("reportesDOM")==null) {
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+			
+    		try {
+    			Connection con = dbRead.getConnection();
+    			String fechaCorte = "2024-08-08";
+    			
+    			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock
+    			List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod y equipo
+    			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo
+    			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad por despachar de OT confirmadas
+    			
+    			
+    			try {
+    				PreparedStatement smt = con
+    						.prepareStatement(" select"
+    								+ " movimiento.id_bodegaEmpresa,"
+    								+ " movimiento.id_equipo,"
+    								+ " if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,"
+    								+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+    								+ " from `"+s.baseDato+"`.movimiento"
+    								+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)" 
+    								// 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas 
+    								+ " left join `"+s.baseDato+"`.compra on compra.id = movimiento.id_compra"
+    								+ " left join `"+s.baseDato+"`.baja on baja.id = movimiento.id_baja"
+    								+ " left join `"+s.baseDato+"`.factura on factura.id = compra.id_factura"
+    								+ " left join `"+s.baseDato+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
+    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || factura.fecha <= ? || actaBaja.fecha <= ?)"
+    								+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo;");
+    				smt.setString(1, fechaCorte);
+    				smt.setString(2, fechaCorte);
+    				smt.setString(3, fechaCorte);
+    				ResultSet rs = smt.executeQuery();
+    				while (rs.next()) {
+    					// bodegas 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas 
+    					String key = rs.getString(1)+"_"+rs.getString(2);
+    					mapCantStock.put(key, rs.getLong(3));
+    				}
+    				rs.close();
+    				smt.close();
+    				
+    				PreparedStatement smt1 = con
+    						.prepareStatement("select id, codigo, nombre, kg, m2 from equipo where vigente = 1;");
+    				ResultSet rs1 = smt1.executeQuery();
+    				while (rs1.next()) {
+    					List<String> aux = new ArrayList<String>();
+    					aux.add(rs1.getString(1)); // 0 id_equipo
+    					aux.add(rs1.getString(2)); // 1 codigo
+    					aux.add(rs1.getString(3)); // 2 nombre
+    					aux.add(rs1.getString(4)); // 3 kg
+    					aux.add(rs1.getString(5)); // 4 m2
+    					listEquip.add(aux);
+    				}
+    				rs1.close();
+    				smt1.close();
+    				
+    				PreparedStatement smt2 = con
+    						.prepareStatement("select id_susucursal, id_equipo, sum(cantidad)"
+    								+ " from"
+    								+ "	 ("
+    								+ "	select"
+    								+ " bodegaEmpresa.id_sucursal as id_susucursal,"
+    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+    								+ "	movimiento.id_equipo as id_equipo,"
+    								+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+    								+ "	from `"+s.baseDato+"`.movimiento"
+    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
+    								+ " left join `"+s.baseDato+"`.compra on compra.id = movimiento.id_compra"
+    								+ " left join `"+s.baseDato+"`.baja on baja.id = movimiento.id_baja"
+    								+ " left join `"+s.baseDato+"`.factura on factura.id = compra.id_factura"
+    								+ " left join `"+s.baseDato+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
+    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
+    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || factura.fecha <= ? || actaBaja.fecha <= ?)"
+    								+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
+    								+ "	) as auxiliar"
+    								+ "group by id_equipo;");
+    				smt2.setString(1, fechaCorte);
+    				smt2.setString(2, fechaCorte);
+    				smt2.setString(3, fechaCorte);
+    				ResultSet rs2 = smt2.executeQuery();
+    				while (rs2.next()) {
+    					// sucursales 1 stgo 2 pto varas
+    					String key = rs2.getString(1)+"_"+rs2.getString(2); 
+    					mapCantArr.put(key, rs2.getLong(3));
+    				}
+    				rs2.close();
+    				smt2.close();
+    				
+    				PreparedStatement smt3 = con
+    						.prepareStatement("select id_susucursal, id_equipo, sum(cantidad)"
+    								+ " from"
+    								+ "	 ("
+    								+ "	select"
+    								+ " bodegaEmpresa.id_sucursal as id_susucursal,"
+    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+    								+ "	movimiento.id_equipo as id_equipo,"
+    								+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+    								+ "	from `"+s.baseDato+"`.movimiento"
+    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
+    								+ " left join `"+s.baseDato+"`.compra on compra.id = movimiento.id_compra"
+    								+ " left join `"+s.baseDato+"`.baja on baja.id = movimiento.id_baja"
+    								+ " left join `"+s.baseDato+"`.factura on factura.id = compra.id_factura"
+    								+ " left join `"+s.baseDato+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
+    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
+    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || factura.fecha <= ? || actaBaja.fecha <= ?)"
+    								+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
+    								+ "	) as auxiliar"
+    								+ "group by id_equipo;");
+    				smt3.setString(1, fechaCorte);
+    				smt3.setString(2, fechaCorte);
+    				smt3.setString(3, fechaCorte);
+    				ResultSet rs3 = smt3.executeQuery();
+    				while (rs3.next()) {
+    					// sucursales 1 stgo 2 pto varas
+    					String key = rs3.getString(1)+"_"+rs3.getString(2); 
+    					mapPorDespachar.put(key, rs.getLong(3));
+    				}
+    				rs2.close();
+    				smt2.close();
+    				
+    				
+    				
+    				
+    				con.close();
+    			} catch (SQLException e) {
+    	    			e.printStackTrace();
+    			}
+    			
+    			/*
+    			 	N° 1 - Codigo de Articulo
+					N° 2 - Nombre de Articulo
+					
+					N° 63 - Bodega Mantencion Santiago
+					N° 113 - Bodega Disponible Santiago
+					N° 112 - Pendientes por despachar Santiago
+					N° 114 - Total en Arriendo Santiago
+					N° 98 - Dimensión en M2 del Artículo
+					N° 52 - Bodega Mantencion Puerto Varas
+					N° 115 - Bodega Disponible Puerto Varas
+					N° 101 - Pendientes por despachar Puerto Varas
+					N° 102 - En arriendo Puerto Varas
+					N° 108 - Valor promedio de arriendo diario últimos 60 días.
+					
+					
+					************ FALTA HACER LA MEDIA DE 60 DIAS UN PROMEDIO PONDERADO DESDE PRECIO COTIZADO
+					
+					
+    			 */
+    			
+    			con.close();
+    			return ok("OK");
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+//	public Result domStockDiarioExcel(Http.Request request) {
+//		Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//    		 
+//    		DynamicForm form = formFactory.form().bindFromRequest(request);
+//	   		if (form.hasErrors()) {
+//	   			return ok(mensajes.render("/",msgErrorFormulario));
+//	       	}else {
+//	       		String fechaDesde = form.get("fechaDesde").trim();
+//	       		String fechaHasta = form.get("fechaHasta").trim();
+//	       		try {
+//	       			Connection con = dbRead.getConnection();
+//	       			List<List<String>> lista = ReportHohe.datos(con, s.baseDato, fechaDesde, fechaHasta);
+//	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReportTodo.xlsx");
+//	       			File file = ReportHohe.reporteHoheExcel(fechaDesde, fechaHasta, lista, formato);
+//	    			if(file!=null) {
+//		       			con.close();
+//		       			return ok(file,false,Optional.of("ReporteMatrizTodo.xlsx"));
+//		       		}else {
+//		       			con.close();
+//		       			return ok("");
+//		       		}
+//	        	} catch (SQLException e) {
+//	    			e.printStackTrace();
+//	    		}
+//	       		return ok("");
+//	       	}
+//    	}else {
+//    		return ok("");
+//    	}
+//	}
 }
 
 
