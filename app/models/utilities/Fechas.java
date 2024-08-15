@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 
@@ -53,6 +54,71 @@ public class Fechas{
 		Fechas fecha = new Fechas();
 		java.util.Date auxUtil = new Date();
 		java.util.Calendar auxCal = Calendar.getInstance();
+		java.sql.Date auxSql = new java.sql.Date(auxUtil.getTime());
+		String auxStr = myformatfecha.format(auxUtil);
+		String auxStrDDMMAA = myformatDDMMAA.format(auxUtil);
+		String auxStrAAMMDD = myformatAAMMDD.format(auxUtil);
+		fecha.setFechaCal(auxCal);
+		fecha.setFechaSql(auxSql);
+		fecha.setFechaStr(auxStr);
+		fecha.setFechaUtil(auxUtil);
+		fecha.setFechaStrDDMMAA(auxStrDDMMAA);
+		fecha.setFechaStrAAMMDD(auxStrAAMMDD);
+		return(fecha);
+	}
+	
+	public static Fechas hoyChile() {
+		Fechas fecha = new Fechas();
+		java.util.Date auxUtil = new Date();
+		java.util.Calendar auxCal = Calendar.getInstance();
+		java.sql.Date auxSql = new java.sql.Date(auxUtil.getTime());
+		String auxStr = myformatfecha.format(auxUtil);
+		String auxStrDDMMAA = myformatDDMMAA.format(auxUtil);
+		String auxStrAAMMDD = myformatAAMMDD.format(auxUtil);
+		fecha.setFechaCal(auxCal);
+		fecha.setFechaSql(auxSql);
+		fecha.setFechaStr(auxStr);
+		fecha.setFechaUtil(auxUtil);
+		fecha.setFechaStrDDMMAA(auxStrDDMMAA);
+		fecha.setFechaStrAAMMDD(auxStrAAMMDD);
+		
+		int mesHoy = auxCal.get(Calendar.MONTH);
+		int diaHoy = auxCal.get(Calendar.DAY_OF_MONTH);
+		
+		if(mesHoy > 8 || diaHoy < 4) {
+			Calendar primerSab = Calendar.getInstance();
+			primerSab.set(Calendar.DAY_OF_MONTH, 1);
+			while (primerSab.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+	            primerSab.add(Calendar.DAY_OF_MONTH, 1);
+	        }
+			
+			Calendar segunDom = Calendar.getInstance();
+			segunDom.set(Calendar.DAY_OF_MONTH, 1);
+			while (segunDom.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+				segunDom.add(Calendar.DAY_OF_MONTH, 1);
+	        }
+			segunDom.add(Calendar.DAY_OF_MONTH, 1);
+			segunDom.set(Calendar.DAY_OF_MONTH, 1);
+			while (segunDom.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+				segunDom.add(Calendar.DAY_OF_MONTH, 1);
+	        }
+			
+			if(primerSab.before(auxCal) && auxCal.before(segunDom)) {
+				fecha = Fechas.addHoras(auxCal, -3);
+			}else {
+				fecha = Fechas.addHoras(auxCal, -4);
+			}
+		} else {
+			fecha = Fechas.addHoras(auxCal, -4);
+		}
+		
+		return(fecha);
+	}
+	
+	public static Fechas addHoras(java.util.Calendar auxCal, int horas) {
+		Fechas fecha = new Fechas();
+		auxCal.add(Calendar.HOUR_OF_DAY, horas);
+		java.util.Date auxUtil = auxCal.getTime();
 		java.sql.Date auxSql = new java.sql.Date(auxUtil.getTime());
 		String auxStr = myformatfecha.format(auxUtil);
 		String auxStrDDMMAA = myformatDDMMAA.format(auxUtil);

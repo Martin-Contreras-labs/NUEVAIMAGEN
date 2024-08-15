@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -17,8 +18,22 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
 import controllers.HomeController.Sessiones;
@@ -57,6 +72,7 @@ import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Grupo;
+import models.tables.ListaPrecio;
 import models.tables.Moneda;
 import models.tables.Parametros;
 import models.tables.Precio;
@@ -6771,163 +6787,18 @@ public class MnuReportes extends Controller {
 	public Result domStockDiarioExcel0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("reportesDOM")==null) {
 				return ok(mensajes.render("/",msgSinPermiso));
 			}
-			
     		try {
     			Connection con = dbRead.getConnection();
-    			String fechaCorte = "2024-08-08";
-    			
-    			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock
-    			List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod y equipo
-    			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo
-    			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad por despachar de OT confirmadas
-    			
-    			
-    			try {
-    				PreparedStatement smt = con
-    						.prepareStatement(" select"
-    								+ " movimiento.id_bodegaEmpresa,"
-    								+ " movimiento.id_equipo,"
-    								+ " if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,"
-    								+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
-    								+ " from `"+s.baseDato+"`.movimiento"
-    								+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)" 
-    								// 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas 
-    								+ " left join `"+s.baseDato+"`.compra on compra.id = movimiento.id_compra"
-    								+ " left join `"+s.baseDato+"`.baja on baja.id = movimiento.id_baja"
-    								+ " left join `"+s.baseDato+"`.factura on factura.id = compra.id_factura"
-    								+ " left join `"+s.baseDato+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
-    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || factura.fecha <= ? || actaBaja.fecha <= ?)"
-    								+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo;");
-    				smt.setString(1, fechaCorte);
-    				smt.setString(2, fechaCorte);
-    				smt.setString(3, fechaCorte);
-    				ResultSet rs = smt.executeQuery();
-    				while (rs.next()) {
-    					// bodegas 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas 
-    					String key = rs.getString(1)+"_"+rs.getString(2);
-    					mapCantStock.put(key, rs.getLong(3));
-    				}
-    				rs.close();
-    				smt.close();
-    				
-    				PreparedStatement smt1 = con
-    						.prepareStatement("select id, codigo, nombre, kg, m2 from equipo where vigente = 1;");
-    				ResultSet rs1 = smt1.executeQuery();
-    				while (rs1.next()) {
-    					List<String> aux = new ArrayList<String>();
-    					aux.add(rs1.getString(1)); // 0 id_equipo
-    					aux.add(rs1.getString(2)); // 1 codigo
-    					aux.add(rs1.getString(3)); // 2 nombre
-    					aux.add(rs1.getString(4)); // 3 kg
-    					aux.add(rs1.getString(5)); // 4 m2
-    					listEquip.add(aux);
-    				}
-    				rs1.close();
-    				smt1.close();
-    				
-    				PreparedStatement smt2 = con
-    						.prepareStatement("select id_susucursal, id_equipo, sum(cantidad)"
-    								+ " from"
-    								+ "	 ("
-    								+ "	select"
-    								+ " bodegaEmpresa.id_sucursal as id_susucursal,"
-    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
-    								+ "	movimiento.id_equipo as id_equipo,"
-    								+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
-    								+ "	from `"+s.baseDato+"`.movimiento"
-    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
-    								+ " left join `"+s.baseDato+"`.compra on compra.id = movimiento.id_compra"
-    								+ " left join `"+s.baseDato+"`.baja on baja.id = movimiento.id_baja"
-    								+ " left join `"+s.baseDato+"`.factura on factura.id = compra.id_factura"
-    								+ " left join `"+s.baseDato+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
-    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
-    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || factura.fecha <= ? || actaBaja.fecha <= ?)"
-    								+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
-    								+ "	) as auxiliar"
-    								+ "group by id_equipo;");
-    				smt2.setString(1, fechaCorte);
-    				smt2.setString(2, fechaCorte);
-    				smt2.setString(3, fechaCorte);
-    				ResultSet rs2 = smt2.executeQuery();
-    				while (rs2.next()) {
-    					// sucursales 1 stgo 2 pto varas
-    					String key = rs2.getString(1)+"_"+rs2.getString(2); 
-    					mapCantArr.put(key, rs2.getLong(3));
-    				}
-    				rs2.close();
-    				smt2.close();
-    				
-    				PreparedStatement smt3 = con
-    						.prepareStatement("select id_susucursal, id_equipo, sum(cantidad)"
-    								+ " from"
-    								+ "	 ("
-    								+ "	select"
-    								+ " bodegaEmpresa.id_sucursal as id_susucursal,"
-    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
-    								+ "	movimiento.id_equipo as id_equipo,"
-    								+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
-    								+ "	from `"+s.baseDato+"`.movimiento"
-    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
-    								+ " left join `"+s.baseDato+"`.compra on compra.id = movimiento.id_compra"
-    								+ " left join `"+s.baseDato+"`.baja on baja.id = movimiento.id_baja"
-    								+ " left join `"+s.baseDato+"`.factura on factura.id = compra.id_factura"
-    								+ " left join `"+s.baseDato+"`.actaBaja on actaBaja.id = baja.id_actaBaja"
-    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
-    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || factura.fecha <= ? || actaBaja.fecha <= ?)"
-    								+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
-    								+ "	) as auxiliar"
-    								+ "group by id_equipo;");
-    				smt3.setString(1, fechaCorte);
-    				smt3.setString(2, fechaCorte);
-    				smt3.setString(3, fechaCorte);
-    				ResultSet rs3 = smt3.executeQuery();
-    				while (rs3.next()) {
-    					// sucursales 1 stgo 2 pto varas
-    					String key = rs3.getString(1)+"_"+rs3.getString(2); 
-    					mapPorDespachar.put(key, rs.getLong(3));
-    				}
-    				rs2.close();
-    				smt2.close();
-    				
-    				
-    				
-    				
-    				con.close();
-    			} catch (SQLException e) {
-    	    			e.printStackTrace();
-    			}
-    			
-    			/*
-    			 	N° 1 - Codigo de Articulo
-					N° 2 - Nombre de Articulo
-					
-					N° 63 - Bodega Mantencion Santiago
-					N° 113 - Bodega Disponible Santiago
-					N° 112 - Pendientes por despachar Santiago
-					N° 114 - Total en Arriendo Santiago
-					N° 98 - Dimensión en M2 del Artículo
-					N° 52 - Bodega Mantencion Puerto Varas
-					N° 115 - Bodega Disponible Puerto Varas
-					N° 101 - Pendientes por despachar Puerto Varas
-					N° 102 - En arriendo Puerto Varas
-					N° 108 - Valor promedio de arriendo diario últimos 60 días.
-					
-					
-					************ FALTA HACER LA MEDIA DE 60 DIAS UN PROMEDIO PONDERADO DESDE PRECIO COTIZADO
-					
-					
-    			 */
-    			
-    			con.close();
-    			return ok("OK");
+	    			Fechas hoy = Fechas.hoy();
+	    			Fechas ayer = Fechas.addDias(hoy.getFechaCal(), -1);
+	    			con.close();
+    			return ok(domStockDiarioExcel0.render(mapeoDiccionario,mapeoPermiso,userMnu,ayer.getFechaStrAAMMDD()));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -6937,37 +6808,429 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
-//	public Result domStockDiarioExcel(Http.Request request) {
-//		Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//    		 
-//    		DynamicForm form = formFactory.form().bindFromRequest(request);
-//	   		if (form.hasErrors()) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//	       	}else {
-//	       		String fechaDesde = form.get("fechaDesde").trim();
-//	       		String fechaHasta = form.get("fechaHasta").trim();
-//	       		try {
-//	       			Connection con = dbRead.getConnection();
-//	       			List<List<String>> lista = ReportHohe.datos(con, s.baseDato, fechaDesde, fechaHasta);
-//	       			InputStream formato = Archivos.leerArchivo("formatos/hoheReportTodo.xlsx");
-//	       			File file = ReportHohe.reporteHoheExcel(fechaDesde, fechaHasta, lista, formato);
-//	    			if(file!=null) {
-//		       			con.close();
-//		       			return ok(file,false,Optional.of("ReporteMatrizTodo.xlsx"));
-//		       		}else {
-//		       			con.close();
-//		       			return ok("");
-//		       		}
-//	        	} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//	       		return ok("");
-//	       	}
-//    	}else {
-//    		return ok("");
-//    	}
-//	}
+	public Result domStockDiarioExcel1(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			if(mapeoPermiso.get("reportesDOM")==null) {
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+			
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	    			Connection con = dbRead.getConnection();
+	    			String fechaCorte = form.get("fechaCorte").trim();
+	    			
+	    			List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2 					*** N° 1, N° 2 y N° 98
+	    			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock 						*** N° 63, N° 113, N° 52 y N° 115
+	    			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo			*** N° 114 y N° 102
+	    			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas		*** N° 112 y N° 101
+	    			Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil						*** N° 108
+	    			
+	    				PreparedStatement smt = con
+	    						.prepareStatement(" select"
+	    								+ " movimiento.id_bodegaEmpresa,"
+	    								+ " movimiento.id_equipo,"
+	    								+ " if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,"
+	    								+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+	    								+ " from `"+s.baseDato+"`.movimiento"
+	    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
+	    								// 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas
+	    								+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)" 
+	    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || movimiento.fecha_factura <= ? || movimiento.fecha_actaBaja <= ?)"
+	    								+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo;");
+	    				smt.setString(1, fechaCorte);
+	    				smt.setString(2, fechaCorte);
+	    				smt.setString(3, fechaCorte);
+	    				ResultSet rs = smt.executeQuery();
+	    				while (rs.next()) {
+	    					// bodegas 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas 
+	    					// bodega_equipo vs cantidad stock de equipos disponibles
+	    					String key = rs.getString(1)+"_"+rs.getString(2);
+	    					mapCantStock.put(key, rs.getLong(3));
+	    				}
+	    				rs.close();
+	    				smt.close();
+	    				
+	    				PreparedStatement smt1 = con
+	    						.prepareStatement("select id, codigo, nombre, kg, m2 from `"+s.baseDato+"`.equipo where vigente = 1;");
+	    				ResultSet rs1 = smt1.executeQuery();
+	    				//  lista de equipos a desplegar
+	    				while (rs1.next()) {
+	    					List<String> aux = new ArrayList<String>();
+	    					aux.add(rs1.getString(1)); // 0 id_equipo
+	    					aux.add(rs1.getString(2)); // 1 codigo
+	    					aux.add(rs1.getString(3)); // 2 nombre
+	    					aux.add(rs1.getString(4)); // 3 kg
+	    					aux.add(rs1.getString(5)); // 4 m2
+	    					listEquip.add(aux);
+	    				}
+	    				rs1.close();
+	    				smt1.close();
+	    				
+	    				PreparedStatement smt2 = con
+	    						.prepareStatement("select auxiliar.id_susucursal, auxiliar.id_equipo, sum(auxiliar.cantidad)"
+	    								+ " from"
+	    								+ "	 ("
+	    								+ "	select"
+	    								+ " bodegaEmpresa.id_sucursal as id_susucursal,"
+	    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+	    								+ "	movimiento.id_equipo as id_equipo,"
+	    								+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+	    								+ "	from `"+s.baseDato+"`.movimiento"
+	    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+	    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
+	    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
+	    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ?)"
+	    								+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
+	    								+ "	) as auxiliar"
+	    								+ " group by auxiliar.id_susucursal, auxiliar.id_equipo;");
+	    				smt2.setString(1, fechaCorte);
+	    				ResultSet rs2 = smt2.executeQuery();
+	    				while (rs2.next()) {
+	    					// sucursales 1 stgo 2 pto varas
+	    					// sucursal_equipo vs cantidad de equipos arrendados por sucursal
+	    					String key = rs2.getString(1)+"_"+rs2.getString(2); 
+	    					mapCantArr.put(key, rs2.getLong(3));
+	    				}
+	    				rs2.close();
+	    				smt2.close();
+	    				
+	    				PreparedStatement smt3 = con
+	    						.prepareStatement("select"
+	    								+ " bodegaEmpresa.id_sucursal,"
+	    								+ " cotizaDetalle.id_equipo, sum(cotizaDetalle.cantidad) - sum(ifnull(otDespachado.cantidadRebajaOt,0)) as porDespachar"
+	    								+ " from `"+s.baseDato+"`.cotizaDetalle"
+	    								+ " left join `"+s.baseDato+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
+	    								+ " left join `"+s.baseDato+"`.ot on ot.id = cotizacion.id_ot"
+	    								+ " left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = cotizacion.id_bodegaEmpresa"
+	    								+ " left join `"+s.baseDato+"`.otDespachado on otDespachado.id_cotizaDetalle = cotizaDetalle.id"
+	    								+ " left Join `"+s.baseDato+"`.guia on guia.id = otDespachado.id_guia"
+	    								+ " where cotizacion.id_ot > 0 and ot.confirmada = 1 and ot.fechaConfirmada <= ? and (guia.fecha <= ? || guia.fecha is null)"
+	    								+ " group by bodegaEmpresa.id_sucursal, cotizaDetalle.id_equipo"
+	    								+ " having porDespachar > 0;");
+	    				smt3.setString(1, fechaCorte);
+	    				smt3.setString(2, fechaCorte);
+	    				ResultSet rs3 = smt3.executeQuery();
+	    				while (rs3.next()) {
+	    					// sucursal_equipo vs cantidad de equipos pendientes por despachar desde ot por sucursal
+	    					String key = rs3.getString(1)+"_"+rs3.getString(2); 
+	    					mapPorDespachar.put(key, rs3.getLong(3));
+	    				}
+	    				rs3.close();
+	    				smt3.close();
+	    				
+	    				
+	    				
+	    				Map<String,Long> mapSumCantPorDias = new HashMap<String,Long>(); // bod_cot_equ vs cant-dias para calculo de promedio 60 dias
+	    				Fechas ini = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
+	    				ini = Fechas.addMeses(ini.getFechaCal(), -2);
+	    				Fechas fin = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
+	    				String fechaIni = ini.getFechaStrAAMMDD();
+	    				
+	    				int dias = Fechas.diasEntreFechas(ini.getFechaCal(), fin.getFechaCal()) + 1;
+	    				
+	    				PreparedStatement smt4 = con
+	    						.prepareStatement("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad)"
+	    								+ " from ("
+		    								+ "	select "
+		    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+		    								+ " movimiento.id_cotizacion as id_cotizacion,"
+		    								+ "	movimiento.id_equipo as id_equipo,"
+		    								+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) < 0, 0 , sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad)) as cantidad"
+		    								+ "	from `"+s.baseDato+"`.movimiento"
+		    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+		    								+ "	left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
+		    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1 and movimiento.esVenta = 0 and (guia.fecha <= ?)"
+		    								+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_cotizacion, movimiento.id_equipo"
+	    								+ ") as auxiliar"
+	    								+ " group by auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo;");
+	    				smt4.setString(1, fechaIni);
+	    				ResultSet rs4 = smt4.executeQuery();
+	    				while (rs4.next()) {
+	    					// bod_cot_equ vs cant - dias inventario inicial
+	    					String key = rs4.getString(1)+"_"+rs4.getString(2)+"_"+rs4.getString(3); 
+	    					Long aux = mapSumCantPorDias.get(key);
+	    					if(aux != null) {
+	    						aux += rs4.getLong(4) * dias;
+	    						mapSumCantPorDias.put(key, aux);
+	    					}else {
+	    						mapSumCantPorDias.put(key, rs4.getLong(4) * dias);
+	    					}
+	    				}
+	    				rs4.close();
+	    				smt4.close();
+	    				
+	    				PreparedStatement smt5 = con
+	    						.prepareStatement("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad), auxiliar.fecha"
+	    								+ " from ("
+		    								+ "	select "
+		    								+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+		    								+ " movimiento.id_cotizacion as id_cotizacion,"
+		    								+ "	movimiento.id_equipo as id_equipo,"
+		    								+ "	sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) as cantidad,"
+		    								+ "	guia.fecha as fecha"
+		    								+ "	from `"+s.baseDato+"`.movimiento"
+		    								+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+		    								+ "	left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
+		    								+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1 and movimiento.esVenta = 0 and (guia.fecha > ? and guia.fecha <= ?)"
+		    								+ "	group by guia.fecha, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion, movimiento.id_equipo"
+	    								+ ") as auxiliar"
+	    								+ " group by auxiliar.fecha, auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo;");
+	    				smt5.setString(1, fechaIni);
+	    				smt5.setString(2, fechaCorte);
+	    				ResultSet rs5 = smt5.executeQuery();
+	    				while (rs5.next()) {
+	    					Fechas auxFech = Fechas.obtenerFechaDesdeStrAAMMDD(rs5.getString(5));
+	    					dias = Fechas.diasEntreFechas(auxFech.getFechaCal(), fin.getFechaCal()) + 1;
+	    					// bod_cot_equ vs cant - dias acumulando inventario
+	    					String key = rs5.getString(1)+"_"+rs5.getString(2)+"_"+rs5.getString(3); 
+	    					Long aux = mapSumCantPorDias.get(key);
+	    					if(aux != null) {
+	    						aux += rs5.getLong(4) * dias;
+	    						mapSumCantPorDias.put(key, aux);
+	    					}else {
+	    						mapSumCantPorDias.put(key, rs5.getLong(4) * dias);
+	    					}
+	    				}
+	    				rs5.close();
+	    				smt5.close();
+	    				
+	    				// AGRUPO RESULTADOS POR EQUIPO cantPorDia y total suma producto Precio
+	    				Map<String,List<Double>> mapListaPrecios = ListaPrecio.mapListaPreciosAll(con, s.baseDato);
+	    				
+	    				con.close();
+	    				
+	    				Map<Long,List<Double>> mapPrecios = new HashMap<Long,List<Double>>();
+	    				for (Map.Entry<String, Long> entry : mapSumCantPorDias.entrySet()) {
+	    					// key = id_bodegaEmpresa + id_cotizacion + id_equipo
+	    		            String key = entry.getKey();
+	    		            String aux[] = key.split("_");
+	    		            Long id_equipo = Long.parseLong(aux[2]);
+	    		            Long cantPorDias = entry.getValue();
+	    		            List<Double> listPrecios = mapListaPrecios.get(key);
+	    		            Double precioDiaUnit = (double) 0;
+	    		            if(listPrecios != null) {
+	    		            	Double precioUnit = listPrecios.get(1);
+	    		            	Double factor = listPrecios.get(4);
+	    		            	precioDiaUnit = precioUnit / factor;
+	    		            }
+	    		           List<Double> precio = mapPrecios.get(id_equipo);
+	    		           if(precio != null) {
+	    		        	   precio.set(0, precio.get(0) + cantPorDias);
+	    		        	   precio.set(1, precio.get(1) + cantPorDias * precioDiaUnit);
+	    		        	   mapPrecios.put(id_equipo, precio);
+	    		           }else {
+	    		        	   List<Double> aux2 = new ArrayList<Double>();
+	    		        	   aux2.add((double) cantPorDias);
+	    		        	   aux2.add(cantPorDias * precioDiaUnit);
+	    		        	   mapPrecios.put(id_equipo, aux2);
+	    		           }
+	    		        }
+	    				
+	    				for (Map.Entry<Long, List<Double>> entry : mapPrecios.entrySet()) {
+	    					Long key = entry.getKey();
+	    					List<Double> val = entry.getValue();
+	    					Double media = (double) 0;
+	    					if(val.get(0) > 0) {
+	    						media = val.get(1)/val.get(0);
+	    					}
+	    					mapMediaMovil.put(key, media);
+	    				}
+	    				
+	    				
+	    			/*
+	    				List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2 					*** N° 1, N° 2 y N° 98
+	        			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock 						*** N° 63, N° 113, N° 52 y N° 115
+	        			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo			*** N° 114 y N° 102
+	        			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas		*** N° 112 y N° 101
+	        			Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil			
+	    			 */
+	    				
+	    			List<List<String>> datos = new ArrayList<List<String>>();
+	    			for(List<String> l: listEquip) {
+	    				List<String> aux = new ArrayList<String>();
+	    				Long id_equipo = Long.parseLong(l.get(0));
+	    				Long stockMantStgo = mapCantStock.get("404_"+id_equipo.toString());
+	    				if(stockMantStgo == null) {
+	    					stockMantStgo = (long) 0;
+	    				}
+	    				Long stockDispStgo = mapCantStock.get("2_"+id_equipo.toString());
+	    				if(stockDispStgo == null) {
+	    					stockDispStgo = (long) 0;
+	    				}
+	    				Long pendDespStgo = mapPorDespachar.get("1_"+id_equipo.toString());
+	    				if(pendDespStgo == null) {
+	    					pendDespStgo = (long) 0;
+	    				}
+	    				Long totArrStgo = mapCantArr.get("1_"+id_equipo.toString());
+	    				if(totArrStgo == null) {
+	    					totArrStgo = (long) 0;
+	    				}
+	    				Long stockMantPtoV = mapCantStock.get("406_"+id_equipo.toString());
+	    				if(stockMantPtoV == null) {
+	    					stockMantPtoV = (long) 0;
+	    				}
+	    				Long stockDispPtoV = mapCantStock.get("405_"+id_equipo.toString());
+	    				if(stockDispPtoV == null) {
+	    					stockDispPtoV = (long) 0;
+	    				}
+	    				Long pendDespPtoV = mapPorDespachar.get("2_"+id_equipo.toString());
+	    				if(pendDespPtoV == null) {
+	    					pendDespPtoV = (long) 0;
+	    				}
+	    				Long totArrPtoV = mapCantArr.get("2_"+id_equipo.toString());
+	    				if(totArrPtoV == null) {
+	    					totArrPtoV = (long) 0;
+	    				}
+	    				Double medMovArrUn = mapMediaMovil.get(id_equipo);
+	    				if(medMovArrUn == null) {
+	    					medMovArrUn = (double) 0;
+	    				}
+	    				
+	    				aux.add(l.get(1));					// 0 N° 1 - Codigo de Articulo
+	    				aux.add(l.get(2));					// 1 N° 2 - Nombre de Articulo
+	    				aux.add(stockMantPtoV.toString());	// 2 N° 52 - Bodega Mantencion Puerto Varas
+	    				aux.add(stockMantStgo.toString());	// 3 N° 63 - Bodega Mantencion Santiago
+	    				aux.add(l.get(4));					// 4 N° 98 - Dimensión en M2 del Artículo
+	    				aux.add(pendDespPtoV.toString());	// 5 N° 101 - Pendientes por despachar Puerto Varas
+	    				aux.add(totArrPtoV.toString());		// 6 N° 102 - En arriendo Puerto Varas
+	    				aux.add(medMovArrUn.toString());	// 7 N° 108 - Valor promedio de arriendo diario últimos 60 días.
+	    				aux.add(pendDespStgo.toString());	// 8 N° 112 - Pendientes por despachar Santiago
+	    				aux.add(stockDispStgo.toString());	// 9 N° 113 - Bodega Disponible Santiago
+	    				aux.add(totArrStgo.toString());		// 10 N° 114 - Total en Arriendo Santiago
+	    				aux.add(stockDispPtoV.toString());	// 11 N° 115 - Bodega Disponible Puerto Varas
+	    				datos.add(aux);
+	    			}
+	    			
+	    			
+	    			File tmp = TempFile.createTempFile("tmp","null");
+	    			try {
+	    				String path = s.baseDato+"/formatos/DOM_Stock_Detallado.xlsx";
+	    				InputStream formato = Archivos.leerArchivo(path);
+	    	            Workbook libro = WorkbookFactory.create(formato);
+	    	            formato.close();
+	    	            
+	    	            Sheet hoja1 = libro.getSheetAt(0);
+	    	            Row row = null;
+	    	            Cell cell = null;
+	    	            Double auxDbl = (double) 0;
+	    	            
+	    	            row = hoja1.getRow(0);
+	    	            
+	    	            cell = row.getCell(116);
+	    	            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    	            Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
+    					cell.setCellValue(fecha.fechaUtil);
+    					
+    					Fechas hoyChile = Fechas.hoyChile();
+    					
+    					cell = row.getCell(118);
+	    	            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+    					cell.setCellValue(hoyChile.fechaUtil);
+	    				
+    					
+    					
+    					
+	    				for(int i=0;i<datos.size();i++){
+	    					
+	    					row = hoja1.createRow(i+1);
+	    					
+	    		            cell = row.createCell(0);
+	    		            try {
+	    		            	auxDbl = Double.parseDouble(datos.get(i).get(0));
+	    		            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	        					cell.setCellValue(auxDbl);
+	    		            }catch(Exception e) {
+	    		            	cell.setCellType(Cell.CELL_TYPE_STRING);
+	        					cell.setCellValue(datos.get(i).get(0));
+	    		            }
+	    					
+	    					cell = row.createCell(1);
+	    					cell.setCellType(Cell.CELL_TYPE_STRING);
+	    					cell.setCellValue(datos.get(i).get(1));
+	    					
+	    					cell = row.createCell(51);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(2));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(62);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(3));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(97);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(4));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(100);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(5));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(101);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(6));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(107);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(7));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(111);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(8));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(112);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(9));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(113);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(10));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    					cell = row.createCell(114);
+	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+	    					auxDbl = Double.parseDouble(datos.get(i).get(11));
+	    					cell.setCellValue(auxDbl);
+	    					
+	    				}
+	    				
+	    				FormulaEvaluator evaluator = libro.getCreationHelper().createFormulaEvaluator();
+	    		        evaluator.evaluateAll(); // Recalcular todas las fórmulas en todas las hojas
+
+	    				// Write the output to a file tmp
+	    				FileOutputStream fileOut = new FileOutputStream(tmp);
+	    				libro.write(fileOut);
+	    				fileOut.close();
+	    				
+	    			} catch (Exception e) {
+	    				e.printStackTrace();
+	    	        }
+	    			
+	    			return ok(tmp,false,Optional.of("resultado.xlsx"));
+	    			
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    		
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+
 }
 
 

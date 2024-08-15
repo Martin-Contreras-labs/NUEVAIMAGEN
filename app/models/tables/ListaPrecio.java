@@ -453,7 +453,8 @@ public class ListaPrecio {
 							" (1-ifnull(dctoGrupo.tasaDescto,0))*(1-ifnull(dctoEquipo.tasaDescto,0)) as ValorArriendo, " +
 							
 							" listaPrecio.id_cotizacion, " + 	//13
-							" bodegaEmpresa.id " +				//14
+							" bodegaEmpresa.id, " +				//14
+							" unidadTiempo.factor " +			//15
 							" from `"+db+"`.listaPrecio   " +
 							" left join `"+db+"`.equipo on equipo.id=listaPrecio.id_equipo   " +
 							" left join `"+db+"`.moneda on moneda.id=listaPrecio.id_moneda   " +
@@ -468,6 +469,7 @@ public class ListaPrecio {
 				aux.add(rs.getDouble(12));				//  1 precio de arriendo con dctos aplicados
 				aux.add(rs.getDouble(8)); 				//  2 id unidadTiempo
 				aux.add(rs.getDouble(2)); 				//  3 idMoneda
+				aux.add(rs.getDouble(15)); 				//  4 factor
 				lista.put(rs.getString(14)+"_"+rs.getString(13)+"_"+rs.getString(1), aux); 
 				// key = id_bodegaEmpresa + id_cotizacion + id_equipo
 			}

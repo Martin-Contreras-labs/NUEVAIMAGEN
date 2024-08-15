@@ -244,12 +244,6 @@ public class ModCalc_InvInicial {
 			
 		}
 		
-		// DEBO CREAR LA CLASE PARA RETORNAR LISTADO Y MAPEO
-		
-		mapIdEquiposConAjuste.forEach((k,v)->{
-			System.out.println(k+" => "+v);
-		});
-		
 		ReportFacturas reporte = new ReportFacturas(mapIdEquiposConAjuste,listado);
 		
 		return(reporte);
