@@ -7217,7 +7217,7 @@ public class MnuReportes extends Controller {
 	    				e.printStackTrace();
 	    	        }
 	    			
-	    			return ok(tmp,false,Optional.of("resultado.xlsx"));
+	    			return ok(tmp,false,Optional.of(fechaCorte + "_Stock_Detallado.xlsx"));
 	    			
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
