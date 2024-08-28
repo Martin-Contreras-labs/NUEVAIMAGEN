@@ -1495,10 +1495,11 @@ public class BodegaEmpresa {
 		try {
 			if(form.id_tipoBodega == (long) 1) {
 				PreparedStatement smt1 = con
-						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ? where id = ?;");
+						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_sucursal=? where id = ?;");
 				smt1.setString(1, form.nombre.trim());
 				smt1.setLong(2, form.id_propietario);
-				smt1.setLong(3, form.id_bodegaEmpresa);
+				smt1.setDouble(3, form.id_sucursal);
+				smt1.setLong(4, form.id_bodegaEmpresa);
 				smt1.executeUpdate();
 				smt1.close();
 				flag = true;
@@ -1519,7 +1520,7 @@ public class BodegaEmpresa {
 				PreparedStatement smt1 = con
 						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_proyecto = ?, " +
 								" tasaCfi = ?, cobraDiaDespacho = ?, nDiaGraciaEnvio = ?, nDiaGraciaRegreso = ?, baseCalculo=?, tratoDevoluciones=?, " +
-								" id_comercial=?, pep=?, ivaBodega=? where id = ?;");
+								" id_comercial=?, pep=?, ivaBodega=?, id_sucursal=? where id = ?;");
 				smt1.setString(1, form.nombre.trim());
 				smt1.setLong(2, form.id_cliente);
 				smt1.setLong(3, form.id_proyecto);
@@ -1534,7 +1535,8 @@ public class BodegaEmpresa {
 				smt1.setLong(10, form.id_comercial);
 				smt1.setString(11, pep);
 				smt1.setDouble(12, ivaBodega);
-				smt1.setLong(13, form.id_bodegaEmpresa);
+				smt1.setDouble(13, form.id_sucursal);
+				smt1.setLong(14, form.id_bodegaEmpresa);
 				smt1.executeUpdate();
 				smt1.close();
 				

@@ -897,7 +897,7 @@ public class FormMovimiento {
     			
     			int contLinea = 0;
     			
-    			if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && (long)bodegaOrigen.getEsInterna()==(long)1 ){
+    			if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && mapeoPermiso.get("parametro.notaSalidaConArriendo").equals("1") && (long)bodegaOrigen.getEsInterna()==(long)1 ){
 					row = table.getRow(0);
 					texto = mapDiccionario.get("ARRIENDO");
 					setCelda(row.getCell(4),"Arial",8,2,"000000",texto,false);
@@ -905,6 +905,20 @@ public class FormMovimiento {
 				}
     			
 				for(int i=0; i<detalleGuia.size(); i++) {
+					
+					// DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA
+	    			Long id_moneda = Long.parseLong(detalleGuia.get(i).get(30).trim());
+					if(id_moneda == 0) {id_moneda=(long)1;}
+					Long decimal = dec.get(id_moneda);
+					if(decimal == null) {decimal=(long)0;}
+					switch(decimal.toString()) {
+					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 default:  break;
+					}
+					// FIN DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA
 					
 					String m2 = detalleGuia.get(i).get(28).trim();
 					if( mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
@@ -927,7 +941,7 @@ public class FormMovimiento {
 					mapPrecioRepos.put(detalleGuia.get(i).get(5), puDbl);
 					
     				Long esVenta = Long.parseLong(detalleGuia.get(i).get(20).trim());
-    				if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && (long)bodegaOrigen.getEsInterna()==(long)1 && esVenta==0) {
+    				if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && mapeoPermiso.get("parametro.notaSalidaConArriendo").equals("1") && (long)bodegaOrigen.getEsInterna()==(long)1 && esVenta==0) {
     					puStr = detalleGuia.get(i).get(16); 
     					if(puStr.trim().equals("")) {
     						puStr = "0";
@@ -935,21 +949,13 @@ public class FormMovimiento {
     					puDbl = Double.parseDouble(puStr.replaceAll(",", ""));
     				}
     				
+    				if(mapeoPermiso.get("parametro.notaSalidaSinPrecios")!=null && mapeoPermiso.get("parametro.notaSalidaSinPrecios").equals("1") && (long)bodegaOrigen.getEsInterna()==(long)1) {
+    					puDbl = (double)0;
+    					puStr = myformatdouble.format(puDbl);
+    				}
+    				
 	    			Double totalPrecio = puDbl * cantDbl;
-	    			// DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA
-	    			Long id_moneda = Long.parseLong(detalleGuia.get(i).get(30).trim());
-					if(id_moneda == 0) {id_moneda=(long)1;}
-					Long decimal = dec.get(id_moneda);
-					if(decimal == null) {decimal=(long)0;}
-					switch(decimal.toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-					 default:  break;
-					}
-					// FIN DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA
-					
+	    			
 					//ESTADOS
 					Double est1 = (double)  0; // id_tipoEstado = 3
 					Double est2 = (double)  0; // id_tipoEstado = 1

@@ -5,10 +5,19 @@ listServicios: List[List[String]], hoy: utilities.Fechas)
 @main("") {
 
 @menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+	<form id="excel" class="formulario" method="post" action="/servicioMantencionExcel/"></form>
+	
 	<div id="mostrarmostrar" style="display:none;">
 		@barraTitulo(mapDiccionario, "SERVICIOS (CREAR/MODIFICAR/ELIMINAR)", "")
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+			
+				<div align="center">
+					<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+						Exportar a Excel
+					</button>
+				</div>
 				
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">

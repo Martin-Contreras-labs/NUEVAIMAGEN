@@ -213,9 +213,10 @@ public class MnuBodegas extends Controller {
 	    			List<Comercial> listComercial = Comercial.allPorIdSucursalVig(con, s.baseDato, s.aplicaPorSucursal, bodegaEmpresa.getId_sucursal().toString());
 	    			List<Moneda> listMon = Moneda.allSinMonPrincipal(con, s.baseDato);
 	    			List<List<String>> fijaTasas = BodegaEmpresa.listaFijaTasas(con, s.baseDato, id_bodegaEmpresa);
+	    			List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
 	    			con.close();
 	    			return ok(bodegaModificar.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,tipoBodega,bodegaEmpresa,listRegiones,listComercial, 
-	    					listMon, fijaTasas));
+	    					listMon, fijaTasas, listSucursal, s.aplicaPorSucursal));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}

@@ -71,6 +71,10 @@ public class TasasCambio {
 			String CLPUF = "1";
 			String CLPUSD= "1";
 			String CLPEUR= "1";
+			if(fechaAAMMDD.equals("")) {
+				Fechas hoy = Fechas.hoy();
+				fechaAAMMDD = hoy.getFechaStrAAMMDD();
+			}
 			try {
 				PreparedStatement smt2 = con
 						.prepareStatement(" select UF,USD,EUR from tasasMoneda.tasas where fecha = ?;");

@@ -434,6 +434,30 @@ listSucursales: List[tables.Sucursal])
 								</select>
 							</td>
 						</tr>
+						<tr>
+							<td style="text-align:left; vertical-align:top">PESO (KG): </td>
+							<td style="text-align:left; vertical-align:top">
+								<input type="text" class="form-control left"
+									id="nuevoEquipoId_kg"
+									autocomplete="off"
+									value="0.00"
+									onfocus="value=value.replace(/,/g,'')" 
+									onkeypress="return ingresoDouble(event,value)"
+									onchange="value = formatStandar(value,2);">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left; vertical-align:top">AREA (M2): </td>
+							<td style="text-align:left; vertical-align:top">
+								<input type="text" class="form-control left"
+									id="nuevoEquipoId_m2"
+									autocomplete="off"
+									value="0.00"
+									onfocus="value=value.replace(/,/g,'')" 
+									onkeypress="return ingresoDouble(event,value)"
+									onchange="value = formatStandar(value,2);">
+							</td>
+						</tr>
 					</table>
 					<div class='row'>
 						<div class='col-sm-5' style='text-align:center'>
@@ -913,6 +937,8 @@ listSucursales: List[tables.Sucursal])
 			formData.append('id_fabrica',$("#nuevoEquipoId_fabrica").val());
 			formData.append('id_unidad',$("#nuevoEquipoId_unidad").val());
 			formData.append('desdeMenu',"COMPRA");
+			formData.append('kg',$("#nuevoEquipoId_kg").val().replace(/,/g,''));
+			formData.append('m2',$("#nuevoEquipoId_m2").val().replace(/,/g,''));
 			
 			$.ajax({
 	            url: "/nuevoEquipoAjax/",

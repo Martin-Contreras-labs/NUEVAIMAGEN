@@ -258,6 +258,8 @@ public class MnuCompras extends Controller {
 	    						aux.nombre = nombEquipo;
 	    						aux.valorAtributos = new ArrayList<String>();
 	    						aux.desdeMenu = "ICONSTRUYE";
+	    						aux.kg = (double)0;
+	    						aux.m2 = (double)0;
 	    						Equipo.create(con, s.baseDato, aux);
 	    						equipo = Equipo.findXCodigo(con, s.baseDato, codEquipo);
 	    					}

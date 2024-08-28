@@ -216,7 +216,7 @@ public class ReportFacturas {
 			}
 			
 			
-			String keyAjuste = resumenInvInicial.get(i).id_bodegaEmpresa+"_"+resumenInvInicial.get(i).id_equipo;
+			String keyAjuste = resumenInvInicial.get(i).id_bodegaEmpresa+"_"+resumenInvInicial.get(i).id_equipo+"_"+resumenInvInicial.get(i).id_cotizacion;
 			Long diasAjuste = mapGuiasConAjuste.get(keyAjuste);
 			String ajusteDias = "";
 			if(diasAjuste != null) {

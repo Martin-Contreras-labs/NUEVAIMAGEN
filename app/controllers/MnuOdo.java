@@ -306,6 +306,68 @@ public class MnuOdo extends Controller {
 	    	return ok(mensajes.render("/",msgError));
 	    }
 	    
+	    public Result servicioMantencionExcel(Http.Request request) {
+	    	Sessiones s = new Sessiones(request);
+	    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+	    		DynamicForm form = formFactory.form().bindFromRequest(request);
+		   		if (form.hasErrors()) {
+		   			return ok(mensajes.render("/",msgErrorFormulario));
+		       	}else {
+		       	
+		       		
+		       		
+		    		try {
+		    			Connection con = db.getConnection();
+		    			
+		    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		    			if(mapeoPermiso.get("odoAdminServicios")==null) {
+		    				con.close();
+		    				return ok(mensajes.render("/",msgSinPermiso));
+		    			}
+		    			
+		    			List<Servicio> listServicios = Servicio.all(con, s.baseDato);
+		    			
+		    			List<List<String>> listado = new ArrayList<List<String>>();
+		    			
+		    			listServicios.forEach(x->{
+		    				String precio = DecimalFormato.formato(x.getPrecio(), x.getNroDecimal());
+		    				String cantMinimo = DecimalFormato.formato(x.getCantMinimo(), (long)2);
+		    				String precioAdicional = DecimalFormato.formato(x.getPrecioAdicional(), x.getNroDecimal());
+		    				
+		    				List<String> aux = new ArrayList<String>();
+		    				/*0*/ aux.add(x.getNombreClase());
+		    				/*1*/ aux.add(x.getCodigo());
+		    				/*2*/ aux.add(x.getNombre());
+		    				/*3*/ aux.add(x.getNombreUnidad());
+		    				/*4*/ aux.add(x.getNickMoneda());
+		    				/*5*/ aux.add(precio);
+		    				/*6*/ aux.add(x.getFecha());
+		    				/*7*/ aux.add(x.getNroDecimal().toString());
+		    				/*8*/ aux.add(x.getId().toString());
+		    				/*9*/ aux.add(cantMinimo);
+		    				/*10*/ aux.add(precioAdicional);
+		    				listado.add(aux);
+		    			});
+	    			
+		    			File file = Servicio.allExcel(s.baseDato, mapeoDiccionario, listado);
+		    			
+		    			if(file!=null) {
+			       			con.close();
+			       			return ok(file,false,Optional.of("Lista_de_servicios.xlsx"));
+			       		}else {
+			       			con.close();
+			       			return ok("");
+			       		}
+		    		} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+	    			
+		    	}
+	    	}
+	    	return ok(mensajes.render("/",msgError));
+	    }
+	    
 	    public Result servicioNuevo(Long id_clase, Http.Request request) {
 	    	Sessiones s = new Sessiones(request);
 	    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {

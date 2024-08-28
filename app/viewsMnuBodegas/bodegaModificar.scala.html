@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], tipoBodega: tables.TipoBodega, bodega: tables.BodegaEmpresa, listRegiones: List[tables.Regiones],
-listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: List[List[String]])
+listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: List[List[String]], listSucursal: List[tables.Sucursal], esPorSucursal: String)
 
     	
 @main("") {
@@ -106,11 +106,19 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 						<tr>
 							<td style="text-align:left;">SUCURSAL: </td>
 							<td style="text-align:left;">
-								<input type="hidden" name="id_sucursal" value="@bodega.getId_sucursal()">
-								<input type="text" class="form-control left"
-									value="@bodega.getNameSucursal()"
-									readonly>
-								</select>
+
+								@if(! esPorSucursal.equals("1")){
+									<select class="custom-select" 
+										name="id_sucursal" 
+										onchange="vistaSelectComercial(value)"
+										required>
+										<option value="@bodega.getId_sucursal()">@bodega.getNameSucursal()</option>
+										@for(lista <- listSucursal){
+											<option value="@lista.getId()">@lista.getNombre()</option>
+										}
+									</select>
+								}
+								
 							</td>
 						</tr>
 						<tr>

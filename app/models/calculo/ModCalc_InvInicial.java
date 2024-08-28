@@ -202,7 +202,7 @@ public class ModCalc_InvInicial {
 												if(diasGuia < 0 ) {
 													ajustePorGracia += guiasPer.get(k).cantidad * diasGuia * pArr_dia * tasaCambio;
 													ajustePorGraciaMaestro += guiasPer.get(k).cantidad * diasGuia * pArr_dia * maestroTasaCambio;
-													mapIdEquiposConAjuste.put(guiasPer.get(k).id_bodegaEmpresa+"_"+guiasPer.get(k).id_equipo, diasGuia*-1);
+													mapIdEquiposConAjuste.put(guiasPer.get(k).id_bodegaEmpresa+"_"+guiasPer.get(k).id_equipo+"_"+guiasPer.get(k).id_cotizacion, diasGuia*-1);
 												}
 											}
 										}

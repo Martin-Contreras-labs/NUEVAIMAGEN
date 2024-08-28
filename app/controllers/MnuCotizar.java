@@ -409,7 +409,7 @@ public class MnuCotizar extends Controller {
 	       	}else {
 				try {
 	    			Connection con = db.getConnection();
-	    			List<List<String>> listCotizacion = Cotizacion.listCotiAll(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> listCotizacion = Cotizacion.listCotiAllLimt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, 1000);
 	    			String vistaHtml = 
 	    					"<table id=\"tablaListaCotizacion\" class=\"table table-sm table-bordered table-condensed table-hover table-fluid\">"+
     								"<thead style=\"background-color: #eeeeee\">"+

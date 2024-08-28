@@ -150,7 +150,6 @@ public class FormCompra {
 		List<String> mensaje = new ArrayList<String>();
 		DecimalFormat df = new DecimalFormat("#");
 	    df.setMaximumFractionDigits(8);
-	    
         mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
         
         try {
@@ -159,6 +158,7 @@ public class FormCompra {
             Row row = null;
             Cell cell = null;
             boolean archivoNoCorresponde = false;
+            
             row = hoja1.getRow(3);
             if(row==null || archivoNoCorresponde) {
             	archivoNoCorresponde = true;
@@ -192,8 +192,13 @@ public class FormCompra {
             	if(row!=null) {
             		//valida grupo
             		cell = row.getCell(1);
+            		String nomGrupo = "";
+        			try {
+        				nomGrupo = cell.getStringCellValue().trim();
+        			}catch(Exception e) {
+        				mensaje.set(0,"ERR1: EL GRUPO: "+nomGrupo+" NO EXISTE EN MADA");
+        			}
             		if(cell!=null) {
-            			String nomGrupo = cell.getStringCellValue().trim();
             			if( ! nomGrupo.equals("")) {
             				Grupo grupo = mapGrupos.get(nomGrupo.toUpperCase());
                 			if(grupo == null) {
@@ -206,7 +211,12 @@ public class FormCompra {
             		//valida unidad
             		cell = row.getCell(6);
             		if(cell!=null) {
-            			String nomUnidad = cell.getStringCellValue().trim();
+            			String nomUnidad = "";
+            			try {
+            				nomUnidad = cell.getStringCellValue().trim();
+            			}catch(Exception e) {
+            				mensaje.set(0,"ERR2: LA UNIDAD: "+nomUnidad+" NO EXISTE EN MADA");
+            			}
             			if( ! nomUnidad.equals("")) {
             				Unidad unidad = mapUnidades.get(nomUnidad.toUpperCase());
                 			if(unidad == null) {
@@ -219,7 +229,12 @@ public class FormCompra {
             		//valida moneda
             		cell = row.getCell(8);
             		if(cell!=null) {
-            			String nickMoneda = cell.getStringCellValue().trim();
+            			String nickMoneda = "";
+            			try {
+            				nickMoneda = cell.getStringCellValue().trim();
+            			}catch(Exception e) {
+            				mensaje.set(0,"ERR3: LA MONEDA: "+nickMoneda+" NO EXISTE EN MADA");
+            			}
             			if( ! nickMoneda.equals("")) {
             				Moneda moneda = mapMonedas.get(nickMoneda.toUpperCase());
                 			if(moneda == null) {

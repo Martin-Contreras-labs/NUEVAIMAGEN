@@ -108,6 +108,8 @@ POST    /claseElimina/					controllers.MnuOdo.claseElimina(request: Request)
 POST	/modificaClasePorCampoAjax/		controllers.MnuOdo.modificaClasePorCampoAjax(request: Request)
 
 GET     /servicioMantencion/				controllers.MnuOdo.servicioMantencion(request: Request)
+POST    /servicioMantencionExcel/			controllers.MnuOdo.servicioMantencionExcel(request: Request)
+
 GET		/servicioNuevo/:id_clase			controllers.MnuOdo.servicioNuevo(id_clase: Long, request: Request)
 POST	/verificaCodigoServicioAjax/		controllers.MnuOdo.verificaCodigoServicioAjax(request: Request)
 POST	/servicioGraba/						controllers.MnuOdo.servicioGraba(request: Request)
