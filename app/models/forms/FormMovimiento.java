@@ -729,6 +729,8 @@ public class FormMovimiento {
 				//GUIA DE ENTRADA (DEVOLUCION DE EQUIPOS)
 				if(mapeoPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapeoPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
 					path += "/formatos/guiaEntradaConCliente.docx";
+				}else if(mapDiccionario.get("nEmpresa").equals("ALZATEC")) {
+					path += "/formatos/guiaEntradaConCliente.docx";
 				}else {
 					path += "/formatos/guiaEntrada.docx";
 				}
@@ -892,6 +894,7 @@ public class FormMovimiento {
     			Double granTotalEst3=(double)0;
     			Double granTotalEst4=(double)0;
     			Double granTotalEst5=(double)0;
+    			Double granTotalEst6=(double)0;
     			
     			Map<String,Double> mapPrecioRepos = new HashMap<String,Double>();
     			
@@ -960,8 +963,9 @@ public class FormMovimiento {
 					Double est1 = (double)  0; // id_tipoEstado = 3
 					Double est2 = (double)  0; // id_tipoEstado = 1
 					Double est3 = (double)  0; // id_tipoEstado = 2
-					Double est4 = (double) 0; // id_tipoEstado = 4
-					Double est5 = (double) 0; // id_tipoEstado = 5
+					Double est4 = (double)  0; // id_tipoEstado = 4
+					Double est5 = (double)  0; // id_tipoEstado = 5
+					Double est6 = (double)  0; // id_tipoEstado = 6
 					
 	    			String estado = mapEstadoLinea.get(detalleGuia.get(i).get(2).trim()+"_"+detalleGuia.get(i).get(23).trim());
 	    			
@@ -979,6 +983,7 @@ public class FormMovimiento {
 							if(estNiv2[0].equals("2")) { est3 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
 							if(estNiv2[0].equals("4")) { est4 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
 							if(estNiv2[0].equals("5")) { est5 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
+							if(estNiv2[0].equals("6")) { est6 = Double.parseDouble(estNiv2[1].replaceAll(",", "").trim()); }
 						}
 					}
 					
@@ -989,7 +994,7 @@ public class FormMovimiento {
 		    					bueno = cantDbl - est1 - est2 - est3 - est4 - est5;
 		    				}
 		    				if(mapDiccionario.get("nEmpresa").equals("ALZATEC")) {
-		    					bueno = cantDbl - est1 - est2 - est3 - est4;
+		    					bueno = cantDbl - est1 - est2 - est3 - est4 - est5 - est6;
 		    					Double auxlim = est1;
 		    					Double auxrep = est2;
 		    					
@@ -1108,7 +1113,6 @@ public class FormMovimiento {
 			   				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 			   				cell = row.getCell(5);
 			   				texto = myformatdouble0.format(est3);
-			   				
 			   				if(mapDiccionario.get("nEmpresa").equals("MDP ANDAMIOS")) {
 			   					texto = "";
 			   				}
@@ -1157,30 +1161,43 @@ public class FormMovimiento {
 			        			granTotalEst5 += est5;
 		    				}
 		    				if(mapDiccionario.get("nEmpresa").equals("ALZATEC")) {
+		    					
+		    					cell = row.getCell(4);
+				   				texto = myformatdouble0.format(est3);
+				   				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+				   				
+				   				cell = row.getCell(5);
+				   				texto = myformatdouble0.format(est2);
+				   				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+				   				
+				   				
 		    					cell = row.getCell(6);
 		    					texto = myformatdouble0.format(est4);
 		    					setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 		    					
 		    					cell = row.getCell(7);
-		    					texto = myformatdouble0.format(cantDbl);
+		    					texto = myformatdouble0.format(est5);
 		    					setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 		    					
 		    					cell = row.getCell(8);
+		    					texto = myformatdouble0.format(est6);
+		    					setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+		    					
+		    					cell = row.getCell(9);
+		    					texto = myformatdouble0.format(cantDbl);
+		    					setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+		    					
+		    					cell = row.getCell(10);
 		    					texto = detalleGuia.get(i).get(27).trim();
 		    					setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 		    					
-			    				cell = row.getCell(9);
+			    				cell = row.getCell(11);
 			    				texto =m2;
 			    				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 			    				
-			    				cell = row.getCell(10);
-			    				texto = detalleGuia.get(i).get(34).trim();
-			    				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
-			    				cell = row.getCell(11);
-			    				texto = detalleGuia.get(i).get(35).trim();
-			    				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
-			    				
 			    				granTotalEst4 += est4;
+			    				granTotalEst5 += est5;
+			        			granTotalEst6 += est6;
 		    				}
 		    				//FIN AJUSTE
 		    				
@@ -1261,6 +1278,7 @@ public class FormMovimiento {
 	    			cell = row.getCell(3);
 	    			texto = myformatdouble0.format(granTotalEst1);
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+	    			
 	    			cell = row.getCell(4);
 	    			texto = myformatdouble0.format(granTotalEst2);
 	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
@@ -1314,18 +1332,35 @@ public class FormMovimiento {
     				}
     				
     				if(mapDiccionario.get("nEmpresa").equals("ALZATEC")) {
+    					
+    					cell = row.getCell(4);
+    	    			texto = myformatdouble0.format(granTotalEst3);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			
+    	    			cell = row.getCell(5);
+    	    			texto = myformatdouble0.format(granTotalEst2);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			
     					cell = row.getCell(6);
     					texto = myformatdouble0.format(granTotalEst4);
     	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
     	    			
-    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
     	    			cell = row.getCell(7);
-    	    			texto = myformatdouble0.format(granTotalUnidades);
+    					texto = myformatdouble0.format(granTotalEst5);
     	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			
     	    			cell = row.getCell(8);
-    	    			texto = myformatdouble0.format(granTotalPeso);
+    					texto = myformatdouble0.format(granTotalEst6);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			
     	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
     	    			cell = row.getCell(9);
+    	    			texto = myformatdouble0.format(granTotalUnidades);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			cell = row.getCell(10);
+    	    			texto = myformatdouble0.format(granTotalPeso);
+    	    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+    	    			cell = row.getCell(11);
     	    			texto = myformatdouble0.format(granTotalM2);
     	    			if( mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
 		    				texto = "";
