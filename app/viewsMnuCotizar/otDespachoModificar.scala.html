@@ -55,15 +55,23 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 						  		<div class="input-group-prepend">
 						    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
 						  		</div>
-									<input type="text" class="form-control left"
-						  				name="numeroGuia"
-										id="numeroGuia"
-										value = "@guia.getNumero()"
-										onkeypress="return ingresoInt(event)"
-										onchange="verificarNumeroGuia(value)"
-										autocomplete="off"
-										required>
-						  		
+									@if(mapPermiso.get("parametro.bloqueoNrosMovimientos")!=null && mapPermiso.get("parametro.bloqueoNrosMovimientos").equals("1")){
+										<input type="text" class="form-control left"
+							  				name="numeroGuia"
+											id="numeroGuia"
+											value = "@guia.getNumero()"
+											readonly
+											required>
+									}else{
+										<input type="text" class="form-control left"
+							  				name="numeroGuia"
+											id="numeroGuia"
+											value = "@guia.getNumero()"
+											onkeypress="return ingresoInt(event)"
+											onchange="verificarNumeroGuia(value)"
+											autocomplete="off"
+											required>
+						  			}
 							</div>
 						</td>
 						<td>

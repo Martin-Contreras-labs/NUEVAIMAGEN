@@ -1662,7 +1662,7 @@ public class Cotizacion {
 					try { cantidad = myformatdouble.parse(auxNum).doubleValue(); }catch(Exception e) {}
 					totaCantidad = totaCantidad + cantidad;
 					
-					
+				
 					vista=vista+
 					"<TR>"+
 						"<td style='text-align:left;'>"+detalle.get(i).grupo+"</td>"+
@@ -1702,7 +1702,7 @@ public class Cotizacion {
 						}
 						vista += 
 					"</TR>";
-						
+					
 		 		}
 
 			

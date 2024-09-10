@@ -1106,8 +1106,8 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 			let tabla = document.getElementById("tablaPrincipal");
 			for(i=2; i<tabla.rows.length-5; i++){
 				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
-				let arr = tabla.rows[i].cells[13].innerHTML.replace(/,/g,'');
-				let vta = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
+				let arr = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
+				let vta = tabla.rows[i].cells[15].innerHTML.replace(/,/g,'');
 				if((parseFloat(cant)+parseFloat(arr)+parseFloat(vta))<=0){
 					tabla.rows[i].style.display = 'none';
 				}
