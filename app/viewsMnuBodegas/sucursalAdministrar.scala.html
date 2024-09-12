@@ -13,6 +13,9 @@ listSucursales: List[tables.Sucursal])
 					<thead style="background-color: #eeeeee">
 						<TR> 
 							<TH style="vertical-align: top;">NOMBRE DE SUCURSAL</TH>
+							@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+								<TH>IVA</TH>
+							}
 							<TH>EDIT</TH>
 							<TH>DEL</TH>
 						</TR>
@@ -21,6 +24,14 @@ listSucursales: List[tables.Sucursal])
 						@for(lista1 <- listSucursales){
 							<TR>
 								<td  style="text-align:left;"><div id="@lista1.getId()">@lista1.getNombre()</div></td>
+								@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+									@if(lista1.getIvaSucursal() > 0){
+										<td  style="text-align:center;">@(utilities.DecimalFormato.formato(lista1.getIvaSucursal()*100,2)) %</td>
+									}else{
+										<td  style="text-align:center;">No Aplica</td>
+									}
+									
+								}
 								<td  style="text-align:center;">
 									<form id="form_@lista1.getId()" method="post" action="/routes2/sucursalModifica/">
 										<input type="hidden" name="id_sucursal" value="@lista1.getId()">

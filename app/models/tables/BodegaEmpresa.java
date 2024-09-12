@@ -1637,7 +1637,7 @@ public class BodegaEmpresa {
 		return (flag);
 	}
 	
-	public static boolean existeStockEnArriendo(Connection con, String db, Long id_bodegaEmpresa) {
+	public static boolean existeStockEnArriendo(Connection con, String db, Map<String,String> mapeoPermiso, Long id_bodegaEmpresa) {
 		boolean flag = false;
 		try {
 			
@@ -1647,19 +1647,35 @@ public class BodegaEmpresa {
 				aux = "";
 			}
 			
-			PreparedStatement smt1 = con
-					.prepareStatement("select id_equipo, sum(cantidad*if(id_tipoMovimiento=1,1,-1)) "+
-							" from `"+db+"`.movimiento where id_bodegaEmpresa = ? "+aux+
-							" group by id_equipo "+
-							" having sum(cantidad*if(id_tipoMovimiento=1,1,-1)) <> 0;");
-			smt1.setLong(1, id_bodegaEmpresa);
-			
-			ResultSet resultado = smt1.executeQuery();
-			if (resultado.next()) {
-				flag = true;
+			if(mapeoPermiso.get("parametro.permiteDevolverVentas")!=null && mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+				PreparedStatement smt1 = con
+						.prepareStatement("select id_equipo, sum(cantidad*if(id_tipoMovimiento=1,1,-1)) "+
+								" from `"+db+"`.movimiento where id_bodegaEmpresa = ? "+aux+
+								" group by id_equipo "+
+								" having sum(cantidad*if(id_tipoMovimiento=1,1,-1)) > 0;");
+				smt1.setLong(1, id_bodegaEmpresa);
+
+				ResultSet resultado = smt1.executeQuery();
+				if (resultado.next()) {
+					flag = true;
+				}
+				resultado.close();
+				smt1.close();
+			}else {
+				PreparedStatement smt1 = con
+						.prepareStatement("select id_equipo, sum(cantidad*if(id_tipoMovimiento=1,1,-1)) "+
+								" from `"+db+"`.movimiento where id_bodegaEmpresa = ? "+aux+
+								" group by id_equipo "+
+								" having sum(cantidad*if(id_tipoMovimiento=1,1,-1)) <> 0;");
+				smt1.setLong(1, id_bodegaEmpresa);
+				
+				ResultSet resultado = smt1.executeQuery();
+				if (resultado.next()) {
+					flag = true;
+				}
+				resultado.close();
+				smt1.close();
 			}
-			resultado.close();
-			smt1.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

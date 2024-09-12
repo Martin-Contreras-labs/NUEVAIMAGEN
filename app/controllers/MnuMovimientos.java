@@ -1818,7 +1818,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       		if(file!=null) {
 		       			return ok(file,false,Optional.of(nroIntGuia+"_GuiaInterna.pdf"));
 		       		}else {
-		       			return ok(mensajes.render("/proformaLista/0","Documento aun no ha sido enviado al portal o inexistente."));
+		       			return ok(mensajes.render("/movimientoListarPeriodo/0","Documento aun no ha sido enviado al portal o inexistente."));
 		       		}
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();

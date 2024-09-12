@@ -21,13 +21,15 @@ public class Sucursal {
 	public String nombre;
 	public String observaciones;
 	public String direccion;
+	public Double ivaSucursal;
 	
-	public Sucursal(Long id, String nombre, String observaciones, String direccion) {
+	public Sucursal(Long id, String nombre, String observaciones, String direccion, Double ivaSucursal) {
 		super();
 		this.id = id;
 		this.nombre = nombre;
 		this.observaciones = observaciones;
 		this.direccion = direccion;
+		this.ivaSucursal = ivaSucursal;
 	}
 
 	public Sucursal() {
@@ -66,6 +68,14 @@ public class Sucursal {
 		this.direccion = direccion;
 	}
 
+	public Double getIvaSucursal() {
+		return ivaSucursal;
+	}
+
+	public void setIvaSucursal(Double ivaSucursal) {
+		this.ivaSucursal = ivaSucursal;
+	}
+
 	public static Map<Long,Sucursal> mapAllSucursales(Connection con, String db){
 		Map<Long,Sucursal> map = new HashMap<Long,Sucursal>();
 		List<Sucursal> listSucursal = Sucursal.all(con, db);
@@ -83,12 +93,13 @@ public class Sucursal {
 							" sucursal.id, " + 
 							" sucursal.nombre, " + 
 							" sucursal.observaciones, " +
-							" sucursal.direccion " +
+							" sucursal.direccion, " +
+							" sucursal.ivaSucursal " +
 							" from `"+db+"`.sucursal " +
 							" order by sucursal.nombre;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {		
-				lista.add(new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4)));
+				lista.add(new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -105,13 +116,14 @@ public class Sucursal {
 							" sucursal.id, " + 
 							" sucursal.nombre, " +
 							" sucursal.observaciones, " +
-							" sucursal.direccion " +
+							" sucursal.direccion, " +
+							" sucursal.ivaSucursal " +
 							" from `"+db+"`.sucursal " +
 							" where sucursal.id=?;");
 			smt.setString(1, id_sucursal);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {		
-				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4));
+				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -128,13 +140,14 @@ public class Sucursal {
 							" sucursal.id, " + 
 							" sucursal.nombre, " +
 							" sucursal.observaciones, " +
-							" sucursal.direccion " +
+							" sucursal.direccion, " +
+							" sucursal.ivaSucursal " +
 							" from `"+db+"`.sucursal " +
 							" where upper(sucursal.nombre) = ?;");
 			smt.setString(1, nameSucursal.toUpperCase());
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {		
-				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4));
+				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -236,12 +249,13 @@ public class Sucursal {
 		return (flag);
 	}
 	
-	public static boolean create(Connection con,String db, String nombreSucursal) {	
+	public static boolean create(Connection con,String db, String nombreSucursal, Double ivaSucursal) {	
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.sucursal (nombre) values (?);", Statement.RETURN_GENERATED_KEYS);		
+					.prepareStatement("insert into `"+db+"`.sucursal (nombre,ivaSucursal) values (?,?);", Statement.RETURN_GENERATED_KEYS);		
 			smt.setString(1, nombreSucursal.trim().toUpperCase());
+			smt.setDouble(2, ivaSucursal);
 			smt.executeUpdate();
 			
 			Long id_sucursal = (long)0;

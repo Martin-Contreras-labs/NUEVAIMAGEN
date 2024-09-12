@@ -34,6 +34,7 @@ import models.tables.Moneda;
 import models.tables.Proforma;
 import models.tables.ProformaOdo;
 import models.tables.Proyecto;
+import models.tables.Sucursal;
 import models.tables.TipoReferencia;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
@@ -196,9 +197,13 @@ public class FormFactura {
     			
     			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 		        	if(bodegaEmpresa!=null) {
-		        		Double aux = bodegaEmpresa.getIvaBodega();
-		        		if(aux > 0) {
+		        		if(bodegaEmpresa.getIvaBodega() > 0) {
 		        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				proforma.setIva(proforma.neto * sucursal.getIvaSucursal());
+		        			}
 		        		}
 		        		
 		        	}
@@ -248,9 +253,13 @@ public class FormFactura {
     			
     			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 		        	if(bodegaEmpresa!=null) {
-		        		Double aux = bodegaEmpresa.getIvaBodega();
-		        		if(aux > 0) {
+		        		if(bodegaEmpresa.getIvaBodega() > 0) {
 		        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				proforma.setIva(proforma.neto * sucursal.getIvaSucursal());
+		        			}
 		        		}
 		        		
 		        	}
@@ -1016,9 +1025,13 @@ public class FormFactura {
 			
 			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 	        	if(bodegaEmpresa!=null) {
-	        		Double aux = bodegaEmpresa.getIvaBodega();
-	        		if(aux > 0) {
+	        		if(bodegaEmpresa.getIvaBodega() > 0) {
 	        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+	        		}else {
+	        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+	        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+	        				proforma.setIva(proforma.neto * sucursal.getIvaSucursal());
+	        			}
 	        		}
 	        		
 	        	}
@@ -1069,9 +1082,13 @@ public class FormFactura {
 			
 			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 	        	if(bodegaEmpresa!=null) {
-	        		Double aux = bodegaEmpresa.getIvaBodega();
-	        		if(aux > 0) {
+	        		if(bodegaEmpresa.getIvaBodega() > 0) {
 	        			proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
+	        		}else {
+	        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+	        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+	        				proforma.setIva(proforma.neto * sucursal.getIvaSucursal());
+	        			}
 	        		}
 	        		
 	        	}
@@ -1230,8 +1247,19 @@ public class FormFactura {
     			proformaOdo.setNeto(totalPrecio);
     			
     			proformaOdo.setIva(proformaOdo.neto * emisorTributario.tasaIva/100);
-    			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && bodegaEmpresa.getId()>0) {
-   				 proformaOdo.setIva(proformaOdo.neto * bodegaEmpresa.getIvaBodega());
+    			
+    			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+		        	if(bodegaEmpresa!=null) {
+		        		if(bodegaEmpresa.getIvaBodega() > 0) {
+		        			proformaOdo.setIva(proformaOdo.neto * bodegaEmpresa.getIvaBodega());
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				proformaOdo.setIva(proformaOdo.neto * sucursal.getIvaSucursal());
+		        			}
+		        		}
+		        		
+		        	}
 		        }
     			
     			proformaOdo.setTotal(proformaOdo.neto + proformaOdo.iva);
@@ -1274,9 +1302,20 @@ public class FormFactura {
 				proformaOdo.setNeto(totalPrecio + totalAjuste);
 				
 				proformaOdo.setIva(proformaOdo.neto * emisorTributario.tasaIva/100);
-				if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && bodegaEmpresa.getId()>0) {
-					proformaOdo.setIva(proformaOdo.neto * bodegaEmpresa.getIvaBodega());
-			    }
+				
+				if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+		        	if(bodegaEmpresa!=null) {
+		        		if(bodegaEmpresa.getIvaBodega() > 0) {
+		        			proformaOdo.setIva(proformaOdo.neto * bodegaEmpresa.getIvaBodega());
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				proformaOdo.setIva(proformaOdo.neto * sucursal.getIvaSucursal());
+		        			}
+		        		}
+		        		
+		        	}
+		        }
 				
 				proformaOdo.setTotal(proformaOdo.neto + proformaOdo.iva);
     			

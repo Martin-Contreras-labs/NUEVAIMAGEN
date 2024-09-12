@@ -24,13 +24,14 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
-
+import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.CotizaDetalle;
 import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Proyecto;
+import models.tables.Sucursal;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 
@@ -850,23 +851,45 @@ public class CotizacionEnExcel {
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("IVA");
 							
-							posCell++; posColl++;
-				            cell = row.createCell(posCell);
-				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalReposicion*emisor.getTasaIva()/100);
+							
+							Double tasaIva = emisor.getTasaIva()/100;
+							
+							Sucursal sucursal = Sucursal.find(con, db, cotizacion.getId_sucursal().toString());
+							
+							if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+					        	if(cotizacion.getId_bodegaEmpresa()>0) {
+					        		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
+					        		if(bodegaEmpresa!=null && bodegaEmpresa.getIvaBodega() > 0) {
+					        			tasaIva = bodegaEmpresa.getIvaBodega();
+					        		}else {
+					        			if(sucursal.getIvaSucursal() > 0) {
+					        				tasaIva = sucursal.getIvaSucursal();
+					        			}
+					        		}
+					        	}else {
+					        		if(sucursal.getIvaSucursal() > 0) {
+				        				tasaIva = sucursal.getIvaSucursal();
+				        			}
+					        	}
+					        }
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalArriendoConDcto*emisor.getTasaIva()/100);
+							cell.setCellValue(totalReposicion*tasaIva);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalVentaConDcto*emisor.getTasaIva()/100);
+							cell.setCellValue(totalArriendoConDcto*tasaIva);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalVentaConDcto*tasaIva);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
@@ -955,19 +978,19 @@ public class CotizacionEnExcel {
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalReposicion*(1+emisor.getTasaIva()/100));
+							cell.setCellValue(totalReposicion*(1+tasaIva));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalArriendoConDcto*(1+emisor.getTasaIva()/100));
+							cell.setCellValue(totalArriendoConDcto*(1+tasaIva));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalVentaConDcto*(1+emisor.getTasaIva()/100));
+							cell.setCellValue(totalVentaConDcto*(1+tasaIva));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
@@ -1998,7 +2021,7 @@ public class CotizacionEnExcel {
 		return(tmp);
 	}
 		
-	public static File cotizacionEnExcelResumen(String db, List<List<String>> resumen, Cliente cliente, Map<String,String> mapDiccionario, 
+	public static File cotizacionEnExcelResumen(Connection con, String db, List<List<String>> resumen, Cliente cliente, Map<String,String> mapDiccionario, 
 			Proyecto proyecto, Map<String,String> mapeoPermiso, EmisorTributario emisor){
 		
 		File tmp = TempFile.createTempFile("tmp","null");
@@ -2625,23 +2648,35 @@ public class CotizacionEnExcel {
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("IVA");
 							
-							posCell++; posColl++;
-				            cell = row.createCell(posCell);
-				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalRepos*emisor.getTasaIva()/100);
+							Double tasaIVA = emisor.getTasaIva()/100;
+							
+							if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+					        	if(resumen.size() > 0) {
+					        		String idSucursal = resumen.get(0).get(24);
+					        		Sucursal sucursal = Sucursal.find(con, db, idSucursal);
+					        		if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+					        			tasaIVA = sucursal.getIvaSucursal();
+					        		}
+					        	}
+					        }
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalArr*emisor.getTasaIva()/100);
+							cell.setCellValue(totalRepos*tasaIVA);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalVta*emisor.getTasaIva()/100);
+							cell.setCellValue(totalArr*tasaIVA);
+							
+							posCell++; posColl++;
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(totalVta*tasaIVA);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
@@ -2748,19 +2783,19 @@ public class CotizacionEnExcel {
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalRepos*(1+emisor.getTasaIva()/100));
+							cell.setCellValue(totalRepos*(1+tasaIVA));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalArr*(1+emisor.getTasaIva()/100));
+							cell.setCellValue(totalArr*(1+tasaIVA));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							cell.setCellValue(totalVta*(1+emisor.getTasaIva()/100));
+							cell.setCellValue(totalVta*(1+tasaIVA));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);

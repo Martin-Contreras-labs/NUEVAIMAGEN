@@ -220,11 +220,19 @@ public class MnuCotizar extends Controller {
     	        		Double aux = bodega.getIvaBodega();
     	        		if(aux > 0) {
     	        			tasaIva = bodega.getIvaBodega();
-    	        		}
-    	        		
-    	        	}
+    	        		}else {
+   		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+   		        				tasaIva = sucursal.getIvaSucursal();
+   		        			}
+   		        		}
+    	        	}else {
+	        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+	        				tasaIva = sucursal.getIvaSucursal();
+	        			}
+	        		}
     	        }
     			
+   		     
     			con.close();
     			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,numDecParaTot,listRegiones, jsonListUnTiempo, 
     					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, tasaIva));
@@ -723,15 +731,26 @@ public class MnuCotizar extends Controller {
 	    			
 	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 	    			Double tasaIva = emisor.tasaIva/100;
+	    			
+	    			Sucursal sucursal = Sucursal.find(con, s.baseDato, cotizacion.getId_sucursal().toString());
+	    			
 	    			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
 	    	        	if(bodega!=null) {
 	    	        		Double aux = bodega.getIvaBodega();
 	    	        		if(aux > 0) {
 	    	        			tasaIva = bodega.getIvaBodega();
-	    	        		}
-	    	        		
-	    	        	}
+	    	        		}else {
+	   		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+	   		        				tasaIva = sucursal.getIvaSucursal();
+	   		        			}
+	   		        		}
+	    	        	}else {
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				tasaIva = sucursal.getIvaSucursal();
+		        			}
+		        		}
 	    	        }
+	    			
 	    			
 	    			con.close();
 	    			return ok(cotizaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos, numDecParaTot, listRegiones, jsonListUnTiempo, 
@@ -1387,13 +1406,44 @@ public class MnuCotizar extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			Cotizacion coti = Cotizacion.find(con, s.baseDato, id_cotizacion);
-    			String tabla = Cotizacion.vistaModalVerCotizacion(con, s.baseDato, coti, mapeoDiccionario, mapeoPermiso);
+    			Cotizacion cotizacion = Cotizacion.find(con, s.baseDato, id_cotizacion);
+    			String tabla = Cotizacion.vistaModalVerCotizacion(con, s.baseDato, cotizacion, mapeoDiccionario, mapeoPermiso);
     			List<Grupo> listGrupos = Grupo.allConEquipos(con, s.baseDato);
     			
     			EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
+    			
     			String tasaIva = emisorTributario.getTasaIva() + " %";
-    					
+    			
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+		        	if(cotizacion.getId_bodegaEmpresa()>0) {
+		        		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, cotizacion.getId_bodegaEmpresa());
+		        		if(bodegaEmpresa!=null) {
+		        			if(bodegaEmpresa.getIvaBodega()>0) {
+		        				Double dblTasaIVA = bodegaEmpresa.getIvaBodega();
+			        			tasaIva = DecimalFormato.formato(dblTasaIVA * 100, (long)2) + " %";
+		        			}else {
+		        				Sucursal sucursal = Sucursal.find(con, s.baseDato, bodegaEmpresa.getId_sucursal().toString());
+		        				if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+			        				Double dblTasaIVA = sucursal.getIvaSucursal();
+				        			tasaIva = DecimalFormato.formato(dblTasaIVA * 100, (long)2) + " %";
+			        			}
+		        			}
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, s.baseDato, cotizacion.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+		        				Double dblTasaIVA = sucursal.getIvaSucursal();
+			        			tasaIva = DecimalFormato.formato(dblTasaIVA * 100, (long)2) + " %";
+		        			}
+		        		}
+		        	}else {
+		        		Sucursal sucursal = Sucursal.find(con, s.baseDato, cotizacion.getId_sucursal().toString());
+	        			if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+	        				Double dblTasaIVA = sucursal.getIvaSucursal();
+		        			tasaIva = DecimalFormato.formato(dblTasaIVA * 100, (long)2) + " %";
+	        			}
+		        	}
+		        }
+    			
     			con.close();
     			return ok(cotizaImprimir.render(mapeoDiccionario,mapeoPermiso,userMnu,id_cotizacion, tabla, listGrupos, tasaIva));
         	} catch (SQLException e) {
@@ -1654,7 +1704,7 @@ public class MnuCotizar extends Controller {
 		    			Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 		    			Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
 		    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-		    			String tabla = Cotizacion.vistaModalVerCotiResumen(mapeoDiccionario, resumen, cliente, proyecto, mapeoPermiso, emisor);
+		    			String tabla = Cotizacion.vistaModalVerCotiResumen(con, s.baseDato, mapeoDiccionario, resumen, cliente, proyecto, mapeoPermiso, emisor);
 	    				con.close();
 	    				return ok(cotizaListaResumen2.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla , cliente, listadoIdCoti, proyecto));
 	    			}
@@ -1703,7 +1753,7 @@ public class MnuCotizar extends Controller {
 							Archivos.grabarArchivo(pdfSin, path);
 	    				}
 	    				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-						File fileXls = CotizacionEnExcel.cotizacionEnExcelResumen(s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso,emisor);
+						File fileXls = CotizacionEnExcel.cotizacionEnExcelResumen(con, s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso,emisor);
 						if(fileXls !=null) {
 							String archivoXls = "CotiResumenXls_"+id_cotiBiblioteca+".xlsx";
 		    				CotiBiblioteca.updateXlsConDetalle(con, s.baseDato, archivoXls, id_cotiBiblioteca);
@@ -1743,7 +1793,7 @@ public class MnuCotizar extends Controller {
 	    			Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 	    			Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
 	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-	    			File file = CotizacionEnExcel.cotizacionEnExcelResumen(s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso, emisor);
+	    			File file = CotizacionEnExcel.cotizacionEnExcelResumen(con, s.baseDato, resumen, cliente, mapeoDiccionario, proyecto, mapeoPermiso, emisor);
 		       		if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("Cotizacion.xlsx"));

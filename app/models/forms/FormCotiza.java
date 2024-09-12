@@ -47,6 +47,7 @@ import models.tables.Movimiento;
 import models.tables.Ot;
 import models.tables.Precio;
 import models.tables.Proyecto;
+import models.tables.Sucursal;
 import models.tables.TasaEquipo;
 import models.tables.TasaGrupo;
 import models.tables.UnidadTiempo;
@@ -677,13 +678,7 @@ public class FormCotiza {
 			nickProyecto = proyecto.getNickName();
 		}
 		
-		EmisorTributario emisorTributario = models.tables.EmisorTributario.find(con, db);
-		 
-		
 		File tmp = TempFile.createTempFile("tmp","null");
-		
-		
-		
 		
 		
 		try {
@@ -981,22 +976,7 @@ public class FormCotiza {
 	        Double totalDcto = subTotal * cotizacion.getDctoArriendo();
 	        Double totalNeto = subTotal - totalDcto;
 	        
-	        Double tasaIvaDbl = emisorTributario.getTasaIva()/100;
-	        
-	        
-	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
-	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
-	        	if(bodegaEmpresa!=null) {
-	        		Double aux = bodegaEmpresa.getIvaBodega();
-	        		if(aux > 0) {
-	        			tasaIvaDbl = bodegaEmpresa.getIvaBodega();
-	        		} else {
-	        			tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        		}
-	        	} else {
-	        		tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        	}
-	        }
+	        Double tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        
 	        String auxTasaIva = DecimalFormato.formato(tasaIvaDbl * 100, (long)2) + " %";
 	        
@@ -1223,9 +1203,6 @@ public class FormCotiza {
 			nickProyecto = proyecto.getNickName();
 		}
 		
-		EmisorTributario emisorTributario = models.tables.EmisorTributario.find(con, db);
-		 
-		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
 		
@@ -1376,24 +1353,9 @@ public class FormCotiza {
 	        Double totalDcto = subTotal * cotizacion.getDctoVenta();
 	        Double totalNeto = subTotal - totalDcto;
 	        
-	        Double tasaIvaDbl = emisorTributario.getTasaIva()/100;
-	        
-	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
-	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
-	        	if(bodegaEmpresa!=null) {
-	        		Double aux = bodegaEmpresa.getIvaBodega();
-	        		if(aux > 0) {
-	        			tasaIvaDbl = bodegaEmpresa.getIvaBodega();
-	        		} else {
-	        			tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        		}
-	        	} else {
-	        		tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        	}
-	        }
-	        
+
+	        Double tasaIvaDbl = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        String auxTasaIva = DecimalFormato.formato(tasaIvaDbl * 100, (long)2) + " %";
-	        
 	        
 	        Double totalIva = totalNeto * tasaIvaDbl;
 	        Double total = totalNeto * (1+tasaIvaDbl);
@@ -1565,9 +1527,6 @@ public class FormCotiza {
 		if(proyecto!=null) {
 			nickProyecto = proyecto.getNickName();
 		}
-		
-		EmisorTributario emisorTributario = models.tables.EmisorTributario.find(con, db);
-		 
 		
 		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -1753,21 +1712,7 @@ public class FormCotiza {
 	        Double totalDctoVta = subTotalVta * cotizacion.getDctoVenta();
 	        Double totalNetoVta = subTotalVta - totalDctoVta;
 	        
-	        Double tasaIvaVta = emisorTributario.getTasaIva()/100;
-	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
-	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
-	        	if(bodegaEmpresa!=null) {
-	        		Double aux = bodegaEmpresa.getIvaBodega();
-	        		if(aux > 0) {
-	        			tasaIvaVta = bodegaEmpresa.getIvaBodega();
-	        		} else {
-	        			tasaIvaVta = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        		}
-	        	} else {
-	        		tasaIvaVta = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        	}
-	        }
-	        
+	        Double tasaIvaVta = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
 	        String auxTasaIva = DecimalFormato.formato(tasaIvaVta * 100, (long)2) + " %";
 	        
 	        Double totalIvaVta = totalNetoVta * tasaIvaVta;
@@ -1776,22 +1721,7 @@ public class FormCotiza {
 	        Double totalDctoArr = subTotalArr * cotizacion.getDctoArriendo();
 	        Double totalNetoArr = subTotalArr - totalDctoArr;
 	        
-	        Double tasaIvaArr = emisorTributario.getTasaIva()/100;
-	        
-	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
-	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
-	        	if(bodegaEmpresa!=null) {
-	        		Double aux = bodegaEmpresa.getIvaBodega();
-	        		if(aux > 0) {
-	        			tasaIvaArr = bodegaEmpresa.getIvaBodega();
-	        		} else {
-	        			tasaIvaArr = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        		}
-	        	} else {
-	        		tasaIvaArr = Double.parseDouble(tasaIva.replaceAll("%", "").trim().replaceAll(",",""))/100;
-	        	}
-	        }
-	        
+	        Double tasaIvaArr = tasaIvaVta;
 	        auxTasaIva = DecimalFormato.formato(tasaIvaArr * 100, (long)2) + " %";
 	        
 	        Double totalIvaArr = totalNetoArr * tasaIvaArr;
@@ -2165,11 +2095,22 @@ public class FormCotiza {
 	        
 	        Double totalNetoVta = subTotalVta;
 	        Double tasaIvaVta = emisorTributario.getTasaIva()/100;
+	        
+	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	        	if(resumen.size() > 0) {
+	        		String idSucursal = resumen.get(0).get(24);
+	        		Sucursal sucursal = Sucursal.find(con, db, idSucursal);
+	        		if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+	        			tasaIvaVta = sucursal.getIvaSucursal();
+	        		}
+	        	}
+	        }
+	        
 	        Double totalIvaVta = totalNetoVta * tasaIvaVta;
 	        Double totalVta = totalNetoVta * (1+tasaIvaVta);
 	        
 	        Double totalNetoArr = subTotalArr;
-	        Double tasaIvaArr = emisorTributario.getTasaIva()/100;
+	        Double tasaIvaArr = tasaIvaVta;
 	        Double totalIvaArr = totalNetoArr * tasaIvaArr;
 	        Double totalArr = totalNetoArr * (1+tasaIvaArr);
 	        
@@ -2501,11 +2442,28 @@ public class FormCotiza {
 	        
 	        Double totalNetoVta = subTotalVta;
 	        Double tasaIvaVta = emisorTributario.getTasaIva()/100;
+	        
+	        
+			
+			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	        	if(resumen.size() > 0) {
+	        		String idSucursal = resumen.get(0).get(24);
+	        		Sucursal sucursal = Sucursal.find(con, db, idSucursal);
+	        		if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+	        			tasaIvaVta = sucursal.getIvaSucursal();
+	        		}
+	        	}
+	        }
+	        
+	        
+	        
+	        
+	        
 	        Double totalIvaVta = totalNetoVta * tasaIvaVta;
 	        Double totalVta = totalNetoVta * (1+tasaIvaVta);
 	        
 	        Double totalNetoArr = subTotalArr;
-	        Double tasaIvaArr = emisorTributario.getTasaIva()/100;
+	        Double tasaIvaArr = tasaIvaVta;
 	        Double totalIvaArr = totalNetoArr * tasaIvaArr;
 	        Double totalArr = totalNetoArr * (1+tasaIvaArr);
 	        

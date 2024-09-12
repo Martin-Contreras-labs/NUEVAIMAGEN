@@ -20,6 +20,7 @@ import models.tables.EmisorTributario;
 import models.tables.Guia;
 import models.tables.Proforma;
 import models.tables.Proyecto;
+import models.tables.Sucursal;
 import models.tables.Transportista;
 import models.utilities.Fechas;
 
@@ -261,11 +262,21 @@ public class ApiManagerDocDoc {
 			
 			
 			Double tasaIvaArrAuxiliar = emisorTributario.getTasaIva();
+		    
 		     if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 		        	if(bodegaDestino!=null) {
-		        		tasaIvaArrAuxiliar = bodegaDestino.getIvaBodega() * 100;
+		        		if(bodegaDestino.getIvaBodega() > 0) {
+		        			tasaIvaArrAuxiliar = bodegaDestino.getIvaBodega() * 100;
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, db, bodegaDestino.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				tasaIvaArrAuxiliar = sucursal.getIvaSucursal();
+		        			}
+		        		}
+		        		
 		        	}
 		      }
+		     
 			String IvaTasa = tasaIvaArrAuxiliar.toString();
 		
 			for(int i=0;i<detalleGuia.size();i++) {

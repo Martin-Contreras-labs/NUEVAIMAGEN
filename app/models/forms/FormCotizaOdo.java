@@ -40,6 +40,7 @@ import models.tables.CotiOdoDetalle;
 import models.tables.EmisorTributario;
 import models.tables.Proyecto;
 import models.tables.Servicio;
+import models.tables.Sucursal;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
@@ -449,10 +450,20 @@ public class FormCotizaOdo {
 	        
 	        Double tasaIva = emisorTributario.getTasaIva()/100;
 	        
-	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1") && cotiOdo.getId_bodegaEmpresa()>0) {
-	        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotiOdo.getId_bodegaEmpresa());
-	        	if(bodegaEmpresa!=null) {
-	        		tasaIva = bodegaEmpresa.getIvaBodega();
+	        if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	        	if(cotiOdo.getId_bodegaEmpresa()>0) {
+	        		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotiOdo.getId_bodegaEmpresa());
+	        		if(bodegaEmpresa!=null) {
+	        			if(bodegaEmpresa.getIvaBodega() > 0) {
+		        			tasaIva = bodegaEmpresa.getIvaBodega();
+		        		}else {
+		        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+		        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+		        				tasaIva = sucursal.getIvaSucursal();
+		        			}
+		        		}
+	        		}
+	        		
 	        	}
 	        }
 	        

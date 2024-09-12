@@ -26,6 +26,7 @@ import org.apache.poi.util.TempFile;
 
 import models.forms.FormCotiza;
 import models.utilities.Archivos;
+import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 
 
@@ -1781,20 +1782,26 @@ public class Cotizacion {
 						vista += 
 				"</TR>";
 				
-			
+						
 			if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
 				EmisorTributario emisor = EmisorTributario.find(con, db);
 				
 				Double tasaIva = emisor.getTasaIva()/100;
 				
-				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
-		        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
-		        	if(bodegaEmpresa!=null) {
-		        		Double aux = bodegaEmpresa.getIvaBodega();
-		        		if(aux > 0) {
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+		        	if(cotizacion.getId_bodegaEmpresa()>0) {
+		        		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
+		        		if(bodegaEmpresa!=null && bodegaEmpresa.getIvaBodega() > 0) {
 		        			tasaIva = bodegaEmpresa.getIvaBodega();
+		        		}else {
+		        			if(sucursal.getIvaSucursal() > 0) {
+		        				tasaIva = sucursal.getIvaSucursal();
+		        			}
 		        		}
-		        		
+		        	}else {
+		        		if(sucursal.getIvaSucursal() > 0) {
+	        				tasaIva = sucursal.getIvaSucursal();
+	        			}
 		        	}
 		        }
 				
@@ -2995,6 +3002,8 @@ public class Cotizacion {
 				aux.add(rs.getString(20));	// 21 id_cotizacion
 				aux.add(rs.getString(21));	// 22 id_moneda
 				aux.add(nameCotizaSolucion);	// 23 solucion
+				aux.add(rs.getString(1));	// 24 id_sucursal
+				
 				lista.add(aux);
 			}
 		} catch (SQLException e) {
@@ -3005,7 +3014,7 @@ public class Cotizacion {
 		return(lista);
 	}
 	
-	public static String vistaModalVerCotiResumen( Map<String,String> mapDiccionario, List<List<String>> resumen, Cliente cliente, 
+	public static String vistaModalVerCotiResumen( Connection con, String db, Map<String,String> mapDiccionario, List<List<String>> resumen, Cliente cliente, 
 			Proyecto proyecto, Map<String,String> mapeoPermiso, EmisorTributario emisor){
 		String vista="";
 		
@@ -3142,17 +3151,17 @@ public class Cotizacion {
 				if(mapeoPermiso.get("parametro.cotizaciones-con-iva")!=null && mapeoPermiso.get("parametro.cotizaciones-con-iva").equals("1")) {
 					
 					Double tasaIva = emisor.getTasaIva()/100;
+	    			
+					if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+			        	if(resumen.size() > 0) {
+			        		String idSucursal = resumen.get(0).get(24);
+			        		Sucursal sucursal = Sucursal.find(con, db, idSucursal);
+			        		if(sucursal!=null && sucursal.getIvaSucursal()>0) {
+			        			tasaIva = sucursal.getIvaSucursal();
+			        		}
+			        	}
+			        }
 					
-//					if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1") && cotizacion.getId_bodegaEmpresa()>0) {
-//			        	BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, cotizacion.getId_bodegaEmpresa());
-//			        	if(bodegaEmpresa!=null) {
-//			        		Double aux = bodegaEmpresa.getIvaBodega();
-//			        		if(aux > 0) {
-//			        			tasaIva = bodegaEmpresa.getIvaBodega();
-//			        		}
-//			        		
-//			        	}
-//			        }
 					
 					vista +=
 							"<TR>"+

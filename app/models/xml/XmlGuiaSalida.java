@@ -27,6 +27,7 @@ import models.tables.Cliente;
 import models.tables.EmisorTributario;
 import models.tables.Guia;
 import models.tables.Proyecto;
+import models.tables.Sucursal;
 import models.tables.Transportista;
 import models.utilities.Archivos;
 
@@ -219,9 +220,18 @@ public class XmlGuiaSalida {
 						Long totalNeto=(long)0;
 						
 						Double tasaIvaArrAuxiliar = emisorTributario.getTasaIva();
+							
 					     if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 					        	if(bodegaDestino!=null) {
-					        		tasaIvaArrAuxiliar = bodegaDestino.getIvaBodega() * 100;
+					        		if(bodegaDestino.getIvaBodega() > 0) {
+					        			tasaIvaArrAuxiliar = bodegaDestino.getIvaBodega() * 100;
+					        		}else {
+					        			Sucursal sucursal = Sucursal.find(con, db, bodegaDestino.getId_sucursal().toString());
+					        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+					        				tasaIvaArrAuxiliar = sucursal.getIvaSucursal();
+					        			}
+					        		}
+					        		
 					        	}
 					      }
 						

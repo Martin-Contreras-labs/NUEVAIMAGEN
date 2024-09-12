@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -874,6 +875,8 @@ public class FormMovimiento {
 				}else {
 					detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaOrigen(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
 				}
+				
+				detalleGuia.sort(Comparator.comparing(list -> list.get(6)));
 				
 				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 				

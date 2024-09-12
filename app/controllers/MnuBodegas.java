@@ -428,6 +428,10 @@ public class MnuBodegas extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		String nombreSucursal = form.get("nombreSucursal").trim();
+	       		String strIvaSucursal = form.get("ivaSucursal").trim();
+	       		Double ivaSucursal = Double.parseDouble(strIvaSucursal.replaceAll(",", "").replaceAll("%", "").trim());
+	       		ivaSucursal = ivaSucursal/100;
+	       		
 				try {
 	    			Connection con = db.getConnection();
 	    			if(Sucursal.existeSucursal(con, s.baseDato, nombreSucursal)) {
@@ -435,7 +439,7 @@ public class MnuBodegas extends Controller {
 	    				con.close();
 	    				return ok(mensajes.render("/routes2/sucursalAdministrar/",msg));
 	    			}else {
-	    				if(Sucursal.create(con, s.baseDato, nombreSucursal)) {
+	    				if(Sucursal.create(con, s.baseDato, nombreSucursal, ivaSucursal)) {
 	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "sucursal", (long)0, "create", "agrega nuevo sucursal: "+nombreSucursal);
 	    					Sucursal sucursal = Sucursal.find(con, s.baseDato, "1");
 	    					con.close();
@@ -475,12 +479,21 @@ public class MnuBodegas extends Controller {
 	    				con.close();
     	    			return ok("existe");
 	    			}else {
+	    				String msg = "cambia nombre de la sucursal a ";
+	    				if(campo.equals("ivaSucursal")) {
+    						valor = valor.replaceAll(",", "").replaceAll("%", "").trim();
+    						Double aux = Double.parseDouble(valor)/100;
+    						valor = aux.toString();
+    						msg = "cambia IVA de la sucursal a ";
+    					}
+	    				
 	    				if(Sucursal.modificaPorCampo(con, s.baseDato, campo, id_sucursal, valor)) {
 	    					Sucursal sucursal = Sucursal.find(con, s.baseDato, id_sucursal.toString());
-	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "sucursal", id_sucursal, "update", "cambia nombre de la sucursal a "+sucursal.getNombre());
+	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "sucursal", id_sucursal, "update", msg+sucursal.getNombre());
 	    					con.close();
 	    					return ok("");
 	    				}
+	    				
 	    				con.close();
 	    				return ok("error");
 	    			}
@@ -1400,7 +1413,7 @@ public class MnuBodegas extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			if(BodegaEmpresa.existeStockEnArriendo(con, s.baseDato, id_bodega)) {
+    			if(BodegaEmpresa.existeStockEnArriendo(con, s.baseDato, mapeoPermiso, id_bodega)) {
     				String mensaje = " No es posible cambiar de estado VIGENTE a NO VIGENTE, hay equipos existentes en "+
     						mapeoDiccionario.get("Arriendo")+" en "+mapeoDiccionario.get("Bodega")+"/Proyecto";
     				con.close();

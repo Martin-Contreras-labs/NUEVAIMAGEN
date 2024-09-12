@@ -27,6 +27,7 @@ import models.tables.Cliente;
 import models.tables.EmisorTributario;
 import models.tables.Grupo;
 import models.tables.Proforma;
+import models.tables.Sucursal;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 
@@ -121,12 +122,18 @@ public class XMLFacturaArriendo  {
 		 Double tasaIvaArrAuxiliar = emisorTributario.getTasaIva();
 	     if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 	        	if(bodegaEmpresa!=null) {
-	        		tasaIvaArrAuxiliar = bodegaEmpresa.getIvaBodega() * 100;
+	        		if(bodegaEmpresa.getIvaBodega() > 0) {
+	        			tasaIvaArrAuxiliar = bodegaEmpresa.getIvaBodega() * 100;
+	        		}else {
+	        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+	        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
+	        				tasaIvaArrAuxiliar = sucursal.getIvaSucursal();
+	        			}
+	        		}
+	        		
 	        	}
 	      }
 		String valTasaIVA = tasaIvaArrAuxiliar.toString();
-		
-		
 		
 		
 		String valIVA = iva.toString();
