@@ -484,6 +484,15 @@ public class ReportInventarios {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
 		
+		String filtraTipo="";
+		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
+			filtraTipo = " and if(bodegaEmpresa.esInterna=1,0,movimiento.esVenta) = 0 ";
+		}else if(tipo.equals("VENTA")) {
+			filtraTipo = " and movimiento.esVenta=1 and bodegaEmpresa.esInterna<>1  ";
+		}else if(tipo.equals("TODO")){
+			filtraTipo="";
+		}
+		
 		Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, db,fechaCorte, mapeoDiccionario.get("pais"));
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		Map<String,List<Double>> mapPBodega = ListaPrecio.mapListaPreciosEquiposPorEquipo(con, db, equipo.getId());
@@ -497,8 +506,8 @@ public class ReportInventarios {
 		String condicionaSuma = "";
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
 			condicionaSuma = " if("
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, "
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad,";
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) = -0, 0, "
+					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad)) as cantidad,";
 		}else if(tipo.equals("VENTA")) {
 			condicionaSuma = " if("
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, "
@@ -528,12 +537,13 @@ public class ReportInventarios {
 							" and (fecha_factura is null or fecha_factura<=?) " +
 							" and (fecha_actaBaja is null or fecha_actaBaja<=?) " +
 							" and movimiento.id_equipo = ? "+
-							condSucursal+
+							condSucursal+filtraTipo+
 							" group by movimiento.id_bodegaEmpresa,movimiento.id_equipo;");
 			smt6.setString(1, fechaCorte.trim());
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
 			smt6.setLong(4, equipo.id);
+
 			ResultSet rs6 = smt6.executeQuery();
 			
 			while (rs6.next()) {
@@ -1243,7 +1253,7 @@ public class ReportInventarios {
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
 //			este if aplica si solo en inventario arriendos deseo no mostrar bodegas internas
 //			filtraTipo = " and movimiento.esVenta=0 and bodegaEmpresa.esInterna<>1 ";
-			filtraTipo = " and movimiento.esVenta=0 ";
+			filtraTipo = " and if(bodegaEmpresa.esInterna=1,0,movimiento.esVenta) = 0 ";
 		}else if(tipo.equals("VENTA")) {
 			filtraTipo = " and movimiento.esVenta=1 and bodegaEmpresa.esInterna<>1  ";
 		}else if(tipo.equals("TODO")){
@@ -1303,7 +1313,7 @@ public class ReportInventarios {
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
 			smt6.setLong(4, bodega.getId());
-			
+
 			ResultSet rs6 = smt6.executeQuery();
 			
 			while (rs6.next()) {
