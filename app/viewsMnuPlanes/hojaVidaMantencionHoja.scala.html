@@ -314,12 +314,13 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 							  			value="@utilities.Fechas.AAMMDD(det.fechaTermino)">
 								</td>
 								<td rowspan="2" style="text-align:center;">
-								<form id="del_@det.id" method="post" action="/hojaVidaMantencionHojaElimina/">
-									<input type="hidden" name="id_equipo" value="@det.id_equipo">
-									<input type="hidden" name="id_hojaVida" value="@det.id">
-									<a href="#" onclick='document.getElementById("del_@det.id").submit();'>
-										<kbd style="background-color: red">X</kbd>
-									</a>
+									<form id="del_@det.id" method="post" action="/hojaVidaMantencionHojaElimina/">
+										<input type="hidden" name="id_equipo" value="@det.id_equipo">
+										<input type="hidden" name="id_hojaVida" value="@det.id">
+										<a href="#" onclick='document.getElementById("del_@det.id").submit();'>
+											<kbd style="background-color: red">X</kbd>
+										</a>
+									</form>
 								</td>
 							</tr>
 							<tr>
