@@ -183,72 +183,98 @@ public class FormDespacho {
 						
 						
 						Map<String,String> mapLprecioAux = new HashMap<String,String>();
+						
 						for(int i=0; i<listOtDespachado.size(); i++) {
+							
 							Double precioVenta = (double)0;
 							Double precioReposicion = (double)0;
 							Double precioArriendo = (double)0;
 							Long id_moneda = (long)1;
 							Long id_unidadTiempo = (long)4;
 							
-							ListaPrecio listaPrecio = mapListaPrecio.get(listOtDespachado.get(i).getId_equipoDespacho()+"_"+listOtDespachado.get(i).getId_cotizacion());
+							Long id_equipoDespacho = listOtDespachado.get(i).getId_equipoDespacho();
+							Long id_cotizacion = listOtDespachado.get(i).getId_cotizacion();
+							
+							ListaPrecio listaPrecio = mapListaPrecio.get(id_equipoDespacho+"_"+id_cotizacion);
 							
 							if( listaPrecio == null ) {
-								List<Double> precioOrigen = mapDetalleCoti.get(listOtDespachado.get(i).getId_equipoDespacho());
 								
-								Precio precioMaestro =  mapPrecio.get(listOtDespachado.get(i).getId_equipoDespacho());
+								Long id_equipoOrigen = listOtDespachado.get(i).id_equipoOrigen;
+								List<Double> precioDespacho = mapDetalleCoti.get(listOtDespachado.get(i).getId_equipoDespacho());
+								Double cantidadRebajaOt = listOtDespachado.get(i).cantidadRebajaOt;
+								Double cantidadDespachoOt = listOtDespachado.get(i).cantidadDespacho;
 								
 								
-								if(precioOrigen != null) {
-									precioVenta = precioOrigen.get(4) * (1-dctoVta);
-									precioArriendo = precioOrigen.get(3) * (1-dctoArr);
+								boolean flagAplicaMaestro = false;
+								
+								if(precioDespacho != null) {
+									precioVenta = precioDespacho.get(4) * (1-dctoVta);
+									precioArriendo = precioDespacho.get(3) * (1-dctoArr);
 									precioReposicion = precioVenta;
-									id_moneda = precioOrigen.get(6).longValue();
-									id_unidadTiempo = precioOrigen.get(5).longValue();
-									
-								} else if(precioMaestro!=null) {
-									precioVenta = Double.parseDouble(precioMaestro.getPrecioVenta().replaceAll(",", "")) * (1-dctoVta);
-									precioArriendo =  Double.parseDouble(precioMaestro.getPrecioArriendo().replaceAll(",", "")) * (1-dctoVta);
-									
-									Double tasaArrGrupo = (double)0;
-									String idBod_idGrupo = id_bodegaDestino+"_"+precioMaestro.getId_grupo();
-									TasaGrupo tasaGrupo =  mapTasaArrGrupo.get(idBod_idGrupo);
-									if(tasaGrupo != null) {
-										tasaArrGrupo = tasaGrupo.getTasaArriendo();
+									id_moneda = precioDespacho.get(6).longValue();
+									id_unidadTiempo = precioDespacho.get(5).longValue();
+								}else if((double)cantidadRebajaOt == (double)cantidadDespachoOt) {
+									precioDespacho = mapDetalleCoti.get(id_equipoOrigen);
+									if(precioDespacho != null) {
+										precioVenta = precioDespacho.get(4) * (1-dctoVta);
+										precioArriendo = precioDespacho.get(3) * (1-dctoArr);
+										precioReposicion = precioVenta;
+										id_moneda = precioDespacho.get(6).longValue();
+										id_unidadTiempo = precioDespacho.get(5).longValue();
+									}else {
+										flagAplicaMaestro = true;
 									}
-									
-									Double tasaArrEquipo = (double)0;
-									String idBod_idEquipo = id_bodegaDestino+"_"+precioMaestro.id_equipo;
-									TasaEquipo tasaEquipo =  mapTasaArrEquipo.get(idBod_idEquipo);
-									if(tasaEquipo != null) {
-										tasaArrEquipo = tasaEquipo.getTasaArriendo();
-									}
-									
-									Double tasa = (double) 0;
-									if((double)tasaArrEquipo > (double)0) {
-										tasa = tasaArrEquipo;
-									}else if((double)tasaArrGrupo > (double)0) {
-										tasa = tasaArrGrupo;
-									}else if((double)tasaArrBod > (double)0) {
-										tasa = tasaArrBod;
-									}
-									
-									if(tasa>0) {
-										precioArriendo = precioVenta * tasa;
-									}
-									
-									precioReposicion = precioVenta;
-									id_moneda = precioMaestro.getId_moneda();
-									id_unidadTiempo = precioMaestro.getId_unidadTiempo();
-								
 								}else {
-									Precio.create(con, db, listOtDespachado.get(i).getId_equipoDespacho(), Fechas.hoy().getFechaStrAAMMDD());
+									flagAplicaMaestro = true;
+								}
+									
+									
+								if(flagAplicaMaestro) {
+									Precio precioMaestro =  mapPrecio.get(id_equipoDespacho);
+									if(precioMaestro!=null) {
+										precioVenta = Double.parseDouble(precioMaestro.getPrecioVenta().replaceAll(",", "")) * (1-dctoVta);
+										precioArriendo =  Double.parseDouble(precioMaestro.getPrecioArriendo().replaceAll(",", "")) * (1-dctoVta);
+										
+										Double tasaArrGrupo = (double)0;
+										String idBod_idGrupo = id_bodegaDestino+"_"+precioMaestro.getId_grupo();
+										TasaGrupo tasaGrupo =  mapTasaArrGrupo.get(idBod_idGrupo);
+										if(tasaGrupo != null) {
+											tasaArrGrupo = tasaGrupo.getTasaArriendo();
+										}
+										
+										Double tasaArrEquipo = (double)0;
+										String idBod_idEquipo = id_bodegaDestino+"_"+precioMaestro.id_equipo;
+										TasaEquipo tasaEquipo =  mapTasaArrEquipo.get(idBod_idEquipo);
+										if(tasaEquipo != null) {
+											tasaArrEquipo = tasaEquipo.getTasaArriendo();
+										}
+										
+										Double tasa = (double) 0;
+										if((double)tasaArrEquipo > (double)0) {
+											tasa = tasaArrEquipo;
+										}else if((double)tasaArrGrupo > (double)0) {
+											tasa = tasaArrGrupo;
+										}else if((double)tasaArrBod > (double)0) {
+											tasa = tasaArrBod;
+										}
+										
+										if(tasa>0) {
+											precioArriendo = precioVenta * tasa;
+										}
+										
+										precioReposicion = precioVenta;
+										id_moneda = precioMaestro.getId_moneda();
+										id_unidadTiempo = precioMaestro.getId_unidadTiempo();
+									
+									}else {
+										Precio.create(con, db, id_equipoDespacho, Fechas.hoy().getFechaStrAAMMDD());
+									}
 								}
 								
-								Long id_cotizacion = listOtDespachado.get(i).getId_cotizacion();
 								
-								String dePaso = "('"+id_bodegaDestino+"','"+listOtDespachado.get(i).getId_equipoDespacho()+"','"+id_moneda+"','"+Fechas.hoy().getFechaStrAAMMDD()
+								String dePaso = "('"+id_bodegaDestino+"','"+id_equipoDespacho+"','"+id_moneda+"','"+Fechas.hoy().getFechaStrAAMMDD()
 										+"','"+precioVenta+"','"+precioReposicion+"','"+precioArriendo+"','"+id_unidadTiempo+"','"+id_cotizacion+"'),";
-								
+
 								mapLprecioAux.put(dePaso, dePaso);
 							}
 						}

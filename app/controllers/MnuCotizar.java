@@ -4614,6 +4614,7 @@ public class MnuCotizar extends Controller {
 	
 	public Result otDespachoModificar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
+		int cont = 1;
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -4670,6 +4671,8 @@ public class MnuCotizar extends Controller {
 	    			Map<Long,Double> mapDespachado = OtDespachado.mapSumaDespachadoPorIdOtCantEquiv(con, s.baseDato, ot.getId());
 	    			List<CotizaDetalle> detalleOrigen = CotizaDetalle.allPorIdCotizacion(con, s.baseDato, ot.getId_cotizacion());
 	    			List<List<String>> detOrigen = new ArrayList<List<String>>();
+	    			
+	    			cont++;
 	    			
 	    			for(int i=0;i<detalleOrigen.size();i++){
 	    				
@@ -4794,7 +4797,7 @@ public class MnuCotizar extends Controller {
 		    				"</TR>"+
 		    			"</thead>"+
 		    			"<tbody>";
-	    			int cont = 0;
+	    		
 	    				for(int i=0; i<detOrigen.size(); i++){
 	    					vistaDetOrigen += 
 	    					"<tr>"+
@@ -4811,7 +4814,7 @@ public class MnuCotizar extends Controller {
 	    					
 	    					boolean existeDespacho = false;
 	    					for(int j=0; j<detalleDespachado.size(); j++) {
-	    						
+	    						cont++;
 	    						if(detOrigen.get(i).get(0).equals(detalleDespachado.get(j).get(4))) {
 	    							
 	    							existeDespacho = true;
@@ -4878,7 +4881,7 @@ public class MnuCotizar extends Controller {
 	    						}
 	    						
 	    					}
-	    					
+	    					cont++;
 	    					if(!existeDespacho) {
 	    						Double auxStock  = (double)0;
 	    						for(List<String> stock: listEquipoConStock) {
@@ -4886,7 +4889,7 @@ public class MnuCotizar extends Controller {
 			    						auxStock += Double.parseDouble(stock.get(9).replaceAll(",", ""));
 			    					}
 			    				}
-	    						
+	    						cont++;
 	    						vistaDetOrigen +=
 	    								"<tr>"+
 	    									"<td style='text-align:left'>"+detOrigen.get(i).get(2)+"</td>"+
@@ -4900,12 +4903,12 @@ public class MnuCotizar extends Controller {
 	    									"</td>"+
 	    									"<td style='text-align:center'>"+detOrigen.get(i).get(4)+"</td>"+
 	    									"<td style='text-align:right'>"+
-	    										"<div id='1_cantStock'>"+myformatdouble2.format(auxStock)+"</div>"+
+	    										"<div id='"+cont+"_cantStock'>"+myformatdouble2.format(auxStock)+"</div>"+
 	    									"</td>"+
 	    									"<td style='text-align:right'>"+
 		    									"<input type='text' class='cantDespacho form-control right' "+
 		    									" value='0.00' "+
-		    									" id='1_cantDespacho_"+detOrigen.get(i).get(0)+"_0' "+ 
+		    									" id='"+cont+"_cantDespacho_"+detOrigen.get(i).get(0)+"_0' "+ 
 		    									" name='cantDespacho[]' " +
 		    									" onfocus=\"value=value.replace(/,/g,'')\" "+
 		    									" onkeypress='return ingresoDouble(event,value)' "+
@@ -4915,7 +4918,7 @@ public class MnuCotizar extends Controller {
 	    									"<td style='text-align:right'>"+
 		    									"<input type='text' class='cantEquivalente form-control right' "+
 		    									" value='0.00' "+
-		    									" id='1_cantEquivalente' "+
+		    									" id='"+cont+"_cantEquivalente' "+
 		    									" name='cantEquivalente[]' " +
 		    									" onfocus=\"value=value.replace(/,/g,'')\" "+
 		    									" onkeypress='return ingresoDouble(event,value)' "+
@@ -4923,16 +4926,16 @@ public class MnuCotizar extends Controller {
 		    									" onchange='value=formatStandar2(value); $(\"#seModifico\").val(1)'>"+
 	    									"</td>"+
 	    									"<td style='text-align:right'>"+
-	    										"<div class='kg' id='1_kgTot'>0.00</div>"+
+	    										"<div class='kg' id='"+cont+"_kgTot'>0.00</div>"+
 	    									"</td>"+
 	    									"<td style='text-align:right'>"+
-	    										"<div class='m2' id='1_m2Tot'>0.00</div>"+
+	    										"<div class='m2' id='"+cont+"_m2Tot'>0.00</div>"+
 	    									"</td>"+
 	    									"<td style='display:none'>"+
-	    										"<div id='1_kgUn'>"+detOrigen.get(i).get(10)+"</div>"+
+	    										"<div id='"+cont+"_kgUn'>"+detOrigen.get(i).get(10)+"</div>"+
 	    									"</td>"+
 	    									"<td style='display:none'>"+
-												"<div id='1_m2Un'>"+detOrigen.get(i).get(11)+"</div>"+
+												"<div id='"+cont+"_m2Un'>"+detOrigen.get(i).get(11)+"</div>"+
 											"</td>"+
 	    								"</tr>";
 	    					}

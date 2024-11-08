@@ -3,6 +3,7 @@ package controllers;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -720,11 +721,12 @@ public class MnuCompras extends Controller {
 		    				
 	    					Map<String,Equipo> mapEquipos = Equipo.mapAllAllPorCodigo(con, s.baseDato);
 	    					String newEquipos = "";
-	    					String selEquipos = "";
+	    				
 	    	    			List<String> codigos = new ArrayList<String>();
 	    	    			Map<String,Grupo> mapGrupo = Grupo.mapAllPorNombre(con, s.baseDato);
 	    	    			Map<String,Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
 	    	    			
+	    	    			String selEquipos = "";
 	    	    			for(List<String> l: listaExcel) {
 	    	    				String codEquipo = l.get(1);
 	    						if(codEquipo!=null) {
@@ -780,16 +782,33 @@ public class MnuCompras extends Controller {
 	    	    					selEquipos = "("+selEquipos.substring(0,selEquipos.length()-1)+")";
 	    	    				}
 	    	    				
+	    	    				Map<String,Long> mapCodVsId = new HashMap<String,Long>();
+	    	    				PreparedStatement smt3 = con
+	    	    						.prepareStatement("select codigo, id from `"+s.baseDato+"`.equipo where codigo in "+selEquipos+";");
+	    	    				ResultSet rs3 = smt3.executeQuery();
+	    	    				while(rs3.next()) {
+	    	    					mapCodVsId.put(rs3.getString(1), rs3.getLong(2));
+	    	    				}
+	    	    				rs3.close();
+	    	    				smt3.close();
+	    	    				
 	    	    				String datos = "";
+	    	    				List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
+	    	    				for (Map.Entry<String, Long> entry : mapCodVsId.entrySet()) {
+	    	    		            Long valor = entry.getValue();
+	    	    		            for(Sucursal suc: listSucursal) {
+	    	    		            	datos += "('"+valor+"','"+Fechas.hoy().getFechaStrAAMMDD()+"','"+suc.getId()+"'),";
+	    	    		            }
+	    	    		        }
 	    	    				
 	    	    				if(datos.length()>1) {
 	    	    					datos = datos.substring(0,datos.length()-1);
-		    	    				PreparedStatement smt3 = con
+		    	    				PreparedStatement smt4 = con
 		    	    						.prepareStatement("insert into `"+s.baseDato+"`.precio "
-		    	    								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+		    	    								+ " (id_equipo,fecha,id_sucursal) "
 		    	    								+ " values "+datos+";");
-		    	    				smt3.executeUpdate();
-		    	    				smt3.close();
+		    	    				smt4.executeUpdate();
+		    	    				smt4.close();
 	    	    				}
 	    	    				
 	    	    			}

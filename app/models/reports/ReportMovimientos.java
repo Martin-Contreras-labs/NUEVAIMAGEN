@@ -416,15 +416,10 @@ public class ReportMovimientos {
 						Long nDiaGraciaEnvio = bodega.getnDiaGraciaEnvio();
 							Double ajustePorGracia = (double)0;
 							if(nDiaGraciaEnvio > 0) {
-								//List<Inventarios> guiasPer = new ArrayList<Inventarios>();
 								
-								//List<Long> auxListIdBodegaEmpresa = new ArrayList<Long>();
-								//auxListIdBodegaEmpresa.add(bodega.getId());
 								List<Inventarios> guiasPer = mapGuiasPer.get(bodega.getId());
 								
-								//guiasPer = Inventarios.guiasPer(con, db, auxListIdBodegaEmpresa, listIdGuia_entreFechas);
-								
-								for(int k=0; k<guiasPer.size(); k++) {
+								for(int k=0; guiasPer!=null && k<guiasPer.size(); k++) {
 									String idEquipo = listaCodigos.get(i).get(10);
 									String idCotizacion = listaCodigos.get(i).get(8);
 									if(	(long) guiasPer.get(k).id_equipo == Long.parseLong(idEquipo)
