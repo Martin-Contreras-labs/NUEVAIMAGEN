@@ -14,8 +14,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -40,6 +42,7 @@ import models.tables.Cotizacion;
 import models.tables.Equipo;
 import models.tables.ListaPrecio;
 import models.tables.Moneda;
+import models.tables.OtDespachado;
 import models.tables.Proyecto;
 import models.tables.TipoEstado;
 import models.tables.UnidadTiempo;
@@ -1903,6 +1906,7 @@ public class ReportMovimientos {
 		Map<String,Double> excedentes = ReportExcedentes.totalExcedentesPorNumCotiCodyBod(con, db, id_bodegaEmpresa);
 		
 		
+		
 		try {
 			PreparedStatement smt1 = con
 					.prepareStatement(" select  distinct " +
@@ -1910,7 +1914,8 @@ public class ReportMovimientos {
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
-							" ifnull(guia.numGuiaCliente,'') "+
+							" ifnull(guia.numGuiaCliente,''), "+
+							" guia.id " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
@@ -1927,6 +1932,8 @@ public class ReportMovimientos {
 				
 				List<String> tipGuia = new ArrayList<String>();
 				List<String> blanco = new ArrayList<String>();
+				
+				List<Long> idsGuia = new ArrayList<Long>();
 				
 				numGuia.add(" ");
 				fechGuia.add(" ");
@@ -2003,6 +2010,7 @@ public class ReportMovimientos {
 				tipGuia.add(" ");
 				blanco.add(" ");
 				while (rs1.next()) {
+					idsGuia.add(rs1.getLong(6));
 					Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(4));
 					if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
 						numGuia.add(rs1.getString(1));
@@ -2045,6 +2053,24 @@ public class ReportMovimientos {
 				numGuia.add("Excedentes");
 				fechGuia.add(" ");
 				guiaClie.add(" ");
+				tipGuia.add(" ");
+				blanco.add("");
+				
+				numGuia.add("COMPROMETIDO");
+				fechGuia.add("EN COTIZACION");
+				guiaClie.add(" ");
+				tipGuia.add(" ");
+				blanco.add("");
+				
+				numGuia.add("DESPACHADO");
+				fechGuia.add("DE COTIZACION");
+				guiaClie.add(" ");
+				tipGuia.add(" ");
+				blanco.add("");
+				
+				numGuia.add("SALDO POR");
+				fechGuia.add("DESPACHAR");
+				guiaClie.add("DE COTIZACION");
 				tipGuia.add(" ");
 				blanco.add("");
 			
@@ -2192,6 +2218,20 @@ public class ReportMovimientos {
 				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, deAjustado, aAjustado);
 				
 				Map<Long, List<Inventarios>> mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
+				
+				
+				Map<String,Double> mapDespachado = OtDespachado.mapIdCotiIdEquipVsSumaDespachado(con, db, idsGuia, esVenta);
+				List<String> idsCoti = new ArrayList<String>();
+				for(Map.Entry<String, Double> entry: mapDespachado.entrySet()) {
+					String[] clave = entry.getKey().split("_");
+					idsCoti.add(clave[0]);
+				}
+				Set<String> conjunto = new HashSet<>(idsCoti);  // Eliminar duplicados
+				idsCoti = new ArrayList<>(conjunto);
+				Map<String,Double> mapComprometido = Cotizacion.mapIdCotiIdEquipVsSumaComprometido(con, db, idsCoti, esVenta);
+				
+				
+				
 				
 				for(int i=0;i<listaCodigos.size();i++){
 					if(!auxiliarDeReparacion.equals(listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2))) {
@@ -2457,6 +2497,24 @@ public class ReportMovimientos {
 							aux.add(myformatdouble.format(auxExcedente));
 						}
 
+						String idCoti = listaCodigos.get(i).get(8);
+						String idEquipo = listaCodigos.get(i).get(10);
+						Double comprometido = mapComprometido.get(idCoti+"_"+idEquipo);
+						if(comprometido == null) {
+							comprometido = (double)0;
+						}
+						aux.add(DecimalFormato.formato(comprometido, (long)2));
+						
+						Double despachado = mapDespachado.get(idCoti+"_"+idEquipo);
+						if(despachado == null) {
+							despachado = (double)0;
+						}
+						aux.add(DecimalFormato.formato(despachado, (long)2));
+						Double saldo = comprometido - despachado;
+						if(saldo < 0) {
+							saldo = (double) 0;
+						}
+						aux.add(DecimalFormato.formato(saldo, (long)2));
 						
 						
 						
@@ -2543,7 +2601,7 @@ public class ReportMovimientos {
 						if(cell == lista.get(0).size()-3) {
 							aux3.add("");
 						//	aux3.add(myformatMoneda.format(totCfi));
-						}else if(cell==lista.get(0).size()-2){
+						}else if(cell==lista.get(0).size()-5){
 							aux3.add(myformatMoneda.format(totArr));
 						}else {
 							aux3.add("");
@@ -2627,7 +2685,7 @@ public class ReportMovimientos {
 				for(int cell=11; cell < lista.get(0).size()-4; cell++) {
 					Double totPorColl = (double)0;
 					
-					for(int coll=5; coll < lista.size(); coll++) {
+					for(int coll=5; coll < lista.size()-3; coll++) {
 						Double auxTot = (double)0;
 						String auxNum = lista.get(coll).get(cell).trim();
 		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
@@ -2635,9 +2693,9 @@ public class ReportMovimientos {
 						totPorColl=totPorColl+auxTot;
 					}
 					
-					if(cell==lista.get(0).size()-2) {
-						//totCfi = totPorColl;
-					} else if(cell==lista.get(0).size()-1) {
+					if(cell > 12) {
+						aux.add("");
+					} else if(cell==lista.get(0).size()-4) {
 						totArr = totPorColl;
 					} else {
 						aux.add(myformatdouble2.format(totPorColl));
@@ -2646,20 +2704,19 @@ public class ReportMovimientos {
 					//aux.add(myformatdouble2.format(totPorColl));
 				}
 				
-				aux.add("");
-				aux.add("");
-				aux.add("");
-				
 				Double xx = (double)0;
 				for(int coll=5; coll < lista.size(); coll++) {
 					Double auxTot = (double)0;
-					String auxNum = lista.get(coll).get(lista.get(0).size()-1).trim();
+					String auxNum = lista.get(coll).get(lista.get(0).size()-4).trim();
 	 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 					try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
 					xx += auxTot;
 				}
 				aux.add(myformatdouble2.format(xx));
 				
+				aux.add("");
+				aux.add("");
+				aux.add("");
 				
 				lista.add(aux);
 				
@@ -2691,18 +2748,23 @@ public class ReportMovimientos {
 						
 						totPorColl=totPorColl+(auxTotCant*auxTotKg);
 					}
-					auxKg.add(myformatdouble2.format(totPorColl));
+					
+					if(cell>12) {
+						auxKg.add("");
+					}else {
+						auxKg.add(myformatdouble2.format(totPorColl));
+					}
 				} 
-				auxKg.add("");
-				auxKg.add("");
-				auxKg.add("");
+				
+				
+				
 				
 				
 				Double xxx = (double)0;
 				for(int coll=5;coll<lista.size();coll++) {
 					
 					Double auxTotCant = (double)0;
-					String auxNum = lista.get(coll).get(lista.get(0).size()-1).trim();
+					String auxNum = lista.get(coll).get(lista.get(0).size()-4).trim();
 	 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 					try {auxTotCant = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
 					
@@ -2715,6 +2777,9 @@ public class ReportMovimientos {
 				}
 				auxKg.add(myformatdouble2.format(xxx));
 				
+				auxKg.add("");
+				auxKg.add("");
+				auxKg.add("");
 				
 				lista.add(auxKg);
 				
@@ -2755,11 +2820,15 @@ public class ReportMovimientos {
 						
 						totPorColl=totPorColl+(auxTotCant*auxTotVal);
 					}
-					auxValorizado.add(myformatMoneda.format(totPorColl));
+					
+					if(cell > 12) {
+						auxValorizado.add("");
+					}else {
+						auxValorizado.add(myformatMoneda.format(totPorColl));
+					}
+					
 				} 
-				auxValorizado.add("");
-				auxValorizado.add("");
-				auxValorizado.add("");
+				
 				
 				
 				
@@ -2767,7 +2836,7 @@ public class ReportMovimientos {
 				for(int coll=5;coll<lista.size();coll++) {
 					
 					Double auxTotCant = (double)0;
-					String auxNum = lista.get(coll).get(lista.get(0).size()-1).trim();
+					String auxNum = lista.get(coll).get(lista.get(0).size()-4).trim();
 	 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 					try {auxTotCant = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
 					
@@ -2780,6 +2849,9 @@ public class ReportMovimientos {
 				}
 				auxValorizado.add(myformatMoneda.format(xxxx));
 				
+				auxValorizado.add("");
+				auxValorizado.add("");
+				auxValorizado.add("");
 				
 				lista.add(auxValorizado);
 				

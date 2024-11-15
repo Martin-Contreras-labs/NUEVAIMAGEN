@@ -25,6 +25,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
 import models.api.ApiSapConconcreto;
+import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.reports.ReportMovimientos;
 import models.tables.BodegaEmpresa;
@@ -871,9 +872,9 @@ public class FormFactura {
 				
 				//generaProformaWebIConstruye
 				if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
-					String archivoXml = XMLFacturaArriendo.generaXmlArriendo(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente, proforma, mapPermiso, detalleAjuste);
-					String xmlStr = XmlFacturaReferencias.grabarReferencias(con, mapPermiso, db, archivoXml, referencias, proforma.getId());
-					Proforma.updateJsonApi(con, db, proforma.id, xmlStr);
+					String archivoXml = WebIConstruye.generaXMLFacturasArr(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente, 
+							proforma, mapPermiso, detalleAjuste, referencias);
+					Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
 				}
 				
 				if(mapPermiso.get("parametro.proformaListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.proformaListar-llenarWebMaximise").equals("1")){
@@ -1174,6 +1175,13 @@ public class FormFactura {
 			if(mapPermiso.get("parametro.proformaListar-llenarApiNubox").equals("1")){
 				String jsonApi = ApiNuboxDocDoc.generaFactVenta(con, db, guiasPer, cliente, proforma, mapReportPorGuia10, emisorTributario);
             	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+			}
+			
+			//generaProformaWebIConstruye
+			if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
+				String archivoXml = WebIConstruye.generaXMLFacturasVta(con, db, mapDiccionario.get("nEmpresa"), guiasPer, cliente, 
+						proforma, mapReportPorGuia10, mapPermiso, detalleAjuste, referencias);
+				Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
 			}
 			
 			return(archivoPdf);

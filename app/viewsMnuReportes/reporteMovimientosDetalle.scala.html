@@ -112,10 +112,7 @@ usd: Double, eur: Double, uf: Double)
 					tabla.rows[i].cells[11].style.backgroundColor="#eeeeee";
 				}
 				for (var i = 5; i < tabla.rows.length; i++) { 
-					tabla.rows[i].cells[tabla.rows[0].cells.length-2].style.backgroundColor="#eeeeee";
-					tabla.rows[i].cells[tabla.rows[0].cells.length-1].style.textAlign="right";
-					tabla.rows[i].cells[tabla.rows[0].cells.length-2].style.textAlign="right";
-					tabla.rows[i].cells[tabla.rows[0].cells.length-3].style.textAlign="right";
+					tabla.rows[i].cells[tabla.rows[0].cells.length-5].style.backgroundColor="#eeeeee";
 				}
 				for (var i = 5; i < tabla.rows.length; i++) {
 					
@@ -141,8 +138,8 @@ usd: Double, eur: Double, uf: Double)
 					tabla.rows[i].cells[10].style.minWidth="60px";
 					tabla.rows[i].cells[11].style.minWidth="60px";
 					
-					for(var k=12;k<tabla.rows[0].cells.length-3;k++){
-						tabla.rows[i].cells[k].style.textAlign="center";
+					for(var k=12;k<tabla.rows[0].cells.length;k++){
+						tabla.rows[i].cells[k].style.textAlign="right";
 					}
 				}
 				for(var k=0;k<tabla.rows[0].cells.length;k++){

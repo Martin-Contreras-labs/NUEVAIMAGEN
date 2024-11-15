@@ -74,8 +74,13 @@ public class AjustesEP {
 		 default:  break;
 		}
 		try {
-			PreparedStatement smt = con.prepareStatement("select if(id_tipoAjuste=1,'Menos ', 'Mas '), concepto, if(id_tipoAjuste=1,-1,1)*totalAjuste, id_tipoAjusteVenta from `"+db+"`.ajustesEP " + 
-							" where id_bodegaEmpresa=? and (fechaAjuste between ? and ?); ");
+			PreparedStatement smt = con.prepareStatement("select "
+					+ " if(id_tipoAjuste=1,'Menos ', 'Mas '),"
+					+ " concepto,"
+					+ " if(id_tipoAjuste=1,-1,1)*totalAjuste,"
+					+ " id_tipoAjusteVenta"
+					+ " from `"+db+"`.ajustesEP "
+					+ " where id_bodegaEmpresa=? and (fechaAjuste between ? and ?); ");
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setString(2, desdeSql);
 			smt.setString(3, hastaSql);

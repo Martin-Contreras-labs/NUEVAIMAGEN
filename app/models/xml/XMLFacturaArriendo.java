@@ -127,7 +127,7 @@ public class XMLFacturaArriendo  {
 	        		}else {
 	        			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
 	        			if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
-	        				tasaIvaArrAuxiliar = sucursal.getIvaSucursal();
+	        				tasaIvaArrAuxiliar = sucursal.getIvaSucursal() * 100;
 	        			}
 	        		}
 	        		

@@ -458,15 +458,18 @@ GET     /proformaLista/:year					controllers.MnuReportes.proformaLista(request: 
 POST	/proformaListaExcel/					controllers.MnuReportes.proformaListaExcel(request: Request)
 POST    /generaProformaXml/						controllers.MnuReportes.generaProformaXml(request: Request)
 POST    /sendXMLFacura/:id_proforma				controllers.MnuReportes.sendXMLFacura(request: Request, id_proforma: Long)
-POST    /sendXMLFacturaIConstruye/:id_proforma				controllers.MnuReportes.sendXMLFacturaIConstruye(request: Request, id_proforma: Long)
 
 POST    /generaProformaApiManager/				controllers.MnuReportes.generaProformaApiManager(request: Request)
 POST    /generaProformaApiNubox/				controllers.MnuReportes.generaProformaApiNubox(request: Request)
 POST    /generaProformaApiSapConconcreto/		controllers.MnuReportes.generaProformaApiSapConconcreto(request: Request)
-POST    /generaProformaWebIConstruye/			controllers.MnuReportes.generaProformaWebIConstruye(request: Request)
 POST    /generaProformaWebMaximise/				controllers.MnuReportes.generaProformaWebMaximise(request: Request)
 
 GET    	/downFacturaMaximise/:nroInte			controllers.MnuReportes.downFacturaMaximise(nroInte: Long, request: Request)
+
+
+POST    /generaFacturaIConstruye/					controllers.MnuReportes.generaFacturaIConstruye(request: Request)
+POST    /downFacturaIconstruye/						controllers.MnuReportes.downFacturaIconstruye(request: Request)
+
 
 POST    /proformaElimina/					controllers.MnuReportes.proformaElimina(request: Request)
 
@@ -757,10 +760,10 @@ POST    /generaGuiaApiManager/						controllers.MnuMovimientos.generaGuiaApiMana
 POST    /generaGuiaApiNubox/						controllers.MnuMovimientos.generaGuiaApiNubox(request: Request)
 POST    /generaGuiaWebFacturacion/					controllers.MnuMovimientos.generaGuiaWebFacturacion(request: Request)
 POST    /generaGuiaWebMaximise/						controllers.MnuMovimientos.generaGuiaWebMaximise(request: Request)
+GET    /downGuiaMaximiseAjax/:nroInte				controllers.MnuMovimientos.downGuiaMaximiseAjax(nroInte: String, request: Request)
 
-GET    /downGuiaMaximiseAjax/:nroInte					controllers.MnuMovimientos.downGuiaMaximiseAjax(nroInte: String, request: Request)
-
-
+POST    /generaGuiaWebIConstruye/					controllers.MnuMovimientos.generaGuiaWebIConstruye(request: Request)
+POST    /downGuiaIconstruye/						controllers.MnuMovimientos.downGuiaIconstruye(request: Request)
 
 
 GET		/movimientoListarImgPeriodo/				controllers.MnuMovimientos.movimientoListarImgPeriodo(request: Request)

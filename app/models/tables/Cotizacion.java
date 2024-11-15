@@ -1887,7 +1887,7 @@ public class Cotizacion {
 		return(flag);
 	}
 	
-	public static Map<Long,List<Double>> mapDetalleCotizacion(Connection con, String db,Long id_cotizacion){
+	public static Map<Long,List<Double>> mapDetalleCotizacion(Connection con, String db, Long id_cotizacion){
 		Map<Long,List<Double>> mapDetalle = new HashMap<Long,List<Double>>();
 		try{
 		PreparedStatement smt = con
@@ -1911,6 +1911,30 @@ public class Cotizacion {
 			e.printStackTrace();
 		}
 		return(mapDetalle);
+	}
+	
+	public static Map<String,Double> mapIdCotiIdEquipVsSumaComprometido(Connection con, String db, List<String> idsCoti, String esVenta){
+		Map<String,Double> map = new HashMap<String,Double>();
+		if(idsCoti.size() < 1) {
+			return(map);
+		}else {
+			try {
+				String lista = idsCoti.toString();
+				lista = lista.replace("[", "").replace("]","");
+				PreparedStatement smt = con
+						.prepareStatement(" select id_cotizacion, id_equipo, sum(cantidad)  " +
+								" from `"+db+"`.cotizaDetalle where id_cotizacion in ("+lista+") and esVenta = ? group by id_equipo, id_cotizacion;");
+				smt.setString(1, esVenta);
+				ResultSet resultado = smt.executeQuery();
+				while (resultado.next()) {
+					map.put(resultado.getString(1)+"_"+resultado.getString(2), resultado.getDouble(3));
+				}
+				resultado.close();smt.close();
+			} catch (SQLException e) {
+					e.printStackTrace();
+			}
+		}
+		return(map);
 	}
 	
 	public static Map<String,Long> mapDetIdEquipVsIdEquip(Connection con, String db,Long id_cotizacion){

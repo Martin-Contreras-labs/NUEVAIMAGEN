@@ -533,6 +533,22 @@ public class Proforma {
 		return (flag);
 	}
 	
+	public static boolean updateProformaXML(Connection con, String db, Long id_proforma, String nroFiscal) {
+		Boolean flag = true;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("update `"+db+"`.proforma set proformaXML=? WHERE id = ?");
+			smt.setString(1, nroFiscal);
+			smt.setLong(2, id_proforma);
+			smt.executeUpdate();
+			smt.close();
+		} catch (SQLException e) {
+    			e.printStackTrace();
+			flag=false;
+		}
+		return (flag);
+	}
+	
 	public static File listadoPorAnioExcel(String db, Map<String,String> mapDiccionario, List<List<String>> lista) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");

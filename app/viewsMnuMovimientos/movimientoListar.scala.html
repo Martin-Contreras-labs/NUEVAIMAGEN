@@ -84,6 +84,9 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								<TH>WEB<br>Maximise</TH>
 								<TH>Nro.Int</TH>
 							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye").equals("1")){
+								<TH>ICONSTRUYE<br>GUIAS</TH>
+							}
 						</TR>
 					</thead>
 					<tbody>
@@ -237,7 +240,6 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
 											@if(!lista1.getLinkFolio().equals("0")){
 												<a href="@lista1.getLinkFolio()" >
-													
 													<kbd style="background-color: rgb(50, 215, 75)">DTE</kbd>
 												</a>
 											}else{
@@ -279,6 +281,27 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 											}else{
 												--
 											}
+										}else{
+											--
+										}
+									</td>
+								}
+								
+								@if(mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye").equals("1")){
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											
+											@if(lista1.getLinkFolio().equals("0")){
+												<a href="#" onclick="llenarWebIConstruye('@lista1.getId()','@lista1.getId_transportista()')">
+													<kbd style="background-color: #C39BD3">IC</kbd>
+												</a>
+											}else{
+												<a href="#" onclick="downGuiaIconstruye('@lista1.getId()')">
+													<kbd style="background-color: rgb(0, 143, 81)">GUIA: @lista1.getLinkFolio()</kbd>
+												</a>
+											}
+											
+											
 										}else{
 											--
 										}
@@ -411,18 +434,20 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		<input type="hidden" id="id_transportistaFacturacion" name="id_transportista" value="0">
 	</form>
 	
-	
-	
-	
-	
-	
 	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaGuiaWebMaximise/">	
 		<input type="hidden" id="id_guiaMaximise" name="id_guia">
 		<input type="hidden" id="id_transportistaMaximise" name="id_transportista" value="0">
 		<input type="hidden" id="sucursalMaximise" name="sucurMaximise" value="0">
 	</form>
 	
+	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaGuiaWebIConstruye/">	
+		<input type="hidden" id="id_guiaIConstruye" name="id_guia">
+		<input type="hidden" id="id_transportistaIConstruye" name="id_transportista" value="0">
+	</form>
 	
+	<form class="formulario" id="downGuiaIconstruye" method="post" action="/downGuiaIconstruye/">	
+		<input type="hidden" id="id_guiaIConstruye2" name="id_guia">
+	</form>
 	
 	
 	
@@ -552,12 +577,17 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		$('#modalListaTransporte').modal('show');
 	}
 	
-	
-	
-	
 	const llenarWebMaximise = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
 		auxDownloadGuia = 6;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	const llenarWebIConstruye = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 7;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -599,10 +629,15 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 			document.getElementById('formEnviaWebFacturacion').submit();
 		}
 		
-		
 		if(auxDownloadGuia==6){
 			auxId_transportista = id_transportista;
 			$('#selectSucursal').modal('show');
+		}
+		
+		if(auxDownloadGuia==7){
+			$('#id_guiaIConstruye').val(auxId_guia);
+			$('#id_transportistaIConstruye').val(id_transportista);
+			document.getElementById('formEnviaWebIConstruye').submit();
 		}
 		
 	}
@@ -629,6 +664,11 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	     		
 	     	}
         });
+	}
+	
+	const downGuiaIconstruye = id_guia =>{
+		$('#id_guiaIConstruye2').val(id_guia);
+		document.getElementById('downGuiaIconstruye').submit();
 	}
 	
 	

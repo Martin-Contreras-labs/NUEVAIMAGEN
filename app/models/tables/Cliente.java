@@ -304,11 +304,11 @@ public class Cliente {
 							" cliente.diasVencPago," + 
 							" cliente.cod_termPago, " + 
 							" cliente.glosaPago, " + 
-							" ifnull(regiones.nombre,'--'), " + 
-							" ifnull(comunas.nombre,'--'), " + 
-							" ifnull(medioPago.nombre,'--'), " + 
-							" ifnull(tipoCuenta.nombre,'--'), " + 
-							" ifnull(termPago.nombre,'--'), " + 
+							" ifnull(regiones.nombre,''), " + 
+							" ifnull(comunas.nombre,''), " + 
+							" ifnull(medioPago.nombre,''), " + 
+							" ifnull(tipoCuenta.nombre,''), " + 
+							" ifnull(termPago.nombre,''), " + 
 							" cliente.fonoContacto, " +
 							" cliente.rutRepresentante1, " +
 							" cliente.nombreRepresentante1, " +

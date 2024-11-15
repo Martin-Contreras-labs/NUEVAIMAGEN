@@ -111,13 +111,13 @@ contactos: String, direccion: String)
 								<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista1.get(2)');">@lista1.get(2)</a></td>
 								<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista1.get(2)');">@lista1.get(3)</a></td>
 
-								<td  style="text-align:right;">@lista1.get(4)</td>
-								<td  style="text-align:right;">@lista1.get(5)</td>
+								<td  class="kg"  style="text-align:right;">@lista1.get(4)</td>
+								<td  class="m2"  style="text-align:right;">@lista1.get(5)</td>
 								<td  style="text-align:center;">@lista1.get(6)</td>
 								@if(mapPermiso.get("parametro.ocultar-cant-hoja-chequeo")!=null && mapPermiso.get("parametro.ocultar-cant-hoja-chequeo").equals("1")){
-									<td  style="text-align:right;"></td>
+									<td class="cant"  style="text-align:right;"></td>
 								}else{
-									<td  style="text-align:right;">@lista1.get(7)</td>
+									<td class="cant"  style="text-align:right;">@lista1.get(7)</td>
 								}
 								@if(bodegaOrigen.esInterna!=1){
 									@for((est,index) <- listTipoEstado.zipWithIndex){
@@ -127,6 +127,24 @@ contactos: String, direccion: String)
 							</TR>
 			 			}
 					</tbody>
+					<tfoot>
+						<TR>
+							<TH>TOTALES</TH>
+							<TH></TH>
+							<TH></TH>
+							<TH id="totKg" style="text-align:right;"></TH>
+					        <TH id="totM2" style="text-align:right;"></TH>
+					        <TH></TH>
+							<TH id="totCant" style="text-align:right;"></TH>
+							@if(bodegaOrigen.esInterna!=1){
+								@for(titEstado <- listTipoEstado){
+									<TH style="font-size:10px; vertical-align:middle">
+										
+									</TH>
+								}
+							}
+						</TR>
+					</tfoot>
 				</table>
 			</div>
 		</div>
@@ -171,6 +189,27 @@ contactos: String, direccion: String)
 	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 	        }
 	  	} );
+
+
+		const kgs = document.querySelectorAll('td.kg');
+		const m2s = document.querySelectorAll('td.m2');
+		const cants = document.querySelectorAll('td.cant');
+		let totKg = 0;
+		let totM2 = 0;
+		let totCant = 0;
+		for (let i = 0; i < kgs.length; i++) {
+		  const kg = kgs[i].textContent.replace(/,/g,'');
+		  const m2 = m2s[i].textContent.replace(/,/g,'');
+		  const cant = cants[i].textContent.replace(/,/g,''); 
+		  totKg += parseFloat(kg);
+		  totM2 += parseFloat(m2);
+		  totCant += parseFloat(cant);
+		}
+		$("#totKg").text(formatStandar(totKg));
+		$("#totM2").text(formatStandar(totM2));
+		$("#totCant").text(formatStandar(totCant,2));
+	
+	
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
 	

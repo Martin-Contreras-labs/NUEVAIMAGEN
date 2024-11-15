@@ -164,8 +164,7 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 							<TH style="text-align:center">Nro SAP</TH>
 						}
 						@if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!= null && !mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("") && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
-							<TH style="text-align:center">WEB<br>IConstruye</TH>
-							<TH style="text-align:center">Folio</TH>
+							<TH style="text-align:center">ICONSTRUYE<br>FACTURAS</TH>
 						}
 						@if(mapPermiso.get("parametro.proformaListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.proformaListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 							<TH>WEB<br>Maximise</TH>
@@ -327,27 +326,20 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 								<td style="text-align:center;">
 									@if(lista1.get(17)!="0"){
 										@if(lista1.get(19)!=null){
-											@if(!lista1.get(16).equals("Venta")){
 												@if(lista1.get(21).equals("0")){
-													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarWebIConstruye('@lista1.get(0)',1)">
-														<kbd style="background-color: #C39BD3">enviar</kbd>
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarWebIConstruye('@lista1.get(0)')">
+														<kbd style="background-color: #C39BD3">IC</kbd>
 													</a>
 												}else{
-													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarWebIConstruye('@lista1.get(0)',0)">
-														<kbd style="background-color: #85C1E9">reenviar</kbd>
+													<a href="#" onclick="downFacturaIconstruye('@lista1.get(0)')">
+														<kbd style="background-color: rgb(0, 143, 81)">FACT: @lista1.get(21)</kbd>
 													</a>
 												}
-											}
 										}else{
 											--
 										}
 									}else{
 										--
-									}
-								</td>
-								<td style="text-align:center;">
-									@if(!lista1.get(21).equals("0")){
-										@lista1.get(21)
 									}
 								</td>
 								
@@ -439,8 +431,12 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 		<input type="hidden" id="id_proformaSapConconcreto" name="id_proforma">
 	</form>
 
-	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaProformaWebIConstruye/">	
+	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaFacturaIConstruye/">	
 		<input type="hidden" id="id_proformaWebIConstruye" name="id_proforma">
+	</form>
+	
+	<form class="formulario" id="downFacturaIconstruye" method="post" action="/downFacturaIconstruye/">	
+		<input type="hidden" id="id_facturaIConstruye2" name="id_proforma">
 	</form>
 	
 	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaProformaWebMaximise/">	
@@ -565,19 +561,9 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 		
 	}
 	
-	const enviarWebIConstruye = (id_proforma, primeraVez) =>{
+	const enviarWebIConstruye = (id_proforma) =>{
 		$('#id_proformaWebIConstruye').val(id_proforma);
-		if(primeraVez == 1){
-			document.getElementById('formEnviaWebIConstruye').submit();
-		}else{
-			alertify.confirm('Esta seguro de re-enviar @mapDiccionario("PROFORMA") numero: '+id_proforma+"\n esto generara una nueva Factura y Folio.\nNOTA: Si el reenvio es debido a cambios efectuados en mada, este reenvio no sirve, debe generar una nueva proforma para que aplique los cambios.", function (e) {
-				if (e) {
-					document.getElementById('formEnviaWebIConstruye').submit();
-				}else{
-					document.getElementById('bloquear2').style.display='none';
-				}
-			});
-		}
+		document.getElementById('formEnviaWebIConstruye').submit();
 	}
 	
 	const enviarWebMaximise = () =>{
@@ -601,6 +587,11 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 				document.getElementById("form_eliminar").submit();
 			}
 		});
+	}
+	
+	const downFacturaIconstruye = id_guia =>{
+		$('#id_facturaIConstruye2').val(id_guia);
+		document.getElementById('downFacturaIconstruye').submit();
 	}
 	
 	

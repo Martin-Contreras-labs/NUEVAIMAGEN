@@ -82,7 +82,6 @@ public class WebMaximise {
 					.thenApply(
 			          (WSResponse response) -> {
 			        	  String rsBody = "response.getBody() = \n"+response.getBody();
-			        	  Guia.modificaPorCampo(con, db, "response", id_guia, rsBody);
 			        	  
 			        	  if(rsBody.indexOf("<SaveDocumentResult>")>0) {
 			        		  	int ini = rsBody.indexOf("<SaveDocumentResult>");
@@ -102,7 +101,7 @@ public class WebMaximise {
 			           }
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			
-			
+			Guia.modificaPorCampo(con, db, "response", id_guia, rs);
 			return(rs);
 				
 			
@@ -130,7 +129,6 @@ public class WebMaximise {
 				+ "    			</DownloadPdf>\n"
 				+ "			</soap:Body>\n"
 				+ "		</soap:Envelope>";
-		
 		
 		try {
 			
@@ -239,39 +237,7 @@ public class WebMaximise {
 			Fechas auxFecha = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(guia.fecha));
 			Map<Long,Double> tasaCambio = TasasCambio.mapTasasPorFecha(con, db, auxFecha.getFechaStrAAMMDD(), mapDiccionario.get("pais"));
 			
-			Long totalNeto = (long)0;
-			Long totalIva = (long)0;
 			
-			for(int i=0;i<detalleGuia.size();i++) {
-				
-				String auxPrecio = detalleGuia.get(i).get(9); 				// precio de venta en moneda de origen
-				if(auxPrecio==null || auxPrecio.trim().length()<=0)	{
-					auxPrecio = "0";
-				}
-				Double precioUnitario = Double.parseDouble(auxPrecio.replaceAll(",", ""));
-				String auxCantidad = detalleGuia.get(i).get(8);				// cantidad
-				if(auxCantidad==null || auxCantidad.trim().length()<=0) {
-					auxCantidad = "0";
-				}
-				Long id_moneda = Long.parseLong(detalleGuia.get(i).get(30));
-				Double tasa = tasaCambio.get(id_moneda);
-				if(tasa==null) {
-					tasa = (double)1;
-				}
-				precioUnitario = precioUnitario * tasa;		// precio de venta en moneda principal CLP
-				
-				Double cantidad = Double.parseDouble(auxCantidad.replaceAll(",", ""));
-				Double auxPTotal = precioUnitario * cantidad;
-				totalNeto += Math.round(auxPTotal);
-				totalIva += Math.round(auxPTotal * (emisorTributario.getTasaIva()/100));
-				
-			}
-			
-			
-			String bodega = "BSTGO";
-			if(sucurMaximise.equals("2")) {
-				bodega = "BANTO";
-			}
 		//******************************
 		// FINAL DE OBTIENE DATOS A LLENAR
 		//******************************
@@ -284,8 +250,82 @@ public class WebMaximise {
 		String[] auxFechGuia = Fechas.AAMMDD(guia.getFecha()).split("-");
 		Long auxMesGuia = Long.parseLong(auxFechGuia[1]);
 		
+		String bodega = "BSTGO";
+		if(sucurMaximise.equals("2")) {
+			bodega = "BANTO";
+		}
 		
-			String xml = 
+			String xmlDetalle = "";
+			Long totalNeto = (long)0;
+			Long totalIva = (long)0;
+			
+			for(int i=0;i<detalleGuia.size();i++) {
+				//obtiene datos
+					String auxPrecio = detalleGuia.get(i).get(9); 				// precio de venta en moneda de origen
+					if(auxPrecio==null || auxPrecio.trim().length()<=0)	{
+						auxPrecio = "0";
+					}
+					Long precioUnitario = (long)0;
+					Double auxPU = Double.parseDouble(auxPrecio.replaceAll(",", ""));
+					String auxCantidad = detalleGuia.get(i).get(8);				// cantidad
+					if(auxCantidad==null || auxCantidad.trim().length()<=0) {
+						auxCantidad = "0";
+					}
+					Long id_moneda = Long.parseLong(detalleGuia.get(i).get(30));
+					Double tasa = tasaCambio.get(id_moneda);
+					if(tasa==null) {
+						tasa = (double)1;
+					}
+					precioUnitario = Math.round(auxPU * tasa);		// precio de venta en moneda principal CLP
+					
+					Long cantidad = Math.round(Double.parseDouble(auxCantidad.replaceAll(",", "")));
+					Long auxPTotal = Math.round(auxPU * tasa * cantidad);
+					
+					Long auxIvaTotal =  Math.round(auxPTotal * (emisorTributario.getTasaIva()/100));
+					Long auxIvaPU =  Math.round(precioUnitario * (emisorTributario.getTasaIva()/100));
+				//fin obtiene datos
+					
+				// llena json
+					
+					String producto = detalleGuia.get(i).get(6);
+					if(producto.length()>35) {
+						producto = producto.substring(0,35);
+					}
+					
+					
+					xmlDetalle +=
+						  "		&lt;DETAIL&gt;\n"
+						+ "			&lt;CMPY_CODE&gt;01&lt;/CMPY_CODE&gt;\n"
+						+ "			&lt;LINE_NUM&gt;"+(i+1)+"&lt;/LINE_NUM&gt;\n"
+						+ "			&lt;PART_CODE&gt;"+detalleGuia.get(i).get(5)+"&lt;/PART_CODE&gt;\n"	// codigo
+						+ "			&lt;START_WARE_CODE&gt;"+bodega+"&lt;/START_WARE_CODE&gt;\n"
+						+ "			&lt;END_WARE_CODE&gt;"+bodega+"&lt;/END_WARE_CODE&gt;\n"
+						+ "			&lt;ORDER_QTY&gt;"+myformat.format(cantidad)+"&lt;/ORDER_QTY&gt;\n"
+						+ "			&lt;DESC_TEXT&gt;"+producto+"&lt;/DESC_TEXT&gt;\n" // equipo
+						+ "			&lt;UNIT_PRICE_AMT&gt;"+myformat.format(precioUnitario)+"&lt;/UNIT_PRICE_AMT&gt;\n"
+						+ "			&lt;EXT_PRICE_AMT&gt;"+myformat.format(auxPTotal)+"&lt;/EXT_PRICE_AMT&gt;\n"
+						+ "			&lt;UNIT_TAX_AMT&gt;"+myformat.format(auxIvaPU)+"&lt;/UNIT_TAX_AMT&gt;\n"	// iva punitario
+						+ "			&lt;EXT_TAX_AMT&gt;"+myformat.format(auxIvaTotal)+"&lt;/EXT_TAX_AMT&gt;\n"	// iva total
+						+ "			&lt;LINE_TOT_AMT&gt;"+myformat.format(auxIvaTotal + auxPTotal)+"&lt;/LINE_TOT_AMT&gt;\n"
+						+ "			&lt;ACCT_CODE&gt;11010701&lt;/ACCT_CODE&gt;\n"
+						+ "			&lt;UNIT_COST_AMT&gt;0&lt;/UNIT_COST_AMT&gt;\n"
+						+ "			&lt;EXT_COST_AMT&gt;0&lt;/EXT_COST_AMT&gt;\n"
+						+ "			&lt;UNIT_COST_AMT1&gt;0&lt;/UNIT_COST_AMT1&gt;\n"
+						+ "			&lt;PROFIT_CODE/&gt;\n"
+						+ "			&lt;UOM_CODE&gt;UN&lt;/UOM_CODE&gt;\n"
+						+ "			&lt;UOM_QTY&gt;"+myformat.format(cantidad)+"&lt;/UOM_QTY&gt;\n"
+						+ "			&lt;UNIT_IFRSCOST_AMT&gt;0&lt;/UNIT_IFRSCOST_AMT&gt;\n"
+						+ "		&lt;/DETAIL&gt;\n";
+							
+					totalNeto += auxPTotal;
+					totalIva += auxIvaTotal;
+					
+			}
+			xmlDetalle += 
+				"&lt;/WAYBILL&gt;";
+			
+			
+			String xmlHead = 
 					"&lt;WAYBILL&gt;\n"
 					+ "		&lt;HEAD&gt;\n"
 					+ "			&lt;CMPY_CODE&gt;01&lt;/CMPY_CODE&gt;\n"
@@ -333,68 +373,8 @@ public class WebMaximise {
 					+ "		&lt;/HEAD&gt;\n";
 			
 			
-			for(int i=0;i<detalleGuia.size();i++) {
-				//obtiene datos
-					String auxPrecio = detalleGuia.get(i).get(9); 				// precio de venta en moneda de origen
-					if(auxPrecio==null || auxPrecio.trim().length()<=0)	{
-						auxPrecio = "0";
-					}
-					Long precioUnitario = (long)0;
-					Double auxPU = Double.parseDouble(auxPrecio.replaceAll(",", ""));
-					String auxCantidad = detalleGuia.get(i).get(8);				// cantidad
-					if(auxCantidad==null || auxCantidad.trim().length()<=0) {
-						auxCantidad = "0";
-					}
-					Long id_moneda = Long.parseLong(detalleGuia.get(i).get(30));
-					Double tasa = tasaCambio.get(id_moneda);
-					if(tasa==null) {
-						tasa = (double)1;
-					}
-					precioUnitario = Math.round(auxPU * tasa);		// precio de venta en moneda principal CLP
-					
-					Long cantidad = Math.round(Double.parseDouble(auxCantidad.replaceAll(",", "")));
-					Long auxPTotal = Math.round(auxPU * tasa * cantidad);
-					
-					Long auxIvaTotal =  Math.round(auxPTotal * (emisorTributario.getTasaIva()/100));
-					Long auxIvaPU =  Math.round(precioUnitario * (emisorTributario.getTasaIva()/100));
-				//fin obtiene datos
-					
-				// llena json
-					
-					String producto = detalleGuia.get(i).get(6);
-					if(producto.length()>35) {
-						producto = producto.substring(0,35);
-					}
-					
-					
-					xml +=
-						  "		&lt;DETAIL&gt;\n"
-						+ "			&lt;CMPY_CODE&gt;01&lt;/CMPY_CODE&gt;\n"
-						+ "			&lt;LINE_NUM&gt;"+(i+1)+"&lt;/LINE_NUM&gt;\n"
-						+ "			&lt;PART_CODE&gt;"+detalleGuia.get(i).get(5)+"&lt;/PART_CODE&gt;\n"	// codigo
-						+ "			&lt;START_WARE_CODE&gt;"+bodega+"&lt;/START_WARE_CODE&gt;\n"
-						+ "			&lt;END_WARE_CODE&gt;"+bodega+"&lt;/END_WARE_CODE&gt;\n"
-						+ "			&lt;ORDER_QTY&gt;"+myformat.format(cantidad)+"&lt;/ORDER_QTY&gt;\n"
-						+ "			&lt;DESC_TEXT&gt;"+producto+"&lt;/DESC_TEXT&gt;\n" // equipo
-						+ "			&lt;UNIT_PRICE_AMT&gt;"+myformat.format(precioUnitario)+"&lt;/UNIT_PRICE_AMT&gt;\n"
-						+ "			&lt;EXT_PRICE_AMT&gt;"+myformat.format(auxPTotal)+"&lt;/EXT_PRICE_AMT&gt;\n"
-						+ "			&lt;UNIT_TAX_AMT&gt;"+myformat.format(auxIvaPU)+"&lt;/UNIT_TAX_AMT&gt;\n"	// iva punitario
-						+ "			&lt;EXT_TAX_AMT&gt;"+myformat.format(auxIvaTotal)+"&lt;/EXT_TAX_AMT&gt;\n"	// iva total
-						+ "			&lt;LINE_TOT_AMT&gt;"+myformat.format(auxIvaTotal + auxPTotal)+"&lt;/LINE_TOT_AMT&gt;\n"
-						+ "			&lt;ACCT_CODE&gt;11010701&lt;/ACCT_CODE&gt;\n"
-						+ "			&lt;UNIT_COST_AMT&gt;0&lt;/UNIT_COST_AMT&gt;\n"
-						+ "			&lt;EXT_COST_AMT&gt;0&lt;/EXT_COST_AMT&gt;\n"
-						+ "			&lt;UNIT_COST_AMT1&gt;0&lt;/UNIT_COST_AMT1&gt;\n"
-						+ "			&lt;PROFIT_CODE/&gt;\n"
-						+ "			&lt;UOM_CODE&gt;UN&lt;/UOM_CODE&gt;\n"
-						+ "			&lt;UOM_QTY&gt;"+myformat.format(cantidad)+"&lt;/UOM_QTY&gt;\n"
-						+ "			&lt;UNIT_IFRSCOST_AMT&gt;0&lt;/UNIT_IFRSCOST_AMT&gt;\n"
-						+ "		&lt;/DETAIL&gt;\n";
-							
-			}
-			xml += 
-				"&lt;/WAYBILL&gt;";
 			
+			String xml = xmlHead+xmlDetalle;
 			
 		return(xml);
 		

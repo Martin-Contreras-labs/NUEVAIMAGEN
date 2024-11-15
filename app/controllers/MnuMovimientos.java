@@ -1,11 +1,14 @@
 package controllers;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import controllers.HomeController.Sessiones;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
 import models.api.WebFacturacion;
+import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.calculo.Inventarios;
 import models.forms.FormMovimiento;
@@ -1818,7 +1822,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       		if(file!=null) {
 		       			return ok(file,false,Optional.of(nroIntGuia+"_GuiaInterna.pdf"));
 		       		}else {
-		       			return ok(mensajes.render("/movimientoListarPeriodo/0","Documento aun no ha sido enviado al portal o inexistente."));
+		       			return ok(mensajes.render("/movimientoListarPeriodo/","Documento aun no ha sido enviado al portal o inexistente."));
 		       		}
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -1827,6 +1831,77 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     	}
     	return ok(mensajes.render("/movimientoListarPeriodo/","SE PRESENTARON ERRORES"));
 	}
+	
+	
+	public Result generaGuiaWebIConstruye(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
+	       		Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+	       		try {
+		       		Connection con = db.getConnection();
+		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		       		Guia guia = Guia.find(con, s.baseDato, id_guia);
+		       		Transportista transporte = Transportista.find(con, s.baseDato, id_transportista);
+		       		EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
+		       		String xml = WebIConstruye.generaGuiaXMLGuias(con, s.baseDato, mapeoPermiso, guia, transporte, mapeoDiccionario, emisorTributario);
+		       		Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, xml);
+		       		Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
+		       		String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, id_guia, (long)0);
+		       		con.close();
+		       		return ok(mensajes.render("/movimientoListarPeriodo/",rs ));
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	       	}
+		}else {
+			return ok("");
+		}
+   	}
+	
+	
+	public Result downGuiaIconstruye(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	       			Connection con = db.getConnection();
+	       			Long id_guia = Long.parseLong(form.get("id_guia").trim());
+		       		Guia guia = Guia.find(con, s.baseDato, id_guia);
+		       		String rsBody = guia.getResponse();
+		       		int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
+			       	int finpdf64 = rsBody.indexOf("</a:PdfDte>");
+			       	String pdf64 = rsBody.substring(inipdf64,finpdf64);
+					File file = new File("guia_"+guia.getLinkFolio());
+			        try (FileOutputStream fos = new FileOutputStream(file)) {
+			            byte[] bytes = Base64.getDecoder().decode(pdf64);
+			            fos.write(bytes);
+			        } catch (IOException e) {
+			            e.printStackTrace();
+			        }
+		       		con.close();
+		       		return ok(file,false,Optional.of("guia_"+guia.getLinkFolio()+".pdf"));
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    	}
+    	return ok(mensajes.render("/movimientoListarPeriodo/","SE PRESENTARON ERRORES"));
+	}
+	
+	
+	
 	
 	//======================================================================
     // MNU movimientoListarImg   Movimientos/Listar Movimientos/Con Imagenes

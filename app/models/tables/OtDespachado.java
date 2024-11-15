@@ -207,6 +207,31 @@ public class OtDespachado {
 		return(map);
 	}
 	
+	public static Map<String,Double> mapIdCotiIdEquipVsSumaDespachado(Connection con, String db, List<Long> listIdGuias, String esVenta) {  
+		Map<String,Double> map = new HashMap<String,Double>();
+		if(listIdGuias.size() < 1) {
+			return(map);
+		}else {
+			try {
+				String lista = listIdGuias.toString();
+				lista = lista.replace("[", "").replace("]","");
+				PreparedStatement smt = con
+						.prepareStatement(" select id_cotizacion, id_equipoOrigen, sum(cantidadRebajaOt)  " +
+								" from `"+db+"`.otDespachado where id_guia in ("+lista+") and esVenta = ? group by id_equipoOrigen, id_cotizacion;");
+				smt.setString(1, esVenta);
+				ResultSet resultado = smt.executeQuery();
+				while (resultado.next()) {
+					map.put(resultado.getString(1)+"_"+resultado.getString(2), resultado.getDouble(3));
+				}
+				resultado.close();smt.close();
+			} catch (SQLException e) {
+					e.printStackTrace();
+			}
+		}
+		
+		return(map);
+	}
+	
 	public static String modalTrazaPorIdEquipOrigen(Connection con, String db, Long id_ot, Long id_equipoOrigen) {
 		List<List<String>> lista = OtDespachado.listHistorialDespPorIdEquipOrigen(con, db, id_ot, id_equipoOrigen);
 		String vista =

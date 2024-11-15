@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,7 @@ import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Grupo;
+import models.tables.Guia;
 import models.tables.ListaPrecio;
 import models.tables.Moneda;
 import models.tables.Parametros;
@@ -77,6 +79,7 @@ import models.tables.TipoAjustesVenta;
 import models.tables.TipoBodega;
 import models.tables.TipoEstado;
 import models.tables.TipoReferencia;
+import models.tables.Transportista;
 import models.tables.UnidadTiempo;
 import models.tables.Usuario;
 import models.tables.UsuarioPermiso;
@@ -1634,6 +1637,7 @@ public class MnuReportes extends Controller {
 	       		try {
 	    			Connection con = dbRead.getConnection();
 	    			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
+
 	    			//agregar las tasas de uf usd eur
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 	    			
@@ -5755,93 +5759,6 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
-	public Result generaProformaWebIConstruye(Http.Request request) {
-		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	       			Connection con = dbWrite.getConnection();
-	    			
-	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-	    			InputStream auxfile = Archivos.leerArchivo(s.baseDato+"/"+proforma.proformaXml);
-		       		File file = Archivos.parseInputStreamToFile(auxfile);
-		       		if(file!=null) {
-		       			FormXmlFactura facturaXml = FormXmlFactura.leerArchivoXml(file);
-		       			List<TipoReferencia> listTipoReferencias = TipoReferencia.all(con, s.baseDato);
-		       			Map<String,String> mapAllCodVsConcep = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
-		       			con.close();
-		       			return ok(generaProformaXmlIConstruye.render(mapeoDiccionario,mapeoPermiso,userMnu, facturaXml, id_proforma, listTipoReferencias, mapAllCodVsConcep));
-		       		}else {
-		       			con.close();
-		       			return ok("NO LEO");
-		       		}
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
-	}
-	
-	public Result sendXMLFacturaIConstruye(Http.Request request, Long id_proforma){
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
-    		FormXmlFactura form = formFactory.form(FormXmlFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-	       		try {
-	       			Connection con = dbWrite.getConnection();
-		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		       		Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-		       		String xmlStr = FormXmlFactura.grabarReferencias(s.baseDato, mapeoPermiso, proforma.proformaXml, form);
-		       		
-		       		
-		       		xmlStr = xmlStr.replace("encoding=\"UTF-8\" standalone=\"yes\"", "encoding=\"iso-8859-1\"");
-			        xmlStr = xmlStr.replace("DTE version=\"1.0\"", "DTE xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.sii.cl/SiiDte\" version=\"1.0\"");
-			        xmlStr = xmlStr.replace("<TermPagoGlosa/>", "<TermPagoGlosa>CONTADO</TermPagoGlosa>");
-			        xmlStr = xmlStr.replace("<TermPagoCdg/>", "<FmaPago>1</FmaPago>");
-			        
-		       		xmlStr = xmlStr.replace("<MedioPago/>", "");
-		       		xmlStr = xmlStr.replace("<TipoCtaPago/>", "");
-		       		xmlStr = xmlStr.replace("<NumCtaPago/>", "");
-		       		xmlStr = xmlStr.replace("<BcoPago/>", "");
-		       		xmlStr = xmlStr.replace("<PeriodoDesde/>", "");
-		       		xmlStr = xmlStr.replace("<PeriodoHasta/>", "");
-		       		xmlStr = xmlStr.replace("<Proyecto/>", "");
-		       		xmlStr = xmlStr.replace("</Documento>", "<TmstFirma>2016-11-04T20:33:18</TmstFirma></Documento>");
-		       		
-		       		xmlStr = xmlStr.replaceAll("&#13;", "\n");
-		       		
-		       		
-	
-		       		Proforma.updateJsonApi(con, s.baseDato, proforma.id, xmlStr);
-		       		
-		       		
-		       		Long id_guia = (long)0;
-		       		
-		       		String rs = WebIConstruye.genera(con, s.baseDato, xmlStr, ws, id_proforma, id_guia);
-		       		
-		       		
-		       		con.close();
-		       		return ok(mensajes.render("/proformaLista/0",rs ));
-		       		
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok("");
-		}else {
-			return ok("");
-		}
-   	}
-	
 	public Result generaProformaWebMaximise(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -5919,6 +5836,66 @@ public class MnuReportes extends Controller {
 			       			return ok(mensajes.render("/proformaLista/0","Documento aun no ha sido enviado al portal o inexistente."));
 			       		}
 	       			}
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    	}
+    	return ok(mensajes.render("/proformaLista/0","SE PRESENTARON ERRORES"));
+	}
+	
+	public Result generaFacturaIConstruye(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
+	       		try {
+		       		Connection con = dbWrite.getConnection();
+		       		Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+		       		String xml = proforma.getJsonGenerado();
+		       		String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, (long)0, id_proforma);
+		       		con.close();
+		       		return ok(mensajes.render("/proformaLista/0",rs));
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	       	}
+		}else {
+			return ok("");
+		}
+   	}
+	
+	
+	public Result downFacturaIconstruye(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	       			Connection con = dbRead.getConnection();
+	       			Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
+	       			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+		       		String rsBody = proforma.getResponse();
+		       		int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
+			       	int finpdf64 = rsBody.indexOf("</a:PdfDte>");
+			       	String pdf64 = rsBody.substring(inipdf64,finpdf64);
+					File file = new File("guia_"+proforma.getNroFiscal());
+			        try (FileOutputStream fos = new FileOutputStream(file)) {
+			            byte[] bytes = Base64.getDecoder().decode(pdf64);
+			            fos.write(bytes);
+			        } catch (IOException e) {
+			            e.printStackTrace();
+			        }
+		       		con.close();
+		       		return ok(file,false,Optional.of("factura_"+proforma.getNroFiscal()+".pdf"));
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
