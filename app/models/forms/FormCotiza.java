@@ -514,6 +514,11 @@ public class FormCotiza {
 			
 			if(aux!=null){
 				Long decimal = Long.parseLong(lista.get(i).get(20));
+				Moneda moneda = mapMoneda.get(Math.round(aux.get(6)));
+				if(moneda != null) {
+					decimal = moneda.getNumeroDecimales();
+				}
+				
 				lista.get(i).set(5, DecimalFormato.formato(aux.get(4), decimal)); 	//prep
 				lista.get(i).set(7, DecimalFormato.formato(aux.get(3), decimal)); 	//parr
 				
@@ -547,15 +552,18 @@ public class FormCotiza {
 					lista.get(i).set(9, unTiempo.getId().toString());
 				}
 				
-				Long id_moneda = aux.get(6).longValue();
-				Moneda moneda = mapMoneda.get(id_moneda);
-				if(unTiempo!=null) {
+				
+				if(moneda !=null ) {
 					lista.get(i).set(4, moneda.getNickName());
 					lista.get(i).set(8, moneda.getId().toString());
+				}else {
+					Long id_moneda = aux.get(6).longValue();
+					Moneda auxMoneda = mapMoneda.get(id_moneda);
+					if(auxMoneda !=null ) {
+						lista.get(i).set(4, auxMoneda.getNickName());
+						lista.get(i).set(8, auxMoneda.getId().toString());
+					}
 				}
-				
-				
-				
 			}
 		}
 		

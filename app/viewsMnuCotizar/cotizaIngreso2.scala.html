@@ -2,7 +2,7 @@
 formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto],  
 numDecParaTot: String, listRegiones: List[tables.Regiones], jsonListUnTiempo: String, 
 sucursal: tables.Sucursal, comercial: tables.Comercial, listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial],
-importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], iva: Double)
+importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], iva: Double, jsonListMoneda: String)
 
 @main("") {
 
@@ -643,17 +643,25 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	
 	let factorVta = 1;
 	let factorArr = 1;
+	let mapMoneda = new Map();
 	
 	$(document).ready(function() {
 		
 		noCambiarPorSucursal = "@importDesdeExcel";
 		
 		let jsonListUnTiempo = @Html(jsonListUnTiempo);
-		let monedas = "";
-		
+		let unTiempo = "";
 		for(var i in jsonListUnTiempo){
-			monedas += "<option value=\""+jsonListUnTiempo[i]["id"]+"\">"+jsonListUnTiempo[i]["nombre"]+"</option>";
+			unTiempo += "<option value=\""+jsonListUnTiempo[i]["id"]+"\">"+jsonListUnTiempo[i]["nombre"]+"</option>";
 		}
+		
+		let jsonListMoneda = @Html(jsonListMoneda);
+		let moneda = "";
+		for(var i in jsonListMoneda){
+			moneda += "<option value=\""+jsonListMoneda[i]["id"]+"\">"+jsonListMoneda[i]["nickName"]+"</option>";
+			mapMoneda.set(jsonListMoneda[i]["id"], jsonListMoneda[i]["numeroDecimales"]);
+		}
+		
 		
 		let jsonDetalle = @Html(jsonDetalle);
 
@@ -744,7 +752,6 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 					+ "<td style=\"text-align:left;\">"+jsonDetalle[i][23]+"</td>"
 					+ "<td style=\"text-align:left;\">"
 					+ "<input type=\"hidden\" name=\"id_equipo[]\" value=\""+jsonDetalle[i][0]+"\">"
-					+ "<input type=\"hidden\" name=\"id_moneda[]\" value=\""+jsonDetalle[i][8]+"\">"
 					+ "<a href=\"#\" onclick=\"equipoDescripcion('"+jsonDetalle[i][0]+"');\">"+jsonDetalle[i][1]+"</a>"
 					+ "</td>"
 					+ "<td style= \"text-align: left;\"><a href=\"#\" onclick=\"equipoDescripcion('"+jsonDetalle[i][0]+"');\">"+jsonDetalle[i][2]+"</a></td>"
@@ -781,7 +788,12 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 					}
 
 					tabla += "</td>"
-						+ "<td style=\"text-align:center;\">"+jsonDetalle[i][4]+"</td>"
+						+ "<td style=\"text-align:center;\">" 
+						+ "<input type=\"hidden\" id=\"id_moneda_"+jsonDetalle[i][0]+"\" name=\"id_moneda[]\" value=\""+jsonDetalle[i][8]+"\">"
+						+ "<select class=\"custom-select\"  style=\"width: 80px;\""
+						+ "onchange=\"$('#id_moneda_"+jsonDetalle[i][0]+"').val(value);\">"
+						+ "<option value=\""+jsonDetalle[i][8]+"\">"+jsonDetalle[i][4]+"</option>"+moneda
+						+"</td>"
 						+ "<td style=\"text-align:center;\">"
 						+ "<div style=\"display:none\" id=\"hiddenpuVentaRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][26]+"</div>"
 						+ "<input type=\"text\" class=\"form-control height23px right width100px\""
@@ -798,7 +810,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 						+ "<input type=\"hidden\" id=\"id_unidadTiempo_"+jsonDetalle[i][0]+"\" name=\"id_unidadTiempo[]\" value=\""+jsonDetalle[i][9]+"\">"
 						+ "<select class=\"custom-select\"  style=\"width: 80px;\""
 						+ "onchange=\"$('#id_unidadTiempo_"+jsonDetalle[i][0]+"').val(value);\">"
-						+ "<option value=\""+jsonDetalle[i][9]+"\">"+jsonDetalle[i][6]+"</option>"+monedas
+						+ "<option value=\""+jsonDetalle[i][9]+"\">"+jsonDetalle[i][6]+"</option>"+unTiempo
 						+ "</td>"
 						+ "<td>"
 						+ "<div style=\"display:none\" id=\"hiddentasaArr_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][27]+"</div>"
@@ -1155,6 +1167,10 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			 totKg = parseFloat(cant) * parseFloat(uniKg);
 			 totM2 = parseFloat(cant) * parseFloat(uniM2);
 		}
+		
+		let idMon = $("#id_moneda_"+id_equipo).val();
+		numDec = mapMoneda.get(parseFloat(idMon));
+		
 		$("#cantidad_"+id_equipo).val(formatStandar(cant,2));
 		$("#puVentaRepos_"+id_equipo).val(formatStandar(uniVta,numDec));
 		$("#puArriendo_"+id_equipo).val(formatStandar(uniArr,numDec));

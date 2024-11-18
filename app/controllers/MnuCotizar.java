@@ -170,6 +170,7 @@ public class MnuCotizar extends Controller {
     			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
     			
     			List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, s.baseDato);
+    			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
     			
     			
     			Comercial comercial = new Comercial();
@@ -210,6 +211,7 @@ public class MnuCotizar extends Controller {
     			
     			String jsonDetalle = Json.toJson(detalle).toString();
     			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
+    			String jsonListMoneda = Json.toJson(listMoneda).toString();
     			
     			List<CotizaSolucion> listSoluciones = CotizaSolucion.all(con, s.baseDato);
     			
@@ -235,7 +237,7 @@ public class MnuCotizar extends Controller {
    		     
     			con.close();
     			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,numDecParaTot,listRegiones, jsonListUnTiempo, 
-    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, tasaIva));
+    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, tasaIva, jsonListMoneda));
     			
         	} catch (SQLException e) {
     			e.printStackTrace();
@@ -713,6 +715,7 @@ public class MnuCotizar extends Controller {
 	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 	    			
 	    			List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, s.baseDato);
+	    			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
 	    			
 	    			List<Comercial> listComercial = new ArrayList<Comercial>();
 	    			if(mapeoPermiso.get("cambiarComercial")!=null) {
@@ -726,6 +729,7 @@ public class MnuCotizar extends Controller {
 	    			
 	    			String jsonDetalle = Json.toJson(lista).toString();
 	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
+	    			String jsonListMoneda = Json.toJson(listMoneda).toString();
 	    			
 	    			List<CotizaSolucion> listSoluciones = CotizaSolucion.all(con, s.baseDato);
 	    			
@@ -754,7 +758,7 @@ public class MnuCotizar extends Controller {
 	    			
 	    			con.close();
 	    			return ok(cotizaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos, numDecParaTot, listRegiones, jsonListUnTiempo, 
-	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, tasaIva));
+	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, tasaIva, jsonListMoneda));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6131,6 +6135,7 @@ public class MnuCotizar extends Controller {
 		    	    			}
 		    	    			
 		    	    			List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, s.baseDato);
+		    	    			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
 		    	    			
 		    	    			Comercial comercial = new Comercial();
 		    	    			Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, s.id_usuario);
@@ -6163,13 +6168,14 @@ public class MnuCotizar extends Controller {
 		    	    			
 		    	    			String jsonDetalle = Json.toJson(listaConPrecio).toString();
 		    	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
+		    	    			String jsonListMoneda = Json.toJson(listMoneda).toString();
 		    	    			
 		    	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 		    	    			
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
-		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100));
+		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100,jsonListMoneda));
 		    	    			
 		    					
 					} catch (SQLException e) {
@@ -6410,6 +6416,7 @@ public class MnuCotizar extends Controller {
 		    	    			}
 		    	    		
 		    	    			List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, s.baseDato);
+		    	    			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
 		    	    			
 		    	    			
 		    	    			Comercial comercial = new Comercial();
@@ -6443,13 +6450,14 @@ public class MnuCotizar extends Controller {
 		    	    			
 		    	    			String jsonDetalle = Json.toJson(listaConPrecio).toString();
 		    	    			String jsonListUnTiempo = Json.toJson(listUnTiempo).toString();
+		    	    			String jsonListMoneda = Json.toJson(listMoneda).toString();
 		    	    			
 		    	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 		    	    			
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
-		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100));
+		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100,jsonListMoneda));
 		    	    			
 		    				}else {
 		    					con.close();

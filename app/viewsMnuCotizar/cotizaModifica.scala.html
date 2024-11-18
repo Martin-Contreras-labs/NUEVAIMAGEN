@@ -3,7 +3,7 @@
 formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], numDecParaTot: String, listRegiones: List[tables.Regiones],
 jsonListUnTiempo: String,
 listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial], 
-jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion, iva: Double)
+jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion, iva: Double, jsonListMoneda: String)
 
 
 
@@ -573,14 +573,22 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 	let factorVta = 1;
 	let factorArr = 1;
 
+	let mapMoneda = new Map();
+
 	$(document).ready(function() {
 		
 		let jsonListUnTiempo = @Html(jsonListUnTiempo);
 		let jsonDetalle = @Html(jsonDetalle);
-		
 		let monedas = "";
 		for(var i in jsonListUnTiempo){
 			monedas += "<option value=\""+jsonListUnTiempo[i]["id"]+"\">"+jsonListUnTiempo[i]["nombre"]+"</option>";
+		}
+		
+		let jsonListMoneda = @Html(jsonListMoneda);
+		let moneda = "";
+		for(var i in jsonListMoneda){
+			moneda += "<option value=\""+jsonListMoneda[i]["id"]+"\">"+jsonListMoneda[i]["nickName"]+"</option>";
+			mapMoneda.set(jsonListMoneda[i]["id"], jsonListMoneda[i]["numeroDecimales"]);
 		}
 		
 		let escondeLosM2 = 0;
@@ -667,7 +675,6 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 					+ "<td style=\"text-align:left;\">"+jsonDetalle[i][23]+"</td>"
 					+ "<td style=\"text-align:left;\">"
 					+ "<input type=\"hidden\" name=\"id_equipo[]\" value=\""+jsonDetalle[i][0]+"\">"
-					+ "<input type=\"hidden\" name=\"id_moneda[]\" value=\""+jsonDetalle[i][8]+"\">"
 					+ "<a href=\"#\" onclick=\"equipoDescripcion('"+jsonDetalle[i][0]+"');\">"+jsonDetalle[i][1]+"</a>"
 					+ "</td>"
 					+ "<td style= \"text-align: left;\"><a href=\"#\" onclick=\"equipoDescripcion('"+jsonDetalle[i][0]+"');\">"+jsonDetalle[i][2]+"</a></td>"
@@ -704,7 +711,13 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 					}
 
 					tabla += "</td>"
-						+ "<td style=\"text-align:center;\">"+jsonDetalle[i][4]+"</td>"
+						+ "<td style=\"text-align:center;\">" //+jsonDetalle[i][4]
+						
+						+ "<input type=\"hidden\" id=\"id_moneda_"+jsonDetalle[i][0]+"\" name=\"id_moneda[]\" value=\""+jsonDetalle[i][8]+"\">"
+						+ "<select class=\"custom-select\"  style=\"width: 80px;\""
+						+ "onchange=\"$('#id_moneda_"+jsonDetalle[i][0]+"').val(value);calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
+						+ "<option value=\""+jsonDetalle[i][8]+"\">"+jsonDetalle[i][4]+"</option>"+moneda
+						+"</td>"
 						+ "<td style=\"text-align:center;\">"
 						+ "<div style=\"display:none\" id=\"hiddenpuVentaRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][26]+"</div>"
 						+ "<input type=\"text\" class=\"form-control height23px right width100px\""
@@ -1076,6 +1089,10 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 			 totKg = parseFloat(cant) * parseFloat(uniKg);
 			 totM2 = parseFloat(cant) * parseFloat(uniM2);
 		}
+		
+		let idMon = $("#id_moneda_"+id_equipo).val();
+		numDec = mapMoneda.get(parseFloat(idMon));
+		
 		$("#cantidad_"+id_equipo).val(formatStandar(cant,2));
 		$("#puVentaRepos_"+id_equipo).val(formatStandar(uniVta,numDec));
 		$("#puArriendo_"+id_equipo).val(formatStandar(uniArr,numDec))
