@@ -58,6 +58,17 @@ oc: String)
 						 		<td width="5%">del</td>
 						 	</tr>
 					 	</table>
+					<br>
+						@if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
+							<div class="mb-3">
+							  <label for="comentarios" class="form-label">COMENTARIOS:</label>
+							  <textarea class="form-control" id="comentarios" rows="2"
+												name="comentarios" 
+		  										autocomplete="off"></textarea>
+							</div>
+						}else{
+							<input type="text" name="comentarios" value="" style="display: none">
+						}
 				   	</div>
 			   	</div>
 			</div>

@@ -3905,6 +3905,8 @@ public class MnuReportes extends Controller {
 						  referenciasMs2.razonRef = form.razonRef;
 						  referenciasMs2.obs = "";
 					}
+	    			
+	    			String comentarios = form.comentarios;
  	            
 	    			EmisorTributario emisorTributarioMs2 = EmisorTributario.find(con2, s.baseDato);
 	    			BodegaEmpresa bodegaEmpresaMs2 = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proformaMs2.id_bodegaEmpresa);
@@ -3915,13 +3917,13 @@ public class MnuReportes extends Controller {
 	 	        	    String conDetalleMs2 = mapeoPermiso.get("parametro.proformaInvConCompra");
 		 	            FormFactura.generaProformaArriendo(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
 								resumenSubtotalesMs2,clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2,conDetalleMs2, inicioPerMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, finalPerMs2, 
-								tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2);
+								tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2, comentarios);
 		 	            
 	    			}else {
 	    				// genera PDF de venta, XML, JSON y guarda json en proforma
 	    				proformaMs2.setTipo("Venta");
 			 	        FormFactura.generaProformaVenta(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-								clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2);
+								clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2, comentarios);
 	    			}
  	           con2.close();
  	          return(proformaMs2.id.toString());
@@ -4366,6 +4368,9 @@ public class MnuReportes extends Controller {
 							  referencias.razonRef = form.razonRef;
 							  referencias.obs = "";
 						}
+		    			
+		    			String comentarios = form.comentarios;
+		    			
 	 	            
 		    			String archivoPDF = "0";
 		    			
@@ -4378,13 +4383,13 @@ public class MnuReportes extends Controller {
 		 	        	    String conDetalle = mapeoPermiso.get("parametro.proformaInvConCompra");
 			 	            archivoPDF = FormFactura.generaProformaArriendo(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
 									resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, listGuiasPer, mapReportPorGuia10, finalPer, uf, usd, eur, oc,
-									dec, emisorTributario, bodegaEmpresa);
+									dec, emisorTributario, bodegaEmpresa, comentarios);
 			 	            
 		    			}else {
 		    				// genera PDF de venta, XML, JSON y guarda json en proforma
 		    				proforma.setTipo("Venta");
 				 	        archivoPDF = FormFactura.generaProformaVenta(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-									cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc);
+									cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc, comentarios);
 		    			}
 	 	           con2.close();
 	    		

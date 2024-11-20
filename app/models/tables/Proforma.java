@@ -62,12 +62,13 @@ public class Proforma {
 	public String response;
 	
 	public String nroFiscal;
+	public String comentarios;
 	
 
 	public Proforma(Long id, String fecha, String desde, String hasta, Long id_cliente, Long id_bodegaEmpresa,
 			Long id_proyecto, String docRef, String epExcelMov, String epExcelEp, String proformaPdf, String docAnexo,
 			Double descuento, Double neto, Double iva, Double total, Long esEliminable, String tipo, String proformaXml,
-			Long xmlEnviado, String jsonGenerado, Double netoSinAjustes, Double netoSoloAjustes, String response, String nroFiscal) {
+			Long xmlEnviado, String jsonGenerado, Double netoSinAjustes, Double netoSoloAjustes, String response, String nroFiscal, String comentarios) {
 		super();
 		this.id = id;
 		this.fecha = fecha;
@@ -94,6 +95,7 @@ public class Proforma {
 		this.netoSoloAjustes = netoSoloAjustes;
 		this.response = response;
 		this.nroFiscal = nroFiscal;
+		this.comentarios = comentarios;
 	}
 
 	public Proforma() {
@@ -139,8 +141,6 @@ public class Proforma {
 	public String getProformaXml() {return proformaXml;}
 	public void setProformaXml(String proformaXml) {this.proformaXml = proformaXml;}
 	
-	
-
 	public Double getNetoSinAjustes() {
 		return netoSinAjustes;
 	}
@@ -185,6 +185,15 @@ public class Proforma {
 		return nroFiscal;
 	}
 
+	public String getComentarios() {
+		return comentarios;
+	}
+
+	public void setComentarios(String comentarios) {
+		this.comentarios = comentarios;
+	}
+
+
 	public void setNroFiscal(String nroFiscal) {
 		this.nroFiscal = nroFiscal;
 	}
@@ -203,7 +212,8 @@ public class Proforma {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement(" select  id, fecha, desde, hasta, id_cliente, id_bodegaEmpresa,"
-							+ " id_proyecto, docRef, epExcelMov, epExcelEp, proformaPdf, docAnexo, descuento, neto, iva, total, esEliminable, tipo, proformaXml, xmlEnviado, jsonGenerado, ifnull(response,0), ifnull(nroFiscal,0) "
+							+ " id_proyecto, docRef, epExcelMov, epExcelEp, proformaPdf, docAnexo, descuento, neto, iva, total, esEliminable, tipo, proformaXml, xmlEnviado, "
+							+ " jsonGenerado, ifnull(response,0), ifnull(nroFiscal,0), ifnull(comentarios,'') "
 							+ " from `"+db+"`.proforma"
 							+ " order by fecha desc,id desc");
 			ResultSet rs = smt.executeQuery();
@@ -213,7 +223,8 @@ public class Proforma {
 				String hasta = null;	if (rs.getString(4) != null) {hasta = myformatfecha.format(rs.getDate(4));}
 				lista.add(new Proforma(rs.getLong(1),fecha,desde,hasta,rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getString(8),rs.getString(9),
 						rs.getString(10),rs.getString(11),rs.getString(12),rs.getDouble(13),rs.getDouble(14),rs.getDouble(15),rs.getDouble(16),
-						rs.getLong(17),rs.getString(18),rs.getString(19),rs.getLong(20),rs.getString(21),(double)0,(double)0,rs.getString(22),rs.getString(23)));
+						rs.getLong(17),rs.getString(18),rs.getString(19),rs.getLong(20),rs.getString(21),(double)0,(double)0,rs.getString(22)
+						,rs.getString(23),rs.getString(24)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -273,7 +284,8 @@ public class Proforma {
 							+ " xmlEnviado,"
 							+ " jsonGenerado, "
 							+ " ifnull(response,0), "
-							+ " ifnull(nroFiscal,0)"
+							+ " ifnull(nroFiscal,0),"
+							+ " ifnull(comentarios,0)"
 							+ " from `"+db+"`.proforma"
 							+ " where id_bodegaEmpresa>0 "+permisoPorBodega
 							+ " and year(fecha) = ? "
@@ -354,6 +366,7 @@ public class Proforma {
 	   			 aux.add(rs.getString(23));		//21 nro fiscal
 	   			 aux.add(nameSucursal);			//22 nameSucursal
 	   			 aux.add(nameComercial);		//23 nameComercial
+	   			 aux.add(rs.getString(24));		//24 comentarios
 	   			 
 	   			 if(esPorSucursal.equals("1")) {
 	   				 if(auxIdSucursal.equals(id_sucursal)) {
@@ -377,7 +390,8 @@ public class Proforma {
 			PreparedStatement smt = con
 					.prepareStatement("select  id,fecha,desde,hasta,id_cliente,id_bodegaEmpresa," + 
 							" id_proyecto,docRef,epExcelMov,epExcelEp,proformaPdf,docAnexo,descuento,neto,iva,total,"+
-							" esEliminable,tipo,proformaXml,xmlEnviado,jsonGenerado, ifnull(response,0), ifnull(nroFiscal,0) from `"+db+"`.proforma WHERE id = ?" );
+							" esEliminable,tipo,proformaXml,xmlEnviado,jsonGenerado, ifnull(response,0), "
+							+ " ifnull(nroFiscal,0), ifnull(comentarios,0) from `"+db+"`.proforma WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -386,7 +400,8 @@ public class Proforma {
 				String hasta = null;	if (rs.getString(4) != null) {hasta = myformatfecha.format(rs.getDate(4));}
 				aux = new Proforma(rs.getLong(1),fecha,desde,hasta,rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getString(8),rs.getString(9),
 						rs.getString(10),rs.getString(11),rs.getString(12),rs.getDouble(13),rs.getDouble(14),rs.getDouble(15),rs.getDouble(16),
-						rs.getLong(17), rs.getString(18), rs.getString(19),rs.getLong(20), rs.getString(21),(double)0,(double)0,rs.getString(22),rs.getString(23));
+						rs.getLong(17), rs.getString(18), rs.getString(19),rs.getLong(20), rs.getString(21),(double)0,(double)0,rs.getString(22),
+						rs.getString(23),rs.getString(24));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -426,7 +441,7 @@ public class Proforma {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("update `"+db+"`.proforma set fecha=?,desde=?,hasta=?,id_cliente=?,id_bodegaEmpresa=?, " +
-							" id_proyecto=?,docRef=?,epExcelMov=?,epExcelEp=?,proformaPdf=?,docAnexo=?,descuento=?,neto=?,iva=?,total=?,tipo=?,proformaXml=? " +
+							" id_proyecto=?,docRef=?,epExcelMov=?,epExcelEp=?,proformaPdf=?,docAnexo=?,descuento=?,neto=?,iva=?,total=?,tipo=?,proformaXml=?, comentarios=? " +
 							" WHERE id = ?");
 			smt.setString(1, aux.fecha.trim());
 			smt.setString(2, aux.desde.trim());
@@ -445,7 +460,8 @@ public class Proforma {
 			smt.setDouble(15, aux.total);
 			smt.setString(16, aux.tipo.trim());
 			smt.setString(17, aux.proformaXml.trim());
-			smt.setLong(18, aux.id);
+			smt.setString(18, aux.comentarios.trim());
+			smt.setLong(19, aux.id);
 			smt.executeUpdate();
 			smt.close();
 		} catch (SQLException e) {

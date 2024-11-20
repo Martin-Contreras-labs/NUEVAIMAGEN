@@ -59,10 +59,13 @@ public class FormFactura {
 	public List<String> fchRef; 
 	public List<String> razonRef; 
 	
+	
 	public String oc;
+	public String comentarios;
 
 	public FormFactura(String idBodega, String fechaDesde, String fechaHasta, String uf, String usd, String eur,
-			List<String> tpoDocRef, List<String> folioRef, List<String> fchRef, List<String> razonRef, String oc) {
+			List<String> tpoDocRef, List<String> folioRef, List<String> fchRef, List<String> razonRef, String oc,
+			String comentarios) {
 		super();
 		this.idBodega = idBodega;
 		this.fechaDesde = fechaDesde;
@@ -75,11 +78,8 @@ public class FormFactura {
 		this.fchRef = fchRef;
 		this.razonRef = razonRef;
 		this.oc = oc;
+		this.comentarios = comentarios;
 	}
-
-
-
-
 
 	public FormFactura() {
 		super();
@@ -95,7 +95,7 @@ public class FormFactura {
 			List<List<String>> detalleAjuste, String conDetalle, 
 			List<List<String>> inicioPer, List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, List<List<String>> finalPer,
 			Double uf, Double usd, Double eur, String oc,
-			Map<Long,Long> dec, EmisorTributario emisorTributario, BodegaEmpresa bodegaEmpresa) {
+			Map<Long,Long> dec, EmisorTributario emisorTributario, BodegaEmpresa bodegaEmpresa, String comentarios) {
 		
 			
 			
@@ -293,6 +293,10 @@ public class FormFactura {
     			
     			if(oc.length()>0) {
     				strReferencia += "\n" + oc;
+    			}
+    			
+    			if(comentarios.length()>1) {
+    				strReferencia += "\n COMENTARIOS: " + comentarios.trim();
     			}
     			
     			cell=table.getRow(0).getCell(0);
@@ -839,6 +843,8 @@ public class FormFactura {
 				path = db+"/"+archivoPdf;
 				Archivos.grabarArchivo(tmp, path);
 				
+				proforma.setComentarios(comentarios.trim());
+				
 				Proforma.modify(con, db, proforma);
 				
 				
@@ -873,7 +879,7 @@ public class FormFactura {
 				//generaProformaWebIConstruye
 				if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
 					String archivoXml = WebIConstruye.generaXMLFacturasArr(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente, 
-							proforma, mapPermiso, detalleAjuste, referencias);
+							proforma, mapPermiso, detalleAjuste, referencias, comentarios);
 					Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
 				}
 				
@@ -894,7 +900,7 @@ public class FormFactura {
 	
 	public static String generaProformaVenta(Connection con, String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
 			Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, List<List<String>> detalleAjuste, 
-			List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, String oc) {
+			List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, String oc, String comentarios) {
 		
 		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.id_bodegaEmpresa);
 		
@@ -1124,6 +1130,10 @@ public class FormFactura {
 				strReferencia += "\n" + oc;
 			}
 			
+			if(comentarios.length()>1) {
+				strReferencia += "\n COMENTARIOS: " + comentarios.trim();
+			}
+			
 			cell=table.getRow(0).getCell(0);
 			setCelda(cell,"Arial",10,1,"2b5079",strReferencia,false);
 			
@@ -1161,6 +1171,8 @@ public class FormFactura {
 			path = db+"/"+archivoPdf;
 			Archivos.grabarArchivo(tmp, path);
 			
+			proforma.setComentarios(comentarios.trim());
+			
 			Proforma.modify(con, db, proforma);
 			  
 			if(mapPermiso.get("parametro.proformaLista-descargarXLM").equals("1")){
@@ -1180,7 +1192,7 @@ public class FormFactura {
 			//generaProformaWebIConstruye
 			if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
 				String archivoXml = WebIConstruye.generaXMLFacturasVta(con, db, mapDiccionario.get("nEmpresa"), guiasPer, cliente, 
-						proforma, mapReportPorGuia10, mapPermiso, detalleAjuste, referencias);
+						proforma, mapReportPorGuia10, mapPermiso, detalleAjuste, referencias, comentarios);
 				Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
 			}
 			

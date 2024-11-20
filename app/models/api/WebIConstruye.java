@@ -430,7 +430,7 @@ public class WebIConstruye {
 		public static String generaXMLFacturasArr (Connection con, String db, 
 				String nEmpresa, List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, 
 				Map<String,String> mapPermiso, List<List<String>> detalleAjuste,
-				XmlFacturaReferencias referencias) {
+				XmlFacturaReferencias referencias, String comentarios) {
 			
 			EmisorTributario emisorTributario = EmisorTributario.find(con, db);
 			
@@ -508,6 +508,9 @@ public class WebIConstruye {
 			
 			String observaciones = "PERIODO: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 								   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
+			if(comentarios.trim().length()>1) {
+				observaciones = observaciones + " --- COMENTARIOS: "+comentarios.toUpperCase();
+			}
 			
 				String xmlCabecera = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
 						+ "<DTE version=\"1.0\"\n"
@@ -703,7 +706,7 @@ public class WebIConstruye {
 		public static String generaXMLFacturasVta (Connection con, String db, 
 				String nEmpresa, List<List<String>> guiasPer, Cliente cliente, Proforma proforma, 
 				Map<String, List<List<String>>> mapReportPorGuia10, Map<String,String> mapPermiso, List<List<String>> detalleAjuste,
-				XmlFacturaReferencias referencias) {
+				XmlFacturaReferencias referencias, String comentarios) {
 			
 			EmisorTributario emisorTributario = EmisorTributario.find(con, db);
 			
@@ -785,6 +788,11 @@ public class WebIConstruye {
 			
 			String observaciones = "VENTAS: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 								   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
+			
+			if(comentarios.trim().length()>1) {
+				observaciones = observaciones + " --- COMENTARIOS: "+comentarios.toUpperCase();
+			}
+			
 			
 				String xmlCabecera = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
 						+ "<DTE version=\"1.0\"\n"
