@@ -5887,7 +5887,7 @@ public class MnuReportes extends Controller {
 		       		int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
 			       	int finpdf64 = rsBody.indexOf("</a:PdfDte>");
 			       	String pdf64 = rsBody.substring(inipdf64,finpdf64);
-					File file = new File("guia_"+proforma.getNroFiscal());
+					File file = TempFile.createTempFile("tmp","null");
 			        try (FileOutputStream fos = new FileOutputStream(file)) {
 			            byte[] bytes = Base64.getDecoder().decode(pdf64);
 			            fos.write(bytes);

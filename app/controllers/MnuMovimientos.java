@@ -16,6 +16,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.apache.poi.util.TempFile;
+
 import controllers.HomeController.Sessiones;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
@@ -1883,7 +1885,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       		int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
 			       	int finpdf64 = rsBody.indexOf("</a:PdfDte>");
 			       	String pdf64 = rsBody.substring(inipdf64,finpdf64);
-					File file = new File("guia_"+guia.getLinkFolio());
+					File file = TempFile.createTempFile("tmp","null");
 			        try (FileOutputStream fos = new FileOutputStream(file)) {
 			            byte[] bytes = Base64.getDecoder().decode(pdf64);
 			            fos.write(bytes);

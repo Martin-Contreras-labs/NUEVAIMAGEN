@@ -195,8 +195,9 @@ public class WebIConstruye {
 				rutCliente = clienteDestino.getRut().replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 				rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 				String[] auxRut = rutCliente.split("-");
-				rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
-				
+				if(auxRut.length == 2) {
+					rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+				}
 				nomCliente = clienteDestino.getNombre();
 				giroCliente = clienteDestino.getGiro();
 				direccionCliente = clienteDestino.getDireccion();
@@ -385,25 +386,29 @@ public class WebIConstruye {
 					+ "				<DirRecep>"+direccionCliente+"</DirRecep>\n"
 					+ "				<CmnaRecep>"+comunaCliente+"</CmnaRecep>\n"
 					+ "				<CiudadRecep>"+ciudadCliente+"</CiudadRecep>\n"
-					+ "			</Receptor>\n"
-					+ "			<Transporte>\n"
-					+ "				<Patente>"+patTransp+"</Patente>\n"
-					+ "				<Chofer>\n"
-					+ "					<RUTChofer>"+rutTransp+"</RUTChofer>\n"
-					+ "					<NombreChofer>"+nomTransp+"</NombreChofer>\n"
-					+ "				</Chofer>\n"
-					+ "				<DirDest>"+direccionDestino+"</DirDest>\n"
-					+ "				<CmnaDest>"+comunaDestino+"</CmnaDest>\n"
-					+ "				<CiudadDest>"+ciudadDestino+"</CiudadDest>\n"
-					+ "			</Transporte>\n"
-					+ "			<Totales>\n"
-					+ "				<MntNeto>"+totalNeto+"</MntNeto>\n"
-					+ "				<MntExe>0</MntExe>\n"
-					+ "				<TasaIVA>"+tasaIvaArrAuxiliar+"</TasaIVA>\n"
-					+ "				<IVA>"+totalIva+"</IVA>\n"
-					+ "				<MntTotal>"+totalTotal+"</MntTotal>\n"
-					+ "			</Totales>\n"
-					+ "		</Encabezado>\n";
+					+ "			</Receptor>\n";
+				if(rutTransp.equals("")) {
+					xmlCabecera +="			<Transporte/>\n";
+				}else {
+					xmlCabecera +="			<Transporte>\n"
+								+ "				<Patente>"+patTransp+"</Patente>\n"
+								+ "				<Chofer>\n"
+								+ "					<RUTChofer>"+rutTransp+"</RUTChofer>\n"
+								+ "					<NombreChofer>"+nomTransp+"</NombreChofer>\n"
+								+ "				</Chofer>\n"
+								+ "				<DirDest>"+direccionDestino+"</DirDest>\n"
+								+ "				<CmnaDest>"+comunaDestino+"</CmnaDest>\n"
+								+ "				<CiudadDest>"+ciudadDestino+"</CiudadDest>\n"
+								+ "			</Transporte>\n";
+				}
+				xmlCabecera +="			<Totales>\n"
+							+ "				<MntNeto>"+totalNeto+"</MntNeto>\n"
+							+ "				<MntExe>0</MntExe>\n"
+							+ "				<TasaIVA>"+tasaIvaArrAuxiliar+"</TasaIVA>\n"
+							+ "				<IVA>"+totalIva+"</IVA>\n"
+							+ "				<MntTotal>"+totalTotal+"</MntTotal>\n"
+							+ "			</Totales>\n"
+							+ "		</Encabezado>\n";
 			 
 			String xmlPie = "		<TmstFirma>2017-12-13T16:40:53.0000000-04:00</TmstFirma>\n"
 					+ "	</Documento>\n"
@@ -445,7 +450,9 @@ public class WebIConstruye {
 			rutCliente = rutCliente.replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 			rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 			String[] auxRut = rutCliente.split("-");
-			rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+			if(auxRut.length == 2) {
+				rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+			}
 			
 			String nomCliente = cliente.getNombre();
 			String giroCliente = cliente.getGiro();
@@ -486,12 +493,18 @@ public class WebIConstruye {
 
 			String emis = Fechas.AAMMDD(proforma.getFecha());
 			String[] auxFechFact = emis.split("-");
-			String fechaFactura = auxFechFact[0].trim()+"-"+auxFechFact[1].trim()+"-"+auxFechFact[2].trim();
+			String fechaFactura = "";
+			if(auxFechFact.length == 3) {
+				fechaFactura = auxFechFact[0].trim()+"-"+auxFechFact[1].trim()+"-"+auxFechFact[2].trim();
+			}
 			
 			Fechas venc = Fechas.obtenerFechaDesdeStrAAMMDD(emis);
 			venc = Fechas.addDias(venc.getFechaCal(), cliente.diasVencPago);
 			String[] auxFechVenc = venc.getFechaStrAAMMDD().split("-");
-			String fechaVencimiento = auxFechVenc[0].trim()+"-"+auxFechVenc[1].trim()+"-"+auxFechVenc[2].trim();
+			String fechaVencimiento = "";
+			if(auxFechVenc.length == 3) {
+				fechaVencimiento = auxFechVenc[0].trim()+"-"+auxFechVenc[1].trim()+"-"+auxFechVenc[2].trim();
+			}
 			
 			String observaciones = "PERIODO: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 								   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
@@ -698,7 +711,10 @@ public class WebIConstruye {
 			
 			String emis = Fechas.AAMMDD(proforma.getFecha());
 			String[] auxFechFact = emis.split("-");
-			String fechaFactura = auxFechFact[0].trim()+"-"+auxFechFact[1].trim()+"-"+auxFechFact[2].trim();
+			String fechaFactura = "";
+			if(auxFechFact.length == 3) {
+				fechaFactura = auxFechFact[0].trim()+"-"+auxFechFact[1].trim()+"-"+auxFechFact[2].trim();
+			}
 			
 			String valPeriodoDesde = proforma.desde;
 			String valPeriodoHasta = proforma.hasta;
@@ -706,7 +722,10 @@ public class WebIConstruye {
 			Fechas venc = Fechas.obtenerFechaDesdeStrAAMMDD(emis);
 			venc = Fechas.addDias(venc.getFechaCal(), cliente.diasVencPago);
 			String[] auxFechVenc = venc.getFechaStrAAMMDD().split("-");
-			String fechaVencimiento = auxFechVenc[0].trim()+"-"+auxFechVenc[1].trim()+"-"+auxFechVenc[2].trim();
+			String fechaVencimiento = "";
+			if(auxFechVenc.length == 3) {
+				fechaVencimiento = auxFechVenc[0].trim()+"-"+auxFechVenc[1].trim()+"-"+auxFechVenc[2].trim();
+			}
 			
 			String direccionOrigen = emisorTributario.direccion;
 			String comunaOrigen = emisorTributario.comuna;
@@ -719,7 +738,9 @@ public class WebIConstruye {
 			rutCliente = rutCliente.replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 			rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 			String[] auxRut = rutCliente.split("-");
-			rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+			if(auxRut.length == 2) {
+				rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+			}
 			
 			String nomCliente = cliente.getNombre();
 			String giroCliente = cliente.getGiro();

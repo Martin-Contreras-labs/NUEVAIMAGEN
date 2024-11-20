@@ -289,8 +289,6 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								
 								@if(mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye").equals("1")){
 									<td style="text-align:center;">
-										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
-											
 											@if(lista1.getLinkFolio().equals("0")){
 												<a href="#" onclick="llenarWebIConstruye('@lista1.getId()','@lista1.getId_transportista()')">
 													<kbd style="background-color: #C39BD3">IC</kbd>
@@ -300,11 +298,6 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 													<kbd style="background-color: rgb(0, 143, 81)">GUIA: @lista1.getLinkFolio()</kbd>
 												</a>
 											}
-											
-											
-										}else{
-											--
-										}
 									</td>
 								}
 								
