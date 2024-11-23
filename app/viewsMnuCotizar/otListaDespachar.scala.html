@@ -10,8 +10,21 @@ listOt: List[List[String]])
 	@modalContactoCliente()
 	@modalContactoProyecto()
 	
+	
+	
 	<div id="mostrarmostrar" style="display:none;">
 		@barraTitulo(mapDiccionario, mapDiccionario.get("Ordenes_de_trabajo").toUpperCase(),"SELECCIONAR PARA HACER DESPACHO")
+		
+		<div class="noprint" align="center">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<form method="post" action="/routes2/otCambiarEstadoTerminadas/">
+						<input id="btnCargaExcel" type="submit"  value="Pasar a terminadas las @mapDiccionario.get("OT") completadas" class="btn btn-info btn-sm rounded-pill btn-block">
+					</form>
+				</div>
+			</div>
+		</div>
+	
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">

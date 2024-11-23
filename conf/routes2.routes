@@ -131,7 +131,7 @@ POST	/reportOtSaldosPorOtExcel/		controllers.MnuCotizar.reportOtSaldosPorOtExcel
 GET		/otAdminPrecios0/				controllers.MnuCotizar.otAdminPrecios0(request: Request)
 POST	/otAdminPrecios1/				controllers.MnuCotizar.otAdminPrecios1(request: Request)
 
-
+POST	/otCambiarEstadoTerminadas/				controllers.MnuCotizar.otCambiarEstadoTerminadas(request: Request)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MNU cotizaReporte   Cotizar/Cotizaciones/Resumen Cotizacion

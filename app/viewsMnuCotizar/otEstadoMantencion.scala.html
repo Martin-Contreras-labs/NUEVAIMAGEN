@@ -30,7 +30,7 @@ listEstados: List[tables.OtEstado])
 									</form>
 								</td>
 								<td  style="text-align:center;">
-									@if(lista1.getId()>1){
+									@if(!(lista1.getId()==1 || lista1.getId()==2  || lista1.getId()==3)){
 										<a href="#" onclick= "eliminarOtEstado('@lista1.getId()')">
 											<kbd style="background-color: red">X</kbd>
 										</a>

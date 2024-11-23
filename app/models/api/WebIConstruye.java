@@ -56,7 +56,7 @@ public class WebIConstruye {
 		}else if((long) id_guia > (long) 0) {
 			tipoDocumento = 52;
 		}else {
-			//return "FALLA no reconoce tipo de documento";
+			return "FALLA no reconoce tipo de documento";
 		}
 		
 		String data = 
@@ -165,6 +165,7 @@ public class WebIConstruye {
 			e.printStackTrace();
 			return "ERROR";
 		}
+		
 	}
 	
 
@@ -185,9 +186,61 @@ public class WebIConstruye {
 			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db,id_bodegaOrigen);
 			Cliente clienteOrigen = Cliente.find(con, db, bodegaOrigen.getId_cliente());
 			
-			//Map<String,String> mapComunas = Comunas.mapAll(con, db);
+			String tipo = "TRASLADO";
+			if(bodegaOrigen.getEsInterna() == (long)1 && bodegaDestino.getEsInterna() > 1) {
+				tipo = "DESPACHO";
+			}else if(bodegaOrigen.getEsInterna() > 1) {
+				tipo = "DEVOLUCION";
+			}
 			
+			if(bodegaOrigen.getEsInterna() > 1) {
+				BodegaEmpresa aux = bodegaDestino;
+				bodegaDestino = bodegaOrigen;
+				bodegaOrigen = aux;
+				Cliente aux1 = clienteDestino;
+				clienteDestino = clienteOrigen;
+				clienteOrigen = aux1;
+				Long aux2 = guia.getId_bodegaDestino();
+				guia.setId_bodegaDestino(guia.getId_bodegaOrigen());
+				guia.setId_bodegaOrigen(aux2);
+			}
+			
+			String observaciones = tipo + " - OBRA: "+bodegaDestino.getNombre()+" - Solo traslado, no constituye venta.";
+			
+			if(observaciones.length() > 100) {
+				observaciones = observaciones.substring(0,99);
+			}
+			
+			//Map<String,String> mapComunas = Comunas.mapAll(con, db);
 			List<List<String>> detalleGuia = new ArrayList<List<String>>();
+			String direccionDestino="", comunaDestino="", ciudadDestino="";
+			if ((long) bodegaDestino.getEsInterna() == (long) 1) {
+				Cliente aux = Cliente.find(con, db, bodegaDestino.getId_cliente());
+				if(aux!=null) {
+					direccionDestino = aux.getDireccion();
+					comunaDestino = aux.getComuna();
+					ciudadDestino = aux.getCiudad();
+				}else {
+					return ("FALTAN DATOS DEL CLIENTE");
+				}
+				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaOrigen(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
+			}else {
+				Proyecto aux = Proyecto.find(con, db, bodegaDestino.id_proyecto);
+				if(aux!=null) {
+					direccionDestino = aux.getDireccion();
+					comunaDestino = aux.getComuna();
+					ciudadDestino = aux.getCiudad();
+				}else {
+					return ("FALTAN DATOS DEL PROYECTO");
+				}
+				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaDestino(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
+			}
+			if(direccionDestino.length()>30) {
+				direccionDestino = direccionDestino.substring(0,29);
+			}
+			
+			
+			
 			
 			String direccionCliente="", comunaCliente="", ciudadCliente="", rutCliente="", nomCliente="", 
 					giroCliente="", patTransp="", rutTransp="", nomTransp="";
@@ -225,32 +278,7 @@ public class WebIConstruye {
 				return ("FALTAN DATOS DEL PROPIETARIO");
 			}
 			
-			String direccionDestino="", comunaDestino="", ciudadDestino="";
-			if ((long) bodegaDestino.getEsInterna() == (long) 1) {
-				Cliente aux = Cliente.find(con, db, bodegaDestino.getId_cliente());
-				if(aux!=null) {
-					direccionDestino = aux.getDireccion();
-					comunaDestino = aux.getComuna();
-					ciudadDestino = aux.getCiudad();
-				}else {
-					return ("FALTAN DATOS DEL CLIENTE");
-				}
-				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaOrigen(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
-			}else {
-				Proyecto aux = Proyecto.find(con, db, bodegaDestino.id_proyecto);
-				if(aux!=null) {
-					direccionDestino = aux.getDireccion();
-					comunaDestino = aux.getComuna();
-					ciudadDestino = aux.getCiudad();
-				}else {
-					return ("FALTAN DATOS DEL PROYECTO");
-				}
-				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaDestino(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
-			}
 			
-			if(direccionDestino.length()>30) {
-				direccionDestino = direccionDestino.substring(0,29);
-			}
 			
 			if(transportista != null) {
 				patTransp = transportista.getPatente();
@@ -269,7 +297,6 @@ public class WebIConstruye {
 			String xmlDetalle = "";
 			
 			for(int i=0;i<detalleGuia.size();i++) {
-				
 				String auxPrecio = detalleGuia.get(i).get(9); 				// precio de venta en moneda de origen
 				if(auxPrecio==null || auxPrecio.trim().length()<=0)	{
 					auxPrecio = "0";
@@ -286,6 +313,10 @@ public class WebIConstruye {
 					tasa = (double)1;
 				}
 				precioUnitario = Math.round(auxPU * tasa);		// precio de venta en moneda principal CLP
+				
+				if(precioUnitario <= 0) {
+					precioUnitario = (long)1;
+				}
 				
 				Long cantidad = Math.round(Double.parseDouble(auxCantidad.replaceAll(",", "")));
 				Long auxPTotal = Math.round((double)precioUnitario * cantidad);
@@ -312,7 +343,7 @@ public class WebIConstruye {
 				Double auxTotalKG =(double) Math.round(kg*cantidad*100)/100;
 				if(auxTotalKG==0) auxTotalKG=0.01;
 				
-				xmlDetalle =  "     <Detalle>\n"
+				xmlDetalle +=  "     <Detalle>\n"
 							+ "         <NroLinDet>"+nroLinea+"</NroLinDet>\n"
 							+ "         <CdgItem>\n"
 							+ "             <TpoCodigo>INT</TpoCodigo>\n"
@@ -367,7 +398,7 @@ public class WebIConstruye {
 					+ "				<Folio/>\n"
 					+ "				<FchEmis>"+fechaGuia+"</FchEmis>\n"
 					+ "				<IndTraslado>6</IndTraslado>\n"
-					+ "				<TermPagoGlosa>Solo despacho, no constituye venta.</TermPagoGlosa>\n"
+					+ "				<TermPagoGlosa>"+observaciones+"</TermPagoGlosa>\n"
 					+ "			</IdDoc>\n"
 					+ "			<Emisor>\n"
 					+ "				<RUTEmisor>"+emisorTributario.getRut()+"</RUTEmisor>\n"
@@ -510,6 +541,10 @@ public class WebIConstruye {
 								   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
 			if(comentarios.trim().length()>1) {
 				observaciones = observaciones + " --- COMENTARIOS: "+comentarios.toUpperCase();
+			}
+			
+			if(observaciones.length()>100) {
+				observaciones = observaciones.substring(0,99);
 			}
 			
 				String xmlCabecera = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"

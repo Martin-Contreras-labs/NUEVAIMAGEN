@@ -6481,7 +6481,125 @@ public class MnuCotizar extends Controller {
     	return ok(mensajes.render("/",msgError));
 	}
     
-
+    
+    public Result otCambiarEstadoTerminadas(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+    		if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			if(mapeoPermiso.get("otDespacha")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			Map<String,Double> mapAllPorDespachar = new HashMap<String,Double>();
+	    			List<List<String>> listaBodExternasVigentes = new ArrayList<List<String>>();
+	    
+					/*******************************************************************************************/
+					Map<String, Double> mapAllDespachado = OtDespachado.mapAllDespachadoPorOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					Map<String, Double> mapAllCotizadoConOt = CotizaDetalle.mapAllCotizadoConOtPorOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					/*******************************************************************************************/
+					
+					Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
+					Map<List<String>,List<String>> mapAuxBodExternas = new HashMap<List<String>,List<String>>();
+					
+					
+					Map<Long,Ot> mapOt = Ot.mapAll(con, s.baseDato);
+					Map<Long,Cotizacion> mapCoti = Cotizacion.mapAll(con, s.baseDato);
+					
+					mapAllCotizadoConOt.forEach((k, v) -> {
+						Double aux = mapAllDespachado.get(k);
+						if(aux == null) {
+							aux = (double)0;
+						}
+						aux = v - aux;
+						if (aux != 0) {
+							String[] dePaso = k.split("_");
+							List<String> bodega = mapBodegaVigExter.get(Long.parseLong(dePaso[0]));
+							if(bodega != null) {
+								String fechaEntrega = "";
+								String idCoti = "";
+								String nroCoti = "";
+								String nroOt = "";
+								Ot ot = mapOt.get(Long.parseLong(dePaso[2]));
+								if(ot!=null) {
+									fechaEntrega = Fechas.DDMMAA(ot.getFecha());
+									idCoti = ot.getId_cotizacion().toString();
+									nroOt = ot.getNumero().toString();
+									Cotizacion coti = mapCoti.get(Long.parseLong(idCoti));
+									if(coti!=null) {
+										nroCoti = coti.getNumero().toString();
+									}
+								}
+								mapAllPorDespachar.put(k, aux);
+								List<String> aux1 = new ArrayList<String>();
+								aux1.add(bodega.get(1)); 	// 0 id_bodegaEmpresa
+								aux1.add(bodega.get(5)); 	// 1 nombre bodega;
+								aux1.add(bodega.get(7)); 	// 2 nickCliente;
+								aux1.add(idCoti); 			// 3 id_cotizacion;
+								aux1.add(dePaso[2]); 		// 4 id_ot;
+								aux1.add(fechaEntrega); 	// 5 fechaEnvio equiv a fechaEntrega;
+								aux1.add(bodega.get(16)); 	// 6 nombre sucursal;
+								aux1.add(bodega.get(11)); 	// 7 nombre comercial;
+								aux1.add(nroCoti); 	// 8 nro coti;
+								aux1.add(nroOt); 	// 9 nro ot;
+								mapAuxBodExternas.put(aux1, aux1);
+							}
+						}
+					});
+					
+					
+					mapAuxBodExternas.forEach((k,v)->{
+						listaBodExternasVigentes.add(k);
+					});
+					
+					Map<String, String> mapIdOtPorDespachar = new HashMap<String, String>();
+					for(List<String> x: listaBodExternasVigentes) {
+						mapIdOtPorDespachar.put(x.get(9).trim(), x.get(9).trim());
+					}
+					
+					List<List<String>> listOt = Ot.listOtDespachar(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, "1900-01-01", "3000-01-01");
+	    			
+					Map<String,String> mapIdOtCompletadas = new HashMap<String,String>();
+					for(List<String> x: listOt) {
+						String aux = mapIdOtPorDespachar.get(x.get(2).trim());
+						if(aux==null) {
+							mapIdOtCompletadas.put(x.get(2).trim(), x.get(2).trim());
+						}
+					}
+					
+					List<String> lista = new ArrayList<String>();
+					mapIdOtCompletadas.forEach((k,v)->{
+						lista.add(k);
+					});
+					
+					String nrosOt = lista.toString();
+					nrosOt = nrosOt.replace("[", "(");
+					nrosOt = nrosOt.replace("]", ")");
+					
+					if(nrosOt.length()>2) {
+						PreparedStatement smt = con
+								.prepareStatement("update `"+s.baseDato+"`.ot set id_otEstado = 3 where numero in "+nrosOt+";");
+						smt.executeUpdate();
+					}
+					
+					
+					
+	    			con.close();
+	    			return redirect("/otListaDespacharPeriodo/");
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    		return redirect("/home/");
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+    }
     
     
 
