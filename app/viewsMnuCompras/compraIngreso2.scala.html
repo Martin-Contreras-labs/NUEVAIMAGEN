@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listProveedor: List[tables.Proveedor], listEquipo: List[tables.Equipo], listMoneda: List[tables.Moneda], listBodegas: List[List[String]], listMon: List[tables.Moneda],
 listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad], listRegiones: List[tables.Regiones],
-listSucursales: List[tables.Sucursal], lista: List[List[String]])
+listSucursales: List[tables.Sucursal], lista: List[List[String]], proveedor: tables.Proveedor)
 
     	
 @main("") {
@@ -49,10 +49,10 @@ listSucursales: List[tables.Sucursal], lista: List[List[String]])
 								  		</div>
 								  		<input type="hidden" name="id_factura" value="0">
 								  		<input type="hidden" name="numOcIConstruye" value="0">
-								  		<input type="hidden" id="id_proveedor" name="id_proveedor" value="0">
+								  		<input type="hidden" id="id_proveedor" name="id_proveedor" value="@proveedor.getId()">
 	  									<input type="text" class="form-control"
 	  										id="rutProveedor"
-	  										value="" 
+	  										value="@proveedor.getRut()" 
 	  										style="background:white"
 	  										onclick="$('#listaProveedor').modal('show');"
 	  										readonly>
@@ -65,7 +65,7 @@ listSucursales: List[tables.Sucursal], lista: List[List[String]])
 								  		</div>
 											<input type="text" class="form-control left"
 												id="nombreProveedor"
-												value=""
+												value="@proveedor.getNickName()"
 												style="background:white"
 												onclick='$("#listaProveedor").modal("show")'
 												required

@@ -74,6 +74,8 @@ public class Cliente {
 	
 	public String formaDePago;
 	public String especialidad;
+	
+	public Long vigente;
 
 	public Cliente(Long id, String rut, String nombre, String nickName, String direccion, String cod_region,
 			String cod_comuna, String giro, String ciudad, String contactoFactura, String mailFactura,
@@ -81,7 +83,7 @@ public class Cliente {
 			String cod_termPago, String glosaPago, String region, String comuna, String medioPago, String tipoCuenta,
 			String termPago, String fonoContacto, String rutRepresentante1, String nombreRepresentante1,
 			String rutRepresentante2, String nombreRepresentante2, String cargoContactoFactura,
-			String cargoRepresentante1, String cargoRepresentante2,String formaDePago,String especialidad) {
+			String cargoRepresentante1, String cargoRepresentante2,String formaDePago,String especialidad,Long vigente) {
 		super();
 		this.id = id;
 		this.rut = rut;
@@ -116,6 +118,7 @@ public class Cliente {
 		this.cargoRepresentante2 = cargoRepresentante2;
 		this.formaDePago = formaDePago;
 		this.especialidad = especialidad;
+		this.vigente = vigente;
 	}
 
 
@@ -187,24 +190,28 @@ public class Cliente {
 	public String getCargoRepresentante2() {return cargoRepresentante2;}
 	public void setCargoRepresentante2(String cargoRepresentante2) {this.cargoRepresentante2 = cargoRepresentante2;}
 
-
 	public String getFormaDePago() {
 		return formaDePago;
 	}
-
 
 	public void setFormaDePago(String formaDePago) {
 		this.formaDePago = formaDePago;
 	}
 
-
 	public String getEspecialidad() {
 		return especialidad;
 	}
 
-
 	public void setEspecialidad(String especialidad) {
 		this.especialidad = especialidad;
+	}
+
+	public Long getVigente() {
+		return vigente;
+	}
+
+	public void setVigente(Long vigente) {
+		this.vigente = vigente;
 	}
 
 
@@ -254,7 +261,8 @@ public class Cliente {
 							" cliente.cargoRepresentante1, " +
 							" cliente.cargoRepresentante2, " +
 							" cliente.formaDePago, " +
-							" cliente.especialidad " +
+							" cliente.especialidad, " +
+							" cliente.vigente " +
 							" from `"+db+"`.cliente " + 
 							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
 							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
@@ -262,17 +270,81 @@ public class Cliente {
 							" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " + 
 							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
 							" order by nickName;");
-			ResultSet resultado = smt.executeQuery();
-			while (resultado.next()) {		
-				lista.add(new Cliente(resultado.getLong(1),resultado.getString(2),resultado.getString(3),
-						resultado.getString(4),resultado.getString(5),resultado.getString(6),resultado.getString(7),resultado.getString(8),resultado.getString(9),
-						resultado.getString(10),resultado.getString(11),resultado.getString(12),resultado.getString(13),resultado.getString(14),resultado.getString(15),
-						resultado.getInt(16),resultado.getString(17),resultado.getString(18),resultado.getString(19),resultado.getString(20),resultado.getString(21),
-						resultado.getString(22),resultado.getString(23),resultado.getString(24),
-						resultado.getString(25),resultado.getString(26),resultado.getString(27),resultado.getString(28),
-						resultado.getString(29),resultado.getString(30),resultado.getString(31),resultado.getString(32),resultado.getString(33)));
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {		
+				lista.add(new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
+						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
+						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+						rs.getString(22),rs.getString(23),rs.getString(24),
+						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
+						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34)));
 			}
-			resultado.close();smt.close();
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
+	public static List<Cliente> allsoloVigentes(Connection con, String db) {
+		List<Cliente> lista = new ArrayList<Cliente>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select " + 
+							" cliente.id, " + 
+							" cliente.rut, " + 
+							" cliente.nombre, " + 
+							" cliente.nickName, " + 
+							" cliente.direccion, " + 
+							" cliente.cod_region, " + 
+							" cliente.cod_comuna, " + 
+							" cliente.giro,  " + 
+							" cliente.ciudad, " + 
+							" cliente.contactoFactura, " + 
+							" cliente.mailFactura," + 
+							" cliente.cod_medioPago, " + 
+							" cliente.cod_tipoCuenta, " + 
+							" cliente.ctaPago, " + 
+							" cliente.bcoPago, " + 
+							" cliente.diasVencPago," + 
+							" cliente.cod_termPago, " + 
+							" cliente.glosaPago, " + 
+							" ifnull(regiones.nombre,'--'), " + 
+							" ifnull(comunas.nombre,'--'), " + 
+							" ifnull(medioPago.nombre,'--'), " + 
+							" ifnull(tipoCuenta.nombre,'--'), " + 
+							" ifnull(termPago.nombre,'--'), " + 
+							" cliente.fonoContacto, " +
+							" cliente.rutRepresentante1, " +
+							" cliente.nombreRepresentante1, " +
+							" cliente.rutRepresentante2, " +
+							" cliente.nombreRepresentante2, " +
+							" cliente.cargoContactoFactura, " +
+							" cliente.cargoRepresentante1, " +
+							" cliente.cargoRepresentante2, " +
+							" cliente.formaDePago, " +
+							" cliente.especialidad, " +
+							" cliente.vigente " +
+							" from `"+db+"`.cliente " + 
+							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
+							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
+							" left join `"+db+"`.medioPago on medioPago.codigo = cliente.cod_medioPago " + 
+							" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " + 
+							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
+							" where cliente.vigente=1 " +
+							" order by nickName;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {		
+				lista.add(new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
+						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
+						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+						rs.getString(22),rs.getString(23),rs.getString(24),
+						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
+						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34)));
+			}
+			rs.close();smt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -318,7 +390,8 @@ public class Cliente {
 							" cliente.cargoRepresentante1, " +
 							" cliente.cargoRepresentante2, " +
 							" cliente.formaDePago, " +
-							" cliente.especialidad " +
+							" cliente.especialidad, " +
+							" cliente.vigente " +
 							" from `"+db+"`.cliente " + 
 							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
 							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
@@ -327,19 +400,19 @@ public class Cliente {
 							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
 							" where cliente.id = ?;" );
 			smt.setLong(1, id_cliente);
-			ResultSet resultado = smt.executeQuery();
-			if (resultado.next()) {				
-				aux = new Cliente(resultado.getLong(1),resultado.getString(2),resultado.getString(3),
-						resultado.getString(4),resultado.getString(5),resultado.getString(6),resultado.getString(7),resultado.getString(8),resultado.getString(9),
-						resultado.getString(10),resultado.getString(11),resultado.getString(12),resultado.getString(13),resultado.getString(14),resultado.getString(15),
-						resultado.getInt(16),resultado.getString(17),resultado.getString(18),resultado.getString(19),resultado.getString(20),resultado.getString(21),
-						resultado.getString(22),resultado.getString(23),resultado.getString(24),
-						resultado.getString(25),resultado.getString(26),resultado.getString(27),resultado.getString(28),
-						resultado.getString(29),resultado.getString(30),resultado.getString(31),resultado.getString(32),resultado.getString(33));
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {				
+				aux = new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
+						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
+						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+						rs.getString(22),rs.getString(23),rs.getString(24),
+						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
+						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34));
 			}else{
-				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","");
+				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","",(long) 1);
 			}
-			resultado.close();smt.close();
+			rs.close();smt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -383,7 +456,8 @@ public class Cliente {
 							" cliente.cargoRepresentante1, " +
 							" cliente.cargoRepresentante2, " +
 							" cliente.formaDePago, " +
-							" cliente.especialidad " +
+							" cliente.especialidad, " +
+							" cliente.vigente " +
 							" from `"+db+"`.cliente " + 
 							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
 							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
@@ -392,19 +466,19 @@ public class Cliente {
 							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
 							" where cliente.nickName = ?;" );
 			smt.setString(1, nickName);
-			ResultSet resultado = smt.executeQuery();
-			if (resultado.next()) {				
-				aux = new Cliente(resultado.getLong(1),resultado.getString(2),resultado.getString(3),
-						resultado.getString(4),resultado.getString(5),resultado.getString(6),resultado.getString(7),resultado.getString(8),resultado.getString(9),
-						resultado.getString(10),resultado.getString(11),resultado.getString(12),resultado.getString(13),resultado.getString(14),resultado.getString(15),
-						resultado.getInt(16),resultado.getString(17),resultado.getString(18),resultado.getString(19),resultado.getString(20),resultado.getString(21),
-						resultado.getString(22),resultado.getString(23),resultado.getString(24),
-						resultado.getString(25),resultado.getString(26),resultado.getString(27),resultado.getString(28),
-						resultado.getString(29),resultado.getString(30),resultado.getString(31),resultado.getString(32),resultado.getString(33));
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {				
+				aux = new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
+						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
+						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+						rs.getString(22),rs.getString(23),rs.getString(24),
+						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
+						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34));
 			}else{
-				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","");
+				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","",(long) 1);
 			}
-			resultado.close();smt.close();
+			rs.close();smt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

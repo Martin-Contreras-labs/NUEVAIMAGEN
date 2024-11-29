@@ -67,12 +67,12 @@ listEquipos: List[tables.Equipo])
 								</td>
 								<td style="text-align: center">
 						        	@if(lista1.getVigente==1){
-						        		<select class="form-control form-control-sm" id="numDecimal" name="numDecimal" onchange="cambiaEstado(value,'@lista1.getId()')">
+						        		<select class="form-control form-control-sm"  onchange="cambiaEstado(value,'@lista1.getId()')">
 								        	<option value="1">Vigente</option>
 							            	<option value="0">NO</option>
 								        </select>
 						        	}else{
-						        		<select class="form-control form-control-sm" id="numDecimal" name="numDecimal" onchange="cambiaEstado(value,'@lista1.getId()')">
+						        		<select class="form-control form-control-sm"  onchange="cambiaEstado(value,'@lista1.getId()')">
 						        			<option value="0">NO</option>
 								        	<option value="1">Vigente</option>
 								        </select>

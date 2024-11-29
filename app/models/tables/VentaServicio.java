@@ -1741,10 +1741,14 @@ public class VentaServicio {
 		
 		Map<String,List<String>> mapLista = new HashMap<String,List<String>>();
 		listBodegasConEquipos.forEach(x->{
-			mapLista.put(x.get(0), x);
+			if(x.get(3).equals("1")) {
+				mapLista.put(x.get(0), x);
+			}
 		});
 		listBodegasConServicios.forEach(x->{
-			mapLista.put(x.get(0), x);
+			if(x.get(3).equals("1")) {
+				mapLista.put(x.get(0), x);
+			}
 		});
 		
 		List<List<String>> lista = new ArrayList<List<String>>();

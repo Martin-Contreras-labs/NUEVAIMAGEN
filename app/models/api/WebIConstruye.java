@@ -249,7 +249,7 @@ public class WebIConstruye {
 				rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 				String[] auxRut = rutCliente.split("-");
 				if(auxRut.length == 2) {
-					rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+					rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim().toUpperCase();
 				}
 				nomCliente = clienteDestino.getNombre();
 				giroCliente = clienteDestino.getGiro();
@@ -482,7 +482,7 @@ public class WebIConstruye {
 			rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 			String[] auxRut = rutCliente.split("-");
 			if(auxRut.length == 2) {
-				rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim();
+				rutCliente = auxRut[0].trim()+"-"+auxRut[1].trim().toUpperCase();
 			}
 			
 			String nomCliente = cliente.getNombre();

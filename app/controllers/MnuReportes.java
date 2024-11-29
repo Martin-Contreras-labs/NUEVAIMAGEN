@@ -5954,7 +5954,7 @@ public class MnuReportes extends Controller {
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
     			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			List<List<String>> lista = BodegaEmpresa.listaAllBodegasVigentesExternasFiltradas(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> lista = BodegaEmpresa.listaAllBodVigExtFiltClientesVig(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(ajustesEp.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
         	} catch (SQLException e) {

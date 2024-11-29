@@ -756,7 +756,7 @@ public class MnuBodegas extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodVigExternasClientesVig(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(bodegaAsignaTasas.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
         	} catch (SQLException e) {
@@ -989,7 +989,7 @@ public class MnuBodegas extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodVigExternasClientesVig(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(bodegaPrecios.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
         	} catch (SQLException e) {

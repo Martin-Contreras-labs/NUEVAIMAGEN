@@ -608,7 +608,7 @@ public class MnuOdo extends Controller {
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
 	    			
-	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodVigExternasClientesVig(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
 	    			con.close();
 	    			return ok(servicioPrecios.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
 	        	} catch (SQLException e) {
@@ -749,9 +749,9 @@ public class MnuOdo extends Controller {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
-	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodVigExternasClientesVig(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
 	    			Servicio servicio = Servicio.find(con, s.baseDato, id_servicio);
-	    			List<ListaPrecioServicio> listPrecios = ListaPrecioServicio.allXServicio(con, s.baseDato, id_servicio);
+	    			List<ListaPrecioServicio> listPrecios = ListaPrecioServicio.allXServicioClienteVig(con, s.baseDato, id_servicio);
 	    			List<List<String>> listBodegasNoServ = Servicio.allBodegaNoEnSevicio(con, s.baseDato, listBodegas, id_servicio);
 	    			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
 	    			con.close();
@@ -808,7 +808,7 @@ public class MnuOdo extends Controller {
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
 	    			
-	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodVigExternasClientesVig(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
 	    			con.close();
 	    			return ok(servicioPreciosVariable0.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
 	        	} catch (SQLException e) {

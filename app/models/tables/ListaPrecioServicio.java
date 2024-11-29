@@ -237,9 +237,11 @@ public class ListaPrecioServicio {
 					.prepareStatement("select "
 							+ " listaPrecioServicio.id_bodegaEmpresa, "
 							+ " bodegaEmpresa.nombre, "
-							+ " bodegaEmpresa.id_sucursal "
+							+ " bodegaEmpresa.id_sucursal, "
+							+ " ifnull(cliente.vigente,1) "
 							+ " from `"+db+"`.listaPrecioServicio "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = listaPrecioServicio.id_bodegaEmpresa "
+							+ " left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente "
 							+ " where listaPrecioServicio.vigente = 1 and bodegaEmpresa.vigente = 1 " +condSucursal
 							+ " group by listaPrecioServicio.id_bodegaEmpresa, bodegaEmpresa.nombre "
 							+ " order by bodegaEmpresa.nombre;");
@@ -255,6 +257,7 @@ public class ListaPrecioServicio {
 				aux.add(rs.getString(1));
 				aux.add(rs.getString(2));
 				aux.add(nameSucursal);
+				aux.add(rs.getString(4));
 				lista.add(aux);
 			}
 			rs.close();
@@ -481,6 +484,100 @@ public class ListaPrecioServicio {
 				}
 				BodegaEmpresa bodega = mapBodega.get(rs1.getLong(1));
 				if(bodega!=null) {
+					lista.add(new ListaPrecioServicio(
+							rs1.getLong(1),									// 0 listaPrecioServicio.id_bodegaEmpresa
+							rs1.getLong(2),									// 1 listaPrecioServicio.id_equipo
+							rs1.getLong(3),									// 2 listaPrecioServicio.id_moneda
+							rs1.getString(4),								// 3 listaPrecioServicio.fecha
+							rs1.getDouble(5),								// 4 listaPrecioServicio.precio double
+							rs1.getLong(6),									// 5 listaPrecioServicio.esVariable
+							rs1.getLong(11),								// 6 listaPrecioServicio.vigente
+							bodega.getNombre(),								// 7 nombre bodega
+							rs1.getString(7),								// 8 servicio.codigo
+							rs1.getString(8),								// 9 servicio.nombre
+							nickMoneda,										// 10 nick moneda
+							myformatdouble.format(rs1.getDouble(5)),		// 11 precio str con formato
+							rs1.getLong(9),									// 12 servicio.id_unidadServicio
+							nombreUnidad,									// 13 nombreUnidadServicio
+							rs1.getLong(10),								// 14 servicio.id_claseServicio
+							nombreClase,									// 15 nombreClaseServicio
+							rs1.getLong(13),								// 16 listaPrecioServicio.aplicaMinimo
+							rs1.getDouble(14),								// 17 listaPrecioServicio.cantMinimo
+							rs1.getDouble(15),								// 18 listaPrecioServicio.precioAdicional
+							myformatdouble2.format(rs1.getDouble(14)),		// 19 cantMinimo con formato
+							myformatdouble.format(rs1.getDouble(15)),		// 20 precioAdicional con formato
+							rs1.getLong(16),								// 21 listaPrecioServicio.id_cotiOdo
+							rs1.getLong(17)									// 22 cotiOdo.numero
+						));
+				}
+			}
+			rs1.close();
+			smt1.close();
+		} catch (SQLException e) {
+				e.printStackTrace();
+		}
+		return (lista);
+	}
+	
+	public static List<ListaPrecioServicio> allXServicioClienteVig(Connection con, String db, Long id_servicio) {
+		List<ListaPrecioServicio> lista = new ArrayList<ListaPrecioServicio>();
+		Map<Long,Moneda> mapMoneda = Moneda.mapMonedas(con, db);
+		Map<Long,UnidadServicio> mapUnidad = UnidadServicio.mapAll(con, db);
+		Map<Long,ClaseServicio> mapClase = ClaseServicio.mapAll(con, db);
+		try {
+			PreparedStatement smt1 = con
+					.prepareStatement(" select "
+							+ " listaPrecioServicio.id_bodegaEmpresa,"
+							+ " listaPrecioServicio.id_servicio,"
+							+ " listaPrecioServicio.id_moneda,"
+							+ " listaPrecioServicio.fecha,"
+							+ " listaPrecioServicio.precio,"
+							+ " listaPrecioServicio.esVariable,"
+							+ " servicio.codigo,"
+							+ " servicio.nombre,"
+							+ " servicio.id_unidadServicio,"
+							+ " servicio.id_claseServicio,"
+							+ " listaPrecioServicio.vigente, "
+							+ " servicio.descripcion, "
+							+ " listaPrecioServicio.aplicaMinimo, "
+							+ " listaPrecioServicio.cantMinimo, "
+							+ " listaPrecioServicio.precioAdicional, "
+							+ " listaPrecioServicio.id_cotiOdo, "
+							+ " cotiOdo.numero "
+							+ " from `"+db+"`.listaPrecioServicio " 
+							+ " left join `"+db+"`.servicio on servicio.id = listaPrecioServicio.id_servicio " 
+							+ " left join `"+db+"`.cotiOdo on cotiOdo.id = listaPrecioServicio.id_cotiOdo " 
+							+ " where listaPrecioServicio.id_servicio = ? ;");
+			smt1.setLong(1, id_servicio);
+			ResultSet rs1 = smt1.executeQuery();
+			
+			Map<Long,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAll(con, db);
+		
+			while (rs1.next()) {
+				Moneda moneda = mapMoneda.get(rs1.getLong(3));
+				switch(moneda.getNumeroDecimales().toString()) {
+				 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+				 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 	default:  break;
+				}
+				String nickMoneda = "";
+				if(moneda!=null){
+					nickMoneda = moneda.getNickName();
+				}
+				UnidadServicio unidad = mapUnidad.get(rs1.getLong(9));
+				String nombreUnidad = "";
+				if(unidad!=null){
+					nombreUnidad = unidad.getNombre();
+				}
+				ClaseServicio claseServicio = mapClase.get(rs1.getLong(10));
+				String nombreClase = "";
+				if(claseServicio!=null){
+					nombreClase = claseServicio.getNombre();
+				}
+				BodegaEmpresa bodega = mapBodega.get(rs1.getLong(1));
+				if(bodega!=null && bodega.getClienteVigente() == (long)1) {
 					lista.add(new ListaPrecioServicio(
 							rs1.getLong(1),									// 0 listaPrecioServicio.id_bodegaEmpresa
 							rs1.getLong(2),									// 1 listaPrecioServicio.id_equipo

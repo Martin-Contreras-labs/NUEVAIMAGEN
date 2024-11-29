@@ -14,17 +14,31 @@ listaAconfirmar: List[List[String]])
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
 							<TR>
+								<TH colspan="12">DATOS DE LA COMPRA</TH>
+								<TH colspan="4">MAESTRO PRECIOS LISTA</TH>
+								<TH>CONFIRMAR</TH>
+							</TR>
+							<TR>
 								<TH style="min-width:80px;">FECHA<BR>COMPRA</TH>
-								<TH>NUMERO<BR>DOCUMENTO</TH>
-								<TH>OBSERVACIONES</TH>
+								<TH>Nro<BR>DOC</TH>
+								<TH>OBS</TH>
 								<TH>CODIGO<BR>EQUIPO</TH>
 								<TH>NOMBRE<BR>EQUIPO</TH>
-								<TH>UNIDAD</TH>
-								<TH>CANTIDAD</TH>
+								<TH>UN<br>COMPRA</TH>
+								<TH>CANT<br>COMPRA</TH>
+								<TH>MON<br>COMPRA</TH>
+								<TH>P.U.<br>COMPRA</TH>
+								<TH>TOTAL<br>COMPRA</TH>
 								<TH>SUCURSAL</TH>
 								<TH>@mapDiccionario.get("BODEGA")<BR>DESTINO</TH>
+								
+								<TH>MONEDA<BR>Rep/@mapDiccionario.get("Arr")</TH>
+								<TH>PRECIO<br>Repos o Venta</TH>
+								<TH>UNIDAD<BR>@mapDiccionario.get("Arriendo")</TH>
+								<TH>PRECIO<br>@mapDiccionario.get("Arriendo")</TH>
+								
+								
 								<TH>
-									CONFIRMAR<br>
 									<input id="btnSelectAll" type="button" class="btn btn-sm btn-secondary" onclick="selectAll()" value="Select Todo">
 								</TH>
 							</TR>
@@ -43,8 +57,21 @@ listaAconfirmar: List[List[String]])
 									<td  style="text-align:left;">@lista1.get(6)</td>
 									<td  style="text-align:center;">@lista1.get(7)</td>
 									<td  style="text-align:right;">@lista1.get(8)</td>
+									
+									<td  style="text-align:center;">@lista1.get(15)</td>
+									<td  style="text-align:right;">@lista1.get(16)</td>
+									<td  style="text-align:right;">@lista1.get(17)</td>
+									
 									<td  style="text-align:left;">@lista1.get(12)</td>
 									<td  style="text-align:left;">@lista1.get(9)</td>
+									
+									<td  style="text-align:center;">@lista1.get(18)</td>
+									<td  style="text-align:right;">@lista1.get(19)</td>
+									<td  style="text-align:center;">@lista1.get(20)</td>
+									<td  style="text-align:right;">@lista1.get(21)</td>
+									
+									
+									
 									<td  style="text-align:center;">
 									
 										<input type="hidden" class="idCompra" value="@lista1.get(0)">
@@ -112,10 +139,11 @@ listaAconfirmar: List[List[String]])
 	
 			
 	const selectAll = () => {
-		$(".checkVal").attr('checked',true);
+		$(".checkVal").attr('checked',false);
 		let filas = $(".checkVal").length;
 		let aux = "";
 		for(let i=0; i<filas; i++){
+			$(".checkVal")[i].checked = true;
 			$(".checkVal")[i].value = "1";
 			let cantidad = $(".cantCant")[i].value;
 			cantidad = cantidad.replace(/,/g,'');

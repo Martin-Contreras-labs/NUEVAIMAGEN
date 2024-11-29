@@ -73,6 +73,7 @@
 						        + "<TH>E-Mail</TH>"
 						        + "<TH>Telefono</TH>"
 								+ "<TH>EDIT</TH>"
+								+ "<TH>VIGENTE</TH>"
 								+ "<TH>DEL</TH>"
 							+ "</TR>"
 						+ "</thead>"
@@ -96,6 +97,23 @@
 									+ "<kbd style=\"background-color: #73C6B6\">E</kbd>"
 								+ "</a>"
 							+ "</td>"
+							
+							+ "<td  style=\"text-align:left;\">";
+
+									if(json[i]["vigente"]==1){
+						        		tabla += "<select class=\"form-control form-control-sm\" onchange=\"cambiaEstado(value,'"+json[i]["id"]+"')\">"
+								        	+ "<option value=\"1\">Vigente</option>"
+							            	+ "<option value=\"0\">NO</option>"
+								        + "</select>";
+						        	}else{
+						        		tabla += "<select class=\"form-control form-control-sm\" onchange=\"cambiaEstado(value,'"+json[i]["id"]+"')\">"
+						        			+ "<option value=\"0\">NO</option>"
+								        	+ "<option value=\"1\">Vigente</option>"
+								        + "<option value=\"1\">Vigente</option>"
+						        	}
+
+							tabla += "</td>"
+							
 							+ "<td  style=\"text-align:center;\">"
 								+ "<a href=\"#\" onclick= \"eliminarCliente('"+json[i]["id"]+"')\">"
 									+ "<kbd style=\"background-color: red\">X</kbd>"
@@ -146,6 +164,27 @@
 			}
 		});
 	}
+	
+	const cambiaEstado = (estado,id_cliente) =>{
+    	var formData = new FormData();
+	  	formData.append('id_cliente',id_cliente);
+	  	formData.append('estado',estado);
+        $.ajax({
+            url: "/routes2/clienteCambiaEstado/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(!respuesta.status){
+	     				location.reload();
+				}
+	     	}
+        });
+	}
+	
 </script>
 
 

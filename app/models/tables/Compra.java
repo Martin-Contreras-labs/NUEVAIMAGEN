@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
 import models.utilities.Archivos;
+import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 
 
@@ -256,7 +257,7 @@ public class Compra {
 		return (flag);
 	}
 	
-	public static List<List<String>> listaConfirmaIngreso(Connection con, String db, String esPorSucursal, String id_sucursal) {
+	public static List<List<String>> listaConfirmaIngreso(Connection con, String db, String esPorSucursal, String id_sucursal, Map<String,String> mapeoDiccionario) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
@@ -279,7 +280,10 @@ public class Compra {
 							" factura.observaciones, " +
 							" sucursal.nombre, " +
 							" bodegaEmpresa.id_sucursal, " +
-							" factura.id " +
+							" factura.id, " +
+							" compra.id_moneda, " +
+							" compra.precioUnidad, " +
+							" compra.cantidad*compra.precioUnidad " +
 							" from `"+db+"`.factura " +
 							" left join `"+db+"`.compra on compra.id_factura = factura.id " +
 							" left join `"+db+"`.equipo on equipo.id = compra.id_equipo " +
@@ -288,8 +292,52 @@ public class Compra {
 							" left join `"+db+"`.sucursal on sucursal.id = bodegaEmpresa.id_sucursal " +
 							" where codigo is not null and esModificable=1 and bodegaEmpresa.nombre is not null " + condSucursal +
 							" order by factura.fecha desc, equipo.nombre;");
+	
 			ResultSet rs = smt.executeQuery();
+			
+			Map<String,Precio> mapAllSucursales = Precio.mapAllSucursales(con, db, mapeoDiccionario);
+			Map<Long,Moneda> mapMonedas =  Moneda.mapMonedas(con, db);
+			Map<Long,UnidadTiempo> mapUnTiempo = UnidadTiempo.mapUnidadTiempo(con, db);
+			
+			
 			while (rs.next()) {
+				Long idSucursal = rs.getLong(14);
+				Long idEquipo = rs.getLong(11);
+				Long idMoneda =  rs.getLong(16);
+				Double pCompra = rs.getDouble(17);
+				Double tCompra = rs.getDouble(18);
+				
+				
+				Moneda moneda = mapMonedas.get(idMoneda);
+				if(moneda == null) {
+					moneda = Moneda.find(con, db, (long)1);
+				}
+				String monCompra = moneda.getNickName();
+				Long decimales = moneda.getNumeroDecimales();
+				String puCompra = DecimalFormato.formato(pCompra, decimales);
+				String totCompra = DecimalFormato.formato(tCompra, decimales);
+				
+				Precio precio = mapAllSucursales.get(idSucursal + "_" + idEquipo);
+				String monVta = "";
+				String puVta = "";
+				String unTiempo = "";
+				String puArr = "";
+				if(precio != null) {
+					monVta = precio.getNombreMoneda();
+					puVta = precio.getPrecioReposicion();
+					unTiempo = precio.getNombreUnidadTiempo();
+					puArr = precio.getPrecioArriendo();
+				}else {
+					moneda = Moneda.find(con, db, (long)1);
+					puVta = "0";
+					unTiempo = "MES";
+					puArr = "0";
+				}
+				
+				
+				
+				
+				
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1));							// 0 compra.id
 				aux.add(rs.getString(2));							// 1 esModificable
@@ -306,6 +354,16 @@ public class Compra {
 				aux.add(rs.getString(13));							// 12 nameSucursal
 				aux.add(rs.getString(14));							// 13 id sucursal
 				aux.add(rs.getString(15));							// 14 id factura
+				
+				aux.add(monCompra);						// 15 monde de compra
+				aux.add(puCompra);						// 16 pu compra
+				aux.add(totCompra);						// 17 total compra
+				aux.add(monVta);						// 18 moneda vta y arr
+				aux.add(puVta);							// 19 pu vta
+				aux.add(unTiempo);						// 20 unidad tiempo
+				aux.add(puArr);							// 21 pu arriendo
+				
+				
 				lista.add(aux);
 			}
 			rs.close();

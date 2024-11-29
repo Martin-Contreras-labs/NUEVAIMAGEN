@@ -588,12 +588,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
-//    			Fechas hoy = Fechas.hoy();
-//    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-//    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-//    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			
+
     			Fechas hoy = Fechas.hoy();
     			String hasta = Fechas.addDias(hoy.getFechaCal(), 5).getFechaStrAAMMDD();
     			String desde = Fechas.addDias(hoy.getFechaCal(), -26).getFechaStrAAMMDD();
@@ -666,7 +661,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		    			permisoPorBodega = " and (" + permisoPorBodega + " or " + permisoPorBodega.replaceAll("`guia`.`id_bodegaDestino`", "`guia`.`id_bodegaOrigen`") + ") ";
 	    			}
 	    			
-	    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNeg(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
+	    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNegClientesVig(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
 	    		
 	
 	    			String jsonGuias = Json.toJson(listaGuias).toString();
@@ -1260,7 +1255,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			}
 	    			
 	    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNeg(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
-	    			File file = Guia.movimientoListarExcel(s.baseDato, listaGuias, mapeoDiccionario);
+	    			File file = Guia.movimientoListarExcel(mapeoPermiso, s.baseDato, listaGuias, mapeoDiccionario);
 	   
 	    			if(file!=null) {
 		       			con.close();

@@ -89,7 +89,7 @@ public class MnuCotiOdo extends Controller {
     			formCotizaOdo = new FormCotizaOdo(numCotiOdo, fecha);
     			formCotizaOdo.id_cotiOdo = (long)0;
     			List<Servicio> listServicios = Servicio.all(con, s.baseDato);
-    			List<Cliente> listClientes = Cliente.all(con, s.baseDato);
+    			List<Cliente> listClientes = Cliente.allsoloVigentes(con, s.baseDato);
     			List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
     			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
     			List<CotiOdo> listaCotiOdo = CotiOdo.all(con, s.baseDato);
@@ -292,23 +292,23 @@ public class MnuCotiOdo extends Controller {
     			listCotiOdo.forEach(x->{
     				Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());			// 0 id_cotiOdo
+        				aux.add(x.getNumero().toString());		// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));	// 2 fecha
+        				aux.add(nomCliente);					// 3 nombre de cliente
+        				aux.add(x.getObservaciones());			// 4 observaciones
+        				aux.add(x.getCotiOdoPDF());				// 5 doc adjunto
+        				aux.add(nomProyecto);					// 6 nombre de proyecto
+        				lista.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());			// 0 id_cotiOdo
-    				aux.add(x.getNumero().toString());		// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));	// 2 fecha
-    				aux.add(nomCliente);					// 3 nombre de cliente
-    				aux.add(x.getObservaciones());			// 4 observaciones
-    				aux.add(x.getCotiOdoPDF());				// 5 doc adjunto
-    				aux.add(nomProyecto);					// 6 nombre de proyecto
-    				lista.add(aux);
     			});
     			con.close();
     			return ok(cotiOdoListaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
@@ -395,7 +395,7 @@ public class MnuCotiOdo extends Controller {
     				formCotizaOdo.dctoOdo = DecimalFormato.formato(cotiOdo.getDctoOdo()*100, (long)2);
     				
         			List<List<String>> listadoServicios = FormCotizaOdo.listServiciosConValoresCoti(con, s.baseDato, id_cotiOdo);
-        			List<Cliente> listClientes = Cliente.all(con, s.baseDato);
+        			List<Cliente> listClientes = Cliente.allsoloVigentes(con, s.baseDato);
         			List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
         			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
         			
@@ -498,28 +498,29 @@ public class MnuCotiOdo extends Controller {
     				String nomCliente = "";
     				if(cliente!=null) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotizacion
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotiOdoPDF());				// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				lista.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotizacion
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotiOdoPDF());				// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				lista.add(aux);
+    				
     			});
     			List<CotizaEstado> listEstados = CotizaEstado.all(con, s.baseDato);
     			con.close();
@@ -848,33 +849,34 @@ public class MnuCotiOdo extends Controller {
     			listCoti.forEach(x->{
     				Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotiOdo
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotiOdoPDF());					// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+        				aux.add(x.getPdfCotiVtaOdo());				// 10 pdf venta generado
+        				aux.add(x.dateCreate.toString());			// 11 pdf fecha y hora generado
+        				lista.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotiOdo
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotiOdoPDF());					// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-    				aux.add(x.getPdfCotiVtaOdo());				// 10 pdf venta generado
-    				aux.add(x.dateCreate.toString());			// 11 pdf fecha y hora generado
-    				lista.add(aux);
+    				
     			});
     			con.close();
     			return ok(cotiOdoListaConfirma.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
@@ -940,33 +942,34 @@ public class MnuCotiOdo extends Controller {
     			listCoti.forEach(x->{
     				Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotizacion
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotiOdoPDF());					// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+        				aux.add(x.getPdfCotiVtaOdo());				// 10 pdf arriendo generado
+        				aux.add(x.dateCreate.toString());			// 11 pdf venta generado
+        				lista.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotizacion
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotiOdoPDF());					// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-    				aux.add(x.getPdfCotiVtaOdo());				// 10 pdf arriendo generado
-    				aux.add(x.dateCreate.toString());			// 11 pdf venta generado
-    				lista.add(aux);
+    				
     			});
     			con.close();
     			return ok(otOdoListaCotizaSinOt.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
@@ -1100,6 +1103,7 @@ public class MnuCotiOdo extends Controller {
     			List<OtOdo> listOtOdo = OtOdo.allxConfirmar(con, s.baseDato);
     			Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
     			Map<Long,CotiOdo> mapCotiOdo = CotiOdo.mapAllConOt(con, s.baseDato);
+    			Map<Long,Cliente> mapClientes = Cliente.mapAllClientes(con, s.baseDato);
     			List<List<String>> lista = new ArrayList<List<String>>();
     			listOtOdo.forEach(x->{
     				CotiOdo cotiOdo = mapCotiOdo.get(x.getId_cotiOdo());
@@ -1114,32 +1118,54 @@ public class MnuCotiOdo extends Controller {
     					id_bodegaEmpresa = cotiOdo.getId_bodegaEmpresa();
     					obsCotiOdo = cotiOdo.getObservaciones();
     					cotiOdoPDF = cotiOdo.getCotiOdoPDF();
+    					BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
+        				String nomCliente = "";
+        				String nomProyecto = "";
+        				String nomBodega = "";
+        				if(bodega!=null && bodega.getClienteVigente() == (long)1) {
+        					nomCliente = bodega.getNickCliente();
+        					nomProyecto = bodega.getNickProyecto();
+        					nomBodega = bodega.getNombre();
+        					List<String> aux = new ArrayList<String>();
+            				aux.add(x.getId().toString());				// 0 id_OtOdo
+            				aux.add(x.getId_cotiOdo().toString());		// 1 id_CotiOdo
+            				aux.add(x.getNumero().toString());			// 2 numero de ot odo
+            				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot odo
+            				aux.add(numCoti);							// 4 numero de coti odo
+            				aux.add(fechaCoti);							// 5 fecha de coti odo
+            				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
+            				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
+            				aux.add(x.getObservaciones());				// 8 observaciones de ot odo
+            				aux.add(obsCotiOdo);						// 9 observaciones de coti odo
+            				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot odo
+            				aux.add(cotiOdoPDF);						// 11 doc adjunto de coti odo
+            				aux.add(nomBodega);							// 12 nombre bodega empresa
+            				lista.add(aux);
+        				}else {
+        					Cliente cliente = mapClientes.get(cotiOdo.getId_cliente());
+        					if(cliente!=null && cliente.getVigente() == (long)1) {
+        						nomCliente = cliente.getNickName();
+            					List<String> aux = new ArrayList<String>();
+                				aux.add(x.getId().toString());				// 0 id_OtOdo
+                				aux.add(x.getId_cotiOdo().toString());		// 1 id_CotiOdo
+                				aux.add(x.getNumero().toString());			// 2 numero de ot odo
+                				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot odo
+                				aux.add(numCoti);							// 4 numero de coti odo
+                				aux.add(fechaCoti);							// 5 fecha de coti odo
+                				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
+                				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
+                				aux.add(x.getObservaciones());				// 8 observaciones de ot odo
+                				aux.add(obsCotiOdo);						// 9 observaciones de coti odo
+                				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot odo
+                				aux.add(cotiOdoPDF);						// 11 doc adjunto de coti odo
+                				aux.add(nomBodega);							// 12 nombre bodega empresa
+                				lista.add(aux);
+        					}
+        				}
+        				
     				}
     				
-    				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
-    				String nomCliente = "";
-    				String nomProyecto = "";
-    				String nomBodega = "";
-    				if(bodega!=null) {
-    					nomCliente = bodega.getNickCliente();
-    					nomProyecto = bodega.getNickProyecto();
-    					nomBodega = bodega.getNombre();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_OtOdo
-    				aux.add(x.getId_cotiOdo().toString());		// 1 id_CotiOdo
-    				aux.add(x.getNumero().toString());			// 2 numero de ot odo
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot odo
-    				aux.add(numCoti);							// 4 numero de coti odo
-    				aux.add(fechaCoti);							// 5 fecha de coti odo
-    				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
-    				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
-    				aux.add(x.getObservaciones());				// 8 observaciones de ot odo
-    				aux.add(obsCotiOdo);						// 9 observaciones de coti odo
-    				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot odo
-    				aux.add(cotiOdoPDF);						// 11 doc adjunto de coti odo
-    				aux.add(nomBodega);							// 12 nombre bodega empresa
-    				lista.add(aux);
+    				
     			});
     			con.close();
     			return ok(otOdoListaConfirma.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
@@ -1202,6 +1228,7 @@ public class MnuCotiOdo extends Controller {
     			Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
     			Map<Long,CotiOdo> mapCotiOdo = CotiOdo.mapAllConOt(con, s.baseDato);
     			List<List<String>> lista = new ArrayList<List<String>>();
+    			Map<Long,Cliente> mapClientes = Cliente.mapAllClientes(con, s.baseDato);
     			listOtOdo.forEach(x->{
     				CotiOdo coti = mapCotiOdo.get(x.getId_cotiOdo());
     				String numCoti = "";
@@ -1215,33 +1242,56 @@ public class MnuCotiOdo extends Controller {
     					id_bodegaEmpresa = coti.getId_bodegaEmpresa();
     					obsCoti = coti.getObservaciones();
     					cotiPDF = coti.getCotiOdoPDF();
+    					BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
+        				String nomCliente = "";
+        				String nomProyecto = "";
+        				String nomBodega = "";
+        				if(bodega!=null && bodega.getClienteVigente() == (long)1) {
+        					nomCliente = bodega.getNickCliente();
+        					nomProyecto = bodega.getNickProyecto();
+        					nomBodega = bodega.getNombre();
+        					List<String> aux = new ArrayList<String>();
+            				aux.add(x.getId().toString());				// 0 id_Ot
+            				aux.add(x.getId_cotiOdo().toString());		// 1 id_Cotizacion
+            				aux.add(x.getNumero().toString());			// 2 numero de ot
+            				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
+            				aux.add(numCoti);							// 4 numero de cotizacion
+            				aux.add(fechaCoti);							// 5 fecha de cotizacion
+            				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
+            				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
+            				aux.add(x.getObservaciones());				// 8 observaciones de ot
+            				aux.add(obsCoti);							// 9 observaciones de cotizacion
+            				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot
+            				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
+            				aux.add(nomBodega);							// 12 nombre bodega empresa
+            				lista.add(aux);
+        				}else if(bodega == null) {
+        					Cliente cliente = mapClientes.get(coti.getId_cliente());
+        					if(cliente!=null && cliente.getVigente() == (long)1) {
+        						nomCliente = cliente.getNickName();
+            					List<String> aux = new ArrayList<String>();
+                				aux.add(x.getId().toString());				// 0 id_Ot
+                				aux.add(x.getId_cotiOdo().toString());		// 1 id_Cotizacion
+                				aux.add(x.getNumero().toString());			// 2 numero de ot
+                				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
+                				aux.add(numCoti);							// 4 numero de cotizacion
+                				aux.add(fechaCoti);							// 5 fecha de cotizacion
+                				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
+                				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
+                				aux.add(x.getObservaciones());				// 8 observaciones de ot
+                				aux.add(obsCoti);							// 9 observaciones de cotizacion
+                				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot
+                				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
+                				aux.add(nomBodega);							// 12 nombre bodega empresa
+                				lista.add(aux);
+                				
+        					}
+        				}
     				}
     				
-    				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
-    				String nomCliente = "";
-    				String nomProyecto = "";
-    				String nomBodega = "";
-    				if(bodega!=null) {
-    					nomCliente = bodega.getNickCliente();
-    					nomProyecto = bodega.getNickProyecto();
-    					nomBodega = bodega.getNombre();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_Ot
-    				aux.add(x.getId_cotiOdo().toString());		// 1 id_Cotizacion
-    				aux.add(x.getNumero().toString());			// 2 numero de ot
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
-    				aux.add(numCoti);							// 4 numero de cotizacion
-    				aux.add(fechaCoti);							// 5 fecha de cotizacion
-    				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
-    				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
-    				aux.add(x.getObservaciones());				// 8 observaciones de ot
-    				aux.add(obsCoti);							// 9 observaciones de cotizacion
-    				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot
-    				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
-    				aux.add(nomBodega);							// 12 nombre bodega empresa
-    				lista.add(aux);
+    				
     			});
+    			
     			con.close();
     			return ok(otOdoListaEliminar.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
         	} catch (SQLException e) {
@@ -1410,6 +1460,7 @@ public class MnuCotiOdo extends Controller {
     			Map<Long,OtEstado> mapOtEstado = OtEstado.mapAll(con, s.baseDato);
     			List<List<String>> lista = new ArrayList<List<String>>();
     			Map<Long,OperadorServicio> mapOperadorServicio = OperadorServicio.mapAll(con, s.baseDato);
+    			Map<Long,Cliente> mapClientes = Cliente.mapAllClientes(con, s.baseDato);
     			 
     			listOtOdo.forEach(x->{
     				CotiOdo cotiOdo = mapCotiOdo.get(x.getId_cotiOdo());
@@ -1424,57 +1475,91 @@ public class MnuCotiOdo extends Controller {
     					id_bodegaEmpresa = cotiOdo.getId_bodegaEmpresa();
     					obsCoti = cotiOdo.getObservaciones();
     					cotiPDF = cotiOdo.getCotiOdoPDF();
+    					BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
+        				String nomCliente = "";
+        				String nomProyecto = "";
+        				String nomBodega = "";
+        				OtEstado estado = mapOtEstado.get(x.getId_otEstado());
+        				String id_estado = "0";
+        				String nomEstado = "";
+        				
+        				if(estado!=null) {
+        					id_estado = estado.getId().toString();
+        					nomEstado = estado.getEstado();
+        				}
+        				
+        				OperadorServicio operadorServicio = mapOperadorServicio.get(x.getId_operadorServicio());
+        				if(operadorServicio==null) {
+        					operadorServicio = new OperadorServicio();
+        					operadorServicio.id = (long)0;
+        					operadorServicio.nombre = "";
+        				}
+        				
+        				if(bodega!=null) {
+        					nomCliente = bodega.getNickCliente();
+        					nomProyecto = bodega.getNickProyecto();
+        					nomBodega = bodega.getNombre();
+            						
+            				List<String> aux = new ArrayList<String>();
+            				aux.add(x.getId().toString());				// 0 id_Ot
+            				aux.add(x.getId_cotiOdo().toString());		// 1 id_Cotizacion
+            				aux.add(x.getNumero().toString());			// 2 numero de ot
+            				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
+            				aux.add(numCoti);							// 4 numero de cotizacion
+            				aux.add(fechaCoti);							// 5 fecha de cotizacion
+            				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
+            				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
+            				aux.add(x.getObservaciones());				// 8 observaciones de ot
+            				aux.add(obsCoti);							// 9 observaciones de cotizacion
+            				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot
+            				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
+            				aux.add(id_estado);							// 12 id_estado
+            				aux.add(nomEstado);							// 13 nombre estado
+            				aux.add(nomBodega);							// 14 nombre bodega empresa
+            				
+            				aux.add(x.getId_operadorServicio().toString());	// 15 id operadorServicio
+            				aux.add(x.getFechaActualizacion());				// 16 fecha actualizacion
+            				aux.add(x.fechaEnvio);							// 17 fecha de envio
+            				
+            				aux.add(operadorServicio.nombre);				// 18 nombre operadorServicio
+            				
+            				lista.add(aux);
+        				}else {
+        					Cliente cliente = mapClientes.get(cotiOdo.getId_cliente());
+        					if(cliente!=null) {
+        						nomCliente = cliente.getNickName();
+        						List<String> aux = new ArrayList<String>();
+                				aux.add(x.getId().toString());				// 0 id_Ot
+                				aux.add(x.getId_cotiOdo().toString());		// 1 id_Cotizacion
+                				aux.add(x.getNumero().toString());			// 2 numero de ot
+                				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
+                				aux.add(numCoti);							// 4 numero de cotizacion
+                				aux.add(fechaCoti);							// 5 fecha de cotizacion
+                				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
+                				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
+                				aux.add(x.getObservaciones());				// 8 observaciones de ot
+                				aux.add(obsCoti);							// 9 observaciones de cotizacion
+                				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot
+                				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
+                				aux.add(id_estado);							// 12 id_estado
+                				aux.add(nomEstado);							// 13 nombre estado
+                				aux.add(nomBodega);							// 14 nombre bodega empresa
+                				
+                				aux.add(x.getId_operadorServicio().toString());	// 15 id operadorServicio
+                				aux.add(x.getFechaActualizacion());				// 16 fecha actualizacion
+                				aux.add(x.fechaEnvio);							// 17 fecha de envio
+                				
+                				aux.add(operadorServicio.nombre);				// 18 nombre operadorServicio
+                				
+                				lista.add(aux);
+                				
+        					}
+        					
+        				}
     				}
     				
-    				BodegaEmpresa bodega = mapBodegas.get(id_bodegaEmpresa);
-    				String nomCliente = "";
-    				String nomProyecto = "";
-    				String nomBodega = "";
-    				if(bodega!=null) {
-    					nomCliente = bodega.getNickCliente();
-    					nomProyecto = bodega.getNickProyecto();
-    					nomBodega = bodega.getNombre();
-    				}
-    				OtEstado estado = mapOtEstado.get(x.getId_otEstado());
-    				String id_estado = "0";
-    				String nomEstado = "";
     				
-    				if(estado!=null) {
-    					id_estado = estado.getId().toString();
-    					nomEstado = estado.getEstado();
-    				}
     				
-    				OperadorServicio operadorServicio = mapOperadorServicio.get(x.getId_operadorServicio());
-    				if(operadorServicio==null) {
-    					operadorServicio = new OperadorServicio();
-    					operadorServicio.id = (long)0;
-    					operadorServicio.nombre = "";
-    				}
-    						
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_Ot
-    				aux.add(x.getId_cotiOdo().toString());		// 1 id_Cotizacion
-    				aux.add(x.getNumero().toString());			// 2 numero de ot
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 3 fecha de ot
-    				aux.add(numCoti);							// 4 numero de cotizacion
-    				aux.add(fechaCoti);							// 5 fecha de cotizacion
-    				aux.add(nomCliente);						// 6 nombre de cliente desde bodegaempresa
-    				aux.add(nomProyecto);						// 7 nombre de proyecto desde bodegaempresa
-    				aux.add(x.getObservaciones());				// 8 observaciones de ot
-    				aux.add(obsCoti);							// 9 observaciones de cotizacion
-    				aux.add(x.getOtOdoPDF());					// 10 doc adjunto de ot
-    				aux.add(cotiPDF);							// 11 doc adjunto de cotizacion
-    				aux.add(id_estado);							// 12 id_estado
-    				aux.add(nomEstado);							// 13 nombre estado
-    				aux.add(nomBodega);							// 14 nombre bodega empresa
-    				
-    				aux.add(x.getId_operadorServicio().toString());	// 15 id operadorServicio
-    				aux.add(x.getFechaActualizacion());				// 16 fecha actualizacion
-    				aux.add(x.fechaEnvio);							// 17 fecha de envio
-    				
-    				aux.add(operadorServicio.nombre);				// 18 nombre operadorServicio
-    				
-    				lista.add(aux);
     			});
     			List<OtEstado> listEstados = OtEstado.all(con, s.baseDato);
     			List<OperadorServicio> listOperadoresServicio = OperadorServicio.all(con, s.baseDato);
@@ -2012,33 +2097,34 @@ public class MnuCotiOdo extends Controller {
     			listCotiOdo.forEach(x->{
     				Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotizacion
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotiOdoPDF());				// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+        				aux.add(x.getPdfCotiVtaOdo());				// 10 pdf arriendo generado
+        				aux.add(x.getContratoPDF());				// 11 pdf contrato pdf anexado
+        				lista.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotizacion
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotiOdoPDF());				// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-    				aux.add(x.getPdfCotiVtaOdo());				// 10 pdf arriendo generado
-    				aux.add(x.getContratoPDF());				// 11 pdf contrato pdf anexado
-    				lista.add(aux);
+    				
     			});
     			con.close();
     			return ok(otOdoGenerarContrato.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,listAnios));

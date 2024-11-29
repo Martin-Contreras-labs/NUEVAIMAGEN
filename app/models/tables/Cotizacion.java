@@ -2212,6 +2212,67 @@ public class Cotizacion {
 		return(listCotizacion);
 	}
 	
+	public static List<List<String>> listCotiAllSinConfirmarClientesVig(Connection con, String db, String esPorSucursal, String id_sucursal, String desde, String hasta){
+		List<List<String>> listCotizacion = new ArrayList<List<String>>();
+		List<Cotizacion> listCoti = Cotizacion.allSinConfirmar(con, db);
+		Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
+		Map<Long, Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
+		if(esPorSucursal.equals("1")) {
+			listCoti.forEach(x->{
+				if(x.id_sucursal.toString().equals(id_sucursal)) {
+					Cliente cliente = mapCliente.get(x.getId_cliente());
+					String nomCliente = "";
+					if(cliente!=null && cliente.getVigente() == (long)1) {
+						nomCliente = cliente.nickName;
+						Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+						String nomProyecto = "";
+						if(proyecto!=null) {
+							nomProyecto = proyecto.nickName;
+						}
+						List<String> aux = new ArrayList<String>();
+						aux.add(x.getId().toString());			// 0 id_cotizacion
+						aux.add(x.getNumero().toString());		// 1 numero de cotizacion
+						aux.add(Fechas.AAMMDD(x.getFecha()));	// 2 fecha
+						aux.add(nomCliente);					// 3 nombre de cliente
+						aux.add(x.getObservaciones());			// 4 observaciones
+						aux.add(x.getCotizacionPDF());			// 5 doc adjunto
+						aux.add(nomProyecto);					// 6 nombre de proyecto
+						aux.add(x.nameSucursal);				// 7 sucursal
+						aux.add(x.nameComercial);				// 8 comercial
+						aux.add(x.nameCotizaSolucion);			// 9 solucion
+						listCotizacion.add(aux);
+					}
+				}
+			});
+		}else {
+			listCoti.forEach(x->{
+				Cliente cliente = mapCliente.get(x.getId_cliente());
+				String nomCliente = "";
+				if(cliente!=null && cliente.getVigente() == (long)1) {
+					nomCliente = cliente.nickName;
+					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+					String nomProyecto = "";
+					if(proyecto!=null) {
+						nomProyecto = proyecto.nickName;
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(x.getId().toString());			// 0 id_cotizacion
+					aux.add(x.getNumero().toString());		// 1 numero de cotizacion
+					aux.add(Fechas.AAMMDD(x.getFecha()));	// 2 fecha
+					aux.add(nomCliente);					// 3 nombre de cliente
+					aux.add(x.getObservaciones());			// 4 observaciones
+					aux.add(x.getCotizacionPDF());			// 5 doc adjunto
+					aux.add(nomProyecto);					// 6 nombre de proyecto
+					aux.add(x.nameSucursal);				// 7 sucursal
+					aux.add(x.nameComercial);				// 8 comercial
+					aux.add(x.nameCotizaSolucion);			// 9 solucion
+					listCotizacion.add(aux);
+				}
+			});
+		}
+		return(listCotizacion);
+	}
+	
 	public static List<List<String>> listCotiallParaCambiarEstado(Connection con, String db, String esPorSucursal, String id_sucursal, String desde, String hasta){
 		List<List<String>> listCotizacion = new ArrayList<List<String>>();
 		List<Cotizacion> listCoti = Cotizacion.allParaCambiarEstadoDesdeHasta(con, db, desde, hasta);
@@ -2387,74 +2448,75 @@ public class Cotizacion {
 				if(x.id_sucursal.toString().equals(id_sucursal)) {
 					Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotizacion
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+        				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
+        				aux.add(x.getPdfVenta());					// 11 pdf venta generado
+        				aux.add(x.dateCreate.toString());			// 12 pdf fecha y hora generado
+    					aux.add(x.nameSucursal);					// 13 sucursal
+    					aux.add(x.nameComercial);					// 14 comercial
+    					aux.add(x.nameCotizaSolucion);				// 15 solucion
+    					listCotizacion.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotizacion
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-    				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
-    				aux.add(x.getPdfVenta());					// 11 pdf venta generado
-    				aux.add(x.dateCreate.toString());			// 12 pdf fecha y hora generado
-					aux.add(x.nameSucursal);					// 13 sucursal
-					aux.add(x.nameComercial);					// 14 comercial
-					aux.add(x.nameCotizaSolucion);				// 15 solucion
-					listCotizacion.add(aux);
 				}
 			});
 		}else {
 			listCoti.forEach(x->{
 				Cliente cliente = mapCliente.get(x.getId_cliente());
 				String nomCliente = "";
-				if(cliente!=null) {
+				if(cliente!=null && cliente.getVigente() == (long)1) {
 					nomCliente = cliente.nickName;
+					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+					String nomProyecto = "";
+					if(proyecto!=null) {
+						nomProyecto = proyecto.nickName;
+					}
+					CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+					String nomEstado = "";
+					if(estado!=null) {
+						nomEstado = estado.getEstado();
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(x.getId().toString());				// 0 id_cotizacion
+					aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+					aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+					aux.add(nomCliente);						// 3 nombre de cliente
+					aux.add(x.getObservaciones());				// 4 observaciones
+					aux.add(x.getCotizacionPDF());				// 5 doc adjunto
+					aux.add(nomProyecto);						// 6 nombre de proyecto
+					aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+					aux.add(nomEstado);							// 8 nombre de estado
+					aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+					aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
+					aux.add(x.getPdfVenta());					// 11 pdf venta generado
+					aux.add(x.dateCreate.toString());			// 12 pdf fecha y hora generado
+					aux.add(x.nameSucursal);					// 13 sucursal
+					aux.add(x.nameComercial);					// 14 comercial
+					aux.add(x.nameCotizaSolucion);				// 15 solucion
+					listCotizacion.add(aux);
 				}
-				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-				String nomProyecto = "";
-				if(proyecto!=null) {
-					nomProyecto = proyecto.nickName;
-				}
-				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-				String nomEstado = "";
-				if(estado!=null) {
-					nomEstado = estado.getEstado();
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(x.getId().toString());				// 0 id_cotizacion
-				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-				aux.add(nomCliente);						// 3 nombre de cliente
-				aux.add(x.getObservaciones());				// 4 observaciones
-				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
-				aux.add(nomProyecto);						// 6 nombre de proyecto
-				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-				aux.add(nomEstado);							// 8 nombre de estado
-				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
-				aux.add(x.getPdfVenta());					// 11 pdf venta generado
-				aux.add(x.dateCreate.toString());			// 12 pdf fecha y hora generado
-				aux.add(x.nameSucursal);					// 13 sucursal
-				aux.add(x.nameComercial);					// 14 comercial
-				aux.add(x.nameCotizaSolucion);				// 15 solucion
-				listCotizacion.add(aux);
+				
 			});
 		}
 		
@@ -2472,74 +2534,76 @@ public class Cotizacion {
 				if(x.id_sucursal.toString().equals(id_sucursal)) {
 					Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotizacion
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+        				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
+        				aux.add(x.getPdfVenta());					// 11 pdf venta generado
+        				aux.add(x.dateCreate.toString());			// 12 pdf venta generado
+        				aux.add(x.nameSucursal);					// 13 sucursal
+        				aux.add(x.nameComercial);					// 14 comercial
+        				aux.add(x.nameCotizaSolucion);				// 15 solucion
+    					listCotizacion.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotizacion
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-    				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
-    				aux.add(x.getPdfVenta());					// 11 pdf venta generado
-    				aux.add(x.dateCreate.toString());			// 12 pdf venta generado
-    				aux.add(x.nameSucursal);					// 13 sucursal
-    				aux.add(x.nameComercial);					// 14 comercial
-    				aux.add(x.nameCotizaSolucion);				// 15 solucion
-					listCotizacion.add(aux);
+    				
 				}
 			});
 		}else {
 			listCoti.forEach(x->{
 				Cliente cliente = mapCliente.get(x.getId_cliente());
 				String nomCliente = "";
-				if(cliente!=null) {
+				if(cliente!=null && cliente.getVigente() == (long)1) {
 					nomCliente = cliente.nickName;
+					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+					String nomProyecto = "";
+					if(proyecto!=null) {
+						nomProyecto = proyecto.nickName;
+					}
+					CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+					String nomEstado = "";
+					if(estado!=null) {
+						nomEstado = estado.getEstado();
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(x.getId().toString());				// 0 id_cotizacion
+					aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+					aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+					aux.add(nomCliente);						// 3 nombre de cliente
+					aux.add(x.getObservaciones());				// 4 observaciones
+					aux.add(x.getCotizacionPDF());				// 5 doc adjunto
+					aux.add(nomProyecto);						// 6 nombre de proyecto
+					aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+					aux.add(nomEstado);							// 8 nombre de estado
+					aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+					aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
+					aux.add(x.getPdfVenta());					// 11 pdf venta generado
+					aux.add(x.dateCreate.toString());			// 12 pdf venta generado
+					aux.add(x.nameSucursal);					// 13 sucursal
+					aux.add(x.nameComercial);					// 14 comercial
+					aux.add(x.nameCotizaSolucion);				// 15 solucion
+					listCotizacion.add(aux);
 				}
-				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-				String nomProyecto = "";
-				if(proyecto!=null) {
-					nomProyecto = proyecto.nickName;
-				}
-				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-				String nomEstado = "";
-				if(estado!=null) {
-					nomEstado = estado.getEstado();
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(x.getId().toString());				// 0 id_cotizacion
-				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-				aux.add(nomCliente);						// 3 nombre de cliente
-				aux.add(x.getObservaciones());				// 4 observaciones
-				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
-				aux.add(nomProyecto);						// 6 nombre de proyecto
-				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-				aux.add(nomEstado);							// 8 nombre de estado
-				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
-				aux.add(x.getPdfVenta());					// 11 pdf venta generado
-				aux.add(x.dateCreate.toString());			// 12 pdf venta generado
-				aux.add(x.nameSucursal);					// 13 sucursal
-				aux.add(x.nameComercial);					// 14 comercial
-				aux.add(x.nameCotizaSolucion);				// 15 solucion
-				listCotizacion.add(aux);
+				
 			});
 		}
 		
@@ -2558,74 +2622,76 @@ public class Cotizacion {
 				if(x.id_sucursal.toString().equals(id_sucursal)) {
 					Cliente cliente = mapCliente.get(x.getId_cliente());
     				String nomCliente = "";
-    				if(cliente!=null) {
+    				if(cliente!=null && cliente.getVigente() == (long)1) {
     					nomCliente = cliente.nickName;
+    					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+        				String nomProyecto = "";
+        				if(proyecto!=null) {
+        					nomProyecto = proyecto.nickName;
+        				}
+        				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+        				String nomEstado = "";
+        				if(estado!=null) {
+        					nomEstado = estado.getEstado();
+        				}
+        				List<String> aux = new ArrayList<String>();
+        				aux.add(x.getId().toString());				// 0 id_cotizacion
+        				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+        				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+        				aux.add(nomCliente);						// 3 nombre de cliente
+        				aux.add(x.getObservaciones());				// 4 observaciones
+        				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
+        				aux.add(nomProyecto);						// 6 nombre de proyecto
+        				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+        				aux.add(nomEstado);							// 8 nombre de estado
+        				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+        				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
+        				aux.add(x.getPdfVenta());					// 11 pdf venta generado
+        				aux.add(x.getContratoPDF());				// 12 pdf contrato pdf anexado
+        				aux.add(x.nameSucursal);					// 13 sucursal
+        				aux.add(x.nameComercial);					// 14 comercial
+        				aux.add(x.nameCotizaSolucion);				// 15 solucion
+    					listCotizacion.add(aux);
     				}
-    				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-    				String nomProyecto = "";
-    				if(proyecto!=null) {
-    					nomProyecto = proyecto.nickName;
-    				}
-    				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-    				String nomEstado = "";
-    				if(estado!=null) {
-    					nomEstado = estado.getEstado();
-    				}
-    				List<String> aux = new ArrayList<String>();
-    				aux.add(x.getId().toString());				// 0 id_cotizacion
-    				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-    				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-    				aux.add(nomCliente);						// 3 nombre de cliente
-    				aux.add(x.getObservaciones());				// 4 observaciones
-    				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
-    				aux.add(nomProyecto);						// 6 nombre de proyecto
-    				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-    				aux.add(nomEstado);							// 8 nombre de estado
-    				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-    				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
-    				aux.add(x.getPdfVenta());					// 11 pdf venta generado
-    				aux.add(x.getContratoPDF());				// 12 pdf contrato pdf anexado
-    				aux.add(x.nameSucursal);					// 13 sucursal
-    				aux.add(x.nameComercial);					// 14 comercial
-    				aux.add(x.nameCotizaSolucion);				// 15 solucion
-					listCotizacion.add(aux);
+    				
 				}
 			});
 		}else {
 			listCoti.forEach(x->{
 				Cliente cliente = mapCliente.get(x.getId_cliente());
 				String nomCliente = "";
-				if(cliente!=null) {
+				if(cliente!=null && cliente.getVigente() == (long)1) {
 					nomCliente = cliente.nickName;
+					Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
+					String nomProyecto = "";
+					if(proyecto!=null) {
+						nomProyecto = proyecto.nickName;
+					}
+					CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
+					String nomEstado = "";
+					if(estado!=null) {
+						nomEstado = estado.getEstado();
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(x.getId().toString());				// 0 id_cotizacion
+					aux.add(x.getNumero().toString());			// 1 numero de cotizacion
+					aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
+					aux.add(nomCliente);						// 3 nombre de cliente
+					aux.add(x.getObservaciones());				// 4 observaciones
+					aux.add(x.getCotizacionPDF());				// 5 doc adjunto
+					aux.add(nomProyecto);						// 6 nombre de proyecto
+					aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
+					aux.add(nomEstado);							// 8 nombre de estado
+					aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
+					aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
+					aux.add(x.getPdfVenta());					// 11 pdf venta generado
+					aux.add(x.getContratoPDF());				// 12 pdf contrato pdf anexado
+					aux.add(x.nameSucursal);					// 13 sucursal
+					aux.add(x.nameComercial);					// 14 comercial
+					aux.add(x.nameCotizaSolucion);				// 15 solucion
+					listCotizacion.add(aux);
 				}
-				Proyecto proyecto = mapProyecto.get(x.getId_proyecto());
-				String nomProyecto = "";
-				if(proyecto!=null) {
-					nomProyecto = proyecto.nickName;
-				}
-				CotizaEstado estado = mapEstado.get(x.getId_cotizaEstado());
-				String nomEstado = "";
-				if(estado!=null) {
-					nomEstado = estado.getEstado();
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(x.getId().toString());				// 0 id_cotizacion
-				aux.add(x.getNumero().toString());			// 1 numero de cotizacion
-				aux.add(Fechas.AAMMDD(x.getFecha()));		// 2 fecha
-				aux.add(nomCliente);						// 3 nombre de cliente
-				aux.add(x.getObservaciones());				// 4 observaciones
-				aux.add(x.getCotizacionPDF());				// 5 doc adjunto
-				aux.add(nomProyecto);						// 6 nombre de proyecto
-				aux.add(x.getId_cotizaEstado().toString());	// 7 id_cotizaEstado
-				aux.add(nomEstado);							// 8 nombre de estado
-				aux.add(x.getFechaConfirmada());			// 9 fecha de confirmada
-				aux.add(x.getPdfArriendo());				// 10 pdf arriendo generado
-				aux.add(x.getPdfVenta());					// 11 pdf venta generado
-				aux.add(x.getContratoPDF());				// 12 pdf contrato pdf anexado
-				aux.add(x.nameSucursal);					// 13 sucursal
-				aux.add(x.nameComercial);					// 14 comercial
-				aux.add(x.nameCotizaSolucion);				// 15 solucion
-				listCotizacion.add(aux);
+				
 			});
 		}
 		
@@ -2782,7 +2848,7 @@ public class Cotizacion {
 						+ " cliente.nickName "
 						+ " from `"+db+"`.cotizacion "
 						+ " left join `"+db+"`.cliente on cliente.id = cotizacion.id_cliente "
-						+ " where nickName is not null " + condSucursal
+						+ " where nickName is not null and vigente=1 " + condSucursal
 						+ " group by cotizacion.id_cliente;");
 			ResultSet rs = smt.executeQuery();
 			

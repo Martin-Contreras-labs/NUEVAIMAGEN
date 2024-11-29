@@ -58,6 +58,9 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 							<TH>HASTA<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
 							<TH>SELECT</TH>
 							<TH>TOTAL<BR>KG</TH>
+							@if( ! (mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+								<TH>TOTAL<BR>M2</TH>
+							}
 							<TH>GUIA<br>PDF</TH>
 							@if(!mapPermiso.get("parametro.movimientoListar-descargaXLSX").equals("1")){
 								<TH>GUIA<br>EXCEL</TH>
@@ -133,6 +136,11 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								<td style="text-align:right;">
 									@lista1.getTotalKg()
 								</td>
+								@if( ! (mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+									<td style="text-align:right;">
+										@lista1.getTotalM2()
+									</td>
+								}
 								<td  style="text-align:center;">
 									@if(lista1.getGuiaPDF().equals("0")){
 										--

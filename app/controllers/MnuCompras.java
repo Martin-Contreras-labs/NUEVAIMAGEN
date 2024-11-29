@@ -696,9 +696,12 @@ public class MnuCompras extends Controller {
 					try {
 		    			Connection con = db.getConnection();
 		    				Long id_proveedor = FormCompra.validaProveedor(con, s.baseDato, file);
+		    				Proveedor proveedor = new Proveedor();
 		    				if(id_proveedor == null) {
 		    					con.close();
 								return ok(mensajes.render("/compraIngreso/", "Falta o no existe el proveedor"));
+		    				}else {
+		    					proveedor = Proveedor.find(con, s.baseDato, id_proveedor);
 		    				}
 		    				Map<String,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAllNombre(con, s.baseDato);
 		    				Map<String,List<String>> mapListaExcel = new HashMap<String,List<String>>();
@@ -895,7 +898,7 @@ public class MnuCompras extends Controller {
 	    	    			}
 	    	    			con.close();
 	    	    			return ok(compraIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,listProveedor,listEquipo,listMoneda,listBodegas,listMon,listGrupos,listFabrica,listUnidades,
-	    	    					listRegiones, listSucursales, lista));
+	    	    					listRegiones, listSucursales, lista, proveedor));
 		    	    			
 					} catch (SQLException e) {
 		    			e.printStackTrace();
@@ -925,7 +928,7 @@ public class MnuCompras extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			List<List<String>> listaAconfirmar = Compra.listaConfirmaIngreso(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+    			List<List<String>> listaAconfirmar = Compra.listaConfirmaIngreso(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario);
     			con.close();
     			return ok(compraConfirma.render(mapeoDiccionario,mapeoPermiso,userMnu,listaAconfirmar));
         	} catch (SQLException e) {

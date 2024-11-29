@@ -327,7 +327,7 @@ POST	/modificaSucursalPorCampoAjax/					controllers.MnuBodegas.modificaSucursalP
 
 POST	/movimientoSelectModificar2/		controllers.MnuMovimientos.movimientoSelectModificar2(request: Request)
 POST	/clienteMantencion2/				controllers.MnuTablas.clienteMantencion2(request: Request)
-
+POST	/clienteCambiaEstado/				controllers.MnuTablas.clienteCambiaEstado(request: Request)
 
 
 # SOLO DOM:

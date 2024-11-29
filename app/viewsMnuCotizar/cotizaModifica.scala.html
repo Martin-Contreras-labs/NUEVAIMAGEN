@@ -391,15 +391,16 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 					</div>
 					
 					
-					
-					<div class="noprint" align="center">
-						<div id="importar" class="row justify-content-md-center" style="display: true;">
-							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-								<input id="btnCopiaCoti" type="button"  value="Restablecer Precios" class="btn btn-info btn-sm rounded-pill btn-block" 
-									onclick="location.reload();">&nbsp;&nbsp;&nbsp;
+					@if( ! (mapPermiso.get("parametro.cotizar_bloqueaVtaReposi") !=null && mapPermiso.get("parametro.cotizar_bloqueaVtaReposi") == "1") ){
+						<div class="noprint" align="center">
+							<div id="importar" class="row justify-content-md-center" style="display: true;">
+								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+									<input id="btnCopiaCoti" type="button"  value="Restablecer Precios" class="btn btn-info btn-sm rounded-pill btn-block" 
+										onclick="location.reload();">&nbsp;&nbsp;&nbsp;
+								</div>
 							</div>
 						</div>
-					</div>
+					}
 					
 					<div class="noprint" align="center">
 						<div id="importar" class="row justify-content-md-center" style="display: none;">
@@ -599,8 +600,10 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 		let tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
 			+ "	<thead style=\"background-color: #eeeeee\">"
 			+ "<TR><TH colspan=\"8\" style=\"background-color: white\"></TH>"
-			+ "<TH style=\"text-align:center\">"
-				+ "<div id=\"titAplicarFactorRepos\">Aplica_Factor</div><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+			+ "<TH style=\"text-align:center\">";
+				if( ! ('@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")'!=null && '@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")' == "1") ) {
+					tabla += "<div id=\"titAplicarFactorRepos\">Aplica_Factor</div>"
+						+ "<input type=\"text\" class=\"form-control rounded-pill height23px right\""
 						+ " style='background-color: #ffc107'"
 						+ " id=\"btnAplicarFactorRepos\""
 						+ " value=\"1.00\""
@@ -611,8 +614,9 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 							+ "}else{"
 								+ " aplicarFactorGlobalRepos(value);"
 								+ " value = formatStandar(value,2);"
-							+ "}\">"
-			+ "</TH>"
+							+ "}\">";
+				}
+			tabla += "</TH>"
 			+ "<TH style=\"background-color: white\"></TH>"
 			+ "<TH style=\"text-align:center\">"
 			+ "<br><input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
@@ -719,17 +723,26 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 						+ "<option value=\""+jsonDetalle[i][8]+"\">"+jsonDetalle[i][4]+"</option>"+moneda
 						+"</td>"
 						+ "<td style=\"text-align:center;\">"
-						+ "<div style=\"display:none\" id=\"hiddenpuVentaRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][26]+"</div>"
-						+ "<input type=\"text\" class=\"form-control height23px right width100px\""
-						+ "name=\"puVentaRepos[]\""
-						+ "id=\"puVentaRepos_"+jsonDetalle[i][0]+"\""
-						+ "value=\""+jsonDetalle[i][5]+"\""
-						+ "onfocus=\"value=value.replace(/,/g,'');\" "
-						+ "onblur = \"value = formatStandar(value, '"+jsonDetalle[i][20]+"');\""
-						+ "onkeypress=\"return ingresoDouble(event,value)\""
-						+ "autocomplete=\"off\""
-						+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">"
-						+ "</td>"
+						+ "<div style=\"display:none\" id=\"hiddenpuVentaRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][26]+"</div>";
+						
+						if( '@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")'!=null && '@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")' == "1") {
+							tabla += "<input type=\"text\" class=\"form-control height23px right width100px\""
+							+ "name=\"puVentaRepos[]\""
+							+ "id=\"puVentaRepos_"+jsonDetalle[i][0]+"\""
+							+ "value=\""+jsonDetalle[i][5]+"\""
+							+ " readonly>";
+						}else{
+							tabla += "<input type=\"text\" class=\"form-control height23px right width100px\""
+							+ "name=\"puVentaRepos[]\""
+							+ "id=\"puVentaRepos_"+jsonDetalle[i][0]+"\""
+							+ "value=\""+jsonDetalle[i][5]+"\""
+							+ "onfocus=\"value=value.replace(/,/g,'');\" "
+							+ "onblur = \"value = formatStandar(value, '"+jsonDetalle[i][20]+"');\""
+							+ "onkeypress=\"return ingresoDouble(event,value)\""
+							+ "autocomplete=\"off\""
+							+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">";
+						}
+						tabla += "</td>"
 						+ "<td style=\"text-align:center;\">"
 						+ "<input type=\"hidden\" id=\"id_unidadTiempo_"+jsonDetalle[i][0]+"\" name=\"id_unidadTiempo[]\" value=\""+jsonDetalle[i][9]+"\">"
 						+ "<select class=\"custom-select\"  style=\"width: 80px;\""

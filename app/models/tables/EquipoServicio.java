@@ -116,9 +116,11 @@ public class EquipoServicio {
 					.prepareStatement("select "
 							+ " equipoServicio.id_bodegaEmpresa, "
 							+ " bodegaEmpresa.nombre, "
-							+ " bodegaEmpresa.id_sucursal "
+							+ " bodegaEmpresa.id_sucursal, "
+							+ " ifnull(cliente.vigente,1) "
 							+ " from `"+db+"`.equipoServicio "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = equipoServicio.id_bodegaEmpresa "
+							+ " left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente "
 							+ " where equipoServicio.vigente = 1 and bodegaEmpresa.vigente = 1 " + condSucursal
 							+ " group by equipoServicio.id_bodegaEmpresa, bodegaEmpresa.nombre "
 							+ " order by bodegaEmpresa.nombre;");
@@ -134,6 +136,7 @@ public class EquipoServicio {
 				aux.add(rs.getString(1));
 				aux.add(rs.getString(2));
 				aux.add(nameSucursal);
+				aux.add(rs.getString(4));
 				lista.add(aux);
 			}
 			rs.close();

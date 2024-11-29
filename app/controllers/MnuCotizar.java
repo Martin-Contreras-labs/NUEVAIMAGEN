@@ -156,7 +156,7 @@ public class MnuCotizar extends Controller {
     			} else {
     				formCotiza = new FormCotiza(numeroCoti, fecha);
     			}
-    			List<Cliente> listClientes = Cliente.all(con, s.baseDato);
+    			List<Cliente> listClientes = Cliente.allsoloVigentes(con, s.baseDato);
     			List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
     			List<List<String>> detalle = FormCotiza.detalleCotizacion(con, s.baseDato, mapeoPermiso, mapeoDiccionario, id_bodegaEmpresa, id_cotizacion, s.id_sucursal, "0", "1",
     					null);
@@ -593,7 +593,7 @@ public class MnuCotizar extends Controller {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
-	    			List<List<String>> listCotizacion = Cotizacion.listCotiAllSinConfirmar(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
+	    			List<List<String>> listCotizacion = Cotizacion.listCotiAllSinConfirmarClientesVig(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
 	    			con.close();
 	    			return ok(cotizaListaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,listCotizacion));
 	        	} catch (SQLException e) {
@@ -696,7 +696,7 @@ public class MnuCotizar extends Controller {
 	    			}
 	    			
 	    			
-	    			List<Cliente> listClientes = Cliente.all(con, s.baseDato);
+	    			List<Cliente> listClientes = Cliente.allsoloVigentes(con, s.baseDato);
 	    			List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
 	    			List<List<String>> lista = FormCotiza.detalleCotizacion(con, s.baseDato, mapeoPermiso, mapeoDiccionario, id_bodegaEmpresa, id_cotizacion, s.id_sucursal, "1", "0",
 	    					null);
@@ -2381,7 +2381,7 @@ public class MnuCotizar extends Controller {
 	    			
 	    			
 	    			
-	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, esPorSucursal, coti.getId_sucursal().toString());
+	    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodVigExternasClientesVig(con, s.baseDato, mapeoPermiso, esPorSucursal, coti.getId_sucursal().toString());
 	    			List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
 	    			String tabla = Cotizacion.vistaModalVerCotizacion(con, s.baseDato, coti, mapeoDiccionario, mapeoPermiso);
 	    			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
@@ -4534,7 +4534,7 @@ public class MnuCotizar extends Controller {
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
 	    			
-	    			List<Guia> listaGuias = Guia.allDespachosConOtDesdeHasta(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<Guia> listaGuias = Guia.allDespConOtDeHastaClientesVig(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 	    			List<Guia> listaGuiasSinNroNegativo = new ArrayList<Guia>();
 	    			listaGuias.forEach(x->{
 	    				if((long)x.getNumero()>(long)0) {

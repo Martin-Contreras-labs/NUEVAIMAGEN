@@ -1521,7 +1521,7 @@ public class FormMovimiento {
     			}
 				
 				Guia.modificaPorCampo(con, db, "totalKg", guia.getId(), granTotalPeso.toString());
-				
+				Guia.modificaPorCampo(con, db, "totalM2", guia.getId(), granTotalM2.toString());				
 				
 				
 				// Write the output to a file word

@@ -1644,6 +1644,35 @@ public class MnuTablas extends Controller {
     	return ok("error");
     }
     
+    
+    public Result clienteCambiaEstado(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok("{ \"status\": false}").as("application/json");
+	       	}else {
+				try{
+					Connection con = db.getConnection();
+					Long id_cliente = Long.parseLong(form.get("id_cliente").trim());
+					String estado = form.get("estado").trim();
+					if(Cliente.modificaPorCampo(con, s.baseDato, "vigente", id_cliente, estado)) {
+						con.close();
+						return ok("{ \"status\": true}").as("application/json");
+					}else {
+						con.close();
+						return ok("{ \"status\": false}").as("application/json");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok("{ \"status\": false}").as("application/json");
+	    	}
+	    }
+    	return ok("{ \"status\": false}").as("application/json");
+    }
+    
     public Result clienteMantencionExcel(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
