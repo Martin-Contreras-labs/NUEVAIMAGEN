@@ -125,7 +125,7 @@ public class ReportInventarios {
 				if(rs6.getDouble(4) != (double) 0){
 					
 					Long id_grupo = (long)0;
-					String nomGrupo = "";
+					String nomGrupo = "SIN GRUPO";
 					String codEquipo = "";
 					String nomEquipo = "";
 					String nomUnidad = "";
@@ -308,7 +308,7 @@ public class ReportInventarios {
 				if(rs6.getDouble(4) != (double) 0){
 					
 					Long id_grupo = (long)0;
-					String nomGrupo = "";
+					String nomGrupo = "SIN GRUPO";
 					String codEquipo = "";
 					String nomEquipo = "";
 					String nomUnidad = "";
@@ -3377,7 +3377,7 @@ public class ReportInventarios {
 						Long id_proyecto = (long)0;
 						Long id_cotizacion = rs6.getLong(4);
 						
-						String nomGrupo = "";
+						String nomGrupo = "SIN GRUPO";
 						String nomProyecto = "";
 						String codEquipo = "";
 						String nomEquipo = "";

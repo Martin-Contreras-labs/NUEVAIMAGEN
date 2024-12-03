@@ -192,7 +192,7 @@ public class Equipo {
 							" equipo.id_grupo, " +
 							" equipo.id_unidad, " +
 							" fabrica.nickName, " +
-							" grupo.nombre, " +
+							" ifnull(grupo.nombre,'SIN GRUPO'), " +
 							" unidad.nombre, " +
 							" equipo.img, " +
 							" equipo.vigente, " +
@@ -203,7 +203,7 @@ public class Equipo {
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
 							" where equipo.vigente = 1 " +
-							" order by grupo.nombre,equipo.nombre;");
+							" order by ifnull(grupo.nombre,'SIN GRUPO'),equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
@@ -229,7 +229,7 @@ public class Equipo {
 							" equipo.id_grupo, " +
 							" equipo.id_unidad, " +
 							" fabrica.nickName, " +
-							" grupo.nombre, " +
+							" ifnull(grupo.nombre,'SIN GRUPO'), " +
 							" unidad.nombre, " +
 							" equipo.img, " +
 							" equipo.vigente, " +
@@ -239,7 +239,7 @@ public class Equipo {
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
-							" order by grupo.nombre,equipo.nombre;");
+							" order by ifnull(grupo.nombre,'SIN GRUPO'),equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
 			
 			
@@ -267,7 +267,7 @@ public class Equipo {
 							" equipo.id_grupo, " +
 							" equipo.id_unidad, " +
 							" fabrica.nickName, " +
-							" grupo.nombre, " +
+							" ifnull(grupo.nombre,'SIN GRUPO'), " +
 							" unidad.nombre, " +
 							" equipo.img, " +
 							" equipo.vigente, " +
@@ -304,7 +304,7 @@ public class Equipo {
 							" equipo.id_grupo, " +
 							" equipo.id_unidad, " +
 							" fabrica.nickName, " +
-							" grupo.nombre, " +
+							" ifnull(grupo.nombre,'SIN GRUPO'), " +
 							" unidad.nombre, " +
 							" equipo.img, " +
 							" equipo.vigente, " +

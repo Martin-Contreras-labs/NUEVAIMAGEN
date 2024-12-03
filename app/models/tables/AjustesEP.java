@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +106,69 @@ public class AjustesEP {
 		}
 		return (lista);
 	}
+	
+	//OBTIENE LA LISTA DETALLE DE AJUSTES POR UNA BODEGAEMPRESA EN UN DETERMINADO PERIODO PARA ARRIENDO Y VENTA
+		public static Map<Long,List<List<String>>> mapDetalleAjuste(Connection con, String db, String desdeSql, String hastaSql) {
+			Map<Long,List<List<String>>> map = new HashMap<Long,List<List<String>>>();
+			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+			switch(dec.get((long)1).toString()) {
+			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 default:  break;
+			}
+			try {
+				PreparedStatement smt = con.prepareStatement("select "
+						+ " if(id_tipoAjuste=1,'Menos ', 'Mas '),"
+						+ " concepto,"
+						+ " if(id_tipoAjuste=1,-1,1)*totalAjuste,"
+						+ " id_tipoAjusteVenta,"
+						+ " id_bodegaEmpresa"
+						+ " from `"+db+"`.ajustesEP "
+						+ " where fechaAjuste between ? and ?; ");
+				smt.setString(1, desdeSql);
+				smt.setString(2, hastaSql);
+				
+				ResultSet rs = smt.executeQuery();
+				while (rs.next()) {
+					List<List<String>> lista = map.get(rs.getLong(5));
+					if(lista == null) {
+						lista = new ArrayList<List<String>>();
+						List<String> aux = new ArrayList<String>();
+						aux.add(rs.getString(1)+rs.getString(2));
+						if(rs.getLong(4)==1) {
+							aux.add(myformatdouble.format(rs.getDouble(3)));
+							aux.add(myformatdouble.format((double)0));
+						}else {
+							aux.add(myformatdouble.format((double)0));
+							aux.add(myformatdouble.format(rs.getDouble(3)));
+						}
+						lista.add(aux);
+						map.put(rs.getLong(5), lista);
+					}else {
+						List<String> aux = new ArrayList<String>();
+						aux.add(rs.getString(1)+rs.getString(2));
+						if(rs.getLong(4)==1) {
+							aux.add(myformatdouble.format(rs.getDouble(3)));
+							aux.add(myformatdouble.format((double)0));
+						}else {
+							aux.add(myformatdouble.format((double)0));
+							aux.add(myformatdouble.format(rs.getDouble(3)));
+						}
+						lista.add(aux);
+						map.put(rs.getLong(5), lista);
+					}
+					
+					
+				}
+				rs.close();
+				smt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return (map);
+		}
 	
 	public static List<AjustesEP> allPorBodega(Connection con, String db, Long id_bodegaEmpresa, String esPorSucursal, String id_sucursal){
 		List<AjustesEP> lista = new ArrayList<AjustesEP>();

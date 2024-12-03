@@ -165,7 +165,9 @@ public class FormFactura {
 	    			}
 	 	   			
 	 	   			String auxNum = auxPrecioArr.trim();
-	 	   			if(auxNum==null || auxNum.trim().length()<=0) {
+	 	   			if(auxNum==null){
+	 	   				auxNum = "0";
+	 	   			}else if(auxNum.trim().length()<=0) {
 	 	   				auxNum = "0";
 	 	   			}
 	 	   			Double precioArr = Double.parseDouble(auxNum.replaceAll(",", "").trim());
@@ -291,12 +293,16 @@ public class FormFactura {
     				
     			}
     			
-    			if(oc.length()>0) {
+    			if(oc!=null && oc.length()>0) {
     				strReferencia += "\n" + oc;
+    			}else {
+    				oc = "";
     			}
     			
-    			if(comentarios.length()>1) {
+    			if(comentarios!=null && comentarios.length()>1) {
     				strReferencia += "\n COMENTARIOS: " + comentarios.trim();
+    			}else {
+    				comentarios = "";
     			}
     			
     			cell=table.getRow(0).getCell(0);
@@ -1126,12 +1132,16 @@ public class FormFactura {
 				
 			}
 			
-			if(oc.length()>0) {
+			if(oc!=null && oc.length()>0) {
 				strReferencia += "\n" + oc;
+			}else {
+				oc = "";
 			}
 			
-			if(comentarios.length()>1) {
+			if(comentarios!=null && comentarios.length()>1) {
 				strReferencia += "\n COMENTARIOS: " + comentarios.trim();
+			}else {
+				comentarios = "";
 			}
 			
 			cell=table.getRow(0).getCell(0);
@@ -1498,7 +1508,11 @@ public class FormFactura {
 	private static void setCelda (XWPFTableCell cell,String fontFamily,int fontSize,int alingH,String colorRGB,String text,boolean bold) {
 		cell.removeParagraph(0);
 		XWPFParagraph paragraph =null;
-		if(text==null) text="--"; else if(text.trim().length()==0) text="--";
+		if(text==null) {
+			text="--";
+		}else if(text.trim().length()==0) {
+			text="--";
+		}
 		paragraph = cell.addParagraph();
 		if(alingH==3) {
 			paragraph.setAlignment(ParagraphAlignment.RIGHT);

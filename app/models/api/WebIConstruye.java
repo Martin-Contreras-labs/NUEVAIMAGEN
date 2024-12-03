@@ -539,8 +539,10 @@ public class WebIConstruye {
 			
 			String observaciones = "PERIODO: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 								   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
-			if(comentarios.trim().length()>1) {
+			if(comentarios!=null && comentarios.trim().length()>1) {
 				observaciones = observaciones + " --- COMENTARIOS: "+comentarios.toUpperCase();
+			}else{
+				comentarios ="";
 			}
 			
 			if(observaciones.length()>100) {
@@ -824,8 +826,10 @@ public class WebIConstruye {
 			String observaciones = "VENTAS: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 								   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
 			
-			if(comentarios.trim().length()>1) {
+			if(comentarios!=null && comentarios.trim().length()>1) {
 				observaciones = observaciones + " --- COMENTARIOS: "+comentarios.toUpperCase();
+			}else {
+				comentarios = "";
 			}
 			
 			
