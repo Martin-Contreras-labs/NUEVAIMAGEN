@@ -272,14 +272,8 @@ public class ApiNuboxDocDoc {
 		
 	}
 	
-	public static String generaFactArriendo(Connection con, String db, List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, Map<String,String> mapDiccionario, EmisorTributario emisorTributario, List<List<String>> detalleAjuste, 
-			List<List<String>> datos) {
-		
-		//******************************
-		// OBTIENE DATOS A LLENAR
-		//******************************
-		
-		
+	public static String generaFactArriendo(Connection con, String db, List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, Map<String,String> mapDiccionario, EmisorTributario emisorTributario, 
+			List<List<String>> detalleAjuste) {
 		
 		//******************************
 		// LLENA EL JSON PARA NUBOX
@@ -287,70 +281,33 @@ public class ApiNuboxDocDoc {
 			ApiNuboxDocDoc api = new ApiNuboxDocDoc();
 			List<ApiNuboxDocDet> detalle = new ArrayList<ApiNuboxDocDet>();
 			
-			
-			
-			
-			
-//			// DETALLE RESUMEN PROFORMA MODELO TODOS LOS CASOS
-//			for(int i=0;i<resumenSubtotales.size();i++) {
-//				//obtiene datos
-//				
-//					Long idGrupo = Grupo.findIdXnombre(con,db, resumenSubtotales.get(i).get(0));
-//					
-//					Double auxPU = Double.parseDouble(resumenSubtotales.get(i).get(1).replaceAll(",", ""));
-//					auxPU += Double.parseDouble(resumenSubtotales.get(i).get(3).replaceAll(",", ""));
-//					String precioUnita = myformatapi.format(auxPU);
-//					
-//				//fin obtiene datos
-//					
-//				// llena json
-//					ApiNuboxDocDet det = new ApiNuboxDocDet();
-//					
-//					cliente.rut = cliente.rut.trim();
-//					cliente.rut = cliente.rut.replace(".", "").replace(".", "").replace(".", "").replace(".", "").replace(".", "");
-//					cliente.rut = cliente.rut.replace(",", "").replace(",", "").replace(",", "").replace(",", "").replace(",", "");
-//					cliente.rut = cliente.rut.replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "");
-//					det.rutContraparte = cliente.rut;
-//					
-//					det.razonSocialContraparte = cliente.nombre;
-//			String giroCliente = cliente.giro;
-//			if(giroCliente.length()>40) {
-//				giroCliente = cliente.giro.substring(0,39);
-//			}
-//			det.giroContraparte = giroCliente; 				//"CONSTRUCCION"; // cliente.giro;
-//					det.tipo = "33";									// tipo documento 33 = factura
-//					det.folio = proforma.getId().toString(); 			// id proforma
-//					det.secuencia = idGrupo.toString(); 				// id grupo
-//					det.fecha = Fechas.AAMMDD(proforma.fecha);
-//					det.codigoItem = idGrupo.toString(); 				// id del grupo en reemplazo del codigo
-//					det.producto = resumenSubtotales.get(i).get(0); 	// nombre del grupo
-//					det.cantidad = "1";
-//					det.precio = "0";
-//					det.valor = precioUnita;
-//					det.comunaContraparte = cliente.comuna;
-//					det.direccionContraparte = cliente.direccion;
-//					det.afecto = "SI";
-//					
-//					det.unidadMedida = "GLB";
-//					
-//					
-//					det.codigoSucursal = emisorTributario.getCodigoSucursal();
-//					
-//					detalle.add(det);
-//			}
-			
 			//DETALLE POR LINEA DE EQUIPO EN EL CASO DE ARRIVECO
-			for(int i=5; i<datos.size()-2; i++) {
+			
+			for(int i=0; i<resumenSubtotales.size(); i++) {
 				
+				String auxPrecioArr = resumenSubtotales.get(i).get(1);
+    			if(auxPrecioArr.equals("")||auxPrecioArr.equals(" ")) {
+    				auxPrecioArr = "0";
+    			}
+ 	   			
+ 	   			String auxNum = auxPrecioArr.trim();
+ 	   			if(auxNum==null){
+ 	   				auxNum = "0";
+ 	   			}else if(auxNum.trim().length()<=0) {
+ 	   				auxNum = "0";
+ 	   			}
+ 	   			Double precioArr = Double.parseDouble(auxNum.replaceAll(",", "").trim());
+ 	   			
+	 	   		auxNum = resumenSubtotales.get(i).get(3);
+				if(auxNum.equals("")||auxNum.equals(" ")) {
+					auxNum = "0";
+				}
+ 	   			Double precioCfi = Double.parseDouble(auxNum.replaceAll(",", "").trim());
+ 	   			
+ 	   			Double totalLinea = precioArr + precioCfi;
 				
-				if(!datos.get(i).get(2).equals("")) {
-					//obtiene datos
-					
-					Long idGrupo = Grupo.findIdXnombre(con,db, datos.get(i).get(0));
-					
-					Double auxPU = Double.parseDouble(datos.get(i).get(datos.get(i).size()-2).replaceAll(",", ""));
-
-					String precioUnita = myformatapi.format(Math.round(auxPU));
+ 	   			if( totalLinea > (double)0) {
+					String precioUnita = myformatapi.format(Math.round(totalLinea));
 					
 				//fin obtiene datos
 					
@@ -372,10 +329,10 @@ public class ApiNuboxDocDoc {
 					det.giroContraparte = giroCliente; 				//"CONSTRUCCION"; // cliente.giro;
 					det.tipo = "33";									// tipo documento 33 = factura
 					det.folio = proforma.getId().toString(); 			// id proforma
-					det.secuencia = idGrupo.toString(); 				// id grupo
+					det.secuencia = (i+1) + ""; 				// id grupo
 					det.fecha = Fechas.AAMMDD(proforma.fecha);
-					det.codigoItem = idGrupo.toString(); 				// id del grupo en reemplazo del codigo
-					det.producto = datos.get(i).get(3); 	// nombre del equipo
+					det.codigoItem =  (i+1) + ""; 				// id del grupo en reemplazo del codigo
+					det.producto = resumenSubtotales.get(i).get(0); 	// nombre del equipo
 					det.cantidad = "1";
 					det.precio = "0";
 					det.valor = precioUnita;
@@ -391,6 +348,7 @@ public class ApiNuboxDocDoc {
 					detalle.add(det);
 				}
 				
+
 				
 				
 			}

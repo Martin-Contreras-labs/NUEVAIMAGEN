@@ -2867,254 +2867,254 @@ public class ReportFacturas {
 		for(int i=0;i<proyectos.size();i++){
 			Long id_bodegaEmpresa = Long.parseLong(proyectos.get(i).get(11));
 			
-			//List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, db, id_bodegaEmpresa, desdeSql, hastaSql);
 			List<List<String>> detalleAjuste = mapDetalleAjuste.get(id_bodegaEmpresa);
-			if(detalleAjuste != null) {
-				List<List<String>> inicioPer = mapInicioPer.get(proyectos.get(i).get(11));
-				if(inicioPer==null) {
-					inicioPer = new ArrayList<List<String>>();
-				}
-				List<List<String>> guiasPer = mapGuiasPer.get(proyectos.get(i).get(11));
-				if(guiasPer==null) {
-					guiasPer = new ArrayList<List<String>>();
-				}
-				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-				switch(dec.get((long)1).toString()) {
-				 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
-				 default:  break;
-				}
-				
-				List<String> aux1 = new ArrayList<String>();
-				aux1.add("PROYECTO/BODEGA: "+proyectos.get(i).get(5).toUpperCase()+"    CLIENTE: "+proyectos.get(i).get(8));
-				aux1.add("PROYECTO");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				aux1.add("");
-				listaRs.add(aux1);
-				
-				List<String> aux3 = new ArrayList<String>();
-				aux3.add("INVENTARIO INICIAL");
-				aux3.add("INVENTARIO");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux3.add("");
-				aux1.add("");
-				listaRs.add(aux3);
-				
-				Double totCfi = (double) 0, totArr = (double) 0, totVta = (double) 0;
-					
-				for(int k=0;k<inicioPer.size();k++){
-						List<String> aux = new ArrayList<String>();
-						aux.add("");
-						aux.add("");
-						aux.add(inicioPer.get(k).get(8));
-						aux.add(inicioPer.get(k).get(9));
-						aux.add(inicioPer.get(k).get(10));
-						aux.add(inicioPer.get(k).get(11));
-						aux.add(inicioPer.get(k).get(12));
-						if(nEmpresa.equals("SANTAFE")&&inicioPer.get(k).get(18).trim().equals("0")){
-							aux.add("");
-						}else{
-							aux.add(inicioPer.get(k).get(13));
-						}
-						aux.add(inicioPer.get(k).get(14));
-						aux.add(inicioPer.get(k).get(15));
-						aux.add(inicioPer.get(k).get(16));
-						aux.add(inicioPer.get(k).get(17));
-						aux.add(inicioPer.get(k).get(23));
-						aux.add(inicioPer.get(k).get(18));
-						aux.add(inicioPer.get(k).get(19));
-						listaRs.add(aux);
-						try {
-							totArr += myformatdouble.parse(inicioPer.get(k).get(18)).doubleValue();
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						
-				}
-					
-				List<String> aux4 = new ArrayList<String>();
-				aux4.add("DETALLE DE MOVIMIENTOS");
-				aux4.add("DETALLE");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				aux4.add("");
-				listaRs.add(aux4);
-						
-				for(int k=0;k<guiasPer.size();k++){
-					
-					Long id_guia = Long.parseLong(guiasPer.get(k).get(3));
-					Guia guia = mapGuias.get(id_guia);
-					if(guia!=null) {
-						List<String> aux = new ArrayList<String>();
-						aux.add(guia.numero.toString());
-						aux.add(guia.fecha);
-						aux.add(guiasPer.get(k).get(8));
-						
-						aux.add(guiasPer.get(k).get(9));
-						aux.add(guiasPer.get(k).get(10));
-						aux.add(guiasPer.get(k).get(11));
-						aux.add(guiasPer.get(k).get(12));
-						if(nEmpresa.equals("SANTAFE")&&guiasPer.get(k).get(18).trim().equals("0")){
-							aux.add("");
-						}else{
-							aux.add(guiasPer.get(k).get(13));
-						}
-						aux.add(guiasPer.get(k).get(14));
-						aux.add(guiasPer.get(k).get(15));
-						aux.add(guiasPer.get(k).get(16));
-						aux.add(guiasPer.get(k).get(17));
-						aux.add(guiasPer.get(k).get(23));
-						aux.add(guiasPer.get(k).get(18));
-						aux.add(guiasPer.get(k).get(19));
-						listaRs.add(aux);
-						try {
-							totArr += myformatdouble.parse(guiasPer.get(k).get(18)).doubleValue();
-							totVta += myformatdouble.parse(guiasPer.get(k).get(19)).doubleValue();
-							totCfi += myformatdouble.parse(guiasPer.get(k).get(23)).doubleValue();
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-					
-					List<String> aux7 = new ArrayList<String>();
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					aux7.add("");
-					listaRs.add(aux7);
-					listaRs.add(aux7);
-					List<String> aux5 = new ArrayList<String>();
-					aux5.add("SUBTOTALES");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add("");
-					aux5.add(myformatMonedaOrigen.format(totCfi));
-					aux5.add(myformatMonedaOrigen.format(totArr));
-					aux5.add(myformatMonedaOrigen.format(totVta));
-					listaRs.add(aux5);
-					
-					Double ajusteArriendo=(double)0;
-					Double ajusteVenta=(double)0;
-					
-					for(List<String> lista: detalleAjuste ) {
-						List<String> aux50 = new ArrayList<String>();
-						aux50.add("AJUSTES");
-						aux50.add("");
-						aux50.add("");
-						aux50.add("");
-						aux50.add(lista.get(0));
-						aux50.add("");
-						aux50.add("");
-						aux50.add("");
-						aux50.add("");
-						aux50.add("");
-						aux50.add("");
-						aux50.add("");
-						aux50.add(myformatMonedaOrigen.format((double)0));
-						Double aux = (double)0;
-						try {
-							String auxNum = lista.get(1).trim();
-			 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-							aux = myformatdouble.parse(auxNum).doubleValue();
-							ajusteArriendo += aux;
-						} catch (ParseException e) {}
-						aux50.add(myformatMonedaOrigen.format(aux));
-						
-						try {
-							String auxNum = lista.get(2).trim();
-			 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-							aux = myformatdouble.parse(auxNum).doubleValue();
-							ajusteVenta += aux;
-						} catch (ParseException e) {}
-						aux50.add(myformatMonedaOrigen.format(aux));
-						listaRs.add(aux50);
-					}
-					
-					List<String> aux51 = new ArrayList<String>();
-					aux51.add("SUBTOTALES2");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add("");
-					aux51.add(myformatMonedaOrigen.format(totCfi));
-					aux51.add(myformatMonedaOrigen.format(totArr+ajusteArriendo));
-					aux51.add(myformatMonedaOrigen.format(totVta+ajusteVenta));
-					listaRs.add(aux51);
-					
-					List<String> aux6 = new ArrayList<String>();
-					aux6.add("TOTAL");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add("");
-					aux6.add(myformatMonedaOrigen.format((totArr+totVta+totCfi+ajusteArriendo+ajusteVenta)));
-					listaRs.add(aux6);
+			if(detalleAjuste == null) {
+				detalleAjuste = new ArrayList<List<String>>();
 			}
+			List<List<String>> inicioPer = mapInicioPer.get(proyectos.get(i).get(11));
+			if(inicioPer==null) {
+				inicioPer = new ArrayList<List<String>>();
+			}
+			List<List<String>> guiasPer = mapGuiasPer.get(proyectos.get(i).get(11));
+			if(guiasPer==null) {
+				guiasPer = new ArrayList<List<String>>();
+			}
+			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+			switch(dec.get((long)1).toString()) {
+			 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
+			 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
+			 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
+			 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+			 default:  break;
+			}
+			
+			List<String> aux1 = new ArrayList<String>();
+			aux1.add("PROYECTO/BODEGA: "+proyectos.get(i).get(5).toUpperCase()+"    CLIENTE: "+proyectos.get(i).get(8));
+			aux1.add("PROYECTO");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			aux1.add("");
+			listaRs.add(aux1);
+			
+			List<String> aux3 = new ArrayList<String>();
+			aux3.add("INVENTARIO INICIAL");
+			aux3.add("INVENTARIO");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux1.add("");
+			listaRs.add(aux3);
+			
+			Double totCfi = (double) 0, totArr = (double) 0, totVta = (double) 0;
+				
+			for(int k=0;k<inicioPer.size();k++){
+					List<String> aux = new ArrayList<String>();
+					aux.add("");
+					aux.add("");
+					aux.add(inicioPer.get(k).get(8));
+					aux.add(inicioPer.get(k).get(9));
+					aux.add(inicioPer.get(k).get(10));
+					aux.add(inicioPer.get(k).get(11));
+					aux.add(inicioPer.get(k).get(12));
+					if(nEmpresa.equals("SANTAFE")&&inicioPer.get(k).get(18).trim().equals("0")){
+						aux.add("");
+					}else{
+						aux.add(inicioPer.get(k).get(13));
+					}
+					aux.add(inicioPer.get(k).get(14));
+					aux.add(inicioPer.get(k).get(15));
+					aux.add(inicioPer.get(k).get(16));
+					aux.add(inicioPer.get(k).get(17));
+					aux.add(inicioPer.get(k).get(23));
+					aux.add(inicioPer.get(k).get(18));
+					aux.add(inicioPer.get(k).get(19));
+					listaRs.add(aux);
+					try {
+						totArr += myformatdouble.parse(inicioPer.get(k).get(18)).doubleValue();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					
+			}
+				
+			List<String> aux4 = new ArrayList<String>();
+			aux4.add("DETALLE DE MOVIMIENTOS");
+			aux4.add("DETALLE");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			aux4.add("");
+			listaRs.add(aux4);
+					
+			for(int k=0;k<guiasPer.size();k++){
+				
+				Long id_guia = Long.parseLong(guiasPer.get(k).get(3));
+				Guia guia = mapGuias.get(id_guia);
+				if(guia!=null) {
+					List<String> aux = new ArrayList<String>();
+					aux.add(guia.numero.toString());
+					aux.add(guia.fecha);
+					aux.add(guiasPer.get(k).get(8));
+					
+					aux.add(guiasPer.get(k).get(9));
+					aux.add(guiasPer.get(k).get(10));
+					aux.add(guiasPer.get(k).get(11));
+					aux.add(guiasPer.get(k).get(12));
+					if(nEmpresa.equals("SANTAFE")&&guiasPer.get(k).get(18).trim().equals("0")){
+						aux.add("");
+					}else{
+						aux.add(guiasPer.get(k).get(13));
+					}
+					aux.add(guiasPer.get(k).get(14));
+					aux.add(guiasPer.get(k).get(15));
+					aux.add(guiasPer.get(k).get(16));
+					aux.add(guiasPer.get(k).get(17));
+					aux.add(guiasPer.get(k).get(23));
+					aux.add(guiasPer.get(k).get(18));
+					aux.add(guiasPer.get(k).get(19));
+					listaRs.add(aux);
+					try {
+						totArr += myformatdouble.parse(guiasPer.get(k).get(18)).doubleValue();
+						totVta += myformatdouble.parse(guiasPer.get(k).get(19)).doubleValue();
+						totCfi += myformatdouble.parse(guiasPer.get(k).get(23)).doubleValue();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+				
+				List<String> aux7 = new ArrayList<String>();
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				aux7.add("");
+				listaRs.add(aux7);
+				listaRs.add(aux7);
+				List<String> aux5 = new ArrayList<String>();
+				aux5.add("SUBTOTALES");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add("");
+				aux5.add(myformatMonedaOrigen.format(totCfi));
+				aux5.add(myformatMonedaOrigen.format(totArr));
+				aux5.add(myformatMonedaOrigen.format(totVta));
+				listaRs.add(aux5);
+				
+				Double ajusteArriendo=(double)0;
+				Double ajusteVenta=(double)0;
+				
+				for(List<String> lista: detalleAjuste ) {
+					List<String> aux50 = new ArrayList<String>();
+					aux50.add("AJUSTES");
+					aux50.add("");
+					aux50.add("");
+					aux50.add("");
+					aux50.add(lista.get(0));
+					aux50.add("");
+					aux50.add("");
+					aux50.add("");
+					aux50.add("");
+					aux50.add("");
+					aux50.add("");
+					aux50.add("");
+					aux50.add(myformatMonedaOrigen.format((double)0));
+					Double aux = (double)0;
+					try {
+						String auxNum = lista.get(1).trim();
+		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+						aux = myformatdouble.parse(auxNum).doubleValue();
+						ajusteArriendo += aux;
+					} catch (ParseException e) {}
+					aux50.add(myformatMonedaOrigen.format(aux));
+					
+					try {
+						String auxNum = lista.get(2).trim();
+		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+						aux = myformatdouble.parse(auxNum).doubleValue();
+						ajusteVenta += aux;
+					} catch (ParseException e) {}
+					aux50.add(myformatMonedaOrigen.format(aux));
+					listaRs.add(aux50);
+				}
+				
+				List<String> aux51 = new ArrayList<String>();
+				aux51.add("SUBTOTALES2");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add("");
+				aux51.add(myformatMonedaOrigen.format(totCfi));
+				aux51.add(myformatMonedaOrigen.format(totArr+ajusteArriendo));
+				aux51.add(myformatMonedaOrigen.format(totVta+ajusteVenta));
+				listaRs.add(aux51);
+				
+				List<String> aux6 = new ArrayList<String>();
+				aux6.add("TOTAL");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add("");
+				aux6.add(myformatMonedaOrigen.format((totArr+totVta+totCfi+ajusteArriendo+ajusteVenta)));
+				listaRs.add(aux6);
 			}
 			
 			
