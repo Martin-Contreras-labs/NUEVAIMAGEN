@@ -872,7 +872,8 @@ public class FormFactura {
  	            
 				if(mapPermiso.get("parametro.proformaListar-llenarApiNubox")!=null && mapPermiso.get("parametro.proformaListar-llenarApiNubox").equals("1")){
 					String esVenta = "0";
-					String jsonApi = ApiNuboxDocDoc.generaFactArriendo(con, db, resumenSubtotales, cliente, proforma, mapDiccionario, emisorTributario, detalleAjuste);
+ 	            	List<List<String>> datos = ReportMovimientos.movimientoGuias(con, db, mapDiccionario, bodegaEmpresa.getId(), esVenta, proforma.desde, proforma.hasta, usd, eur, uf);
+					String jsonApi = ApiNuboxDocDoc.generaFactArriendo(con, db, resumenSubtotales, cliente, proforma, mapDiccionario, emisorTributario, detalleAjuste, datos);
  	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
 				}
  	            

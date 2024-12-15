@@ -583,7 +583,7 @@ public class ReportFacturas {
 				}
 				
 				detalle.add("0"); 															// 0 idMovimiento --NO SE OCUPA--
-				detalle.add(guiasPeriodo.get(i).id_bodegaEmpresa.toString().trim()); 			// 1 idBodegaEmpresa
+				detalle.add(guiasPeriodo.get(i).id_bodegaEmpresa.toString().trim()); 		// 1 idBodegaEmpresa
 				detalle.add(id_equipo.toString()); 											// 2 idEquipo
 				detalle.add("0"); 															// 3 idTipoMovimiento --NO SE OCUPA--
 				detalle.add(guiasPeriodo.get(i).id_guia.toString().trim()); 					// 4 idGuia

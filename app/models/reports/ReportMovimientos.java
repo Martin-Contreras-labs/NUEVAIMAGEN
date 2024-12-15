@@ -2164,7 +2164,9 @@ public class ReportMovimientos {
 					}else {
 						aux.add(myformatdouble2.format(tasa)+" %"); //tasaArriendo
 						aux.add(myformatMoneda.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // arriendo mes
-						aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+						DecimalFormat allDec = new DecimalFormat("#0.00000000000000");
+						aux.add(allDec.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //  14 arriendo dia solo ALZATEC
+						//aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
 					}
 					aux.add(rs3.getString(12)); //  8 id cotizacion
 					aux.add(rs3.getString(13)); //  9 numero coti
@@ -2172,6 +2174,10 @@ public class ReportMovimientos {
 					aux.add(rs3.getString(15)); //  11 idMoneda
 					aux.add(rs3.getString(16)); //  12 kg
 					aux.add(rs3.getString(17)); //  13 m2
+					
+					
+				
+					
 					listaCodigos.add(aux);
 				}
 				rs3.close();
@@ -2323,6 +2329,12 @@ public class ReportMovimientos {
 						
 						auxNum = listaCodigos.get(i).get(7).trim();
 		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+		 	   			
+		 	   			
+		 	   			
+		 	   			
+		 	   			
+		 	   			
 						Double precioDia=(double)0;try {precioDia  = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {};
 						if(esVenta.equals("0")) {
 							
@@ -2366,6 +2378,8 @@ public class ReportMovimientos {
 						totalDias=totalDias+dias;
 						Double cantDeDespachos=(double)0;
 						int flag=0;
+						
+						
 						for(int k=0;k<listaGuias.size();k++){
 							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
 							if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
@@ -2378,6 +2392,11 @@ public class ReportMovimientos {
 										flag =1;
 									}
 									aux.add(cantidad);
+									
+									
+									
+									
+									
 									Long diasPeriodo = (long)0;
 									
 									if(Double.parseDouble(cantidad.trim())>0) {
@@ -2399,6 +2418,8 @@ public class ReportMovimientos {
 									if((long)bodegaEmpresa.baseCalculo==(long)2) {
 										String[] mes = fechaDesde.split("-");
 										if(!mes[1].equals("02")&&diasPeriodo==31) diasPeriodo=(long)30;
+										if(mes[1].equals("02")&&(diasPeriodo==28||diasPeriodo==29))  diasPeriodo=(long)30;
+										
 										if(diasPeriodo>31) {
 											Long diasDePaso=(long)0;
 											Double factorMeses=(double) diasPeriodo/30;
@@ -2416,17 +2437,23 @@ public class ReportMovimientos {
 											fPart=fPart*30; 
 											diasPeriodo=diasPeriodo+fPart.longValue();
 										}
-										if(Double.parseDouble(cantidad.trim())<0&&(mes[1].equals("01")||mes[1].equals("03")||mes[1].equals("05")||mes[1].equals("07")||mes[1].equals("08")||mes[1].equals("10")||mes[1].equals("12"))) {
-											diasPeriodo=diasPeriodo-1;
-										}
-										if(Double.parseDouble(cantidad.trim())<0&&(mes[1].equals("02"))) {
-											Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
-											int diasMes = fecha.getFechaCal().getActualMaximum(Calendar.DAY_OF_MONTH);
-											if(diasMes==28) { diasPeriodo=diasPeriodo+2; }else { diasPeriodo=diasPeriodo+1; }
-											
-										}
+										
+//										if(Double.parseDouble(cantidad.trim())<0&&(mes[1].equals("01")||mes[1].equals("03")||mes[1].equals("05")||mes[1].equals("07")||mes[1].equals("08")||mes[1].equals("10")||mes[1].equals("12"))) {
+//											diasPeriodo=diasPeriodo-1;
+//										}
+//										if(Double.parseDouble(cantidad.trim())<0&&(mes[1].equals("02"))) {
+//											Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+//											int diasMes = fecha.getFechaCal().getActualMaximum(Calendar.DAY_OF_MONTH);
+//											if(diasMes==28) { diasPeriodo=diasPeriodo+2; }else { diasPeriodo=diasPeriodo+1; }
+//											
+//										}
 										
 									}
+									
+									
+									
+									
+									
 									if(esVenta.equals("0")) {
 										arriendo=arriendo+Double.parseDouble(cantidad.trim())*diasPeriodo*precioDia;
 									}else {
@@ -2483,7 +2510,6 @@ public class ReportMovimientos {
 						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
 						 default:  break;
 						}
-						
 						aux.add(myformatMoneda.format((arriendo+totalCfi)*auxTasaCambio));
 						
 						
