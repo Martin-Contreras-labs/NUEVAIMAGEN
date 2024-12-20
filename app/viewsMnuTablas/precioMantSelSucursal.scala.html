@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listSucursal: List[tables.Sucursal])
+listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: String)
 
     	
 @main("") {
@@ -20,19 +20,34 @@ listSucursal: List[tables.Sucursal])
 						</TR>
 					</thead>
 					<tbody>
-						@for(lista2 <- listSucursal){
+						@if(esPorSucursal.equals("1")){
 							<tr class="align-middle">
-								<td style="text-align:left;" width="50%">@lista2.getNombre()</td>
+								<td style="text-align:left;" width="50%">@sucursal.getNombre()</td>
 								<td style="text-align:center;">
-									<form id="@lista2.getId" method="post" action="/precioMantencion/">
-										<input type="hidden" id="id_sucursal_@lista2.getId" name="id_sucursal">
-										<a href="#" onclick='$("#id_sucursal_@lista2.getId").val("@lista2.getId"); $("#@lista2.getId").submit();'>
+									<form id="@sucursal.getId" method="post" action="/precioMantencion/">
+										<input type="hidden" id="sucursal.id" name="id_sucursal" value="@sucursal.id">
+										<a href="#" onclick='$("#@sucursal.getId").submit();'>
 											<kbd style="background-color: #73C6B6">Select</kbd>
 										</a>
 									</form>
 								</td>
 							</tr>
-						 }
+						}else{
+							@for(lista2 <- listSucursal){
+								<tr class="align-middle">
+									<td style="text-align:left;" width="50%">@lista2.getNombre()</td>
+									<td style="text-align:center;">
+										<form id="@lista2.getId" method="post" action="/precioMantencion/">
+											<input type="hidden" id="id_sucursal_@lista2.getId" name="id_sucursal">
+											<a href="#" onclick='$("#id_sucursal_@lista2.getId").val("@lista2.getId"); $("#@lista2.getId").submit();'>
+												<kbd style="background-color: #73C6B6">Select</kbd>
+											</a>
+										</form>
+									</td>
+								</tr>
+						 	}
+						}
+						
 					</tbody>
 				</table>
 			</div>

@@ -3541,8 +3541,9 @@ public class MnuTablas extends Controller {
     			}
     			List<UsuarioTipo> listTipoUsuario = UsuarioTipo.all(con, s.baseDato);
     			List<List<Long>> listEsPorProyecto = Usuario.listParOfIdTipoUsuarioVsEsPorProyecto(con, s.baseDato);
+    			List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
     			con.close();
-    			return ok(usuarioAgrega.render(mapeoDiccionario,mapeoPermiso,userMnu,listTipoUsuario,listEsPorProyecto));
+    			return ok(usuarioAgrega.render(mapeoDiccionario,mapeoPermiso,userMnu,listTipoUsuario,listEsPorProyecto,listSucursal));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -3880,8 +3881,11 @@ public class MnuTablas extends Controller {
     			}
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
+    			Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
+    			
+    			
     			con.close();
-    			return ok(precioMantSelSucursal.render(mapeoDiccionario,mapeoPermiso,userMnu,listSucursal));
+    			return ok(precioMantSelSucursal.render(mapeoDiccionario,mapeoPermiso,userMnu,listSucursal,sucursal, s.aplicaPorSucursal));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}

@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listTipoUsuario: List[tables.UsuarioTipo], listEsPorProyecto: List[List[Long]])
+listTipoUsuario: List[tables.UsuarioTipo], listEsPorProyecto: List[List[Long]],listSucursal: List[tables.Sucursal])
 
     	
 @main("") {
@@ -82,6 +82,18 @@ listTipoUsuario: List[tables.UsuarioTipo], listEsPorProyecto: List[List[Long]])
 									onchange="cambiaMensaje(value);">
 									@for(lista <- listTipoUsuario){
 										<option value="@lista.getId()">@lista.getTipo()</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+						<td style="text-align:left;">SUCURSAL: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									id="id_sucursal" 
+									name="id_sucursal">
+									@for(lista <- listSucursal){
+										<option value="@lista.getId()">@lista.getNombre()</option>
 									}
 								</select>
 							</td>

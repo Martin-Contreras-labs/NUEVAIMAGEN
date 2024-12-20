@@ -385,8 +385,8 @@ public class Usuario {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.usuario (userName, userKey, nombre, cargo, id_tipoUsuario, email, fono, observaciones)"
-							+ " values (?,?,?,?,?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.usuario (userName, userKey, nombre, cargo, id_tipoUsuario, email, fono, observaciones, id_sucursal)"
+							+ " values (?,?,?,?,?,?,?,?,?)");
 			smt.setString(1, aux.userName.trim());
 			smt.setString(2, aux.userKey.trim());
 			smt.setString(3, aux.nombre.trim());
@@ -395,6 +395,7 @@ public class Usuario {
 			smt.setString(6, aux.email.trim());
 			smt.setString(7, aux.fono.trim());
 			smt.setString(8, aux.observaciones.trim());
+			smt.setLong(9, aux.id_sucursal);
 			smt.executeUpdate();
 			smt.close();
 			flag = true;
