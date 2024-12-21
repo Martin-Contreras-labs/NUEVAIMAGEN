@@ -749,9 +749,12 @@ public class FormCotiza {
 			int contFilasTabla = 0;
 			table = doc.getTables().get(2);
 			
-			if( mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) {
-				cell=table.getRow(0).getCell(12);setCelda(cell,"Arial",8,3,"2b5079","",false);
+			if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+				if( mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) {
+					cell=table.getRow(0).getCell(12);setCelda(cell,"Arial",8,3,"2b5079","",false);
+				}
 			}
+			
 			
 			
 			Double auxRestar = (double)0;
@@ -861,7 +864,13 @@ public class FormCotiza {
 								totalArriendo = DecimalFormato.formato(auxTotalArriendo, (long)0);
 							}
 							auxRestar += auxTotalArriendo;
-							cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+							
+							if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+								cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+							}else {
+								cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+							}
+							
 							
 							table.createRow();
 		   				}
@@ -934,13 +943,20 @@ public class FormCotiza {
 							cell=row.getCell(5);setCelda(cell,"Arial",8,3,"2b5079",puVenta,false);
 							cell=row.getCell(6);setCelda(cell,"Arial",8,2,"2b5079",unidadArriendo,false);
 							cell=row.getCell(7);setCelda(cell,"Arial",8,3,"2b5079",puArriendo,false);
-							cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",permanencia,false);
-							cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",parcialRepos,false);
-							cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
-							cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",totalKg,false);
-							if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
-								cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
+							
+							if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+								cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",permanencia,false);
+								cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",parcialRepos,false);
+								cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+								cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",totalKg,false);
+								if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+									cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
+								}
+							}else {
+								cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",parcialRepos,false);
+								cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
 							}
+							
 							table.createRow();
 		   				}
 					}
@@ -963,15 +979,23 @@ public class FormCotiza {
 		        
 				//table.createRow();
 				row = table.getRow(contFilasTabla+2);
-				
 				cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079","TOTALES",true);
 				cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumCant),true);
-				cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalReposicion),true);
-				cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio),true);
-				cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumKG),true);
-				if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
-					cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumM2),true);
+				
+				if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+					cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalReposicion),true);
+					cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio),true);
+					cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumKG),true);
+					if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+						cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumM2),true);
+					}
+				}else {
+					cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalReposicion),true);
+					cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecio),true);
 				}
+				
+				
+				
 			}
 
 			
@@ -1112,9 +1136,14 @@ public class FormCotiza {
 				cell=row.getCell(6);setCelda(cell,"Arial",8,2,"2b5079"," ",false);
 				cell=row.getCell(7);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
 				cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
-				cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
-				cell=row.getCell(10);setCelda(cell,"Arial",8,2,"2b5079","TOTAL",false);
-				cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				
+				if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+					cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+					cell=row.getCell(10);setCelda(cell,"Arial",8,2,"2b5079","TOTAL",false);
+					cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079"," ",false);
+				}else {
+					cell=row.getCell(9);setCelda(cell,"Arial",8,2,"2b5079","TOTAL",false);
+				}
 				
 				
 				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
@@ -1596,9 +1625,12 @@ public class FormCotiza {
 			int contFilasTabla = 0;
 			table = doc.getTables().get(2);
 			
-			if(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) {
-				cell=table.getRow(0).getCell(12);setCelda(cell,"Arial",8,3,"2b5079","",false);
+			if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+				if(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) {
+					cell=table.getRow(0).getCell(12);setCelda(cell,"Arial",8,3,"2b5079","",false);
+				}
 			}
+			
 			
 			table.createRow();
 			for(int i=0; i<detalleCoti.size(); i++) {
@@ -1667,13 +1699,21 @@ public class FormCotiza {
 						cell=row.getCell(5);setCelda(cell,"Arial",8,3,"2b5079",puVenta,false);
 						cell=row.getCell(6);setCelda(cell,"Arial",8,2,"2b5079",unidadArriendo,false);
 						cell=row.getCell(7);setCelda(cell,"Arial",8,3,"2b5079",puArriendo,false);
-						cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",permanencia,false);
-						cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",parcialVenta,false);
-						cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
-						cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",totalKg,false);
-						if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
-							cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
+						
+						if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+							cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",permanencia,false);
+							cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",parcialVenta,false);
+							cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
+							cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",totalKg,false);
+							if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+								cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
+							}
+						}else {
+							cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",parcialVenta,false);
+							cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",totalArriendo,false);
 						}
+						
+						
 						table.createRow();
 	    			}
 				}
@@ -1696,15 +1736,21 @@ public class FormCotiza {
 	        
 			//table.createRow();
 			row = table.getRow(contFilasTabla+2);
-			
 			cell=row.getCell(1);setCelda(cell,"Arial",8,1,"2b5079","TOTALES",true);
 			cell=row.getCell(3);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumCant),true);
-			cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecioVta),true);
-			cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecioArr),true);
-			cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumKG),true);
-			if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
-				cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumM2),true);
+			
+			if( ! mapDiccionario.get("nEmpresa").equals("VAN BEEK RENTALS")) {
+				cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecioVta),true);
+				cell=row.getCell(10);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecioArr),true);
+				cell=row.getCell(11);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumKG),true);
+				if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+					cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(sumM2),true);
+				}
+			}else {
+				cell=row.getCell(8);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecioVta),true);
+				cell=row.getCell(9);setCelda(cell,"Arial",8,3,"2b5079",myformatdouble.format(totalPrecioArr),true);
 			}
+			
 			
 			Double subTotalArr = totalPrecioArr;
 			Double subTotalVta = totalPrecioVta;
