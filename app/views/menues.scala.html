@@ -626,9 +626,7 @@
 		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
 		        		@if(mapPermiso.get("bodegaAdministrar")!=null){
 		        			<a class="dropdown-item" href="/bodegaAdministrar/">Administrar @mapDiccionario.get("Bodegas")</a>
-							@if(mapPermiso.get("cambiarSucursal")!=null){
-								<a class="dropdown-item" href="/routes2/sucursalAdministrar/">Administrar Sucursales</a>
-							}
+							<a class="dropdown-item" href="/routes2/sucursalAdministrar/">Administrar Sucursales</a>
 							<div class="dropdown-divider" style="border-color:black"></div>
 						}
 						@if(mapDiccionario.get("nEmpresa").equals("GLOBALRENT") && mapPermiso.get("bodegaAsignaDctos")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){

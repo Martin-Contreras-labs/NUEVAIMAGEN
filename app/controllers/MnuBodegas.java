@@ -306,7 +306,7 @@ public class MnuBodegas extends Controller {
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			
-    			if(mapeoPermiso.get("bodegaAdministrar")==null || mapeoPermiso.get("cambiarSucursal")==null) {
+    			if(mapeoPermiso.get("bodegaAdministrar")==null) {
     				
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));

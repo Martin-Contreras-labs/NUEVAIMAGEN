@@ -1399,19 +1399,6 @@ sinVenta: String)
 		
 		
 		
-		/*
-		var tableReg = document.getElementById("tablaPrincipal");
-			for (var i = 1; i < tableReg.rows.length; i++){
-				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
-					if("@sinVenta" == "XX"){
-						// cellsOfRow[11].style.display = 'none';
-						// cellsOfRow[12].style.display = 'none';
-					}else{
-						//cellsOfRow[12].style.display = 'none';
-					}
-			}
-		*/
-		
 		$("#tablaPrincipal").dataTable().fnDestroy();
 		let tabla = document.getElementById("tablaPrincipal");
 		let totCant = 0;

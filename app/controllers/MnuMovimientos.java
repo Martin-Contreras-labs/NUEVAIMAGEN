@@ -285,7 +285,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				listEquipNoEnBodOrigen.add(v);
 	    			});
 	    			
-	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.id_sucursal);
 	    			List<TipoReparacion> listTipoReparacion = TipoReparacion.all(con, s.baseDato);
 	    			
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
@@ -860,7 +860,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				listEquipNoEnBodOrigen.add(v);
 	    			});
 	    			
-	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.id_sucursal);
 	    			List<TipoReparacion> listTipoReparacion = TipoReparacion.all(con, s.baseDato);
 	    			
 	    			

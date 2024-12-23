@@ -23,8 +23,12 @@ public class TipoEstado {
 	
 	public String bodegaAsociada;
 	public Long valoriza;
+	
+	public Long id_sucursal;
+	public String nomSucursal;
 
-	public TipoEstado(Long id, String sigla, String nombre, Long reparable, Long id_bodegaAsociada, String bodegaAsociada, Long valoriza) {
+	public TipoEstado(Long id, String sigla, String nombre, Long reparable, Long id_bodegaAsociada, String bodegaAsociada, Long valoriza,
+			Long id_sucursal, String nomSucursal) {
 		super();
 		this.id = id;
 		this.sigla = sigla;
@@ -33,6 +37,9 @@ public class TipoEstado {
 		this.id_bodegaAsociada = id_bodegaAsociada;
 		this.bodegaAsociada = bodegaAsociada;
 		this.valoriza = valoriza;
+		
+		this.id_sucursal = id_sucursal;
+		this.nomSucursal = nomSucursal;
 	}
 
 	public TipoEstado() {
@@ -53,6 +60,22 @@ public class TipoEstado {
 	public void setBodegaAsociada(String bodegaAsociada) {this.bodegaAsociada = bodegaAsociada;}
 	public Long getValoriza() {return valoriza;}
 	public void setValoriza(Long valoriza) {this.valoriza = valoriza;}
+
+	public Long getId_sucursal() {
+		return id_sucursal;
+	}
+
+	public void setId_sucursal(Long id_sucursal) {
+		this.id_sucursal = id_sucursal;
+	}
+
+	public String getNomSucursal() {
+		return nomSucursal;
+	}
+
+	public void setNomSucursal(String nomSucursal) {
+		this.nomSucursal = nomSucursal;
+	}
 
 
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
@@ -75,7 +98,19 @@ public class TipoEstado {
 		List<TipoEstado> lista = new ArrayList<TipoEstado>();
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("select id,sigla,nombre,reparable,id_bodegaAsociada,valoriza from `"+db+"`.tipoEstado order by nombre;");
+					.prepareStatement("select"
+							+ " tipoEstado.id,"
+							+ " tipoEstado.sigla,"
+							+ " tipoEstado.nombre,"
+							+ " tipoEstado.reparable,"
+							+ " tipoEstado.id_bodegaAsociada,"
+							+ " tipoEstado.valoriza,"
+							+ " bodegaEmpresa.id_sucursal,"
+							+ " sucursal.nombre"
+							+ " from `"+db+"`.tipoEstado"
+							+ " left join `"+db+"`.bodegaEmpresa on  bodegaEmpresa.id = tipoEstado.id_bodegaAsociada"
+							+ " left join `"+db+"`.sucursal on  sucursal.id = bodegaEmpresa.id_sucursal"
+							+ " order by tipoEstado.nombre;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				BodegaEmpresa bodegaAsociada = BodegaEmpresa.findXIdBodega(con, db, rs.getLong(5));
@@ -83,7 +118,45 @@ public class TipoEstado {
 				if(bodegaAsociada != null) {
 					nombreBodega = bodegaAsociada.nombre;
 				}
-				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6)));
+				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6),
+						rs.getLong(7),rs.getString(8)));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+    			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
+	public static List<TipoEstado> allPorSucursal(Connection con, String db, Long id_sucursal) {
+		List<TipoEstado> lista = new ArrayList<TipoEstado>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select"
+							+ " tipoEstado.id,"
+							+ " tipoEstado.sigla,"
+							+ " tipoEstado.nombre,"
+							+ " tipoEstado.reparable,"
+							+ " tipoEstado.id_bodegaAsociada,"
+							+ " tipoEstado.valoriza,"
+							+ " bodegaEmpresa.id_sucursal,"
+							+ " sucursal.nombre"
+							+ " from `"+db+"`.tipoEstado"
+							+ " left join `"+db+"`.bodegaEmpresa on  bodegaEmpresa.id = tipoEstado.id_bodegaAsociada"
+							+ " left join `"+db+"`.sucursal on  sucursal.id = bodegaEmpresa.id_sucursal"
+							+ " where bodegaEmpresa.id_sucursal = ? or bodegaEmpresa.id_sucursal is null "
+							+ " order by tipoEstado.nombre;");
+			smt.setLong(1, id_sucursal);
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				BodegaEmpresa bodegaAsociada = BodegaEmpresa.findXIdBodega(con, db, rs.getLong(5));
+				String nombreBodega = "No asociada";
+				if(bodegaAsociada != null) {
+					nombreBodega = bodegaAsociada.nombre;
+				}
+				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6),
+						rs.getLong(7),rs.getString(8)));
 			}
 			rs.close();
 			smt.close();
@@ -97,7 +170,19 @@ public class TipoEstado {
 		TipoEstado aux = null;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("select id,sigla,nombre,reparable,id_bodegaAsociada,valoriza from `"+db+"`.tipoEstado WHERE id = ?" );
+					.prepareStatement("select "
+							+ " tipoEstado.id,"
+							+ " tipoEstado.sigla,"
+							+ " tipoEstado.nombre,"
+							+ " tipoEstado.reparable,"
+							+ " tipoEstado.id_bodegaAsociada,"
+							+ " tipoEstado.valoriza,"
+							+ " bodegaEmpresa.id_sucursal,"
+							+ " sucursal.nombre"
+							+ " from `"+db+"`.tipoEstado"
+							+ " left join `"+db+"`.bodegaEmpresa on  bodegaEmpresa.id = tipoEstado.id_bodegaAsociada"
+							+ " left join `"+db+"`.sucursal on  sucursal.id = bodegaEmpresa.id_sucursal"
+							+ " where id = ?" );
 			smt.setLong(1, id_tipoEstado);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -106,7 +191,8 @@ public class TipoEstado {
 				if(bodegaAsociada != null) {
 					nombreBodega = bodegaAsociada.nombre;
 				}
-				aux = new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6));
+				aux = new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),nombreBodega,rs.getLong(6),
+						rs.getLong(7),rs.getString(8));
 			}
 			rs.close();
 			smt.close();
@@ -120,7 +206,7 @@ public class TipoEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("select id from `"+db+"`.tipoEstado WHERE upper(sigla) = ?" );
+					.prepareStatement("select id from `"+db+"`.tipoEstado where upper(sigla) = ?" );
 			smt.setString(1, sigla.toUpperCase().trim());
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -137,7 +223,7 @@ public class TipoEstado {
 	public static boolean modificaPorCampo(Connection con,String db,String campo,Long id_tipoEstado,String valor) {
 		boolean flag = false;
 		try {
-			PreparedStatement smt = con.prepareStatement("update `"+db+"`.tipoEstado set `" + campo + "` = ? WHERE id = ?;");		
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.tipoEstado set `" + campo + "` = ? where id = ?;");		
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_tipoEstado);
 			smt.executeUpdate();
@@ -154,7 +240,7 @@ public class TipoEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("Select id from `"+db+"`.estadoEquipo WHERE id_tipoEstado = ?");
+					.prepareStatement("select id from `"+db+"`.estadoEquipo where id_tipoEstado = ?");
 			smt.setLong(1, id_tipoEstado);
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
@@ -172,7 +258,7 @@ public class TipoEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("delete from `"+db+"`.tipoEstado WHERE id = ?");
+					.prepareStatement("delete from `"+db+"`.tipoEstado where id = ?");
 			smt1.setLong(1, id_tipoEstado);
 			smt1.executeUpdate();
 			smt1.close();
@@ -220,12 +306,24 @@ public class TipoEstado {
 			condicion = condicion.replace("[", "").replace("]", "");
 			
 			PreparedStatement smt = con
-					.prepareStatement("select id,sigla,nombre,reparable,id_bodegaAsociada,valoriza from `"+db+"`.tipoEstado "
+					.prepareStatement("select "
+							+ " tipoEstado.id,"
+							+ " tipoEstado.sigla,"
+							+ " tipoEstado.nombre,"
+							+ " tipoEstado.reparable,"
+							+ " tipoEstado.id_bodegaAsociada,"
+							+ " tipoEstado.valoriza,"
+							+ " bodegaEmpresa.id_sucursal,"
+							+ " sucursal.nombre"
+							+ " from `"+db+"`.tipoEstado "
+							+ " left join `"+db+"`.bodegaEmpresa on  bodegaEmpresa.id = tipoEstado.id_bodegaAsociada"
+							+ " left join `"+db+"`.sucursal on  sucursal.id = bodegaEmpresa.id_sucursal"
 							+ " where id in ("+condicion+") order by nombre;");
 			ResultSet rs = smt.executeQuery();
 			
 			while (rs.next()) {
-				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),bodega.getNombre(),rs.getLong(6)));
+				lista.add(new TipoEstado(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getLong(4),rs.getLong(5),bodega.getNombre(),rs.getLong(6),
+						rs.getLong(7),rs.getString(8)));
 			}
 			rs.close();
 			smt.close();

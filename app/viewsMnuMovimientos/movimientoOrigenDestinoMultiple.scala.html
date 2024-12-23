@@ -1296,32 +1296,64 @@ sinVenta: String)
 	}
 	
 	const verificaMovimientos = () =>{
-		$('#tablaPrincipal').dataTable().fnAddData( [
-			"TOTALES","","","","","","","","","",
-			"<div id='totalCant'>1.00</div>","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
-				@if(bodegaOrigen.esInterna!=1){
-					"",
-					@for((est,index) <- listTipoEstado.zipWithIndex){
-							"",
-					}
-					@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
-						"<div id='totalCantCliente'>0.00</div>","<div id='totalDifCliente'>0.00</div>",
-					}
-				}
-				"",
-		] );
 		
-		var tableReg = document.getElementById("tablaPrincipal");
-			for (var i = 1; i < tableReg.rows.length; i++){
-				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
-					if("@sinVenta" == "1"){
-						cellsOfRow[11].style.display = 'none';
-						cellsOfRow[12].style.display = 'none';
-					}else{
-						cellsOfRow[12].style.display = 'none';
-					}
+		if("@bodegaOrigen.esInterna" != "1"){
+			
+			if("@sinVenta" == "1"){
+				$('#tablaPrincipal').dataTable().fnAddData( [
+					"TOTALES","","","","","","","","","",
+					"<div id='totalCant'>1.00</div>","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+						@if(bodegaOrigen.esInterna!=1){
+							"",
+							@for((est,index) <- listTipoEstado.zipWithIndex){
+									"",
+							}
+							@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+								"<div id='totalCantCliente'>0.00</div>",
+								"<div id='totalDifCliente'>0.00</div>",
+							}
+						}
+						"","",
+				] );
+			}else{
+				$('#tablaPrincipal').dataTable().fnAddData( [
+					"TOTALES","","","","","","","","","",
+					"<div id='totalCant'>1.00</div>","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+						@if(bodegaOrigen.esInterna!=1){
+							"",
+							@for((est,index) <- listTipoEstado.zipWithIndex){
+									"",
+							}
+							@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+								"<div id='totalCantCliente'>0.00</div>",
+								"<div id='totalDifCliente'>0.00</div>",
+							}
+						}
+						"","",
+				] );
 			}
 			
+			
+		}else{
+			$('#tablaPrincipal').dataTable().fnAddData( [
+				"TOTALES","","","","","","","","","",
+				"<div id='totalCant'>1.00</div>","","","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+					@if(bodegaOrigen.esInterna!=1){
+						"",
+						@for((est,index) <- listTipoEstado.zipWithIndex){
+								"",
+						}
+						@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+							"<div id='totalCantCliente'>0.00</div>",
+							"<div id='totalDifCliente'>0.00</div>",
+						}
+					}
+					"","",
+			] );
+		}
+		
+		
+		
 		$("#tablaPrincipal").dataTable().fnDestroy();
 		let tabla = document.getElementById("tablaPrincipal");
 		let totCant = 0;
