@@ -182,7 +182,7 @@ public class TipoEstado {
 							+ " from `"+db+"`.tipoEstado"
 							+ " left join `"+db+"`.bodegaEmpresa on  bodegaEmpresa.id = tipoEstado.id_bodegaAsociada"
 							+ " left join `"+db+"`.sucursal on  sucursal.id = bodegaEmpresa.id_sucursal"
-							+ " where id = ?" );
+							+ " where tipoEstado.id = ?" );
 			smt.setLong(1, id_tipoEstado);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
@@ -318,7 +318,7 @@ public class TipoEstado {
 							+ " from `"+db+"`.tipoEstado "
 							+ " left join `"+db+"`.bodegaEmpresa on  bodegaEmpresa.id = tipoEstado.id_bodegaAsociada"
 							+ " left join `"+db+"`.sucursal on  sucursal.id = bodegaEmpresa.id_sucursal"
-							+ " where id in ("+condicion+") order by nombre;");
+							+ " where tipoEstado.id in ("+condicion+") order by tipoEstado.nombre;");
 			ResultSet rs = smt.executeQuery();
 			
 			while (rs.next()) {

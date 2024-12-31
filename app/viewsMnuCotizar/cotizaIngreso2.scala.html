@@ -793,9 +793,12 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 					tabla += "</td>"
 						+ "<td style=\"text-align:center;\">" 
 						+ "<input type=\"hidden\" id=\"id_moneda_"+jsonDetalle[i][0]+"\" name=\"id_moneda[]\" value=\""+jsonDetalle[i][8]+"\">"
-						+ "<select class=\"custom-select\"  style=\"width: 80px;\""
-						+ "onchange=\"$('#id_moneda_"+jsonDetalle[i][0]+"').val(value);\">"
-						+ "<option value=\""+jsonDetalle[i][8]+"\">"+jsonDetalle[i][4]+"</option>"+moneda
+						
+							+ "<select class=\"custom-select\"  style=\"width: 80px;\""
+							+ "onchange=\"$('#id_moneda_"+jsonDetalle[i][0]+"').val(value); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
+							+ "<option value=\""+jsonDetalle[i][8]+"\">"+jsonDetalle[i][4]+"</option>"+moneda
+							+ "</select>"
+							
 						+"</td>"
 						+ "<td style=\"text-align:center;\">"
 						+ "<div style=\"display:none\" id=\"hiddenpuVentaRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][26]+"</div>";
@@ -812,7 +815,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 							+ "id=\"puVentaRepos_"+jsonDetalle[i][0]+"\""
 							+ "value=\""+jsonDetalle[i][5]+"\""
 							+ "onfocus=\"value=value.replace(/,/g,'');\" "
-							+ "onblur = \"value = formatStandar(value, '"+jsonDetalle[i][20]+"');\""
+							+ "onblur = \"calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\""
 							+ "onkeypress=\"return ingresoDouble(event,value)\""
 							+ "autocomplete=\"off\" "
 							+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">";
@@ -842,7 +845,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 						+ "id=\"puArriendo_"+jsonDetalle[i][0]+"\""
 						+ "value=\""+jsonDetalle[i][7]+"\""
 						+ "onfocus=\"value=value.replace(/,/g,'');\" "
-						+ "onblur = \"value = formatStandar(value, '"+jsonDetalle[i][20]+"');\""
+						+ "onblur = \"calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\""
 						+ "onkeypress=\"return ingresoDouble(event,value)\""
 						+ "autocomplete=\"off\""
 						+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">"
@@ -1140,6 +1143,10 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 			let uniVta = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
 			let uniTasa = $("#tasaArr_"+id_equipo).val().replace(/,/g,'').replace(/%/g,'').replace(/ /g,'');
 			let uniArr = parseFloat(uniVta)*parseFloat(uniTasa)/100;
+			
+			let idMon = $("#id_moneda_"+id_equipo).val();
+			numDec = mapMoneda.get(parseFloat(idMon));
+			
 			$("#puArriendo_"+id_equipo).val(formatStandar(uniArr,numDec));
 			$("#hiddentasaArr_"+id_equipo).text(uniTasa);
 		}else{
@@ -1185,7 +1192,11 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		
 		$("#cantidad_"+id_equipo).val(formatStandar(cant,2));
 		$("#puVentaRepos_"+id_equipo).val(formatStandar(uniVta,numDec));
+		
+		$("#nroDecimales_"+id_equipo).text(numDec);
 		$("#puArriendo_"+id_equipo).val(formatStandar(uniArr,numDec));
+		
+		
 		$("#totRepos_"+id_equipo).text(formatStandar(totRepos,numDec));
 		$("#totArrie_"+id_equipo).text(formatStandar(totArr,numDec));
 		$("#totVenta_"+id_equipo).text(formatStandar(totVta,numDec));
@@ -1197,11 +1208,11 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 		$("#hiddenpuArriendo_"+id_equipo).text(uniArr);
 		
 		
-		
+		/*
 		if(verificando == 1){
 			sumaTotales();
 		}
-		
+		*/
 	}
 	
 	let verificando = 0;

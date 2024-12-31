@@ -323,10 +323,20 @@ sinVenta: String)
 														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
 														value="0.00"
 														readonly>
-														<script>
-															auxBueno = 999;
-															auxIndex = "@index";
-														</script>
+													<script>
+														auxBueno = 999;
+														auxIndex = "@index";
+													</script>
+												}else if( mapDiccionario.get("nEmpresa").equals("HOHE") && ( est.getId() == 2 || est.getId() == 3 ) ){
+													<input type="text" class="form-control height23px right width60px"
+														style="font-size:10px; vertical-align:middle"
+														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
+														value="0.00"
+														readonly>
+													<script>
+														auxBueno = "@est.getId()";
+														auxIndex = "@index";
+													</script>
 												}else{
 													<input type="text" class="form-control height23px right width60px"
 														style="font-size:10px; vertical-align:middle"
@@ -825,12 +835,21 @@ sinVenta: String)
 		
 		if(auxBueno == 999){
 			for(let i=0; i<largo; i++){
-			if( ! (i == auxIndex && auxBueno == 999)){
+				if( ! (i == auxIndex && auxBueno == 999)){
 					let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
 					auxAcum = auxAcum.replace(/,/g,'');
 					acum += parseFloat(auxAcum);
 				}
 			}
+		}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+			for(let i=0; i<largo; i++){
+				if( ! (i == auxIndex && (auxBueno == 2 || auxBueno == 3 ))){
+					let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+					auxAcum = auxAcum.replace(/,/g,'');
+					acum += parseFloat(auxAcum);
+				}
+			}
+		
 		}else{
 			for(let i=0; i<largo; i++){
 				acum += parseFloat($("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val());
@@ -892,6 +911,29 @@ sinVenta: String)
 					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
 				}
 				
+			} else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+				let difB = parseFloat(cantidad) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar, auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
 			}
 			
 			let totKg = parseFloat(KG) * parseFloat(cantidad);
@@ -1011,7 +1053,7 @@ sinVenta: String)
 		exce = exce.replace(/,/g,'');
 		
 		for(let i=0; i<largo; i++){
-			if( ! (i == auxIndex && auxBueno == 999)){
+			if( (! (i == auxIndex && auxBueno == 999)) && (! (i == auxIndex && (auxBueno == 2 || auxBueno == 3)))){
 				let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
 				auxAcum = auxAcum.replace(/,/g,'');
 				acum += parseFloat(auxAcum);
@@ -1027,6 +1069,37 @@ sinVenta: String)
 					let newAcum = 0;
 					for(let i=0; i<largo; i++){
 						if( ! (i == auxIndex && auxBueno == 999)){
+							let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+							auxAcum = auxAcum.replace(/,/g,'');
+							newAcum += parseFloat(auxAcum);
+						}
+					}
+					let difB = parseFloat(cant) - parseFloat(newAcum);
+					$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+					
+					let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+					let niv1 = aux.split(";");
+					let flag = true;
+					let buscar = "";
+					for(i=0; i<niv1.length && flag; i++){
+						let niv2 = niv1[i].split(":");
+						if(niv2[0] == auxBueno){
+							buscar = auxBueno+":"+niv2[1]+";";
+							flag = false;
+						}
+					}
+					
+					if(flag){
+						aux += auxBueno+":"+parseFloat(difB)+";";
+						$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+					}else{
+						aux = aux.replace(buscar,auxBueno+":"+parseFloat(difB)+";");
+						$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+					}
+				}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+					let newAcum = 0;
+					for(let i=0; i<largo; i++){
+						if( ! (i == auxIndex && (auxBueno == 2 || auxBueno == 3))){
 							let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
 							auxAcum = auxAcum.replace(/,/g,'');
 							newAcum += parseFloat(auxAcum);
@@ -1082,6 +1155,29 @@ sinVenta: String)
 					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
 				}
 				
+			}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+				let difB = parseFloat(cant) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar,auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
 			}
 			
 			let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();

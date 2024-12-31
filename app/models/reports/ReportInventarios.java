@@ -1644,7 +1644,7 @@ public class ReportInventarios {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("KG/UN");
+			cell.setCellValue("M2/UN");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);

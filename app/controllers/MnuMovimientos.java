@@ -285,7 +285,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				listEquipNoEnBodOrigen.add(v);
 	    			});
 	    			
-	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.id_sucursal);
+	    			List<TipoEstado> listTipoEstado = new ArrayList<TipoEstado>();
+					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+						listTipoEstado = TipoEstado.all(con, s.baseDato);
+					}else {
+						listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+					}
+					
 	    			List<TipoReparacion> listTipoReparacion = TipoReparacion.all(con, s.baseDato);
 	    			
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
@@ -860,7 +866,14 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				listEquipNoEnBodOrigen.add(v);
 	    			});
 	    			
-	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.id_sucursal);
+	
+	    			List<TipoEstado> listTipoEstado = new ArrayList<TipoEstado>();
+					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+						listTipoEstado = TipoEstado.all(con, s.baseDato);
+					}else {
+						listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+					}
+					
 	    			List<TipoReparacion> listTipoReparacion = TipoReparacion.all(con, s.baseDato);
 	    			
 	    			

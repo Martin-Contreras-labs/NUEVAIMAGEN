@@ -83,6 +83,7 @@ import models.tables.Usuario;
 import models.tables.UsuarioPermiso;
 import models.utilities.Archivos;
 import models.utilities.DatabaseRead;
+import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
@@ -1406,7 +1407,275 @@ public class MnuReportes extends Controller {
     	return ok("");
 	}
 	
+	//====================================================================================
+    // MNU reporteMovimientos0   Reportes/Movimientos/Por proyecto (Valorizado)
+    //====================================================================================
 	
+	public Result reportePorProyectoValorizado(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    		try {
+    			Connection con = dbRead.getConnection();
+    			if(mapeoPermiso.get("reporteMovimientos0")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Fechas hoy = Fechas.hoy();
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+    			con.close();
+    			return ok(reportePorProyectoValorizado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	public Result reportePorProyectoListaValorizado(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
+	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+	    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	       			Connection con = dbRead.getConnection();
+		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+		    			
+		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+		    			
+		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+		    			
+		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+	    			
+	    			con.close();
+    			
+    			
+    			
+    			
+    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+    			
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+    			
+    			
+    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+    			
+    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+    			
+    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+	    			
+	    			
+	    			
+	    			List<List<String>> proyectos = new ArrayList<List<String>>();
+	    			if(map.size()>0) {
+		    			for(List<String> aux:proyectosAux) {
+		    				String idBodega = map.get(aux.get(1));
+		    				if(idBodega!=null) {
+		    					proyectos.add(aux);
+		    				}
+		    			}
+	    			}else {
+	    				proyectos = proyectosAux;
+	    			}
+	    			
+	    			Map<String,List<Double>> mapListado = new HashMap<String,List<Double>>();
+	    			for(List<String> lista1: proyectos){
+    					for(List<String> total: resumenTotales){
+    						if(lista1.get(1).equals(total.get(0))){
+    							String idProyecto = lista1.get(3);
+    							String nomProy = lista1.get(8);
+    							Double cfi = Double.parseDouble(total.get(3).replaceAll(",", ""));
+    							Double arr = Double.parseDouble(total.get(1).replaceAll(",", ""));
+    							Double vta = Double.parseDouble(total.get(2).replaceAll(",", ""));
+    							Double ajusteArr = Double.parseDouble(total.get(5).replaceAll(",", ""));
+    							Double ajusteVta = Double.parseDouble(total.get(6).replaceAll(",", ""));
+    							Double totTot = Double.parseDouble(total.get(4).replaceAll(",", ""));
+    							
+    							List<Double> aux = mapListado.get(idProyecto+"_:_"+nomProy);
+    							if(aux == null) {
+    								List<Double> l = new ArrayList<Double>();
+    								l.add(cfi);
+    								l.add(arr);
+    								l.add(vta);
+    								l.add(ajusteArr);
+    								l.add(ajusteVta);
+    								l.add(totTot);
+    								mapListado.put(idProyecto+"_:_"+nomProy, l);
+    							}else {
+    								aux.set(0, aux.get(0)+cfi);
+    								aux.set(1, aux.get(1)+arr);
+    								aux.set(2, aux.get(2)+vta);
+    								aux.set(3, aux.get(3)+ajusteArr);
+    								aux.set(4, aux.get(4)+ajusteVta);
+    								aux.set(5, aux.get(5)+totTot);
+    								mapListado.put(idProyecto+"_:_"+nomProy, aux);
+    							}
+    							
+    							
+    						}
+    					}
+	    			}
+	    			
+	    			
+	    			String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
+	    					+ "<thead style=\"background-color: #eeeeee\">"
+	    					+ "<TR> "
+	    					+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>"
+	    					+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en "+mapeoDiccionario.get("PESOS")+")</TH>"
+	    					+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>"+mapeoDiccionario.get("ARRIENDO")+"</TH>"
+	    					+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
+	    					+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>("+mapeoDiccionario.get("ARRIENDO")+")</TH>"
+	    					+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
+	    					+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en "+mapeoDiccionario.get("PESOS")+")</TH>"
+	    					+ "<TH width=\"5%\" >"+mapeoDiccionario.get("ARRIENDO")+"<BR></TH>"
+	    					+ "<TH width=\"5%\" >VENTA<BR></TH>"
+	    					+ "</TR>"
+	    					+ "</thead>"
+	    					+ "<tbody>";
+	    					for (Map.Entry<String, List<Double>> entry : mapListado.entrySet()) {
+	    						String[] aux = entry.getKey().split("_:_");
+	    						List<Double> val = entry.getValue();
+	    						tabla += "<TR>"
+		    								+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('"+aux[0]+"');\">"+aux[1]+"</a></td>"
+					    					+ "<td style= \"text-align:right;\" class=\"cfi\">"+DecimalFormato.formato(val.get(0),(long)0)+"</td>"
+					    					+ "<td style= \"text-align:right;\" class=\"arr\">"+DecimalFormato.formato(val.get(1),(long)0)+"</td>"
+					    					+ "<td style= \"text-align:right;\" class=\"vta\">"+DecimalFormato.formato(val.get(2),(long)0)+"</td>"
+					    					+ "<td style= \"text-align:right;\" class=\"ajustArr\">"+DecimalFormato.formato(val.get(3),(long)0)+"</td>"
+					    					+ "<td style= \"text-align:right;\" class=\"ajustVta\">"+DecimalFormato.formato(val.get(4),(long)0)+"</td>"
+					    					+ "<td style= \"text-align:right;\" class=\"granTotal\">"+DecimalFormato.formato(val.get(5),(long)0)+"</td>"
+					    					
+					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
+					    					+ "<form id=\"form0_"+aux[0]+"\" class=\"formulario\" method=\"post\">" //action=\\\"/routes2/reporteMovDetPorProyecto/\\\">\"
+					    					+ "<input type=\"hidden\" name=\"id_proyecto\" value=\""+aux[0]+"\">"
+					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
+					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
+					    					+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
+					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
+					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
+					    					+ "<a href=\"#\" onclick=\"document.getElementById('form0_"+aux[0]+"').submit()\">"
+					    					+ "<kbd style=\"background-color: #73C6B6\">"+mapeoDiccionario.get("Arriendos")+"</kbd>"
+					    					+ "</a>"
+					    					+ "</form>"
+					    					+ "</td>"
+					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
+					    					+ "<form id=\"form1_"+aux[0]+"\" class=\"formulario\" method=\"post\">" //action=\"/routes2/reporteMovDetPorProyecto/\">"
+					    					+ "<input type=\"hidden\" name=\"id_proyecto\" value=\""+aux[0]+"\">"
+					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
+					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
+					    					+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
+					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
+					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
+					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
+					    					+ "<a href=\"#\" onclick=\"document.getElementById('form1_"+aux[0]+"').submit()\">"
+					    					+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
+					    					+ "</a>"
+					    					+ "</form>"
+					    					+ "</td>"
+					    					+ "</TR>";
+		    				}
+		    				tabla += "</tbody>"
+		    					+ "<tfoot>"
+		    					+ "<TR>"
+		    					+ "<td style=\"background-color: #eeeeee\">TOTALES</td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+		    					+ "</TR>"
+		    					+ "</tfoot>"
+		    					+ "</table>";
+	    			//reporteMovimientosListaProyectos
+		    				
+	    			return ok(reportePorProyectoListaValorizado.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD),Fechas.DDMMAA(hastaAAMMDD)));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok(mensajes.render("/",msgError));
+	       	}
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+//	public Result reporteMovDetPorProyecto(Http.Request request) {
+//		Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+//    		DynamicForm form = formFactory.form().bindFromRequest(request);
+//	   		if (form.hasErrors()) {
+//	   			return ok(mensajes.render("/",msgErrorFormulario));
+//	       	}else {
+//	       		Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
+//	       		String fechaDesde = form.get("fechaDesde").trim();
+//	       		String fechaHasta = form.get("fechaHasta").trim();
+//	       		String esVenta = form.get("esVenta").trim();
+//	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+//	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+//	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+//	       		try {
+//	    			Connection con = dbRead.getConnection();
+//	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+//	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasPorProyectoValorizado(con, s.baseDato, mapeoDiccionario, id_proyecto, esVenta, fechaDesde, fechaHasta, usd, eur, uf,
+//	    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+//	    			
+//	    			Proyecto proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
+//	    		
+//	    			String concepto = mapeoDiccionario.get("ARRIENDO");
+//	    			if(esVenta.equals("1")) {
+//	    				concepto = "VENTA";
+//	    			}
+//	    			con.close();
+//	    			return ok(reporteMovDetPorProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,proyecto,esVenta,concepto,fechaDesde,fechaHasta, usd, eur, uf));
+//	        	} catch (SQLException e) {
+//	    			e.printStackTrace();
+//	    		}
+//	       		return ok(mensajes.render("/",msgError));
+//	       	}
+//    	}else {
+//    		return ok(mensajes.render("/",msgError));
+//    	}
+//	}
 	
 	
 	//====================================================================================

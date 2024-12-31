@@ -16,6 +16,7 @@ listEstados: List[tables.TipoEstado])
 							<TH>ESTADO</TH>
 							<TH>APLICA LISTA PRECIOS</TH>
 							<TH>@mapDiccionario.get("BODEGA") ASOCIADA</TH>
+							<TH>SUCURSAL</TH>
 							<TH>EDIT</TH>
 							<TH>DEL</TH>
 						</TR>
@@ -33,6 +34,11 @@ listEstados: List[tables.TipoEstado])
 									}
 								</td>
 								<td  style="text-align:left;">@lista1.getBodegaAsociada()</td>
+								@if(mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")){
+									<td  style="text-align:left;">TODAS</td>
+								}else{
+									<td  style="text-align:left;">@lista1.getNomSucursal()</td>
+								}
 								<td  style="text-align:center;">
 									<a href="/tipoEstadoModifica/@lista1.getId()">
 										<kbd style="background-color: #73C6B6">E</kbd>

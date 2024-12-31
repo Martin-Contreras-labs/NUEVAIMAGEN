@@ -2131,6 +2131,30 @@ public class ReportMovimientos {
 				List<List<String>> listaCodigos = new ArrayList<List<String>>();
 				
 				
+				PreparedStatement smt4 = con
+						.prepareStatement(" select " +
+								" equipo.codigo,    " +
+								" guia.numero, " +
+								" sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)),   " +
+								" movimiento.id_cotizacion "+
+								" from `"+db+"`.movimiento " +
+								" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
+								" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
+								" where movimiento.id_bodegaEmpresa =  ? "+  
+								" and guia.fecha is not null  and movimiento.esVenta= ?  " +
+								" group by equipo.codigo, guia.numero, movimiento.id_cotizacion  " + 
+								" order by guia.fecha,guia.numero,equipo.codigo;");
+				smt4.setLong(1, id_bodegaEmpresa);
+				smt4.setString(2, esVenta.trim());
+				ResultSet rs4 = smt4.executeQuery();
+				Map<String,String> codGuiaCant = new HashMap<String,String>();
+				while (rs4.next()) {
+					codGuiaCant.put(rs4.getString(1).trim()+rs4.getString(2).trim()+"-"+rs4.getString(4).trim(), rs4.getString(3));
+				}
+				rs4.close();
+				smt4.close();
+				
+				
 				
 				while (rs3.next()) {
 					
@@ -2182,29 +2206,6 @@ public class ReportMovimientos {
 				}
 				rs3.close();
 				smt3.close();
-				
-				PreparedStatement smt4 = con
-						.prepareStatement(" select " +
-								" equipo.codigo,    " +
-								" guia.numero, " +
-								" sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)),   " +
-								" movimiento.id_cotizacion "+
-								" from `"+db+"`.movimiento " +
-								" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
-								" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-								" where movimiento.id_bodegaEmpresa =  ? "+  
-								" and guia.fecha is not null  and movimiento.esVenta= ?  " +
-								" group by equipo.codigo, guia.numero, movimiento.id_cotizacion  " + 
-								" order by guia.fecha,guia.numero,equipo.codigo;");
-				smt4.setLong(1, id_bodegaEmpresa);
-				smt4.setString(2, esVenta.trim());
-				ResultSet rs4 = smt4.executeQuery();
-				Map<String,String> codGuiaCant = new HashMap<String,String>();
-				while (rs4.next()) {
-					codGuiaCant.put(rs4.getString(1).trim()+rs4.getString(2).trim()+"-"+rs4.getString(4).trim(), rs4.getString(3));
-				}
-				rs4.close();
-				smt4.close();
 				
 				lista.add(numGuia);
 				lista.add(fechGuia);

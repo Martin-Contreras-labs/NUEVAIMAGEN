@@ -310,6 +310,10 @@ POST    /reporteEstadosPer1/				controllers.MnuReportes.reporteEstadosPer1(reque
 POST    /reporteEstadosPer1Excel/			controllers.MnuReportes.reporteEstadosPer1Excel(request: Request)
 
 
+GET     /reportePorProyectoValorizado/					controllers.MnuReportes.reportePorProyectoValorizado(request: Request)
+POST    /reportePorProyectoListaValorizado/				controllers.MnuReportes.reportePorProyectoListaValorizado(request: Request)
+# POST    /reporteMovDetPorProyecto/						controllers.MnuReportes.reporteMovDetPorProyecto(request: Request)
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU BODEGA
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
