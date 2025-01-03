@@ -930,12 +930,14 @@ public class FormMovimiento {
     			
     			row = table.getRow(0);
     			
-    			setCelda(row.getCell(3),"Arial",8,2,"000000","",false);
-    			setCelda(row.getCell(4),"Arial",8,2,"000000","",false);
-    			setCelda(row.getCell(5),"Arial",8,2,"000000","",false);
+    			if((long)bodegaOrigen.getEsInterna() !=(long)1) {
+    				
+	    			setCelda(row.getCell(3),"Arial",8,2,"000000","",false);
+	    			setCelda(row.getCell(4),"Arial",8,2,"000000","",false);
+	    			setCelda(row.getCell(5),"Arial",8,2,"000000","",false);
     			
-    			int opcion = allPorSucursal.size();
-				switch (opcion) {
+    				int opcion = allPorSucursal.size();
+    				switch (opcion) {
 		            case 1:
 		            	setCelda(row.getCell(3),"Arial",8,2,"000000",allPorSucursal.get(0).sigla,false);
 		                break;
@@ -984,6 +986,8 @@ public class FormMovimiento {
 		                break;
 		        }
     				
+    			}
+				
     			
     			if(mapeoPermiso.get("parametro.notaSalidaConArriendo")!=null && mapeoPermiso.get("parametro.notaSalidaConArriendo").equals("1") && (long)bodegaOrigen.getEsInterna()==(long)1 ){
 					texto = mapDiccionario.get("ARRIENDO");

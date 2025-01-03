@@ -1498,13 +1498,18 @@ public class MnuReportes extends Controller {
     			
     			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
 	    			
-	    			
-	    			
+    			List<List<String>> proyAux = new ArrayList<List<String>>();
+    			for(List<String> aux:proyectosAux) {
+    				if(! aux.get(3).equals("0")) {
+    					proyAux.add(aux);
+    				}
+    				proyectosAux = proyAux;
+    			}
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
 		    			for(List<String> aux:proyectosAux) {
 		    				String idBodega = map.get(aux.get(1));
-		    				if(idBodega!=null) {
+		    				if(idBodega!=null && ! aux.get(3).equals("0")) {
 		    					proyectos.add(aux);
 		    				}
 		    			}
@@ -1569,6 +1574,7 @@ public class MnuReportes extends Controller {
 	    					for (Map.Entry<String, List<Double>> entry : mapListado.entrySet()) {
 	    						String[] aux = entry.getKey().split("_:_");
 	    						List<Double> val = entry.getValue();
+	    						
 	    						tabla += "<TR>"
 		    								+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('"+aux[0]+"');\">"+aux[1]+"</a></td>"
 					    					+ "<td style= \"text-align:right;\" class=\"cfi\">"+DecimalFormato.formato(val.get(0),(long)0)+"</td>"
@@ -1579,7 +1585,7 @@ public class MnuReportes extends Controller {
 					    					+ "<td style= \"text-align:right;\" class=\"granTotal\">"+DecimalFormato.formato(val.get(5),(long)0)+"</td>"
 					    					
 					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
-					    					+ "<form id=\"form0_"+aux[0]+"\" class=\"formulario\" method=\"post\">" //action=\\\"/routes2/reporteMovDetPorProyecto/\\\">\"
+					    					+ "<form id=\"form0_"+aux[0]+"\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosListaProyectos/\">"
 					    					+ "<input type=\"hidden\" name=\"id_proyecto\" value=\""+aux[0]+"\">"
 					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
 					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
@@ -1593,7 +1599,7 @@ public class MnuReportes extends Controller {
 					    					+ "</form>"
 					    					+ "</td>"
 					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
-					    					+ "<form id=\"form1_"+aux[0]+"\" class=\"formulario\" method=\"post\">" //action=\"/routes2/reporteMovDetPorProyecto/\">"
+					    					+ "<form id=\"form1_"+aux[0]+"\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosListaProyectos/\">"
 					    					+ "<input type=\"hidden\" name=\"id_proyecto\" value=\""+aux[0]+"\">"
 					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
 					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
@@ -1601,6 +1607,7 @@ public class MnuReportes extends Controller {
 					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
 					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
 					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
+					    					
 					    					+ "<a href=\"#\" onclick=\"document.getElementById('form1_"+aux[0]+"').submit()\">"
 					    					+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
 					    					+ "</a>"
@@ -1723,6 +1730,12 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		String id_proyecto = form.get("id_proyecto");
+	       		if(id_proyecto == null) {
+	       			id_proyecto = "0";
+	       		}
+	       		id_proyecto = id_proyecto.trim();
+	       		
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
 	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -1782,6 +1795,16 @@ public class MnuReportes extends Controller {
 		    			}
 	    			}else {
 	    				proyectos = proyectosAux;
+	    			}
+	    			
+	    			if( ! id_proyecto.equals("0")) {
+	    				List<List<String>> aux = new ArrayList<List<String>>();
+	    				for(List<String> lista1: proyectos){
+	    					if(lista1.get(3).trim().equals(id_proyecto)) {
+	    						aux.add(lista1);
+	    					}
+	    				}
+	    				proyectos = aux;
 	    			}
 	    			
 	    			
@@ -1873,7 +1896,8 @@ public class MnuReportes extends Controller {
 		    					+ "</table>";
 	    			
 	    	
-	    			return ok(reporteMovimientosListaProyectos.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD),Fechas.DDMMAA(hastaAAMMDD)));
+	    			return ok(reporteMovimientosListaProyectos.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD),Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
+	    					uf, usd, eur, desdeAAMMDD, hastaAAMMDD));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1892,28 +1916,66 @@ public class MnuReportes extends Controller {
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+	       		
+	       		String auxIdBodega = form.get("id_bodega");
+	       		Long id_bodegaEmpresa = (long)0;
+	       		if(auxIdBodega!=null) {
+	       			id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+	       		}
+	       		
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		String id_proyecto = form.get("id_proyecto");
+	       		
+	       		if(id_proyecto == null) {
+	       			id_proyecto = "0";
+	       		}
+	       		id_proyecto = id_proyecto.trim();
+	       		
+	       		
+	       		
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
-
-	    			//agregar las tasas de uf usd eur
-	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 	    			
-	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
-	    				concepto = "VENTA";
+	    			if(id_proyecto.equals("0")) {
+	    				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
+		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+		    			String concepto = mapeoDiccionario.get("ARRIENDO");
+		    			if(esVenta.equals("1")) {
+		    				concepto = "VENTA";
+		    			}
+		    			con.close();
+		    			return ok(reporteMovimientosDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta, usd, eur, uf, id_proyecto));
+	    			}else {
+	    				Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
+	    				String concepto = mapeoDiccionario.get("ARRIENDO");
+		    			if(esVenta.equals("1")) {
+		    				concepto = "VENTA";
+		    			}
+	    				List<Long> listIdBodegas = BodegaEmpresa.allIdBodPorIdProy(con, s.baseDato, id_proyecto);
+	    				List<List<List<String>>> listDatos = new ArrayList<List<List<String>>>();
+	    				for(Long i: listIdBodegas) {
+	    					List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
+	    					
+	    					List<String> x = datos.get(datos.size()-1);
+	    					String y = x.get(x.size()-5);
+	    					Double total = Double.parseDouble(y.replaceAll(",", ""));
+	    					if(total > 0) {
+	    						listDatos.add(datos);
+	    					}
+	    					
+	    				}
+	    				con.close();
+	    				return ok(reporteMovimientosDetallePorProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,listDatos,proyecto,esVenta,concepto,fechaDesde,fechaHasta, usd, eur, uf, id_proyecto));
 	    			}
-	    			con.close();
-	    			return ok(reporteMovimientosDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta, usd, eur, uf));
+	    			
+	    			
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1931,37 +1993,81 @@ public class MnuReportes extends Controller {
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+	       		String auxIdBodega = form.get("id_bodega");
+	       		Long id_bodegaEmpresa = (long)0;
+	       		if(auxIdBodega!=null) {
+	       			id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+	       		}
+	       		
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+	       		String id_proyecto = form.get("id_proyecto");
 	       		
-	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			List<List<String>> datos = null;
-    			BodegaEmpresa bodega = null;
-    			
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
-	    			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			con.close();
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
+	       		if(id_proyecto == null) {
+	       			id_proyecto = "0";
+	       		}
+	       		id_proyecto = id_proyecto.trim();
 	       		
-	       		if(datos!=null && bodega!=null) {
-	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
-	    				concepto = "VENTA";
-	    			}
-	    			File file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("MovimientosPorBodegaValorizado.xlsx"));
-		       		}
-		       	}
+	       		if(id_proyecto.equals("0")) {
+	       			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			List<List<String>> datos = null;
+	    			BodegaEmpresa bodega = null;
+	    			
+		       		try {
+		    			Connection con = dbRead.getConnection();
+		    			datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
+		    			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+		    			con.close();
+		       		} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+		       		
+		       		if(datos!=null && bodega!=null) {
+		    			String concepto = mapeoDiccionario.get("ARRIENDO");
+		    			if(esVenta.equals("1")) {
+		    				concepto = "VENTA";
+		    			}
+		    			File file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
+		    			if(file!=null) {
+			       			return ok(file,false,Optional.of("MovimientosPorBodegaValorizado.xlsx"));
+			       		}
+			       	}
+	       		}else {
+	       			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       			List<List<List<String>>> listDatos = null;
+	    			Proyecto proyecto = null;
+	    			
+		       		try {
+		    			Connection con = dbRead.getConnection();
+		    			proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
+	    				List<Long> listIdBodegas = BodegaEmpresa.allIdBodPorIdProy(con, s.baseDato, id_proyecto);
+	    				listDatos = new ArrayList<List<List<String>>>();
+	    				for(Long i: listIdBodegas) {
+	    					List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
+	    					listDatos.add(datos);
+	    				}
+		    			con.close();
+		       		} catch (SQLException e) {
+		    			e.printStackTrace();
+		    		}
+		       		
+		       		if(listDatos!=null && proyecto!=null) {
+		    			String concepto = mapeoDiccionario.get("ARRIENDO");
+		    			if(esVenta.equals("1")) {
+		    				concepto = "VENTA";
+		    			}
+		    			File file = ReportMovimientos.movimientosExcelPorProyecto(s.baseDato, listDatos, mapeoDiccionario, proyecto, concepto, fechaDesde, fechaHasta);
+		    			if(file!=null) {
+			       			return ok(file,false,Optional.of("MovimientosPorProyectoValorizado.xlsx"));
+			       		}
+			       	}
+	       		}
+	       		
+	       		
 	       	}
     	}
     	return ok("");

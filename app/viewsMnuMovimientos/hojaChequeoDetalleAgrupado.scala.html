@@ -197,14 +197,23 @@ contactos: String, direccion: String)
 		for (let i = 0; i < kgs.length; i++) {
 		  const kg = kgs[i].textContent.replace(/,/g,'');
 		  const m2 = m2s[i].textContent.replace(/,/g,'');
-		  const cant = cants[i].textContent.replace(/,/g,''); 
+		  let cant = cants[i].textContent.replace(/,/g,'');
+			if(cant == ""){
+				cant = "0";
+			}
 		  totKg += parseFloat(kg);
 		  totM2 += parseFloat(m2);
 		  totCant += parseFloat(cant);
 		}
 		$("#totKg").text(formatStandar(totKg));
 		$("#totM2").text(formatStandar(totM2));
-		$("#totCant").text(formatStandar(totCant,2));
+		
+		if(totCant == 0){
+			$("#totCant").text("");
+		}else{
+			$("#totCant").text(formatStandar(totCant,2));
+		}
+		
 
 
 		document.getElementById('mostrarmostrar').style.display="block";

@@ -1905,7 +1905,7 @@ public class ReportMovimientos {
 		
 		Map<String,Double> excedentes = ReportExcedentes.totalExcedentesPorNumCotiCodyBod(con, db, id_bodegaEmpresa);
 		
-		
+		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
 		
 		try {
 			PreparedStatement smt1 = con
@@ -1945,12 +1945,12 @@ public class ReportMovimientos {
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Nro.Coti");
-				numGuia.add(" ");
+				numGuia.add(mapDiccionario.get("BODEGA")+": ");
 				fechGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Código");
-				numGuia.add(" ");
+				numGuia.add(bodegaEmpresa.nombre.toUpperCase());
 				fechGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
@@ -2127,6 +2127,7 @@ public class ReportMovimientos {
 								" order by grupo.nombre,equipo.nombre;");
 				smt3.setLong(1, id_bodegaEmpresa);
 				smt3.setString(2, esVenta.trim());
+				
 				ResultSet rs3 = smt3.executeQuery();
 				List<List<String>> listaCodigos = new ArrayList<List<String>>();
 				
@@ -2215,7 +2216,7 @@ public class ReportMovimientos {
 				
 				String auxiliarDeReparacion="";
 				
-				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
+				
 				
 				Fechas hastaAjustar = new Fechas();
 				Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
@@ -2883,7 +2884,6 @@ public class ReportMovimientos {
 				lista.add(auxValorizado);
 				
 				lista.add(aux3);
-				
 		return (lista);
 	}
 	
@@ -3035,6 +3035,185 @@ public class ReportMovimientos {
 				}
 				posRow++;
 			}
+			
+			
+			posRow = posRow + 5;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+			Hyperlink hiper = helper.createHyperlink(0);
+			hiper.setAddress("https://www.inqsol.cl");
+			cell.setHyperlink(hiper);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+			
+			
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        }
+	  return tmp;
+	}
+	
+	public static File movimientosExcelPorProyecto(String db, List<List<List<String>>> listDatos, Map<String,String> mapDiccionario, Proyecto proyecto, String concepto, String fechaDesde, String fechaHasta) {
+
+   		File tmp = TempFile.createTempFile("tmp","null");
+		
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+            Workbook libro = WorkbookFactory.create(formato);
+            formato.close();
+            
+            // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+            CellStyle titulo = libro.createCellStyle();
+            Font font = libro.createFont();
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setColor((short)4);
+            font.setFontHeight((short)(14*20));
+            titulo.setFont(font);
+            
+            CellStyle subtitulo = libro.createCellStyle();
+            Font font2 = libro.createFont();
+            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setColor((short)0);
+            font2.setFontHeight((short)(12*20));
+            subtitulo.setFont(font2);
+            
+            CellStyle encabezado = libro.createCellStyle();
+            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+            encabezado.setBorderTop(CellStyle.BORDER_THIN);
+            encabezado.setBorderRight(CellStyle.BORDER_THIN);
+            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setFillForegroundColor((short)19);
+            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            
+            CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+            detalle.setBorderTop(CellStyle.BORDER_THIN);
+            detalle.setBorderRight(CellStyle.BORDER_THIN);
+            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            
+            
+            
+            Sheet hoja1 = libro.getSheetAt(0);
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.createRow(1);
+            cell = row.createCell(1);
+            cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("REPORTE MOVIMIENTOS DE "+concepto+" (VALORIZADO) POR PROYECTO");
+		
+            row = hoja1.createRow(2);
+            cell = row.createCell(1);
+            cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROYECTO: "+proyecto.getNickName().toUpperCase());
+			
+			row = hoja1.createRow(3);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+			
+			row = hoja1.createRow(4);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+			
+			row = hoja1.createRow(6);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PERIODO: DESDE "+Fechas.DDMMAA(fechaDesde)+" HASTA "+Fechas.DDMMAA(fechaHasta));
+			
+			// encabezado de la tabla
+			
+			hoja1.setColumnWidth(1, 7*1000);
+			hoja1.setColumnWidth(2, 5*1000);
+			hoja1.setColumnWidth(3, 5*1000);
+			hoja1.setColumnWidth(4, 10*1000);
+			for(int i=5;i<500+10;i++){
+				hoja1.setColumnWidth(i, 4*1000);
+			}
+		
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+            byte[] bytes = IOUtils.toByteArray(x);
+            x.close();
+            int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+	        //set top-left corner for the image
+	        anchor.setCol1(6);
+	        anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+			
+			//DETALLE DE LA TABLA
+			int posRow = 8;
+			
+			
+			
+			for(List<List<String>> datos: listDatos){
+				for(int i=0;i<datos.size();i++){
+					row = hoja1.createRow(posRow);
+					int posCell = 0;
+					Double aux = (double)0;
+					for(int j=0;j<datos.get(i).size();j++){
+						String dato = datos.get(i).get(j);
+						if(i<5){
+							posCell++; 
+				            cell = row.createCell(posCell);
+				            cell.setCellStyle(encabezado);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(dato);
+						}else{
+							if(j<4||j==6){
+								posCell++; 
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(dato);
+							}else if(j==8) {
+								if(dato.equals("")||dato.equals(" ")) {
+									dato = "0";
+								}
+								posCell++; 
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+					            aux = Double.parseDouble(dato.replaceAll(",", "").replaceAll("%", "").trim());
+								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+								cell.setCellValue(aux/100);
+							}else {
+								if(dato.equals("")||dato.equals(" ")) {
+									dato = "0";
+								}
+								posCell++; 
+					            cell = row.createCell(posCell);
+					            cell.setCellStyle(detalle);
+					            aux = Double.parseDouble(dato.replaceAll(",", ""));
+								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+								cell.setCellValue(aux);
+							}
+						}
+					}
+					posRow++;
+				}
+				posRow++;posRow++;
+			}
+			
+			
 			
 			
 			posRow = posRow + 5;

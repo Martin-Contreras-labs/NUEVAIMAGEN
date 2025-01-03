@@ -615,6 +615,28 @@ public class BodegaEmpresa {
 		return (lista);
 	}
 	
+	public static List<Long> allIdBodPorIdProy(Connection con, String db, String id_proyecto) {
+		List<Long> lista = new ArrayList<Long>();
+		try {
+			PreparedStatement smt = con
+						.prepareStatement("select " +
+								" bodegaEmpresa.id " +
+								" from `"+db+"`.bodegaEmpresa " +
+								" where bodegaEmpresa.id_proyecto = ?" +
+								" order by bodegaEmpresa.nombre;" );
+			smt.setString(1, id_proyecto);
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				lista.add(rs.getLong(1));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (lista);
+	}
+	
 	public static BodegaEmpresa findXIdBodega(Connection con, String db, Long id_bodegaEmpresa) {
 		BodegaEmpresa aux = null;
 		try {

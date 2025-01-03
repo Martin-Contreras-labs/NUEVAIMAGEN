@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concepto: String, fechaDesde: String, fechaHasta: String,
+lista: List[List[List[String]]], proyecto: tables.Proyecto, esVenta: String, concepto: String, fechaDesde: String, fechaHasta: String,
 usd: Double, eur: Double, uf: Double, id_proyecto: String)
     	
 @main("") {
@@ -10,7 +10,7 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 	@modalVerCotizacion()
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "DETALLE MOVIMIENTO POR "+mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodega.getNombre().toUpperCase,concepto)
+		@barraTitulo(mapDiccionario, "DETALLE MOVIMIENTO POR PROYECTO: "+proyecto.getNickName().toUpperCase,concepto)
 
 				<div class="noprint">
 					<table class="table table-sm table-condensed table-fluid">
@@ -44,51 +44,54 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 					</table>
 				</div>
 				
-				<div class="table-responsive">
-					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
-						<thead style="background-color: #eeeeee">
-					        @for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 < 5){
-									<TR>
-										@for(nivel2 <- nivel1) {
-											<td style="textAlign: center">@nivel2</td>
-										}
-									</TR>
+				<hr size="1px" color="black" />
+				@for((lista1,index) <- lista.zipWithIndex) {
+					<div class="table-responsive">
+						<table id="tablaPrincipal_@index" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+							<thead style="background-color: #eeeeee">
+						        @for((nivel1,index1) <- lista1.zipWithIndex) {
+									@if(index1 < 5){
+										<TR>
+											@for(nivel2 <- nivel1) {
+												<td style="textAlign: center">@nivel2</td>
+											}
+										</TR>
+									}
 								}
-							}
-						</thead>
-						<tbody>
-							@for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 > 4){
-									<TR>
-										@for((nivel2,index2) <- nivel1.zipWithIndex) {
-											@if(index2 == 1){
-												@if(nivel2.equals("0") || nivel2.equals("")){
-													<td style="text-align: center;">--</td>
+							</thead>
+							<tbody>
+								@for((nivel1,index1) <- lista1.zipWithIndex) {
+									@if(index1 > 4){
+										<TR>
+											@for((nivel2,index2) <- nivel1.zipWithIndex) {
+												@if(index2 == 1){
+													@if(nivel2.equals("0") || nivel2.equals("")){
+														<td style="text-align: center;">--</td>
+													}else{
+														<td style="text-align: center;"><a href="#" onclick="buscaCotizacion('@nivel2')">@nivel2</td>
+													}
 												}else{
-													<td style="text-align: center;"><a href="#" onclick="buscaCotizacion('@nivel2')">@nivel2</td>
-												}
-											}else{
-												@if(index2 == 2 || index2 ==3){
-													<td><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
-												}else{
-													<td>@nivel2</td>
+													@if(index2 == 2 || index2 ==3){
+														<td><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
+													}else{
+														<td>@nivel2</td>
+													}
 												}
 											}
-										}
-									</TR>
-								}
-							 }
-						</tbody>
-						
-
-					</table>
-				</div>
+										</TR>
+									}
+								 }
+							</tbody>
+						</table>
+					</div>
+					<hr size="1px" color="black" />
+				}
+				
 			</div>
 
 	
 	<form id="excel" class="formulario" method="post" action="/reporteMovimientosDetalleExcel/">
-		<input type="hidden" name="id_bodega" value="@bodega.getId()">
+		<input type="hidden" name="id_proyecto" value="@proyecto.getId()">
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
 		<input type="hidden" name="esVenta" value="@esVenta">
@@ -105,9 +108,8 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 
 	$(document).ready(function() {
 		
-		var tabla = document.getElementById("tablaPrincipal");
-		
-				
+		@for((lista1,index) <- lista.zipWithIndex) {
+			var tabla = document.getElementById("tablaPrincipal_@index");
 				for (var i = 0; i < tabla.rows.length; i++) { 	
 					tabla.rows[i].cells[11].style.backgroundColor="#eeeeee";
 				}
@@ -138,32 +140,17 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 					tabla.rows[i].cells[10].style.minWidth="60px";
 					tabla.rows[i].cells[11].style.minWidth="60px";
 					
-					for(var k=12;k<tabla.rows[0].cells.length;k++){
+					for(var k=12;k<tabla.rows[0].cells.length -3;k++){
 						tabla.rows[i].cells[k].style.textAlign="right";
 					}
 				}
-				for(var k=0;k<tabla.rows[0].cells.length;k++){
+				for(var k=0;k<tabla.rows[0].cells.length-3;k++){
 					tabla.rows[tabla.rows.length-1].cells[k].style.backgroundColor="#eeeeee";
 				}
 				
 				
-				$('#tablaPrincipal').DataTable({
-				    	"fixedHeader": true,
-				    	"paging": false,
-						"info": false,
-						"searching": false,
-						"order": false,
-						columnDefs:[{
-				            targets: "_all",
-				            sortable: false
-				        }],
-				    //	"order": [[ 3, "asc" ]],
-						"scrollY": 550,
-						"scrollX": true,
-				    	"language": {
-				        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
-				        }
-				} );
+		}
+		
 
 			document.getElementById('mostrarmostrar').style.display="block";
 	});

@@ -2116,7 +2116,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/hojaChequeoSelectBodegaAgrupado/",mensaje));
     			}
-    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
     			
     			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
     			String contactos = "";
@@ -2183,7 +2183,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    					}
 	    				}
 	    			});
-	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
 	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
 	    			String contactos = "CONTACTOS: ";
 	           	   	if(listContactos.size() == 0) {
@@ -2301,7 +2301,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
     			}
-    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
     			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
     			String contactos = "CONTACTOS: ";
            	   	if(listContactos.size() == 0) {
@@ -2378,7 +2378,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				con.close();
 	    				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
 	    			}
-	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
 	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
 	    			String contactos = "CONTACTOS: ";
 	           	   	if(listContactos.size() == 0) {
@@ -2512,7 +2512,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				con.close();
 	    				return ok(mensajes.render("/hojaChequeoSelectPorGrupo/",mensaje));
 	    			}
-	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
 	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
 	    			String contactos = "CONTACTOS: ";
 	           	   	if(listContactos.size() == 0) {
@@ -2591,7 +2591,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    					}
 	    				}
 	    			});
-	    			List<TipoEstado> listTipoEstado = TipoEstado.all(con, s.baseDato);
+	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
 	    			
 	    			File file = null;
 	    			if(mapeoDiccionario.get("nEmpresa").equals("HOHE")) {
