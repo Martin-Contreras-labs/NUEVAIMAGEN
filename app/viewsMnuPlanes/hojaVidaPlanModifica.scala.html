@@ -86,7 +86,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
 						<TH style="text-align:center">Fecha Estimada<br>Mantencion</TH>
 					</tr>
-					@for(lista <- allPlan){
+					@for((lista,index) <- allPlan.zipWithIndex){
 						<tr>
 							<td style="text-align:center">
 								
@@ -119,6 +119,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 							</td>
 							<td style="text-align:right">
 								<input type="text" class="estadoActual form-control center"
+									id="lectActual_@index"
 									value="@lista.estadoActual"
 									onfocus="value = value.replace(/,/g,'');" 
 									onkeypress="return ingresoDouble(event,value)"
@@ -128,6 +129,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 							
 							<td style="text-align:right">
 								<input type="text" class="cadaNEstimado form-control center"
+									id="frecuencia_@index"
 									value="@lista.cadaNEstimado"
 									onfocus="value = value.replace(/,/g,'');" 
 									onkeypress="return ingresoDouble(event,value)"
@@ -144,6 +146,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 							</td>
 							<td style="text-align:right">
 								<input type="text" class="proximaMantencion form-control center"
+									id="sigMant_@index"
 									value="@lista.proximaMantencion"
 									onfocus="value = value.replace(/,/g,'');" 
 									onkeypress="return ingresoDouble(event,value)"

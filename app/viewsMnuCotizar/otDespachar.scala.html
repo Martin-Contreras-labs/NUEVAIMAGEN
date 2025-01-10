@@ -384,6 +384,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 							idCotizaDetalle = tdIdCotizaDetalle[i].textContent;
 							esVenta = tdEsVentaOrigen[i].textContent;
 							saldo = tdSaldo[i].textContent;
+							saldo = saldo.replace(/"\""/g,'').replace(/,/g,'');
 							idCotizaDetalle = tdIdCotizaDetalle[i].textContent;
 								
 							if(aux == null){
@@ -399,12 +400,12 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 							}else{
 								selCod=aux[4];
 		    					selEquip = aux[5].replace(/"\""/g,'');
-		    					selStock=aux[9];
-		    					selUnidad=aux[8];
-		    					selKg=aux[6];
-		    					selM2=aux[7];
-								let stock = parseFloat(aux[9].replace(/,/g,''));
-								let auxSaldo = parseFloat(saldo.replace(/"\""/g,''));
+		    					selStock = aux[9].replace(/,/g,'');
+		    					selUnidad = aux[8];
+		    					selKg = aux[6];
+		    					selM2 = aux[7];
+								let stock = parseFloat(selStock);
+								let auxSaldo = parseFloat(saldo);
 								if(stock < auxSaldo){
 									auxSaldo = stock;
 								}

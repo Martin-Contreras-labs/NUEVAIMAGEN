@@ -3681,16 +3681,17 @@ public class MnuCotizar extends Controller {
 				/*******************************************************************************************/
     			
     			
-				String titulo1 = "<th>Grupo</th><th>Codigo</th><th style='min-width:200px'>Equipo</th><th colspan='"+(listaBodInternas.size()+1)+"'>INTERNAS</th><th colspan='"+(listaBodExternasVigentes.size()+1)+"'>CLIENTES</th>";
-				String titulo2 = "<th></th><th></th><th></th>";
+				String titulo1 = "<th>Grupo</th><th>Codigo</th><th style='min-width:200px'>Equipo</th><th>KG</th><th colspan='"+(listaBodInternas.size()+1)+"'>INTERNAS</th><th colspan='"+(listaBodExternasVigentes.size()+1)+"'>CLIENTES</th>";
+				String titulo2 = "<th></th><th></th><th></th><th></th>";
 				
-				String titulo3 = "<th></th><th></th><th>Cliente</th>";
-				String titulo4 = "<th></th><th></th><th>Nro_Coti</th>";
-				String titulo5 = "<th></th><th></th><th>Nro_Ot</th>";
-				String titulo6 = "<th></th><th></th><th>Fecha Entrega</th>";
-				String titulo7 = "<th></th><th></th><th>Sucursal</th>";
-				String titulo8 = "<th></th><th></th><th>Comercial</th>";
-				String titulo9 = "<th>Grupo</th><th>Codigo</th><th>Equipo</th>";
+				String titulo3 = "<th></th><th></th><th></th><th>Cliente</th>";
+				String titulo4 = "<th></th><th></th><th></th><th>Nro_Coti</th>";
+				String titulo5 = "<th></th><th></th><th></th><th>Nro_Ot</th>";
+				String titulo6 = "<th></th><th></th><th></th><th>Fecha Entrega</th>";
+				String titulo7 = "<th></th><th></th><th></th><th>Sucursal</th>";
+				String titulo8 = "<th></th><th></th><th></th><th>Comercial</th>";
+				String titulo9 = "<th>Grupo</th><th>Codigo</th><th>Equipo</th><th>KG</th>";
+				
 				
 				// AGREGAR TIT3 TIT4 ETC Y SUMAR A FOR
 						for(List<String> x: listaBodInternas) {
@@ -3760,6 +3761,7 @@ public class MnuCotizar extends Controller {
 						datos += "<td>"+q.getGrupo()+"</td>";
 						datos += "<td>"+q.getCodigo()+"</td>";
 						datos += "<td>"+q.getNombre()+"</td>";
+						datos += "<td style=\"text-align:right;\">"+q.getKg()+"</td>";
 						Double subTotalInt = (double)0;
 						for(List<String> x: listaBodInternas) {
 							Double aux = mapAllStockBodInt.get(x.get(1)+"_"+q.getId());

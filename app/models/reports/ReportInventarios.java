@@ -4001,7 +4001,10 @@ public class ReportInventarios {
 				aux.add(rs5.getString(6));  // 5 cantidad
 				aux.add(rs5.getString(7));  // 6 id_cotizacion
 				aux.add(nameSucursal);  // 7 nameSucursal
-				lista.add(aux);
+				if(rs5.getDouble(6) > 0) {
+					lista.add(aux);
+				}
+				
 			}
 			rs5.close();
 			smt5.close();
@@ -4662,7 +4665,10 @@ public class ReportInventarios {
 				aux.add(kgStr);							// 15 kg unitario
 				aux.add(m2Str);							// 16 m2 unitario
 				
-				lista.add(aux);
+				if(rs5.getDouble(10) > 0) {
+					lista.add(aux);
+				}
+				
 			}
 			rs5.close();
 			smt5.close();

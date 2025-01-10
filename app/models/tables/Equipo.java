@@ -242,7 +242,6 @@ public class Equipo {
 							" order by ifnull(grupo.nombre,'SIN GRUPO'),equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
 			
-			
 			while (rs.next()) {
 				lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
 						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));

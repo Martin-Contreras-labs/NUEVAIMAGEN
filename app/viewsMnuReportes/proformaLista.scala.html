@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-lista: List[List[String]], listAnios: List[Long], year: Long )
+lista: List[List[String]], desde: String, hasta: String )
     	
 @main("") {
 
@@ -16,19 +16,6 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 							Genera un PDF multiple
 						</button>
 			  	</div>
-			  	<div class="col-6">
-					<table class="table table-sm table-condensed table-fluid">
-						<tr>
-							<td>
-								@for(anio <-listAnios){
-									<a href="#" onclick="location.href='/proformaLista/@anio'">
-										<kbd style="background-color: #73C6B6">@anio</kbd>
-									</a>
-								}
-							</td>
-						</tr>
-					</table>
-				</div>
 			</div>
 		</div>
 			
@@ -43,7 +30,8 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 						</div>
 						<div class='modal-body'>
 							<form class="formulario" method="post" action="/routes2/proformaListaPdf/"  onsubmit="return validarForm();">
-								<input type="hidden" name = "year" value = "@year">
+								<input type="hidden" name = "fechaDesde" value = "@desde">
+								<input type="hidden" name = "fechaHasta" value = "@hasta">
 								<table class="table table-sm table-bordered table-condensed table-fluid">
 									<thead style="background-color: #eeeeee">
 										<TR>
@@ -125,7 +113,8 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 		</div>
 		
 		<form id="excel" class="formulario" method="post" action="/proformaListaExcel/">
-			<input type="hidden" name="year" value="@year">
+			<input type="hidden" name="fechaDesde" value="@desde">
+			<input type="hidden" name="fechaHasta" value="@hasta">
 		</form>
 			
 		
@@ -366,7 +355,7 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 							<td style="text-align:center;">
 								@if(lista1.get(16).equals(mapDiccionario.get("Arriendo"))){
 									@if(!lista1.get(21).equals("0")){
-										<a href="/downFacturaMaximise/@lista1.get(21)" > 
+										<a href="/downFacturaMaximise/@lista1.get(21)@desde,@hasta" > 
 										<kbd style="background-color: rgb(50, 215, 75)">@lista1.get(21)</kbd>
 									</a> 
 									}else{
@@ -417,40 +406,58 @@ lista: List[List[String]], listAnios: List[Long], year: Long )
 	
 	<form class="formulario" id="formEnviarXml" method="post" action="/generaProformaXml/">	
 		<input type="hidden" id="id_proformaXml" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<form class="formulario" id="formEnviaApiManager" method="post" action="/generaProformaApiManager/">	
 		<input type="hidden" id="id_proformaManager" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<form class="formulario" id="formEnviaApiNubox" method="post" action="/generaProformaApiNubox/">	
 		<input type="hidden" id="id_proformaNubox" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<form class="formulario" id="formEnviaApiSapConconcreto" method="post" action="/generaProformaApiSapConconcreto/">	
 		<input type="hidden" id="id_proformaSapConconcreto" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 
 	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaFacturaIConstruye/">	
 		<input type="hidden" id="id_proformaWebIConstruye" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<form class="formulario" id="downFacturaIconstruye" method="post" action="/downFacturaIconstruye/">	
 		<input type="hidden" id="id_facturaIConstruye2" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaProformaWebMaximise/">	
 		<input type="hidden" id="id_proformaWebMaximise" name="id_proforma">
 		<input type="hidden" id="sucursalMaximise" name="sucursalMaximise">
 		<input type="hidden" id="codigoMaximise" name="codigoMaximise">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
 		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 
 	<form id="form_eliminar" method="post" action="/proformaElimina/">
 		<input type="hidden" id="form_id_proforma" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 	
 	<div id='selectSucursal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>

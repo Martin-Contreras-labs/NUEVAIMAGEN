@@ -1534,7 +1534,7 @@ public class CotizacionEnExcel {
 			int posColl = 0;
 			row = hoja1.createRow(6);
 			
-			posCell = 4;
+			posCell = 5;
             cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
@@ -1571,6 +1571,13 @@ public class CotizacionEnExcel {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
+			
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 5*1000);
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("KG");
 			
 			for(List<String> x: listaBodInternas) {
 				posCell++; posColl++;
@@ -1641,6 +1648,12 @@ public class CotizacionEnExcel {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Cliente");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
@@ -1674,6 +1687,12 @@ public class CotizacionEnExcel {
 			posCell = 0;
 			posColl = 0;
 			row = hoja1.createRow(9);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
@@ -1742,6 +1761,12 @@ public class CotizacionEnExcel {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro_OT");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
@@ -1776,6 +1801,12 @@ public class CotizacionEnExcel {
 			posCell = 0;
 			posColl = 0;
 			row = hoja1.createRow(11);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
@@ -1844,6 +1875,12 @@ public class CotizacionEnExcel {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Sucursal");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
@@ -1878,6 +1915,12 @@ public class CotizacionEnExcel {
 			posCell = 0;
 			posColl = 0;
 			row = hoja1.createRow(13);
+			
+			posCell++; 
+            cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
@@ -1951,6 +1994,12 @@ public class CotizacionEnExcel {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getNombre());
+				
+				posCell++; 
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(q.getKg());
 				
 				Double subTotalInt = (double)0;
 				for(List<String> x: listaBodInternas) {

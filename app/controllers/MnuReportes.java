@@ -1643,47 +1643,6 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
-//	public Result reporteMovDetPorProyecto(Http.Request request) {
-//		Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-//    		DynamicForm form = formFactory.form().bindFromRequest(request);
-//	   		if (form.hasErrors()) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//	       	}else {
-//	       		Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
-//	       		String fechaDesde = form.get("fechaDesde").trim();
-//	       		String fechaHasta = form.get("fechaHasta").trim();
-//	       		String esVenta = form.get("esVenta").trim();
-//	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
-//	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
-//	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-//	       		try {
-//	    			Connection con = dbRead.getConnection();
-//	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-//	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasPorProyectoValorizado(con, s.baseDato, mapeoDiccionario, id_proyecto, esVenta, fechaDesde, fechaHasta, usd, eur, uf,
-//	    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-//	    			
-//	    			Proyecto proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
-//	    		
-//	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-//	    			if(esVenta.equals("1")) {
-//	    				concepto = "VENTA";
-//	    			}
-//	    			con.close();
-//	    			return ok(reporteMovDetPorProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,proyecto,esVenta,concepto,fechaDesde,fechaHasta, usd, eur, uf));
-//	        	} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//	       		return ok(mensajes.render("/",msgError));
-//	       	}
-//    	}else {
-//    		return ok(mensajes.render("/",msgError));
-//    	}
-//	}
-	
 	
 	//====================================================================================
     // MNU reporteMovimientos1   Reportes/Movimientos/Por Fecha (Valorizado)
@@ -6106,7 +6065,8 @@ public class MnuReportes extends Controller {
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		Long year = Long.parseLong(form.get("year"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	       		int desdeNro = Integer.parseInt(form.get("nroIni"));
 	       		int hastaNro = Integer.parseInt(form.get("nroFin"));
 	       		String mailDestino =  null;
@@ -6114,7 +6074,7 @@ public class MnuReportes extends Controller {
 	       		try {
 	    			Connection con = dbRead.getConnection();
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> lista = Proforma.listadoPorAnio(con, s.baseDato, permisoPorBodega, year, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, desde, hasta, s.aplicaPorSucursal, s.id_sucursal);
 	    			for(List<String> l: lista) {
 	    				map.put(l.get(0), l.get(0));
 	    			}
@@ -6136,7 +6096,7 @@ public class MnuReportes extends Controller {
 		       			MnuReportes.proformaListaPdf0 generar = new MnuReportes.proformaListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
 		    			generar.start();
 		    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
-		    			return ok(mensajes.render("/proformaLista/"+year,mensaje));
+		    			return ok(mensajes.render("/home/",mensaje));
 		       			
 		       		}else {
 		       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
@@ -6151,7 +6111,7 @@ public class MnuReportes extends Controller {
     	return ok("SE PRESENTO UN ERROR");
     }
 	
-	public Result proformaLista(Http.Request request, Long year) {
+	public Result proformaListaPeriodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
@@ -6164,29 +6124,12 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
-    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			if((long) year == (long) 0) {
-    				Fechas hoy = Fechas.hoy();
-    				String[] aux = hoy.getFechaStrAAMMDD().split("-");
-    				year = Long.parseLong(aux[0]);
-    			}
-    			
-    			List<List<String>> lista = Proforma.listadoPorAnio(con, s.baseDato, permisoPorBodega, year, s.aplicaPorSucursal, s.id_sucursal);
-    			Long anio = year;
-    			
-    			Long minYearGuia = Proforma.anioPrimeraProforma(con, s.baseDato);
-    			List<Long> listAnios = new ArrayList<Long>();
     			Fechas hoy = Fechas.hoy();
-				String[] aux = hoy.getFechaStrAAMMDD().split("-");
-				year = Long.parseLong(aux[0]);
-    			while (minYearGuia <= year) {
-    				listAnios.add(year);
-    				year = year - 1;
-    			}
-    			
+    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
     			con.close();
-    			return ok(proformaLista.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, listAnios, anio));
+    			return ok(proformaListaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -6194,6 +6137,62 @@ public class MnuReportes extends Controller {
     	}else {
     		return ok(mensajes.render("/",msgError));
     	}
+	}
+	
+	public Result proformaLista(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	    			Connection con = dbRead.getConnection();
+	    			if(mapeoPermiso.get("proformaListado")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			String fechaDesde = form.get("fechaDesde");
+		       		String fechaHasta = form.get("fechaHasta");
+	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+	    			List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
+	    			con.close();
+	    			return ok(proformaLista.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, fechaDesde, fechaHasta));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	public Result proformaListaGet(Http.Request request, String desde, String hasta) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			if(mapeoPermiso.get("proformaListado")==null) {
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+       		try {
+    			Connection con = dbRead.getConnection();
+    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+    			List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, desde, hasta, s.aplicaPorSucursal, s.id_sucursal);
+    			con.close();
+    			return ok(proformaLista.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, desde, hasta));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+    	return ok(mensajes.render("/",msgError));
 	}
 	
 	 public Result proformaListaExcel(Http.Request request) {
@@ -6204,7 +6203,8 @@ public class MnuReportes extends Controller {
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		Long year = Long.parseLong(form.get("year"));
+	       		String fechaDesde = form.get("fechaDesde");
+	       		String fechaHasta = form.get("fechaHasta");
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
@@ -6215,7 +6215,7 @@ public class MnuReportes extends Controller {
 	    			}
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			
-	    			List<List<String>> lista = Proforma.listadoPorAnio(con, s.baseDato, permisoPorBodega, year, s.aplicaPorSucursal, s.id_sucursal);
+	    			List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
 	    			
 	    			File file = Proforma.listadoPorAnioExcel(s.baseDato, mapeoDiccionario, lista);
 	       		
@@ -6245,6 +6245,8 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
@@ -6258,7 +6260,8 @@ public class MnuReportes extends Controller {
 		       			List<TipoReferencia> listTipoReferencias = TipoReferencia.all(con, s.baseDato);
 		       			Map<String,String> mapAllCodVsConcep = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
 		       			con.close();
-		       			return ok(generaProformaXml.render(mapeoDiccionario,mapeoPermiso,userMnu, facturaXml, id_proforma, listTipoReferencias, mapAllCodVsConcep));
+		       			return ok(generaProformaXml.render(mapeoDiccionario,mapeoPermiso,userMnu, facturaXml, id_proforma, listTipoReferencias, mapAllCodVsConcep,
+		       					desde, hasta));
 		       		}else {
 		       			con.close();
 		       			return ok("NO LEO");
@@ -6273,7 +6276,7 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
-	public Result sendXMLFacura(Http.Request request, Long id_proforma){
+	public Result sendXMLFacura(Http.Request request, Long id_proforma, String desde, String hasta){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		 
@@ -6293,16 +6296,16 @@ public class MnuReportes extends Controller {
 			       		String correoDestino = emisor.emailEnvioXML;
 			       		Email email = new Email();
 		       			String asunto = "Envio de XML desde MADA ";
-		       			String desde = "desde MADA <informaciones@inqsol.cl>";
+		       			String desdeMail = "desde MADA <informaciones@inqsol.cl>";
 		       		    email.setSubject(asunto);
-		       			email.setFrom(desde);
+		       			email.setFrom(desdeMail);
 		       		    email.setBodyHtml("<html>Archivo adjunto</html>");
 		       		    email.addTo(correoDestino);
 		       		    email.addAttachment(proforma.proformaXml, file);
 		       		    mailerClient.send(email);
 		       			//MailerPlugin.send(email);
 		       		    con.close();
-		       			return ok(mensajes.render("/proformaLista/0","DTE enviado enviado al correo: "+correoDestino ));
+		       			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"DTE enviado enviado al correo: "+correoDestino ));
 		       		}
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -6322,12 +6325,14 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	       		try {
 	       			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			String rs = ApiManagerDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma);
 	    			con.close();
-	    			return ok(mensajes.render("/proformaLista/0","API Manager enviada: "+rs ));
+	    			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"API Manager enviada: "+rs ));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6347,6 +6352,8 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	       		try {
 	       			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
@@ -6354,7 +6361,7 @@ public class MnuReportes extends Controller {
 	    			String rs = ApiNuboxDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
 	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API NUBOX nro: "+proforma.getId());
 	    			con.close();
-	    			return ok(mensajes.render("/proformaLista/0",rs ));
+	    			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6374,6 +6381,8 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	       		try {
 	       			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
@@ -6382,7 +6391,7 @@ public class MnuReportes extends Controller {
 	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API SAP Conconcreto nro: "+proforma.getId());
 	    			con.close();
 	    			rs = rs.replace("\r", "").replace("\n", "");
-	    			return ok(mensajes.render("/proformaLista/0",rs ));
+	    			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6403,6 +6412,8 @@ public class MnuReportes extends Controller {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 	       		String sucurMaximise = form.get("sucursalMaximise").trim();
 	       		String codigoMaximise = form.get("codigoMaximise").trim();
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	    		
 	    		String ware_code = "BSTGO";
 				if(sucurMaximise.equals("2")) {
@@ -6438,16 +6449,16 @@ public class MnuReportes extends Controller {
 		       		};
 	    			con.close();
 	    			rs = rs.replace("\r", "").replace("\n", "");
-	    			return ok(mensajes.render("/proformaLista/0",rs));
+	    			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
 	       	}
     	}
-    	return ok(mensajes.render("/proformaLista/0","SE PRESENTARON ERRORES"));
+    	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 	
-	public Result downFacturaMaximise(Long nroIntOrden, Http.Request request){
+	public Result downFacturaMaximise(Long nroIntOrden, Http.Request request, String desde, String hasta){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -6460,14 +6471,14 @@ public class MnuReportes extends Controller {
 	       			String nroIntFactura = WebMaximise.downOrderMaximise(con, s.baseDato, ws, emisorTributario, nroIntOrden);
 	       			
 	       			if(nroIntFactura.equals("DTE aun no emitido")) {
-	       				return ok(mensajes.render("/proformaLista/0","DTE aun no emitido"));
+	       				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"DTE aun no emitido"));
 	       			}else {
 	       				File file = WebMaximise.downFacturaMaximise(con, s.baseDato, nroIntFactura, ws, emisorTributario);
 			       		con.close();
 			       		if(file!=null) {
 			       			return ok(file,false,Optional.of(nroIntFactura+"_FacturaInterna.pdf"));
 			       		}else {
-			       			return ok(mensajes.render("/proformaLista/0","Documento aun no ha sido enviado al portal o inexistente."));
+			       			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"Documento aun no ha sido enviado al portal o inexistente."));
 			       		}
 	       			}
 	       		} catch (SQLException e) {
@@ -6475,7 +6486,7 @@ public class MnuReportes extends Controller {
 	    		}
 	       	}
     	}
-    	return ok(mensajes.render("/proformaLista/0","SE PRESENTARON ERRORES"));
+    	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 	
 	public Result generaFacturaIConstruye(Http.Request request){
@@ -6487,13 +6498,15 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	       		try {
 		       		Connection con = dbWrite.getConnection();
 		       		Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 		       		String xml = proforma.getJsonGenerado();
 		       		String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, (long)0, id_proforma);
 		       		con.close();
-		       		return ok(mensajes.render("/proformaLista/0",rs));
+		       		return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6516,6 +6529,8 @@ public class MnuReportes extends Controller {
 	       		try {
 	       			Connection con = dbRead.getConnection();
 	       			Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
+	       			String desde = form.get("fechaDesde");
+		       		String hasta = form.get("fechaHasta");
 	       			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 		       		String rsBody = proforma.getResponse();
 		       		int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
@@ -6535,7 +6550,7 @@ public class MnuReportes extends Controller {
 	    		}
 	       	}
     	}
-    	return ok(mensajes.render("/proformaLista/0","SE PRESENTARON ERRORES"));
+    	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 	
 	public Result proformaElimina(Http.Request request) {
@@ -6547,11 +6562,14 @@ public class MnuReportes extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
 	       		try {
 	       			Connection con = dbWrite.getConnection();
 	    			Proforma.eliminaProforma(con, s.baseDato, id_proforma);
     				con.close();
-	       			return (proformaLista(request, (long)0));
+    				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"PRUEBA DEL GET" ));
+	       			//return (proformaLista(request));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}

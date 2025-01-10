@@ -1132,6 +1132,42 @@ public class MnuPlanes extends Controller {
     	return ok(mensajes.render("/",msgError));
     }
 	
+	public Result hojaVidaPlanModificaGet(Http.Request request, Long id_equipo) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		
+	    		try {
+	    			Connection con = db.getConnection();
+	    			
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, s.baseDato, id_equipo);
+	    			List<String> listAtributos = HojaVida.atributosEquipo(con, s.baseDato, id_equipo);
+	    			List<String> listCompra = HojaVida.ultimaFacturaCompra(con, s.baseDato, id_equipo);
+	    			List<UnidadMantencion> listUnidad = UnidadMantencion.all(con, s.baseDato);
+	    			List<TipoPlan> listTipoPlanAux = TipoPlan.all(con, s.baseDato);
+	    			List<TipoPlan> listTipoPlan = new ArrayList<TipoPlan>();
+	    			for(TipoPlan tipo: listTipoPlanAux) {
+	    				boolean flag = true;
+	    				for(PlanMantencion plan: allPlan) {
+	    					if((long) plan.id_tipoPlan == tipo.id) {
+	    						flag = false;
+	    					}
+	    				}
+	    				if(flag) {
+	    					listTipoPlan.add(tipo);
+	    				}
+	    			}
+	    			con.close();
+	    			return ok(hojaVidaPlanModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,allPlan,listAtributos,listCompra,listUnidad,listTipoPlan));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+	
 	public Result hojaVidaAgregaPlan(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -1146,7 +1182,7 @@ public class MnuPlanes extends Controller {
 	    			Connection con = db.getConnection();
 	    			PlanMantencion.addPlan(con, s.baseDato, id_tipoPlan, id_equipo);
 	    			con.close();
-	    			return (hojaVidaPlanModifica(request));
+	    			return redirect("/hojaVidaPlanModificaGet/"+id_equipo);
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}

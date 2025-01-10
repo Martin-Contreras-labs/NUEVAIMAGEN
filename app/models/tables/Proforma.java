@@ -255,7 +255,9 @@ public class Proforma {
 		return (year);
 	}
 	
-	public static List<List<String>> listadoPorAnio(Connection con, String db, String permisoPorBodega, Long year, String esPorSucursal, String id_sucursal) {
+//	
+
+	public static List<List<String>> listadoPorPeriodo(Connection con, String db, String permisoPorBodega, String desde, String hasta, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		try {
@@ -288,9 +290,10 @@ public class Proforma {
 							+ " ifnull(comentarios,0)"
 							+ " from `"+db+"`.proforma"
 							+ " where id_bodegaEmpresa>0 "+permisoPorBodega
-							+ " and year(fecha) = ? "
+							+ " and desde >= ? and hasta <=? "
 							+ " order by fecha desc,id desc");
-			smt.setLong(1, year);
+			smt.setString(1, desde);
+			smt.setString(2, hasta);
 			ResultSet rs = smt.executeQuery();
 			int numDec = Moneda.numeroDecimalxId(con, db, "1");
 			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
@@ -298,9 +301,10 @@ public class Proforma {
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 		
 			while (rs.next()) {
-				String fecha = null;	if (rs.getString(2) != null) {fecha = myformatfecha.format(rs.getDate(2));}
-				String desde = null;	if (rs.getString(3) != null) {desde = myformatfecha.format(rs.getDate(3));}
-				String hasta = null;	if (rs.getString(4) != null) {hasta = myformatfecha.format(rs.getDate(4));}
+				String fecha = null;	
+				if (rs.getString(2) != null) {fecha = myformatfecha.format(rs.getDate(2));}
+				if (rs.getString(3) != null) {desde = myformatfecha.format(rs.getDate(3));}
+				if (rs.getString(4) != null) {hasta = myformatfecha.format(rs.getDate(4));}
 				
 				Cliente cliente = mapCliente.get(rs.getLong(5));
 				String rutCliente = "";

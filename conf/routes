@@ -301,6 +301,7 @@ POST    /tipoPlanElimina/				controllers.MnuPlanes.tipoPlanElimina(request: Requ
 
 GET     /hojaVidaPlanMantencion/			controllers.MnuPlanes.hojaVidaPlanMantencion(request: Request)
 POST    /hojaVidaPlanModifica/				controllers.MnuPlanes.hojaVidaPlanModifica(request: Request)
+GET    /hojaVidaPlanModificaGet/:idEquipo				controllers.MnuPlanes.hojaVidaPlanModificaGet(request: Request, idEquipo: Long)
 POST    /hojaVidaAgregaPlan/				controllers.MnuPlanes.hojaVidaAgregaPlan(request: Request)
 POST    /hojaVidaPlanElimina/				controllers.MnuPlanes.hojaVidaPlanElimina(request: Request)
 POST    /hojaVidaPlanCrear/					controllers.MnuPlanes.hojaVidaPlanCrear(request: Request)
@@ -454,17 +455,19 @@ POST    /reportFactConsolconEquiposRtpExcel/	controllers.MnuReportes.reportFactC
 
 
 
-GET     /proformaLista/:year					controllers.MnuReportes.proformaLista(request: Request, year: Long)
+GET     /proformaListaPeriodo/					controllers.MnuReportes.proformaListaPeriodo(request: Request)
+POST     /proformaLista/						controllers.MnuReportes.proformaLista(request: Request)
+GET     /proformaListaGet/:desde,:hasta				controllers.MnuReportes.proformaListaGet(request: Request, desde: String, hasta: String)
 POST	/proformaListaExcel/					controllers.MnuReportes.proformaListaExcel(request: Request)
 POST    /generaProformaXml/						controllers.MnuReportes.generaProformaXml(request: Request)
-POST    /sendXMLFacura/:id_proforma				controllers.MnuReportes.sendXMLFacura(request: Request, id_proforma: Long)
+POST    /sendXMLFacura/:id_proforma,:desde,:hasta				controllers.MnuReportes.sendXMLFacura(request: Request, id_proforma: Long, desde: String, hasta: String)
 
 POST    /generaProformaApiManager/				controllers.MnuReportes.generaProformaApiManager(request: Request)
 POST    /generaProformaApiNubox/				controllers.MnuReportes.generaProformaApiNubox(request: Request)
 POST    /generaProformaApiSapConconcreto/		controllers.MnuReportes.generaProformaApiSapConconcreto(request: Request)
 POST    /generaProformaWebMaximise/				controllers.MnuReportes.generaProformaWebMaximise(request: Request)
 
-GET    	/downFacturaMaximise/:nroInte			controllers.MnuReportes.downFacturaMaximise(nroInte: Long, request: Request)
+GET    	/downFacturaMaximise/:nroInte,:desde,:hasta			controllers.MnuReportes.downFacturaMaximise(nroInte: Long, request: Request, desde: String, hasta: String)
 
 
 POST    /generaFacturaIConstruye/					controllers.MnuReportes.generaFacturaIConstruye(request: Request)

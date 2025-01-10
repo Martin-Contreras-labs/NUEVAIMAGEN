@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-factura: xml.FormXmlFactura, id_proforma: Long, listTipoReferencias: List[tables.TipoReferencia], mapReferencia: Map[String,String])
+factura: xml.FormXmlFactura, id_proforma: Long, listTipoReferencias: List[tables.TipoReferencia], mapReferencia: Map[String,String],
+desde: String, hasta: String)
 
 
 @main("") {
@@ -8,7 +9,8 @@ factura: xml.FormXmlFactura, id_proforma: Long, listTipoReferencias: List[tables
 	<div id="mostrarmostrar" style="display:none;">
 		@barraTitulo(mapDiccionario, "PROFORMA FACTURA XML","COMPLETAR O MODIFICAR REFERENCIAS Y COMENTARIOS")
 
-		<form class="formulario" method="post" action="/sendXMLFacura/@id_proforma">
+		<form class="formulario" method="post" action="/sendXMLFacura/@id_proforma,@desde,@hasta">
+			
 			<div class="container">
 				<table id="receptor" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 				 	<tr>
