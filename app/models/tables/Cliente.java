@@ -224,6 +224,15 @@ public class Cliente {
 		return(map);
 	}
 	
+	public static Map<String,Cliente> mapAllClientesPorRut(Connection con, String db){
+		Map<String,Cliente> map = new HashMap<String,Cliente>();
+		List<Cliente> listClientes = Cliente.all(con, db);
+		listClientes.forEach(x->{
+			map.put(x.getRut(), x);
+		});
+		return(map);
+	}
+	
 	public static List<Cliente> all(Connection con, String db) {
 		List<Cliente> lista = new ArrayList<Cliente>();
 		try {

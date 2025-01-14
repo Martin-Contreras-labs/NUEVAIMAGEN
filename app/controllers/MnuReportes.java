@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,7 @@ import models.tables.Equipo;
 import models.tables.Grupo;
 import models.tables.ListaPrecio;
 import models.tables.Moneda;
+import models.tables.Movimiento;
 import models.tables.Parametros;
 import models.tables.Precio;
 import models.tables.Proforma;
@@ -6007,8 +6009,13 @@ public class MnuReportes extends Controller {
             		if(valida != null) {
             			nros += i+", ";
             			String path = baseDato+"/"+"PRpdf"+i+"_proformaArriendo.pdf";
-		    			InputStream archivo = Archivos.leerArchivo(path);
-		    			merger.addSource(archivo);
+            			try {
+            				InputStream archivo = Archivos.leerArchivo(path);
+    		    			merger.addSource(archivo);
+            			}catch(Exception e) {
+            				
+            			}
+		    			
             		}
             		
             	}
@@ -7850,6 +7857,161 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
+	
+	public Result hoheValySubePlantillaNV(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			
+			if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String dePaso = form.get("hoheValySubePlantillaNV");
+	       		if( dePaso !=null && ! dePaso.equals("hoheValySubePlantillaNV")) {
+	       			return ok("{\"status\":false}").as("application/json");
+	       		}
+	       		Archivos aux = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+	    		Http.MultipartFormData.FilePart<TemporaryFile> archivo = aux.file;
+	    		if (archivo != null) {
+	    			File file = Archivos.parseMultipartFormDatatoFile(archivo);
+	    			
+	    			try {
+	    	            Workbook libro = WorkbookFactory.create(file);
+	    	            Sheet hoja1 = libro.getSheetAt(0);
+	    	            Row row = null;
+	    	            Cell cell = null;
+	    	            
+	    	            
+	    	            List<String> listErr = new ArrayList<String>();
+	    	            List<List<String>> listado = new ArrayList<List<String>>();
+	    	            
+	    	            // valido datos
+	    	            int fila = 1;
+	    	            row = hoja1.getRow(fila);
+	    	            if(row != null) {
+	    	            	cell = row.getCell(1);
+	    	            	Map<String,Cliente> mapClientes = null;
+	    	            	try {
+	    		    			Connection con = dbRead.getConnection();
+	    		    			mapClientes = Cliente.mapAllClientesPorRut(con, s.baseDato);
+	    		    			con.close();
+	    	            	} catch (SQLException e) {
+	    	        			e.printStackTrace();
+	    	        		}
+	    	            	
+	    	            	while (row != null && cell != null) {
+	    	            		
+	    	            		boolean flag = true;
+	    	            		List<String> auxList = new ArrayList<String>();
+	    	            		
+	    	            		//valido fechas
+	    	            		try {
+        							Date fecha = cell.getDateCellValue();
+        							System.out.println(fecha);
+        							Fechas aux1 = Fechas.obtenerFechaDesdeDate(fecha);
+        							auxList.add(aux1.getFechaStrAAMMDD());
+    	                    	}catch(Exception e){
+    	                    		listErr.add("EN FILA "+(fila+1)+": fecha no valida.");
+    	                    		flag = false;
+    	                    	}
+	    	            		
+	    	            			
+	    	            		//valido rut
+	    	            		cell = row.getCell(2);
+	    	            		if(cell !=null) {
+		    	            		String rut = cell.getStringCellValue().trim();
+		    	            			System.out.println(rut);
+		    	            			
+		    	            			// validar rut contra map si no es valido flag = false;
+		    	            			
+		    	            			auxList.add(rut);
+		    	            			
+	    	            		}else {
+	    	            			listErr.add("EN FILA "+(fila+1)+": rut no valido.");
+	    	            			flag = false;
+	    	            		}
+	    	            		
+	    	            		//valido neto
+	    	            		cell = row.getCell(3);
+	    	            		if(cell !=null) {
+		    	            		try {
+            							Double neto = cell.getNumericCellValue();
+            							if(neto <= (double)0) {
+            								listErr.add("EN FILA "+(fila+1)+": neto no valido menor o igual que cero.");
+            								flag = false;
+            							}
+            							System.out.println(neto);
+	    	                    	}catch(Exception e){
+	    	                    		listErr.add("EN FILA "+(fila+1)+": neto no valido, no es numero.");
+    	                        		flag = false;
+	    	                    	}
+	    	            		}else {
+	    	            			listErr.add("EN FILA "+(fila+1)+": neto no valido, no es numero.");
+	    	            			flag = false;
+	    	            		}
+	    	            		
+	    	            		//valido concepto 1
+	    	            		
+	    	            		// agregar el concepto 2
+	    	            		
+	    	            		
+	    	            		
+	    	            		
+	    	            		
+	    	            		if(flag) {
+	    	            			listado.add(auxList);
+	    	            		}
+	    	            		
+	    	            		
+	    	            		//siguiente linea
+	    	            		fila++;
+	    	            		row = hoja1.getRow(fila);
+	    	            		if(row != null) {
+	    	            			cell = row.getCell(1);
+	    	            		} else {
+	    	            			cell = null;
+	    	            		}
+	    	            		
+	    	            	}
+	    	            } else {
+	    	            	listErr.add("LA PLANTILLA NO CORRESPONDE");
+	    	            	return ok("{\"status\":false}").as("application/json");
+	    	            }
+	    	            
+	    	            System.out.println("============= LISTA ERRORES ==============");
+	    	            listErr.forEach(x->{
+	    	            	System.out.println(x);
+	    	            });
+	    	            System.out.println("============= LISTA LISTA ==============");
+	    	            listado.forEach(x->{
+	    	            	System.out.println(x.toString());
+	    	            });
+	    	            
+	    	            
+	    	            // retorno resultado para continuar
+	    	            
+	    	            
+	    	            
+	    			} catch (Exception e) {
+	    	        	e.printStackTrace();
+	    	        	return ok("{\"status\":false}").as("application/json");
+	    	        }
+	    			
+	    			
+	    			return ok("{\"status\":true}").as("application/json");
+	    			
+	    		}
+	    		return ok("{\"status\":false}").as("application/json");
+	       	}
+    	}
+    	return ok("{\"status\":false}").as("application/json");
+	}
+	    			
+	 
 	
 
 }

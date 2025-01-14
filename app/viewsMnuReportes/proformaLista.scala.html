@@ -10,14 +10,27 @@ lista: List[List[String]], desde: String, hasta: String )
 		<div class="noprint">
 			<div class="row">
 				<div class="col-1"></div>
-			  	<div class="col-5">
+			  	<div class="col-2">
 						<button type="button"  id="btnEnvioMasivo" class="btn btn-sm btn-warning" 
 							onclick="$('#modalGeneraUnPdf').modal('show');">
 							Genera un PDF multiple
 						</button>
 			  	</div>
+				@if(mapDiccionario.get("nEmpresa").equals("HOHE")
+					&& mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null
+					&& mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1")
+					&& mapPermiso.get("enviarApiFactura")!=null){
+						<div class="col-2">
+							<button type="button"  id="btnEnvioNotasVenta" class="btn btn-sm btn-info" 
+								onclick="$('#modalNotasVenta').modal('show');">
+								Notas de Venta desde Excel
+							</button>
+				  		</div>
+				}
+		
 			</div>
 		</div>
+		
 			
 			<div id='modalGeneraUnPdf' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 				<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
@@ -490,6 +503,37 @@ lista: List[List[String]], desde: String, hasta: String )
 		</div>
 	</div>
 	
+	<div id="modalNotasVenta" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Notas de venta desde un Excel</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        
+			<div class="row">
+				<div class="col-sm-12" style="text-align:center">
+					<form action="/routes2/hohePlantillaNV/" method="POST"  onsubmit="return validarForm2();">
+						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
+					</form>
+					<br>
+					<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+						<div>SUBIR ARCHIVO</div>
+						<input type="file" id="archivoXLSX"  value="" onchange="subirArchivo(this.form, this); $('#modalNotasVenta').modal('hide');">
+					</span>
+					<br><br>
+					<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+			<br>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
 }
 
 
@@ -601,6 +645,60 @@ lista: List[List[String]], desde: String, hasta: String )
 		document.getElementById('downFacturaIconstruye').submit();
 	}
 	
+	
+	let extArray2 = new Array(".xls", ".xlsx");
+	function subirArchivo(form, nodo) {
+		allowSubmit = false;
+		if (!nodo.files[0]){
+			return;
+		}
+		
+		let nombre = nodo.files[0].name;
+		while (nombre.indexOf("\\") != -1){
+			nombre = nombre.slice(nombre.indexOf("\\") + 1);
+		}
+
+		ext = nombre.slice(nombre.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray2.length; i++) {
+			if (extArray2[i] == ext) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var formData = new FormData();
+			formData.append("file",nodo.files[0]);
+			formData.append("hoheValySubePlantillaNV","hoheValySubePlantillaNV");
+			$.ajax({
+				async: false,
+				url: "/hoheValySubePlantillaNV/",
+		        type: "POST",
+		        method: "POST",
+		        data: formData,
+		        cache: false,
+		        contentType: false,
+		     	processData: false,
+		     	success: function(rs){
+		     		if(rs["status"]){
+						alertify.alert("BIEN");
+						// Al ACEPTAR EL MENSAJE DEBE CERRAR VENTANA MODAL
+		     		}else{
+						// DEBE MOSTRAR EL MENSAJE DE ERROR
+						alertify.alert("ERROR EN ARCHIVO:<br> ");
+						// Al ACEPTAR EL MENSAJE DEBE CERRAR VENTANA MODAL
+		     		}
+				}
+			 });
+		}else{
+			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
+			+ (extArray2.join("  ")) + "\nPor favor, seleccione un archivo valido "
+			+ "e intente de nuevo.");
+			form.archivoXLSX.value="";
+		}
+		
+	}
+	
+	const validarForm2 = () =>{
+		$("#btnSubmit2").attr('disabled',true);
+		return(true);
+	}
 	
 </script>
 

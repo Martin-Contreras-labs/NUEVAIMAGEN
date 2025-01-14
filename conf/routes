@@ -509,7 +509,7 @@ POST    /hoheEstadoCotiOtExcel/				controllers.MnuReportes.hoheEstadoCotiOtExcel
 GET     /hoheEstadoCotiSinOt/				controllers.MnuReportes.hoheEstadoCotiSinOt(request: Request)
 POST    /hoheEstadoCotiSinOtExcel/			controllers.MnuReportes.hoheEstadoCotiSinOtExcel(request: Request)
 
-
+POST	/hoheValySubePlantillaNV/			controllers.MnuReportes.hoheValySubePlantillaNV(request: Request)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU DISPONIBILIDAD

@@ -125,14 +125,33 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 								<input type="hidden" class="consumoEstimadoPorMes" value="@lista.consumoEstimadoPorMes">
 								@lista.consumoEstimadoPorMes
 							</td>
-							<td style="text-align:right">
-								<input type="text" class="proximaMantencion form-control center"
-									value="@lista.proximaMantencion"
-									onfocus="value = value.replace(/,/g,'');" 
-									onkeypress="return ingresoDouble(event,value)"
-									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaPlan('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
-							</td>
+							
+							
+							@if( mapPermiso.get("parametro.planes_calculaProximaMant")!=null && mapPermiso.get("parametro.planes_calculaProximaMant").equals("0") ){
+								<td style="text-align:right">
+									<input type="text" class="proximaMantencion form-control center"
+										value="@lista.proximaMantencion"
+										onfocus="value = value.replace(/,/g,'');" 
+										onkeypress="return ingresoDouble(event,value)"
+										autocomplete="off"
+										onchange="if(value=='') value=0; actualizaPlan('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
+								</td>
+							}else{
+								<!-- REEMPLAZAR POR DAMIAN -->
+								<td style="text-align:right">
+									<input type="text" class="proximaMantencion form-control center"
+										value="@lista.proximaMantencion"
+										onfocus="value = value.replace(/,/g,'');" 
+										onkeypress="return ingresoDouble(event,value)"
+										autocomplete="off"
+										onchange="if(value=='') value=0; actualizaPlan('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
+								</td>
+								<!-- FIN REEMPLAZAR DAMIAN -->
+							}
+							
+							
+							
+							
 							<td style="text-align:center">
 								<input type="date" class="fechaEstimada form-control center" disabled>
 							</td>
