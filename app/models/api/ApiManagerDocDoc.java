@@ -196,9 +196,6 @@ public class ApiManagerDocDoc {
 			String apiUser = emisor.apiUser;
 			String apiKey = emisor.apiKey;
 			
-			apiUser = "apimada";
-			apiKey = "Apih*ohe2020";
-			
 			String typeAuth = "application/x-www-form-urlencoded";
 			String urlAuth = "https://aries.managermas.cl/api/auth/";
 			String typeSend = "application/json";

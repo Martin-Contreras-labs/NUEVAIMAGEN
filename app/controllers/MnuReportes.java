@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -23,6 +26,7 @@ import javax.inject.Inject;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -30,7 +34,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import controllers.HomeController.Sessiones;
+import models.api.ApiManagerDocDet;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
 import models.api.ApiSapConconcreto;
@@ -99,6 +106,7 @@ import play.libs.Files.TemporaryFile;
 import play.libs.mailer.Email;
 import play.libs.mailer.MailerClient;
 import play.libs.ws.WSClient;
+import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -3803,7 +3811,7 @@ public class MnuReportes extends Controller {
 	    					
 	    					for(List<String> lista1: proyectos){
 	    						tabla += ""
-	    								+ "<TR>\n";
+	    								+ "<TR class='lineasTR'>\n";
 	    						for(List<String> total: resumenTotales){
 	    							if(lista1.get(1).equals(total.get(0))){
 	    								
@@ -7861,10 +7869,7 @@ public class MnuReportes extends Controller {
 	public Result hoheValySubePlantillaNV(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			
+
 			DynamicForm form = formFactory.form().bindFromRequest(request);
 			
 			if (form.hasErrors()) {
@@ -7895,6 +7900,7 @@ public class MnuReportes extends Controller {
 	    	            if(row != null) {
 	    	            	cell = row.getCell(1);
 	    	            	Map<String,Cliente> mapClientes = null;
+	    	            	
 	    	            	try {
 	    		    			Connection con = dbRead.getConnection();
 	    		    			mapClientes = Cliente.mapAllClientesPorRut(con, s.baseDato);
@@ -7908,10 +7914,9 @@ public class MnuReportes extends Controller {
 	    	            		boolean flag = true;
 	    	            		List<String> auxList = new ArrayList<String>();
 	    	            		
-	    	            		//valido fechas
+	    	            		// Valido fechas
 	    	            		try {
         							Date fecha = cell.getDateCellValue();
-        							System.out.println(fecha);
         							Fechas aux1 = Fechas.obtenerFechaDesdeDate(fecha);
         							auxList.add(aux1.getFechaStrAAMMDD());
     	                    	}catch(Exception e){
@@ -7920,52 +7925,80 @@ public class MnuReportes extends Controller {
     	                    	}
 	    	            		
 	    	            			
-	    	            		//valido rut
+	    	            		// Valido rut
 	    	            		cell = row.getCell(2);
-	    	            		if(cell !=null) {
-		    	            		String rut = cell.getStringCellValue().trim();
-		    	            			System.out.println(rut);
-		    	            			
-		    	            			// validar rut contra map si no es valido flag = false;
-		    	            			
-		    	            			auxList.add(rut);
-		    	            			
+	    	            		if(cell !=  null) {
+	    	            			try {
+	    	            				String rut = cell.getStringCellValue().trim();
+			    	            		Cliente cliente = mapClientes.get(rut);
+			    	            		if(cliente != null) {
+			    	            			auxList.add(rut);
+			    	            		} else { 
+			    	            			listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
+			    	            			flag = false;
+			    	            		}
+	    	            			}catch (Exception e) {
+	    	            				listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
+	    	            				flag = false;
+	    	            			}
 	    	            		}else {
-	    	            			listErr.add("EN FILA "+(fila+1)+": rut no valido.");
+	    	            			listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
 	    	            			flag = false;
 	    	            		}
 	    	            		
-	    	            		//valido neto
+	    	            		// Valido neto
 	    	            		cell = row.getCell(3);
-	    	            		if(cell !=null) {
+	    	            		if(cell != null) {
 		    	            		try {
             							Double neto = cell.getNumericCellValue();
             							if(neto <= (double)0) {
             								listErr.add("EN FILA "+(fila+1)+": neto no valido menor o igual que cero.");
             								flag = false;
+            							} else {
+            								auxList.add(neto.toString());
             							}
-            							System.out.println(neto);
 	    	                    	}catch(Exception e){
-	    	                    		listErr.add("EN FILA "+(fila+1)+": neto no valido, no es numero.");
+	    	                    		listErr.add("EN FILA "+(fila+1)+": neto no valido, debe ser un tipo numero obligado.");
     	                        		flag = false;
 	    	                    	}
 	    	            		}else {
-	    	            			listErr.add("EN FILA "+(fila+1)+": neto no valido, no es numero.");
+	    	            			listErr.add("EN FILA "+(fila+1)+": neto no valido, debe ser un tipo numero obligado.");
 	    	            			flag = false;
 	    	            		}
 	    	            		
-	    	            		//valido concepto 1
+	    	            		// Valido concepto 1
+	    	            		cell = row.getCell(4);
+	    	            		if(cell != null) {
+	    	            			try {
+	    	            				String concepto1 = cell.getStringCellValue().trim();
+		    	            		    auxList.add(concepto1);
+	    	            			}catch (Exception e) {
+	    	            				Double concepto1 = cell.getNumericCellValue();
+	    	            				auxList.add(concepto1.toString());
+	    	            			}
+	    	            		}else {
+	    	            			listErr.add("EN FILA "+(fila+1)+": el concepto 1 esta vacio (es obligatorio).");
+	    	            			flag = false;
+	    	            		}
 	    	            		
 	    	            		// agregar el concepto 2
 	    	            		
-	    	            		
-	    	            		
-	    	            		
+	    	            		cell = row.getCell(5);
+	    	            		if(cell != null) {
+	    	            			try {
+	    	            				String concepto2 = cell.getStringCellValue().trim();
+		    	            		    auxList.add(concepto2);
+	    	            			}catch (Exception e) {
+	    	            				Double concepto2 = cell.getNumericCellValue();
+	    	            				auxList.add(concepto2.toString());
+	    	            			}
+	    	            		} else {
+	    	            			auxList.add("");
+	    	            		}
 	    	            		
 	    	            		if(flag) {
 	    	            			listado.add(auxList);
 	    	            		}
-	    	            		
 	    	            		
 	    	            		//siguiente linea
 	    	            		fila++;
@@ -7975,42 +8008,283 @@ public class MnuReportes extends Controller {
 	    	            		} else {
 	    	            			cell = null;
 	    	            		}
-	    	            		
 	    	            	}
+	    	            	
 	    	            } else {
 	    	            	listErr.add("LA PLANTILLA NO CORRESPONDE");
 	    	            	return ok("{\"status\":false}").as("application/json");
 	    	            }
 	    	            
-	    	            System.out.println("============= LISTA ERRORES ==============");
-	    	            listErr.forEach(x->{
-	    	            	System.out.println(x);
-	    	            });
-	    	            System.out.println("============= LISTA LISTA ==============");
-	    	            listado.forEach(x->{
-	    	            	System.out.println(x.toString());
-	    	            });
+	    	            // GRABACION Y ENVIO DE NV
 	    	            
-	    	            
-	    	            // retorno resultado para continuar
-	    	            
-	    	            
+	    	            if(listErr.size() > 0) {
+	    	            	String jsonMsg = Json.toJson(listErr).toString();
+	    	            	return ok("{\"status\":true,\"error\":true,\"detalle\":"+jsonMsg+"}").as("application/json");
+	    	            }else {
+	    	            	String mailDestino = "";
+			    			try {
+			        			Connection con0 = dbRead.getConnection();
+			        			Usuario usuario = Usuario.findXIdUser(con0, s.baseDato, Long.parseLong(s.id_usuario));
+			        			if( usuario != null) {
+			        				mailDestino = usuario.getEmail().trim().toLowerCase();
+			        			}
+			        			con0.close();
+			                } catch (SQLException e) {
+			        			e.printStackTrace();
+			        		}
+	    	            	MnuReportes.hoheGeneraNVdesdeExcel generar = new MnuReportes.hoheGeneraNVdesdeExcel(listado, s, mailDestino);
+			       			generar.start();
+			       			
+			       			String msg = "NV en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
+			       			return ok("{\"status\":true,\"error\":false,\"msg\":\""+msg+"\"}").as("application/json");
+	    	            }
 	    	            
 	    			} catch (Exception e) {
 	    	        	e.printStackTrace();
 	    	        	return ok("{\"status\":false}").as("application/json");
 	    	        }
-	    			
-	    			
-	    			return ok("{\"status\":true}").as("application/json");
-	    			
 	    		}
 	    		return ok("{\"status\":false}").as("application/json");
 	       	}
     	}
     	return ok("{\"status\":false}").as("application/json");
 	}
+	
+	public class hoheGeneraNVdesdeExcel extends Thread {
+		List<List<String>> listado;
+		Sessiones s;
+		String mailDestino;
+		public hoheGeneraNVdesdeExcel(List<List<String>> listado, Sessiones s, String mailDestino) {
+			super();
+			this.listado = listado;
+			this.s = s;
+			this.mailDestino = mailDestino;
+		}
+		public void run() {
+			
+			Map<String,Cliente> mapClie = null;
+			EmisorTributario emisor = null;
+			try {
+    			Connection con0 = dbRead.getConnection();
+    			mapClie = Cliente.mapAllClientesPorRut(con0, s.baseDato);
+    			emisor = EmisorTributario.find(con0, s.baseDato);
+    			con0.close();
+            } catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+			
+			List<List<String>> newListado = new ArrayList<List<String>>();
+			List<String> resultado = new ArrayList<String>();
+			try {
+    			Connection con1 = dbWrite.getConnection();
+    			for(List<String> l: listado){
+    				String fecha = l.get(0);
+    				String rutClie = l.get(1);
+    				String auxNeto = l.get(2);
+    				Cliente cliente = mapClie.get(rutClie);
+    				if(cliente != null) {
+    					Long neto = Math.round(Double.parseDouble(auxNeto));
+    					Long iva = Math.round(neto * emisor.getTasaIva() / 100);
+    					Long total = neto + iva;
+    					PreparedStatement smt1 = con1
+        						.prepareStatement("insert into  `"+s.baseDato+"`.proforma"
+        								+ " (fecha,desde,hasta,id_cliente,neto,iva,total,tipo) VALUES"
+        								+ " (?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+        				smt1.setString(1, fecha);
+        				smt1.setString(2, fecha);
+        				smt1.setString(3, fecha);
+        				smt1.setString(4, cliente.getId().toString());
+        				smt1.setString(5, neto.toString());
+        				smt1.setString(6, iva.toString());
+        				smt1.setString(7, total.toString());
+        				smt1.setString(8, "EXCEL");
+        				smt1.executeUpdate();
+    					
+        				Long id_proforma = (long)0;
+        				ResultSet rs1 = smt1.getGeneratedKeys();
+        	            if (rs1.next()) {
+        	            	id_proforma = rs1.getLong(1);
+        	            	l.add(id_proforma.toString());
+        	            	l.add(iva.toString());
+        	            	l.add(total.toString());
+        	            	newListado.add(l);
+        	            }
+        	            smt1.close();
+        	            rs1.close();
+        	            
+        				String concepto1 = l.get(3);
+        				String concepto2 = l.get(4);
+
+        					ApiManagerDocDoc api = new ApiManagerDocDoc();
+        					api.rut_empresa = emisor.rut;
+        					api.tipodocumento = "NV";
+        					api.num_doc = id_proforma.toString();
+        					api.fecha_doc = fecha;
+        					api.fecha_ref = fecha;
+        					api.rut_cliente = rutClie;
+        					api.dire_cliente = "LEGAL";
+        					api.cod_vendedor = "";  
+        					api.lista_precio = "2";
+        					api.plazo_pago = "0";
+        					api.cod_moneda = "CLP";
+        					api.afecto = neto.toString();
+        					api.tipo_desc_global = "M";
+        					api.monto_desc_global = "0";
+        					api.iva = iva.toString();
+        					api.total = total.toString();
+        					api.comentario1 = "";
+        					api.comentario2 = "";
+        					api.comentario3 = "";
+        					api.comentario4 = "";
+        					api.comentario5 = "";
+        					api.modalidad = "";
+        					api.emitir = "S";
+        					api.referencia = "";
+        					List<ApiManagerDocDet> detalle = new ArrayList<ApiManagerDocDet>();
+        						ApiManagerDocDet det = new ApiManagerDocDet();
+        						det.cod_producto = "I001";
+        						det.cantidad = "1";
+        						det.unidad = "UNS";
+        						det.precio_unit = neto.toString();
+        						det.moneda_det = "CLP";
+        						det.cen_cos = "1";
+        						det.tipo_desc = "M";
+        						det.ubicacion = "";
+        						det.bodega = "";
+        						det.descrip = concepto1;
+        						det.stock = "R";
+        						det.desc_adic = concepto2;
+        					detalle.add(det);
+        				api.detalles = detalle;
+        				String datos = Json.toJson(api).toString();
+        				
+        				Proforma.updateJsonApi(con1, s.baseDato, id_proforma, datos);
+        				//String rs = ApiManagerDocDoc.genera(con1, s.baseDato, datos, ws, id_proforma);
+        				String rs = "prueba";
+        				rs = "NV nro "+id_proforma+": "+rs;
+        				resultado.add(rs);
+    				}
+    			}
+	    		con1.close();
+            } catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+			
+			
+			try {
+            	Email email = new Email();
+	    		String asunto = "NV generadas";
+	   			String desde = "desde MADA <informaciones@inqsol.cl>";
+	   			email.setSubject(asunto);
+				email.setFrom(desde);
+				email.setBodyHtml("<html><body>" +
+						" <p>"+resultado.toString()+"</p>" +
+	   		    		" </body></html>");
+				email.addTo(mailDestino);
+	   		    mailerClient.send(email);
+            } catch (Exception x) { }
+		}
+	}
+	
+	public Result hohePlantillaNV(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+        	if (form.hasErrors()) {
+    			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			try {
+	    			Connection con = dbRead.getConnection();
 	    			
+	    			File tmp = TempFile.createTempFile("tmp","null");
+	    			String path = "formatos/excel.xlsx";
+					InputStream formato = Archivos.leerArchivo(path);
+		            Workbook libro = WorkbookFactory.create(formato);
+		            formato.close();
+	    			
+		            CellStyle encabezado = libro.createCellStyle();
+		            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+		            encabezado.setBorderTop(CellStyle.BORDER_THIN);
+		            encabezado.setBorderRight(CellStyle.BORDER_THIN);
+		            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+		            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		            encabezado.setFillForegroundColor((short)19);
+		            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+	    			
+		            libro.setSheetName(0, "PLANTILLA");
+		            Sheet hoja1 = libro.getSheetAt(0);
+		            
+		            Row row = null;
+		            Cell cell = null;
+		            
+		            row = hoja1.createRow(0);
+		            cell = row.createCell(1);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("FECHA");
+					
+					cell = row.createCell(2);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("RUT CLIENTE");
+					
+					cell = row.createCell(3);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("TOTAL NETO");
+					
+					cell = row.createCell(4);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("CONCEPTO 1");
+					
+					cell = row.createCell(5);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("CONCEPTO 2");
+					
+					libro.setSheetName(1, "AUXILIAR");
+		            Sheet hoja2 = libro.getSheetAt(1);
+					
+		            List<Cliente> listCliente = Cliente.all(con, s.baseDato);
+		            row = hoja2.createRow(0);
+		            cell = row.createCell(0);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("RUT");
+					cell = row.createCell(1);
+		            cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("CLIENTE");
+		            for(int i=0; i<listCliente.size(); i++ ) {
+		            	row = hoja2.createRow(i+1);
+		            	cell = row.createCell(0);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listCliente.get(i).getRut());
+		            	cell = row.createCell(1);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listCliente.get(i).getNickName());
+		            }
+		            // Write the output to a file tmp
+					FileOutputStream fileOut = new FileOutputStream(tmp);
+					libro.write(fileOut);
+					fileOut.close();
+					
+	    			if(tmp != null) {
+						con.close();
+	    				return ok(tmp, Optional.of("plantillaFacturasManager.xlsx"));
+					}else {
+						con.close();
+						return ok(mensajes.render("/",msgError));
+					}
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    	        }
+	       	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
 	 
 	
 

@@ -86,78 +86,110 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
 						<TH style="text-align:center">Fecha Estimada<br>Mantencion</TH>
 					</tr>
-					@for((lista,index) <- allPlan.zipWithIndex){
-						<tr>
-							<td style="text-align:center">
-								
-								<select class="id_tipoPlan custom-select center"
-									onchange="actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'id_tipoPlan', value);">
-									<option value="@lista.id_tipoPlan">@lista.tipoPlanNombre</option>
-									@for(lista <- listTipo){
-								     	<option value="@lista.id">@lista.nombre</option>
-									}
-								</select>
-								@lista.id_tipoPlan
-							</td>
-							<td style="text-align:center">
-								<input type="date" class="fechaReset form-control center"
-						  			onblur="if(!limitaFecha(value,720,10)) {
-												value = '@utilities.Fechas.AAMMDD(lista.fechaReset)';
-											} else {
-												actualizaAll('@lista.id_unidadMantencion','@lista.id_equipo', 'fechaReset', value);
-											}"
-						  			value="@utilities.Fechas.AAMMDD(lista.fechaReset)">
-							</td>
-							<td style="text-align:center">
-								<select class="id_unidadMantencion custom-select center"
-									onchange="actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'id_unidadMantencion', value);">
-									<option value="@lista.id_unidadMantencion">@lista.unidadMantencion</option>
-									@for(lista <- listUnidad){
-								     	<option value="@lista.id">@lista.nombre</option>
-									}
-								</select>
-							</td>
-							<td style="text-align:right">
-								<input type="text" class="estadoActual form-control center"
-									id="lectActual_@index"
-									value="@lista.estadoActual"
-									onfocus="value = value.replace(/,/g,'');" 
-									onkeypress="return ingresoDouble(event,value)"
-									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaAll('@lista.id_unidadMantencion', '@lista.id_equipo', 'estadoActual', value);">
-							</td>
-							
-							<td style="text-align:right">
-								<input type="text" class="cadaNEstimado form-control center"
-									id="frecuencia_@index"
-									value="@lista.cadaNEstimado"
-									onfocus="value = value.replace(/,/g,'');" 
-									onkeypress="return ingresoDouble(event,value)"
-									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'cadaNEstimado', value);">
-							</td>
-							<td style="text-align:right">
-								<input type="text" class="consumoEstimadoPorMes form-control center"
-									value="@lista.consumoEstimadoPorMes"
-									onfocus="value = value.replace(/,/g,'');" 
-									onkeypress="return ingresoDouble(event,value)"
-									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'consumoEstimadoPorMes', value);">
-							</td>
-							<td style="text-align:right">
-								<input type="text" class="proximaMantencion form-control center"
-									id="sigMant_@index"
-									value="@lista.proximaMantencion"
-									onfocus="value = value.replace(/,/g,'');" 
-									onkeypress="return ingresoDouble(event,value)"
-									autocomplete="off"
-									onchange="if(value=='') value=0; actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
-							</td>
+					@for((lista, index) <- allPlan.zipWithIndex) {
+						  <tr>
+						    <!-- Tipo de Plan -->
+						    <td style="text-align:center">
+						      <select class="id_tipoPlan custom-select center"
+						        id="tipoPlan_@index"
+						        onchange="actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'id_tipoPlan', value);">
+						        <option value="@lista.id_tipoPlan">@lista.tipoPlanNombre</option>
+						        @for(opcion <- listTipo) {
+						          <option value="@opcion.id">@opcion.nombre</option>
+						        }
+						      </select>
+						    </td>
+						    
+						    <!-- Fecha Reset -->
+						    <td style="text-align:center">
+						      <input type="date" class="fechaReset form-control center"
+						        id="fechaReset_@index"
+						        onblur="if(!limitaFecha(value, 720, 10)) {
+						          value = '@utilities.Fechas.AAMMDD(lista.fechaReset)';
+						        } else {
+						          actualizaAll('@index', '@lista.id_equipo', 'fechaReset', value);
+						        }"
+						        value="@utilities.Fechas.AAMMDD(lista.fechaReset)">
+						    </td>
+						    
+						    <!-- Unidad de Mantención -->
+						    <td style="text-align:center">
+						      <select class="id_unidadMantencion custom-select center"
+						        id="unidadMantencion_@index"
+						        onchange="actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'id_unidadMantencion', value);">
+						        <option value="@lista.id_unidadMantencion">@lista.unidadMantencion</option>
+						        @for(opcion <- listUnidad) {
+						          <option value="@opcion.id">@opcion.nombre</option>
+						        }
+						      </select>
+						    </td>
+						    
+						    <!-- Estado Actual -->
+						    <td style="text-align:right">
+						      <input type="text" class="estadoActual form-control center"
+						        id="lectActual_@index"
+						        value="@lista.estadoActual"
+						        onfocus="value = value.replace(/,/g, ''); auxiliar = value;"
+						        onkeypress="return ingresoDouble(event, value)"
+						        autocomplete="off"
+						        onchange="if(value == '') value = 0; 
+						          actualizaAll('@index', '@lista.id_equipo', 'estadoActual', value); 
+						          actualizarProximaMantencion('@index', '@lista.id_tipoPlan', '@lista.id_equipo','lectura');">
+						    </td>
+						    
+						    <!-- Rotación/Frecuencia -->
+						    <td style="text-align:right">
+						      <input type="text" class="cadaNEstimado form-control center"
+						        id="frecuencia_@index"
+						        value="@lista.cadaNEstimado"
+						        onfocus="value = value.replace(/,/g, ''); auxiliar = value;"
+						        onkeypress="return ingresoDouble(event, value)"
+						        autocomplete="off"
+						        onchange="if(value == '') value = 0; 
+						          actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'cadaNEstimado', value);
+						          actualizarProximaMantencion('@index', '@lista.id_tipoPlan', '@lista.id_equipo','frecuencia');">
+						    </td>
+						    
+						    <!-- Consumo Estimado -->
+						    <td style="text-align:right">
+						      <input type="text" class="consumoEstimadoPorMes form-control center"
+						        id="consumoEstimado_@index"
+						        value="@lista.consumoEstimadoPorMes"
+						        onfocus="value = value.replace(/,/g, '');"
+						        onkeypress="return ingresoDouble(event, value)"
+						        autocomplete="off"
+						        onchange="if(value == '') value = 0; 
+						          actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'consumoEstimadoPorMes', value);">
+						    </td>
+						    
+						    <!-- Próxima Mantención -->
+							@if(mapPermiso.get("parametro.planes_calculaProximaMant") != null && mapPermiso.get("parametro.planes_calculaProximaMant").equals("0")) {
+							    <!-- Modo edición manual -->
+							    <td style="text-align:right">
+							        <input type="text" class="proximaMantencion form-control center"
+							               id="proximaMantencion_@index"
+							               value="@lista.proximaMantencion"
+							               onfocus="value = value.replace(/,/g,'');"
+							               onkeypress="return ingresoDouble(event, value)"
+							               autocomplete="off"
+							               onchange="if(value == '') value = 0; recalcularFechaEstimada('@index', '@lista.id_tipoPlan', '@lista.id_equipo');">
+							    </td>
+							} else {
+							    <!-- Modo cálculo automático -->
+							    <td style="text-align:right">
+							        <input type="text" class="proximaMantencion form-control center"
+							               id="proximaMantencion_@index"
+							               value="@lista.proximaMantencion"
+							               disabled>
+							    </td>
+							}
+
 							<td style="text-align:center">
 								<input type="date" class="fechaEstimada form-control center" disabled>
 							</td>
-						</tr>
+						  </tr>
 					}
+										
 					@if(listTipo.size()>0){
 						<tr>
 							<td style="text-align:center">
@@ -223,36 +255,42 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 
 
 <script type="text/javascript">
-
 	$(document).ready(function() {
 		calcFechaProxima();
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
-	const calcFechaProxima = () =>{
-		let filas = $(".estadoActual").length;
-			let hoy = new Date();
-			
-			for(let i=0; i<filas; i++){
-				let fecha = $(".fechaReset")[i].value;
-				let proxima =  $(".proximaMantencion")[i].value;
-				proxima = proxima.replace(/,/g,'');
-				let actual =  $(".estadoActual")[i].value;
-				actual = actual.replace(/,/g,'');
-				let rotacion =  $(".consumoEstimadoPorMes")[i].value;
-				rotacion = rotacion.replace(/,/g,'');
-				let dif = parseFloat(proxima) - parseFloat(actual);
-				if(dif <= 0 || parseFloat(rotacion) <= 0){
-					$(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
-				}else{
-					let diasASumar = dif/rotacion * 30;
-					let aux = fecha.split("-");
-					let auxFecha = new Date(aux[0],parseInt(aux[1])-1,aux[2]);
-					auxFecha.setDate(auxFecha.getDate() + diasASumar);
-					$(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
-				}
-			}
+	const calcFechaProxima = () => {
+	    let filas = $(".estadoActual").length;
+	    let hoy = new Date();
+	
+	    for (let i = 0; i < filas; i++) {
+	        let fecha = $(".fechaReset")[i].value; // Fecha de referencia
+	        let proxima = parseFloat($(".proximaMantencion")[i].value.replace(/,/g, '') || 0);
+	        let actual = parseFloat($(".estadoActual")[i].value.replace(/,/g, '') || 0);
+	        let rotacion = parseFloat($(".consumoEstimadoPorMes")[i].value.replace(/,/g, '') || 0);
+	
+	        let dif = proxima - actual;
+	
+	        if (dif <= 0 || rotacion <= 0) {
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+	        } else {
+	            let diasASumar = (dif / rotacion) * 30;
+	
+	            let auxFecha;
+	            try {
+	                let aux = fecha.split("-");
+	                auxFecha = new Date(aux[0], parseInt(aux[1]) - 1, aux[2]);
+	                auxFecha.setDate(auxFecha.getDate() + diasASumar);
+	            } catch (error) {
+	                auxFecha = hoy;
+	            }
+	
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+	        }
+	    }
 	}
+
 	
 	const mostrarPDF = (nombrePDF) => {
 		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
@@ -278,33 +316,130 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 	     	}
         });
 	}
+
+	const actualizaAll = (index, id_equipo, campo, valor) => {
+	    let filas = $(".estadoActual").length;
+		let unidCambiada = $("#unidadMantencion_"+index).val();
 	
-	const actualizaAll = (id_unidadMantencion, id_equipo, campo, valor) =>{
-		
-		if(campo == 'fechaReset'){
-			let filas = $(".fechaReset").length;
-			
-			for(let i=0; i<filas; i++){
-				if($(".id_unidadMantencion")[i].value == id_unidadMantencion){
-					$(".fechaReset")[i].value = valor;
-					actualizaPorCampo($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
-				} 
-				
-			}
+	    for (let i = 0; i < filas; i++) {	
+	        if ($(".id_unidadMantencion")[i].value == unidCambiada) {
+	            if (campo === 'fechaReset') {
+	                $(".fechaReset")[i].value = valor;
+	                actualizaPorCampo($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+	                actualizarProximaMantencion(i, $(".id_tipoPlan")[i].value, id_equipo, campo);
+	            }
+	
+	            if (campo === 'estadoActual') {
+	                $(".estadoActual")[i].value = valor;
+	                actualizaPorCampo($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+	                actualizarProximaMantencion(i, $(".id_tipoPlan")[i].value, id_equipo, campo);
+	            }
+	        }
+	    }
+	};
+	
+	  function determinaProxima(lectActual, frecuencia) {
+			if (frecuencia <= 0)
+				alert("la frecuencia debe ser mayor a 0")
+			if (lectActual % frecuencia === 0) {
+				return lectActual + frecuencia;
+		   	} else {
+		        // Redondear al siguiente múltiplo
+		        const resto = lectActual % frecuencia;
+		        return lectActual - resto + frecuencia;
+		    }
 		}
-		
-		if(campo == 'estadoActual'){
-			let filas = $(".estadoActual").length;
-			
-			for(let i=0; i<filas; i++){
-				if($(".id_unidadMantencion")[i].value == id_unidadMantencion){
-					$(".estadoActual")[i].value = valor;
-					actualizaPorCampo($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
-				} 
-				
-			}
-		}
+
+    
+
+	function validaHoras(frecuencia, siguienteMantencion, mantencionAnterior, origen) {
+	    if (!frecuencia || !siguienteMantencion) {
+	        return false;
+	    }
+	
+	    return siguienteMantencion % frecuencia === 0;
 	}
+
+	let auxiliar = 0;
+
+function actualizarProximaMantencion(index, id_tipoPlan, id_equipo, origen) {
+
+    const lectActual = parseFloat($("#lectActual_" + index).val()?.replace(/,/g, "") || 0);
+
+    const frecuencia = parseFloat($("#frecuencia_" + index).val()?.replace(/,/g, "") || 0);
+
+    if (frecuencia > 0) {
+        const proximaMantencion = determinaProxima(lectActual, frecuencia);
+        let mantencionAnterior = parseFloat($("#proximaMantencion_" + index).val()?.replace(/,/g, "") || 0);
+
+        const isValid = validaHoras(frecuencia, proximaMantencion, mantencionAnterior, origen);
+
+        if (isValid) {
+            $("#proximaMantencion_" + index).val(proximaMantencion);
+            actualizaPorCampo(id_tipoPlan, id_equipo, 'proximaMantencion', proximaMantencion);
+            auxiliar = 0; // Limpieza
+        } else {
+            alert("El valor a ingresar debe ser mayor que cero.");
+            $("#proximaMantencion_" + index).val(0);
+
+            if (origen === 'lectura') $("#lectActual_" + index).val(auxiliar);
+            if (origen === 'frecuencia') $("#frecuencia_" + index).val(auxiliar);
+
+            auxiliar = 0; // Limpieza
+
+        }
+    }
+
+}
+
+// FUNCION PARA RECALCULAR FECHA CUANDO arametro.planes_calculaProximaMant ES 0, ES DECIR LA PROXIMA MATENCION ES MANIPULABLE DE FORMA MANUAL
+
+
+	function recalcularFechaEstimada(index, id_tipoPlan, id_equipo) {
+	    // Leer los valores de la fila correspondiente
+	    const proximaMantencion = parseFloat($("#proximaMantencion_" + index).val()?.replace(/,/g, "") || 0);
+	    const fechaReset = $(".fechaReset")[index].value;
+	    const consumoPromedio = parseFloat($(".consumoEstimadoPorMes")[index].value?.replace(/,/g, "") || 0);
+
+	    // Validar valores
+	    if (proximaMantencion <= 0 || consumoPromedio <= 0) {
+	        alert("El valor ingresado no es válido.");
+	        return;
+	    }
+	
+	    // Calcular nueva fecha estimada
+	    let diasASumar = (proximaMantencion / consumoPromedio) * 30;
+	    let nuevaFecha;
+	
+	    try {
+	        let aux = fechaReset.split("-");
+	        nuevaFecha = new Date(aux[0], parseInt(aux[1]) - 1, aux[2]);
+	        nuevaFecha.setDate(nuevaFecha.getDate() + diasASumar);
+	    } catch (error) {
+	        nuevaFecha = new Date(); // Fecha actual si hay errores
+	    }
+	
+	    // Actualizar la fecha estimada en la interfaz
+	    $(".fechaEstimada")[index].value = fechaAAMMDD(nuevaFecha);
+	
+	    // Guardar el cambio en la base de datos
+	    actualizaPorCampo(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
+	}
+
+
+
+	
+		
+	
+	
+
+
+
+
+
+	           
+
+
 	
 </script>
 

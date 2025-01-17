@@ -293,7 +293,7 @@ public class Proforma {
 							+ " order by fecha desc,id desc");
 			smt.setString(1, desde);
 			smt.setString(2, hasta);
-			System.out.println(smt);
+
 			ResultSet rs = smt.executeQuery();
 			int numDec = Moneda.numeroDecimalxId(con, db, "1");
 			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);

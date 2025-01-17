@@ -274,13 +274,17 @@ public class FormDespacho {
 								
 								String dePaso = "('"+id_bodegaDestino+"','"+id_equipoDespacho+"','"+id_moneda+"','"+Fechas.hoy().getFechaStrAAMMDD()
 										+"','"+precioVenta+"','"+precioReposicion+"','"+precioArriendo+"','"+id_unidadTiempo+"','"+id_cotizacion+"'),";
+								String key= id_bodegaDestino+"_"+id_equipoDespacho+"_"+id_cotizacion;
 
-								mapLprecioAux.put(dePaso, dePaso);
+								mapLprecioAux.put(key, dePaso);
 							}
 						}
 						
+						
+						
+						
 						valores = "";
-						for(String k: mapLprecioAux.keySet()) {
+						for(String k: mapLprecioAux.values()) {
 							valores += k;
 						}
 						

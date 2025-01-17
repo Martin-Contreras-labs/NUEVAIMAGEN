@@ -16,7 +16,7 @@ lista: List[List[String]], desde: String, hasta: String )
 							Genera un PDF multiple
 						</button>
 			  	</div>
-				@if(mapDiccionario.get("nEmpresa").equals("HOHE")
+				@if(mapDiccionario.get("nEmpresa").equals("HOHE AUN NO DISPONIBLE")
 					&& mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null
 					&& mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1")
 					&& mapPermiso.get("enviarApiFactura")!=null){
@@ -516,7 +516,7 @@ lista: List[List[String]], desde: String, hasta: String )
 	        
 			<div class="row">
 				<div class="col-sm-12" style="text-align:center">
-					<form action="/routes2/hohePlantillaNV/" method="POST"  onsubmit="return validarForm2();">
+					<form action="/hohePlantillaNV/" method="POST"  onsubmit="return validarForm2();">
 						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
 					</form>
 					<br>
@@ -677,12 +677,16 @@ lista: List[List[String]], desde: String, hasta: String )
 		     	processData: false,
 		     	success: function(rs){
 		     		if(rs["status"]){
-						alertify.alert("BIEN");
-						// Al ACEPTAR EL MENSAJE DEBE CERRAR VENTANA MODAL
+						if(rs["error"]){
+							let errores = rs["detalle"];
+							alertify.alert(""+errores);
+						}else{
+							alertify.alert(rs["msg"], function () {
+								location.reload();
+				     		});
+						}
 		     		}else{
-						// DEBE MOSTRAR EL MENSAJE DE ERROR
-						alertify.alert("ERROR EN ARCHIVO:<br> ");
-						// Al ACEPTAR EL MENSAJE DEBE CERRAR VENTANA MODAL
+						alertify.alert("SE PRESNETO UN ERROR");
 		     		}
 				}
 			 });

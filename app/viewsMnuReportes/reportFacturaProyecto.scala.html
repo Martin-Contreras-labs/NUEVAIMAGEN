@@ -80,7 +80,7 @@ desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
 							  		</div>
 							  		<input type="text" class="form-control left"
 										id="searchTermtablaPrincipal"
-										onkeyup="doSearch2('tablaPrincipal');">
+										onkeyup="doSearch2_conTot('tablaPrincipal');sumarTotales();">
 								</div>
 							</td>
 						</tr>
@@ -256,57 +256,64 @@ desdeDDMMAA: String, hastaDDMMAA: String, archivoPDF: String)
 		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
 		        }
 		  } );
+		sumarTotales();
+	});
 
-		let cfi = 0;
-		$(".cfi").each(function() {
-			let val = $(this).text().replace(/,/g,'');
-			cfi += parseFloat(val);
-		});
-		$("#cfi").text(formatStandar(cfi,0));
-		
-		let arr = 0;
-		$(".arr").each(function() {
-			let val = $(this).text().replace(/,/g,'');
-			arr += parseFloat(val);
-		});
-		$("#arr").text(formatStandar(arr,0));
-		
-		let vta = 0;
-		$(".vta").each(function() {
-			let val = $(this).text().replace(/,/g,'');
-			vta += parseFloat(val);
-		});
-		$("#vta").text(formatStandar(vta,0));
-		
-		let ajustArr = 0;
-		$(".ajustArr").each(function() {
-			let val = $(this).text().replace(/,/g,'');
-			ajustArr += parseFloat(val);
-		});
-		$("#ajustArr").text(formatStandar(ajustArr,0));
-		
-		let ajustVta = 0;
-		$(".ajustVta").each(function() {
-			let val = $(this).text().replace(/,/g,'');
-			ajustVta += parseFloat(val);
-		});
-		$("#ajustVta").text(formatStandar(ajustVta,0));
-		
-		let granTotal = 0;
-		$(".granTotal").each(function() {
-			let val = $(this).text().replace(/,/g,'');
-			granTotal += parseFloat(val);
-		});
-		$("#granTotal").text(formatStandar(granTotal,0));
-
-		document.getElementById('mostrarmostrar').style.display="block";
+	const sumarTotales = () => {
+	    let totalCFI = 0;
+	    let totalARR = 0;
+	    let totalVTA = 0;
+	    let totalAjustArr = 0;
+	    let totalAjustVta = 0;
+	    let totalGranTotal = 0;
+	
+	    // Sumar solo celdas visibles 
+	    $(".cfi:visible").each(function () {
+	        totalCFI += parseFloat($(this).text().replace(/,/g, '') || 0);
+	    });
+	
+	    $(".arr:visible").each(function () {
+	        totalARR += parseFloat($(this).text().replace(/,/g, '') || 0);
+	    });
+	
+	    $(".vta:visible").each(function () {
+	        totalVTA += parseFloat($(this).text().replace(/,/g, '') || 0);
+	    });
+	
+	    $(".ajustArr:visible").each(function () {
+	        totalAjustArr += parseFloat($(this).text().replace(/,/g, '') || 0);
+	    });
+	
+	    $(".ajustVta:visible").each(function () {
+	        totalAjustVta += parseFloat($(this).text().replace(/,/g, '') || 0);
+	    });
+	
+	    $(".granTotal:visible").each(function () {
+	        totalGranTotal += parseFloat($(this).text().replace(/,/g, '') || 0);
+	    });
+	
+	    // Actualizar los totales en la tabla
+	    $("#cfi").text(formatStandar(totalCFI,0));
+	    $("#arr").text(formatStandar(totalARR,0));
+	    $("#vta").text(formatStandar(totalVTA,0));
+	    $("#ajustArr").text(formatStandar(totalAjustArr,0));
+	    $("#ajustVta").text(formatStandar(totalAjustVta,0));
+	    $("#granTotal").text(formatStandar(totalGranTotal,0));
+	
+	    // Mostrar contenedor (CHAT GPT)
+	    $("#mostrarmostrar").show();
+	
+	    if ("@archivoPDF" !== "0") {
+	        $("#rutaPDF").html(
+	            `<object data='/showPdf/@archivoPDF' type='application/pdf' width='100%' height='720'></object>`
+	        );
+	        $("#muestraPDF").modal("show");
+	    }
+	}
 			
-		if("@archivoPDF"!="0"){
-			 document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/@archivoPDF' type='application/pdf' width='100%' height='720'></object>";
-		  $('#muestraPDF').modal('show');
-		}
-			
-			
+// Llamar a sumarTotales al cargar la página
+	$(document).ready(() => {
+	    sumarTotales();
 	});
 	
 	
