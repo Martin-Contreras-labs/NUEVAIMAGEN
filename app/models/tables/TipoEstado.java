@@ -228,6 +228,15 @@ public class TipoEstado {
 			smt.setLong(2, id_tipoEstado);
 			smt.executeUpdate();
 			smt.close();
+			
+			if(campo.equals("reparable")) {
+				PreparedStatement smt2 = con.prepareStatement("update `"+db+"`.tipoEstado set `valoriza` = ? where id = ?;");		
+				smt2.setString(1, valor.trim());
+				smt2.setLong(2, id_tipoEstado);
+				smt2.executeUpdate();
+				smt2.close();
+			}
+			
 			flag = true;
 		} catch (SQLException e) {
 				e.printStackTrace();
@@ -273,11 +282,12 @@ public class TipoEstado {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.tipoEstado (sigla,nombre,id_bodegaAsociada,reparable) values (?,?,?,?)");
+					.prepareStatement("insert into `"+db+"`.tipoEstado (sigla,nombre,id_bodegaAsociada,reparable,valoriza) values (?,?,?,?,?)");
 			smt.setString(1, aux.sigla.trim());
 			smt.setString(2, aux.nombre.trim());
 			smt.setLong(3, aux.id_bodegaAsociada);
 			smt.setLong(4, aux.reparable);
+			smt.setLong(5, aux.reparable);
 			smt.executeUpdate();
 			smt.close();
 			flag = true;

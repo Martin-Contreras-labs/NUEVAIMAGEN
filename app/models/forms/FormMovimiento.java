@@ -1570,14 +1570,13 @@ public class FormMovimiento {
     					Map<Long,TipoEstado> mapTipoEstado = TipoEstado.mapAll(con, db);
     					
     					List<List<String>> lista = new ArrayList<List<String>>();
-    						
+    					
     					for(List<String> x : reportInventarioPorEstadosPorNroGuia) {
     						
     						TipoEstado tipoEstado = mapTipoEstado.get(Long.parseLong(x.get(15)));
     						
     						if(tipoEstado!=null) {
     							if((long)tipoEstado.getReparable() == (long)1 && (long)tipoEstado.getValoriza() == (long)1) {
-    								
     								Double precio = Double.parseDouble(x.get(14).replaceAll(",", ""));
         							String moneda = x.get(13);
         							Double cant = Double.parseDouble(x.get(12).replaceAll(",", ""));

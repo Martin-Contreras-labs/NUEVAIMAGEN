@@ -418,7 +418,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 
 
 	
-	const actualizaPorCampo = (id_tipoPlan, id_equipo, campo, valor) => {
+	const actualizaPorCampoPlan = (id_tipoPlan, id_equipo, campo, valor) => {
 	
 	    var formData = new FormData();
 	    formData.append('id_tipoPlan', id_tipoPlan);
@@ -438,6 +438,24 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 	            calcFechaProxima();
 	        }
 	    });
+	}
+	
+	const actualizaPorCampo = (id_hojaVida, campo, valor) =>{
+		var formData = new FormData();
+	  	formData.append('id_hojaVida',id_hojaVida);
+		formData.append('campo',campo);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/actualCampoHojaVidaAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     	}
+        });
 	}
 
 	
@@ -462,7 +480,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 		
 	function determinaProxima(lectActual, frecuencia) {
 	    if (frecuencia <= 0) {
-	        alert("La frecuencia debe ser mayor a 0");
+	        alert("La rotacion debe ser mayor a 0");
 	        return 0;
 	    }
 	
@@ -555,14 +573,13 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 	
 	            if (isValid) {
 	                $("#proximaMantencion_" + index).val(proximaMantencion);
-	                actualizaPorCampo(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
+	                actualizaPorCampoPlan(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
 	                calcFechaProxima(index);
 	            } else {
 	                alert(`Fila ${index}: Validación fallida.`);
 	            }
-	        } else {
-	            alert(`Fila ${index}: Frecuencia inválida.`);
 	        }
+
 	    } else {
 	        alert(`Índice fuera de rango: ${index}`);
 	    }
@@ -578,7 +595,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 
 	    // Validar valores
 	    if (proximaMantencion <= 0 || consumoPromedio <= 0) {
-	        alert("El valor ingresado no es válido.");
+	        alert("El valor ingresado y el consumo promedio deben ser mayor que cero.");
 	        return;
 	    }
 	
@@ -598,7 +615,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 	    $(".fechaEstimada")[index].value = fechaAAMMDD(nuevaFecha);
 
 	    // Guardar el cambio en la base de datos
-	    actualizaPorCampo(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
+	    actualizaPorCampoPlan(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
 	}
 
 

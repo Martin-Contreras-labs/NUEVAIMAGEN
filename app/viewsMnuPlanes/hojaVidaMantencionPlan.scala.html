@@ -277,7 +277,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 	
 	function determinaProxima(lectActual, frecuencia) {
 		if (frecuencia <= 0) {
-			alert("la frecuencia debe ser mayor a 0")
+			alert("la rotacion debe ser mayor a 0")
 			return 0;
 		}
 		if (lectActual % frecuencia === 0) {
@@ -320,8 +320,6 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 	        } else {
 	            alert("El valor a ingresar debe ser mayor que cero.");
 	        }
-	    } else {
-	        alert("La frecuencia debe ser mayor a 0.");
 	    }
 	}
 	

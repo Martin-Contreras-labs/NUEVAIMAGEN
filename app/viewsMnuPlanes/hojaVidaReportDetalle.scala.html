@@ -240,29 +240,34 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 		  document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
-	const calcFechaProxima = () =>{
-		let filas = $(".estadoActual").length;
-			let hoy = new Date();
-			
-			for(let i=0; i<filas; i++){
-				let fecha = $(".fechaReset")[i].value;
-				let proxima =  $(".proximaMantencion")[i].value;
-				proxima = proxima.replace(/,/g,'');
-				let actual =  $(".estadoActual")[i].value;
-				actual = actual.replace(/,/g,'');
-				let rotacion =  $(".consumoEstimadoPorMes")[i].value;
-				rotacion = rotacion.replace(/,/g,'');
-				let dif = parseFloat(proxima) - parseFloat(actual);
-				if(dif <= 0 || parseFloat(rotacion) <= 0){
-					$(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
-				}else{
-					let diasASumar = dif/rotacion * 30;
-					let aux = fecha.split("-");
-					let auxFecha = new Date(aux[0],parseInt(aux[1])-1,aux[2]);
-					auxFecha.setDate(auxFecha.getDate() + diasASumar);
-					$(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
-				}
-			}
+	const calcFechaProxima = () => {
+	    let filas = $(".estadoActual").length;
+	    let hoy = new Date();
+	
+	    for (let i = 0; i < filas; i++) {
+	        let fecha = $(".fechaReset")[i]?.value;
+	        let proxima = parseFloat($(".proximaMantencion")[i]?.value.replace(/,/g, '') || 0);
+	        let actual = parseFloat($(".estadoActual")[i]?.value.replace(/,/g, '') || 0);
+	        let rotacion = parseFloat($(".consumoEstimadoPorMes")[i]?.value.replace(/,/g, '') || 0);
+	
+	        let dif = proxima - actual;
+	
+	        if (dif <= 0 || rotacion <= 0) {
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+	        } else {
+	            let diasASumar = (dif / rotacion) * 30;
+	            let auxFecha;
+	            try {
+	                let aux = fecha.split("-");
+	                auxFecha = new Date(aux[2], parseInt(aux[1]) - 1, aux[0]);
+	                auxFecha.setDate(auxFecha.getDate() + diasASumar);
+	            } catch (error) {
+	                auxFecha = hoy;
+	            }
+	
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+	        }
+	    }
 	}
 	
 	const mostrarPDF = (nombrePDF) => {
