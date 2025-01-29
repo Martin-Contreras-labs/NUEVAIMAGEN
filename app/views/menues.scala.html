@@ -755,10 +755,15 @@
 													@mapDiccionario.get("Arriendo"): por Grupos
 												</a></li>
 											}
+											@if(mapPermiso.get("reportInventarioSelectivo")!=null){
+												<li><a class="dropdown-item" href='/reportEquipoBodegaCorte/@mapDiccionario.get("ARRIENDO")'>
+													@mapDiccionario.get("Arriendo"): por Equipos - @mapDiccionario.get("Bodegas")
+												</a></li>
+											}
 											@if(mapPermiso.get("inventarioMatriz")!=null){
 												<div class="dropdown-divider" style="border-color:black"></div>
 												<li><a class="dropdown-item" href='/reportInventarioMatrizCorte/@mapDiccionario.get("ARRIENDO")'>
-													@mapDiccionario.get("Arriendo"): Equipos por Bodegas
+													Matriz @mapDiccionario.get("Arriendo"): Equipos por @mapDiccionario.get("Bodegas")
 												</a></li>
 											}
 										</ul>
@@ -775,9 +780,12 @@
 											@if(mapPermiso.get("reportInventarioGrupo")!=null){
 												<li><a class="dropdown-item" href="/reportInventarioGrupoCorte/VENTA">Vendido: por Grupos</a></li>
 											}
+											@if(mapPermiso.get("reportInventarioGeneral")!=null){
+												<li><a class="dropdown-item" href="/reportEquipoBodegaCorte/VENTA">Vendido: por Equipos - @mapDiccionario.get("Bodegas")</a></li>
+											}
 											@if(mapPermiso.get("inventarioMatriz")!=null){
 												<div class="dropdown-divider" style="border-color:black"></div>
-												<li><a class="dropdown-item" href="/reportInventarioMatrizCorte/VENTA">Vendido: Equipos por Bodegas</a></li>
+												<li><a class="dropdown-item" href="/reportInventarioMatrizCorte/VENTA">Matriz Vendido: Equipos por @mapDiccionario.get("Bodegas")</a></li>
 											}
 										</ul>
 									</li>
@@ -793,9 +801,12 @@
 											@if(mapPermiso.get("reportInventarioGrupo")!=null){
 												<li><a class="dropdown-item" href="/reportInventarioGrupoCorte/TODO">Todo: por Grupos</a></li>
 											}
+											@if(mapPermiso.get("reportInventarioGeneral")!=null){
+												<li><a class="dropdown-item" href="/reportEquipoBodegaCorte/TODO">Todo:  por Equipos - @mapDiccionario.get("Bodegas")</a></li>
+											}
 											@if(mapPermiso.get("inventarioMatriz")!=null){
 												<div class="dropdown-divider" style="border-color:black"></div>
-												<li><a class="dropdown-item" href="/reportInventarioMatrizCorte/TODO">Todo: Equipos por Bodegas</a></li>
+												<li><a class="dropdown-item" href="/reportInventarioMatrizCorte/TODO">Matriz Todo: Equipos por @mapDiccionario.get("Bodegas")</a></li>
 											}
 											@if(mapPermiso.get("inventarioStock")!=null){
 												<div class="dropdown-divider" style="border-color:black"></div>

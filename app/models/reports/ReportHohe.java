@@ -918,37 +918,39 @@ public class ReportHohe {
 				Double listaPrecioArrOrigen =  (double)0;
 				
 				Cotizacion coti = mapCotizacion.get(listCotiDetalle.get(i).id_cotizacion);
-				
-				List<Double> precioOrigen = mapPrecioAllSucursal.get(coti.id_bodegaEmpresa+"_"+ "_" + listCotiDetalle.get(i).id_equipo);
-				
-				if(precioOrigen!=null) {
-					precioVtaOrigen = precioOrigen.get(0);
-					Double factor = equivTiempo.get(precioOrigen.get(2).longValue());
-					precioArrOrigen = precioOrigen.get(1) / factor; //precio de arriendo diario
-				}
-				cantOriginal = Double.parseDouble(listCotiDetalle.get(i).cantidad.toString().replaceAll(",", ""));
 				if(coti!=null) {
-					List<Double> listaPrecio = mapListaPrecio.get(coti.id_bodegaEmpresa+"_"+listCotiDetalle.get(i).id_cotizacion+"_"+listCotiDetalle.get(i).id_equipo);
-					if(listaPrecio!=null) {
-						listaPrecioVtaOrigen =  listaPrecio.get(0);
-						Double factor = equivTiempo.get(listaPrecio.get(2).longValue());
-						listaPrecioArrOrigen = listaPrecio.get(1) / factor; //precio de arriendo diario
+					List<Double> precioOrigen = mapPrecioAllSucursal.get(coti.id_bodegaEmpresa+"_"+ "_" + listCotiDetalle.get(i).id_equipo);
+					
+					if(precioOrigen!=null) {
+						precioVtaOrigen = precioOrigen.get(0);
+						Double factor = equivTiempo.get(precioOrigen.get(2).longValue());
+						precioArrOrigen = precioOrigen.get(1) / factor; //precio de arriendo diario
+					}
+					cantOriginal = Double.parseDouble(listCotiDetalle.get(i).cantidad.toString().replaceAll(",", ""));
+					if(coti!=null) {
+						List<Double> listaPrecio = mapListaPrecio.get(coti.id_bodegaEmpresa+"_"+listCotiDetalle.get(i).id_cotizacion+"_"+listCotiDetalle.get(i).id_equipo);
+						if(listaPrecio!=null) {
+							listaPrecioVtaOrigen =  listaPrecio.get(0);
+							Double factor = equivTiempo.get(listaPrecio.get(2).longValue());
+							listaPrecioArrOrigen = listaPrecio.get(1) / factor; //precio de arriendo diario
+						}
+					}
+					// ********
+					v0 += (cantOriginal*precioVtaOrigen);  			// 0 mto Original a Plista
+					v1 += (cantOriginal*listaPrecioVtaOrigen);  	// 1 mto Original a Preal
+					v2 += (cantOriginal*precioArrOrigen*30);  		// 2 arr Original 30 dias a Plista
+					v3 += (cantOriginal*listaPrecioArrOrigen*30);  	// 3 arr Original 30 dias a Preal
+					// ********
+					if(i == listCotiDetalle.size()-1) {
+						List<Double> aux = new ArrayList<Double>();
+						aux.add(v0);
+						aux.add(v1);
+						aux.add(v2);
+						aux.add(v3);
+						map2.put(id_coti, aux);
 					}
 				}
-				// ********
-				v0 += (cantOriginal*precioVtaOrigen);  			// 0 mto Original a Plista
-				v1 += (cantOriginal*listaPrecioVtaOrigen);  	// 1 mto Original a Preal
-				v2 += (cantOriginal*precioArrOrigen*30);  		// 2 arr Original 30 dias a Plista
-				v3 += (cantOriginal*listaPrecioArrOrigen*30);  	// 3 arr Original 30 dias a Preal
-				// ********
-				if(i == listCotiDetalle.size()-1) {
-					List<Double> aux = new ArrayList<Double>();
-					aux.add(v0);
-					aux.add(v1);
-					aux.add(v2);
-					aux.add(v3);
-					map2.put(id_coti, aux);
-				}
+				
 		}
 		return (map2);
 	}

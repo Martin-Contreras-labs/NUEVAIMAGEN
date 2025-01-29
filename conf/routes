@@ -336,6 +336,12 @@ POST    /reportInventarioGeneralXEquipo/			controllers.MnuReportes.reportInventa
 POST    /reportInventTrazaEquipoEnBod/				controllers.MnuReportes.reportInventTrazaEquipoEnBod(request: Request)
 POST    /reportInventarioEquipoExcel/				controllers.MnuReportes.reportInventarioEquipoExcel(request: Request)
 
+GET     /reportEquipoBodegaCorte/:tipo				controllers.MnuReportes.reportEquipoBodegaCorte(request: Request, tipo: String)
+POST    /reportEquipoBodega/						controllers.MnuReportes.reportEquipoBodega(request: Request)
+POST    /reportEquipoBodegaXEquipo/					controllers.MnuReportes.reportEquipoBodegaXEquipo(request: Request)
+POST    /reportEquipoBodegaExcel/					controllers.MnuReportes.reportEquipoBodegaExcel(request: Request)
+POST    /reportEquipoBodegaTrazaEquipoEnBod/		controllers.MnuReportes.reportEquipoBodegaTrazaEquipoEnBod(request: Request)
+
 
 GET     /reportInventarioBodegaCorte/:tipo			controllers.MnuReportes.reportInventarioBodegaCorte(request: Request, tipo: String)
 POST    /reportInventarioBodega/					controllers.MnuReportes.reportInventarioBodega(request: Request)
