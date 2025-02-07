@@ -1004,7 +1004,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 ->  /routes2 routes2.Routes
-
+->  /routes3 routes3.Routes
 
 
 

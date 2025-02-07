@@ -31,7 +31,7 @@ public class ReportHojaVida {
 		try {
 			PreparedStatement smt22 = con
 					.prepareStatement("select id_equipo from `"+db+"`.baja where esModificable=0");
-			String listaCond ="00000";
+			String listaCond ="";
 			ResultSet rs22 = smt22.executeQuery();
 			while (rs22.next()) {
 				listaCond = listaCond + rs22.getString(1) + ",";

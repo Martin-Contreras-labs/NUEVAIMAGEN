@@ -11,11 +11,13 @@ import models.tables.BodegaEmpresa;
 import models.tables.Cotizacion;
 import models.tables.Guia;
 import models.tables.ListaPrecio;
+import models.tables.Moneda;
 import models.tables.Ot;
 import models.tables.OtDespachado;
 import models.tables.Precio;
 import models.tables.TasaEquipo;
 import models.tables.TasaGrupo;
+import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 
 public class FormDespacho {
@@ -208,11 +210,21 @@ public class FormDespacho {
 								boolean flagAplicaMaestro = false;
 								
 								if(precioDespacho != null) {
+									id_moneda = precioDespacho.get(6).longValue();
+									int nroDecimales = Moneda.numeroDecimalxId(con, db, id_moneda.toString());
+									
 									precioVenta = precioDespacho.get(4) * (1-dctoVta);
+									
+									precioVenta = DecimalFormato.redondear(precioVenta, nroDecimales);
+									
 									precioArriendo = precioDespacho.get(3) * (1-dctoArr);
+									precioArriendo = DecimalFormato.redondear(precioArriendo, nroDecimales);
+									
 									precioReposicion = precioVenta;
 									id_moneda = precioDespacho.get(6).longValue();
 									id_unidadTiempo = precioDespacho.get(5).longValue();
+									
+									
 								}else if((double)cantidadRebajaOt == (double)cantidadDespachoOt) {
 									precioDespacho = mapDetalleCoti.get(id_equipoOrigen);
 									if(precioDespacho != null) {
