@@ -268,8 +268,9 @@ public class MnuRedimensionar extends Controller {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			ActaRedimensionar acta = ActaRedimensionar.find(con, s.baseDato, id_actaRedimensionar);
 	    			FormRedimensionar.redimensionar (con, s.baseDato, mapeoPermiso, mapeoDiccionario, 
-	    					id_actaRedimensionar, s.id_usuario, s.userName);
+	    					id_actaRedimensionar, acta.getNumero(), s.id_usuario, s.userName);
 	    			con.close();
 	    			return redirect("/routes2/redimensionarConfirmar0/");
 	        	} catch (SQLException e) {
@@ -485,7 +486,7 @@ public class MnuRedimensionar extends Controller {
 	    				Equipo eqRedimensionar = mapEquipo.get(x.getId_equipoRedimensionar());
 	    				List<String> destino = mapBodega.get(x.id_bodegaDestino);
 	    				
-	    				if(eqOrigen!=null && eqRedimensionar!=null && destino !=null) {
+	    				if(eqOrigen!=null) {
 	    					
 	    					String cantOrigen = DecimalFormato.formato(x.getCant_equipoOrigen(), (long)2);
 	    					String cantRedimensionar = DecimalFormato.formato(x.getCantEquipoRedimensionar(), (long)2);
@@ -530,12 +531,19 @@ public class MnuRedimensionar extends Controller {
 	    					}
 	    					
 	    					
-	    					aux.add(eqRedimensionar.getCodigo());
-	    					aux.add(eqRedimensionar.getNombre());
-	    					aux.add(eqRedimensionar.getUnidad());
-	    					aux.add(cantRedimensionar);
-	    					
-	    					aux.add(destino.get(5));
+	    					if(eqRedimensionar != null && destino != null) {
+	    						aux.add(eqRedimensionar.getCodigo());
+		    					aux.add(eqRedimensionar.getNombre());
+		    					aux.add(eqRedimensionar.getUnidad());
+		    					aux.add(cantRedimensionar);
+		    					aux.add(destino.get(5));
+	    					}else {
+	    						aux.add("");
+	    						aux.add("");
+	    						aux.add("");
+	    						aux.add("");
+	    						aux.add("");
+	    					}
 	    					
 	    					detalle.add(aux);
 	    				}
