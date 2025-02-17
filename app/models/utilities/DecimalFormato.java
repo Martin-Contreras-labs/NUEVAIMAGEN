@@ -1,5 +1,7 @@
 package models.utilities;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 public class DecimalFormato {
@@ -25,6 +27,10 @@ public class DecimalFormato {
 		return (formateado);
 	}
 	
+	public static double redondear(double valor, int decimales) {
+        BigDecimal bd = new BigDecimal(valor).setScale(decimales, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 	
 	
 

@@ -1,0 +1,54 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR/CREAR NUEVO ESTADO OPERACIONAL", "")
+		<form action="/routes3/mantTblEstadoOperacionalNewSave/" method="POST">
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td>
+								<div class="row">
+									<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+										<b><font color="#008000">ESTADO:</font></b>
+									</div>
+									<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+										<input type="text" class="form-control" name="nombreEstado" maxlength="50" onkeypress="return sinReservados(event)" required>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="submit"  value="GRABAR ESTADO" class="btn btn-success btn-sm rounded-pill btn-block">
+					</div>
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+</script>
+
+
+		
+		
+	

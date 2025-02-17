@@ -393,49 +393,145 @@
 			<!-- =================================== -->
 	        <!-- 			MENU PLANES 	   		 -->  
 	        <!-- =================================== -->
+
+
+
+
+
 	        @if(mapPermiso.get("mnuPLANES")!=null && mapPermiso.get("parametro.mnuPLANES")!=null && mapPermiso.get("parametro.mnuPLANES").equals("1")){
-	 			<li class="nav-item dropdown">
-					<a id="mnuPLANES" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					 	Planes
-		        	</a>
-		        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
-		        		@if(mapPermiso.get("planHojaVida")!=null){
-							
-		        			<a class="dropdown-item" href="/hojaVidaMantencionLista/0">Actualizar Hojas de Vida</a>
-		        			<div class="dropdown-divider" style="border-color:black"></div>
-						}
-						
-		        		@if(mapPermiso.get("planMantencion")!=null){
-		        			<a class="dropdown-item" href="/hojaVidaPlanMantencion/">Planes de Mantenci&oacute;n</a>
-						}
-						@if(mapPermiso.get("planTipoPlan")!=null){
-							<a class="dropdown-item" href="/tipoPlanMantencion/">Tipo Plan de Mantención</a>
-						}
-						
-						@if(mapPermiso.get("planTipoTrabajo")!=null){
-		        			<a class="dropdown-item" href="/tipoTrabajoMantencion/">Tipo de Trabajo</a>
-						}
-						@if(mapPermiso.get("reportesHojaVida")!=null){
-							<div class="dropdown-divider" style="border-color:black"></div>
-		        			<a class="dropdown-item" href="/hojaVidaReportLista/">Hojas de Vida</a>
-						}
-						@if(mapPermiso.get("analisisHojaVida")!=null){
-		        			<a class="dropdown-item" href="/hojaVidaReportKpis/">Reporte KPIs</a>
-						}
-						@if(mapPermiso.get("planGraficos")!=null){
-							<li class="dropdown-submenu">
-								<a class="dropdown-item dropdown-toggle" href="#">Gr&aacute;ficos</a>
-								<ul class="dropdown-menu">
-										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,30">Gr&aacute;fico-30</a></li>
-										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,60">Gr&aacute;fico-60</a></li>
-										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,90">Gr&aacute;fico-90</a></li>
-										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,180">Gr&aacute;fico-180</a></li>
-										<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,360">Gr&aacute;fico-360</a></li>
-								</ul>
-							</li>
-						}
-		        	</ul>
-		        </li>
+					@if(mapPermiso.get("parametro.mnuMANTENCION")==null || mapPermiso.get("parametro.mnuMANTENCION").equals("0")){
+							<li class="nav-item dropdown">
+								<a id="mnuPLANES" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								 	Planes
+					        	</a>
+					        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+					        		@if(mapPermiso.get("planHojaVida")!=null){
+					        			<a class="dropdown-item" href="/hojaVidaMantencionLista/0">Actualizar Hojas de Vida</a>
+					        			<div class="dropdown-divider" style="border-color:black"></div>
+									}
+					        		@if(mapPermiso.get("planMantencion")!=null){
+					        			<a class="dropdown-item" href="/hojaVidaPlanMantencion/">Planes de Mantenci&oacute;n</a>
+									}
+									@if(mapPermiso.get("planTipoPlan")!=null){
+										<a class="dropdown-item" href="/tipoPlanMantencion/">Tipo Plan de Mantención</a>
+									}
+									@if(mapPermiso.get("planTipoTrabajo")!=null){
+					        			<a class="dropdown-item" href="/tipoTrabajoMantencion/">Tipo de Trabajo</a>
+									}
+									@if(mapPermiso.get("reportesHojaVida")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+					        			<a class="dropdown-item" href="/hojaVidaReportLista/">Hojas de Vida</a>
+									}
+									@if(mapPermiso.get("analisisHojaVida")!=null){
+					        			<a class="dropdown-item" href="/hojaVidaReportKpis/">Reporte KPIs</a>
+									}
+									@if(mapPermiso.get("planGraficos")!=null){
+										<li class="dropdown-submenu">
+											<a class="dropdown-item dropdown-toggle" href="#">Gr&aacute;ficos</a>
+											<ul class="dropdown-menu">
+													<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,30">Gr&aacute;fico-30</a></li>
+													<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,60">Gr&aacute;fico-60</a></li>
+													<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,90">Gr&aacute;fico-90</a></li>
+													<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,180">Gr&aacute;fico-180</a></li>
+													<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,360">Gr&aacute;fico-360</a></li>
+											</ul>
+										</li>
+									}
+					        	</ul>
+					        </li>
+					}else{
+							<li class="nav-item dropdown">
+								<a id="mnuPLANES" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								 	Planes
+					        	</a>
+					        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+									<li class="dropdown-submenu">
+							          	<a class="dropdown-item dropdown-toggle" href="#">Planes</a>
+							            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+							        		@if(mapPermiso.get("planHojaVida")!=null){
+							        			<a class="dropdown-item" href="/hojaVidaMantencionLista/0">Actualizar Hojas de Vida</a>
+							        			<div class="dropdown-divider" style="border-color:black"></div>
+											}
+							        		@if(mapPermiso.get("planMantencion")!=null){
+							        			<a class="dropdown-item" href="/hojaVidaPlanMantencion/">Planes de Mantenci&oacute;n</a>
+											}
+											@if(mapPermiso.get("planTipoPlan")!=null){
+												<a class="dropdown-item" href="/tipoPlanMantencion/">Tipo Plan de Mantención</a>
+											}
+											@if(mapPermiso.get("planTipoTrabajo")!=null){
+							        			<a class="dropdown-item" href="/tipoTrabajoMantencion/">Tipo de Trabajo</a>
+											}
+											@if(mapPermiso.get("reportesHojaVida")!=null){
+												<div class="dropdown-divider" style="border-color:black"></div>
+							        			<a class="dropdown-item" href="/hojaVidaReportLista/">Hojas de Vida</a>
+											}
+											@if(mapPermiso.get("analisisHojaVida")!=null){
+							        			<a class="dropdown-item" href="/hojaVidaReportKpis/">Reporte KPIs</a>
+											}
+											@if(mapPermiso.get("planGraficos")!=null){
+												<li class="dropdown-submenu">
+													<a class="dropdown-item dropdown-toggle" href="#">Gr&aacute;ficos</a>
+													<ul class="dropdown-menu">
+															<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,30">Gr&aacute;fico-30</a></li>
+															<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,60">Gr&aacute;fico-60</a></li>
+															<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,90">Gr&aacute;fico-90</a></li>
+															<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,180">Gr&aacute;fico-180</a></li>
+															<li><a class="dropdown-item" href="/hojaVidaReportGrafico/0,360">Gr&aacute;fico-360</a></li>
+													</ul>
+												</li>
+											}
+							        	</ul>
+							        </li>
+									<li class="dropdown-submenu">
+							          	<a class="dropdown-item dropdown-toggle" href="#">Mantenci&oacute;n</a>
+							            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
+							        			<a class="dropdown-item" href="/routes3/mantReportNew">Ingresar Report</a>
+							        			<div class="dropdown-divider" style="border-color:black"></div>
+							        			<a class="dropdown-item" href="#">menu 2</a>
+												<a class="dropdown-item" href="#">menu 3</a>
+							        			<a class="dropdown-item" href="#">menu 4</a>
+												<div class="dropdown-divider" style="border-color:black"></div>
+							        			<a class="dropdown-item" href="#">menu 5</a>
+							        			<a class="dropdown-item" href="#">menu 6</a>
+												<div class="dropdown-divider" style="border-color:black"></div>
+												@if(mapPermiso.get("mnuMantTbl")!=null){
+													<li class="dropdown-submenu">
+														<a class="dropdown-item dropdown-toggle" href="#">Tablas</a>
+														<ul class="dropdown-menu">
+															@if(mapPermiso.get("mantTblItemMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblItemMant/">Items a Intervenir</a></li>
+															}
+															@if(mapPermiso.get("mantTblActividadMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblActividadMant/">Actividades</a></li>
+															}
+															@if(mapPermiso.get("mantTblTipoActividadMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblTipoActividadMant/">Tipo de Actividades</a></li>
+															}
+															@if(mapPermiso.get("mantTblComponenteMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblComponenteMant/">Componentes</a></li>
+															}
+															@if(mapPermiso.get("mantTblEstadoEnObraMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblEstadoEnObraMant/">Estados en Sitio</a></li>
+															}
+															@if(mapPermiso.get("mantTblEstadoEnTallerMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblEstadoEnTallerMant/">Estados en Taller</a></li>
+															}
+															@if(mapPermiso.get("mantTblEstadoOperacionalMant")!=null){
+																<li><a class="dropdown-item" href="/routes3/mantTblEstadoOperacionalMant/">Estados Operacionales</a></li>
+															}
+															@if(mapPermiso.get("mantTblOperadorMecanicoMant")!=null){
+																<div class="dropdown-divider" style="border-color:black"></div>
+																<li><a class="dropdown-item" href="/routes3/mantTblOperadorMecanicoMant/">Usuarios APP</a></li>
+															}
+														</ul>
+													</li>
+												}
+							        	</ul>
+							        </li>
+					        	</ul>
+					        </li>
+					}
+	 			
 			}
 			
 			<!-- =================================== -->

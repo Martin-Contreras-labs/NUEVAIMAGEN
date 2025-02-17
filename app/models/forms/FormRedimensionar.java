@@ -141,7 +141,7 @@ public class FormRedimensionar {
 	}
 	
 	public static void redimensionar (Connection con, String db, Map<String,String> mapeoPermiso, Map<String,String> mapeoDiccionario, 
-			Long id_actaRedimensionar, String id_usuario, String userName) {
+			Long id_actaRedimensionar, Long nroActaRedimensionar, String id_usuario, String userName) {
 
 		List<Redimensionar> listRedimensionar = Redimensionar.allPorIdActa(con, db, id_actaRedimensionar);
 		Fechas hoy = Fechas.hoy();
@@ -164,7 +164,7 @@ public class FormRedimensionar {
 			if((long) auxId != (long) x.getId_equipoOrigen()) {
 				listId_equipoOrigen.add(x.getId_equipoOrigen());
 				listCant_equipoOrigen.add(x.getCant_equipoOrigen().toString());
-				listMotivo.add("Generado desde redimensionar Nro: "+ id_actaRedimensionar);
+				listMotivo.add("Generado desde redimensionar Nro: "+ nroActaRedimensionar);
 			}
 			listId_equipoRedimensionar.add(x.getId_equipoRedimensionar());
 			listCantEquipoRedimensionar.add(x.getCantEquipoRedimensionar().toString());
@@ -193,7 +193,7 @@ public class FormRedimensionar {
 		}
 		formCompra.numeroFactura = Factura.nuevoNumero(con, db, formCompra.id_proveedor);
 		formCompra.fechaFactura = hoy.getFechaStrAAMMDD();
-		formCompra.observaciones = "Compra generada desde redimensionar Nro: "+ id_actaRedimensionar;
+		formCompra.observaciones = "Compra generada desde redimensionar Nro: "+ nroActaRedimensionar;
 		
 		if(FormCompra.create(con, db, formCompra, null, "0", id_usuario)) {
 			Long id_factura = Factura.findIdFactura(con, db, formCompra.numeroFactura, formCompra.id_proveedor);
@@ -232,7 +232,7 @@ public class FormRedimensionar {
 						Compra.actualizaPorCampo(con, db, "esModificable", Long.parseLong(id_compra), "0");
 					}
 					Registro.modificaciones(con, db, id_usuario, userName, "factura", id_factura, "create", 
-							"ingresa nueva compra confirmada nro: "+formCompra.numeroFactura+" desde acta redimensionar id: "+id_actaRedimensionar);
+							"ingresa nueva compra confirmada nro: "+formCompra.numeroFactura+" desde acta redimensionar nro: "+nroActaRedimensionar+" con id: "+id_actaRedimensionar);
 				}
 			}
 			
@@ -243,7 +243,7 @@ public class FormRedimensionar {
 		Long numActaBaja = ActaBaja.findNuevoNumero(con, db);
 		formBaja.numero = numActaBaja;
 		formBaja.fecha = hoy.getFechaStrAAMMDD();
-		formBaja.observaciones = "Acta generada desde redimensionar Nro: "+ id_actaRedimensionar;
+		formBaja.observaciones = "Acta generada desde redimensionar Nro: "+ nroActaRedimensionar;
 		if(FormBaja.create(con, db, mapeoPermiso, formBaja, null)) {
 			Long id_actaBaja = ActaBaja.findIdActaBaja(con, db, numActaBaja);
 			List<Baja> listBaja = Baja.allPorIdActaBaja(con, db, id_actaBaja);
@@ -279,12 +279,12 @@ public class FormRedimensionar {
 						FormBaja.cambiaAconfirmada(con, db, id_baja);
 					}
 					Registro.modificaciones(con, db, id_usuario, userName, "actaBaja", id_actaBaja, "create", 
-							"ingresa nueva actaBaja confirmada nro: "+numActaBaja+" desde acta redimensionar id: "+id_actaRedimensionar);
+							"ingresa nueva actaBaja confirmada nro: "+numActaBaja+" desde acta redimensionar  nro: "+nroActaRedimensionar+" con id: "+id_actaRedimensionar);
 				}
 			}
 			
 			Registro.modificaciones(con, db, id_usuario, userName, "actaBaja", id_actaBaja, "create", 
-					"ingresa nueva actaBaja confirmada nro: "+numActaBaja+" desde acta redimensionar id: "+id_actaRedimensionar);
+					"ingresa nueva actaBaja confirmada nro: "+numActaBaja+" desde acta redimensionar  nro: "+nroActaRedimensionar+" con id: "+id_actaRedimensionar);
 		}
 		
 		ActaRedimensionar.modifyXCampo(con, db, "fechaConfirma", hoy.getFechaStrAAMMDD(), id_actaRedimensionar);

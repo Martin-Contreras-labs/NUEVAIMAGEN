@@ -1,0 +1,86 @@
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MODULO DE USO GENERAL
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET     /viewImg/:img						controllers.HomeController.viewImg(img:String, request: Request)
+GET     /showPdf/:fileNamePdf 				controllers.HomeController.showPdf(fileNamePdf: String, request: Request)
+GET     /showPdfManuales/:fileNamePdf 		controllers.HomeController.showPdfManuales(fileNamePdf: String, request: Request)
+POST    /downloadPDF/						controllers.HomeController.downloadPDF(request: Request)
+POST    /tasasDeFechaAjax/					controllers.HomeController.tasasDeFechaAjax(request: Request)
+POST	/sendEmail/							controllers.HomeController.sendEmail(request: Request)
+
+GET     /redirShowPDF/:fileNamePdf,:titulo,:url 				controllers.HomeController.redirShowPDF(fileNamePdf: String, titulo: String, url: String, request: Request)
+
+GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeController.redirOdoShowPDF(fileNamePdf: String, desde: String, hasta: String, url: String, request: Request)
+
+
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU TABLAS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/mantTblItemMant/						controllers.MnuMantencion.mantTblItemMant(request: Request)
+GET		/mantTblItemNew/						controllers.MnuMantencion.mantTblItemNew(request: Request)
+POST	/mantTblItemNewSave/					controllers.MnuMantencion.mantTblItemNewSave(request: Request)
+POST	/mantTblItemUpdate/						controllers.MnuMantencion.mantTblItemUpdate(request: Request)
+POST	/modificaItemPorCampoAjax/				controllers.MnuMantencion.modificaItemPorCampoAjax(request: Request)
+POST	/mantTblItemDel/						controllers.MnuMantencion.mantTblItemDel(request: Request)
+
+GET		/mantTblActividadMant/					controllers.MnuMantencion.mantTblActividadMant(request: Request)
+GET		/mantTblActividadNew/					controllers.MnuMantencion.mantTblActividadNew(request: Request)
+POST	/mantTblActividadNewSave/				controllers.MnuMantencion.mantTblActividadNewSave(request: Request)
+POST	/mantTblActividadUpdate/				controllers.MnuMantencion.mantTblActividadUpdate(request: Request)
+POST	/modificaActividadPorCampoAjax/			controllers.MnuMantencion.modificaActividadPorCampoAjax(request: Request)
+POST	/mantTblActividadDel/					controllers.MnuMantencion.mantTblActividadDel(request: Request)
+
+GET		/mantTblTipoActividadMant/				controllers.MnuMantencion.mantTblTipoActividadMant(request: Request)
+GET		/mantTblTipoActividadNew/				controllers.MnuMantencion.mantTblTipoActividadNew(request: Request)
+POST	/mantTblTipoActividadNewSave/			controllers.MnuMantencion.mantTblTipoActividadNewSave(request: Request)
+POST	/mantTblTipoActividadUpdate/			controllers.MnuMantencion.mantTblTipoActividadUpdate(request: Request)
+POST	/modificaTipoActividadPorCampoAjax/		controllers.MnuMantencion.modificaTipoActividadPorCampoAjax(request: Request)
+POST	/mantTblTipoActividadDel/				controllers.MnuMantencion.mantTblTipoActividadDel(request: Request)
+
+GET		/mantTblComponenteMant/					controllers.MnuMantencion.mantTblComponenteMant(request: Request)
+GET		/mantTblComponenteNew/					controllers.MnuMantencion.mantTblComponenteNew(request: Request)
+POST	/mantTblComponenteNewSave/				controllers.MnuMantencion.mantTblComponenteNewSave(request: Request)
+POST	/mantTblComponenteUpdate/				controllers.MnuMantencion.mantTblComponenteUpdate(request: Request)
+POST	/modificaComponentePorCampoAjax/		controllers.MnuMantencion.modificaComponentePorCampoAjax(request: Request)
+POST	/mantTblComponenteDel/					controllers.MnuMantencion.mantTblComponenteDel(request: Request)
+
+GET		/mantTblEstadoEnObraMant/				controllers.MnuMantencion.mantTblEstadoEnObraMant(request: Request)
+GET		/mantTblEstadoEnObraNew/				controllers.MnuMantencion.mantTblEstadoEnObraNew(request: Request)
+POST	/mantTblEstadoEnObraNewSave/			controllers.MnuMantencion.mantTblEstadoEnObraNewSave(request: Request)
+POST	/mantTblEstadoEnObraUpdate/				controllers.MnuMantencion.mantTblEstadoEnObraUpdate(request: Request)
+POST	/modificaEstadoEnObraPorCampoAjax/		controllers.MnuMantencion.modificaEstadoEnObraPorCampoAjax(request: Request)
+POST	/mantTblEstadoEnObraDel/				controllers.MnuMantencion.mantTblEstadoEnObraDel(request: Request)
+
+GET		/mantTblEstadoEnTallerMant/				controllers.MnuMantencion.mantTblEstadoEnTallerMant(request: Request)
+GET		/mantTblEstadoEnTallerNew/				controllers.MnuMantencion.mantTblEstadoEnTallerNew(request: Request)
+POST	/mantTblEstadoEnTallerNewSave/			controllers.MnuMantencion.mantTblEstadoEnTallerNewSave(request: Request)
+POST	/mantTblEstadoEnTallerUpdate/			controllers.MnuMantencion.mantTblEstadoEnTallerUpdate(request: Request)
+POST	/modificaEstadoEnTallerPorCampoAjax/	controllers.MnuMantencion.modificaEstadoEnTallerPorCampoAjax(request: Request)
+POST	/mantTblEstadoEnTallerDel/				controllers.MnuMantencion.mantTblEstadoEnTallerDel(request: Request)
+
+GET		/mantTblEstadoOperacionalMant/				controllers.MnuMantencion.mantTblEstadoOperacionalMant(request: Request)
+GET		/mantTblEstadoOperacionalNew/				controllers.MnuMantencion.mantTblEstadoOperacionalNew(request: Request)
+POST	/mantTblEstadoOperacionalNewSave/			controllers.MnuMantencion.mantTblEstadoOperacionalNewSave(request: Request)
+POST	/mantTblEstadoOperacionalUpdate/			controllers.MnuMantencion.mantTblEstadoOperacionalUpdate(request: Request)
+POST	/modificaEstadoOperacionalPorCampoAjax/		controllers.MnuMantencion.modificaEstadoOperacionalPorCampoAjax(request: Request)
+POST	/mantTblEstadoOperacionalDel/				controllers.MnuMantencion.mantTblEstadoOperacionalDel(request: Request)
+
+GET		/mantTblOperadorMecanicoMant/				controllers.MnuMantencion.mantTblOperadorMecanicoMant(request: Request)
+GET		/mantTblOperadorMecanicoNew/				controllers.MnuMantencion.mantTblOperadorMecanicoNew(request: Request)
+POST	/mantTblOperadorMecanicoNewSave/			controllers.MnuMantencion.mantTblOperadorMecanicoNewSave(request: Request)
+POST	/mantTblOperadorMecanicoUpdate/				controllers.MnuMantencion.mantTblOperadorMecanicoUpdate(request: Request)
+POST	/modificaOperadorMecanicoPorCampoAjax/		controllers.MnuMantencion.modificaOperadorMecanicoPorCampoAjax(request: Request)
+POST	/mantTblOperadorMecanicoVig/				controllers.MnuMantencion.mantTblOperadorMecanicoVig(request: Request)
+POST	/mantTblOperadorMecanicoVerifica/			controllers.MnuMantencion.mantTblOperadorMecanicoVerifica(request: Request)
+
+
+

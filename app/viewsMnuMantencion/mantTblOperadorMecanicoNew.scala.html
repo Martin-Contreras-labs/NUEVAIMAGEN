@@ -1,0 +1,180 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listActorPersonal: List[tables.MantActorPersonal], listTipoPersonal: List[tables.MantTipoPersonal])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR NUEVO OPERADOR MECANICO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/routes3/mantTblOperadorMecanicoNewSave/">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">USUARIO (userName): </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									id="userName"
+									name="userName"
+									onkeypress="return sinReservados(event)"
+									autocomplete="off"
+									maxlength="100"
+									required
+									onchange="value = value.trim(); verificaUserName(value);">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">CLAVE (userKey): </td>
+							<td style="text-align:left;">
+								<input type="password" class="form-control left"
+									name="userKey"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">RUT: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="rut"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NOMBRE (fullName): </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="nombre"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">CARGO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="cargo"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">TELEFONO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="fono"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">EMAIL CORPORATIVO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="emailCor"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">EMAIL PERSONAL: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="emailPer"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">ACTOR: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="id_mantActorPersonal" 
+									onchange="cambiaMensaje(value);">
+									@for(lista <- listActorPersonal){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+						<td style="text-align:left;">TIPO: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="id_mantTipoPersonal">
+									@for(lista <- listTipoPersonal){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">OBSERVACIONES: </td>
+							<td style="text-align:left;">
+								<textarea class='form-control form-control-sm' rows='3'
+									name="observaciones"
+									autocomplete="off"></textarea>
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit"  value="GRABAR USUARIO" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/routes3/mantTblOperadorMecanicoMant/';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+	  	document.getElementById('mostrarmostrar').style.display="block";
+	});
+	const verificaUserName = (userName) => {
+		var formData = new FormData();
+	  	formData.append('userName',userName);
+        $.ajax({
+            url: "/routes3/mantTblOperadorMecanicoVerifica/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El usuario (userName) ya existe, intente con otro', function () {
+	     				$("#userName").val("");
+		     		});
+	     		}
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+</script>
+
+		
+	
