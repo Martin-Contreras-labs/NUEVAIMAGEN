@@ -775,6 +775,7 @@ GET    /downGuiaMaximiseAjax/:nroInte				controllers.MnuMovimientos.downGuiaMaxi
 POST    /generaGuiaWebIConstruye/					controllers.MnuMovimientos.generaGuiaWebIConstruye(request: Request)
 POST    /downGuiaIconstruye/						controllers.MnuMovimientos.downGuiaIconstruye(request: Request)
 
+POST    /generaGuiaApiRelBase/						controllers.MnuMovimientos.generaGuiaApiRelBase(request: Request)
 
 GET		/movimientoListarImgPeriodo/				controllers.MnuMovimientos.movimientoListarImgPeriodo(request: Request)
 POST	/movimientoListarImg/						controllers.MnuMovimientos.movimientoListarImg(request: Request)

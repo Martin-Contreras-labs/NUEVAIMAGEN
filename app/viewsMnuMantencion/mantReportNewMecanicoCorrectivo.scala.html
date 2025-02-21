@@ -1,0 +1,269 @@
+@(mapDiccionario: Map[String,String], listEstaOperacional: List[tables.MantEstadoEnObra], 
+listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
+listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad])		
+
+		<table class="table table-sm table-bordered table-condensed table-fluid">
+			<thead>
+				<tr>
+					<td style="text-align:left;"><strong>EQUIPO (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<input type="hidden" id="id_equipo_mec" name="id_equipo_mec" value="0">
+			        	<div id="nombreEquipo_mec">
+			        		<div class="input-group input-group-sm">
+							  <input class="form-control" type="text" 
+								onclick="$('#modalListaEquipos_oper').modal('show');" 
+								id="valNomEquip_mec"
+								value="--- select ---" readonly>
+							  <div class="input-group-append">
+							    <span class="input-group-text" onclick="$('#modalListaEquipos_oper').modal('show');">Buscar</span>
+							  </div>
+							</div> 
+	    				</div>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>TIPO DE PLAN:</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+						<input type="hidden" id="id_tipoPlan_mec" name="id_tipoPlan_mec" value="0">
+						<input class="form-control" id="tipoPlan_mec" type="text" value="" readonly>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<input type="hidden" id="id_bodega_mec" name="id_bodega_mec" value="0">
+			        	<div id="nombreBodega_mec">
+			        		<div class="input-group input-group-sm">
+							  <input class="form-control" type="text" 
+								onclick="$('#modalListaBodegas').modal('show');" 
+								id="valNomBod_mec"
+								value="--- select ---" readonly>
+							  <div class="input-group-append">
+							    <span class="input-group-text" onclick="$('#modalListaBodegas').modal('show');">Buscar</span>
+							  </div>
+							</div> 
+	    				</div>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+						<input class="form-control" id="tipoBodega_mec" type="text" value="" readonly>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>ESTADO OPERACIONAL (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="id_mantEstadoOperacional" 
+							name="id_mantEstadoOperacional"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		@for(lista <- listEstaOperacional){
+			                		<option value="@lista.id" >@lista.nombre</option>
+								}
+				        </select> 
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>ESTADO EN TALLER (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="id_mantEstadoEnTaller" 
+							name="id_mantEstadoEnTaller"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		@for(lista <- listEstadoEnTaller){
+			                		<option value="@lista.id" >@lista.nombre</option>
+								}
+				        </select> 
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>ACTIVIDAD (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="id_mantActividad" 
+							name="id_mantActividad"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		@for(lista <- listActividad){
+			                		<option value="@lista.id" >@lista.nombre</option>
+								}
+				        </select> 
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>TIPO DE ACTIVIDAD (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="id_mantTipoActividad" 
+							name="id_mantTipoActividad"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		@for(lista <- listTipoActividad){
+			                		<option value="@lista.id" >@lista.nombre</option>
+								}
+				        </select> 
+			        </td>
+				</tr>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				<tr>
+					<td style="text-align:left;"><strong>COMPONENTES (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="AAAAA" 
+							name="AAAAAA"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		
+				        </select> 
+			        </td>
+				</tr>
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				<tr>
+					<td style="text-align:left;"><strong>Hr_INI:</strong></td>
+			        <td style="text-align:left">
+						<input type="time" class="form-control form-control-sm left" style="max-width:100px"
+							id="horaIni_mec" 
+							name="horaIni_mec"
+							onblur="validarHoraIni_mec()">
+			        </td>
+					<td style="text-align:left;"><strong>Hr_TER:</strong></td>
+			        <td style="text-align:left" colspan="2">
+						<input type="time" class="form-control form-control-sm left"  style="max-width:100px"
+							id="horaTer_mec" 
+							name="horaTer_mec"
+							onblur="validarHoraTer_mec()">
+			        </td>
+				</tr>
+				
+				<tr>
+					<td style="text-align:left;"><strong><div id="lectIni_mec">Lect_INI:</div></strong></td>
+			        <td style="text-align:left">
+						<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+							id="lecturaIni_mec" 
+							name="lecturaIni_mec"
+							value = "0.00"
+							onClick="this.select();"
+							onfocus="value=value.replace(/,/g,'')" 
+							onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
+							onkeypress="return ingresoDouble(event,value)"
+							onchange="validarLectIni_mec()"
+							autocomplete="off"
+							required disabled>
+			        </td>
+					<td style="text-align:left;"><strong><div id="lectTer_mec">Lect_TER (*):</div></strong></td>
+			        <td style="text-align:left" colspan="2">
+						<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+							id="lecturaTer_mec" 
+							name="lecturaTer_mec"
+							value = "0.00"
+							onClick="this.select();"
+							onfocus="value=value.replace(/,/g,'')" 
+							onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
+							onkeypress="return ingresoDouble(event,value)"
+							onchange="validarLectTer_mec()"
+							autocomplete="off"
+							required disabled>
+			        </td>
+				</tr>
+				
+				<tr>
+					<td style="text-align:left;"><strong><div id="cant_mec">CANT:</div></strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+						<input type="text" class="form-control form-control-sm left"
+							id="cantidad_mec" 
+							name="cantidad_mec"
+							value = "0.00"
+							onClick="this.select();"
+							onfocus="value=value.replace(/,/g,'')" 
+							onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
+							onkeypress="return ingresoDouble(event,value)"
+							onchange="if(value.trim()=='') value=formatStandar(0,2);"
+							autocomplete="off"
+							required disabled>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>DESCRIPCION TRABAJO:</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+						<textarea class="form-control form-control-sm" rows="1" 
+							id="descTrabajo"
+							name="descTrabajo" 
+							autocomplete="off"></textarea>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>ESTADO FINAL:</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+						<textarea class="form-control form-control-sm" rows="1" 
+							id="estadoFinal"
+							name="estadoFinal" 
+							autocomplete="off"></textarea>
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>OBSERVACIONES:</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+						<textarea class="form-control form-control-sm" rows="2" 
+							id="observaciones_mec"
+							name="observaciones_mec" 
+							autocomplete="off"></textarea>
+			        </td>
+				</tr>
+				
+				<tr>
+					<td style="text-align:left;"  colspan="5">
+						FIRMA MECANICO:<br>
+						<div class="wrapper" align="center">
+						<canvas id="signature-pad3" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+						</div>
+						<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="signaturePad3.clear()">Borrar firma</button>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"   colspan="5">
+						FIRMA AUTORIZADA:<br>
+						<div class="wrapper" align="center">
+						<canvas id="signature-pad4" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+						</div>
+						<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="signaturePad4.clear()">Borrar firma</button>
+					</td>
+				</tr>
+			
+				<tr>
+					<td colspan="5" style="text-align:center;">
+						<button type="button" class="btn btn-sm btn-success" style="font-size: 10px;"onclick="grabarMecanico();" >GRABAR REPORT
+						</button>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/home/'">SALIR</button>
+					</td>
+				</tr>
+			</thead>
+		</table>
+
+	

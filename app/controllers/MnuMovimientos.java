@@ -21,12 +21,14 @@ import org.apache.poi.util.TempFile;
 import controllers.HomeController.Sessiones;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
+import models.api.ApiRelBaseDocDoc;
 import models.api.WebFacturacion;
 import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.calculo.Inventarios;
 import models.forms.FormMovimiento;
 import models.tables.BodegaEmpresa;
+import models.tables.Cliente;
 import models.tables.Comercial;
 import models.tables.ContactoBodegaEmpresa;
 import models.tables.Cotizacion;
@@ -38,6 +40,7 @@ import models.tables.Movimiento;
 import models.tables.Ot;
 import models.tables.Proyecto;
 import models.tables.Sucursal;
+import models.tables.TasasCambio;
 import models.tables.TipoEstado;
 import models.tables.TipoReparacion;
 import models.tables.Transportista;
@@ -1909,6 +1912,159 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     	}
     	return ok(mensajes.render("/movimientoListarPeriodo/","SE PRESENTARON ERRORES"));
 	}
+	
+	
+	public Result generaGuiaApiRelBase(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
+	       		Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+	       		
+	       		String comentarios = form.get("id_transportista");
+	       		Long product_id = Long.parseLong(form.get("id_transportista").trim());
+	       		
+	       		try {
+		       		Connection con = db.getConnection();
+		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		       		
+		       		Guia guia = Guia.find(con, s.baseDato, id_guia);
+		       		
+		       		Long id_bodegaOrigen = guia.getId_bodegaOrigen();
+					Long id_bodegaDestino = guia.getId_bodegaDestino();
+					BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaOrigen);
+					BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato,id_bodegaDestino);
+					Cliente cliente = Cliente.find(con, s.baseDato, bodegaDestino.getId_cliente());
+					if((long) cliente.getId() == (long) 0) {
+						con.close();
+		       			return ok(mensajes.render("/movimientoListarPeriodo/",mapeoDiccionario.get("Bodega")+" \""+bodegaDestino.getNombre()+"\" carece de cliente/propietario asociado."));
+		       		}
+					
+		       		
+		       		String filtro = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
+		       		if (filtro.length() > 1) {
+		       			filtro = filtro.substring(0, filtro.length() - 1) + "-" + filtro.charAt(filtro.length() - 1);
+		       			filtro = "query="+filtro;
+		            }
+		       		int idRelBase = ApiRelBaseDocDoc.consultaIdCliente(con, s.baseDato, ws, filtro);
+		       		if(idRelBase == 0) {
+		       			con.close();
+		       			return ok(mensajes.render("/movimientoListarPeriodo/","El rut \""+cliente.rut+" del cliente "+cliente.nickName+" no existe en RELBASE."));
+		       		}
+		       		
+
+// URL PERMITE OBTENER LA URL DE LA GUIA		       		
+//		       		String type_document = "52";
+//		       		String query = "2000";
+//		       		String linkPDF = ApiRelBaseDocDoc.consultaLinkDtePDF(con, s.baseDato, ws, type_document, query);
+//		       		if(linkPDF.equals("0")) {
+//		       			con.close();
+//		       			return ok("GUIA AUN NO ACEPTADA POR EL SII");
+//		       		} else {
+//		       			con.close();
+//		       			return ok(linkPDF);
+//		       		}
+// FIN URL		       		
+		       		
+		       		Fechas hoy = Fechas.hoy();
+		       		if (! comentarios.contains(guia.getNumero().toString())) {
+		                comentarios = "Nro MOV MADA: "+guia.getNumero()+"\r\n" + comentarios.toString();
+		            }
+		       		
+		       		List<List<String>> detalleGuia = new ArrayList<List<String>>();
+		       		Double precioDbl = (double)0;
+					if ((long) bodegaOrigen.esInterna == (long) 1 && (long) bodegaDestino.esInterna == (long) 2) {
+						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaDestino(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
+					} else if ((long) bodegaOrigen.esInterna == (long) 2 && (long) bodegaDestino.esInterna == (long) 1){
+						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaOrigen(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
+					}
+					
+					Map<Long,Double> mapTasas = TasasCambio.mapTasasPorFecha(con, s.baseDato, hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+					for(List<String> x: detalleGuia) {
+						String auxPrecio = x.get(9).trim();  // precio unitario de venta en moneda de origen
+						Double precioUnitario = (double)0;
+						String auxNum = auxPrecio;
+			   		    if(auxNum==null || auxNum.trim().length()<=0) {
+			   		    	auxNum = "0";
+			   		    }
+			   		    precioUnitario = Double.parseDouble(auxNum.replaceAll(",", ""));
+						String auxCantidad = x.get(8).trim();
+						if(auxCantidad.equals("") || auxCantidad.length()<=0) {
+							auxCantidad = "0";
+						}
+						Double cantidad = (double)0;
+						auxNum = auxCantidad.trim();
+						if(auxNum==null || auxNum.trim().length()<=0) {
+			   		    	auxNum = "0";
+			   		    }
+						cantidad = Double.parseDouble(auxNum.replaceAll(",", ""));
+						Long id_moneda =  Long.parseLong(x.get(30).trim());
+						Double tasa = mapTasas.get(id_moneda);
+						precioDbl += precioUnitario * cantidad * tasa;
+					}
+					if(precioDbl < 1) {
+						precioDbl = (double) 100;
+					}
+					DecimalFormat myformatapi = new DecimalFormat("###0");
+					String precio = myformatapi.format(Math.round(precioDbl));
+					
+					
+					String tipoDeSolucion = "";
+					
+					// AQUI VOY PROGRAMANDO el tipoDeSolucion se obtiene desde la cotizacion
+		       		
+		       		String json = "{\n"
+		       				+ "  \"type_document\": 52,\n"
+		       				+ "  \"start_date\": \""+hoy.getFechaStrAAMMDD()+"\",\n"
+		       				+ "  \"end_date\": \""+hoy.getFechaStrAAMMDD()+"\",\n"
+		       				+ "  \"customer_id\": "+idRelBase+",\n"
+		       				+ "  \"ware_house_id\": 1953,\n"
+		       				+ "  \"comment\": \""+comentarios+"\",\n"
+		       				+ "  \"type_transfer\": 6,\n"
+		       				+ "  \"products\": [\n"
+		       				+ "    {\n"
+		       				+ "      \"product_id\": "+product_id+",\n"
+		       				+ "      \"price\": "+precio+",\n"
+		       				+ "      \"quantity\": 1,\n"
+		       				+ "      \"tax_affected\": true,\n"
+		       				+ "      \"description\": \""+tipoDeSolucion+"\"\n"
+		       				+ "    }\n"
+		       				+ "  ]\n"
+		       				+ "}";
+		       		
+		       		
+		       		
+		       		
+		       		
+		       		con.close();
+		       		return ok(mensajes.render("/movimientoListarPeriodo/",""+idRelBase));		       		
+		       		
+		       		
+		       		
+//		       		Transportista transp = Transportista.find(con, s.baseDato, id_transportista);
+//		       		Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
+//		       		
+//		       		ApiRelBaseDocDoc api = ApiRelBaseDocDoc.generaGuia(con, s.baseDato, guiaFinal, transp, mapeoDiccionario);
+//		       		String jsonApi = Json.toJson(api).toString();
+//		       		Long id_proforma = (long)0;
+//		       		String rs = ApiManagerDocDoc.genera(con, s.baseDato, jsonApi, ws, id_proforma);
+//		       		Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, jsonApi);
+//		       		Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "guia", id_guia, "update", "hace envio de guia API MANAGER nro: "+guiaFinal.getNumero());
+
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	       	}
+		}else {
+			return ok("");
+		}
+   	}
 	
 	
 	

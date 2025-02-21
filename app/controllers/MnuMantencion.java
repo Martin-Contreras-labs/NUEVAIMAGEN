@@ -2,10 +2,16 @@ package controllers;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import controllers.HomeController.Sessiones;
+import models.tables.AuxHuella;
+import models.tables.BodegaEmpresa;
+import models.tables.Equipo;
 import models.tables.MantActividad;
 import models.tables.MantActorPersonal;
 import models.tables.MantComponente;
@@ -16,16 +22,23 @@ import models.tables.MantItemIntervenido;
 import models.tables.MantOperadorMecanico;
 import models.tables.MantTipoActividad;
 import models.tables.MantTipoPersonal;
+import models.tables.OperadorServicio;
+import models.tables.PlanMantencion;
+import models.tables.TipoMantencion;
+import models.tables.VentaServicio;
+import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.db.Database;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.mensajes;
 import viewsMnuMantencion.html.*;
+import viewsMnuOdo.html.odoVentas;
 
 
 /**
@@ -41,6 +54,89 @@ public class MnuMantencion extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	
+    
+    
+	
+	
+	//============================================================
+    // MENU INGRESO REPORT ADAM
+    //============================================================
+    
+    public Result mantReportNew(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("mantReportAdam")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
+    			List<MantActorPersonal> listActor = MantActorPersonal.all(con, s.baseDato);
+    			List<MantOperadorMecanico> listOperMec = MantOperadorMecanico.allVigentes(con, s.baseDato);
+    			List<PlanMantencion> listPlanMant = PlanMantencion.all(con, s.baseDato);
+    			Map<String,String> mapIdEquipVsBododega = Equipo.mapConExistenciaUnaUnidad(con, s.baseDato);
+    			String mapIdEquipVsBod = Json.toJson(mapIdEquipVsBododega).toString();
+    			List<BodegaEmpresa> listBod = BodegaEmpresa.allVigentes(con, s.baseDato);
+    			List<MantEstadoEnObra> listEstaObra = MantEstadoEnObra.all(con, s.baseDato);
+    			
+    			
+    			Map<Long,List<String>> mapEquipos = new HashMap<Long,List<String>>();
+    			for(PlanMantencion x: listPlanMant) {
+    				List<String> aux = mapEquipos.get(x.getId_equipo());
+    				if(aux == null) {
+    					aux = new ArrayList<String>();
+    					aux.add(x.getId_equipo().toString());
+    					aux.add(x.getEquipoGrupo());
+    					aux.add(x.getEquipoCodigo());
+    					aux.add(x.getEquipoNombre());
+    					String u = x.getUnidadMantencion();
+    					aux.add(u);
+    					if(u.equals("HR") || u.equals("KG")) {
+    						aux.add(x.getEstadoActual());
+    					}else {
+    						aux.add("0.00");
+    					}
+    					mapEquipos.put(x.getId_equipo(), aux);
+    				}else {
+    					String u = x.getUnidadMantencion();
+    					if(u.equals("HR") || u.equals("KG") && ! aux.get(4).equals("HR")) {
+    						aux.set(4,u);
+    						aux.set(5,x.getEstadoActual());
+    					}else {
+    						aux.add("0.00");
+    					} 
+    					mapEquipos.put(x.getId_equipo(), aux);
+    				}
+    			}
+    			List<List<String>> listEquipos = new ArrayList<List<String>>();
+    			mapEquipos.forEach((k,v) -> {
+    				listEquipos.add(v);
+    			});
+    			
+    			List<TipoMantencion> listTipoMantencion = TipoMantencion.all(con, s.baseDato);
+    			List<MantEstadoEnTaller> listEstadoEnTaller = MantEstadoEnTaller.all(con, s.baseDato);
+    			List<MantActividad> listActividad = MantActividad.all(con, s.baseDato);
+    			List<MantTipoActividad> listTipoActividad = MantTipoActividad.all(con, s.baseDato);
+    			
+    			Long aux_huella = AuxHuella.findHuella(con, s.baseDato, userMnu.getId_usuario());
+    			con.close();
+    			return ok(mantReportNew.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listActor,listOperMec,
+    					listPlanMant,mapIdEquipVsBod,listBod,listEstaObra,aux_huella, listEquipos, listTipoMantencion,
+    					listEstadoEnTaller,listActividad,listTipoActividad));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    
+    
+    
     
     
     //============================================================

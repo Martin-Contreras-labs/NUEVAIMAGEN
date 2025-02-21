@@ -19,6 +19,14 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 
 
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU INGRESO REPORT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/mantReportNew/						controllers.MnuMantencion.mantReportNew(request: Request)
+
+
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,0 +1,294 @@
+@(mapDiccionario: Map[String,String], listEstaOperacional: List[tables.MantEstadoEnObra], 
+listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
+listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad])	
+	
+	<table class="table table-sm table-bordered table-condensed table-fluid">
+		<thead>
+			<tr>
+				<td style="text-align:left;"><strong>MECANICO (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<input type="hidden" id="id_mecanico" name="id_mecanico" value="0" required>
+		        	<div id="nombreMecanico">
+		        		<div class="input-group input-group-sm">
+						  <input class="form-control" type="text" 
+							onclick="$('#modalListaMecanicos').modal('show');" 
+							id="valNomMecanico"
+							value="--- select ---" readonly>
+						  <div class="input-group-append">
+						    <span class="input-group-text" onclick="$('#modalListaMecanicos').modal('show');">Buscar</span>
+						  </div>
+						</div> 
+    				</div>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<input class="form-control" id="tipoMecanico" type="text" value="" readonly>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>TIPO DE MANTENCION (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<select class="form-control form-control-sm" 
+						id="id_tipoMantencion" 
+						name="id_tipoMantencion"
+						onchange="selectTipoMantencion(value)"
+						style="font-weight: bold; color: blue; font-size: 14px;"
+						required>
+			        		<option class="blank" value="0">-- Select --</option>
+		            		@for(lista <- listTipoMantencion){
+		                		<option value="@lista.id" >@lista.nombre.toUpperCase()</option>
+							}
+			        </select> 
+		        </td>
+			</tr>
+		</thead>
+	</table>
+	
+	<div id="viewPreventivo" style="display:none;">		
+		@mantReportNewMecanicoPreventivo(mapDiccionario, listEstaOperacional, listOperMec, listTipoMantencion,
+			listEstadoEnTaller,listActividad,listTipoActividad)
+	</div>
+	
+	<div id="viewCorrectivo" style="display:none;">
+		@mantReportNewMecanicoCorrectivo(mapDiccionario, listEstaOperacional, listOperMec, listTipoMantencion,
+			listEstadoEnTaller,listActividad,listTipoActividad)
+	</div>
+	
+	<div id="modalListaMecanicos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar mecanico</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+					<table id="tablaMecanicos" class="table table-sm table-bordered table-condensed table-hover table-fluid">
+				        <thead style="background-color: #eeeeee">
+							<TR> 
+								<th>RUT</th>
+								<th>Mecanico</th>
+								<th>Origen/Tipo</th>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista <- listOperMec){
+								@if(lista.getId_mantActorPersonal() == 2){
+									<TR onclick="selectMecanico('@lista.getId()', btoa('@lista.getNombre()'), btoa('@lista.getNameTipoPersonal()') )">
+										<td style="text-align:left"><a href="#">@lista.getRut()</a></td>	
+										<td style="text-align:left"><a href="#">@lista.getNombre()</a></td>
+										<td style="text-align:left"><a href="#">@lista.getNameTipoPersonal()</a></td>
+									</TR>
+								}
+								
+							}
+						</tbody>
+					</table>
+			        <br>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>
+		
+<script>
+	function validarLectIni_mec(){
+		let lecturaIni = $("#lecturaIni_mec").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_mec").val().replace(/,/g,'');
+		try{
+			lectAnterior = lectAnterior.replace(/,/g,'');
+		}catch(e){
+			lectAnterior = lectAnterior;
+		}
+		if(parseFloat(lecturaIni) < parseFloat(lectAnterior)){
+			alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
+			$("#lecturaIni_mec").val(formatStandar(lectAnterior,2));
+		}else if(lecturaTer!="0.00"){
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaIni_mec").val(formatStandar(formatStandar(lectAnterior,2)));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_mec").val(formatStandar(dif,2));
+			}
+		}
+	}
+	
+	function validarLectTer_mec(){
+		let lecturaIni = $("#lecturaIni_mec").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_mec").val().replace(/,/g,'');
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaTer_mec").val(formatStandar(0,2));
+				$("#cantidad_mec").val(formatStandar(0,2));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_mec").val(formatStandar(dif,2));
+			}
+	}
+	
+	function validarHoraIni_mec(){
+		let horaIni = $("#horaIni_mec").val();
+		let horaTer = $("#horaTer_mec").val();
+		if(horaTer!=""){
+			if(parseFloat(horaIni) >= parseFloat(horaTer)){
+				alertify.alert("La hora inicial no puede ser menor o igual a la hora de termino");
+				$("#horaIni_mec").val("");
+				$("#horaTer_mec").val("");
+			}
+		}
+	}
+	
+	function validarHoraTer_mec(){
+		let horaIni = $("#horaIni_mec").val();
+		let horaTer = $("#horaTer_mec").val();
+		if(horaIni==""){
+			alertify.alert("Primero debe ingresar la hora inicial");
+			$("#horaTer_mec").val("");
+		}else{
+			if(horaIni > horaTer){
+				alertify.alert("La hora inicial no puede ser menor a la hora de termino");
+				$("#horaTer_mec").val("");
+			}
+		}
+	}
+	
+	function grabarMecanico(){
+		  
+		  if($('#id_mecanico').val()==0){
+			  alertify.alert('Debe seleccionar un Mecanico');
+		  }else if($('#id_tipoMantencion').val()==0){
+			  alertify.alert('Debe seleccionar un Tipo de Mantencion');
+		  }else if($('#id_equipo_mec').val()==0){
+			  alertify.alert('Debe seleccionar un Equipo');
+		  }else if($('#id_bodega_mec').val()==0){
+			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
+		  }else if($('#id_mantEstadoEnObra').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Sitio');
+		  }else if($('#lecturaTer_mec').val()=="0.00"){
+			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
+		  }else{
+			let data = signaturePad3.toDataURL('image/png');
+			let encodedImage = data.split(",");
+			$("#firmaEjecutor").val(encodedImage[1]);
+			
+			data = signaturePad4.toDataURL('image/png');
+			encodedImage = data.split(",");
+			$("#firmaAprobador").val(encodedImage[1]);
+			
+			$("#grabarRptOperadorMecanico").submit();
+		  }
+	}
+	
+	
+	function validarLectIni_mecP(){
+		let lecturaIni = $("#lecturaIni_mecP").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_mecP").val().replace(/,/g,'');
+		try{
+			lectAnterior = lectAnterior.replace(/,/g,'');
+		}catch(e){
+			lectAnterior = lectAnterior;
+		}
+		if(parseFloat(lecturaIni) < parseFloat(lectAnterior)){
+			if(parseFloat(lecturaIni) == 0 && $("#id_tipoMantencion").val() == 1){
+				alertify.confirm(
+	            	"Colocar la lectura inicial en cero corresponde a cambio, reset o inicio de odometro y/o horometro."
+					+ "Esta seguro de esta acción",
+		            function() { 
+		                alertify.success("Acción confirmada.");
+		            },
+		            function() { 
+						alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
+						$("#lecturaIni_mecP").val(formatStandar(lectAnterior,2));
+		            }
+	        	);
+			}else{
+				alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
+			$("#lecturaIni_mecP").val(formatStandar(lectAnterior,2));
+			}
+			
+		}else if(lecturaTer!="0.00"){
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaIni_mecP").val(formatStandar(formatStandar(lectAnterior,2)));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_mecP").val(formatStandar(dif,2));
+			}
+		}
+	}
+	
+	function validarLectTer_mecP(){
+		let lecturaIni = $("#lecturaIni_mecP").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_mecP").val().replace(/,/g,'');
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaTer_mecP").val(formatStandar(0,2));
+				$("#cantidad_mecP").val(formatStandar(0,2));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_mecP").val(formatStandar(dif,2));
+			}
+	}
+	
+	function validarHoraIni_mecP(){
+		let horaIni = $("#horaIni_mecP").val();
+		let horaTer = $("#horaTer_mecP").val();
+		if(horaTer!=""){
+			if(parseFloat(horaIni) >= parseFloat(horaTer)){
+				alertify.alert("La hora inicial no puede ser menor o igual a la hora de termino");
+				$("#horaIni_mecP").val("");
+				$("#horaTer_mecP").val("");
+			}
+		}
+	}
+	
+	function validarHoraTer_mecP(){
+		let horaIni = $("#horaIni_mecP").val();
+		let horaTer = $("#horaTer_mecP").val();
+		if(horaIni==""){
+			alertify.alert("Primero debe ingresar la hora inicial");
+			$("#horaTer_mecP").val("");
+		}else{
+			if(horaIni > horaTer){
+				alertify.alert("La hora inicial no puede ser menor a la hora de termino");
+				$("#horaTer_mecP").val("");
+			}
+		}
+	}
+	
+	function grabarMecanicoP(){
+		  
+		  if($('#id_mecanico').val()==0){
+			  alertify.alert('Debe seleccionar un Mecanico');
+		  }else if($('#id_tipoMantencion').val()==0){
+			  alertify.alert('Debe seleccionar un Tipo de Mantencion');
+		  }else if($('#id_equipo_mecP').val()==0){
+			  alertify.alert('Debe seleccionar un Equipo');
+		  }else if($('#id_bodega_mecP').val()==0){
+			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
+		  }else if($('#id_mantEstadoOperacionalP').val()==0){
+			  alertify.alert('Debe ingresar un Estado Operacional');
+		  }else if($('#lecturaTer_mecP').val()=="0.00"){
+			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
+		  }else{
+			let data = signaturePad5.toDataURL('image/png');
+			let encodedImage = data.split(",");
+			$("#firmaEjecutor").val(encodedImage[1]);
+			
+			data = signaturePad6.toDataURL('image/png');
+			encodedImage = data.split(",");
+			$("#firmaAprobador").val(encodedImage[1]);
+			
+			$("#grabarRptOperadorMecanico").submit();
+		  }
+	}
+	
+	
+</script>

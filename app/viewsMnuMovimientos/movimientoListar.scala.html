@@ -90,6 +90,10 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 							@if(mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebIConstruye").equals("1")){
 								<TH>ICONSTRUYE<br>GUIAS</TH>
 							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.movimientoListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>API<br>RELBASE</TH>
+								<TH>DTE</TH>
+							}
 						</TR>
 					</thead>
 					<tbody>
@@ -259,10 +263,6 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 									</td>
 								}
 								
-								
-								
-								
-								
 								@if(mapPermiso.get("parametro.movimientoListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
 									<td style="text-align:center;">
 										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
@@ -309,6 +309,32 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 									</td>
 								}
 								
+								@if(mapPermiso.get("parametro.movimientoListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.movimientoListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+										@if(lista1.getGuiaXml().equals("0")){
+											<a href="#" onclick= "llenarApiRelBase('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #C39BD3">enviar</kbd>
+											</a>
+										}else{
+											<a href="#" onclick= "llenarApiRelBase('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #85C1E9">reenviar</kbd>
+											</a>
+										}
+									</td>
+									<td style="text-align:center;">
+										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
+											@if(!lista1.getLinkFolio().equals("0")){
+												<a href="@lista1.getLinkFolio()" >
+													<kbd style="background-color: rgb(50, 215, 75)">DTE</kbd>
+												</a>
+											}else{
+												--
+											}
+										}else{
+											--
+										}
+									</td>
+								}
 							</TR>
 			 			}
 					</tbody>
@@ -448,6 +474,11 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	<form class="formulario" id="downGuiaIconstruye" method="post" action="/downGuiaIconstruye/">	
 		<input type="hidden" id="id_guiaIConstruye2" name="id_guia">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiRelBase" method="post" action="/generaGuiaApiRelBase/">	
+		<input type="hidden" id="id_guiaRelBase" name="id_guia">
+		<input type="hidden" id="id_transportistaRelBase" name="id_transportista" value="0">
 	</form>
 	
 	
@@ -594,6 +625,14 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		$('#modalListaTransporte').modal('show');
 	}
 	
+	const llenarApiRelBase = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxDownloadGuia = 8;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
 	
 	let auxId_guia = 0;
 	let auxDownloadGuia = 0;
@@ -639,6 +678,12 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 			$('#id_guiaIConstruye').val(auxId_guia);
 			$('#id_transportistaIConstruye').val(id_transportista);
 			document.getElementById('formEnviaWebIConstruye').submit();
+		}
+		
+		if(auxDownloadGuia==8){
+			$('#id_guiaRelBase').val(auxId_guia);
+			$('#id_transportistaRelBase').val(id_transportista);
+			document.getElementById('formEnviaApiRelBase').submit();
 		}
 		
 	}
