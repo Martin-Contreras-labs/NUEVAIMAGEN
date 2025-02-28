@@ -1794,7 +1794,12 @@ public class Guia {
 
 	public static boolean modificaPorCampo(Connection con, String db, String campo, Long id_guia, String valor) {
 		boolean flag = false;
-		if(campo.equals("rut")) campo = campo.replaceAll("[\\,\\.]","").trim();
+		if(campo.equals("rut")) {
+			campo = campo.replaceAll("[,\\.\\s]", "").toUpperCase();
+       		if (campo.length() > 1) {
+       			campo = campo.substring(0, campo.length() - 1) + "-" + campo.charAt(campo.length() - 1);
+            }campo = campo.replaceAll("[\\,\\.]","").trim();
+		}
 		try {
 			PreparedStatement smt = con.prepareStatement("update `"+db+"`.guia set `"+campo+"` = ? WHERE id = ?;");	
 			smt.setString(1, valor.trim());

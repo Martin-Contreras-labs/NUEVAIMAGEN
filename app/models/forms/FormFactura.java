@@ -25,6 +25,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
 import models.api.ApiSapConconcreto;
+import models.api.ApiSapSchwager;
 import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.reports.ReportMovimientos;
@@ -863,7 +864,7 @@ public class FormFactura {
 				if(mapPermiso.get("parametro.proformaLista-descargarXLM")!=null && mapPermiso.get("parametro.proformaLista-descargarXLM").equals("1")){
  	            	String archivoXml = XMLFacturaArriendo.generaXmlArriendo(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente, proforma, mapPermiso, detalleAjuste);
  	            	XmlFacturaReferencias.grabarReferencias(con, mapPermiso, db, archivoXml, referencias, proforma.getId());
- 	            }  	
+ 	            }
  	            
 				if(mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1")){
  	            	String jsonApi = ApiManagerDocDoc.generaFactArriendo(con, db, cliente, proforma);
@@ -894,6 +895,11 @@ public class FormFactura {
 					Proforma.updateJsonApi(con, db, proforma.id, xmlEncode);
 				}
 				
+				if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1")){
+					String jsonApi = ApiSapSchwager.generaJsonFactARR(cliente, proforma.getId(), referencias, detalleAjuste, 
+							inicioPer, guiasPer, mapReportPorGuia10);
+ 	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+				} 
   
 				
 				return(archivoPdf);
@@ -1205,6 +1211,12 @@ public class FormFactura {
 						proforma, mapReportPorGuia10, mapPermiso, detalleAjuste, referencias, comentarios);
 				Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
 			}
+			
+			if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1")){
+				String jsonApi = ApiSapSchwager.generaJsonFactVTA(cliente, proforma.getId(), referencias, detalleAjuste, 
+						guiasPer, mapReportPorGuia10);
+	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+			} 
 			
 			return(archivoPdf);
 	    

@@ -66,7 +66,7 @@ public class ReportFacturas {
 	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	
-	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
+	static DecimalFormat myformatMonedaPrincipal = new DecimalFormat("#,##0");
 	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
 	
 	
@@ -146,10 +146,10 @@ public class ReportFacturas {
 		
 		
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 		 default:  break;
 		}
 		
@@ -246,7 +246,7 @@ public class ReportFacturas {
 			}
 			aux.add(myformatint.format(resumenInvInicial.get(i).dias));							// 16 cantidad de dias a cobrar
 			aux.add(myformatdouble2.format(resumenInvInicial.get(i).tasaCambio));				// 17 tasa de cambio
-			aux.add(myformatMonedaOrigen.format(resumenInvInicial.get(i).totalArriendo));		// 18 total arriendo en pesos
+			aux.add(myformatMonedaPrincipal.format(resumenInvInicial.get(i).totalArriendo));		// 18 total arriendo en pesos
 			aux.add("0");																		// 19 total venta en pesos
 			aux.add(resumenInvInicial.get(i).esVenta.toString()); 								// 20 es venta (1)
 			aux.add(Fechas.DDMMAA(fecha_primera_guia)); 						// 21 fecha primera guia
@@ -280,23 +280,23 @@ public class ReportFacturas {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		switch(dec.get((long) 1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 		 default:  break;
 		}
 		Double totalArriendo = (double) 0, totalVenta = (double) 0, totalCfi = (double) 0, totalTotal = (double) 0, ajusteArriendo = (double) 0, ajusteVenta = (double) 0;
 		for(int i=0; i<listado.size(); i++) {
 			List<String> aux = new ArrayList<String>();
 			aux.add(listado.get(i).id_bodegaEmpresa.toString());
-			aux.add(myformatMonedaOrigen.format(listado.get(i).totalArriendoSinAjuste));
-			aux.add(myformatMonedaOrigen.format(listado.get(i).totalVentaSinAjuste));
-			aux.add(myformatMonedaOrigen.format(listado.get(i).totalCfi));
-			aux.add(myformatMonedaOrigen.format(listado.get(i).totalTotal));
+			aux.add(myformatMonedaPrincipal.format(listado.get(i).totalArriendoSinAjuste));
+			aux.add(myformatMonedaPrincipal.format(listado.get(i).totalVentaSinAjuste));
+			aux.add(myformatMonedaPrincipal.format(listado.get(i).totalCfi));
+			aux.add(myformatMonedaPrincipal.format(listado.get(i).totalTotal));
 			
-			aux.add(myformatMonedaOrigen.format(listado.get(i).ajusteArriendo));
-			aux.add(myformatMonedaOrigen.format(listado.get(i).ajusteVenta));
+			aux.add(myformatMonedaPrincipal.format(listado.get(i).ajusteArriendo));
+			aux.add(myformatMonedaPrincipal.format(listado.get(i).ajusteVenta));
 			
 			lista.add(aux);
 			totalArriendo += listado.get(i).totalArriendoSinAjuste;
@@ -310,20 +310,20 @@ public class ReportFacturas {
 		}
 		List<String> aux = new ArrayList<String>();
 		aux.add("SUBTOTAL");
-		aux.add(myformatMonedaOrigen.format(totalArriendo));
-		aux.add(myformatMonedaOrigen.format(totalVenta));
-		aux.add(myformatMonedaOrigen.format(totalCfi));
-		aux.add(myformatMonedaOrigen.format(totalTotal));
+		aux.add(myformatMonedaPrincipal.format(totalArriendo));
+		aux.add(myformatMonedaPrincipal.format(totalVenta));
+		aux.add(myformatMonedaPrincipal.format(totalCfi));
+		aux.add(myformatMonedaPrincipal.format(totalTotal));
 		
-		aux.add(myformatMonedaOrigen.format(ajusteArriendo));
-		aux.add(myformatMonedaOrigen.format(ajusteVenta));
+		aux.add(myformatMonedaPrincipal.format(ajusteArriendo));
+		aux.add(myformatMonedaPrincipal.format(ajusteVenta));
 		
 		lista.add(aux);
 		List<String> aux2 = new ArrayList<String>();
 		aux2.add("TOTAL");
 		aux2.add("");
-		aux2.add(myformatMonedaOrigen.format(totalArriendo+totalVenta+ajusteArriendo+ajusteVenta));
-		aux2.add(myformatMonedaOrigen.format(totalArriendo+totalVenta+totalCfi+ajusteArriendo+ajusteVenta));
+		aux2.add(myformatMonedaPrincipal.format(totalArriendo+totalVenta+ajusteArriendo+ajusteVenta));
+		aux2.add(myformatMonedaPrincipal.format(totalArriendo+totalVenta+totalCfi+ajusteArriendo+ajusteVenta));
 		aux2.add("");
 		lista.add(aux2);
 		return(lista);
@@ -390,10 +390,10 @@ public class ReportFacturas {
         }
 		
 		switch(dec.get((long) 1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 		 default:  break;
 		}
 		
@@ -403,16 +403,16 @@ public class ReportFacturas {
 		String grupo= "";
 		for(int j=0;j<lista.size();j++) {
 			grupo = lista.get(j).get(0);
-			try {sumaArriendo = sumaArriendo + myformatMonedaOrigen.parse(lista.get(j).get(1).trim()).doubleValue();} catch (ParseException e) {}
-			try {sumaCompra = sumaCompra + myformatMonedaOrigen.parse(lista.get(j).get(2).trim()).doubleValue();} catch (ParseException e) {}
-			try {sumaCfi = sumaCfi + myformatMonedaOrigen.parse(lista.get(j).get(3).trim()).doubleValue();} catch (ParseException e) {}
+			try {sumaArriendo = sumaArriendo + myformatMonedaPrincipal.parse(lista.get(j).get(1).trim()).doubleValue();} catch (ParseException e) {}
+			try {sumaCompra = sumaCompra + myformatMonedaPrincipal.parse(lista.get(j).get(2).trim()).doubleValue();} catch (ParseException e) {}
+			try {sumaCfi = sumaCfi + myformatMonedaPrincipal.parse(lista.get(j).get(3).trim()).doubleValue();} catch (ParseException e) {}
 			if(j+1!=lista.size()&&lista.get(j).get(0).equals(lista.get(j+1).get(0))) {
             }else{
             	List<String> aux = new ArrayList<String>();
                 aux.add(grupo);
-                aux.add(myformatMonedaOrigen.format(sumaArriendo));
-                aux.add(myformatMonedaOrigen.format(sumaCompra));
-                aux.add(myformatMonedaOrigen.format(sumaCfi));
+                aux.add(myformatMonedaPrincipal.format(sumaArriendo));
+                aux.add(myformatMonedaPrincipal.format(sumaCompra));
+                aux.add(myformatMonedaPrincipal.format(sumaCfi));
                 listaResumen.add(aux);
                 sumaArriendo=(double)0;
                 sumaCompra=(double)0;
@@ -548,10 +548,10 @@ public class ReportFacturas {
 				}
 				
 				switch(dec.get((long)1).toString()) {
-				 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+				 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+				 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+				 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 				 default:  break;
 				}
 				
@@ -605,11 +605,11 @@ public class ReportFacturas {
 				}
 				detalle.add(myformatint.format(guiasPeriodo.get(i).dias)); 						// 17 cantidad de dias a cobrar
 				detalle.add(myformatdouble2.format(guiasPeriodo.get(i).tasaCambio));			// 18 tasa de cambio
-				detalle.add(myformatMonedaOrigen.format(guiasPeriodo.get(i).totalArriendo)); 	// 19 total arriendo en pesos con recargos
-				detalle.add(myformatMonedaOrigen.format(guiasPeriodo.get(i).totalVenta));							// 20 total venta en pesos
+				detalle.add(myformatMonedaPrincipal.format(guiasPeriodo.get(i).totalArriendo)); 	// 19 total arriendo en pesos con recargos
+				detalle.add(myformatMonedaPrincipal.format(guiasPeriodo.get(i).totalVenta));							// 20 total venta en pesos
 				detalle.add(guiasPeriodo.get(i).esVenta.toString().trim()); 										// 21 es venta (1);
 				detalle.add(myformatdouble.format(guiasPeriodo.get(i).totalCfi/guiasPeriodo.get(i).tasaCambio)); 		// 22 cfi en moneda de origen;
-				detalle.add(myformatMonedaOrigen.format(guiasPeriodo.get(i).totalCfi)); 							// 23 cfi en moneda pesos;
+				detalle.add(myformatMonedaPrincipal.format(guiasPeriodo.get(i).totalCfi)); 							// 23 cfi en moneda pesos;
 				detalle.add(myformatdouble2.format(dctoArriendo*100)+" %");  										//24 % dcto arriendo
 				detalle.add(myformatdouble2.format(dctoVenta*100)+" %"); 											// 25 % dcto venta
 				lista.add(detalle);
@@ -2407,10 +2407,10 @@ public class ReportFacturas {
 		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 		 default:  break;
 		}
 		
@@ -2463,7 +2463,7 @@ public class ReportFacturas {
 				aux2.add(listaAux.get(i).get(6));
 				aux2.add(listaAux.get(i).get(4));
 				aux2.add(listaAux.get(i).get(5));
-				aux2.add(myformatMonedaOrigen.format(auxSubTotA+auxSubTotV+auxSubTotCfi));
+				aux2.add(myformatMonedaPrincipal.format(auxSubTotA+auxSubTotV+auxSubTotCfi));
 				aux2.add(listaAux.get(i).get(7));
 				aux2.add(listaAux.get(i).get(8));
 				listaRs.add(aux2);
@@ -2496,7 +2496,7 @@ public class ReportFacturas {
 				aux3.add(listaAux.get(i).get(6));
 				aux3.add(listaAux.get(i).get(4));
 				aux3.add(listaAux.get(i).get(5));
-				aux3.add(myformatMonedaOrigen.format(auxSubTotA+auxSubTotV+auxSubTotCfi));
+				aux3.add(myformatMonedaPrincipal.format(auxSubTotA+auxSubTotV+auxSubTotCfi));
 				aux3.add(listaAux.get(i).get(7));
 				aux3.add(listaAux.get(i).get(8));
 				listaRs.add(aux3);
@@ -2509,10 +2509,10 @@ public class ReportFacturas {
 				aux4.add("");
 				aux4.add("");
 				aux4.add("SUBTOTAL");
-				aux4.add(myformatMonedaOrigen.format(subtotalCfi));
-				aux4.add(myformatMonedaOrigen.format(subtotalA));
-				aux4.add(myformatMonedaOrigen.format(subtotalV));
-				aux4.add(myformatMonedaOrigen.format(subtotalA+subtotalV+subtotalCfi));
+				aux4.add(myformatMonedaPrincipal.format(subtotalCfi));
+				aux4.add(myformatMonedaPrincipal.format(subtotalA));
+				aux4.add(myformatMonedaPrincipal.format(subtotalV));
+				aux4.add(myformatMonedaPrincipal.format(subtotalA+subtotalV+subtotalCfi));
 				aux4.add("");
 				aux4.add(listaAux.get(i).get(8));
 				listaRs.add(aux4);
@@ -2526,10 +2526,10 @@ public class ReportFacturas {
 				aux4.add("");
 				aux4.add("");
 				aux4.add("SUBTOTAL");
-				aux4.add(myformatMonedaOrigen.format(subtotalCfi));
-				aux4.add(myformatMonedaOrigen.format(subtotalA));
-				aux4.add(myformatMonedaOrigen.format(subtotalV));
-				aux4.add(myformatMonedaOrigen.format(subtotalA+subtotalV+subtotalCfi));
+				aux4.add(myformatMonedaPrincipal.format(subtotalCfi));
+				aux4.add(myformatMonedaPrincipal.format(subtotalA));
+				aux4.add(myformatMonedaPrincipal.format(subtotalV));
+				aux4.add(myformatMonedaPrincipal.format(subtotalA+subtotalV+subtotalCfi));
 				aux4.add("");
 				aux4.add(listaAux.get(i).get(8));
 				listaRs.add(aux4);
@@ -2556,10 +2556,10 @@ public class ReportFacturas {
 		aux5.add("");
 		aux5.add("");
 		aux5.add("");
-		aux5.add(myformatMonedaOrigen.format(totalCfi));
-		aux5.add(myformatMonedaOrigen.format(totalA));
-		aux5.add(myformatMonedaOrigen.format(totalV));
-		aux5.add(myformatMonedaOrigen.format(totalA+totalV+totalCfi));
+		aux5.add(myformatMonedaPrincipal.format(totalCfi));
+		aux5.add(myformatMonedaPrincipal.format(totalA));
+		aux5.add(myformatMonedaPrincipal.format(totalV));
+		aux5.add(myformatMonedaPrincipal.format(totalA+totalV+totalCfi));
 		aux5.add("");
 		aux4.add("");
 		listaRs.add(aux5);
@@ -2570,7 +2570,7 @@ public class ReportFacturas {
 		aux6.add("TOTAL");
 		aux6.add("");
 		aux6.add(myformatint.format(totalA+totalV));
-		aux6.add(myformatMonedaOrigen.format(totalA+totalV+totalCfi));
+		aux6.add(myformatMonedaPrincipal.format(totalA+totalV+totalCfi));
 		aux6.add("");
 		aux6.add("");
 		aux4.add("");
@@ -2590,10 +2590,10 @@ public class ReportFacturas {
 		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 		 default:  break;
 		}
 		
@@ -2690,7 +2690,7 @@ public class ReportFacturas {
 				}
 				aux.add(myformatint.format(dias));						// 16 cantidad de dias a cobrar
 				aux.add(myformatdouble2.format(tasaCambio));			// 17 tasa de cambio
-				aux.add(myformatMonedaOrigen.format(totalArriendo));	// 18 total arriendo en pesos
+				aux.add(myformatMonedaPrincipal.format(totalArriendo));	// 18 total arriendo en pesos
 				aux.add("0");											// 19 total venta en pesos
 				aux.add(esVenta.toString()); 							// 20 es venta (1)
 				aux.add(Fechas.DDMMAA(fecha_primera_guia)); 			// 21 fecha primera guia
@@ -2733,10 +2733,10 @@ public class ReportFacturas {
 		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 		 default:  break;
 		}
 		
@@ -2819,12 +2819,12 @@ public class ReportFacturas {
 				}
 				aux.add(myformatint.format(guiasPer.get(i).dias));						// 16 cantidad de dias a cobrar
 				aux.add(myformatdouble2.format(guiasPer.get(i).tasaCambio));			// 17 tasa de cambio
-				aux.add(myformatMonedaOrigen.format(guiasPer.get(i).totalArriendo));	// 18 total arriendo en pesos
-				aux.add(myformatMonedaOrigen.format(guiasPer.get(i).totalVenta));		// 19 total venta en pesos
+				aux.add(myformatMonedaPrincipal.format(guiasPer.get(i).totalArriendo));	// 18 total arriendo en pesos
+				aux.add(myformatMonedaPrincipal.format(guiasPer.get(i).totalVenta));		// 19 total venta en pesos
 				aux.add(guiasPer.get(i).esVenta.toString()); 							// 20 es venta (1)
 				aux.add(""); 															// 21 fecha primera guia
 				aux.add("0"); 															// 22 cfi en moneda original
-				aux.add(myformatMonedaOrigen.format(guiasPer.get(i).totalCfi)); 		// 23 cfi en pesos
+				aux.add(myformatMonedaPrincipal.format(guiasPer.get(i).totalCfi)); 		// 23 cfi en pesos
 				aux.add(dctoVenta);  													// 24 % dcto arriendo
 				aux.add(dctoArriendo); 													// 25 % dcto venta
 				
@@ -2881,10 +2881,10 @@ public class ReportFacturas {
 			}
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			switch(dec.get((long)1).toString()) {
-			 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-			 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
+			 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
+			 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
+			 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
 			 default:  break;
 			}
 			
@@ -3038,9 +3038,9 @@ public class ReportFacturas {
 				aux5.add("");
 				aux5.add("");
 				aux5.add("");
-				aux5.add(myformatMonedaOrigen.format(totCfi));
-				aux5.add(myformatMonedaOrigen.format(totArr));
-				aux5.add(myformatMonedaOrigen.format(totVta));
+				aux5.add(myformatMonedaPrincipal.format(totCfi));
+				aux5.add(myformatMonedaPrincipal.format(totArr));
+				aux5.add(myformatMonedaPrincipal.format(totVta));
 				listaRs.add(aux5);
 				
 				Double ajusteArriendo=(double)0;
@@ -3060,7 +3060,7 @@ public class ReportFacturas {
 					aux50.add("");
 					aux50.add("");
 					aux50.add("");
-					aux50.add(myformatMonedaOrigen.format((double)0));
+					aux50.add(myformatMonedaPrincipal.format((double)0));
 					Double aux = (double)0;
 					try {
 						String auxNum = lista.get(1).trim();
@@ -3068,7 +3068,7 @@ public class ReportFacturas {
 						aux = myformatdouble.parse(auxNum).doubleValue();
 						ajusteArriendo += aux;
 					} catch (ParseException e) {}
-					aux50.add(myformatMonedaOrigen.format(aux));
+					aux50.add(myformatMonedaPrincipal.format(aux));
 					
 					try {
 						String auxNum = lista.get(2).trim();
@@ -3076,7 +3076,7 @@ public class ReportFacturas {
 						aux = myformatdouble.parse(auxNum).doubleValue();
 						ajusteVenta += aux;
 					} catch (ParseException e) {}
-					aux50.add(myformatMonedaOrigen.format(aux));
+					aux50.add(myformatMonedaPrincipal.format(aux));
 					listaRs.add(aux50);
 				}
 				
@@ -3093,9 +3093,9 @@ public class ReportFacturas {
 				aux51.add("");
 				aux51.add("");
 				aux51.add("");
-				aux51.add(myformatMonedaOrigen.format(totCfi));
-				aux51.add(myformatMonedaOrigen.format(totArr+ajusteArriendo));
-				aux51.add(myformatMonedaOrigen.format(totVta+ajusteVenta));
+				aux51.add(myformatMonedaPrincipal.format(totCfi));
+				aux51.add(myformatMonedaPrincipal.format(totArr+ajusteArriendo));
+				aux51.add(myformatMonedaPrincipal.format(totVta+ajusteVenta));
 				listaRs.add(aux51);
 				
 				List<String> aux6 = new ArrayList<String>();
@@ -3113,7 +3113,7 @@ public class ReportFacturas {
 				aux6.add("");
 				aux6.add("");
 				aux6.add("");
-				aux6.add(myformatMonedaOrigen.format((totArr+totVta+totCfi+ajusteArriendo+ajusteVenta)));
+				aux6.add(myformatMonedaPrincipal.format((totArr+totVta+totCfi+ajusteArriendo+ajusteVenta)));
 				listaRs.add(aux6);
 			}
 			

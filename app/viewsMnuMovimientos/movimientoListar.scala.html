@@ -94,6 +94,10 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								<TH>API<br>RELBASE</TH>
 								<TH>DTE</TH>
 							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.movimientoListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>API<br>SAP</TH>
+								<TH>Folio</TH>
+							}
 						</TR>
 					</thead>
 					<tbody>
@@ -311,7 +315,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								
 								@if(mapPermiso.get("parametro.movimientoListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.movimientoListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
 									<td style="text-align:center;">
-										@if(lista1.getGuiaXml().equals("0")){
+										@if(lista1.getLinkFolio().equals("0")){
 											<a href="#" onclick= "llenarApiRelBase('@lista1.getId()','@lista1.getId_transportista()')">
 												<kbd style="background-color: #C39BD3">enviar</kbd>
 											</a>
@@ -322,14 +326,33 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 										}
 									</td>
 									<td style="text-align:center;">
-										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
-											@if(!lista1.getLinkFolio().equals("0")){
-												<a href="@lista1.getLinkFolio()" >
+										@if(!lista1.getLinkFolio().equals("0")){
+											<div id="pdfRelBase_@lista1.getLinkFolio()">
+												<a href="#" onclick="pdfReBase('@lista1.getLinkFolio()')">
 													<kbd style="background-color: rgb(50, 215, 75)">DTE</kbd>
 												</a>
-											}else{
-												--
-											}
+											</div>
+										}else{
+											--
+										}
+									</td>
+								}
+								
+								@if(mapPermiso.get("parametro.movimientoListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.movimientoListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+										@if(lista1.getLinkFolio().equals("0")){
+											<a href="#" onclick= "llenarApiSapSchwager('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #C39BD3">enviar</kbd>
+											</a>
+										}else{
+											<a href="#" onclick= "llenarApiSapSchwager('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #85C1E9">reenviar</kbd>
+											</a>
+										}
+									</td>
+									<td style="text-align:center;">
+										@if(!lista1.getLinkFolio().equals("0")){
+											@lista1.getLinkFolio()
 										}else{
 											--
 										}
@@ -396,7 +419,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
 			<div class='modal-content'>
 				<div class='modal-header'>
-					<h5 class='modal-title'>MOVIMIENTO</h5>
+					<h5 class='modal-title' id="titMuestraPdf">MOVIMIENTO</h5>
 				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
 				          <span aria-hidden='true'>&times;</span>
 				        </button>
@@ -479,11 +502,21 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	<form class="formulario" id="formEnviaApiRelBase" method="post" action="/generaGuiaApiRelBase/">	
 		<input type="hidden" id="id_guiaRelBase" name="id_guia">
 		<input type="hidden" id="id_transportistaRelBase" name="id_transportista" value="0">
+		<input type="hidden" id="id_cotizaSolucionRelBase" name="id_cotizaSolucion" value="0">
+		<input type="hidden" id="descriptionRelBase" name="description" value=" ">
+		<input type="hidden" id="observacionesRelBase" name="observaciones" value=" ">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
 	</form>
 	
+	<form class="formulario" id="formEnviaSapSchwager" method="post" action="/generaGuiaSapSchwager/">	
+		<input type="hidden" id="id_guiaSapSchwager" name="id_guia">
+		<input type="hidden" id="id_transportistaSapSchwager" name="id_transportista" value="0">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+	</form>
 	
-	
-	@modalListaTransportistas(mapDiccionario, listaTransporte);
+	@modalListaTransportistas(mapDiccionario, mapPermiso, listaTransporte);
 
 }
 
@@ -566,7 +599,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const descargaXLSX = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 1;
+		auxLlenarTransportista = 1;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -579,7 +612,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const descargarXML = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 2;
+		auxLlenarTransportista = 2;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -587,7 +620,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const llenarApiManager = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 3;
+		auxLlenarTransportista = 3;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -595,7 +628,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const llenarApiNubox = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 4;
+		auxLlenarTransportista = 4;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -603,7 +636,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const llenarWebFacturacion = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 5;
+		auxLlenarTransportista = 5;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -611,7 +644,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const llenarWebMaximise = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 6;
+		auxLlenarTransportista = 6;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -619,7 +652,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const llenarWebIConstruye = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 7;
+		auxLlenarTransportista = 7;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
@@ -627,65 +660,95 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	
 	const llenarApiRelBase = (id_guia, id_transportista) => {
 		auxId_guia = id_guia;
-		auxDownloadGuia = 8;
+		auxLlenarTransportista = 8;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
+	
+	const llenarApiSapSchwager = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxLlenarTransportista = 9;
 		auxId_transportista = id_transportista;
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
 	}
 	
 	
+	
 	let auxId_guia = 0;
-	let auxDownloadGuia = 0;
+	let auxLlenarTransportista = 0;
 	const seleccionaTransportista = (id_transportista) => {
 		$('#modalListaTransporte').modal('hide');
 		
-		if(auxDownloadGuia==1){
+		if(auxLlenarTransportista==1){
 			$('#id_guiaXLSX').val(auxId_guia);
 			$('#id_transportistaXLSX').val(id_transportista);
 			document.getElementById('formDescargaXLSX').submit();
 		}
 		
-		if(auxDownloadGuia==2){
+		if(auxLlenarTransportista==2){
 			$('#id_guiaXML').val(auxId_guia);
 			$('#id_transportistaXML').val(id_transportista);
 			document.getElementById('formDescargaXML').submit();
 		}
 		
-		if(auxDownloadGuia==3){
+		if(auxLlenarTransportista==3){
 			$('#id_guiaManager').val(auxId_guia);
 			$('#id_transportistaManager').val(id_transportista);
 			document.getElementById('formEnviaApiManager').submit();
 		}
 		
-		if(auxDownloadGuia==4){
+		if(auxLlenarTransportista==4){
 			$('#id_guiaNubox').val(auxId_guia);
 			$('#id_transportistaNubox').val(id_transportista);
 			document.getElementById('formEnviaApiNubox').submit();
 		}
 		
-		if(auxDownloadGuia==5){
+		if(auxLlenarTransportista==5){
 			$('#id_guiaFacturacion').val(auxId_guia);
 			$('#id_transportistaFacturacion').val(id_transportista);
 			document.getElementById('formEnviaWebFacturacion').submit();
 		}
 		
-		if(auxDownloadGuia==6){
+		if(auxLlenarTransportista==6){
 			auxId_transportista = id_transportista;
 			$('#selectSucursal').modal('show');
 		}
 		
-		if(auxDownloadGuia==7){
+		if(auxLlenarTransportista==7){
 			$('#id_guiaIConstruye').val(auxId_guia);
 			$('#id_transportistaIConstruye').val(id_transportista);
 			document.getElementById('formEnviaWebIConstruye').submit();
 		}
 		
-		if(auxDownloadGuia==8){
+		if(auxLlenarTransportista==8){
 			$('#id_guiaRelBase').val(auxId_guia);
 			$('#id_transportistaRelBase').val(id_transportista);
-			document.getElementById('formEnviaApiRelBase').submit();
+			$('#modalListaTransporte').modal('hide');
+			buscaSolucion(auxId_guia, id_transportista);
+			$('#modalAdicRelBase').modal('show');
 		}
 		
+		if(auxLlenarTransportista==9){
+			$('#id_guiaSapSchwager').val(auxId_guia);
+			$('#id_transportistaSapSchwager').val(id_transportista);
+			document.getElementById('formEnviaSapSchwager').submit();
+		}
+		
+	}
+	
+	const enviarRelBase = () =>{
+		$('#id_cotizaSolucionRelBase').val($('#id_cotizaSolucion').val());
+			$('#descriptionRelBase').val($('#description').val());
+			$('#observacionesRelBase').val($('#observaciones').val());
+			document.getElementById('formEnviaApiRelBase').submit();
+	}
+	
+	const pdfReBase = (nroFiscal) =>{
+		$('#linkRelBase').text("GUIA");
+		document.getElementById('rutaPDF').innerHTML="<object data='/showPdfRelBase/"+52+","+nroFiscal+"' type='application/pdf' width='100%' height='720'></object>";
+		$('#muestraPDF').modal('show');
 	}
 	
 	const selectSucursal = sucurMaximise =>{

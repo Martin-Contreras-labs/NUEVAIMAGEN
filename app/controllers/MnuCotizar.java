@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import controllers.HomeController.Sessiones;
@@ -69,6 +71,8 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.db.Database;
 import play.libs.Files.TemporaryFile;
+import play.libs.mailer.MailerClient;
+import play.libs.ws.WSClient;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -88,6 +92,13 @@ public class MnuCotizar extends Controller {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
 	
+	
+	private final WSClient ws;
+	
+	@Inject
+	  public MnuCotizar(WSClient ws) {
+	    this.ws = ws;
+	  }
 	
 	
 	
@@ -1313,7 +1324,7 @@ public class MnuCotizar extends Controller {
 	    				con.close();
 	    				return ok(mensajes.render("/cotizaSolucionMantencion/",msg));
 	    			}else {
-	    				if(CotizaSolucion.create(con, s.baseDato, nombreSolucion)) {
+	    				if(CotizaSolucion.create(con, s.baseDato, nombreSolucion, ws)) {
 	    					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotizaSolucion", (long)0, "create", "agrega nueva solucion: "+nombreSolucion);
 	    					con.close();
 	        				return redirect("/routes2/cotizaSolucionMantencion/");
@@ -3103,7 +3114,7 @@ public class MnuCotizar extends Controller {
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("cotizaImprime")==null) {
+    			if(mapeoPermiso.get("otRevisa")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -3259,7 +3270,7 @@ public class MnuCotizar extends Controller {
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("cotizaImprime")==null) {
+    			if(mapeoPermiso.get("otRevisa")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -3447,7 +3458,7 @@ public class MnuCotizar extends Controller {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("cotizaImprime")==null) {
+    			if(mapeoPermiso.get("otRevisa")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -3579,7 +3590,7 @@ public class MnuCotizar extends Controller {
     			
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("cotizaImprime")==null) {
+    			if(mapeoPermiso.get("otRevisa")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -3824,7 +3835,7 @@ public class MnuCotizar extends Controller {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("cotizaImprime")==null) {
+    			if(mapeoPermiso.get("otRevisa")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
@@ -4077,7 +4088,7 @@ public class MnuCotizar extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
     }
-    
+
     //==============================================================
     // MNU otConfirma   Cotizar/Ordenes de trabajo/Confirma OT u OS
     //==============================================================

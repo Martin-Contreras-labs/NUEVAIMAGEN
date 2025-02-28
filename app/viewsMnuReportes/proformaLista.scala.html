@@ -175,6 +175,9 @@ lista: List[List[String]], desde: String, hasta: String )
 						@if(mapPermiso.get("proformaListadoEliminar")!=null) {
 							<TH>DEL</TH>
 						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH>API<br>SAP</TH>
+						}
 						
 						
 						
@@ -388,7 +391,48 @@ lista: List[List[String]], desde: String, hasta: String )
 								</a>
 							</td>
 						}
-					
+						
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(17)!="0"){
+										@if(lista1.get(19)!=null){
+											@if(!lista1.get(16).equals("Venta")){
+												@if(lista1.get(21).equals("0")){
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarApiSapConconcreto('@lista1.get(0)',1)">
+														<kbd style="background-color: #C39BD3">enviar</kbd>
+													</a>
+												}else{
+													<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarApiSapConconcreto('@lista1.get(0)',0)">
+														<kbd style="background-color: #85C1E9">reenviar</kbd>
+													</a>
+												}
+											}
+										}else{
+											--
+										}
+									}else{
+										--
+									}
+								</td>
+								<td style="text-align:center;">
+									@if(!lista1.get(21).equals("0")){
+										@lista1.get(21)
+									}
+								</td>
+						}
+						
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(21).equals("0")){
+										<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarApiSapSchwager('@lista1.get(0)')">
+											<kbd style="background-color: #C39BD3">enviar</kbd>
+										</a>
+									}else{
+										@lista1.get(21)
+									}
+								</td>
+						}
+						
 					</tr>
 	 			}
 				</tbody>
@@ -460,6 +504,16 @@ lista: List[List[String]], desde: String, hasta: String )
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
+	
+	<form class="formulario" id="formEnviaApiSapSchwager" method="post" action="/generaProformaApiSapSchwager/">	
+		<input type="hidden" id="id_proformaSapSchwager" name="id_proforma">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
+	</form>
+	
+	
+	
+	
 	
 	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
 		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
@@ -610,6 +664,11 @@ lista: List[List[String]], desde: String, hasta: String )
 			});
 		}
 		
+	}
+	
+	const enviarApiSapSchwager = (id_proforma) =>{
+		$('#id_proformaSapSchwager').val(id_proforma);
+		document.getElementById('formEnviaApiSapSchwager').submit();
 	}
 	
 	const enviarWebIConstruye = (id_proforma) =>{

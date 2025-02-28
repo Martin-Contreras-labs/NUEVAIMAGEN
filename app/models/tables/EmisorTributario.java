@@ -29,6 +29,7 @@ public class EmisorTributario {
 	public String rutRepresentante2;
 	public String nombreRepresentante2;
 	public String emailEnvioXML;
+	public String apiCompany;
 	public String apiUser;
 	public String apiKey;
 	public String apiUrl;
@@ -48,7 +49,7 @@ public class EmisorTributario {
 			String actividadEconomica, String direccion, String region, String comuna, String ciudad, String pais,
 			Double tasaIva, String email, String fonoFijo, String fonoMovil, String fonoFax, String rutRepresentante1,
 			String nombreRepresentante1, String rutRepresentante2, String nombreRepresentante2, String emailEnvioXML,
-			String apiUser, String apiKey, String apiUrl, String codigoSucursal, String rutFuncionario,
+			String apiCompany, String apiUser, String apiKey, String apiUrl, String codigoSucursal, String rutFuncionario,
 			String apiUserIConstruyeOC, String apiKeyIConstruyeOC, String apiUrlIConstruyeOC0, String apiUrlIConstruyeOC1,
 			String apiUrlIConstruyeOC2, String apiUrlIConstruyeOC3) {
 		super();
@@ -73,6 +74,7 @@ public class EmisorTributario {
 		this.rutRepresentante2 = rutRepresentante2;
 		this.nombreRepresentante2 = nombreRepresentante2;
 		this.emailEnvioXML = emailEnvioXML;
+		this.apiCompany = apiCompany;
 		this.apiUser = apiUser;
 		this.apiKey = apiKey;
 		this.apiUrl = apiUrl;
@@ -254,6 +256,14 @@ public class EmisorTributario {
 		this.emailEnvioXML = emailEnvioXML;
 	}
 
+	public String getApiCompany() {
+		return apiCompany;
+	}
+
+	public void setApiCompany(String apiCompany) {
+		this.apiCompany = apiCompany;
+	}
+
 	public String getApiUser() {
 		return apiUser;
 	}
@@ -351,7 +361,7 @@ public class EmisorTributario {
 			PreparedStatement smt = con
 					.prepareStatement(" select id,rut,razonSocial,nombreFantasia,giro,actividadEconomica,direccion,region,"
 							+ " comuna,ciudad,pais,tasaIva,email,fonoFijo,fonoMovil,fonoFax,rutRepresentante1,nombreRepresentante1,"
-							+ " rutRepresentante2,nombreRepresentante2,emailEnvioXML,apiUser,apiKey,apiUrl,codigoSucursal,rutFuncionario, "
+							+ " rutRepresentante2,nombreRepresentante2,emailEnvioXML,apiCompany,apiUser,apiKey,apiUrl,codigoSucursal,rutFuncionario, "
 							+ " apiUrlIConstruyeOC0, apiUserIConstruyeOC, apiKeyIConstruyeOC, apiUrlIConstruyeOC1, apiUrlIConstruyeOC2, apiUrlIConstruyeOC3 "
 							+ " from `"+db+"`.emisorTributario;" );
 			ResultSet rs = smt.executeQuery();
@@ -359,8 +369,9 @@ public class EmisorTributario {
 				aux = new EmisorTributario(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6)
 						,rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getDouble(12),
 						rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),
-						rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),
-						rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32));
+						rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),
+						rs.getString(25),rs.getString(26),rs.getString(27),
+						rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(32));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -376,7 +387,7 @@ public class EmisorTributario {
 							+ " nombreFantasia=?,giro=?,actividadEconomica=?,direccion=?,region=?,comuna=?,"
 							+ "	ciudad=?,pais=?,tasaIva=?,email=?,fonoFijo=?,fonoMovil=?,fonoFax=?,"
 							+ "	rutRepresentante1=?,nombreRepresentante1=?,rutRepresentante2=?,nombreRepresentante2=?,emailEnvioXML=?, "
-							+ " apiUser=?,apiKey=?,apiUrl=?,codigoSucursal=?, rutFuncionario=?,"
+							+ " apiCompany=?,apiUser=?,apiKey=?,apiUrl=?,codigoSucursal=?, rutFuncionario=?,"
 							+ " apiUrlIConstruyeOC0=?, apiUserIConstruyeOC=?, apiKeyIConstruyeOC=?, apiUrlIConstruyeOC1=?, apiUrlIConstruyeOC2=?, apiUrlIConstruyeOC3=? "
 							+ " where id=?;" );
 			smt.setString(1, emisor.rut);
@@ -399,18 +410,19 @@ public class EmisorTributario {
 			smt.setString(18, emisor.rutRepresentante2);
 			smt.setString(19, emisor.nombreRepresentante2);
 			smt.setString(20, emisor.emailEnvioXML);
-			smt.setString(21, emisor.apiUser);
-			smt.setString(22, emisor.apiKey);
-			smt.setString(23, emisor.apiUrl);
-			smt.setString(24, emisor.codigoSucursal);
-			smt.setString(25, emisor.rutFuncionario);
-			smt.setString(26, emisor.apiUserIConstruyeOC);
-			smt.setString(27, emisor.apiKeyIConstruyeOC);
-			smt.setString(28, emisor.apiUrlIConstruyeOC0);
-			smt.setString(29, emisor.apiUrlIConstruyeOC1);
-			smt.setString(30, emisor.apiUrlIConstruyeOC2);
-			smt.setString(31, emisor.apiUrlIConstruyeOC3);
-			smt.setLong(32, emisor.id);
+			smt.setString(21, emisor.apiCompany);
+			smt.setString(22, emisor.apiUser);
+			smt.setString(23, emisor.apiKey);
+			smt.setString(24, emisor.apiUrl);
+			smt.setString(25, emisor.codigoSucursal);
+			smt.setString(26, emisor.rutFuncionario);
+			smt.setString(27, emisor.apiUserIConstruyeOC);
+			smt.setString(28, emisor.apiKeyIConstruyeOC);
+			smt.setString(29, emisor.apiUrlIConstruyeOC0);
+			smt.setString(30, emisor.apiUrlIConstruyeOC1);
+			smt.setString(31, emisor.apiUrlIConstruyeOC2);
+			smt.setString(32, emisor.apiUrlIConstruyeOC3);
+			smt.setLong(33, emisor.id);
 			smt.executeUpdate();
 			smt.close();
 			return(true);

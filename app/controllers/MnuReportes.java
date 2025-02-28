@@ -41,6 +41,7 @@ import models.api.ApiManagerDocDet;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
 import models.api.ApiSapConconcreto;
+import models.api.ApiSapSchwager;
 import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.calculo.Calc_AjustesEP;
@@ -74,6 +75,7 @@ import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
 import models.tables.Grupo;
+import models.tables.Guia;
 import models.tables.ListaPrecio;
 import models.tables.Moneda;
 import models.tables.Movimiento;
@@ -4904,7 +4906,6 @@ public class MnuReportes extends Controller {
 			 	            archivoPDF = FormFactura.generaProformaArriendo(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
 									resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, listGuiasPer, mapReportPorGuia10, finalPer, uf, usd, eur, oc,
 									dec, emisorTributario, bodegaEmpresa, comentarios);
-			 	            
 		    			}else {
 		    				// genera PDF de venta, XML, JSON y guarda json en proforma
 		    				proforma.setTipo("Venta");
@@ -6722,8 +6723,6 @@ public class MnuReportes extends Controller {
 	       		try {
 	       			Connection con = dbRead.getConnection();
 	       			Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
-	       			String desde = form.get("fechaDesde");
-		       		String hasta = form.get("fechaHasta");
 	       			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 		       		String rsBody = proforma.getResponse();
 		       		int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
@@ -6746,6 +6745,39 @@ public class MnuReportes extends Controller {
     	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 	
+	public Result generaProformaApiSapSchwager(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
+	       		try {
+		       		Connection con = dbWrite.getConnection();
+		       		Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+		       		EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+		       		String json = proforma.getJsonGenerado();
+		       		String rs = ApiSapSchwager.generaDteFactura(con, s.baseDato, emisor, json, ws, proforma.getId());
+		       		if( ! rs.contains("ERROR:")) {
+		       			String folioNumber = rs;
+		       			Proforma.updateNroFiscal(con, s.baseDato, id_proforma, folioNumber);
+		       			rs = "DTE enviado a SAP con exito";
+		       		}
+		       		con.close();
+		       		return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	       	}
+		}else {
+			return ok("");
+		}
+   	}
+	
 	public Result proformaElimina(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -6762,7 +6794,6 @@ public class MnuReportes extends Controller {
 	    			Proforma.eliminaProforma(con, s.baseDato, id_proforma);
     				con.close();
     				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"PRUEBA DEL GET" ));
-	       			//return (proformaLista(request));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}

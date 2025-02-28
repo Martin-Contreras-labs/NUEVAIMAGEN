@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.TempFile;
@@ -373,6 +376,21 @@ public class HomeController extends Controller {
 		}
    	}
     
+    public static InputStream getInputStreamFromUrl(String urlString) throws Exception {
+        URL url = new URL(urlString);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setDoInput(true);
+        connection.setConnectTimeout(10000); // Tiempo de espera para la conexión (10s)
+        connection.setReadTimeout(10000);    // Tiempo de espera para la lectura (10s)
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            return connection.getInputStream();
+        } else {
+            return null;
+        }
+    }
+    
     public Result tasasDeFechaAjax(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -555,10 +573,6 @@ public class HomeController extends Controller {
 	            r1.setText("Destino: " + ventaServicio.getNomBodegaEmpresa());
 			}
             
-            
-            
-     
-			
 			XWPFTable table = doc.getTables().get(0);
 			XWPFTableCell cell = null;
 			for (int i=0; i<lista.size(); i++) {

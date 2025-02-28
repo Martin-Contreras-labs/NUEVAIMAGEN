@@ -4,10 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import models.api.ApiRelBase;
+import play.libs.ws.WSClient;
 
 
 public class CotizaSolucion {
@@ -182,15 +186,38 @@ public class CotizaSolucion {
 		return (flag);
 	}
 	
-	public static boolean create(Connection con,String db, String nombre_solucion) {	
+	public static boolean create(Connection con, String db, String nombre_solucion, WSClient ws) {	
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.cotizaSolucion (solucion) values (?)");		
+					.prepareStatement("insert into `"+db+"`.cotizaSolucion (solucion) values (?)",Statement.RETURN_GENERATED_KEYS);		
 			smt.setString(1, nombre_solucion.trim());
 			smt.executeUpdate();
-			smt.close();
+			Long id = (long)0;
+			ResultSet rs = smt.getGeneratedKeys();
+			
+			if(db.equals("madaAludom")) {
+				if (rs.next()) {
+	            	id = rs.getLong(1);
+	            	EmisorTributario emisor = EmisorTributario.find(con, db);
+	            	String json = "{\n"
+	            			+ "   \"name\": \""+nombre_solucion+"\",\n"
+	            			+ "   \"code\": \"MADA-"+id+"\",\n"
+	            			+ "   \"category_id\": 35357,\n"
+	            			+ "   \"product_type\": 1,\n"
+	            			+ "   \"is_tax\": true,\n"
+	            			+ "   \"is_inventory\": false,\n"
+	            			+ "   \"currency\": 1,\n"
+	            			+ "   \"price\": 100\n"
+	            			+ "}";
+	            	ApiRelBase.createProducto(emisor, json, ws);
+	            }
+			}
+			
+            smt.close();
+            rs.close();
 			flag = true;
+			
 		} catch (SQLException e) {
 				e.printStackTrace();
 		}

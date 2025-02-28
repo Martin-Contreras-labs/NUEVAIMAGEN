@@ -21,7 +21,8 @@ import org.apache.poi.util.TempFile;
 import controllers.HomeController.Sessiones;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
-import models.api.ApiRelBaseDocDoc;
+import models.api.ApiRelBase;
+import models.api.ApiSapSchwager;
 import models.api.WebFacturacion;
 import models.api.WebIConstruye;
 import models.api.WebMaximise;
@@ -31,6 +32,7 @@ import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Comercial;
 import models.tables.ContactoBodegaEmpresa;
+import models.tables.CotizaSolucion;
 import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
@@ -1210,31 +1212,67 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	       		String hastaAAMMDD = form.get("fechaHasta").trim();
 	    		try {
 	    			Connection con = db.getConnection();
-	    			
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			if(mapeoPermiso.get("movimientoListar")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
-	    			
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			if(permisoPorBodega.trim().length() > 5) {
 	    				permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
 		    			permisoPorBodega = permisoPorBodega.replaceAll("and ", " ");
 		    			permisoPorBodega = " and (" + permisoPorBodega + " or " + permisoPorBodega.replaceAll("`guia`.`id_bodegaDestino`", "`guia`.`id_bodegaOrigen`") + ") ";
 	    			}
-	    			
-	    			
 	    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNeg(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
 	    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
-	    			
+	    			if(mapeoPermiso.get("parametro.movimientoListar-llenarApiRelBase")!=null 
+	    					&& mapeoPermiso.get("parametro.movimientoListar-llenarApiRelBase").equals("1") && mapeoPermiso.get("enviarApiGuia")!=null){
+	    			}
 	    			con.close();
 	    			return ok(movimientoListar.render(mapeoDiccionario,mapeoPermiso,userMnu,listaGuias, listaTransporte, desdeAAMMDD, hastaAAMMDD));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
 	       	}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+    }
+	
+	public Result movimientoListarGet(Http.Request request, String desdeAAMMDD, String hastaAAMMDD) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("movimientoListar")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			if(mapeoPermiso.get("movimientoListar")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+    			if(permisoPorBodega.trim().length() > 5) {
+    				permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
+	    			permisoPorBodega = permisoPorBodega.replaceAll("and ", " ");
+	    			permisoPorBodega = " and (" + permisoPorBodega + " or " + permisoPorBodega.replaceAll("`guia`.`id_bodegaDestino`", "`guia`.`id_bodegaOrigen`") + ") ";
+    			}
+    			List<Guia> listaGuias = Guia.allDesdeHastaSinNumNeg(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
+    			List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
+    			if(mapeoPermiso.get("parametro.movimientoListar-llenarApiRelBase")!=null 
+    					&& mapeoPermiso.get("parametro.movimientoListar-llenarApiRelBase").equals("1") && mapeoPermiso.get("enviarApiGuia")!=null){
+    			}
+    			con.close();
+    			return ok(movimientoListar.render(mapeoDiccionario,mapeoPermiso,userMnu,listaGuias, listaTransporte, desdeAAMMDD, hastaAAMMDD));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
     		return ok(mensajes.render("/",msgError));
     	}else {
     		return ok(mensajes.render("/",msgError));
@@ -1923,59 +1961,44 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
+	       		Long id_cotizaSolucion = Long.parseLong(form.get("id_cotizaSolucion").trim());
 	       		Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
-	       		
-	       		String comentarios = form.get("id_transportista");
-	       		Long product_id = Long.parseLong(form.get("id_transportista").trim());
-	       		
+	       		String description = form.get("description").replace("\r", "\\r").replace("\n", "\\n");
+	       		String observaciones = form.get("observaciones");
+	       		String comentarios = observaciones.replace("\r", "\\r").replace("\n", "\\n");
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
 	       		try {
 		       		Connection con = db.getConnection();
 		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		       		
 		       		Guia guia = Guia.find(con, s.baseDato, id_guia);
-		       		
 		       		Long id_bodegaOrigen = guia.getId_bodegaOrigen();
 					Long id_bodegaDestino = guia.getId_bodegaDestino();
 					BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaOrigen);
 					BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato,id_bodegaDestino);
 					Cliente cliente = Cliente.find(con, s.baseDato, bodegaDestino.getId_cliente());
+					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 					if((long) cliente.getId() == (long) 0) {
 						con.close();
 		       			return ok(mensajes.render("/movimientoListarPeriodo/",mapeoDiccionario.get("Bodega")+" \""+bodegaDestino.getNombre()+"\" carece de cliente/propietario asociado."));
 		       		}
-					
-		       		
-		       		String filtro = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
-		       		if (filtro.length() > 1) {
-		       			filtro = filtro.substring(0, filtro.length() - 1) + "-" + filtro.charAt(filtro.length() - 1);
-		       			filtro = "query="+filtro;
+		       		String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
+		       		if (rutCliente.length() > 1) {
+		       			rutCliente = rutCliente.substring(0, rutCliente.length() - 1) + "-" + rutCliente.charAt(rutCliente.length() - 1);
+		       			rutCliente = "query="+rutCliente;
 		            }
-		       		int idRelBase = ApiRelBaseDocDoc.consultaIdCliente(con, s.baseDato, ws, filtro);
+		       		String address = cliente.getDireccion();
+		       		String str_commune = cliente.getComuna();
+		       		String str_city = cliente.getCiudad();
+		       		int idRelBase = ApiRelBase.consultaIdCliente(emisor, ws, rutCliente);
 		       		if(idRelBase == 0) {
 		       			con.close();
 		       			return ok(mensajes.render("/movimientoListarPeriodo/","El rut \""+cliente.rut+" del cliente "+cliente.nickName+" no existe en RELBASE."));
 		       		}
-		       		
-
-// URL PERMITE OBTENER LA URL DE LA GUIA		       		
-//		       		String type_document = "52";
-//		       		String query = "2000";
-//		       		String linkPDF = ApiRelBaseDocDoc.consultaLinkDtePDF(con, s.baseDato, ws, type_document, query);
-//		       		if(linkPDF.equals("0")) {
-//		       			con.close();
-//		       			return ok("GUIA AUN NO ACEPTADA POR EL SII");
-//		       		} else {
-//		       			con.close();
-//		       			return ok(linkPDF);
-//		       		}
-// FIN URL		       		
-		       		
 		       		Fechas hoy = Fechas.hoy();
 		       		if (! comentarios.contains(guia.getNumero().toString())) {
 		                comentarios = "Nro MOV MADA: "+guia.getNumero()+"\r\n" + comentarios.toString();
 		            }
-		       		
 		       		List<List<String>> detalleGuia = new ArrayList<List<String>>();
 		       		Double precioDbl = (double)0;
 					if ((long) bodegaOrigen.esInterna == (long) 1 && (long) bodegaDestino.esInterna == (long) 2) {
@@ -1983,7 +2006,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 					} else if ((long) bodegaOrigen.esInterna == (long) 2 && (long) bodegaDestino.esInterna == (long) 1){
 						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaOrigen(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
 					}
-					
 					Map<Long,Double> mapTasas = TasasCambio.mapTasasPorFecha(con, s.baseDato, hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
 					for(List<String> x: detalleGuia) {
 						String auxPrecio = x.get(9).trim();  // precio unitario de venta en moneda de origen
@@ -2012,17 +2034,17 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 					}
 					DecimalFormat myformatapi = new DecimalFormat("###0");
 					String precio = myformatapi.format(Math.round(precioDbl));
-					
-					
-					String tipoDeSolucion = "";
-					
-					// AQUI VOY PROGRAMANDO el tipoDeSolucion se obtiene desde la cotizacion
-		       		
+					String codProducto = "MADA-"+id_cotizaSolucion;
+					int product_id = ApiRelBase.consultaIdProducto(emisor, ws, codProducto);
 		       		String json = "{\n"
 		       				+ "  \"type_document\": 52,\n"
 		       				+ "  \"start_date\": \""+hoy.getFechaStrAAMMDD()+"\",\n"
 		       				+ "  \"end_date\": \""+hoy.getFechaStrAAMMDD()+"\",\n"
 		       				+ "  \"customer_id\": "+idRelBase+",\n"
+		       				+ "  \"address\": \""+address+"\",\n"
+		       				+ "  \"is_str_city_and_comune\": true,\n"
+		       				+ "  \"str_commune\": \""+str_commune+"\",\n"
+		       				+ "  \"str_city\": \""+str_city+"\",\n"
 		       				+ "  \"ware_house_id\": 1953,\n"
 		       				+ "  \"comment\": \""+comentarios+"\",\n"
 		       				+ "  \"type_transfer\": 6,\n"
@@ -2032,30 +2054,19 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       				+ "      \"price\": "+precio+",\n"
 		       				+ "      \"quantity\": 1,\n"
 		       				+ "      \"tax_affected\": true,\n"
-		       				+ "      \"description\": \""+tipoDeSolucion+"\"\n"
+		       				+ "      \"description\": \""+description+"\"\n"
 		       				+ "    }\n"
 		       				+ "  ]\n"
 		       				+ "}";
-		       		
-		       		
-		       		
-		       		
-		       		
+		       		Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
+		       		Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, json);
+		       		int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, id_guia);
+		       		if(folio_dte > 0) {
+		       			Guia.modificaPorCampo(con, s.baseDato, "linkFolio", id_guia, ""+folio_dte);
+		       		}
 		       		con.close();
-		       		return ok(mensajes.render("/movimientoListarPeriodo/",""+idRelBase));		       		
-		       		
-		       		
-		       		
-//		       		Transportista transp = Transportista.find(con, s.baseDato, id_transportista);
-//		       		Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
-//		       		
-//		       		ApiRelBaseDocDoc api = ApiRelBaseDocDoc.generaGuia(con, s.baseDato, guiaFinal, transp, mapeoDiccionario);
-//		       		String jsonApi = Json.toJson(api).toString();
-//		       		Long id_proforma = (long)0;
-//		       		String rs = ApiManagerDocDoc.genera(con, s.baseDato, jsonApi, ws, id_proforma);
-//		       		Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, jsonApi);
-//		       		Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "guia", id_guia, "update", "hace envio de guia API MANAGER nro: "+guiaFinal.getNumero());
-
+					String retorno = "/movimientoListarGet/desde="+desdeAAMMDD+","+hastaAAMMDD;
+					return ok(mensajes.render(retorno,"DTE enviado a RelBase con exito" ));
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -2066,6 +2077,186 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}
    	}
 	
+	public Result showPdfRelBase(String tipo, String nroFiscal, Http.Request request){
+    	Sessiones s = new Sessiones(request);
+		if(s.baseDato!=null) {
+			try {
+				Connection con = db.getConnection();
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				String linkPDF = ApiRelBase.consultaLinkDtePDF(emisor, ws, tipo, nroFiscal);
+				String fileUrl = linkPDF;
+	            InputStream pdf = HomeController.getInputStreamFromUrl(fileUrl);
+	            if (pdf != null) {
+	                con.close();
+	                return ok(pdf);
+	            } else {
+	            	con.close();
+	       			return ok("DTE PENDIENTE: EN ESPERA DE ACEPTACION POR EL SII");
+	            }
+			} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+		}
+		return ok("DTE PENDIENTE: EN ESPERA DE ACEPTACION POR EL SII");
+   	}
+	
+	public Result buscaCotiSolucionAjax(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok("");
+	       	}else {
+	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
+	       		Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+	       		try {
+		       		Connection con = db.getConnection();
+		    		String vista = "";
+		    		Guia guia = Guia.find(con, s.baseDato, id_guia);
+					Cotizacion coti = Cotizacion.find(con, s.baseDato, guia.getId_cotizacion());
+					String comentarios = "Nro MOV MADA: "+guia.getNumero()+"\r\n";
+					Transportista transportista = Transportista.find(con, s.baseDato, id_transportista);
+		       		if(transportista != null) {
+		       			String detalle = "TRANSPORTISTA:\r\n"+
+		       					"  SR: "+transportista.getConductor()+"\r\n"+
+		       					"  CI: "+transportista.getRutConductor()+"\r\n"+
+		       					"  PAT: "+transportista.getPatente()+"\r\n";
+		       			comentarios += detalle;
+		       		}
+					if(coti != null) {
+						CotizaSolucion sol =CotizaSolucion.find(con, s.baseDato, coti.getId_cotizaSolucion());
+						if(sol != null) {
+							vista="<table id=\"tablaSoluciones\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
+									+ "		<thead style=\"background-color: #eeeeee\">\n"
+									+ "			<TR> \n"
+									+ "				<th style=\"width:40%; white-space: nowrap;\">"
+									+ "					<input type='hidden' id='id_cotizaSolucion' value='"+sol.getId()+"'</div>\n"
+									+ "					CONCEPTO<br>"+sol.getSolucion()+"" // el concepto viene de tabla cotizaSolucion
+									+ "				</th>\n"
+									+ "				<th>\n"
+									+ "					DESCRIPCION <textarea class=\"form-control form-control-sm\" "
+									+ "									rows=\"2\"\n"
+									+ "									id=\"description\"\n"
+									+ "									autocomplete=\"off\"></textarea>"
+									+ "				</th>\n"
+									+ "			</TR>\n"
+									+ "			<TR> \n"
+									+ "				<th colspan=2>\n"
+									+ "					OBSERVACIONES <textarea class=\"form-control form-control-sm\" "
+									+ "									rows=\"8\"\n"
+									+ "									id=\"observaciones\"\n"
+									+ "									autocomplete=\"off\">"+comentarios+"</textarea>"
+									+ "				</th>\n"
+									+ "			</TR>\n"
+									+ "		</thead>\n"
+									+ "	</table>";
+						}
+					}
+					if(coti == null) {
+						List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
+						vista="<table id=\"tablaSoluciones\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
+								+ "		<thead style=\"background-color: #eeeeee\">\n"
+								+ "			<TR> \n"
+								+ "				<th style=\"width:40%; white-space: nowrap;\">"
+								+ "					CONCEPTO<br>"
+								+ "					<select class=\"form-control form-control-sm\" id=\"id_cotizaSolucion\">\n";
+														for(CotizaSolucion x: listSol){
+															vista += "<option value="+x.getId()+">"+x.getSolucion()+"</option>\n";
+														}
+													vista += "</select> "
+								+ "				</th>\n"
+								+ "				<th>\n"
+								+ "					DESCRIPCION <textarea class=\"form-control form-control-sm\" "
+								+ "									rows=\"2\"\n"
+								+ "									id=\"description\"\n"
+								+ "									autocomplete=\"off\"> </textarea>"
+								+ "				</th>\n"
+								+ "			</TR>\n"
+								+ "			<TR> \n"
+								+ "				<th colspan=2>\n"
+								+ "					OBSERVACIONES <textarea class=\"form-control form-control-sm\" "
+								+ "									rows=\"8\"\n"
+								+ "									id=\"observaciones\"\n"
+								+ "									autocomplete=\"off\">"+comentarios+"</textarea>"
+								+ "				</th>\n"
+								+ "			</TR>\n"
+								+ "		</thead>\n"
+								+ "	</table>";
+					}
+					con.close();
+					return ok(vista);
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("ERR");
+	       	}
+		}else {
+			return ok("ERR");
+		}
+   	}
+	
+	public Result generaGuiaSapSchwager(Http.Request request){
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_guia = Long.parseLong(form.get("id_guia").trim());
+	       		Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		try {
+		       		Connection con = db.getConnection();
+		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		       		Guia guia = Guia.find(con, s.baseDato, id_guia);
+		       		Long id_bodegaOrigen = guia.getId_bodegaOrigen();
+					Long id_bodegaDestino = guia.getId_bodegaDestino();
+					BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaOrigen);
+					BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato,id_bodegaDestino);
+					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+					Transportista transportista = Transportista.find(con, s.baseDato, id_transportista);
+		       		Fechas hoy = Fechas.hoy();
+		       		List<List<String>> detalleGuia = new ArrayList<List<String>>();
+		       		
+					if ((long) bodegaOrigen.esInterna == (long) 1 && (long) bodegaDestino.esInterna == (long) 2) {
+						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaDestino(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
+					} else if ((long) bodegaOrigen.esInterna == (long) 2 && (long) bodegaDestino.esInterna == (long) 1){
+						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaOrigen(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
+					}
+					Cliente cliente = Cliente.find(con, s.baseDato, bodegaDestino.getId_cliente());
+					String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
+		       		if (rutCliente.length() > 1) {
+		       			rutCliente = rutCliente.replaceAll("-", "");
+		            }
+					Map<Long,Double> mapTasas = TasasCambio.mapTasasPorFecha(con, s.baseDato, hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+					
+					String json = ApiSapSchwager.generaJsonGUIA(rutCliente, hoy, guia, transportista, detalleGuia, mapTasas);
+		       		
+		       		Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
+		       		Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, json);
+		       		String rs = ApiSapSchwager.generaDteGuia(con, s.baseDato, emisor, json, ws, id_guia);
+		       		if( ! rs.contains("ERROR")) {
+		       			String folioNumber = rs;
+		       			Guia.modificaPorCampo(con, s.baseDato, "linkFolio", id_guia, ""+folioNumber);
+		       			String numGuiaCliente = "FolioNumber: " + folioNumber +"\r\n"+guia.getNumGuiaCliente();
+		       			Guia.modificaPorCampo(con, s.baseDato, "numGuiaCliente", id_guia, ""+numGuiaCliente);
+		       			rs = "DTE enviado a SAP con exito";
+		       		}
+		       		con.close();
+					String retorno = "/movimientoListarGet/desde="+desdeAAMMDD+","+hastaAAMMDD;
+					return ok(mensajes.render(retorno,rs));
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("");
+	       	}
+		}else {
+			return ok("");
+		}
+   	}
 	
 	
 	

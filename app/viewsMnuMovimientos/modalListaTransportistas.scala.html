@@ -1,8 +1,36 @@
-@(mapDiccionario: Map[String,String], listaTransporte: List[tables.Transportista])
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], listaTransporte: List[tables.Transportista])
 	
+
+
+
+@if(mapPermiso.get("parametro.movimientoListar-llenarApiRelBase")!=null 
+			&& mapPermiso.get("parametro.movimientoListar-llenarApiRelBase").equals("1") 
+			&& mapPermiso.get("enviarApiGuia")!=null){
+				<div id="modalAdicRelBase" class="modal" data-backdrop="static" data-keyboard="false">
+				   	<div class='modal-dialog modal-dialog-scrollable' style="min-width: 60%;" role='document'>
+					   	<div class='modal-content'>
+							<div class='modal-header'>
+								<h5 class="modal-title">CONCEPTO, DESCRIPCION Y OBSERVACIONES</h5>
+							</div>
+							<div class="modal-body">
+								<div id="soluciones"></div>
+								<div align="center">
+									<button type='button' class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onClick="enviarRelBase()">ENVIAR</button>
+									<button type='button' class='btn btn-sm btn-light' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+}
+
+
+
 <div id="modalListaTransporte" class="modal" data-backdrop="static" data-keyboard="false">
    	<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
 	   	<div class='modal-content'>
+
 	   		<div class='modal-header'>
 				<h5 class="modal-title">LISTA DE SELECCION DE TRANSPORTISTAS</h5>
 			    <div align="center">
@@ -10,7 +38,6 @@
 			    </div>
 			</div>
 		     <div class="modal-body">
-		     
 				<div id="detalleTablaListaTransportista">
 			     	<table id="tablaListaTransporte" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
@@ -340,6 +367,28 @@
 				limpiarTransportista();
 			}
 		});
+	}
+	
+	
+	
+	const buscaSolucion = (id_guia, id_transportista) => {
+		var formData = new FormData();
+		formData.append('id_guia', id_guia);
+		formData.append('id_transportista', id_transportista);
+		$.ajax({
+			url: "/buscaCotiSolucionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(vista){
+	     		if(vista!="ERR"){
+		    		document.getElementById('soluciones').innerHTML = vista;
+				}
+	     	}
+        });
 	}
 	
 </script>

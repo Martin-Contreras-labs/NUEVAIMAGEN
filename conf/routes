@@ -479,6 +479,8 @@ GET    	/downFacturaMaximise/:nroInte,:desde,:hasta			controllers.MnuReportes.do
 POST    /generaFacturaIConstruye/					controllers.MnuReportes.generaFacturaIConstruye(request: Request)
 POST    /downFacturaIconstruye/						controllers.MnuReportes.downFacturaIconstruye(request: Request)
 
+POST    /generaProformaApiSapSchwager/				controllers.MnuReportes.generaProformaApiSapSchwager(request: Request)
+
 
 POST    /proformaElimina/					controllers.MnuReportes.proformaElimina(request: Request)
 
@@ -750,8 +752,9 @@ POST	/grabaAlbumFotosAjax/							controllers.MnuMovimientos.grabaAlbumFotosAjax(
 
 GET		/movimientoListarPeriodo/					controllers.MnuMovimientos.movimientoListarPeriodo(request: Request)
 POST	/movimientoListar/							controllers.MnuMovimientos.movimientoListar(request: Request)
+GET     /movimientoListarGet/:desde,:hasta			controllers.MnuMovimientos.movimientoListarGet(request: Request, desde: String, hasta: String)
 POST	/movimientoListarExcel/						controllers.MnuMovimientos.movimientoListarExcel(request: Request)
-
+GET     /showPdfRelBase/:tipo,:nroFiscal 			controllers.MnuMovimientos.showPdfRelBase(tipo: String, nroFiscal: String, request: Request)
 
 
 GET		/movimientoDetalleGuia/:id_guia				controllers.MnuMovimientos.movimientoDetalleGuia(id_guia: Long, request: Request)
@@ -776,6 +779,8 @@ POST    /generaGuiaWebIConstruye/					controllers.MnuMovimientos.generaGuiaWebIC
 POST    /downGuiaIconstruye/						controllers.MnuMovimientos.downGuiaIconstruye(request: Request)
 
 POST    /generaGuiaApiRelBase/						controllers.MnuMovimientos.generaGuiaApiRelBase(request: Request)
+POST    /buscaCotiSolucionAjax/						controllers.MnuMovimientos.buscaCotiSolucionAjax(request: Request)
+POST    /generaGuiaSapSchwager/						controllers.MnuMovimientos.generaGuiaSapSchwager(request: Request)
 
 GET		/movimientoListarImgPeriodo/				controllers.MnuMovimientos.movimientoListarImgPeriodo(request: Request)
 POST	/movimientoListarImg/						controllers.MnuMovimientos.movimientoListarImg(request: Request)
