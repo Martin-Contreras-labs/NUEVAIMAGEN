@@ -99,21 +99,28 @@
 						</td>
 					</TR>
 					<TR>
-						<th  style="text-align:left;">11- LISTADO DE AJUSTES POR PERIODO</th>
+						<th  style="text-align:left;">11- CONSOLIDADO (detalle por equipos)</th>
+						<td  style="text-align:left;">
+							Llamada: curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer &lt;token&gt;' 'https://madainqsol.com/consolidadoPorEquipoMeses/?fechaCorte=2021-12-01&cantMeses=3'<br>
+							Retorna: json con el consolidado de proformas por grupo (no considera ajustes a EP) <br>
+						</td>
+					</TR>
+					<TR>
+						<th  style="text-align:left;">12- LISTADO DE AJUSTES POR PERIODO</th>
 						<td  style="text-align:left;">
 							Llamada: curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer &lt;token&gt;' 'https://madainqsol.com/ajustesPorPeriodo/?desdeAAMMDD=2021-12-01&hastaAAMMDD=2021-12-31'<br>
 							Retorna: json con la lista de ajustes aplicados por periodo <br>
 						</td>
 					</TR>
 					<TR>
-						<th  style="text-align:left;">12- ESTADO BODEGAS</th>
+						<th  style="text-align:left;">13- ESTADO BODEGAS</th>
 						<td  style="text-align:left;">
 							Llamada: curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer &lt;token&gt;' 'https://madainqsol.com/estadoBodegasJson/'<br>
 							Retorna: json con los estados de bodegas (solo bodegas externas) <br>
 						</td>
 					</TR>
 					<TR>
-						<th  style="text-align:left;">13- RESUMEN POR PERIODOS</th>
+						<th  style="text-align:left;">14- RESUMEN POR PERIODOS</th>
 						<td  style="text-align:left;">
 							Llamada: curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer &lt;token&gt;' 'https://madainqsol.com/hoheTodoResumenJson/?desdeAAMMDD=2021-12-01&hastaAAMMDD=2021-12-31'<br>
 							Retorna: json con un resumen de movimientos entre bodegas valorizado<br>

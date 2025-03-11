@@ -29,6 +29,7 @@ POST	/estadoDePagoPorPeriodo/			controllers.Apis.estadoDePagoPorPeriodo(request:
 POST	/totalesEPporPeriodo/				controllers.Apis.totalesEPporPeriodo(request: Request, desdeAAMMDD: String, hastaAAMMDD: String, uf: Double, usd: Double, eur: Double)
 POST	/matrizInventarioPorCoti/			controllers.Apis.matrizInventarioPorCoti(request: Request, fechaCorte: String)
 POST	/consolidadoPorGrupoMeses/			controllers.Apis.consolidadoPorGrupoMeses(request: Request, fechaCorte: String, cantMeses: Long)
+POST	/consolidadoPorEquipoMeses/			controllers.Apis.consolidadoPorEquipoMeses(request: Request, fechaCorte: String, cantMeses: Long)
 POST	/ajustesPorPeriodo/					controllers.Apis.ajustesPorPeriodo(request: Request, desdeAAMMDD: String, hastaAAMMDD: String)
 POST	/estadoBodegasJson/					controllers.Apis.estadoBodegasJson(request: Request)
 POST	/hoheTodoResumenJson/				controllers.Apis.hoheTodoResumenJson(request: Request, desdeAAMMDD: String, hastaAAMMDD: String)
@@ -433,6 +434,7 @@ GET     /reportGraficoMovUso/									controllers.MnuReportes.reportGraficoMovUs
 
 GET     /reportFacturaPeriodo/					controllers.MnuReportes.reportFacturaPeriodo(request: Request)
 POST    /reportFacturaProyecto/:archivoPDF		controllers.MnuReportes.reportFacturaProyecto(request: Request, archivoPDF: String)
+GET     /reportFacturaProyectoGet/:p,:d,:a,:uf,:us,:eu		controllers.MnuReportes.reportFacturaProyectoGet(request: Request, p: String, d: String, a: String, uf: Double, us: Double, eu: Double)
 POST    /reportFacturaProyectoExcel/			controllers.MnuReportes.reportFacturaProyectoExcel(request: Request)
 POST    /reportFacturaProyectoDetalle/			controllers.MnuReportes.reportFacturaProyectoDetalle(request: Request)
 POST    /reportFacturaProyectoDetExcel/			controllers.MnuReportes.reportFacturaProyectoDetExcel(request: Request)
@@ -479,7 +481,11 @@ GET    	/downFacturaMaximise/:nroInte,:desde,:hasta			controllers.MnuReportes.do
 POST    /generaFacturaIConstruye/					controllers.MnuReportes.generaFacturaIConstruye(request: Request)
 POST    /downFacturaIconstruye/						controllers.MnuReportes.downFacturaIconstruye(request: Request)
 
-POST    /generaProformaApiSapSchwager/				controllers.MnuReportes.generaProformaApiSapSchwager(request: Request)
+POST    /generaProformaApiSapSchwager/			controllers.MnuReportes.generaProformaApiSapSchwager(request: Request)
+POST    /generaProformaApiRelBase/				controllers.MnuReportes.generaProformaApiRelBase(request: Request)
+POST    /generaProformaApiRelBase2/				controllers.MnuReportes.generaProformaApiRelBase2(request: Request)
+POST    /validarClienteAjax/					controllers.MnuReportes.validarClienteAjax(request: Request)
+
 
 
 POST    /proformaElimina/					controllers.MnuReportes.proformaElimina(request: Request)

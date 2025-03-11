@@ -328,6 +328,7 @@ public class HomeController extends Controller {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		url = url.replaceAll("&", ",");
     		return ok(showPDF.render(mapeoDiccionario, mapeoPermiso, userMnu, fileNamePDF, url, titulo));
     	}else {
     		return ok(mensajes.render("/",msgError));

@@ -1,7 +1,8 @@
-@(mapDiccionario: Map[String,String], listEstaOperacional: List[tables.MantEstadoEnObra], 
+@(mapDiccionario: Map[String,String], fecha: String, listEstaOperacional: List[tables.MantEstadoEnObra], 
 listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
 listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
-listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad])		
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+listComponentes: List[tables.MantComponente])		
 
 		<table class="table table-sm table-bordered table-condensed table-fluid">
 			<thead>
@@ -108,42 +109,63 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 				        </select> 
 			        </td>
 				</tr>
-				
-				
-				
-				
-				
-				
-				
-				
-				
 				<tr>
 					<td style="text-align:left;"><strong>COMPONENTES (*):</strong></td>
 			        <td style="text-align:left" width="70%" colspan="4">
-			        	<select class="form-control form-control-sm" 
-							id="AAAAA" 
-							name="AAAAAA"
-							required disabled>
-				        		<option class="blank" value="0">-- Select --</option>
-			            		
-				        </select> 
-			        </td>
+			        	<table id="tblComponentesC" class="table table-sm table-bordered table-condensed table-fluid">
+							<thead>
+								<tr>
+									<th width="70%" style="text-align:left; vertical-align: middle;">Componentes</th>
+									<th width="10%" style="text-align:left; vertical-align: middle;">Cantidad</th>
+									<th width="5%" style="text-align:left; vertical-align: middle;">DEL</th>
+									<th style='display:none'>id_producto</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td style="text-align:left;vertical-align:middle">
+										<input type="hidden" class="classIdComponentesC" id="id_componenteC0" name="id_mantComponenteC[]" value="0">
+										<div id="componenteC0">
+											<div class="input-group input-group-sm">
+											  <input class="form-control" type="text" onclick="showComponentesC();" readonly>
+											  <div class="input-group-append">
+											    <span class="input-group-text" onclick="showComponentesC();">Buscar</span>
+											  </div>
+											</div>
+					    				</div>
+					    			</td>
+									<td>
+										<div id="divCantidadC0">
+											<input type='text' style='text-align:right;' class='form-control form-control-sm' 
+												name='cantidadC[]' id='cantidadC0' readonly></div>
+									</td>
+									<td style="text-align:center;">
+										<div id='delLineaC0'></div>
+									</td>
+									<td style='display:none' id="tdId_componenteC0">0</td>
+								</tr>
+							</tbody>
+			        	</table>
+					</td>
 				</tr>
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
+				<tr>
+					<td style="text-align:left;"><strong>Fecha_INI:</strong></td>
+			        <td style="text-align:left">
+						<input type="date" class="form-control form-control-sm left" style="max-width:150px"
+							id="fechaIni_mec" 
+							name="fechaIni_mec"
+							onblur="validarFechaIni_mec()"
+							value="@fecha">
+			        </td>
+					<td style="text-align:left;"><strong>Fecha_TER:</strong></td>
+			        <td style="text-align:left" colspan="2">
+						<input type="date" class="form-control form-control-sm left"  style="max-width:150px"
+							id="fechaTer_mec" 
+							name="fechaTer_mec"
+							onblur="validarFechaTer_mec()"
+							value="@fecha">
+			        </td>
+				</tr>	
 				<tr>
 					<td style="text-align:left;"><strong>Hr_INI:</strong></td>
 			        <td style="text-align:left">
@@ -176,7 +198,7 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 							autocomplete="off"
 							required disabled>
 			        </td>
-					<td style="text-align:left;"><strong><div id="lectTer_mec">Lect_TER (*):</div></strong></td>
+					<td style="text-align:left;"><strong><div id="lectTer_mec">Lect_TER(*):</div></strong></td>
 			        <td style="text-align:left" colspan="2">
 						<input type="text" class="form-control form-control-sm left" style="max-width:200px"
 							id="lecturaTer_mec" 
@@ -265,5 +287,132 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 				</tr>
 			</thead>
 		</table>
+		
+		
+<script>
+
+	function validarLectIni_mec(){
+		let lecturaIni = $("#lecturaIni_mec").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_mec").val().replace(/,/g,'');
+		try{
+			lectAnterior = lectAnterior.replace(/,/g,'');
+		}catch(e){
+			lectAnterior = lectAnterior;
+		}
+		if(parseFloat(lecturaIni) < parseFloat(lectAnterior)){
+			alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
+			$("#lecturaIni_mec").val(formatStandar(lectAnterior,2));
+		}else if(lecturaTer!="0.00"){
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaIni_mec").val(formatStandar(formatStandar(lectAnterior,2)));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_mec").val(formatStandar(dif,2));
+			}
+		}
+	}
+	
+	function validarLectTer_mec(){
+		let lecturaIni = $("#lecturaIni_mec").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_mec").val().replace(/,/g,'');
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaTer_mec").val(formatStandar(0,2));
+				$("#cantidad_mec").val(formatStandar(0,2));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_mec").val(formatStandar(dif,2));
+			}
+	}
+	
+	function validarHoraIni_mec(){
+		let horaIni = $("#horaIni_mec").val();
+		let horaTer = $("#horaTer_mec").val();
+		if(horaTer!=""){
+			if(parseFloat(horaIni) >= parseFloat(horaTer)){
+				alertify.alert("La hora inicial no puede ser menor o igual a la hora de termino");
+				$("#horaIni_mec").val("");
+				$("#horaTer_mec").val("");
+			}
+		}
+	}
+	
+	function validarHoraTer_mec(){
+		let horaIni = $("#horaIni_mec").val();
+		let horaTer = $("#horaTer_mec").val();
+		if(horaIni==""){
+			alertify.alert("Primero debe ingresar la hora inicial");
+			$("#horaTer_mec").val("");
+		}else{
+			if(horaIni > horaTer){
+				alertify.alert("La hora inicial no puede ser menor a la hora de termino");
+				$("#horaTer_mec").val("");
+			}
+		}
+	}
+	
+	function validarFechaIni_mec(){
+		let fechaIni = new Date($("#fechaIni_mec").val());
+		let fechaTer = new Date($("#fechaTer_mec").val());
+		if(fechaIni > fechaTer){
+			alertify.alert("La fecha de inicio no puede ser posterior a la fecha de termino.");
+        		$('#fechaIni_mec').val('@fecha');
+		}
+	}
+	
+	function validarFechaTer_mec(){
+		let fechaIni = $("#fechaIni_mec").val();
+		let fechaTer = $("#fechaTer_mec").val();
+		if(fechaIni > fechaTer){
+			alertify.alert("La fecha de termino no puede ser anterior a la fecha de inicio.");
+        		$('#fechaTer_mec').val('@fecha');
+		}
+	}
+	
+	function grabarMecanico(){
+		  
+		  if($('#id_mecanico').val()==0){
+			  alertify.alert('Debe seleccionar un Mecanico');
+		  }else if($('#id_tipoMantencion').val()==0){
+			  alertify.alert('Debe seleccionar un Tipo de Mantencion');
+		  }else if($('#id_equipo_mec').val()==0){
+			  alertify.alert('Debe seleccionar un Equipo');
+		  }else if($('#id_bodega_mec').val()==0){
+			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
+		  }else if($('#id_mantEstadoOperacional').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Operacional');
+		  }else if($('#id_mantEstadoEnTaller').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Taller');
+		  }else if($('#id_mantActividad').val()==0){
+			  alertify.alert('Debe ingresar una Actividad');
+	      }else if($('#id_mantTipoActividad').val()==0){
+			  alertify.alert('Debe ingresar un tipo de Actividad');
+		  }else if($('#lecturaTer_mec').val()=="0.00"){
+			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
+		  }else{
+			let data = signaturePad3.toDataURL('image/png');
+			let encodedImage = data.split(",");
+			$("#firmaEjecutor").val(encodedImage[1]);
+			
+			data = signaturePad4.toDataURL('image/png');
+			encodedImage = data.split(",");
+			$("#firmaAprobador").val(encodedImage[1]);
+			
+			$("#grabarRptOperadorMecanico").submit();
+		  }
+	}
+	
+</script>
+
+
+
+
+
+
+
+
+
+
 
 	

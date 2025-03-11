@@ -5,7 +5,7 @@ bodega: tables.BodegaEmpresa, proyecto: tables.Proyecto, tasaCambio: List[Double
 resumenSubtotales: List[List[String]], id_bodegaEmpresa: Long, finalPer: List[List[String]], cliente: tables.Cliente,
 detalleAjuste: List[List[String]],
 mapReportPorGuia10: Map[String,List[List[String]]], cantDec: Long, listReferencias: List[tables.TipoReferencia],
-oc: String)
+oc: String, listSol: List[tables.CotizaSolucion])
 
 	<!-- ANCLA CABECERAS DE TABLAS -->
 	<style type="text/css"> 
@@ -14,9 +14,61 @@ oc: String)
             top: 0;
         }
     </style>
+
+
+
 	
 	
 	<form id="formProforma" class="formulario" method="post" action="/generarProformaPdfXlsxXmlJson/">
+	
+			@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+				<div id="modalAdicRelBase" class="modal" data-backdrop="static" data-keyboard="false">
+				   	<div class='modal-dialog modal-dialog-scrollable' style="min-width: 60%;" role='document'>
+					   	<div class='modal-content'>
+							<div class='modal-header'>
+								<h5 class="modal-title">CONCEPTO, DESCRIPCION Y OBSERVACIONES</h5>
+							</div>
+							<div class="modal-body">
+								<table id="tablaSoluciones" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+										<thead style="background-color: #eeeeee">
+											<TR> 
+												<th style="width:40%; white-space: nowrap;">
+													CONCEPTO<br>
+													<select class="form-control form-control-sm" name="id_cotizaSolucion">
+														@for(lista <- listSol){
+															<option value="@lista.getId()">@lista.getSolucion()</option>
+														}
+													</select>
+												</th>
+												<th>
+													DESCRIPCION <textarea class="form-control form-control-sm"
+																	rows="2"
+																	name="sol_description"
+																	autocomplete="off"> </textarea>
+												</th>
+											</TR>
+											<TR> 
+												<th colspan="2" >
+													OBSERVACIONES <textarea class="form-control form-control-sm"
+																	rows="8"
+																	name="sol_observaciones"
+																	autocomplete="off">@Html("PERIODO: de "+fechas.get(2)+" a "+fechas.get(3))</textarea>
+												</th>
+											</TR>
+										</thead>
+									</table>
+								<div align="center">
+									<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('formProforma').submit()">
+										GENERAR @mapDiccionario.get("PROFORMA")
+									</button>
+									<button type='button' class='btn btn-sm btn-light' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+	
 		<input type="hidden" name="idBodega" value="@bodega.id">
 		<input type="hidden" name="fechaDesde" value="@fechas.get(0)">
 		<input type="hidden" name="fechaHasta" value="@fechas.get(1)">
@@ -30,9 +82,17 @@ oc: String)
 					<div class='modal-header'>
 						<h5 class='modal-title'>REFERENCIAS</h5>
 						<div align="right">
-							<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('formProforma').submit()">
-								GENERAR @mapDiccionario.get("PROFORMA")
-							</button>
+							@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' 
+									onclick="$('#modalAdicRelBase').modal('show');">
+									GENERAR @mapDiccionario.get("PROFORMA")
+								</button>
+							}else{
+								<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('formProforma').submit()">
+									GENERAR @mapDiccionario.get("PROFORMA")
+								</button>
+							}
+							
 					        <button type='button' class='close' data-dismiss='modal' aria-label='Close' 
 									onclick='document.getElementById("btnArr").disabled=false; document.getElementById("btnVta").disabled=false;'>
 					          	<span aria-hidden='true'>&times;</span>
@@ -76,16 +136,39 @@ oc: String)
 	</form>
 	
 	<script>
-		 	let verificaReferencia = (value, select) =>{
-		 		if(value == 0){
-		 			select.parentNode.parentNode.remove();
-		 			let tabla = document.getElementById('referencia');
-		 			for (let i = 2; i < tabla.rows.length; i++){
-		 				let cellsOfRow = tabla.rows[i].getElementsByTagName('td');
-		 				cellsOfRow[0].innerHTML=i-1;
-		 			}
-		 		}
-		 	}
+	
+			let validarCliente = (id_cliente) =>{
+				if(id_cliente=="0"){
+						let msg = "ERROR 1: El RUT del cliente no existe en RELBASE o no esta asociado el cliente al proyecto.<br>"
+							+"No se puede generar la proforma, antes debe corregir";
+			    		alertify.alert(msg, function () {});
+				}else{
+					var formData = new FormData();
+					formData.append('id_cliente', id_cliente);
+					$.ajax({
+						url: "/validarClienteAjax/",
+			            type: "POST",
+			            method: "POST",
+			            data: formData,
+			            cache: false,
+			            contentType: false,
+				     	processData: false,
+				     	success: function(rs){
+				     		if(rs=="0"){
+								let msg = "ERROR 2: El RUT del cliente no existe en RELBASE o no esta asociado el cliente al proyecto.<br>"
+									+"No se puede generar la proforma, antes debe corregir";
+					    		alertify.alert(msg, function () {});
+							}else{
+								 $('#modalAgregaReferencias').modal('show');
+							}
+				     	}
+			        });
+				}
+				
+			}
+			
+				
+
 		 	let eliminaReferencia = (nodo) =>{
 		 			nodo.parentNode.parentNode.remove();
 		 			let tabla = document.getElementById('referencia');
@@ -99,20 +182,20 @@ oc: String)
 				let row = tabla.insertRow(tabla.rows.length);
 				let cell = row.insertCell(0);
 				let indice = tabla.rows.length-2;
-				cell.innerHTML=indice+"<input type='hidden' id='nroLinRef' name='nroLinRef[]' value='"+indice+"'>";
+				cell.innerHTML=indice+"<input type='hidden' name='nroLinRef[]' value='"+indice+"'>";
 				cell = row.insertCell(1);
-				let listado = "<select id='tpoDocRef' name='tpoDocRef[]' onchange='verificaReferencia(value,this)'>";
+				let listado = "<select  name='tpoDocRef[]'>";
 				@for(referencia <- listReferencias){
 					listado = listado + "<option value='@referencia.codigo'>@referencia.concepto</option>";
 				}
 				listado = listado + "</select>";
 				cell.innerHTML=listado;
 				cell=row.insertCell(2);
-				cell.innerHTML="<input type='text' id='folioRef' name='folioRef[]' value=''>";
+				cell.innerHTML="<input type='text' name='folioRef[]' value=''>";
 				cell=row.insertCell(3);
-				cell.innerHTML="<input type='date' id='fchRef' name='fchRef[]' value=''>";
+				cell.innerHTML="<input type='date' name='fchRef[]' value=''>";
 				cell=row.insertCell(4);
-				cell.innerHTML="<input type='text' id='razonRef' name='razonRef[]' value=''>";
+				cell.innerHTML="<input type='text' name='razonRef[]' value=''>";
 				cell=row.insertCell(5);
 				cell.innerHTML="<a class='btn btn-mini btn-danger' onclick='eliminaReferencia(this)'>X</a>";
 	 		}
@@ -165,7 +248,11 @@ oc: String)
 											onclick=" this.disabled = true;
 												if(parseFloat(numero.formatBack($('#resumenTotal12').text()))>0){
 													$('#esVenta').val('0');
-													$('#modalAgregaReferencias').modal('show');
+													@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+														validarCliente('@cliente.id');
+													}else{
+														$('#modalAgregaReferencias').modal('show');
+													}
 												}else{
 													alertify.alert('No hay valor de alquiler a emitir', function () {});
 												}">
@@ -177,7 +264,11 @@ oc: String)
 											onclick=" this.disabled = true;
 											if(parseFloat(numero.formatBack($('#resumenTotal22').text()))>0){
 												$('#esVenta').val('1');
-												$('#modalAgregaReferencias').modal('show');
+												@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+													validarCliente('@cliente.id');
+												}else{
+													$('#modalAgregaReferencias').modal('show');
+												}
 											}else{
 												alertify.alert('No hay valor de venta a emitir', function () {});
 											}">
@@ -1050,7 +1141,8 @@ oc: String)
 						
 			   });
 				
-		
+				
+				
 				
 			
 

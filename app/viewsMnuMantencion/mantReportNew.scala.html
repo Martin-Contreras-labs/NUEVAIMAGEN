@@ -1,9 +1,10 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 fecha: String, listActor: List[tables.MantActorPersonal], listOperMec: List[tables.MantOperadorMecanico],
 listPlanMant: List[tables.PlanMantencion], mapIdEquipVsBod: String, listBod: List[tables.BodegaEmpresa],
-listEstaObra: List[tables.MantEstadoEnObra], aux_huella: Long, listEquipos: List[List[String]],
+listEstaObra: List[tables.MantEstadoEnObra], listEquipos: List[List[String]],
 listTipoMantencion: List[tables.TipoMantencion], listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
-listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad])
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+listComponentes: List[tables.MantComponente])
 
 
 
@@ -16,8 +17,8 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 				<br>
-				<form id="grabarRptOperadorMecanico" action="/mantReportSave/" enctype="multipart/form-data" method="POST" enctype="multipart/form-data">
-					<input type="hidden" name="aux_huella" value="@aux_huella">
+				<form id="grabarRptOperadorMecanico" action="/routes3/mantReportNewSave/" enctype="multipart/form-data" method="POST" enctype="multipart/form-data">
+
 					<table class="table table-sm table-bordered table-condensed table-fluid">
 						<thead>
 							<tr>
@@ -70,11 +71,11 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 					<input type="hidden" name="firmaAprobador" id="firmaAprobador" value="0">
 						
 					<div id="viewOperador" style="display:none;">
-						@mantReportNewOperador(mapDiccionario, listEstaObra, listOperMec)
+						@mantReportNewOperador(mapDiccionario, fecha, listEstaObra, listOperMec)
 					</div>
 					<div id="viewMecanico" style="display:none;">
-						@mantReportNewMecanico(mapDiccionario, listEstaObra, listOperMec, listTipoMantencion,
-								listEstadoEnTaller,listActividad,listTipoActividad)
+						@mantReportNewMecanico(mapDiccionario, fecha, listEstaObra, listOperMec, listTipoMantencion,
+								listEstadoEnTaller,listActividad,listTipoActividad,listComponentes)
 					</div>
 					<font style="font-size: 12px;">(*) Campos Obligatorios</font>
 					
@@ -207,6 +208,76 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 			 </div>
 		</div>
 		
+		<div id="modalComponentesC" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar componentes</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+						<table id="tablaComponentesC" class="table table-sm table-bordered table-condensed table-hover table-fluid" style="width:100%">
+		     				<thead style='background-color: #eeeeee'>
+								<TR>
+									<th style='display:none'>id_componenteC</th>
+									<th>Nombre</th>
+								</TR>
+							</thead>
+							<tbody>
+								@for(lista <- listComponentes){
+									<tr onclick="selectComponenteC('@lista.getId()',btoa('@lista.getNombre()'))">
+										<td style='display:none'>@lista.getId()</td>
+										<td><a href="#">@lista.getNombre()</a></td>
+									</tr>
+								}
+							</tbody>
+			      		</table>
+			        <br>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>	
+		
+		<div id="modalComponentesP" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar componentes</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+						<table id="tablaComponentesP" class="table table-sm table-bordered table-condensed table-hover table-fluid" style="width:100%">
+		     				<thead style='background-color: #eeeeee'>
+								<TR>
+									<th style='display:none'>id_componenteP</th>
+									<th>Nombre</th>
+								</TR>
+							</thead>
+							<tbody>
+								@for(lista <- listComponentes){
+									<tr onclick="selectComponenteP('@lista.getId()',btoa('@lista.getNombre()'))">
+										<td style='display:none'>@lista.getId()</td>
+										<td><a href="#">@lista.getNombre()</a></td>
+									</tr>
+								}
+							</tbody>
+			      		</table>
+			        <br>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>	
+	
 		
 	</div>
 }
@@ -284,7 +355,7 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 	        "info":     false,
 			"searching": true,
 	    	"language": {
-	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 	        }
 	    } );
 
@@ -296,7 +367,7 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 	        "info":     false,
 			"searching": true,
 	    	"language": {
-	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 	        }
 	    } );
 		$('#tablaEquipos_mec').DataTable({
@@ -307,7 +378,7 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 	        "info":     false,
 			"searching": true,
 	    	"language": {
-	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 	        }
 	    } );
 		$('#tablaBodegas').DataTable({
@@ -318,18 +389,37 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 	        "info":     false,
 			"searching": true,
 	    	"language": {
-	        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 	        }
 	    } );
+
+		$('#tablaComponentesC').DataTable({
+			"dom": '<"pull-left"f><"pull-right"l>tip',
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"paging":   true,
+	        "ordering": true,
+	        "info":     true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+
+		$('#tablaComponentesP').DataTable({
+			"dom": '<"pull-left"f><"pull-right"l>tip',
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"paging":   true,
+	        "ordering": true,
+	        "info":     true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+
  		document.getElementById('mostrarmostrar').style.display="block";
 	
 	
-	
-	
-	const fieldNames = [...document.querySelectorAll('input[name], select[name], textarea[name]')]
-    .map(element => element.name);
-	console.log(fieldNames);
-
 	
 	} );
 	
@@ -345,8 +435,8 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 			$("#valNomBod_oper").val("--- select ---");
 			$("#tipoBodega_oper").val("");
 			document.querySelector("#id_mantEstadoEnObra").value = "0";
-			$("#horaIni_oper").val(0);
-			$("#horaTer_oper").val(0);
+			$("#horaIni_oper").val("");
+			$("#horaTer_oper").val("");
 			$("#lecturaIni_oper").val("0.00");
 			$("#lecturaTer_oper").val("0.00");
 			$("#cantidad_oper").val("0.00");
@@ -560,6 +650,8 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
 				  "</div>"+
 				"</div>";
+			$("#tipoBodega_oper").val(aux3[2]);
+				
 			$("#id_bodega_mec").val(aux3[1]);
 			document.getElementById("nombreBodega_mec").innerHTML=
 				"<div class='input-group input-group-sm'>"+
@@ -569,6 +661,8 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
 				  "</div>"+
 				"</div>";
+			$("#tipoBodega_mec").val(aux3[2]);
+			
 			$("#id_bodega_mecP").val(aux3[1]);
 			document.getElementById("nombreBodega_mecP").innerHTML=
 				"<div class='input-group input-group-sm'>"+
@@ -578,6 +672,8 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
 				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
 				  "</div>"+
 				"</div>";
+			$("#tipoBodega_mecP").val(aux3[2]);
+			
 		}catch(e){
 			$("#id_bodega_oper").val(0);
 			document.getElementById("nombreBodega_oper").innerHTML=
@@ -694,9 +790,162 @@ listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTi
         	}
     	}
     	
-    };
-    
+    }
 
+
+// ************************ COMPONENTES CORRECTIVO *****************************
+	const showComponentesC = () => {
+		var tabla = document.getElementById('tablaComponentesC');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			var classIdComponentesC = document.getElementsByClassName("classIdComponentesC");
+			for(var j=0; j<classIdComponentesC.length; j++){
+				var id_componenteC = classIdComponentesC[j].value;
+				if(row[0].innerHTML == id_componenteC){
+					document.getElementById("tablaComponentesC").rows[i].style.display='none';
+					tabla.rows[i].style.display = 'none';
+				}
+			}
+		}
+		$('#modalComponentesC').modal('show')
+  	}
+
+    const selectComponenteC = (id_componente, componente) => {
+		componente = atob(componente);
+		$('#id_componenteC0').val(id_componente);
+		document.getElementById('divCantidadC0').innerHTML=
+			"<input type='text' class='form-control form-control-sm' id='cantidadC"+id_componente+"' name='cantidadC[]' style='text-align:right;'"+
+			" onfocus=\"value=value.replace(/,/g,'')\" onkeypress='return ingresoDouble(event,value)' onChange='value=formatStandar2(value);' value='1.00' required>";
+		document.getElementById('componenteC0').innerHTML="<input type='text' class='form-control form-control-sm' value='"+componente+"' readonly>";
+		document.getElementById('delLineaC0').innerHTML="<a href='#' onclick='eliminarLineaC(this,"+id_componente+")'><kbd style='background-color:red'>X</kbd></a>";
+		document.getElementById('tdId_componenteC0').innerHTML=id_componente;
+		document.getElementById('id_componenteC0').setAttribute("id", "id_id_componenteC"+id_componente);
+		document.getElementById('componenteC0').setAttribute("id", "componenteC"+id_componente);
+		document.getElementById('delLineaC0').setAttribute("id", "delLineaC"+id_componente);
+		document.getElementById('divCantidadC0').setAttribute("id", "divCantidadC"+id_componente);
+		document.getElementById('tdId_componenteC0').setAttribute("id", "tdId_componenteC"+id_componente);
+		agregaLineaC();
+		$('#modalComponentesC').modal('hide');
+	}
+	
+	function agregaLineaC(){
+		var tabla = document.getElementById('tblComponentesC');
+			var row = tabla.insertRow(tabla.rows.length);
+		var cell=row.insertCell(0);
+		cell.style.textAlign="left";
+		cell.style.textAlign="left";
+		cell.innerHTML=
+			"<input type='hidden' class='classIdComponentesC' id='id_componenteC0' name='id_mantComponenteC[]' value='0'>"+
+				"<div id='componenteC0'>"+
+					"<div class='input-group input-group-sm'>"+
+					  "<input class='form-control' type='text' onclick='showComponentesC()' readonly>"+
+					  "<div class='input-group-append'>"+
+					    "<span class='input-group-text' onclick='showComponentesC()'>Buscar</span>"+
+					  "</div>"+
+					"</div>"+
+				"</div>";
+		var cell=row.insertCell(1);
+		cell.innerHTML="<div id='divCantidadC0'><input type='text' style='text-align:right;' class='form-control form-control-sm' "+
+							"name='cantidadC[]' id='cantidadC0' readonly></div>";
+		var cell=row.insertCell(2);
+		cell.style.textAlign="center";
+		cell.innerHTML="<div id='delLineaC0'></div>";
+		var cell=row.insertCell(3);
+		cell.style.display="none";
+		cell.setAttribute("id", "tdId_componenteC0");
+		cell.innerHTML="<td style='display:none'>0</td>";
+	}
+	
+	function eliminarLineaC(nodo, id_componente){
+		var nodoTd = nodo.parentNode.parentNode; 
+		var nodoTr = nodoTd.parentNode; 
+		$(nodoTr).remove();
+		var tabla = document.getElementById('tablaComponentesC');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			if(row[0].innerHTML == id_componente){
+				tabla.rows[i].style.display="";
+			}
+		}
+	}
+// ************************ FIN CORRECTIVO *****************************
+
+// ************************ COMPONENTES PREVENTIVO *****************************
+	const showComponentesP = () => {
+		var tabla = document.getElementById('tablaComponentesP');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			var classIdComponentesP = document.getElementsByClassName("classIdComponentesP");
+			for(var j=0; j<classIdComponentesP.length; j++){
+				var id_componenteP = classIdComponentesP[j].value;
+				if(row[0].innerHTML == id_componenteP){
+					document.getElementById("tablaComponentesP").rows[i].style.display='none';
+					tabla.rows[i].style.display = 'none';
+				}
+			}
+		}
+		$('#modalComponentesP').modal('show')
+  	}
+
+    const selectComponenteP = (id_componente, componente) => {
+		componente = atob(componente);
+		$('#id_componenteP0').val(id_componente);
+		document.getElementById('divCantidadP0').innerHTML=
+			"<input type='text' class='form-control form-control-sm' id='cantidadP"+id_componente+"' name='cantidadP[]' style='text-align:right;'"+
+			" onfocus=\"value=value.replace(/,/g,'')\" onkeypress='return ingresoDouble(event,value)' onChange='value=formatStandar2(value);' value='1.00' required>";
+		document.getElementById('componenteP0').innerHTML="<input type='text' class='form-control form-control-sm' value='"+componente+"' readonly>";
+		document.getElementById('delLineaP0').innerHTML="<a href='#' onclick='eliminarLineaP(this,"+id_componente+")'><kbd style='background-color:red'>X</kbd></a>";
+		document.getElementById('tdId_componenteP0').innerHTML=id_componente;
+		document.getElementById('id_componenteP0').setAttribute("id", "id_id_componenteP"+id_componente);
+		document.getElementById('componenteP0').setAttribute("id", "componenteP"+id_componente);
+		document.getElementById('delLineaP0').setAttribute("id", "delLineaP"+id_componente);
+		document.getElementById('divCantidadP0').setAttribute("id", "divCantidadP"+id_componente);
+		document.getElementById('tdId_componenteP0').setAttribute("id", "tdId_componenteP"+id_componente);
+		agregaLineaP();
+		$('#modalComponentesP').modal('hide');
+	}
+	
+	function agregaLineaP(){
+		var tabla = document.getElementById('tblComponentesP');
+			var row = tabla.insertRow(tabla.rows.length);
+		var cell=row.insertCell(0);
+		cell.style.textAlign="left";
+		cell.style.textAlign="left";
+		cell.innerHTML=
+			"<input type='hidden' class='classIdComponentesP' id='id_componenteP0' name='id_mantComponenteP[]' value='0'>"+
+				"<div id='componenteP0'>"+
+					"<div class='input-group input-group-sm'>"+
+					  "<input class='form-control' type='text' onclick='showComponentesP()' readonly>"+
+					  "<div class='input-group-append'>"+
+					    "<span class='input-group-text' onclick='showComponentesP()'>Buscar</span>"+
+					  "</div>"+
+					"</div>"+
+				"</div>";
+		var cell=row.insertCell(1);
+		cell.innerHTML="<div id='divCantidadP0'><input type='text' style='text-align:right;' class='form-control form-control-sm' "+
+							"name='cantidadP[]' id='cantidadP0' readonly></div>";
+		var cell=row.insertCell(2);
+		cell.style.textAlign="center";
+		cell.innerHTML="<div id='delLineaP0'></div>";
+		var cell=row.insertCell(3);
+		cell.style.display="none";
+		cell.setAttribute("id", "tdId_componenteP0");
+		cell.innerHTML="<td style='display:none'>0</td>";
+	}
+	
+	function eliminarLineaP(nodo, id_componente){
+		var nodoTd = nodo.parentNode.parentNode; 
+		var nodoTr = nodoTd.parentNode; 
+		$(nodoTr).remove();
+		var tabla = document.getElementById('tablaComponentesP');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			if(row[0].innerHTML == id_componente){
+				tabla.rows[i].style.display="";
+			}
+		}
+	}
+// ************************ FIN CORRECTIVO *****************************
 	
 	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
 	const LimitAttach = (form, file) => {

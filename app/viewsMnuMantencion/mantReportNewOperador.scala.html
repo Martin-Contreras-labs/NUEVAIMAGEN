@@ -1,4 +1,4 @@
-@(mapDiccionario: Map[String,String], listEstaObra: List[tables.MantEstadoEnObra], listOperMec: List[tables.MantOperadorMecanico])	
+@(mapDiccionario: Map[String,String], fecha: String, listEstaObra: List[tables.MantEstadoEnObra], listOperMec: List[tables.MantOperadorMecanico])	
 	
 	<table class="table table-sm table-bordered table-condensed table-fluid">
 		<thead>
@@ -111,7 +111,7 @@
 						autocomplete="off"
 						required disabled>
 		        </td>
-				<td style="text-align:left;"><strong><div id="lectTer_oper">Lect_TER (*):</div></strong></td>
+				<td style="text-align:left;"><strong><div id="lectTer_oper">Lect_TER(*):</div></strong></td>
 		        <td style="text-align:left" colspan="2">
 					<input type="text" class="form-control form-control-sm left" style="max-width:200px"
 						id="lecturaTer_oper" 
@@ -296,7 +296,7 @@
 		}
 	}
 	
-	function grabarOperador(){
+	function grabarOperador(){ 
 		  
 		  if($('#id_operador').val()==0){
 			  alertify.alert('Debe seleccionar un Operador');

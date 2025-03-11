@@ -142,7 +142,7 @@ public class Equipo {
 		return map;
 	}
 	
-	public static Map<String,String> mapConExistenciaUnaUnidad (Connection con, String db) {
+	public static Map<String,String> mapConExistenciaUnaUnidad (Connection con, String db, Map<String,String> mapeoDiccionario) {
 		Map<String,String> map = new HashMap<String,String>();
 		try {
 			PreparedStatement smt = con
@@ -151,16 +151,23 @@ public class Equipo {
 							+ " bodegaEmpresa.nombre,"
 							+ " movimiento.id_equipo,"
 							+ " bodegaEmpresa.id,"
-							+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)"
+							+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad),"
+							+ " bodegaEmpresa.esInterna"
 							+ " from `"+db+"`.movimiento"
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
 							+ " left join `"+db+"`.sucursal on sucursal.id = bodegaEmpresa.id_sucursal"
+							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia"
 							+ " where bodegaEmpresa.id is not null"
-							+ " group by id_equipo"
-							+ " having sum(if(id_tipoMovimiento=1,1,-1)*cantidad) = 1;");
+							+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo"
+							+ " having sum(if(id_tipoMovimiento=1,1,-1)*cantidad) = 1"
+							+ " order by guia.fecha desc;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
-				map.put(rs.getString(3), rs.getString(1)+" - "+rs.getString(2)+"_&_"+rs.getString(4));
+				String tipoBodega = "CLIENTE/PROYECTO";
+				if(rs.getLong(5) == (long)1) {
+					tipoBodega = mapeoDiccionario.get("BODEGA")+"/INTERNA";
+				}
+				map.put(rs.getString(3), rs.getString(1)+" - "+rs.getString(2)+"_&_"+rs.getString(4)+"_&_"+tipoBodega);
 			}
 			rs.close();
 			smt.close();

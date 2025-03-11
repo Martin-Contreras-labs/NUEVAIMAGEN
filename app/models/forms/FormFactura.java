@@ -24,6 +24,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
+import models.api.ApiRelBase;
 import models.api.ApiSapConconcreto;
 import models.api.ApiSapSchwager;
 import models.api.WebIConstruye;
@@ -43,6 +44,7 @@ import models.utilities.Fechas;
 import models.xml.XMLFacturaArriendo;
 import models.xml.XmlFacturaReferencias;
 import models.xml.XmlFacturaVenta;
+import play.libs.ws.WSClient;
 
 
 
@@ -63,10 +65,15 @@ public class FormFactura {
 	
 	public String oc;
 	public String comentarios;
+	
+	public Long id_cotizaSolucion;
+	public String sol_description;
+	public String sol_observaciones;
+	public Long id_proforma;
 
 	public FormFactura(String idBodega, String fechaDesde, String fechaHasta, String uf, String usd, String eur,
 			List<String> tpoDocRef, List<String> folioRef, List<String> fchRef, List<String> razonRef, String oc,
-			String comentarios) {
+			String comentarios, Long id_cotizaSolucion, String sol_description, String sol_observaciones, Long id_proforma) {
 		super();
 		this.idBodega = idBodega;
 		this.fechaDesde = fechaDesde;
@@ -80,6 +87,10 @@ public class FormFactura {
 		this.razonRef = razonRef;
 		this.oc = oc;
 		this.comentarios = comentarios;
+		this.id_cotizaSolucion = id_cotizaSolucion;
+		this.sol_description = sol_description;
+		this.sol_observaciones = sol_observaciones;
+		this.id_proforma = id_proforma;
 	}
 
 	public FormFactura() {
@@ -91,12 +102,12 @@ public class FormFactura {
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00%");
 	
-	public static String generaProformaArriendo(Connection con, String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
+	public static String generaProformaArriendo(Connection con, String db, WSClient ws, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
 			List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, 
 			List<List<String>> detalleAjuste, String conDetalle, 
 			List<List<String>> inicioPer, List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, List<List<String>> finalPer,
 			Double uf, Double usd, Double eur, String oc,
-			Map<Long,Long> dec, EmisorTributario emisorTributario, BodegaEmpresa bodegaEmpresa, String comentarios) {
+			Map<Long,Long> dec, EmisorTributario emisorTributario, BodegaEmpresa bodegaEmpresa, String comentarios, FormFactura form) {
 		
 			
 			
@@ -895,12 +906,18 @@ public class FormFactura {
 					Proforma.updateJsonApi(con, db, proforma.id, xmlEncode);
 				}
 				
+				if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1")){
+					String jsonApi = ApiRelBase.generaJsonFactARRVTA(con, db, ws, mapDiccionario, 
+							referencias, cliente, proforma, form);
+ 	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+				} 
+				
 				if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1")){
 					String jsonApi = ApiSapSchwager.generaJsonFactARR(cliente, proforma.getId(), referencias, detalleAjuste, 
 							inicioPer, guiasPer, mapReportPorGuia10);
  	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
 				} 
-  
+				
 				
 				return(archivoPdf);
     	    
@@ -910,9 +927,10 @@ public class FormFactura {
 		return("0");
 	}
 	
-	public static String generaProformaVenta(Connection con, String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
+	public static String generaProformaVenta(Connection con, String db, WSClient ws, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
 			Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, List<List<String>> detalleAjuste, 
-			List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, String oc, String comentarios) {
+			List<List<String>> guiasPer, Map<String,List<List<String>>> mapReportPorGuia10, String oc, String comentarios,
+			FormFactura form) {
 		
 		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.id_bodegaEmpresa);
 		
@@ -1211,6 +1229,12 @@ public class FormFactura {
 						proforma, mapReportPorGuia10, mapPermiso, detalleAjuste, referencias, comentarios);
 				Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
 			}
+			
+			if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1")){
+				String jsonApi = ApiRelBase.generaJsonFactARRVTA(con, db, ws, mapDiccionario, 
+						referencias, cliente, proforma, form);
+	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+			} 
 			
 			if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1")){
 				String jsonApi = ApiSapSchwager.generaJsonFactVTA(cliente, proforma.getId(), referencias, detalleAjuste, 

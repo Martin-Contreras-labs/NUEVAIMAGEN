@@ -34,12 +34,17 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import controllers.HomeController.Sessiones;
 import models.api.ApiManagerDocDet;
 import models.api.ApiManagerDocDoc;
 import models.api.ApiNuboxDocDoc;
+import models.api.ApiRelBase;
 import models.api.ApiSapConconcreto;
 import models.api.ApiSapSchwager;
 import models.api.WebIConstruye;
@@ -71,6 +76,7 @@ import models.tables.BodegaEmpresa;
 import models.tables.Cliente;
 import models.tables.Comercial;
 import models.tables.Compra;
+import models.tables.CotizaSolucion;
 import models.tables.Cotizacion;
 import models.tables.EmisorTributario;
 import models.tables.Equipo;
@@ -131,12 +137,12 @@ public class MnuReportes extends Controller {
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
 	
-	private final WSClient ws;
+	private static WSClient ws;
 	public final MailerClient mailerClient;
 	
 	@Inject
 	  public MnuReportes(WSClient ws, MailerClient mailerClient) {
-	    this.ws = ws;
+		MnuReportes.ws = ws;
 	    this.mailerClient = mailerClient;
 	  }
 	
@@ -4092,6 +4098,206 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
+	public Result reportFacturaProyectoGet(Http.Request request, String archivoPDF,
+			String desdeAAMMDD,String hastaAAMMDD,Double uf,Double usd,Double eur) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    		if(mapeoPermiso.get("reportFacturaDetalleProyecto")==null) {
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
+	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	       			Connection con = dbRead.getConnection();
+	    			
+		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+		    			
+		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+		    			
+		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+		    			
+		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+	    			
+	    			con.close();
+	    			
+	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+	    			
+	    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+	    			
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+	    			
+	    			
+	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+	    			
+	    			
+	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+	    			
+	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+	    			
+	    			
+	    			
+	    			List<List<String>> proyectos = new ArrayList<List<String>>();
+	    			if(map.size()>0) {
+		    			for(List<String> aux: proyectosAux) {
+		    				String idBodega = map.get(aux.get(1));
+		    				if(idBodega!=null) {
+		    					proyectos.add(aux);
+		    				}
+		    			}
+	    			}else {
+	    				for(int i=0;i<proyectosAux.size();i++ ) {
+	    					proyectos.add(proyectosAux.get(i));
+	    				}
+	    				
+	    			}
+	    			
+	    			String tabla = ""
+	    					+ " <table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
+	    					+ "		<thead style=\"background-color: #eeeeee\">\n"
+	    					+ "			<TR> \n"
+	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>\n"
+	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>\n"
+	    					+ "				<TH width=\"5%\" >DETALLE<BR></TH>\n"
+	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">"+mapeoDiccionario.get("BODEGA")+"/PROYECTO</TH>\n"
+	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>\n"
+	    					+ "				<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>\n"
+	    					+ "				<TH style= \"text-align:center;vertical-align:top;\">CFI (en "+mapeoDiccionario.get("PESOS")+")</TH>\n"
+	    					+ "				<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>"+mapeoDiccionario.get("ARRIENDO")+"</TH>\n"
+	    					+ "				<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>\n"
+	    					+ "				<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>("+mapeoDiccionario.get("ARRIENDO")+")</TH>\n"
+	    					+ "				<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>\n"
+	    					+ "				<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en "+mapeoDiccionario.get("PESOS")+")</TH>\n"
+	    					+ "				<TH width=\"5%\" >DETALLE<BR></TH>\n"
+	    					+ "			</TR>\n"
+	    					+ "			</thead>\n"
+	    					+ "			<tbody>\n";
+	    					
+	    					for(List<String> lista1: proyectos){
+	    						tabla += ""
+	    								+ "<TR class='lineasTR'>\n";
+	    						for(List<String> total: resumenTotales){
+	    							if(lista1.get(1).equals(total.get(0))){
+	    								
+	    								Double auxUf = uf;
+	    								Double auxUsd = usd;
+	    								Double auxEur = eur;
+	    								
+	    								for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
+	    				        	  		Long k = entry.getKey();
+	    				    				Double aux = mapFijaTasas.get(lista1.get(1) + "_" +k);
+	    				    				if(aux != null) {
+	    				    					if(k == (long)2) {
+	    				    						auxUsd = aux;
+	    				    					}else if (k == (long)3) {
+	    				    						auxEur = aux;
+	    				    					}else if (k == (long)4) {
+	    				    						auxUf = aux;
+	    				    					}
+	    				    				}
+	    				    			}
+	    								
+	    								tabla += ""
+    										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(14)+"</td>\n"
+    										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(10)+"</td>\n"
+    												+ "<td style=\"text-align:center;vertical-align:middle;\">\n"
+    	    				    					+ "	<form id=\"form0_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
+    	    				    					+ "		<input type=\"hidden\" class=\"idBodega\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"esVenta\" value=\"0\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">\n"
+    	    				    					+ "		<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">\n"
+    	    				    					+ "		<a href=\"#\" onclick=\"document.getElementById('form0_"+lista1.get(1)+"').submit()\">\n"
+    	    				    					+ "			<kbd style=\"background-color: #73C6B6\">Emitir</kbd>\n"
+    	    				    					+ "		</a>\n"
+    	    				    					+ "	</form>\n"
+    	    				    			+ "</td>\n"
+    				    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoBodega('"+lista1.get(1)+"');\">"+lista1.get(5)+"</a></td>\n"
+    				    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoCliente('"+lista1.get(2)+"');\">"+lista1.get(7)+"</a></td>\n"
+    				    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('"+lista1.get(3)+"');\">"+lista1.get(8)+"</a></td>\n"
+    				    					+ "<td style= \"text-align:right;\" class=\"cfi\">"+total.get(3)+"</td>\n"
+    				    					+ "<td style= \"text-align:right;\" class=\"arr\">"+total.get(1)+"</td>\n"
+    				    					+ "<td style= \"text-align:right;\" class=\"vta\">"+total.get(2)+"</td>\n"
+    				    					+ "<td style= \"text-align:right;\" class=\"ajustArr\">"+total.get(5)+"</td>\n"
+    				    					+ "<td style= \"text-align:right;\" class=\"ajustVta\">"+total.get(6)+"</td>\n"
+    				    					+ "<td style= \"text-align:right;\" class=\"granTotal\">"+total.get(4)+"</td>\n"
+    				    					+ "<td style=\"text-align:center;vertical-align:middle;\">\n"
+	    				    					+ "	<form id=\"form0_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"esVenta\" value=\"0\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"uf\" value=\""+auxUf+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"usd\" value=\""+auxUsd+"\">\n"
+	    				    					+ "		<input type=\"hidden\" name=\"eur\" value=\""+auxEur+"\">\n"
+	    				    					+ "		<a href=\"#\" onclick=\"document.getElementById('form0_"+lista1.get(1)+"').submit()\">\n"
+	    				    					+ "			<kbd style=\"background-color: #73C6B6\">Emitir</kbd>\n"
+	    				    					+ "		</a>\n"
+	    				    					+ "	</form>\n"
+    				    					+ "</td>\n";
+	    							}
+	    						}
+	    						tabla += ""
+		    							+ "</TR>\n";
+	    					}
+	    					tabla += ""
+	    					+ "</tbody>\n"
+	    					+ "<tfoot>\n"
+	    					+ "	<TR>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\">TOTALES</td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>\n"
+	    					+ "		<td style=\"background-color: #eeeeee;text-align:right;\">\n"
+	    					+ "	</TR>\n"
+	    					+ "</tfoot>\n"
+	    					+ "</table>";
+	    			
+	    			
+	    			return ok(reportFacturaProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,tabla,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, 
+	    					Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD),archivoPDF));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok(mensajes.render("/",msgError));
+	       	}
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
 	public Result reportFacturaProyectoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -4437,15 +4643,18 @@ public class MnuReportes extends Controller {
 	 	        	   // genera PDF de arriendo, XML, JSON y guarda json en proforma
 	 	        	   	proformaMs2.setTipo(mapeoDiccionario.get("Arriendo"));
 	 	        	    String conDetalleMs2 = mapeoPermiso.get("parametro.proformaInvConCompra");
-		 	            FormFactura.generaProformaArriendo(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
+	 	        	    
+		 	            FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
 								resumenSubtotalesMs2,clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2,conDetalleMs2, inicioPerMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, finalPerMs2, 
-								tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2, comentarios);
+								tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2, comentarios, form);
+		 				
+		 				
 		 	            
 	    			}else {
 	    				// genera PDF de venta, XML, JSON y guarda json en proforma
 	    				proformaMs2.setTipo("Venta");
-			 	        FormFactura.generaProformaVenta(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-								clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2, comentarios);
+			 	        FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
+								clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2, comentarios, form);
 	    			}
  	           con2.close();
  	          return(proformaMs2.id.toString());
@@ -4592,6 +4801,8 @@ public class MnuReportes extends Controller {
 		    			listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 		    			inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			
+		    			List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
+		    			
 		    			con.close();
 	    			
 	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
@@ -4615,7 +4826,7 @@ public class MnuReportes extends Controller {
 		    		return ok(reportFacturaProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,idTipoUsuario,
 		    				inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
 		    				resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias,
-		    				oc));
+		    				oc, listSol));
 	    		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -4903,20 +5114,21 @@ public class MnuReportes extends Controller {
 		 	        	   // genera PDF de arriendo, XML, JSON y guarda json en proforma
 		 	        	   	proforma.setTipo(mapeoDiccionario.get("Arriendo"));
 		 	        	    String conDetalle = mapeoPermiso.get("parametro.proformaInvConCompra");
-			 	            archivoPDF = FormFactura.generaProformaArriendo(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
+			 	            archivoPDF = FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
 									resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, listGuiasPer, mapReportPorGuia10, finalPer, uf, usd, eur, oc,
-									dec, emisorTributario, bodegaEmpresa, comentarios);
+									dec, emisorTributario, bodegaEmpresa, comentarios, form);
 		    			}else {
 		    				// genera PDF de venta, XML, JSON y guarda json en proforma
 		    				proforma.setTipo("Venta");
-				 	        archivoPDF = FormFactura.generaProformaVenta(con2, s.baseDato, mapeoDiccionario, mapeoPermiso, 
-									cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc, comentarios);
+				 	        archivoPDF = FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
+									cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc, comentarios, form);
 		    			}
 	 	           con2.close();
-	    		
-	 	
-	 	           return (reportFacturaProyecto(request, archivoPDF));
-	 	          
+	 	           
+	 	          String titulo = "NOTA DE VENTA";
+	    			String url = "%2FreportFacturaProyectoGet%2F0&"+desdeAAMMDD+"&"+hastaAAMMDD+"&"+uf+"&"+usd+"&"+eur;
+	    			con.close();
+	    			return redirect("/routes2/redirShowPDF/"+archivoPDF+","+titulo+","+url);
 	    		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -4928,6 +5140,8 @@ public class MnuReportes extends Controller {
     	}
 		
 	}
+	
+	
 	
 	
 	//====================================================================================
@@ -6470,6 +6684,8 @@ public class MnuReportes extends Controller {
     	}
 	}
 	
+	
+	
 	public Result sendXMLFacura(Http.Request request, Long id_proforma, String desde, String hasta){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -6745,6 +6961,147 @@ public class MnuReportes extends Controller {
     	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 	
+	public Result generaProformaApiRelBase(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_proforma = Long.parseLong(form.get("id_proforma"));
+	       		String desde = form.get("fechaDesde");
+	       		String hasta = form.get("fechaHasta");
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	       		try {
+	    			Connection con = dbWrite.getConnection();
+	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+	    			String json = proforma.getJsonGenerado();
+	    			Map<String,String> mapReferencias = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
+	       			con.close();
+	       			try {
+	       				ObjectMapper objectMapper = new ObjectMapper();
+	       	            String jsonRefer = objectMapper.writeValueAsString(mapReferencias);
+	       	            return ok(generaProformaApiRelBase.render(mapeoDiccionario,mapeoPermiso,userMnu, json, jsonRefer, id_proforma, desde, hasta));
+	       	        } catch (IOException e) {
+	       	            e.printStackTrace();
+	       	        }
+	    			
+	    			
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok(mensajes.render("/",msgError));
+	       	}
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+	}
+	
+	public Result generaProformaApiRelBase2(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+    		if (form.id_proforma == null) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		
+	       		try {
+	    			Connection con = dbWrite.getConnection();
+	    			Proforma proforma = Proforma.find(con, s.baseDato, form.id_proforma);
+	    			String json = proforma.getJsonGenerado();
+	       			ObjectMapper objectMapper = new ObjectMapper();
+	                JsonNode jsonNode = objectMapper.readTree(json);
+	                ArrayNode newReferences = objectMapper.createArrayNode();
+	                int cantRef = 0;
+		    		try {
+		    			cantRef = form.tpoDocRef.size();
+		    		}catch(Exception e) {}
+		    		if(cantRef > 0) {
+		    			if ( ! jsonNode.has("references")) {
+		                    ((ObjectNode) jsonNode).set("references", objectMapper.createArrayNode());
+		                }
+		    			for (int i = 0; i < cantRef; i++) {
+		    				if( ! form.folioRef.get(i).trim().equals("")) {
+		    					ObjectNode aux = objectMapper.createObjectNode();
+				                aux.put("reference_id", form.tpoDocRef.get(i));
+				                aux.put("folio_ref", form.folioRef.get(i));
+				                aux.put("date_ref", form.fchRef.get(i));
+				                aux.put("razon_ref", form.razonRef.get(i));
+				                newReferences.add(aux);
+		    				}
+			    		}
+		                ((ObjectNode) jsonNode).set("references", newReferences);
+		    		}else {
+		    			if (jsonNode.has("references")) {
+		    				((ObjectNode) jsonNode).remove("references");
+		                }
+		    		}
+		    		String comentarios = form.sol_observaciones;
+		       		comentarios = comentarios.replace("\r", "\\r").replace("\n", "\\n");
+		       		((ObjectNode) jsonNode).put("comment", comentarios);
+		       		if(Proforma.updateJsonApi(con, s.baseDato, proforma.id, jsonNode.toString())){
+		       			proforma = Proforma.find(con, s.baseDato, form.id_proforma);
+		       			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+		       			int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, (long)0, form.id_proforma);
+		       			String desdeAAMMDD = Fechas.AAMMDD(form.fechaDesde);
+		       			String hastaAAMMDD = Fechas.AAMMDD(form.fechaHasta);
+			       		if(folio_dte > 0) {
+			       			Proforma.updateNroFiscal(con, s.baseDato, form.id_proforma, ""+folio_dte);
+			       			String retorno = "/proformaListaGet/"+desdeAAMMDD+","+hastaAAMMDD;
+							Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", (long)0, "send", "envia DTE a RelBase nro: "+folio_dte);
+							return ok(mensajes.render(retorno,"DTE enviado a RelBase con exito" ));
+			       		}
+			       		con.close();
+						String retorno = "/proformaListaGet/"+desdeAAMMDD+","+hastaAAMMDD;
+						return ok(mensajes.render(retorno,"ERROR: DTE rechazado por RelBase, revise si el rut del cliente existe tanto en RelBase como en Mada." ));
+		       		}
+	        	} catch (SQLException | JsonProcessingException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok(mensajes.render("/",msgError));
+	       	}
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+   	}
+	
+	public Result validarClienteAjax(Http.Request request){
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_cliente = Long.parseLong(form.get("id_cliente").trim());
+	       		try {
+		       		Connection con = dbWrite.getConnection();
+		       		Cliente cliente = Cliente.find(con, s.baseDato, id_cliente);
+		       		EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+		       		String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
+		       		if (rutCliente.length() > 1) {
+		       			rutCliente = rutCliente.substring(0, rutCliente.length() - 1) + "-" + rutCliente.charAt(rutCliente.length() - 1);
+		       			rutCliente = "query="+rutCliente;
+		            }
+		       		int idRelBase = ApiRelBase.consultaIdCliente(emisor, ws, rutCliente);
+		       		if(idRelBase == 0) {
+		       			con.close();
+		       			return ok("0");
+		       		}else {
+		       			con.close();
+		       			return ok(""+idRelBase);
+		       		}
+	       		} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       		return ok("0");
+	       	}
+		}else {
+			return ok("0");
+		}
+   	}
+	
 	public Result generaProformaApiSapSchwager(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -6793,7 +7150,7 @@ public class MnuReportes extends Controller {
 	       			Connection con = dbWrite.getConnection();
 	    			Proforma.eliminaProforma(con, s.baseDato, id_proforma);
     				con.close();
-    				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"PRUEBA DEL GET" ));
+    				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"Proforma nro: "+id_proforma+" eliminada" ));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}

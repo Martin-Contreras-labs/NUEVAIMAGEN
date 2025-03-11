@@ -677,7 +677,7 @@ public class Apis extends Controller {
 	
 	//menu: Reportes/Proformas/Consolidado (detalle por grupos)
 	public Result consolidadoPorGrupoMeses(Http.Request request, String fechaCorte, Long cantMeses) {
-		/* curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer B@10f1fa52B@6ef329B@b9526f8' 'http://localhost:9001/consolidadoPorGrupo3meses/?fechaCorte=2021-12-01' */
+		/* curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer <token>' 'https://madainqsol.com/consolidadoPorGrupoMeses/?fechaCorte=2021-12-01&cantMeses=3' */
 		String baseDato = validaToken(request);
 		if(baseDato.equals("error")) {
 			String error = "{\"error\":\"invalid_token\": \"the syntax is not correct\"}";
@@ -759,6 +759,91 @@ public class Apis extends Controller {
    		}
 		
 	}
+	
+	//menu: Reportes/Proformas/Consolidado (detalle por equipos)
+		public Result consolidadoPorEquipoMeses(Http.Request request, String fechaCorte, Long cantMeses) {
+			/* curl -X POST -H 'Content-type:application/json' -H 'Authorization: Bearer <token>' 'https://madainqsol.com/consolidadoPorEquipoMeses/?fechaCorte=2021-12-01&cantMeses=3' */
+			String baseDato = validaToken(request);
+			if(baseDato.equals("error")) {
+				String error = "{\"error\":\"invalid_token\": \"the syntax is not correct\"}";
+				return ok(error).as("application/json");
+			}
+			if(!baseDato.equals("0")) {
+				try {
+					Connection con = dbRead.getConnection();
+		   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
+		   			String permisoPorBodega = "";
+		   			Fechas finMesFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
+		   			finMesFecha = Fechas.obtenerFinMes(finMesFecha.getFechaCal());
+		   			List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, baseDato, finMesFecha, cantMeses, permisoPorBodega, mapeoDiccionario.get("pais"), "0", "0");
+
+		   			String aux2 ="";
+		   			List<String> listSeleccion2 = new ArrayList<String>();
+	    	    	List<String> listEmpresa = new ArrayList<String>();
+	    	    	Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
+	    	    	Map<String,List<String>> mapDatosGrupo = new HashMap<String,List<String>>();
+		   			
+		   			for(int i=2; i<datos.size()-1; i++) {
+	    	    		if(!aux2.equals("'"+datos.get(i).get(1)+"'")) {
+	    	    			if(i>2) {
+	    	    				mapEmpresas.put(aux2, listEmpresa);
+	    	    				listEmpresa = new ArrayList<String>();
+	    	    			}
+	    	    			listSeleccion2.add("'"+datos.get(i).get(1)+"'");
+	    	    			aux2 = "'"+datos.get(i).get(1)+"'";
+	    	    		}
+	    	    		
+	    	    		if(aux2.equals("'"+datos.get(i).get(1)+"'")) {
+	    	    			listEmpresa.add("'"+datos.get(i).get(0)+"'");
+	    	    			mapEmpresas.put(aux2, listEmpresa);
+	    	    		}
+	    	    		
+	    	    		List<String> listDatos = new ArrayList<String>();
+	    	    		for(int j=4; j<datos.get(i).size()-3; j = j+3) {
+	    	    			listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
+	    	    		}
+	    	    		mapDatosGrupo.put("'"+datos.get(i).get(1)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
+	    	    	}
+		   			
+		   			List<List<String>> rs = new ArrayList<List<String>>();
+	    	    	List<String> auxL = new ArrayList<String>();
+	    	    	List<String> t1 = datos.get(0);
+	    	    	List<String> t2 = datos.get(1);
+	    	    	for(int i=0; i<t1.size(); i++) {
+	    	    		auxL.add(t1.get(i)+" "+t2.get(i));
+	    	    	}
+	    	    	rs.add(auxL);
+	    	    	int index = 0;
+	    	    	for(List<String> l: datos) {
+	    	    		auxL = new ArrayList<String>();
+	    	    		if(index > 1 && index < datos.size()-1) {
+	    	    			auxL.add(l.get(0));
+	    	    			auxL.add(l.get(1));
+	    	    			for(int i=2; i<l.size(); i++) {
+	    	    				auxL.add(l.get(i).replaceAll(",", ""));
+	    	    			}
+	    	    			rs.add(auxL);
+	    	    		}
+	    	    		index++;
+	    	    	}
+	    			String rsJson = Json.toJson(rs).toString();
+	    			
+	    			Fechas inicioFecha = Fechas.addDias(finMesFecha.getFechaCal(), 1);
+	    			Fechas finFecha = Fechas.addMeses(finMesFecha.getFechaCal(), 3);
+	    			finFecha = Fechas.addDias(finFecha.getFechaCal(), -1);
+	    			
+		   			con.close();
+		   			return ok("{\"datos\":"+rsJson.toString()+",\"desde\":\""+inicioFecha.getFechaStrAAMMDD()+"\",\"hasta\":\""+finFecha.getFechaStrAAMMDD()+"\",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
+		   		} catch (SQLException e) {
+					e.printStackTrace();
+					return ok("{\"ERROR\":\"contactar a INQSOL\"}").as("application/json");
+				}
+				
+	   		}else {
+	   			return ok("{\"ERROR\":\"token no validado o tiempo cumplido\"}").as("application/json");
+	   		}
+			
+		}
 	
 	//menu: Reportes/Proformas/Reporte Ajustes X Período
 	public Result ajustesPorPeriodo(Http.Request request, String desdeAAMMDD, String hastaAAMMDD) {

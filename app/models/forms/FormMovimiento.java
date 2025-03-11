@@ -560,9 +560,16 @@ public class FormMovimiento {
 					}
 					
 					DecimalFormat formato = new DecimalFormat("#.########");
-					precioVenta = formato.format(precioVentaDbl);
-					precioReposicion = formato.format(precioReposicionDbl);
-					precioArriendo = formato.format(precioArriendoDbl);
+					
+					if(db.equals("madaHeko")) {
+						precioVenta = formato.format(Math.round(precioVentaDbl));
+						precioReposicion = formato.format(Math.round(precioReposicionDbl));
+						precioArriendo = formato.format(Math.round(precioArriendoDbl));
+					}else {
+						precioVenta = formato.format(precioVentaDbl);
+						precioReposicion = formato.format(precioReposicionDbl);
+						precioArriendo = formato.format(precioArriendoDbl);	
+					}
 					
 					List<String> auxList = new ArrayList<String>();
 					auxList.add(id_bodegaEmpresa);

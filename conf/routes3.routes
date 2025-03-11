@@ -24,6 +24,7 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 GET		/mantReportNew/						controllers.MnuMantencion.mantReportNew(request: Request)
+POST	/mantReportNewSave/					controllers.MnuMantencion.mantReportNewSave(request: Request)
 
 
 

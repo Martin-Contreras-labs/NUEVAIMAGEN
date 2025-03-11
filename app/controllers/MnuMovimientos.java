@@ -1965,6 +1965,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	       		Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
 	       		String description = form.get("description").replace("\r", "\\r").replace("\n", "\\n");
 	       		String observaciones = form.get("observaciones");
+	       		
 	       		String comentarios = observaciones.replace("\r", "\\r").replace("\n", "\\n");
 	       		String desdeAAMMDD = form.get("fechaDesde").trim();
 	       		String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -1972,108 +1973,33 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       		Connection con = db.getConnection();
 		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		       		Guia guia = Guia.find(con, s.baseDato, id_guia);
-		       		Long id_bodegaOrigen = guia.getId_bodegaOrigen();
-					Long id_bodegaDestino = guia.getId_bodegaDestino();
-					BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaOrigen);
-					BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato,id_bodegaDestino);
-					Cliente cliente = Cliente.find(con, s.baseDato, bodegaDestino.getId_cliente());
-					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-					if((long) cliente.getId() == (long) 0) {
-						con.close();
-		       			return ok(mensajes.render("/movimientoListarPeriodo/",mapeoDiccionario.get("Bodega")+" \""+bodegaDestino.getNombre()+"\" carece de cliente/propietario asociado."));
-		       		}
-		       		String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
-		       		if (rutCliente.length() > 1) {
-		       			rutCliente = rutCliente.substring(0, rutCliente.length() - 1) + "-" + rutCliente.charAt(rutCliente.length() - 1);
-		       			rutCliente = "query="+rutCliente;
-		            }
-		       		String address = cliente.getDireccion();
-		       		String str_commune = cliente.getComuna();
-		       		String str_city = cliente.getCiudad();
-		       		int idRelBase = ApiRelBase.consultaIdCliente(emisor, ws, rutCliente);
-		       		if(idRelBase == 0) {
+		       		EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+		       		String json = ApiRelBase.generaJsonGuia(con, s.baseDato, mapeoDiccionario, ws, emisor,
+		       				guia, comentarios, id_cotizaSolucion, description);
+		       		if(json.contains("ERROR")) {
 		       			con.close();
-		       			return ok(mensajes.render("/movimientoListarPeriodo/","El rut \""+cliente.rut+" del cliente "+cliente.nickName+" no existe en RELBASE."));
+		       			return ok(mensajes.render("/movimientoListarPeriodo/",json));
 		       		}
-		       		Fechas hoy = Fechas.hoy();
-		       		if (! comentarios.contains(guia.getNumero().toString())) {
-		                comentarios = "Nro MOV MADA: "+guia.getNumero()+"\r\n" + comentarios.toString();
-		            }
-		       		List<List<String>> detalleGuia = new ArrayList<List<String>>();
-		       		Double precioDbl = (double)0;
-					if ((long) bodegaOrigen.esInterna == (long) 1 && (long) bodegaDestino.esInterna == (long) 2) {
-						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaDestino(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
-					} else if ((long) bodegaOrigen.esInterna == (long) 2 && (long) bodegaDestino.esInterna == (long) 1){
-						detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, s.baseDato, guia.getId(), guia.getId_bodegaOrigen(), mapeoDiccionario.get("pais"), guia.getId_bodegaOrigen());
-					}
-					Map<Long,Double> mapTasas = TasasCambio.mapTasasPorFecha(con, s.baseDato, hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
-					for(List<String> x: detalleGuia) {
-						String auxPrecio = x.get(9).trim();  // precio unitario de venta en moneda de origen
-						Double precioUnitario = (double)0;
-						String auxNum = auxPrecio;
-			   		    if(auxNum==null || auxNum.trim().length()<=0) {
-			   		    	auxNum = "0";
-			   		    }
-			   		    precioUnitario = Double.parseDouble(auxNum.replaceAll(",", ""));
-						String auxCantidad = x.get(8).trim();
-						if(auxCantidad.equals("") || auxCantidad.length()<=0) {
-							auxCantidad = "0";
-						}
-						Double cantidad = (double)0;
-						auxNum = auxCantidad.trim();
-						if(auxNum==null || auxNum.trim().length()<=0) {
-			   		    	auxNum = "0";
-			   		    }
-						cantidad = Double.parseDouble(auxNum.replaceAll(",", ""));
-						Long id_moneda =  Long.parseLong(x.get(30).trim());
-						Double tasa = mapTasas.get(id_moneda);
-						precioDbl += precioUnitario * cantidad * tasa;
-					}
-					if(precioDbl < 1) {
-						precioDbl = (double) 100;
-					}
-					DecimalFormat myformatapi = new DecimalFormat("###0");
-					String precio = myformatapi.format(Math.round(precioDbl));
-					String codProducto = "MADA-"+id_cotizaSolucion;
-					int product_id = ApiRelBase.consultaIdProducto(emisor, ws, codProducto);
-		       		String json = "{\n"
-		       				+ "  \"type_document\": 52,\n"
-		       				+ "  \"start_date\": \""+hoy.getFechaStrAAMMDD()+"\",\n"
-		       				+ "  \"end_date\": \""+hoy.getFechaStrAAMMDD()+"\",\n"
-		       				+ "  \"customer_id\": "+idRelBase+",\n"
-		       				+ "  \"address\": \""+address+"\",\n"
-		       				+ "  \"is_str_city_and_comune\": true,\n"
-		       				+ "  \"str_commune\": \""+str_commune+"\",\n"
-		       				+ "  \"str_city\": \""+str_city+"\",\n"
-		       				+ "  \"ware_house_id\": 1953,\n"
-		       				+ "  \"comment\": \""+comentarios+"\",\n"
-		       				+ "  \"type_transfer\": 6,\n"
-		       				+ "  \"products\": [\n"
-		       				+ "    {\n"
-		       				+ "      \"product_id\": "+product_id+",\n"
-		       				+ "      \"price\": "+precio+",\n"
-		       				+ "      \"quantity\": 1,\n"
-		       				+ "      \"tax_affected\": true,\n"
-		       				+ "      \"description\": \""+description+"\"\n"
-		       				+ "    }\n"
-		       				+ "  ]\n"
-		       				+ "}";
 		       		Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
 		       		Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, json);
-		       		int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, id_guia);
+		       		int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, id_guia, (long)0);
 		       		if(folio_dte > 0) {
 		       			Guia.modificaPorCampo(con, s.baseDato, "linkFolio", id_guia, ""+folio_dte);
+		       			con.close();
+						String retorno = "/movimientoListarGet/"+desdeAAMMDD+","+hastaAAMMDD;
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "guia", (long)0, "send", "envia DTE a RelBase nro: "+folio_dte);
+						return ok(mensajes.render(retorno,"DTE enviado a RelBase con exito" ));
 		       		}
 		       		con.close();
-					String retorno = "/movimientoListarGet/desde="+desdeAAMMDD+","+hastaAAMMDD;
-					return ok(mensajes.render(retorno,"DTE enviado a RelBase con exito" ));
+					String retorno = "/movimientoListarGet/"+desdeAAMMDD+","+hastaAAMMDD;
+					return ok(mensajes.render(retorno,"ERROR: DTE rechazado por RelBase, revise si el rut del cliente existe tanto en RelBase como en Mada." ));
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		return ok("");
+	       		return ok(mensajes.render("/",msgError));
 	       	}
 		}else {
-			return ok("");
+			return ok(mensajes.render("/",msgError));
 		}
    	}
 	
@@ -2121,18 +2047,26 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       			String detalle = "TRANSPORTISTA:\r\n"+
 		       					"  SR: "+transportista.getConductor()+"\r\n"+
 		       					"  CI: "+transportista.getRutConductor()+"\r\n"+
-		       					"  PAT: "+transportista.getPatente()+"\r\n";
+		       					"  PAT: "+transportista.getPatente()+"\r\n"+
+		       					"  \r\nNOTA: Valores referenciales\r\n";
 		       			comentarios += detalle;
 		       		}
+		       		List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
 					if(coti != null) {
 						CotizaSolucion sol =CotizaSolucion.find(con, s.baseDato, coti.getId_cotizaSolucion());
 						if(sol != null) {
 							vista="<table id=\"tablaSoluciones\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
 									+ "		<thead style=\"background-color: #eeeeee\">\n"
 									+ "			<TR> \n"
+									+ "			<TR> \n"
 									+ "				<th style=\"width:40%; white-space: nowrap;\">"
-									+ "					<input type='hidden' id='id_cotizaSolucion' value='"+sol.getId()+"'</div>\n"
-									+ "					CONCEPTO<br>"+sol.getSolucion()+"" // el concepto viene de tabla cotizaSolucion
+									+ "					CONCEPTO<br>"
+									+ "					<select class=\"form-control form-control-sm\" id=\"id_cotizaSolucion\">\n"
+									+ "                     <option value="+sol.getId()+">"+sol.getSolucion()+"</option>\n";
+															for(CotizaSolucion x: listSol){
+																vista += "<option value="+x.getId()+">"+x.getSolucion()+"</option>\n";
+															}
+														vista += "</select> "
 									+ "				</th>\n"
 									+ "				<th>\n"
 									+ "					DESCRIPCION <textarea class=\"form-control form-control-sm\" "
@@ -2154,7 +2088,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 						}
 					}
 					if(coti == null) {
-						List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
 						vista="<table id=\"tablaSoluciones\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
 								+ "		<thead style=\"background-color: #eeeeee\">\n"
 								+ "			<TR> \n"
@@ -2246,7 +2179,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		       			rs = "DTE enviado a SAP con exito";
 		       		}
 		       		con.close();
-					String retorno = "/movimientoListarGet/desde="+desdeAAMMDD+","+hastaAAMMDD;
+					String retorno = "/movimientoListarGet/"+desdeAAMMDD+","+hastaAAMMDD;
 					return ok(mensajes.render(retorno,rs));
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();

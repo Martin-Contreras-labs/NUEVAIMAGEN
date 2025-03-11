@@ -175,6 +175,9 @@ lista: List[List[String]], desde: String, hasta: String )
 						@if(mapPermiso.get("proformaListadoEliminar")!=null) {
 							<TH>DEL</TH>
 						}
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH>API<br>RELBASE</TH>
+						}
 						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 							<TH>API<br>SAP</TH>
 						}
@@ -421,6 +424,28 @@ lista: List[List[String]], desde: String, hasta: String )
 								</td>
 						}
 						
+						
+						
+						@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(21).equals("0")){
+										<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarApiRelBase('@lista1.get(0)')">
+											<kbd style="background-color: #C39BD3">enviar</kbd>
+										</a>
+									}else{
+										@if(!lista1.get(21).equals("0")){
+											<div id="pdfRelBase_@lista1.get(21)">
+												<a href="#" onclick="pdfReBase('@lista1.get(21)')">
+													<kbd style="background-color: rgb(50, 215, 75)">Fact: @lista1.get(21)</kbd>
+												</a>
+											</div>
+										}else{
+											--
+										}
+									}
+								</td>
+						}
+						
 						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 								<td style="text-align:center;">
 									@if(lista1.get(21).equals("0")){
@@ -501,6 +526,12 @@ lista: List[List[String]], desde: String, hasta: String )
 		<input type="hidden" id="id_proformaWebMaximise" name="id_proforma">
 		<input type="hidden" id="sucursalMaximise" name="sucursalMaximise">
 		<input type="hidden" id="codigoMaximise" name="codigoMaximise">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
+	</form>
+	
+	<form class="formulario" id="formEnviaApiRelBase" method="post" action="/generaProformaApiRelBase/">	
+		<input type="hidden" id="id_proformaApiRelBase" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
@@ -627,7 +658,7 @@ lista: List[List[String]], desde: String, hasta: String )
 				"searching": false,
 		    	"order": [[ 2, "desc" ],[ 1, "desc" ]],
 		    	"language": {
-		        	"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 		        }
 		  } );
 
@@ -669,6 +700,11 @@ lista: List[List[String]], desde: String, hasta: String )
 	const enviarApiSapSchwager = (id_proforma) =>{
 		$('#id_proformaSapSchwager').val(id_proforma);
 		document.getElementById('formEnviaApiSapSchwager').submit();
+	}
+	
+	const enviarApiRelBase = (id_proforma) =>{
+		$('#id_proformaApiRelBase').val(id_proforma);
+		document.getElementById('formEnviaApiRelBase').submit();
 	}
 	
 	const enviarWebIConstruye = (id_proforma) =>{
@@ -761,6 +797,12 @@ lista: List[List[String]], desde: String, hasta: String )
 	const validarForm2 = () =>{
 		$("#btnSubmit2").attr('disabled',true);
 		return(true);
+	}
+	
+	const pdfReBase = (nroFiscal) =>{
+		$('#linkRelBase').text("GUIA");
+		document.getElementById('rutaPDF').innerHTML="<object data='/showPdfRelBase/"+33+","+nroFiscal+"' type='application/pdf' width='100%' height='720'></object>";
+		$('#muestraPDF').modal('show');
 	}
 	
 </script>
