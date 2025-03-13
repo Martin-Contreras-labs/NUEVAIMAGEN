@@ -7120,18 +7120,18 @@ public class MnuReportes extends Controller {
 		       		String rs = ApiSapSchwager.generaDteFactura(con, s.baseDato, emisor, json, ws, proforma.getId());
 		       		if( ! rs.contains("ERROR:")) {
 		       			String folioNumber = rs;
-		       			Proforma.updateNroFiscal(con, s.baseDato, id_proforma, folioNumber);
+		       			Proforma.updateNroFiscal(con, s.baseDato, id_proforma, "Fact: "+folioNumber);
 		       			rs = "DTE enviado a SAP con exito";
 		       		}
 		       		con.close();
-		       		return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
+		       		return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta, rs));
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		return ok("");
+	       		return ok(mensajes.render("/",msgError));
 	       	}
 		}else {
-			return ok("");
+			return ok(mensajes.render("/",msgError));
 		}
    	}
 	

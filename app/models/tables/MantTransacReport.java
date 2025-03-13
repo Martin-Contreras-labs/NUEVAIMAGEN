@@ -484,6 +484,179 @@ public class MantTransacReport {
 		return (id_mantTransacReport);
 	}
 	
+	public static Long newReportMecanico(Connection con, String db, FormMantencion form) {
+		Long id_mantTransacReport = (long)0;
+		try {
+			if(form.id_tipoMantencion == (long)1) { // PREVENTIVO aqui se debe actualizar futura mantencion
+				Double lecturaIni = Double.parseDouble(form.lecturaIni_mecP.replaceAll(",", ""));
+				Double lecturaFin = Double.parseDouble(form.lecturaTer_mecP.replaceAll(",", ""));
+				Double lectDif = lecturaFin - lecturaIni;
+				Double cantMecP = Double.parseDouble(form.cantidad_mecP.replaceAll(",", ""));
+				if(cantMecP < lectDif || cantMecP > lectDif) {
+					lectDif = cantMecP;
+				}
+				Double horaDif = Horas.difHoras(form.horaIni_mecP, form.horaTer_mecP);  
+				PreparedStatement smt = con
+						.prepareStatement("insert into `"+db+"`.mantTransacReport "
+								+ " (fecha, id_userMada, id_mantActorPersonal, id_tipoMantencion, "
+								+ " id_mantMecanico, id_equipo, id_bodegaEmpresa, "
+								+ " id_mantEstadoOperacional, id_mantEstadoEnTaller, id_mantActividad, id_mantTipoActividad, "
+								+ " fechaIni, fechaFin, fechaDif, "
+								+ " horaIni, horaFin, horaDif, lectAnterior, lectActual, lectDif, "
+								+ " descTrabajo, estadoFinal, observaciones, firmaPDFoperador, firmaPDFautorizador) values "
+								+ " (?,?,?,?,"
+								+ " ?,?,?,"
+								+ " ?,?,?,?,"
+								+ " ?,?,?,"
+								+ " ?,?,?,?,?,?,"
+								+ " ?,?,?,?,?);",Statement.RETURN_GENERATED_KEYS);
+				smt.setString(1, form.fecha);
+				smt.setLong(2, form.id_userMada);
+				smt.setLong(3, form.id_mantActorPersonal);
+				smt.setLong(4, form.id_tipoMantencion);
+				smt.setLong(5, form.id_mecanico);
+				smt.setLong(6, form.id_equipo_mecP);
+				smt.setLong(7, form.id_bodega_mecP);
+				
+				smt.setLong(8, form.id_mantEstadoOperacionalP);
+				smt.setLong(9, form.id_mantEstadoEnTallerP);
+				smt.setLong(10, form.id_mantActividadP);
+				smt.setLong(11, form.id_mantTipoActividadP);
+				
+				smt.setString(12, form.fechaIni_mecP);
+				smt.setString(13, form.fechaTer_mecP);
+				smt.setDouble(14, horaDif);
+				
+				smt.setString(15, form.horaIni_mecP);
+				smt.setString(16, form.horaTer_mecP);
+				smt.setDouble(17, horaDif);
+				smt.setDouble(18, lecturaIni);
+				smt.setDouble(19, lecturaFin);
+				smt.setDouble(20, lectDif);
+				smt.setString(21, form.descTrabajoP);
+				smt.setString(22, form.estadoFinalP);
+				smt.setString(23, form.observaciones_mecP);
+				smt.setString(24, form.firmaAprobador);
+				smt.setString(25, form.firmaEjecutor);
+				smt.executeUpdate();
+				ResultSet rs = smt.getGeneratedKeys();
+				if (rs.next()) {
+					id_mantTransacReport = rs.getLong(1);
+				}
+				
+				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_oper);
+				Long aux = (long)0;
+				boolean flag = true;
+				for(PlanMantencion p: allPlan) {
+					if(p.getId_unidadMantencion() == (long)1 && flag) {
+						aux = (long)1;
+					}
+					if(p.getId_unidadMantencion() == (long)2 && flag) {
+						aux = (long)2;
+						flag = false;
+					}
+				}
+				
+				if(aux > 0) {
+					DecimalFormat myformat = new DecimalFormat("##0.0");
+					for(PlanMantencion p: allPlan) {
+						if(p.getId_unidadMantencion() == (long) aux) {
+							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_oper, "estadoActual", myformat.format(lecturaFin));
+						}
+					}
+				}
+				
+				rs.close();
+				smt.close();
+			}
+			
+			if(form.id_tipoMantencion == (long)1) { // CORRECTIVO
+				Double lecturaIni = Double.parseDouble(form.lecturaIni_mec.replaceAll(",", ""));
+				Double lecturaFin = Double.parseDouble(form.lecturaTer_mec.replaceAll(",", ""));
+				Double lectDif = lecturaFin - lecturaIni;
+				Double cantMec = Double.parseDouble(form.cantidad_mec.replaceAll(",", ""));
+				if(cantMec < lectDif || cantMec > lectDif) {
+					lectDif = cantMec;
+				}
+				Double horaDif = Horas.difHoras(form.horaIni_mec, form.horaTer_mec);  
+				PreparedStatement smt = con
+						.prepareStatement("insert into `"+db+"`.mantTransacReport "
+								+ " (fecha, id_userMada, id_mantActorPersonal, "
+								+ " id_mantMecanico, id_equipo, id_bodegaEmpresa, "
+								+ " id_mantEstadoOperacional, id_mantEstadoEnTaller, id_mantActividad, id_mantTipoActividad, "
+								+ " fechaIni, fechaFin, fechaDif, "
+								+ " horaIni, horaFin, horaDif, lectAnterior, lectActual, lectDif, "
+								+ " descTrabajo, estadoFinal, observaciones, firmaPDFoperador, firmaPDFautorizador) values "
+								+ " (?,?,?,"
+								+ " ?,?,?,"
+								+ " ?,?,?,?,"
+								+ " ?,?,?,"
+								+ " ?,?,?,?,?,?,"
+								+ " ?,?,?,?,?);",Statement.RETURN_GENERATED_KEYS);
+				smt.setString(1, form.fecha);
+				smt.setLong(2, form.id_userMada);
+				smt.setLong(3, form.id_mantActorPersonal);
+				smt.setLong(4, form.id_mecanico);
+				smt.setLong(5, form.id_equipo_mec);
+				smt.setLong(6, form.id_bodega_mec);
+				
+				smt.setLong(7, form.id_mantEstadoOperacional);
+				smt.setLong(8, form.id_mantEstadoEnTaller);
+				smt.setLong(9, form.id_mantActividad);
+				smt.setLong(10, form.id_mantTipoActividad);
+				
+				smt.setString(11, form.fechaIni_mec);
+				smt.setString(12, form.fechaTer_mec);
+				smt.setDouble(13, horaDif);
+				
+				smt.setString(14, form.horaIni_mec);
+				smt.setString(15, form.horaTer_mec);
+				smt.setDouble(16, horaDif);
+				smt.setDouble(17, lecturaIni);
+				smt.setDouble(18, lecturaFin);
+				smt.setDouble(19, lectDif);
+				smt.setString(20, form.descTrabajo);
+				smt.setString(21, form.estadoFinal);
+				smt.setString(22, form.observaciones_mec);
+				smt.setString(23, form.firmaAprobador);
+				smt.setString(24, form.firmaEjecutor);
+				smt.executeUpdate();
+				ResultSet rs = smt.getGeneratedKeys();
+				if (rs.next()) {
+					id_mantTransacReport = rs.getLong(1);
+				}
+				
+				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_oper);
+				Long aux = (long)0;
+				boolean flag = true;
+				for(PlanMantencion p: allPlan) {
+					if(p.getId_unidadMantencion() == (long)1 && flag) {
+						aux = (long)1;
+					}
+					if(p.getId_unidadMantencion() == (long)2 && flag) {
+						aux = (long)2;
+						flag = false;
+					}
+				}
+				
+				if(aux > 0) {
+					DecimalFormat myformat = new DecimalFormat("##0.0");
+					for(PlanMantencion p: allPlan) {
+						if(p.getId_unidadMantencion() == (long) aux) {
+							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_oper, "estadoActual", myformat.format(lecturaFin));
+						}
+					}
+				}
+				
+				rs.close();
+				smt.close();
+			}
+			
+		} catch (SQLException e) {
+    		e.printStackTrace();
+		}
+		return (id_mantTransacReport);
+	}
 	
 	
 	

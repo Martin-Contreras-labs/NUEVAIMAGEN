@@ -133,40 +133,32 @@ public class ApiSapSchwager {
 
 	public static String generaJsonFactARR( Cliente cliente, Long id_proforma, XmlFacturaReferencias referencias, List<List<String>> detalleAjuste, 
 			List<List<String>> inicioPer, List<List<String>> guiasPer, Map<String, List<List<String>>> mapReportPorGuia10) {
-		
-		
 		String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
    		if (rutCliente.length() > 1) {
    			rutCliente = rutCliente.replaceAll("-", "");
         }
    		Fechas hoy = Fechas.hoy();
-		
 		String refer = "";
 		if(referencias.tpoDocRef != null) {
 			if(referencias.tpoDocRef.size() > 0) {
-				
-				refer +=  "    \"U_EXX_FE_INREF\": \""+referencias.tpoDocRef.get(0)+"\",\n"
-						+ "    \"U_EXX_FE_FOREF\": \""+referencias.folioRef.get(0)+"\",\n"
-						+ "    \"U_EXX_FE_FEREF\": \""+referencias.fchRef.get(0)+"\",\n";
-				
+				refer +=  "\"U_EXX_FE_INREF\": \""+referencias.tpoDocRef.get(0)+"\","
+						+ "\"U_EXX_FE_FOREF\": \""+referencias.folioRef.get(0)+"\","
+						+ "\"U_EXX_FE_FEREF\": \""+referencias.fchRef.get(0)+"\",";
 				if(referencias.tpoDocRef.size() > 1) {
-					refer +=  "    \"U_EXX_FE_INREF2\": \""+referencias.tpoDocRef.get(1)+"\",\n"
-							+ "    \"U_EXX_FE_FOREF2\": \""+referencias.folioRef.get(1)+"\",\n"
-							+ "    \"U_EXX_FE_FEREF2\": \""+referencias.fchRef.get(1)+"\",\n";
+					refer +=  "\"U_EXX_FE_INREF2\": \""+referencias.tpoDocRef.get(1)+"\","
+							+ "\"U_EXX_FE_FOREF2\": \""+referencias.folioRef.get(1)+"\","
+							+ "\"U_EXX_FE_FEREF2\": \""+referencias.fchRef.get(1)+"\",";
 				}
-				
 				if(referencias.tpoDocRef.size() > 2) {
-					refer +=  "    \"U_EXX_FE_INREF3\": \""+referencias.tpoDocRef.get(2)+"\",\n"
-							+ "    \"U_EXX_FE_FOREF3\": \""+referencias.folioRef.get(2)+"\",\n"
-							+ "    \"U_EXX_FE_FEREF3\": \""+referencias.fchRef.get(2)+"\",\n";
+					refer +=  "\"U_EXX_FE_INREF3\": \""+referencias.tpoDocRef.get(2)+"\","
+							+ "\"U_EXX_FE_FOREF3\": \""+referencias.folioRef.get(2)+"\","
+							+ "\"U_EXX_FE_FEREF3\": \""+referencias.fchRef.get(2)+"\",";
 				}
 			}
 		}
-		
 		DecimalFormat myformatapi = new DecimalFormat("###0.0");
 		//codigo,precioTotal,dias
 		Map<String,List<String>> mapDetalle = new HashMap<String,List<String>>();
-		
 		for(List<String> i: inicioPer) {
 			List<String> aux = mapDetalle.get(i.get(9).trim());
 			if(aux == null) {
@@ -189,28 +181,30 @@ public class ApiSapSchwager {
 			}
 		}
 		for(List<String> g: guiasPer) {
-			List<List<String>> map = mapReportPorGuia10.get(g.get(8));
-			if(map !=null ) {
-				for(List<String> d: map) {
-					if( ! ( d.get(13).equals("0")|| d.get(13).equals("-0") )) {
-						List<String> aux = mapDetalle.get(d.get(10).trim());
-						if(aux == null) {
-							aux = new ArrayList<String>();
-							aux.add(d.get(10).trim());
-							aux.add(d.get(19).replaceAll(",", "").trim());
-							aux.add(d.get(17).replaceAll(",", "").trim());
-							mapDetalle.put(d.get(10).trim(), aux);
-						} else {
-							Double p1 = Double.parseDouble(aux.get(1));
-							Double p2 = Double.parseDouble(d.get(19).replaceAll(",", "").trim());
-							Double d1 = Double.parseDouble(aux.get(2));
-							Double d2 = Double.parseDouble(d.get(17).replaceAll(",", "").trim());
-							if(p2 < 0) {
-								d2 = d2 * (long)-1;
+			if( ! g.get(4).equals("1")) { // indica si es o no de arriendo si es 1 es venta
+				List<List<String>> map = mapReportPorGuia10.get(g.get(8));
+				if(map !=null ) {
+					for(List<String> d: map) {
+						if( ! ( d.get(13).equals("0")|| d.get(13).equals("-0") )) {
+							List<String> aux = mapDetalle.get(d.get(10).trim());
+							if(aux == null) {
+								aux = new ArrayList<String>();
+								aux.add(d.get(10).trim());
+								aux.add(d.get(19).replaceAll(",", "").trim());
+								aux.add(d.get(17).replaceAll(",", "").trim());
+								mapDetalle.put(d.get(10).trim(), aux);
+							} else {
+								Double p1 = Double.parseDouble(aux.get(1));
+								Double p2 = Double.parseDouble(d.get(19).replaceAll(",", "").trim());
+								Double d1 = Double.parseDouble(aux.get(2));
+								Double d2 = Double.parseDouble(d.get(17).replaceAll(",", "").trim());
+								if(p2 < 0) {
+									d2 = d2 * (long)-1;
+								}
+								aux.set(1, myformatapi.format(p1 + p2));
+								aux.set(2, myformatapi.format(d1 + d2));
+								mapDetalle.put(d.get(10).trim(), aux);
 							}
-							aux.set(1, myformatapi.format(p1 + p2));
-							aux.set(2, myformatapi.format(d1 + d2));
-							mapDetalle.put(d.get(10).trim(), aux);
 						}
 					}
 				}
@@ -221,17 +215,16 @@ public class ApiSapSchwager {
 		Double totalNeto = (double)0;
 		for (Map.Entry<String, List<String>> entry : mapDetalle.entrySet()) {
             List<String> v = entry.getValue();
-            det += "        { \n"
-            	 + "            \"ItemCode\": \""+v.get(0)+"\", \n"
-    			 + "            \"Quantity\": 1, \n"
-    			 + "            \"TaxCode\": \"IVA\", \n"
-    			 + "            \"UnitPrice\": "+v.get(1)+", \n"
-    			 + "            \"FreeText\": \""+v.get(2)+" días\" \n"
-    			 + "        }, \n";
+            det += "{"
+            	 + "\"ItemCode\": \""+v.get(0)+"\","
+    			 + "\"Quantity\": 1,"
+    			 + "\"TaxCode\": \"IVA\","
+    			 + "\"UnitPrice\": "+v.get(1)+","
+    			 + "\"FreeText\": \""+v.get(2)+" días\""
+    			 + "},";
             totalNeto += Double.parseDouble(v.get(1));
         }
 		det = det.substring(0,det.length()-1);
-		
 		Double dctos = (double)0;
 		for(List<String> x: detalleAjuste) {
 			dctos += Double.parseDouble(x.get(1).trim().replaceAll(",", "").trim());
@@ -242,109 +235,85 @@ public class ApiSapSchwager {
 		}else {
 			dctos = (double)0;
 		}
-
-//*******ELIMINAR***********************************************
-det += "        { \n"
-		+ "            \"ItemCode\": \"01\", \n"
-		+ "            \"Quantity\": 1, \n"
-		+ "            \"TaxCode\": \"IVA\", \n"
-		+ "            \"UnitPrice\": 100000, \n"
-		+ "            \"FreeText\": \"15 dias\" \n"
-		+ "        }, \n"
-		+ "        { \n"
-		+ "            \"ItemCode\": \"SPC-001\", \n"
-		+ "            \"Quantity\": 1, \n"
-		+ "            \"TaxCode\": \"IVA\",\n"
-		+ "            \"UnitPrice\": 900000,\n"
-		+ "            \"FreeText\": \"8 dias\" \n"
-		+ "        }\n";
-dctos = (double)0;
-rutCliente="761450476";
-//*******FIN ELIMINAR***********************************************
-		String json = "{ \n"
-				+ "    \"CardCode\": \"CL"+rutCliente+"\", \n"
-				+ "    \"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\", \n"
-   				+ "    \"DocDueDate\": \""+hoy.getFechaStrAAMMDD()+"\", \n"
-				+ "    \"Comments\": \"Nro Proforma MADA: "+id_proforma+"\", \n";
-		json += refer + "\n"
-				+ "    \"Indicator\": \"33\", \n"
-				+ "    \"DiscountPercent\": \""+dctos.toString()+"\", \n"  
-				+ "      \"DocumentLines\": [ \n";
-		json += det + "      ]\n"
-					+ "    }";
+		String json = "{"
+				+ "\"CardCode\": \"CL"+rutCliente+"\","
+				+ "\"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\","
+   				+ "\"DocDueDate\": \""+hoy.getFechaStrAAMMDD()+"\","
+				+ "\"Comments\": \"Nro Proforma MADA: "+id_proforma+"\",";
+		json += refer 
+				+ "\"Indicator\": \"33\","
+				+ "\"DiscountPercent\": \""+dctos.toString()+"\","  
+				+ "\"DocumentLines\": [";
+		json += det + "]"
+					+ "}";
 		
 		return(json);
 	}
 	
 	public static String generaJsonFactVTA( Cliente cliente, Long id_proforma, XmlFacturaReferencias referencias, List<List<String>> detalleAjuste, 
 			List<List<String>> guiasPer, Map<String, List<List<String>>> mapReportPorGuia10) {
-		
-		
 		String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
    		if (rutCliente.length() > 1) {
    			rutCliente = rutCliente.replaceAll("-", "");
         }
    		Fechas hoy = Fechas.hoy();
-		
 		String refer = "";
 		if(referencias.tpoDocRef != null) {
 			if(referencias.tpoDocRef.size() > 0) {
-				
-				refer +=  "    \"U_EXX_FE_INREF\": \""+referencias.tpoDocRef.get(0)+"\",\n"
-						+ "    \"U_EXX_FE_FOREF\": \""+referencias.folioRef.get(0)+"\",\n"
-						+ "    \"U_EXX_FE_FEREF\": \""+referencias.fchRef.get(0)+"\",\n";
+				refer +=  "\"U_EXX_FE_INREF\": \""+referencias.tpoDocRef.get(0)+"\","
+						+ "\"U_EXX_FE_FOREF\": \""+referencias.folioRef.get(0)+"\","
+						+ "\"U_EXX_FE_FEREF\": \""+referencias.fchRef.get(0)+"\",";
 				
 				if(referencias.tpoDocRef.size() > 1) {
-					refer +=  "    \"U_EXX_FE_INREF2\": \""+referencias.tpoDocRef.get(1)+"\",\n"
-							+ "    \"U_EXX_FE_FOREF2\": \""+referencias.folioRef.get(1)+"\",\n"
-							+ "    \"U_EXX_FE_FEREF2\": \""+referencias.fchRef.get(1)+"\",\n";
+					refer +=  "\"U_EXX_FE_INREF2\": \""+referencias.tpoDocRef.get(1)+"\","
+							+ "\"U_EXX_FE_FOREF2\": \""+referencias.folioRef.get(1)+"\","
+							+ "\"U_EXX_FE_FEREF2\": \""+referencias.fchRef.get(1)+"\",";
 				}
 				
 				if(referencias.tpoDocRef.size() > 2) {
-					refer +=  "    \"U_EXX_FE_INREF3\": \""+referencias.tpoDocRef.get(2)+"\",\n"
-							+ "    \"U_EXX_FE_FOREF3\": \""+referencias.folioRef.get(2)+"\",\n"
-							+ "    \"U_EXX_FE_FEREF3\": \""+referencias.fchRef.get(2)+"\",\n";
+					refer +=  "\"U_EXX_FE_INREF3\": \""+referencias.tpoDocRef.get(2)+"\","
+							+ "\"U_EXX_FE_FOREF3\": \""+referencias.folioRef.get(2)+"\","
+							+ "\"U_EXX_FE_FEREF3\": \""+referencias.fchRef.get(2)+"\",";
 				}
 			}
 		}
-		
 		DecimalFormat myformatapi = new DecimalFormat("###0.0");
 		//codigo,precioTotal
 		Map<String,List<String>> mapDetalle = new HashMap<String,List<String>>();
-		
 		for(List<String> g: guiasPer) {
-			List<List<String>> map = mapReportPorGuia10.get(g.get(8));
-			if(map !=null ) {
-				for(List<String> d: map) {
-					if( ! ( d.get(13).equals("0")|| d.get(13).equals("-0") )) {
-						List<String> aux = mapDetalle.get(d.get(10).trim());
-						if(aux == null) {
-							aux = new ArrayList<String>();
-							aux.add(d.get(10).trim());
-							aux.add(d.get(20).replaceAll(",", "").trim());
-							mapDetalle.put(d.get(10).trim(), aux);
-						} else {
-							Double p1 = Double.parseDouble(aux.get(1));
-							Double p2 = Double.parseDouble(d.get(20).replaceAll(",", "").trim());
-							aux.set(1, myformatapi.format(p1 + p2));
-							mapDetalle.put(d.get(10).trim(), aux);
+			if(g.get(4).equals("1")) { // indica si es venta
+				List<List<String>> map = mapReportPorGuia10.get(g.get(8));
+				if(map !=null ) {
+					for(List<String> d: map) {
+						if( ! ( d.get(13).equals("0")|| d.get(13).equals("-0") )) {
+							List<String> aux = mapDetalle.get(d.get(10).trim());
+							if(aux == null) {
+								aux = new ArrayList<String>();
+								aux.add(d.get(10).trim());
+								aux.add(d.get(20).replaceAll(",", "").trim());
+								mapDetalle.put(d.get(10).trim(), aux);
+							} else {
+								Double p1 = Double.parseDouble(aux.get(1));
+								Double p2 = Double.parseDouble(d.get(20).replaceAll(",", "").trim());
+								aux.set(1, myformatapi.format(p1 + p2));
+								mapDetalle.put(d.get(10).trim(), aux);
+							}
 						}
 					}
 				}
 			}
 		}
-		
 		String det = "";
 		Double totalNeto = (double)0;
 		for (Map.Entry<String, List<String>> entry : mapDetalle.entrySet()) {
             List<String> v = entry.getValue();
-            det += "        { \n"
-            	 + "            \"ItemCode\": \""+v.get(0)+"\", \n"
-    			 + "            \"Quantity\": 1, \n"
-    			 + "            \"TaxCode\": \"IVA\", \n"
-    			 + "            \"UnitPrice\": "+v.get(1)+", \n"
-    			 + "            \"FreeText\": \"\" \n"
-    			 + "        }, \n";
+            det += "{"
+            	 + "\"ItemCode\": \""+v.get(0)+"\","
+    			 + "\"Quantity\": 1,"
+    			 + "\"TaxCode\": \"IVA\","
+    			 + "\"UnitPrice\": "+v.get(1)+","
+    			 + "\"FreeText\": \"\""
+    			 + "},";
             totalNeto += Double.parseDouble(v.get(1));
         }
 		det = det.substring(0,det.length()-1);
@@ -359,60 +328,37 @@ rutCliente="761450476";
 		}else {
 			dctos = (double)0;
 		}
-		
-		
-//*******ELIMINAR***********************************************
-det += "        { \n"
-		+ "            \"ItemCode\": \"01\", \n"
-		+ "            \"Quantity\": 1, \n"
-		+ "            \"TaxCode\": \"IVA\", \n"
-		+ "            \"UnitPrice\": 100000, \n"
-		+ "            \"FreeText\": \"15 dias\" \n"
-		+ "        }, \n"
-		+ "        { \n"
-		+ "            \"ItemCode\": \"SPC-001\", \n"
-		+ "            \"Quantity\": 1, \n"
-		+ "            \"TaxCode\": \"IVA\",\n"
-		+ "            \"UnitPrice\": 900000,\n"
-		+ "            \"FreeText\": \"8 dias\" \n"
-		+ "        }\n";
-dctos = (double)0;
-rutCliente="761450476";
-//*******FIN ELIMINAR***********************************************
 
-
-		String json = "{ \n"
-				+ "    \"CardCode\": \"CL"+rutCliente+"\", \n"
-				+ "    \"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\", \n"
-   				+ "    \"DocDueDate\": \""+hoy.getFechaStrAAMMDD()+"\", \n"
-				+ "    \"Comments\": \"Nro Proforma MADA: "+id_proforma+"\", \n";
-		json += refer + "\n"
-				+ "    \"Indicator\": \"33\", \n"
-				+ "    \"DiscountPercent\": \""+dctos.toString()+"\", \n"  
-				+ "      \"DocumentLines\": [ \n";
-		json += det + "      ]\n"
-					+ "    }";
+		String json = "{"
+				+ "\"CardCode\": \"CL"+rutCliente+"\","
+				+ "\"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\","
+   				+ "\"DocDueDate\": \""+hoy.getFechaStrAAMMDD()+"\","
+				+ "\"Comments\": \"Nro Proforma MADA: "+id_proforma+"\",";
+		json += refer
+				+ "\"Indicator\": \"33\","
+				+ "\"DiscountPercent\": \""+dctos.toString()+"\","  
+				+ "\"DocumentLines\": [";
+		json += det + "]"
+					+ "}";
 		
 		return(json);
 	}
 	
 	public static String generaJsonGUIA( String rutCliente, Fechas hoy, Guia guia, Transportista transportista, 
 			List<List<String>> detalleGuia, Map<Long,Double> mapTasas) {
-		
 		DecimalFormat myformatapi = new DecimalFormat("###0.0");
-   		String json = "{ \n"
-   				+ "    \"CardCode\": \"CL"+rutCliente+"\", \n"
-   				+ "    \"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\", \n"
-   				+ "    \"DocDueDate\": \""+hoy.getFechaStrAAMMDD()+"\", \n"
-   				+ "    \"Comments\": \"Nro MOV MADA:"+guia.getNumero()+"\r\n\", \n"
-   				+ "    \"Indicator\": \"52\", \n"
-   				+ "    \"U_EXX_FE_IndTraslado\": \"6\",\n"
-   				+ "    \"U_EXX_FE_CHOFER\" : \""+transportista.getConductor()+"\",\n"
-   				+ "    \"U_EXX_FE_RUTCHOFER\" : \""+transportista.getRutConductor()+"\",\n"
-   				+ "    \"U_EXX_FE_PATENTE\" : \""+transportista.getPatente()+"\",\n"
-   				+ "      \"DocumentLines\": [ \n";
+   		String json = "{"
+   				+ "\"CardCode\": \"CL"+rutCliente+"\","
+   				+ "\"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\","
+   				+ "\"DocDueDate\": \""+hoy.getFechaStrAAMMDD()+"\","
+   				+ "\"Comments\": \"Nro MOV MADA:"+guia.getNumero()+"\","
+   				+ "\"Indicator\": \"52\","
+   				+ "\"U_EXX_FE_IndTraslado\": \"6\","
+   				+ "\"U_EXX_FE_CHOFER\" : \""+transportista.getConductor()+"\","
+   				+ "\"U_EXX_FE_RUTCHOFER\" : \""+transportista.getRutConductor()+"\","
+   				+ "\"U_EXX_FE_PATENTE\" : \""+transportista.getPatente()+"\","
+   				+ "\"DocumentLines\": [";
    		for(List<String> x: detalleGuia) {
-   			
    			String auxPrecio = x.get(9).trim();  // precio unitario de venta en moneda de origen
    			Long id_moneda =  Long.parseLong(x.get(30).trim());
 			Double tasa = mapTasas.get(id_moneda);
@@ -423,48 +369,18 @@ rutCliente="761450476";
 			String auxCantidad = x.get(8).trim();
 			Double cantidad = Double.parseDouble(auxCantidad.replaceAll(",", "").trim());
 			if(cantidad==null || cantidad<=0) {
-				cantidad = (double)0;
+				cantidad = (double)1;
 			}
-   			json 	+="        { \n"
-       				+ "            \"ItemCode\": \""+x.get(5)+"\", \n"
-       				+ "            \"Quantity\": "+myformatapi.format(cantidad)+", \n"
-       				+ "            \"TaxCode\": \"IVA\", \n"
-       				+ "            \"UnitPrice\": "+myformatapi.format(Math.round(precioUnitario))+" \n"
-       				+ "        }, \n";
+   			json 	+="{"
+       				+ "\"ItemCode\": \""+x.get(5)+"\","
+       				+ "\"Quantity\": "+myformatapi.format(cantidad)+","
+       				+ "\"TaxCode\": \"IVA\","
+       				+ "\"UnitPrice\": "+myformatapi.format(Math.round(precioUnitario))
+       				+ "},";
    		}
    		json = json.substring(0, json.length()-1);
-   		json 	+="      ]\n"
+   		json 	+="]"
    				+ "}";
-
-//*******ELIMINAR***********************************************
-json = "{ \n"
-+ "    \"CardCode\": \"CL761450476\", \n"
-+ "    \"DocDate\": \"2025-02-07\", \n"
-+ "    \"DocDueDate\": \"2025-02-07\", \n"
-+ "    \"Comments\": \"Nro MOV MADA:"+guia.getNumero()+"\r\n\", \n"
-+ "    \"Indicator\": \"52\", \n"
-+ "    \"U_EXX_FE_IndTraslado\": \"6\",\n"
-+ "    \"U_EXX_FE_CHOFER\" : \"Pedro\",\n"
-+ "    \"U_EXX_FE_RUTCHOFER\" : \"1039936\",\n"
-+ "    \"U_EXX_FE_PATENTE\" : \"XK 20-50\",\n"
-+ "      \"DocumentLines\": [ \n"
-+ "        { \n"
-+ "            \"ItemCode\": \"01\", \n"
-+ "            \"Quantity\": 99, \n"
-+ "            \"TaxCode\": \"IVA\", \n"
-+ "            \"UnitPrice\": 200 \n"
-+ "        }, \n"
-+ "        { \n"
-+ "            \"ItemCode\": \"SPC-001\", \n"
-+ "            \"Quantity\": 3, \n"
-+ "            \"TaxCode\": \"IVA\",\n"
-+ "            \"UnitPrice\": 111\n"
-+ "        }\n"
-+ "      ]\n"
-+ "    }";
-//*******FIN ELIMINAR***********************************************
-
-
 		return(json);
 	}
 	
