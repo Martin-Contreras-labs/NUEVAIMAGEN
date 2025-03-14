@@ -4,7 +4,7 @@ listPlanMant: List[tables.PlanMantencion], mapIdEquipVsBod: String, listBod: Lis
 listEstaObra: List[tables.MantEstadoEnObra], listEquipos: List[List[String]],
 listTipoMantencion: List[tables.TipoMantencion], listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
 listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
-listComponentes: List[tables.MantComponente])
+listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.MantItemIntervenido])
 
 
 
@@ -75,7 +75,7 @@ listComponentes: List[tables.MantComponente])
 					</div>
 					<div id="viewMecanico" style="display:none;">
 						@mantReportNewMecanico(mapDiccionario, fecha, listEstaObra, listOperMec, listTipoMantencion,
-								listEstadoEnTaller,listActividad,listTipoActividad,listComponentes)
+								listEstadoEnTaller,listActividad,listTipoActividad,listComponentes,listItemIntervenido)
 					</div>
 					<font style="font-size: 12px;">(*) Campos Obligatorios</font>
 					
@@ -472,6 +472,7 @@ listComponentes: List[tables.MantComponente])
 		$("#id_mantEstadoEnTaller").attr("disabled",false);
 		$("#id_mantActividad").attr("disabled",false);
 		$("#id_mantTipoActividad").attr("disabled",false);
+		$("#id_mantItemIntervenido").attr("disabled",false);
 		$("#lecturaIni_mec").attr("disabled",false);
 		$("#lecturaTer_mec").attr("disabled",false);
 		$("#cantidad_mec").attr("disabled",false);
@@ -480,6 +481,7 @@ listComponentes: List[tables.MantComponente])
 		$("#id_mantEstadoEnTallerP").attr("disabled",false);
 		$("#id_mantActividadP").attr("disabled",false);
 		$("#id_mantTipoActividadP").attr("disabled",false);
+		$("#id_mantItemIntervenidoP").attr("disabled",false);
 		$("#lecturaIni_mecP").attr("disabled",false);
 		$("#lecturaTer_mecP").attr("disabled",false);
 		$("#cantidad_mecP").attr("disabled",false);
@@ -495,6 +497,7 @@ listComponentes: List[tables.MantComponente])
 		$("#id_mantEstadoEnTaller").attr("disabled",true);
 		$("#id_mantActividad").attr("disabled",true);
 		$("#id_mantTipoActividad").attr("disabled",true);
+		$("#id_mantItemIntervenido").attr("disabled",true);
 		$("#lecturaIni_mec").attr("disabled",true);
 		$("#lecturaTer_mec").attr("disabled",true);
 		$("#cantidad_mec").attr("disabled",true);
@@ -503,6 +506,7 @@ listComponentes: List[tables.MantComponente])
 		$("#id_mantEstadoEnTallerP").attr("disabled",true);
 		$("#id_mantActividadP").attr("disabled",true);
 		$("#id_mantTipoActividadP").attr("disabled",true);
+		$("#id_mantItemIntervenidoP").attr("disabled",true);
 		$("#lecturaIni_mecP").attr("disabled",true);
 		$("#lecturaTer_mecP").attr("disabled",true);
 		$("#cantidad_mecP").attr("disabled",true);
@@ -533,6 +537,7 @@ listComponentes: List[tables.MantComponente])
 		document.querySelector("#id_mantEstadoEnTaller").value = "0";
 		document.querySelector("#id_mantActividad").value = "0";
 		document.querySelector("#id_mantTipoActividad").value = "0";
+		document.querySelector("#id_mantItemIntervenido").value = "0";
 		$("#horaIni_mec").val("");
 		$("#horaTer_mec").val("");
 		$("#lecturaIni_mec").val("0.00");
@@ -555,6 +560,7 @@ listComponentes: List[tables.MantComponente])
 		document.querySelector("#id_mantEstadoEnTallerP").value = "0";
 		document.querySelector("#id_mantActividadP").value = "0";
 		document.querySelector("#id_mantTipoActividadP").value = "0";
+		document.querySelector("#id_mantItemIntervenidoP").value = "0";
 		$("#horaIni_mecP").val("");
 		$("#horaTer_mecP").val("");
 		$("#lecturaIni_mecP").val("0.00");

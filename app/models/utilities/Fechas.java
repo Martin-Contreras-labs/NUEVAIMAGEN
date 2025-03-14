@@ -200,6 +200,9 @@ public class Fechas{
 	}
 
 	public static Fechas obtenerFechaDesdeStrAAMMDD(String fechaSqlComoTexto) {
+		if(fechaSqlComoTexto.trim().equals("")) {
+			return(Fechas.hoy());
+		}
 		SimpleDateFormat formatsql = new SimpleDateFormat("yyyy-MM-dd");
 		Fechas fecha = new Fechas();
 		java.util.Date auxUtil = new java.util.Date();
@@ -222,6 +225,9 @@ public class Fechas{
 	}
 	
 	public static Fechas obtenerFechaDesdeStrDDMMAA(String fechaStrComoTexto) {
+		if(fechaStrComoTexto.trim().equals("")) {
+			return(Fechas.hoy());
+		}
 		SimpleDateFormat formatsql = new SimpleDateFormat("yyyy-MM-dd");
 		Fechas fecha = new Fechas();
 		java.util.Date auxUtil = new java.util.Date();

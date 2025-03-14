@@ -101,6 +101,66 @@ public class PlanMantencion {
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
+	public static PlanMantencion find(Connection con, String db, Long id_equipo, Long id_tipoPlan) {
+		PlanMantencion aux = new PlanMantencion();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" select "
+							+ " planMantencion.id_equipo, "
+							+ " planMantencion.fechaReset, "
+							+ " planMantencion.id_unidadMantencion, "
+							+ " planMantencion.cadaNEstimado, "
+							+ " planMantencion.consumoEstimadoPorMes, "
+							+ " planMantencion.estadoActual, "
+							+ " planMantencion.proximaMantencion, "
+							+ " unidadMantencion.nombre, "
+							+ " grupo.nombre, "
+							+ " equipo.codigo, "
+							+ " equipo.nombre, "
+							+ " planMantencion.id_tipoPlan, "
+							+ " tipoPlan.nombre "
+							+ " from `"+db+"`.planMantencion "
+							+ " left join `"+db+"`.tipoPlan on tipoPlan.id = planMantencion.id_tipoPlan "
+							+ " left join `"+db+"`.unidadMantencion on unidadMantencion.id = id_unidadMantencion "
+							+ " left join `"+db+"`.equipo on equipo.id = id_equipo "
+							+ " left join `"+db+"`.grupo on grupo.id = equipo.id_grupo "
+							+ " where equipo.id=? and planMantencion.id_tipoPlan=?;");
+			smt.setLong(1, id_equipo);
+			smt.setLong(2, id_tipoPlan);
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {
+				Double proximaMantencion = rs.getDouble(7);
+				Double estimado = (double)0;
+					java.util.Date hoy = new java.util.Date();
+					Long deltaDias = Math.round((double) ( hoy.getTime()-rs.getDate(2).getTime())/(24 * 60 * 60 * 1000));
+				estimado = rs.getDouble(6) + rs.getDouble(5)* deltaDias/30;
+				String fecha = null;
+				if (rs.getDate(2) != null) {
+					fecha = myformatfecha.format(rs.getDate(2));
+				}
+				
+				Double difEstimMenosProxMant = proximaMantencion - estimado;
+				
+				aux = new PlanMantencion(
+						rs.getLong(1),
+						fecha,
+						rs.getLong(3),
+					myformatdouble2.format(rs.getDouble(4)),
+					myformatdouble2.format(rs.getDouble(5)),
+					myformatdouble2.format(rs.getDouble(6)),
+					myformatdouble2.format(proximaMantencion),
+					rs.getString(8),
+					myformatdouble2.format(estimado),
+					rs.getString(9),rs.getString(10),rs.getString(11),rs.getLong(12),rs.getString(13),
+					myformatdouble2.format(difEstimMenosProxMant));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+		}
+		return (aux);
+	}
+	
 	public static PlanMantencion findPorCodigo(Connection con, String db, String codigo) {
 		PlanMantencion aux = new PlanMantencion();
 		try {

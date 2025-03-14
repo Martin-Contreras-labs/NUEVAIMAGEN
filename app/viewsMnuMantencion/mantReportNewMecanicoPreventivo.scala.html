@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], fecha: String, listEstaOperacional: List[tables.MantEstadoEnObra], 
 listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
 listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
-listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad], listItemIntervenido: List[tables.MantItemIntervenido],
 listComponentes: List[tables.MantComponente])	
 
 		<table class="table table-sm table-bordered table-condensed table-fluid">
@@ -104,6 +104,20 @@ listComponentes: List[tables.MantComponente])
 							required disabled>
 				        		<option class="blank" value="0">-- Select --</option>
 			            		@for(lista <- listTipoActividad){
+			                		<option value="@lista.id" >@lista.nombre</option>
+								}
+				        </select> 
+			        </td>
+				</tr>
+				<tr>
+					<td style="text-align:left;"><strong>ITEM INTERVENIDO (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="id_mantItemIntervenidoP" 
+							name="id_mantItemIntervenidoP"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		@for(lista <- listComponentes){
 			                		<option value="@lista.id" >@lista.nombre</option>
 								}
 				        </select> 
@@ -301,15 +315,14 @@ function validarLectIni_mecP(){
 		if(parseFloat(lecturaIni) < parseFloat(lectAnterior)){
 			if(parseFloat(lecturaIni) == 0 && $("#id_tipoMantencion").val() == 1){
 				alertify.confirm(
-	            	"Colocar la lectura inicial en cero corresponde a cambio, reset o inicio de odometro y/o horometro."
-					+ "Esta seguro de esta acción",
-		            function() { 
-		                alertify.success("Acción confirmada.");
-		            },
-		            function() { 
-						alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
-						$("#lecturaIni_mecP").val(formatStandar(lectAnterior,2));
-		            }
+	            	"Colocar la lectura inicial en cero corresponde a cambio, reset o inicio de odómetro y/u horómetro. Esta seguro de esta acción?",
+		            function(e) { 
+						if (e) {
+							$("#lecturaTer_mecP").val("0.00");
+						}else{
+							$("#lecturaIni_mecP").val(formatStandar(lectAnterior,2));
+						}
+					}
 	        	);
 			}else{
 				alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
@@ -366,21 +379,33 @@ function validarLectIni_mecP(){
 		}
 	}
 	
+	
 	function validarFechaIni_mecP(){
 		let fechaIni = new Date($("#fechaIni_mecP").val());
-		let fechaTer = new Date($("#fechaTer_mecP").val());
-		if(fechaIni > fechaTer){
-			alertify.alert("La fecha de inicio no puede ser posterior a la fecha de termino.");
-        		$('#fechaIni_mecP').val('@fecha');
+		if(isValidDate(fechaIni)){
+			let fechaTer = new Date($("#fechaTer_mecP").val());
+			if(fechaIni > fechaTer){
+				alertify.alert("La fecha de inicio no puede ser posterior a la fecha de termino.");
+	        		$('#fechaIni_mecP').val('@fecha');
+			}
+		}else{
+			alertify.alert("Debe ingresar una fecha valida.");
+	        		$('#fechaIni_mecP').val('@fecha');
 		}
+		
 	}
 	
 	function validarFechaTer_mecP(){
-		let fechaIni = $("#fechaIni_mecP").val();
-		let fechaTer = $("#fechaTer_mecP").val();
-		if(fechaIni > fechaTer){
-			alertify.alert("La fecha de termino no puede ser anterior a la fecha de inicio.");
-        		$('#fechaTer_mecP').val('@fecha');
+		let fechaTer = new Date($("#fechaTer_mecP").val());
+		if(isValidDate(fechaTer)){
+			let fechaIni = new Date($("#fechaIni_mecP").val());
+			if(fechaIni > fechaTer){
+				alertify.alert("La fecha de termino no puede ser anterior a la fecha de inicio.");
+	        		$('#fechaTer_mecP').val('@fecha');
+			}
+		}else{
+			alertify.alert("Debe ingresar una fecha valida.");
+	        		$('#fechaTer_mecP').val('@fecha');
 		}
 	}
 	
@@ -402,6 +427,8 @@ function validarLectIni_mecP(){
 			  alertify.alert('Debe ingresar una Actividad');
 	      }else if($('#id_mantTipoActividadP').val()==0){
 			  alertify.alert('Debe ingresar un tipo de Actividad');
+		  }else if($('#id_mantItemIntervenidoP').val()==0){
+			  alertify.alert('Debe ingresar un Item Intervenido');
 		  }else if($('#lecturaTer_mecP').val()=="0.00"){
 			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
 		  }else{

@@ -6,11 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import models.forms.FormMantencion;
 import models.utilities.Archivos;
+import models.utilities.Fechas;
 import models.utilities.Horas;
 
 
@@ -376,6 +377,64 @@ public class MantTransacReport {
 		this.albumFotos = albumFotos;
 	}
 	
+	public static MantTransacReport find(Connection con, String db, Long id_mantTransacReport) {
+		MantTransacReport aux = null;
+		try {
+			PreparedStatement smt = con.prepareStatement("select "
+					/* 1*/  + " id,"
+					/* 2*/  + " id_userMada,"
+					/* 3*/  + " id_mantActorPersonal,"
+					/* 4*/  + " id_mantActividad,"
+					/* 5*/  + " id_bodegaEmpresa,"
+					/* 6*/  + " id_equipo,"
+					/* 7*/  + " id_mantEstadoEnObra,"
+					/* 8*/  + " id_mantEstadoOperacional,"
+					/* 9*/  + " id_mantEstadoEnTaller,"
+					/* 10*/ + " id_mantItemIntervenido,"
+					/* 11*/ + " id_mantMecanico,"
+					/* 12*/ + " id_mantOperador,"
+					/* 13*/ + " id_mantTipoActividad,"
+					/* 14*/ + " id_tipoMantencion,"
+					/* 15*/ + " id_tipoPlan,"
+					/* 16*/ + " comentario,"
+					/* 17*/ + " descTrabajo,"
+					/* 18*/ + " estadoFinal,"
+					/* 19*/ + " fecha,"
+					/* 20*/ + " horaIni,"
+					/* 21*/ + " horaFin,"
+					/* 22*/ + " horaDif,"
+					/* 23*/ + " fechaIni,"
+					/* 24*/ + " fechaFin,"
+					/* 25*/ + " fechaDif,"
+					/* 26*/ + " lectAnterior,"
+					/* 27*/ + " lectActual,"
+					/* 28*/ + " lectDif,"
+					/* 29*/ + " observaciones,"
+					/* 30*/ + " docAnexo,"
+					/* 31*/ + " reportPDF,"
+					/* 32*/ + " firmaPDFoperador,"
+					/* 33*/ + " firmaPDFautorizador,"
+					/* 34*/ + " albumFotos"
+							+ " from `"+db+"`.mantTransacReport "
+							+ " WHERE id = ?;");
+			smt.setLong(1, id_mantTransacReport);
+			ResultSet rs = smt.executeQuery();
+			if(rs.next()) {
+				aux = new MantTransacReport(
+					rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getLong(8),
+					rs.getLong(9),rs.getLong(10),rs.getLong(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+					rs.getDouble(22),rs.getString(23),rs.getString(24),rs.getDouble(25),rs.getDouble(26),rs.getDouble(27),rs.getDouble(28),
+					rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getString(34) );
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(aux);
+	}
+	
 	public static boolean modificaPorCampo(Connection con, String db, String campo, Long id_mantTransacReport, String valor) {
 		boolean flag = false;
 		try {
@@ -446,8 +505,8 @@ public class MantTransacReport {
 			smt.setDouble(13, lectDif);
 			smt.setString(14, form.comentario);
 			smt.setString(15, form.observaciones_oper);
-			smt.setString(16, form.firmaAprobador);
-			smt.setString(17, form.firmaEjecutor);
+			smt.setString(16, form.firmaEjecutor);
+			smt.setString(17, form.firmaAprobador);
 			smt.executeUpdate();
 			ResultSet rs = smt.getGeneratedKeys();
 			if (rs.next()) {
@@ -484,10 +543,11 @@ public class MantTransacReport {
 		return (id_mantTransacReport);
 	}
 	
-	public static Long newReportMecanico(Connection con, String db, FormMantencion form) {
+	public static Long newReportMecanico(Connection con, String db, FormMantencion form, Map<String,String> mapeoPermiso) {
 		Long id_mantTransacReport = (long)0;
 		try {
-			if(form.id_tipoMantencion == (long)1) { // PREVENTIVO aqui se debe actualizar futura mantencion
+			// ****** PREVENTIVO aqui se debe actualizar futura mantencion *******
+			if(form.id_tipoMantencion == (long)1) { 
 				Double lecturaIni = Double.parseDouble(form.lecturaIni_mecP.replaceAll(",", ""));
 				Double lecturaFin = Double.parseDouble(form.lecturaTer_mecP.replaceAll(",", ""));
 				Double lectDif = lecturaFin - lecturaIni;
@@ -496,6 +556,10 @@ public class MantTransacReport {
 					lectDif = cantMecP;
 				}
 				Double horaDif = Horas.difHoras(form.horaIni_mecP, form.horaTer_mecP);  
+				Fechas ini = Fechas.obtenerFechaDesdeStrAAMMDD(form.fechaIni_mecP);
+				Fechas ter = Fechas.obtenerFechaDesdeStrAAMMDD(form.fechaTer_mecP);
+				int fechaDif = Fechas.diasEntreFechas(ini.getFechaCal(), ter.getFechaCal()) + 1;
+				
 				PreparedStatement smt = con
 						.prepareStatement("insert into `"+db+"`.mantTransacReport "
 								+ " (fecha, id_userMada, id_mantActorPersonal, id_tipoMantencion, "
@@ -503,13 +567,15 @@ public class MantTransacReport {
 								+ " id_mantEstadoOperacional, id_mantEstadoEnTaller, id_mantActividad, id_mantTipoActividad, "
 								+ " fechaIni, fechaFin, fechaDif, "
 								+ " horaIni, horaFin, horaDif, lectAnterior, lectActual, lectDif, "
-								+ " descTrabajo, estadoFinal, observaciones, firmaPDFoperador, firmaPDFautorizador) values "
+								+ " descTrabajo, estadoFinal, observaciones, firmaPDFoperador, firmaPDFautorizador, "
+								+ " id_tipoPlan, id_mantItemIntervenido) values "
 								+ " (?,?,?,?,"
 								+ " ?,?,?,"
 								+ " ?,?,?,?,"
 								+ " ?,?,?,"
 								+ " ?,?,?,?,?,?,"
-								+ " ?,?,?,?,?);",Statement.RETURN_GENERATED_KEYS);
+								+ " ?,?,?,?,?,"
+								+ " ?,?);",Statement.RETURN_GENERATED_KEYS);
 				smt.setString(1, form.fecha);
 				smt.setLong(2, form.id_userMada);
 				smt.setLong(3, form.id_mantActorPersonal);
@@ -523,9 +589,9 @@ public class MantTransacReport {
 				smt.setLong(10, form.id_mantActividadP);
 				smt.setLong(11, form.id_mantTipoActividadP);
 				
-				smt.setString(12, form.fechaIni_mecP);
-				smt.setString(13, form.fechaTer_mecP);
-				smt.setDouble(14, horaDif);
+				smt.setString(12, ini.getFechaStrAAMMDD());
+				smt.setString(13, ter.getFechaStrAAMMDD());
+				smt.setDouble(14, fechaDif);
 				
 				smt.setString(15, form.horaIni_mecP);
 				smt.setString(16, form.horaTer_mecP);
@@ -538,13 +604,47 @@ public class MantTransacReport {
 				smt.setString(23, form.observaciones_mecP);
 				smt.setString(24, form.firmaAprobador);
 				smt.setString(25, form.firmaEjecutor);
+				
+				smt.setLong(26, form.id_tipoPlan_mecP); // corresponde al id_tipoPlan en modulo planes
+				smt.setLong(27, form.id_mantItemIntervenidoP); 
+				
 				smt.executeUpdate();
 				ResultSet rs = smt.getGeneratedKeys();
 				if (rs.next()) {
 					id_mantTransacReport = rs.getLong(1);
 				}
+				rs.close();
+				smt.close();
 				
-				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_oper);
+				
+				List<Long> listIdComp = form.id_mantComponenteP;
+				List<String> listCantComp = form.cantidadP;
+				
+				if(listIdComp.size() > 0) {
+					String query = "";
+					for(int i=0; i<listIdComp.size(); i++) {
+						if(listIdComp.get(i) > 0) {
+							String auxCant = listCantComp.get(i);
+							Double dblCant = Double.parseDouble(auxCant.replaceAll(",", "").trim());
+							query += "("+id_mantTransacReport+","+listIdComp.get(i)+","+dblCant+"),";
+						}
+					}
+					if(query.length()>3) {
+						query = query.substring(0,query.length()-1);
+						PreparedStatement smt2 = con
+								.prepareStatement("insert into `"+db+"`.mantTransacComponentes "
+										+ " (id_mantTransacReport,  id_mantComponente, cantidad) values "
+										+ query + ";");
+						smt2.executeUpdate();
+						smt2.close();
+					}
+				}
+				
+				
+				DecimalFormat myformat = new DecimalFormat("##0.0");
+				PlanMantencion planMantencion = PlanMantencion.find(con, db, form.id_equipo_mecP, form.id_tipoPlan_mecP);
+				
+				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_mecP);
 				Long aux = (long)0;
 				boolean flag = true;
 				for(PlanMantencion p: allPlan) {
@@ -558,19 +658,58 @@ public class MantTransacReport {
 				}
 				
 				if(aux > 0) {
-					DecimalFormat myformat = new DecimalFormat("##0.0");
 					for(PlanMantencion p: allPlan) {
 						if(p.getId_unidadMantencion() == (long) aux) {
-							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_oper, "estadoActual", myformat.format(lecturaFin));
+							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_mec, "estadoActual", myformat.format(lecturaFin));
 						}
 					}
 				}
 				
-				rs.close();
-				smt.close();
+				if(mapeoPermiso.get("parametro.planes_calculaProximaMant") != null && mapeoPermiso.get("parametro.planes_calculaProximaMant").equals("0")) {
+					//manual
+					String nEstimado = planMantencion.getCadaNEstimado();
+					Double frecuencia = Double.parseDouble(nEstimado.replaceAll(",", ""));
+					Double proximaMant = frecuencia + lecturaFin;
+					
+					List<PlanMantencion> allPorEquipo = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_mecP);
+					for(PlanMantencion x: allPorEquipo) {
+						if((long) x.getId_unidadMantencion() == (long) planMantencion.getId_unidadMantencion()) {
+							PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_oper, "proximaMantencion", myformat.format(proximaMant));
+							PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_oper, "fechaReset", form.fecha);
+						}
+					}
+				}else {
+					//automatico
+					String nEstimado = planMantencion.getCadaNEstimado();
+					Double frecuencia = Double.parseDouble(nEstimado.replaceAll(",", ""));
+					Double lectActual = lecturaFin;
+					if(frecuencia > 0) {
+						Double proximaMant = (double)0;
+						if (lectActual % frecuencia == 0) {
+							proximaMant = lectActual + frecuencia;
+						}else {
+							Double resto = lectActual % frecuencia;
+							proximaMant = lectActual - resto + frecuencia;
+						}
+						List<PlanMantencion> allPorEquipo = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_mecP);
+						for(PlanMantencion x: allPorEquipo) {
+							if((long) x.getId_unidadMantencion() == (long) planMantencion.getId_unidadMantencion()) {
+								PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_mecP, "proximaMantencion", myformat.format(proximaMant));
+								PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_mecP, "fechaReset", form.fecha);
+							}
+						}
+					}
+				}
 			}
 			
-			if(form.id_tipoMantencion == (long)1) { // CORRECTIVO
+			
+			
+			
+			
+			
+			// ****** CORRECTIVO  *******
+			if(form.id_tipoMantencion == (long)2) { // CORRECTIVO
+				
 				Double lecturaIni = Double.parseDouble(form.lecturaIni_mec.replaceAll(",", ""));
 				Double lecturaFin = Double.parseDouble(form.lecturaTer_mec.replaceAll(",", ""));
 				Double lectDif = lecturaFin - lecturaIni;
@@ -578,55 +717,95 @@ public class MantTransacReport {
 				if(cantMec < lectDif || cantMec > lectDif) {
 					lectDif = cantMec;
 				}
-				Double horaDif = Horas.difHoras(form.horaIni_mec, form.horaTer_mec);  
+				Double horaDif = Horas.difHoras(form.horaIni_mec, form.horaTer_mec);
+				System.out.println("INI = '"+form.fechaIni_mec+"'");
+				System.out.println("TER = '"+form.fechaTer_mec+"'");
+				Fechas ini = Fechas.obtenerFechaDesdeStrAAMMDD(form.fechaIni_mec);
+				Fechas ter = Fechas.obtenerFechaDesdeStrAAMMDD(form.fechaTer_mec);
+				int fechaDif = Fechas.diasEntreFechas(ini.getFechaCal(), ter.getFechaCal()) + 1;
+				
 				PreparedStatement smt = con
 						.prepareStatement("insert into `"+db+"`.mantTransacReport "
-								+ " (fecha, id_userMada, id_mantActorPersonal, "
+								+ " (fecha, id_userMada, id_mantActorPersonal, id_tipoMantencion, "
 								+ " id_mantMecanico, id_equipo, id_bodegaEmpresa, "
 								+ " id_mantEstadoOperacional, id_mantEstadoEnTaller, id_mantActividad, id_mantTipoActividad, "
 								+ " fechaIni, fechaFin, fechaDif, "
 								+ " horaIni, horaFin, horaDif, lectAnterior, lectActual, lectDif, "
-								+ " descTrabajo, estadoFinal, observaciones, firmaPDFoperador, firmaPDFautorizador) values "
-								+ " (?,?,?,"
+								+ " descTrabajo, estadoFinal, observaciones, firmaPDFoperador, firmaPDFautorizador, "
+								+ " id_mantItemIntervenido) values "
+								+ " (?,?,?,?,"
 								+ " ?,?,?,"
 								+ " ?,?,?,?,"
 								+ " ?,?,?,"
 								+ " ?,?,?,?,?,?,"
-								+ " ?,?,?,?,?);",Statement.RETURN_GENERATED_KEYS);
+								+ " ?,?,?,?,?,"
+								+ " ?);",Statement.RETURN_GENERATED_KEYS);
 				smt.setString(1, form.fecha);
 				smt.setLong(2, form.id_userMada);
 				smt.setLong(3, form.id_mantActorPersonal);
-				smt.setLong(4, form.id_mecanico);
-				smt.setLong(5, form.id_equipo_mec);
-				smt.setLong(6, form.id_bodega_mec);
+				smt.setLong(4, form.id_tipoMantencion);
+				smt.setLong(5, form.id_mecanico);
+				smt.setLong(6, form.id_equipo_mec);
+				smt.setLong(7, form.id_bodega_mec);
 				
-				smt.setLong(7, form.id_mantEstadoOperacional);
-				smt.setLong(8, form.id_mantEstadoEnTaller);
-				smt.setLong(9, form.id_mantActividad);
-				smt.setLong(10, form.id_mantTipoActividad);
+				smt.setLong(8, form.id_mantEstadoOperacional);
+				smt.setLong(9, form.id_mantEstadoEnTaller);
+				smt.setLong(10, form.id_mantActividad);
+				smt.setLong(11, form.id_mantTipoActividad);
 				
-				smt.setString(11, form.fechaIni_mec);
-				smt.setString(12, form.fechaTer_mec);
-				smt.setDouble(13, horaDif);
+				smt.setString(12, ini.getFechaStrAAMMDD());
+				smt.setString(13, ter.getFechaStrAAMMDD());
+				smt.setDouble(14, fechaDif);
 				
-				smt.setString(14, form.horaIni_mec);
-				smt.setString(15, form.horaTer_mec);
-				smt.setDouble(16, horaDif);
-				smt.setDouble(17, lecturaIni);
-				smt.setDouble(18, lecturaFin);
-				smt.setDouble(19, lectDif);
-				smt.setString(20, form.descTrabajo);
-				smt.setString(21, form.estadoFinal);
-				smt.setString(22, form.observaciones_mec);
-				smt.setString(23, form.firmaAprobador);
-				smt.setString(24, form.firmaEjecutor);
+				smt.setString(15, form.horaIni_mec);
+				smt.setString(16, form.horaTer_mec);
+				smt.setDouble(17, horaDif);
+				smt.setDouble(18, lecturaIni);
+				smt.setDouble(19, lecturaFin);
+				smt.setDouble(20, lectDif);
+				smt.setString(21, form.descTrabajo);
+				smt.setString(22, form.estadoFinal);
+				smt.setString(23, form.observaciones_mec);
+				smt.setString(24, form.firmaAprobador);
+				smt.setString(25, form.firmaEjecutor);
+				
+				smt.setLong(26, form.id_mantItemIntervenido);
+				
 				smt.executeUpdate();
 				ResultSet rs = smt.getGeneratedKeys();
 				if (rs.next()) {
 					id_mantTransacReport = rs.getLong(1);
 				}
+				rs.close();
+				smt.close();
 				
-				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_oper);
+				
+				List<Long> listIdComp = form.id_mantComponenteC;
+				List<String> listCantComp = form.cantidadC;
+				
+				if(listIdComp.size() > 0) {
+					String query = "";
+					for(int i=0; i<listIdComp.size(); i++) {
+						if(listIdComp.get(i) > 0) {
+							String auxCant = listCantComp.get(i);
+							Double dblCant = Double.parseDouble(auxCant.replaceAll(",", "").trim());
+							query += "("+id_mantTransacReport+","+listIdComp.get(i)+","+dblCant+"),";
+						}
+					}
+					if(query.length()>3) {
+						query = query.substring(0,query.length()-1);
+						PreparedStatement smt2 = con
+								.prepareStatement("insert into `"+db+"`.mantTransacComponentes "
+										+ " (id_mantTransacReport,  id_mantComponente, cantidad) values "
+										+ query + ";");
+						smt2.executeUpdate();
+						smt2.close();
+					}
+				}
+				
+				
+				
+				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_mec);
 				Long aux = (long)0;
 				boolean flag = true;
 				for(PlanMantencion p: allPlan) {
@@ -643,13 +822,12 @@ public class MantTransacReport {
 					DecimalFormat myformat = new DecimalFormat("##0.0");
 					for(PlanMantencion p: allPlan) {
 						if(p.getId_unidadMantencion() == (long) aux) {
-							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_oper, "estadoActual", myformat.format(lecturaFin));
+							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_mec, "estadoActual", myformat.format(lecturaFin));
 						}
 					}
 				}
 				
-				rs.close();
-				smt.close();
+				
 			}
 			
 		} catch (SQLException e) {

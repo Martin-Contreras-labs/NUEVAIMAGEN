@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], fecha: String, listEstaOperacional: List[tables.MantEstadoEnObra], 
 listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
 listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
-listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad], listItemIntervenido: List[tables.MantItemIntervenido],
 listComponentes: List[tables.MantComponente])		
 
 		<table class="table table-sm table-bordered table-condensed table-fluid">
@@ -103,12 +103,32 @@ listComponentes: List[tables.MantComponente])
 							name="id_mantTipoActividad"
 							required disabled>
 				        		<option class="blank" value="0">-- Select --</option>
-			            		@for(lista <- listTipoActividad){
+			            		@for(lista <- listItemIntervenido){
 			                		<option value="@lista.id" >@lista.nombre</option>
 								}
 				        </select> 
 			        </td>
 				</tr>
+				
+				
+				
+				<tr>
+					<td style="text-align:left;"><strong>ITEM INTERVENIDO (*):</strong></td>
+			        <td style="text-align:left" width="70%" colspan="4">
+			        	<select class="form-control form-control-sm" 
+							id="id_mantItemIntervenido" 
+							name="id_mantItemIntervenido"
+							required disabled>
+				        		<option class="blank" value="0">-- Select --</option>
+			            		@for(lista <- listComponentes){
+			                		<option value="@lista.id" >@lista.nombre</option>
+								}
+				        </select> 
+			        </td>
+				</tr>
+				
+				
+				
 				<tr>
 					<td style="text-align:left;"><strong>COMPONENTES (*):</strong></td>
 			        <td style="text-align:left" width="70%" colspan="4">
@@ -354,19 +374,30 @@ listComponentes: List[tables.MantComponente])
 	
 	function validarFechaIni_mec(){
 		let fechaIni = new Date($("#fechaIni_mec").val());
-		let fechaTer = new Date($("#fechaTer_mec").val());
-		if(fechaIni > fechaTer){
-			alertify.alert("La fecha de inicio no puede ser posterior a la fecha de termino.");
-        		$('#fechaIni_mec').val('@fecha');
+		if(isValidDate(fechaIni)){
+			let fechaTer = new Date($("#fechaTer_mec").val());
+			if(fechaIni > fechaTer){
+				alertify.alert("La fecha de inicio no puede ser posterior a la fecha de termino.");
+	        		$('#fechaIni_mec').val('@fecha');
+			}
+		}else{
+			alertify.alert("Debe ingresar una fecha valida.");
+	        		$('#fechaIni_mec').val('@fecha');
 		}
+		
 	}
 	
 	function validarFechaTer_mec(){
-		let fechaIni = $("#fechaIni_mec").val();
-		let fechaTer = $("#fechaTer_mec").val();
-		if(fechaIni > fechaTer){
-			alertify.alert("La fecha de termino no puede ser anterior a la fecha de inicio.");
-        		$('#fechaTer_mec').val('@fecha');
+		let fechaTer = new Date($("#fechaTer_mec").val());
+		if(isValidDate(fechaTer)){
+			let fechaIni = new Date($("#fechaIni_mec").val());
+			if(fechaIni > fechaTer){
+				alertify.alert("La fecha de termino no puede ser anterior a la fecha de inicio.");
+	        		$('#fechaTer_mec').val('@fecha');
+			}
+		}else{
+			alertify.alert("Debe ingresar una fecha valida.");
+	        		$('#fechaTer_mec').val('@fecha');
 		}
 	}
 	
@@ -388,6 +419,8 @@ listComponentes: List[tables.MantComponente])
 			  alertify.alert('Debe ingresar una Actividad');
 	      }else if($('#id_mantTipoActividad').val()==0){
 			  alertify.alert('Debe ingresar un tipo de Actividad');
+		  }else if($('#id_mantItemIntervenido').val()==0){
+			  alertify.alert('Debe ingresar un Item Intervenido');
 		  }else if($('#lecturaTer_mec').val()=="0.00"){
 			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
 		  }else{

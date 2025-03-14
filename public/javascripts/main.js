@@ -44,18 +44,11 @@ function isEmail(email) {
 /************************************************************/
 
 function isValidDate(date) {
-	var arrDate = date.split("-");
-	var year = arrDate[0];
-	var month = arrDate[1];
-	var day = arrDate[2];
-    var dteDate;
-    month=month-1;
-    dteDate=new Date(year,month,day);
-    if((day==dteDate.getDate()) && (month==dteDate.getMonth()) && (year==dteDate.getFullYear())){
-    	return (true);
-    }else{
-    	return (false);
-    }
+	if(date instanceof Date && isNaN(date.getTime())){
+		return (false);
+	}else{
+		return (true);
+	}
 }
 
 /************************************************************/

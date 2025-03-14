@@ -2,7 +2,7 @@
 listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
 listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
 listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
-listComponentes: List[tables.MantComponente])	
+listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.MantItemIntervenido] )	
 	
 	<table class="table table-sm table-bordered table-condensed table-fluid">
 		<thead>
@@ -50,12 +50,12 @@ listComponentes: List[tables.MantComponente])
 	
 	<div id="viewPreventivo" style="display:none;">		
 		@mantReportNewMecanicoPreventivo(mapDiccionario, fecha, listEstaOperacional, listOperMec, listTipoMantencion,
-			listEstadoEnTaller,listActividad,listTipoActividad,listComponentes)
+			listEstadoEnTaller,listActividad,listTipoActividad,listItemIntervenido,listComponentes)
 	</div>
 	
 	<div id="viewCorrectivo" style="display:none;">
 		@mantReportNewMecanicoCorrectivo(mapDiccionario, fecha, listEstaOperacional, listOperMec, listTipoMantencion,
-			listEstadoEnTaller,listActividad,listTipoActividad,listComponentes)
+			listEstadoEnTaller,listActividad,listTipoActividad,listItemIntervenido,listComponentes)
 	</div>
 	
 	<div id="modalListaMecanicos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">

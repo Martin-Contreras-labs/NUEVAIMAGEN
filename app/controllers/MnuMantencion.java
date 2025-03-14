@@ -152,11 +152,12 @@ public class MnuMantencion extends Controller {
     			List<MantActividad> listActividad = MantActividad.all(con, s.baseDato);
     			List<MantTipoActividad> listTipoActividad = MantTipoActividad.all(con, s.baseDato);
     			List<MantComponente> listComponentes = MantComponente.all(con, s.baseDato);
+    			List<MantItemIntervenido> listItemIntervenido = MantItemIntervenido.all(con, s.baseDato);
     			
     			con.close();
     			return ok(mantReportNew.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listActor,listOperMec,
     					listPlanMant,mapIdEquipVsBod,listBod,listEstaObra, listEquipos, listTipoMantencion,
-    					listEstadoEnTaller,listActividad,listTipoActividad,listComponentes));
+    					listEstadoEnTaller,listActividad,listTipoActividad,listComponentes,listItemIntervenido));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -188,10 +189,27 @@ public class MnuMantencion extends Controller {
 		    					MnuMantencion.grabarFilesThread grabarFile = new MnuMantencion.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 				    			grabarFile.run();
 	    	    			}
-	    	    			String fileNamePdf = FormMantencion.pdfReportMantOperador(con, s.baseDato, form, id_mantActorPersonal, mapeoDiccionario, mapeoPermiso, Long.parseLong(s.id_usuario));
+	    	    			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+	    	    			FormMantencion.pdfReportMantOperador(con, s.baseDato, mantTransacReport);
 	    	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "mantTransacReport", id_mantTransacReport, "create", "Ingresa nuevo report Mantencion usuario MADA: "+s.userName);
 	    	    			con.close();
-	    	    			//return (mantReportNew(request, fileNamePdf));
+	    	    			return redirect("/routes3/mantReportNew/");
+		    			}
+	    			}
+	    			
+	    			if(id_mantActorPersonal == (long)2) {
+		    			Long id_mantTransacReport = MantTransacReport.newReportMecanico(con, s.baseDato, form, mapeoPermiso);
+		    			if(id_mantTransacReport > 0) {
+	    	    			Archivos archivos = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+	    	    			if (archivos != null && archivos.docAdjunto != null) {
+	    	    				String nombreArchivoSinExtencion = MantTransacReport.nombreDocAnexo(con, s.baseDato, archivos, id_mantTransacReport);
+		    					MnuMantencion.grabarFilesThread grabarFile = new MnuMantencion.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
+				    			grabarFile.run();
+	    	    			}
+	    	    			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+	    	    			FormMantencion.pdfReportMantMecanico(con, s.baseDato, mantTransacReport);
+	    	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "mantTransacReport", id_mantTransacReport, "create", "Ingresa nuevo report Mantencion usuario MADA: "+s.userName);
+	    	    			con.close();
 	    	    			return redirect("/routes3/mantReportNew/");
 		    			}
 	    			}
@@ -200,29 +218,8 @@ public class MnuMantencion extends Controller {
 				} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-    				
-    			
-    			
-    			
-    			
-    			
-    			
-    			
-    			
-    			
-    			
-    			
     			return ok(id_mantActorPersonal.toString());
     		}
-    		
-    		
-    		
-    		
-    		
-    		
-    		
-    		
-    		
     	}
     	return ok(mensajes.render("/",msgError));
     }
