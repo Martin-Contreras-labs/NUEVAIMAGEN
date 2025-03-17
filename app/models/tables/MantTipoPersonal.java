@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -25,6 +27,16 @@ public class MantTipoPersonal {
 	public void setId(Long id) {this.id = id;}
 	public String getNombre() {return nombre;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
+	
+	
+	public static Map<Long,MantTipoPersonal> mapAll(Connection con, String db) {
+		Map<Long,MantTipoPersonal> map = new HashMap<Long,MantTipoPersonal>();
+		List<MantTipoPersonal> lista = MantTipoPersonal.all(con, db);
+		for(MantTipoPersonal x: lista) {
+			map.put(x.getId(), x);
+		}
+		return(map);
+	}
 	
 	public static List<MantTipoPersonal> all(Connection con, String db) {
 		List<MantTipoPersonal> lista = new ArrayList<MantTipoPersonal>();

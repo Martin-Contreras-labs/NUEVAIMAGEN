@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -377,6 +378,129 @@ public class MantTransacReport {
 		this.albumFotos = albumFotos;
 	}
 	
+	public static List<MantTransacReport> allEntreFechas(Connection con, String db, String desde, String hasta) {
+		List<MantTransacReport> lista = new ArrayList<MantTransacReport>();
+		try {
+			PreparedStatement smt = con.prepareStatement("select "
+					/* 1*/  + " id,"
+					/* 2*/  + " id_userMada,"
+					/* 3*/  + " id_mantActorPersonal,"
+					/* 4*/  + " id_mantActividad,"
+					/* 5*/  + " id_bodegaEmpresa,"
+					/* 6*/  + " id_equipo,"
+					/* 7*/  + " id_mantEstadoEnObra,"
+					/* 8*/  + " id_mantEstadoOperacional,"
+					/* 9*/  + " id_mantEstadoEnTaller,"
+					/* 10*/ + " id_mantItemIntervenido,"
+					/* 11*/ + " id_mantMecanico,"
+					/* 12*/ + " id_mantOperador,"
+					/* 13*/ + " id_mantTipoActividad,"
+					/* 14*/ + " id_tipoMantencion,"
+					/* 15*/ + " id_tipoPlan,"
+					/* 16*/ + " comentario,"
+					/* 17*/ + " descTrabajo,"
+					/* 18*/ + " estadoFinal,"
+					/* 19*/ + " fecha,"
+					/* 20*/ + " horaIni,"
+					/* 21*/ + " horaFin,"
+					/* 22*/ + " horaDif,"
+					/* 23*/ + " fechaIni,"
+					/* 24*/ + " fechaFin,"
+					/* 25*/ + " fechaDif,"
+					/* 26*/ + " lectAnterior,"
+					/* 27*/ + " lectActual,"
+					/* 28*/ + " lectDif,"
+					/* 29*/ + " observaciones,"
+					/* 30*/ + " docAnexo,"
+					/* 31*/ + " reportPDF,"
+					/* 32*/ + " firmaPDFoperador,"
+					/* 33*/ + " firmaPDFautorizador,"
+					/* 34*/ + " albumFotos"
+							+ " from `"+db+"`.mantTransacReport "
+							+ " where fecha between ? and ? ;");
+			smt.setString(1, desde);
+			smt.setString(2, hasta);
+			ResultSet rs = smt.executeQuery();
+			while(rs.next()) {
+				lista.add(new MantTransacReport(
+					rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getLong(8),
+					rs.getLong(9),rs.getLong(10),rs.getLong(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+					rs.getDouble(22),rs.getString(23),rs.getString(24),rs.getDouble(25),rs.getDouble(26),rs.getDouble(27),rs.getDouble(28),
+					rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getString(34) ));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(lista);
+	}
+	
+	public static List<List<String>> listaDeReports(Connection con, String db, List<MantTransacReport> listReport){
+		List<List<String>> listado = new ArrayList<List<String>>();
+		Map<Long,Usuario> mapUserMada = Usuario.mapAll(con, db);
+		Map<Long, MantOperadorMecanico> mapOper = MantOperadorMecanico.mapAll(con, db);
+		Map<Long,TipoMantencion> mapTipoMant = TipoMantencion.mapAll(con, db);
+		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+		for(MantTransacReport x: listReport) {
+			String userMada = "";
+			if(x.getId_userMada() > 0 ) {
+				Usuario user = mapUserMada.get(x.getId_userMada());
+				if(user != null) {
+					userMada = user.getUserName();
+				}
+			}
+			String operMec = "OPERADOR";
+			String userOperMec = "";
+			if(x.getId_mantOperador() > 0) {
+				MantOperadorMecanico oper = mapOper.get(x.getId_mantOperador());
+				if(oper != null) {
+					userOperMec = oper.getUserName();
+					oper.getId_mantTipoPersonal();
+					
+				}
+			}else if(x.getId_mantMecanico() > 0){
+				operMec = "MECANICO";
+				MantOperadorMecanico mec = mapOper.get(x.getId_mantMecanico());
+				if(mec != null) {
+					userOperMec = mec.getUserName();
+				}
+			}else {
+				operMec = "";
+			}
+			String tipoMantencion = "";
+			if(x.getId_mantMecanico() > 0){
+				TipoMantencion aux = mapTipoMant.get(x.getId_tipoMantencion());
+				if(aux != null) {
+					tipoMantencion = aux.getNombre();
+				}
+			}
+			String codigo = "";
+			String equip = "";
+			Equipo equipo = mapEquipo.get(x.getId_equipo());
+			if(equipo != null) {
+				codigo = equipo.getCodigo();
+				equip = equipo.getNombre();
+			}
+			List<String> a = new ArrayList<String>();
+			a.add(x.getId().toString());
+			a.add(x.getFecha());
+			a.add(userMada);
+			a.add(operMec);
+			a.add(userOperMec);
+			a.add(tipoMantencion);
+			a.add(codigo);
+			a.add(equip);
+			a.add(x.getReportPDF());
+			a.add(x.getDocAnexo());
+			a.add(x.getFirmaPDFoperador());
+			a.add(x.getFirmaPDFautorizador());
+			listado.add(a);
+		}
+		return(listado);
+	}
+	
 	public static MantTransacReport find(Connection con, String db, Long id_mantTransacReport) {
 		MantTransacReport aux = null;
 		try {
@@ -416,7 +540,7 @@ public class MantTransacReport {
 					/* 33*/ + " firmaPDFautorizador,"
 					/* 34*/ + " albumFotos"
 							+ " from `"+db+"`.mantTransacReport "
-							+ " WHERE id = ?;");
+							+ " where id = ?;");
 			smt.setLong(1, id_mantTransacReport);
 			ResultSet rs = smt.executeQuery();
 			if(rs.next()) {

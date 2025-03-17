@@ -1,19 +1,24 @@
 package controllers;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import controllers.HomeController.Sessiones;
 import models.forms.FormMantencion;
 import models.forms.FormMovimiento;
+import models.reports.ReportOdo;
 import models.tables.AuxHuella;
 import models.tables.BodegaEmpresa;
 import models.tables.Equipo;
+import models.tables.EquipoServicio;
 import models.tables.MantActividad;
 import models.tables.MantActorPersonal;
 import models.tables.MantComponente;
@@ -27,7 +32,9 @@ import models.tables.MantTipoPersonal;
 import models.tables.MantTransacReport;
 import models.tables.OperadorServicio;
 import models.tables.PlanMantencion;
+import models.tables.TasasCambio;
 import models.tables.TipoMantencion;
+import models.tables.Usuario;
 import models.tables.VentaServicio;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
@@ -42,6 +49,10 @@ import play.mvc.Http;
 import play.mvc.Result;
 import views.html.mensajes;
 import viewsMnuMantencion.html.*;
+import viewsMnuOdo.html.odoFirmaAutorizador;
+import viewsMnuOdo.html.odoFirmaOperador;
+import viewsMnuOdo.html.odoListarVentas0;
+import viewsMnuOdo.html.odoListarVentas1;
 import viewsMnuOdo.html.odoVentas;
 
 
@@ -178,7 +189,6 @@ public class MnuMantencion extends Controller {
 				try {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			
 	    			if(id_mantActorPersonal == (long)1) {
 		    			Long id_mantTransacReport = MantTransacReport.newReportOperador(con, s.baseDato, form);
@@ -1791,5 +1801,308 @@ public class MnuMantencion extends Controller {
     }
     
     
+    //============================================================
+    // MNU PLANES MANTENCION   Odo/Listar Report
+    //============================================================
+    
+    public Result mantListarReports0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Fechas hoy = Fechas.hoy();
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+    			con.close();
+    			return ok(mantListarReports0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+    
+    public Result mantListarReports1(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			List<MantTransacReport> listReport = MantTransacReport.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<List<String>> listado = MantTransacReport.listaDeReports(con, s.baseDato, listReport);
+    			con.close();
+    			return ok(mantListarReports1.render(mapeoDiccionario,mapeoPermiso,userMnu,listado,desdeAAMMDD,hastaAAMMDD));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantListarReports1Get(Http.Request request, String desdeAAMMDD, String hastaAAMMDD) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		try {
+			Connection con = db.getConnection();
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			if(mapeoPermiso.get("mantReportEnMada")==null) {
+				con.close();
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+			List<MantTransacReport> listReport = MantTransacReport.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+			List<List<String>> listado = MantTransacReport.listaDeReports(con, s.baseDato, listReport);
+		con.close();
+		return ok(mantListarReports1.render(mapeoDiccionario,mapeoPermiso,userMnu,listado,desdeAAMMDD,hastaAAMMDD));
+    	} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantListarReports1Excel(Http.Request request) {
+//    	Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//    		DynamicForm form = formFactory.form().bindFromRequest(request);
+//	   		if (form.hasErrors()) {
+//	   			return ok(mensajes.render("/",msgErrorFormulario));
+//	       	}else {
+//	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+//	       		
+//	    		try {
+//	    			Connection con = db.getConnection();
+//	    			
+//	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+//	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+//	    			if(mapeoPermiso.get("odoVentas")==null) {
+//	    				con.close();
+//	    				return ok(mensajes.render("/",msgSinPermiso));
+//	    			}
+//	    			
+//	    			List<VentaServicio> listVentas = VentaServicio.allentreFechas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
+//    			
+//	    			File file = ReportOdo.exportaExcelOdoListarVentas1(s.baseDato, mapeoDiccionario, listVentas, desdeAAMMDD, hastaAAMMDD);
+//	    			
+//	    			if(file!=null) {
+//		       			con.close();
+//		       			return ok(file,false,Optional.of("Lista_de_report_diario.xlsx"));
+//		       		}else {
+//		       			con.close();
+//		       			return ok("");
+//		       		}
+//	    		} catch (SQLException e) {
+//	    			e.printStackTrace();
+//	    		}
+//    			
+//	    	}
+//    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantReportGrabaDocAnexo(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		Archivos archivos = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+			if (archivos != null) {
+				if(archivos.docAdjunto != null) {
+					DynamicForm form = formFactory.form().bindFromRequest(request);
+			   		if (form.hasErrors()) {
+			   			return ok(mensajes.render("/",msgErrorFormulario));
+			       	}else {
+			       		try {
+			    			Connection con = db.getConnection();
+    			       		Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport").trim());
+    			       		String desdeAAMMDD = form.get("desdeAAMMDD").trim();
+    			       		String hastaAAMMDD = form.get("hastaAAMMDD").trim();
+    			       		String nombreArchivoSinExtencion = MantTransacReport.nombreDocAnexo(con, s.baseDato, archivos, id_mantTransacReport);
+	    					MnuMantencion.grabarFilesThread grabarFile = new MnuMantencion.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
+			    			grabarFile.run();
+			    			String msg = "Archivos subidos con exito, esto puede tomar algunos minutos en actualizar la lista";
+		    				con.close();
+		    				return ok(mensajes.render("/routes3/mantListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD,msg));
+		    				
+		    			} catch (SQLException e) {
+			    			e.printStackTrace();
+			    		}
+			       	}
+				}
+			}
+    		return redirect("odoListarVentas1");
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantFirmaOperador(Http.Request request, Long id_ventaServicio, String desdeAAMMDD, String hastaAAMMDD) {
+//    	Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+//    		try {
+//    			Connection con = db.getConnection();
+//    			
+//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+//    			if(mapeoPermiso.get("odoVentas")==null) {
+//    				con.close();
+//    				return ok(mensajes.render("/",msgSinPermiso));
+//    			}
+//    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
+//    			con.close();
+//    			return ok(odoFirmaOperador.render(mapeoDiccionario,mapeoPermiso,userMnu,ventaServicio, desdeAAMMDD, hastaAAMMDD));
+//        	} catch (SQLException e) {
+//    			e.printStackTrace();
+//    		}
+//    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantGrabarFirmaOperador(Http.Request request) {
+//    	Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//		 
+//    		DynamicForm form = formFactory.form().bindFromRequest(request);
+//	   		if (form.hasErrors()) {
+//	   			return ok(mensajes.render("/",msgErrorFormulario));
+//    		}else {
+//    			Long id_ventaServicio = Long.parseLong(form.get("id_ventaServicio").trim());
+//    			String firmaPDFoperador = form.get("firmaPDFoperador").trim();
+//    			String desdeAAMMDD = form.get("fechaDesde").trim();
+//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+//    			String fileNamePdf = "";
+//    			try {
+//	    			Connection con = db.getConnection();
+//	    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
+//	    			VentaServicio.modificaPorCampo(con, s.baseDato, "firmaPDFoperador", firmaPDFoperador, id_ventaServicio);
+//	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ventaServicio", ventaServicio.getId(), "insert", "agrega o modifica firma operador report diario nro: "+ventaServicio.getId());
+//	    			
+//	    			//EXTRAE FIRMAS
+//					byte[] decodedStrOper = Base64.getDecoder().decode(firmaPDFoperador);
+//					byte[] decodedStrAut = Base64.getDecoder().decode(ventaServicio.getFirmaPDFautorizador());
+//					//FIN DE FIRMA
+//					
+//					fileNamePdf = VentaServicio.generaPdfVentaReport(con, s.baseDato, ventaServicio, decodedStrOper, decodedStrAut);
+//					
+//					String url = "%2FodoListarVentas1aux%2F";
+//    				con.close();
+//    				
+//    				return redirect("/routes2/redirOdoShowPDF/"+fileNamePdf+","+desdeAAMMDD+","+hastaAAMMDD+","+url);
+//    				
+//    			} catch (SQLException e) {
+//	    			e.printStackTrace();
+//	    		}
+//    		}
+//    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantFirmaAutorizador(Http.Request request, Long id_ventaServicio, String desdeAAMMDD, String hastaAAMMDD) {
+//    	Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+//    		try {
+//    			Connection con = db.getConnection();
+//    			
+//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+//    			if(mapeoPermiso.get("odoVentas")==null) {
+//    				con.close();
+//    				return ok(mensajes.render("/",msgSinPermiso));
+//    			}
+//    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
+//    			con.close();
+//    			return ok(odoFirmaAutorizador.render(mapeoDiccionario,mapeoPermiso,userMnu,ventaServicio, desdeAAMMDD, hastaAAMMDD));
+//        	} catch (SQLException e) {
+//    			e.printStackTrace();
+//    		}
+//    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantGrabarFirmaAutorizador(Http.Request request) {
+//    	Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//		 
+//    		DynamicForm form = formFactory.form().bindFromRequest(request);
+//	   		if (form.hasErrors()) {
+//	   			return ok(mensajes.render("/",msgErrorFormulario));
+//    		}else {
+//    			Long id_ventaServicio = Long.parseLong(form.get("id_ventaServicio").trim());
+//    			String firmaPDFaurorizador = form.get("firmaPDFautorizador").trim();
+//    			String desdeAAMMDD = form.get("fechaDesde").trim();
+//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+//    			String fileNamePdf = "";
+//    			try {
+//	    			Connection con = db.getConnection();
+//	    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
+//	    			VentaServicio.modificaPorCampo(con, s.baseDato, "firmaPDFautorizador", firmaPDFaurorizador, id_ventaServicio);
+//	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ventaServicio", ventaServicio.getId(), "insert", "agrega o modifica firma autorizador report diario nro: "+ventaServicio.getId());
+//	    			
+//	    			//EXTRAE FIRMAS
+//					byte[] decodedStrOper = Base64.getDecoder().decode(ventaServicio.getFirmaPDFoperador());
+//					byte[] decodedStrAut = Base64.getDecoder().decode(firmaPDFaurorizador);
+//					//FIN DE FIRMA
+//					
+//					fileNamePdf = VentaServicio.generaPdfVentaReport(con, s.baseDato, ventaServicio, decodedStrOper, decodedStrAut);
+//				
+//					String url = "%2FodoListarVentas1aux%2F";
+//    				con.close();
+//    				
+//    				return redirect("/routes2/redirOdoShowPDF/"+fileNamePdf+","+desdeAAMMDD+","+hastaAAMMDD+","+url);
+//    				
+//    			} catch (SQLException e) {
+//	    			e.printStackTrace();
+//	    		}
+//    		}
+//    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result eliminarMantReport(Http.Request request) {
+//    	Sessiones s = new Sessiones(request);
+//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+//		 
+//    		DynamicForm form = formFactory.form().bindFromRequest(request);
+//	   		if (form.hasErrors()) {
+//	   			return ok(mensajes.render("/",msgErrorFormulario));
+//	       	}else {
+//	       		Long id_ventaServicio = Long.parseLong(form.get("id_ventaServicio").trim());
+//	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+//	    		try {
+//	    			Connection con = db.getConnection();
+//	    			VentaServicio.delete(con, s.baseDato, id_ventaServicio);
+//	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ventaServicio", id_ventaServicio, "delete", "elimina report diario nro: "+id_ventaServicio);
+//	    			con.close();
+//	    			return redirect("/odoListarVentas1aux/"+desdeAAMMDD+","+hastaAAMMDD);
+//	        	} catch (SQLException e) {
+//	    			e.printStackTrace();
+//	    		}
+//	       	}
+//    	}
+    	return ok(mensajes.render("/",msgError));
+    }
 
 }

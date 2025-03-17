@@ -64,6 +64,24 @@ public class TipoMantencion {
 		return (map);
 	}
 	
+	public static Map<Long,TipoMantencion> mapAll(Connection con, String db) {
+		 Map<Long,TipoMantencion> map = new HashMap<Long,TipoMantencion>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id,nombre " +
+							" from `"+db+"`.tipoMantencion");
+			ResultSet resultado = smt.executeQuery();
+			while (resultado.next()) {
+				map.put(resultado.getLong(1), new TipoMantencion(resultado.getLong(1),resultado.getString(2)));
+			}
+			resultado.close();
+			smt.close();
+		} catch (SQLException e) {
+   			e.printStackTrace();
+		}
+		return (map);
+	}
+	
 	public static TipoMantencion find(Connection con, String db, Long id) {
 		TipoMantencion aux = null;
 		try {

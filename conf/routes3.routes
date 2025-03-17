@@ -26,6 +26,17 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 GET		/mantReportNew/						controllers.MnuMantencion.mantReportNew(request: Request)
 POST	/mantReportNewSave/					controllers.MnuMantencion.mantReportNewSave(request: Request)
 
+GET		/mantListarReports0/							controllers.MnuMantencion.mantListarReports0(request: Request)
+POST	/mantListarReports1/							controllers.MnuMantencion.mantListarReports1(request: Request)
+GET		/mantListarReports1Get/:d,:a					controllers.MnuMantencion.mantListarReports1Get(request: Request, d: String, a: String)
+POST	/mantListarReports1Excel/						controllers.MnuMantencion.mantListarReports1Excel(request: Request)
+POST	/mantReportGrabaDocAnexo/						controllers.MnuMantencion.mantReportGrabaDocAnexo(request: Request)
+GET     /mantFirmaOperador/:id_venta,:desde,:hasta		controllers.MnuMantencion.mantFirmaOperador(request: Request, id_venta: Long, desde: String, hasta: String)
+POST	/mantGrabarFirmaOperador/						controllers.MnuMantencion.mantGrabarFirmaOperador(request: Request)
+GET     /mantFirmaAutorizador/:id_venta,:desde,:hasta	controllers.MnuMantencion.mantFirmaAutorizador(request: Request, id_venta: Long, desde: String, hasta: String)
+POST	/mantGrabarFirmaAutorizador/					controllers.MnuMantencion.mantGrabarFirmaAutorizador(request: Request)
+POST	/eliminarMantReport/							controllers.MnuMantencion.eliminarMantReport(request: Request)
+
 
 
 
