@@ -28,6 +28,23 @@ public class TipoPlan {
 	public void setNombre(String nombre) {this.nombre = nombre;}
 
 	
+	public static Map<Long,String> mapAll(Connection con, String db) {
+		Map<Long,String> map = new HashMap<Long,String>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id,nombre from `"+db+"`.tipoPlan;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getLong(1), rs.getString(2)) ;
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
+	
 	public static List<TipoPlan> all(Connection con, String db) {
 		List<TipoPlan> lista = new ArrayList<TipoPlan>();
 		try {

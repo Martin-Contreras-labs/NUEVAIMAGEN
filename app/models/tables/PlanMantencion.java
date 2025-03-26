@@ -219,6 +219,15 @@ public class PlanMantencion {
 		}
 		return (aux);
 	}
+	
+	public static Map<String,PlanMantencion> mapAll (Connection con, String db){
+		Map<String,PlanMantencion> map = new HashMap<String,PlanMantencion>();
+		List<PlanMantencion> aux = PlanMantencion.all(con, db);
+		for(PlanMantencion x: aux) {
+			map.put(x.getId_tipoPlan()+"_"+x.getId_equipo(),x);
+		}
+		return(map);
+	}
 
 	public static List<PlanMantencion> all(Connection con, String db) {
 		List<PlanMantencion> lista = new ArrayList<PlanMantencion>();

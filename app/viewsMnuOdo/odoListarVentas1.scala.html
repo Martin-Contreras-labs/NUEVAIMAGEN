@@ -154,13 +154,13 @@ listVentas: List[tables.VentaServicio], mapEquiposVigentes: Map[Long, List[List[
 									</a>
 								</td>
 								<td style="text-align:center;">
-									<a href="/odoFirmaOperador/@lista1.getId(),@desdeAAMMDD,@desdeAAMMDD">
+									<a href="/odoFirmaOperador/@lista1.getId(),@desdeAAMMDD,@hastaAAMMDD">
 										<kbd style="background-color: #F0B27A">FIR</kbd>
 									</a>
 									<img src="data:image/jpeg;base64, @lista1.getFirmaPDFoperador()" height="10px" />
 								</td>
 								<td style="text-align:center;">
-									<a href="/odoFirmaAutorizador/@lista1.getId(),@desdeAAMMDD,@desdeAAMMDD">
+									<a href="/odoFirmaAutorizador/@lista1.getId(),@desdeAAMMDD,@hastaAAMMDD">
 										<kbd style="background-color: #F7DC6F">FIR</kbd>
 									</a>
 									<img src="data:image/jpeg;base64, @lista1.getFirmaPDFautorizador()" height="10px" />

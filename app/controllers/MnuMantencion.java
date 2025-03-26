@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import models.tables.MantItemIntervenido;
 import models.tables.MantOperadorMecanico;
 import models.tables.MantTipoActividad;
 import models.tables.MantTipoPersonal;
+import models.tables.MantTransacComponentes;
 import models.tables.MantTransacReport;
 import models.tables.OperadorServicio;
 import models.tables.PlanMantencion;
@@ -1802,7 +1804,7 @@ public class MnuMantencion extends Controller {
     
     
     //============================================================
-    // MNU PLANES MANTENCION   Odo/Listar Report
+    // MNU PLANES MANTENCION   Listar Report
     //============================================================
     
     public Result mantListarReports0(Http.Request request) {
@@ -1820,9 +1822,8 @@ public class MnuMantencion extends Controller {
     			Fechas hoy = Fechas.hoy();
     			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
     			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
     			con.close();
-    			return ok(mantListarReports0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+    			return ok(mantListarReports0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -1874,6 +1875,8 @@ public class MnuMantencion extends Controller {
 			}
 			List<MantTransacReport> listReport = MantTransacReport.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 			List<List<String>> listado = MantTransacReport.listaDeReports(con, s.baseDato, listReport);
+			
+			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, (long)1);
 		con.close();
 		return ok(mantListarReports1.render(mapeoDiccionario,mapeoPermiso,userMnu,listado,desdeAAMMDD,hastaAAMMDD));
     	} catch (SQLException e) {
@@ -1884,42 +1887,71 @@ public class MnuMantencion extends Controller {
     }
     
     public Result mantListarReports1Excel(Http.Request request) {
-//    	Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//    		DynamicForm form = formFactory.form().bindFromRequest(request);
-//	   		if (form.hasErrors()) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//	       	}else {
-//	       		String desdeAAMMDD = form.get("fechaDesde").trim();
-//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-//	       		
-//	    		try {
-//	    			Connection con = db.getConnection();
-//	    			
-//	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-//	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-//	    			if(mapeoPermiso.get("odoVentas")==null) {
-//	    				con.close();
-//	    				return ok(mensajes.render("/",msgSinPermiso));
-//	    			}
-//	    			
-//	    			List<VentaServicio> listVentas = VentaServicio.allentreFechas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
-//    			
-//	    			File file = ReportOdo.exportaExcelOdoListarVentas1(s.baseDato, mapeoDiccionario, listVentas, desdeAAMMDD, hastaAAMMDD);
-//	    			
-//	    			if(file!=null) {
-//		       			con.close();
-//		       			return ok(file,false,Optional.of("Lista_de_report_diario.xlsx"));
-//		       		}else {
-//		       			con.close();
-//		       			return ok("");
-//		       		}
-//	    		} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//    			
-//	    	}
-//    	}
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			List<MantTransacReport> listReport = MantTransacReport.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<List<String>> listado = MantTransacReport.listaDeReports(con, s.baseDato, listReport);
+	    			listado.sort(Comparator.comparing((List<String> list) -> list.get(1), Comparator.reverseOrder())
+                            .thenComparing(list -> list.get(0), Comparator.reverseOrder()));
+	    			File file = MantTransacReport.exportaListaDeReportsExcel(s.baseDato, mapeoDiccionario, listado, desdeAAMMDD, hastaAAMMDD);
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("Lista_de_report_diario.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantReportDetalle(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport"));
+	       		String desdeAAMMDD = form.get("desdeAAMMDD").trim();
+	       		String hastaAAMMDD = form.get("hastaAAMMDD").trim();
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+	    			if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
+	    				con.close();
+	    				return ok(mantReportOperador.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,desdeAAMMDD,hastaAAMMDD));
+	    			}else {
+	    				List<MantTransacComponentes> mantTransacComponentes = MantTransacComponentes.allPorIdMantTransacReport(con, s.baseDato, id_mantTransacReport);
+	    				con.close();
+	    				return ok(mantReportMecanico.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD));
+	    			}
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
     	return ok(mensajes.render("/",msgError));
     }
     
@@ -1956,152 +1988,306 @@ public class MnuMantencion extends Controller {
     	return ok(mensajes.render("/",msgError));
     }
     
-    public Result mantFirmaOperador(Http.Request request, Long id_ventaServicio, String desdeAAMMDD, String hastaAAMMDD) {
-//    	Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-//    		try {
-//    			Connection con = db.getConnection();
-//    			
-//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-//    			if(mapeoPermiso.get("odoVentas")==null) {
-//    				con.close();
-//    				return ok(mensajes.render("/",msgSinPermiso));
-//    			}
-//    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
-//    			con.close();
-//    			return ok(odoFirmaOperador.render(mapeoDiccionario,mapeoPermiso,userMnu,ventaServicio, desdeAAMMDD, hastaAAMMDD));
-//        	} catch (SQLException e) {
-//    			e.printStackTrace();
-//    		}
-//    	}
+    public Result mantFirmaOperador(Http.Request request, Long id_mantTransacReport, String desdeAAMMDD, String hastaAAMMDD) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+    			if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
+    				con.close();
+    				return ok(mantReportOperadorFirmaOper.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport, desdeAAMMDD, hastaAAMMDD));
+    			}else {
+    				List<MantTransacComponentes> mantTransacComponentes = MantTransacComponentes.allPorIdMantTransacReport(con, s.baseDato, id_mantTransacReport);
+    				con.close();
+    				return ok(mantReportMecanicoFirmaMec.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD));
+    			}
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}
     	return ok(mensajes.render("/",msgError));
     }
+    
     
     public Result mantGrabarFirmaOperador(Http.Request request) {
-//    	Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//		 
-//    		DynamicForm form = formFactory.form().bindFromRequest(request);
-//	   		if (form.hasErrors()) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//    		}else {
-//    			Long id_ventaServicio = Long.parseLong(form.get("id_ventaServicio").trim());
-//    			String firmaPDFoperador = form.get("firmaPDFoperador").trim();
-//    			String desdeAAMMDD = form.get("fechaDesde").trim();
-//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-//    			String fileNamePdf = "";
-//    			try {
-//	    			Connection con = db.getConnection();
-//	    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
-//	    			VentaServicio.modificaPorCampo(con, s.baseDato, "firmaPDFoperador", firmaPDFoperador, id_ventaServicio);
-//	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ventaServicio", ventaServicio.getId(), "insert", "agrega o modifica firma operador report diario nro: "+ventaServicio.getId());
-//	    			
-//	    			//EXTRAE FIRMAS
-//					byte[] decodedStrOper = Base64.getDecoder().decode(firmaPDFoperador);
-//					byte[] decodedStrAut = Base64.getDecoder().decode(ventaServicio.getFirmaPDFautorizador());
-//					//FIN DE FIRMA
-//					
-//					fileNamePdf = VentaServicio.generaPdfVentaReport(con, s.baseDato, ventaServicio, decodedStrOper, decodedStrAut);
-//					
-//					String url = "%2FodoListarVentas1aux%2F";
-//    				con.close();
-//    				
-//    				return redirect("/routes2/redirOdoShowPDF/"+fileNamePdf+","+desdeAAMMDD+","+hastaAAMMDD+","+url);
-//    				
-//    			} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//    		}
-//    	}
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport").trim());
+    			String firmaPDFoperador = form.get("firmaPDFoperador").trim();
+    			String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+    			try {
+	    			Connection con = db.getConnection();
+	    			if(MantTransacReport.modificaPorCampo(con, s.baseDato, "firmaPDFoperador", id_mantTransacReport, firmaPDFoperador)) {
+	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "mantTransacReport", id_mantTransacReport, "insert", "agrega o modifica firma operador/mecanico en reporte nro: "+id_mantTransacReport);
+	    				MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+	    				if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
+	    					FormMantencion.pdfReportMantOperador(con, s.baseDato, mantTransacReport);
+	        			}else {
+	        				FormMantencion.pdfReportMantMecanico(con, s.baseDato, mantTransacReport);
+	        			}
+	    			}
+    				con.close();
+    				return redirect("/routes3/mantListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD);
+    			} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+    		}
+    	}
     	return ok(mensajes.render("/",msgError));
     }
     
-    public Result mantFirmaAutorizador(Http.Request request, Long id_ventaServicio, String desdeAAMMDD, String hastaAAMMDD) {
-//    	Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-//    		try {
-//    			Connection con = db.getConnection();
-//    			
-//    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-//    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-//    			if(mapeoPermiso.get("odoVentas")==null) {
-//    				con.close();
-//    				return ok(mensajes.render("/",msgSinPermiso));
-//    			}
-//    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
-//    			con.close();
-//    			return ok(odoFirmaAutorizador.render(mapeoDiccionario,mapeoPermiso,userMnu,ventaServicio, desdeAAMMDD, hastaAAMMDD));
-//        	} catch (SQLException e) {
-//    			e.printStackTrace();
-//    		}
-//    	}
+    public Result mantFirmaAutorizador(Http.Request request, Long id_mantTransacReport, String desdeAAMMDD, String hastaAAMMDD) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+    			if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
+    				con.close();
+    				return ok(mantReportOperadorFirmaSuper.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport, desdeAAMMDD, hastaAAMMDD));
+    			}else {
+    				List<MantTransacComponentes> mantTransacComponentes = MantTransacComponentes.allPorIdMantTransacReport(con, s.baseDato, id_mantTransacReport);
+    				con.close();
+    				return ok(mantReportMecanicoFirmaSuper.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD));
+    			}
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}
     	return ok(mensajes.render("/",msgError));
     }
     
     public Result mantGrabarFirmaAutorizador(Http.Request request) {
-//    	Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//		 
-//    		DynamicForm form = formFactory.form().bindFromRequest(request);
-//	   		if (form.hasErrors()) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//    		}else {
-//    			Long id_ventaServicio = Long.parseLong(form.get("id_ventaServicio").trim());
-//    			String firmaPDFaurorizador = form.get("firmaPDFautorizador").trim();
-//    			String desdeAAMMDD = form.get("fechaDesde").trim();
-//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-//    			String fileNamePdf = "";
-//    			try {
-//	    			Connection con = db.getConnection();
-//	    			VentaServicio ventaServicio = VentaServicio.find(con, s.baseDato, id_ventaServicio);
-//	    			VentaServicio.modificaPorCampo(con, s.baseDato, "firmaPDFautorizador", firmaPDFaurorizador, id_ventaServicio);
-//	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ventaServicio", ventaServicio.getId(), "insert", "agrega o modifica firma autorizador report diario nro: "+ventaServicio.getId());
-//	    			
-//	    			//EXTRAE FIRMAS
-//					byte[] decodedStrOper = Base64.getDecoder().decode(ventaServicio.getFirmaPDFoperador());
-//					byte[] decodedStrAut = Base64.getDecoder().decode(firmaPDFaurorizador);
-//					//FIN DE FIRMA
-//					
-//					fileNamePdf = VentaServicio.generaPdfVentaReport(con, s.baseDato, ventaServicio, decodedStrOper, decodedStrAut);
-//				
-//					String url = "%2FodoListarVentas1aux%2F";
-//    				con.close();
-//    				
-//    				return redirect("/routes2/redirOdoShowPDF/"+fileNamePdf+","+desdeAAMMDD+","+hastaAAMMDD+","+url);
-//    				
-//    			} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//    		}
-//    	}
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+    		}else {
+    			Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport").trim());
+    			String firmaPDFautorizador = form.get("firmaPDFautorizador").trim();
+    			String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+    			try {
+	    			Connection con = db.getConnection();
+	    			if(MantTransacReport.modificaPorCampo(con, s.baseDato, "firmaPDFautorizador", id_mantTransacReport, firmaPDFautorizador)) {
+	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "mantTransacReport", id_mantTransacReport, "insert", "agrega o modifica firma supervisor en reporte nro: "+id_mantTransacReport);
+	    				MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
+	    				if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
+	    					FormMantencion.pdfReportMantOperador(con, s.baseDato, mantTransacReport);
+	        			}else {
+	        				FormMantencion.pdfReportMantMecanico(con, s.baseDato, mantTransacReport);
+	        			}
+	    			}
+    				con.close();
+    				return redirect("/routes3/mantListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD);
+    			} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+    		}
+    	}
     	return ok(mensajes.render("/",msgError));
     }
     
-    public Result eliminarMantReport(Http.Request request) {
-//    	Sessiones s = new Sessiones(request);
-//    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-//		 
-//    		DynamicForm form = formFactory.form().bindFromRequest(request);
-//	   		if (form.hasErrors()) {
-//	   			return ok(mensajes.render("/",msgErrorFormulario));
-//	       	}else {
-//	       		Long id_ventaServicio = Long.parseLong(form.get("id_ventaServicio").trim());
-//	       		String desdeAAMMDD = form.get("fechaDesde").trim();
-//	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-//	    		try {
-//	    			Connection con = db.getConnection();
-//	    			VentaServicio.delete(con, s.baseDato, id_ventaServicio);
-//	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ventaServicio", id_ventaServicio, "delete", "elimina report diario nro: "+id_ventaServicio);
-//	    			con.close();
-//	    			return redirect("/odoListarVentas1aux/"+desdeAAMMDD+","+hastaAAMMDD);
-//	        	} catch (SQLException e) {
-//	    			e.printStackTrace();
-//	    		}
-//	       	}
-//    	}
+    public Result mantReportElimina(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport").trim());
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			if(mapeoPermiso.get("mantEliminaReportAdam")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			MantTransacReport.delete(con, s.baseDato, id_mantTransacReport);
+	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "mantTransacReport", id_mantTransacReport, "delete", "elimina report mant nro: "+id_mantTransacReport);
+	    			con.close();
+	    			return redirect("/routes3/mantListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD);
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	       	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    
+    //============================================================
+    // MNU PLANES MANTENCION   Historial Report
+    //============================================================
+    
+    public Result mantHistorialReports0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Fechas hoy = Fechas.hoy();
+    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+    			
+    			List<MantActorPersonal> listActor = MantActorPersonal.all(con, s.baseDato); 
+    			List<MantOperadorMecanico> listOperMec = MantOperadorMecanico.allVigentes(con, s.baseDato);
+    			List<PlanMantencion> listPlanMant = PlanMantencion.all(con, s.baseDato);
+    			Map<Long,List<String>> mapEquipos = new HashMap<Long,List<String>>();
+    			for(PlanMantencion x: listPlanMant) {
+    				List<String> aux = mapEquipos.get(x.getId_equipo());
+    				if(aux == null) {
+    					aux = new ArrayList<String>();
+    					aux.add(x.getId_equipo().toString());
+    					aux.add(x.getEquipoGrupo());
+    					aux.add(x.getEquipoCodigo());
+    					aux.add(x.getEquipoNombre());
+    					String u = x.getUnidadMantencion();
+    					aux.add(u);
+    					if(u.equals("HR") || u.equals("KG")) {
+    						aux.add(x.getEstadoActual());
+    					}else {
+    						aux.add("0.00");
+    					}
+    					mapEquipos.put(x.getId_equipo(), aux);
+    				}else {
+    					String u = x.getUnidadMantencion();
+    					if(u.equals("HR") || u.equals("KG") && ! aux.get(4).equals("HR")) {
+    						aux.set(4,u);
+    						aux.set(5,x.getEstadoActual());
+    					}else {
+    						aux.add("0.00");
+    					} 
+    					mapEquipos.put(x.getId_equipo(), aux);
+    				}
+    			}
+    			List<List<String>> listEquipos = new ArrayList<List<String>>();
+    			mapEquipos.forEach((k,v) -> {
+    				listEquipos.add(v);
+    			});
+    			
+    			List<TipoMantencion> listTipoMantencion = TipoMantencion.all(con, s.baseDato);
+    			
+    			con.close();
+    			return ok(mantHistorialReports0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta,
+    					listActor, listOperMec, listTipoMantencion, listEquipos, listPlanMant));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+    
+    public Result mantHistorialReports1(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		
+	       		Long id_mantActorPersonal = Long.parseLong(form.get("id_mantActorPersonal").trim());
+	       		Long id_operMec = Long.parseLong(form.get("id_operMec").trim());
+	       		Long id_tipoMantencion = Long.parseLong(form.get("id_tipoMantencion").trim());
+	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+	       		
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			List<MantTransacReport> listReport = MantTransacReport.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<List<String>> listado = MantTransacReport.historialDeReports(con, s.baseDato, listReport, 
+	    					id_mantActorPersonal, id_operMec, id_tipoMantencion, id_equipo);
+    			con.close();
+    			return ok(mantHistorialReports1.render(mapeoDiccionario,mapeoPermiso,userMnu,listado,desdeAAMMDD,hastaAAMMDD,
+    					id_mantActorPersonal, id_operMec, id_tipoMantencion, id_equipo));
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
+    
+    public Result mantHistorialReports1Excel(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		String desdeAAMMDD = form.get("fechaDesde").trim();
+	       		String hastaAAMMDD = form.get("fechaHasta").trim();
+	       		Long id_mantActorPersonal = Long.parseLong(form.get("id_mantActorPersonal").trim());
+	       		Long id_operMec = Long.parseLong(form.get("id_operMec").trim());
+	       		Long id_tipoMantencion = Long.parseLong(form.get("id_tipoMantencion").trim());
+	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			List<MantTransacReport> listReport = MantTransacReport.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+	    			List<List<String>> listado = MantTransacReport.historialDeReports(con, s.baseDato, listReport, 
+	    					id_mantActorPersonal, id_operMec, id_tipoMantencion, id_equipo);
+	    	        listado.sort(Comparator.comparing((List<String> list) -> list.get(1), Comparator.reverseOrder())
+	    	                               .thenComparing(list -> list.get(0), Comparator.reverseOrder()));
+	    			File file = MantTransacReport.exportaHistorialDeReportsExcel(s.baseDato, mapeoDiccionario, listado, desdeAAMMDD, hastaAAMMDD);
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("Lista_de_report_diario.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
     	return ok(mensajes.render("/",msgError));
     }
 

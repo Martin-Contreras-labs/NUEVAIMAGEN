@@ -1,0 +1,217 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+mantTransacReport: tables.MantTransacReport, desdeAAMMDD: String, hastaAAMMDD: String)
+
+
+
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "INGRESO DE REPORT OPERADOR MECANICO", "")
+		
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+				<br>
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<thead>
+							<tr>
+								<td style="text-align:left;"><strong>ID:</strong></td>
+						        <td style="text-align:left;" width="70%" colspan="4">
+						        	<input style="max-width:150px" type="text" class="form-control"
+										value="@mantTransacReport.getId()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>FECHA:</strong></td>
+						        <td style="text-align:left;" width="70%" colspan="3">
+						        	<input style="max-width:150px" type="date" class="form-control form-control-sm" 
+										value="@mantTransacReport.getFecha()" 
+										readonly>
+						        </td>
+						        <td style="text-align:center;" width="70px">
+									@if( ! mantTransacReport.getDocAnexo().equals("0")){
+										<a href="#" onclick="descargaDocumento('@mantTransacReport.getDocAnexo()')">
+											<kbd style="background-color: #7F8C8D">docum</kbd>
+										</a>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>USER_MADA:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+						        	<input type="text" class="form-control"
+										value="@mantTransacReport.getUserNameAdam()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>PERFIL:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getNameActorPersonal()"
+										readonly>
+						        </td>
+							</tr>
+							</thead>
+					</table>
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<thead>
+							<tr>
+								<td style="text-align:left;"><strong>OPERADOR:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getFullNameOperador()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getNameTipoPersonal()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>EQUIPO:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getCodigoEquipo() - @mantTransacReport.getNameEquipo()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getNameBodega()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getNameTipoBodega()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>ESTADO EN SITIO:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control"
+										value="@mantTransacReport.getId_mantEstadoEnObra()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>Hr_INI:</strong></td>
+						        <td style="text-align:left">
+									@if( ! mantTransacReport.getHoraIni().equals("00:00:00") && mantTransacReport.getHoraFin().equals("00:00:00")){
+										<input type="time" class="form-control form-control-sm left" style="max-width:100px"
+											value="@mantTransacReport.getHoraIni()"
+											readonly>
+									}else{
+										<input type="time" class="form-control form-control-sm left" style="max-width:100px"
+											readonly>
+									}
+						        </td>
+								<td style="text-align:left;"><strong>Hr_TER:</strong></td>
+						        <td style="text-align:left" colspan="2">
+									@if( ! mantTransacReport.getHoraIni().equals("00:00:00") && mantTransacReport.getHoraFin().equals("00:00:00")){
+										<input type="time" class="form-control form-control-sm left" style="max-width:100px"
+											value="@mantTransacReport.getHoraFin()"
+											readonly>
+									}else{
+										<input type="time" class="form-control form-control-sm left" style="max-width:100px"
+											readonly>
+									}
+						        </td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"><strong><div id="lectIni_oper">Lect_INI:</div></strong></td>
+						        <td style="text-align:left">
+									<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+										value="@utilities.DecimalFormato.formato(mantTransacReport.getLectAnterior(),2)"
+										readonly>
+						        </td>
+								<td style="text-align:left;"><strong><div id="lectTer_oper">Lect_TER:</div></strong></td>
+						        <td style="text-align:left" colspan="2">
+									<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+										value="@utilities.DecimalFormato.formato(mantTransacReport.getLectActual(),2)"
+										readonly>
+						        </td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"><strong><div id="cant_oper">CANT:</div></strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+										value="@mantTransacReport.getLectDif()"
+										readonly>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>COMENTARIOS:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<textarea class="form-control form-control-sm" rows="1" 
+										readonly>@mantTransacReport.getComentario()</textarea>
+						        </td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>OBSERVACIONES:</strong></td>
+						        <td style="text-align:left" width="70%" colspan="4">
+									<textarea class="form-control form-control-sm" rows="2" 
+										readonly>@mantTransacReport.getObservaciones()</textarea>
+						        </td>
+							</tr>
+							
+							<tr>
+								<td style="text-align:left;"  colspan="5">
+									FIRMA OPERADOR:<br>
+									<div class="wrapper" align="center">
+										<img src="data:image/jpeg;base64, @mantTransacReport.getFirmaPDFoperador()"  height="60px" />
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"   colspan="5">
+									FIRMA AUTORIZADA:<br>
+									<div class="wrapper" align="center">
+										<img src="data:image/jpeg;base64, @mantTransacReport.getFirmaPDFautorizador()" height="60px" />
+									</div>
+								</td>
+							</tr>	
+						
+							<tr>
+								<td colspan="5" style="text-align:center;">
+									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="window.history.back();">VOLVER</button>
+								</td>
+							</tr>
+						</thead>
+					</table>
+			</div>
+		</div>
+		
+		<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+			<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+		</form>
+		
+	</div>
+}
+
+	
+<script>
+	$(document).ready(function() {
+ 		document.getElementById('mostrarmostrar').style.display="block";
+	} );
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+</script>
+	
+

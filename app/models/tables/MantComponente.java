@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -92,6 +94,23 @@ public class MantComponente {
 			e.printStackTrace();
 		}
 		return (aux);
+	}
+	
+	public static Map<Long,String> mapAll(Connection con, String db) {
+		Map<Long,String> map = new HashMap<Long,String>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id,nombre from `"+db+"`.mantComponente;" );
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getLong(1), rs.getString(2));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
 	}
 	
 	public static boolean existeComponente(Connection con, String db, String nombre_componente) {

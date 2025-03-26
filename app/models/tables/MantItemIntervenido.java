@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -25,6 +27,23 @@ public class MantItemIntervenido {
 	public void setId(Long id) {this.id = id;}
 	public String getNombre() {return nombre;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
+	
+	public static Map<Long,String> mapAll(Connection con, String db) {
+		Map<Long,String> map = new HashMap<Long,String>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select id,nombre from `"+db+"`.mantItemIntervenido;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				map.put(rs.getLong(1), rs.getString(2)) ;
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
 	
 	public static List<MantItemIntervenido> all(Connection con, String db) {
 		List<MantItemIntervenido> lista = new ArrayList<MantItemIntervenido>();

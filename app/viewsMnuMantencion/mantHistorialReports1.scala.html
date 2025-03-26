@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
+listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String,
+id_mantActorPersonal: Long, id_operMec: Long, id_tipoMantencion: Long, id_equipo: Long)
 
 
 @main("") {
@@ -8,14 +9,19 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 	
 	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 	
-	<form id="excel" class="formulario" method="post" action="/routes3/mantListarReports1Excel/">
+	<form id="excel" class="formulario" method="post" action="/routes3/mantHistorialReports1Excel/">
 		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
 		<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+		<input type="hidden" name="id_mantActorPersonal" value="@id_mantActorPersonal">
+		<input type="hidden" name="id_operMec" value="@id_operMec">
+		<input type="hidden" name="id_tipoMantencion" value="@id_tipoMantencion">
+		<input type="hidden" name="id_equipo" value="@id_equipo">
+		
 	</form>
 	
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "LISTA DE REPORT INGRESADOS", "")
+		@barraTitulo(mapDiccionario, "HISTORIAL DE REPORT INGRESADOS", "")
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			
@@ -36,14 +42,22 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 							<TH>TIPO<br>MANTENCION</TH>
 							<TH>CODIGO</TH>
 							<TH>EQUIPO</TH>
+							
+							<TH>LECTURA<br>ANTERIOR</TH>
+							<TH>LECTURA<br>ACTUAL</TH>
+							<TH>USO</TH>
+							<TH>UBICACION</TH>
+							
+							<TH>ESTADO<br>EN SITIO</TH>
+							<TH>ESTADO<br>OPERACIONAL</TH>
+							<TH>ESTADO<br>EN TALLER</TH>
+							<TH>COMENTARIOS</TH>
+							<TH>ESTADO FINAL</TH>
+							<TH>OBSERVACIONES</TH>
+							
 							<TH>REPORT</TH>
 							<TH>DETALLE</TH>
 							<TH>ANEXO</TH>
-							<TH>FIRMA<br>OPER/MEC</TH>
-							<TH>FIRMA<br>SUPERVISOR</TH>
-							@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
-								<TH>DEL</TH>
-							}
 							
 						</TR>
 					</thead>
@@ -61,11 +75,23 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 								<td  style="text-align:left;">@lista1.get(5).toUpperCase()</td>
 								<td  style="text-align:left;">@lista1.get(6)</td>
 								<td  style="text-align:left;">@lista1.get(7)</td>
+								
+								<td  style="text-align:left;">@lista1.get(8)</td>
+								<td  style="text-align:left;">@lista1.get(9)</td>
+								<td  style="text-align:left;">@lista1.get(10)</td>
+								<td  style="text-align:left;">@lista1.get(11)</td>
+								<td  style="text-align:left;">@lista1.get(12)</td>
+								<td  style="text-align:left;">@lista1.get(13)</td>
+								<td  style="text-align:left;">@lista1.get(14)</td>
+								<td  style="text-align:left;">@lista1.get(15)</td>
+								<td  style="text-align:left;">@lista1.get(16)</td>
+								<td  style="text-align:left;">@lista1.get(17)</td>
+								
 								<td  style="text-align:center;">
-									@if(lista1.get(8).equals("0")){
+									@if(lista1.get(18).equals("0")){
 										--
 									}else{
-										<a href="#" onclick="mostrarPDF('@lista1.get(8)')">
+										<a href="#" onclick="mostrarPDF('@lista1.get(18)')">
 											<kbd style="background-color: #85C1E9">pdf</kbd>
 										</a>
 									}
@@ -81,44 +107,15 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 									</a>
 								</td>
 								<td  style="text-align:center;">
-									@if(lista1.get(9).equals("0")){
-										<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
-											<form id="mantReportGrabaDocAnexo_@lista1.get(0)" action="/routes3/mantReportGrabaDocAnexo/" enctype="multipart/form-data" method="POST">
-												<input type="hidden" name="id_mantTransacReport" value="@lista1.get(0)">
-												<input type="hidden" name="desdeAAMMDD" value="@desdeAAMMDD">
-												<input type="hidden" name="hastaAAMMDD" value="@hastaAAMMDD">
-												<input type="hidden" name="docAnexo" value="@lista1.get(9)">
-													<div id="txtBtn">adjuntar</div>
-													<input type="file" multiple id="docAdjunto" name="docAdjunto[]" 
-													onchange="LimitAttach(this.form, this.form.docAdjunto.value, '@lista1.get(0)');">
-											</form>
-										</span>
+									@if(lista1.get(19).equals("0")){
+										---
 									}else{
-										<a href="#" onclick="descargaDocumento('@lista1.get(9)')">
+										<a href="#" onclick="descargaDocumento('@lista1.get(19)')">
 											<kbd style="background-color: #7F8C8D">docum</kbd>
 										</a>
 									}
 								</td>
-								<td style="text-align:center;">
-									<a href="/routes3/mantFirmaOperador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
-										<kbd style="background-color: #F0B27A">FIR</kbd>
-									</a>
-									<img src="data:image/jpeg;base64, @lista1.get(10)" height="10px" />
-								</td>
-								<td style="text-align:center;">
-									<a href="/routes3/mantFirmaAutorizador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
-										<kbd style="background-color: #F7DC6F">FIR</kbd>
-									</a>
-									<img src="data:image/jpeg;base64, @lista1.get(11)" height="10px" />
-								</td>
 								
-								@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
-									<td  style="text-align:center;">
-										<a href="#" onclick= "eliminarMantReport('@lista1.get(0)')">
-											<kbd style="background-color: red">X</kbd>
-										</a>
-									</td>
-								}
 								
 							</TR>
 			 			}
@@ -157,12 +154,6 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 	</div>
 	
 	
-	<form id="form_eliminar" method="post" action="/routes3/mantReportElimina/">
-		<input type="hidden" id="id_mantTransacReport" name="id_mantTransacReport">
-		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
-		<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
-	</form>
-	
 	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
 		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
 	</form>
@@ -189,61 +180,12 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 		  $('#muestraPDF').modal('show');
 	}
 	
-	const eliminarMantReport = (id_mantTransacReport) => {
-		alertify.confirm("Esta seguro de eliminar este report ID: "+id_mantTransacReport, function (e) {
-			if (e) {
-				$("#id_mantTransacReport").val(id_mantTransacReport);
-				document.getElementById("form_eliminar").submit();
-			}
-		});
-	}
-	
 	const descargaDocumento = (nombreDOC) => {
 		  $('#descargaDocumento').val(nombreDOC);
 		  document.getElementById('formDescargaDocumento').submit();
 	}
 	
-	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
-	const LimitAttach = (form, file, id_mantTransacReport) => {
-		
-		if (!file) return;
-		
-		const $inputArchivos = document.querySelector("#docAdjunto");
-		const archivosParaSubir = $inputArchivos.files;
-		let tamanio = 0;
-		let allowSubmit = false;
-		
-		for(let i=0; i<archivosParaSubir.length; i++){
-			tamanio += archivosParaSubir[i].size;
-			let nombre = archivosParaSubir[i].name;
-			let extencion = nombre.substring(nombre.lastIndexOf(".")).toLowerCase();
-			for (let j = 0; j < extArray.length; j++) {
-				if (extArray[j] == extencion) { 
-					allowSubmit = true;
-				}
-			}
-			if(allowSubmit && i < archivosParaSubir.length -1){
-				allowSubmit = false;
-			}
-		}
-		
-		if (allowSubmit) {
-			if(tamanio > 200000000){
-				alert("Se permite máximo subir 200 MB,"
-				+" lo que se intenta subir pesa: "+Math.round(tamanio/10000)/100+" MB");
-				form.docAdjunto.value="";
-				return;
-			}
-		}else{
-			alert("Se permiten únicamente archivos con la extención: " 
-			+ (extArray.join("  ")) + "\nPor favor, seleccione solo archivos con extenciones permitidas "
-			+ "e intente de nuevo.");
-			form.docAdjunto.value="";
-			return;
-		}
-		document.getElementById('enCarga').style.display="block";
-		$("#mantReportGrabaDocAnexo_"+id_mantTransacReport).submit();
-	}
+	
 	
 </script>
 
