@@ -39,6 +39,7 @@ import models.tables.TipoMantencion;
 import models.tables.Usuario;
 import models.tables.VentaServicio;
 import models.utilities.Archivos;
+import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
@@ -120,7 +121,7 @@ public class MnuMantencion extends Controller {
     			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
     			List<MantActorPersonal> listActor = MantActorPersonal.all(con, s.baseDato);
     			List<MantOperadorMecanico> listOperMec = MantOperadorMecanico.allVigentes(con, s.baseDato);
-    			List<PlanMantencion> listPlanMant = PlanMantencion.all(con, s.baseDato);
+    			List<PlanMantencion> listPlanMant = PlanMantencion.allEquiposVigentes(con, s.baseDato);
     			Map<String,String> mapIdEquipVsBododega = Equipo.mapConExistenciaUnaUnidad(con, s.baseDato, mapeoDiccionario);
     			String mapIdEquipVsBod = Json.toJson(mapIdEquipVsBododega).toString();
     			List<BodegaEmpresa> listBod = BodegaEmpresa.allVigentes(con, s.baseDato);
@@ -1932,8 +1933,6 @@ public class MnuMantencion extends Controller {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport"));
-	       		String desdeAAMMDD = form.get("desdeAAMMDD").trim();
-	       		String hastaAAMMDD = form.get("hastaAAMMDD").trim();
 	    		try {
 	    			Connection con = db.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -1941,11 +1940,11 @@ public class MnuMantencion extends Controller {
 	    			MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
 	    			if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
 	    				con.close();
-	    				return ok(mantReportOperador.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,desdeAAMMDD,hastaAAMMDD));
+	    				return ok(mantReportOperador.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport));
 	    			}else {
 	    				List<MantTransacComponentes> mantTransacComponentes = MantTransacComponentes.allPorIdMantTransacReport(con, s.baseDato, id_mantTransacReport);
 	    				con.close();
-	    				return ok(mantReportMecanico.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD));
+	    				return ok(mantReportMecanico.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport,mantTransacComponentes));
 	    			}
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -2278,7 +2277,7 @@ public class MnuMantencion extends Controller {
 	    			File file = MantTransacReport.exportaHistorialDeReportsExcel(s.baseDato, mapeoDiccionario, listado, desdeAAMMDD, hastaAAMMDD);
 	    			if(file!=null) {
 		       			con.close();
-		       			return ok(file,false,Optional.of("Lista_de_report_diario.xlsx"));
+		       			return ok(file,false,Optional.of("Historial_de_report.xlsx"));
 		       		}else {
 		       			con.close();
 		       			return ok("");
@@ -2290,5 +2289,68 @@ public class MnuMantencion extends Controller {
     	}
     	return ok(mensajes.render("/",msgError));
     }
-
+    
+    //============================================================
+    // MNU PLANES MANTENCION   Control Mantenciones
+    //============================================================
+    
+    public Result mantControlMantenciones(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		try {
+    			Connection con = db.getConnection();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Map<String, MantTransacReport> mapeoPreventivo = MantTransacReport.mapeoMantPreventivo(con, s.baseDato);
+    			Map<Long, MantTransacReport> mapeoOperYCorrectivo = MantTransacReport.mapeoMantOperYCorrectivo(con, s.baseDato);
+    			List<PlanMantencion> listPlanMant = PlanMantencion.allEquiposVigentes(con, s.baseDato);
+    			List<List<String>> lista = MantTransacReport.controlMantenciones(mapeoPreventivo, mapeoOperYCorrectivo, listPlanMant);
+    			con.close();
+    			return ok(mantControlMantenciones.render(mapeoDiccionario, mapeoPermiso, userMnu, lista));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	return ok(mensajes.render("/",msgError));
+	}
+    
+    public Result mantControlMantencionesExcel(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		DynamicForm form = formFactory.form().bindFromRequest(request);
+	   		if (form.hasErrors()) {
+	   			return ok(mensajes.render("/",msgErrorFormulario));
+	       	}else {
+	       		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("mantReportEnMada")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			Map<String, MantTransacReport> mapeoPreventivo = MantTransacReport.mapeoMantPreventivo(con, s.baseDato);
+	    			Map<Long, MantTransacReport> mapeoOperYCorrectivo = MantTransacReport.mapeoMantOperYCorrectivo(con, s.baseDato);
+	    			List<PlanMantencion> listPlanMant = PlanMantencion.allEquiposVigentes(con, s.baseDato);
+	    			List<List<String>> lista = MantTransacReport.controlMantenciones(mapeoPreventivo, mapeoOperYCorrectivo, listPlanMant);
+	    			File file = MantTransacReport.exportaControlMantencionesExcel(s.baseDato, mapeoDiccionario, lista);
+	    			if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("Control_mantencion.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok("");
+		       		}
+	        	} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
+    	return ok(mensajes.render("/",msgError));
+    }
 }

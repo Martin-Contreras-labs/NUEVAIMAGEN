@@ -295,6 +295,73 @@ public class PlanMantencion {
 		return (lista);
 	}
 	
+	public static List<PlanMantencion> allEquiposVigentes(Connection con, String db) {
+		List<PlanMantencion> lista = new ArrayList<PlanMantencion>();
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(db);
+		Map<Long,Double> mapStock = Inventarios.mapEquiposConStock(con, db, "TODO", mapeoDiccionario);
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" select "
+							+ " planMantencion.id_equipo, "
+							+ " planMantencion.fechaReset, "
+							+ " planMantencion.id_unidadMantencion, "
+							+ " planMantencion.cadaNEstimado, "
+							+ " planMantencion.consumoEstimadoPorMes, "
+							+ " planMantencion.estadoActual, "
+							+ " planMantencion.proximaMantencion, "
+							+ " unidadMantencion.nombre, "
+							+ " grupo.nombre, "
+							+ " equipo.codigo, "
+							+ " equipo.nombre, "
+							+ " planMantencion.id_tipoPlan, "
+							+ " tipoPlan.nombre "
+							+ " from `"+db+"`.planMantencion "
+							+ " left join `"+db+"`.tipoPlan on tipoPlan.id = planMantencion.id_tipoPlan "
+							+ " left join `"+db+"`.unidadMantencion on unidadMantencion.id = id_unidadMantencion "
+							+ " left join `"+db+"`.equipo on equipo.id = id_equipo "
+							+ " left join `"+db+"`.grupo on grupo.id = equipo.id_grupo "
+							+ " where  equipo.vigente = 1"
+							+ " order by grupo.nombre,equipo.nombre;");
+			ResultSet rs = smt.executeQuery();
+			while (rs.next()) {
+				
+				Double stock = mapStock.get(rs.getLong(1));
+				if(stock!=null ) {
+					Double proximaMantencion = rs.getDouble(7);
+					Double estimado = (double)0;
+						java.util.Date hoy = new java.util.Date();
+						Long deltaDias = Math.round((double) ( hoy.getTime()-rs.getDate(2).getTime())/(24 * 60 * 60 * 1000));
+					estimado = rs.getDouble(6) + rs.getDouble(5)* deltaDias/30;
+					String fecha = null;
+					if (rs.getDate(2) != null) {
+						fecha = myformatfecha.format(rs.getDate(2));
+					}
+					
+					Double difEstimMenosProxMant = proximaMantencion - estimado;
+					
+					lista.add(new PlanMantencion(
+							rs.getLong(1),
+							fecha,
+							rs.getLong(3),
+						myformatdouble2.format(rs.getDouble(4)),
+						myformatdouble2.format(rs.getDouble(5)),
+						myformatdouble2.format(rs.getDouble(6)),
+						myformatdouble2.format(proximaMantencion),
+						rs.getString(8),
+						myformatdouble2.format(estimado),
+						rs.getString(9),rs.getString(10),rs.getString(11),rs.getLong(12),rs.getString(13),
+						myformatdouble2.format(difEstimMenosProxMant)));
+				}
+				
+				
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+		}
+		return (lista);
+	}
+	
 	public static Map<String,PlanMantencion> mapPorCodigoEquipo(Connection con, String db) {
 		Map<String,PlanMantencion> map = new HashMap<String,PlanMantencion>();
 		try {

@@ -9,9 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -794,10 +794,7 @@ public class MantTransacReport {
 			Long id_mantActorPersonal, Long id_operMec, Long id_tipoMantencion, Long id_equipo){
 		List<List<String>> listado = new ArrayList<List<String>>();
 		
-		
-		
 		for(MantTransacReport x: listReport) {
-			
 			boolean flagA = true;
 			boolean flagO = true;
 			boolean flagT = true;
@@ -858,9 +855,6 @@ public class MantTransacReport {
 				
 				listado.add(a);
 			}
-			
-			
-			
 		}
 		return(listado);
 	}
@@ -1068,11 +1062,11 @@ public class MantTransacReport {
 				posCell = 0;
 		        row = hoja1.createRow(posRow);
 				
-		        posCell++;
 				cell = row.createCell(posCell);
+				Double valor = Double.parseDouble(list.get(0).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(list.get(0));
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
@@ -1433,9 +1427,10 @@ public class MantTransacReport {
 				
 		        posCell++;
 				cell = row.createCell(posCell);
+				Double valor = Double.parseDouble(list.get(0).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(list.get(0));
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
@@ -1482,20 +1477,23 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(list.get(8));
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				valor = Double.parseDouble(list.get(8).replaceAll(",", ""));
+				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(list.get(9));
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				valor = Double.parseDouble(list.get(9).replaceAll(",", ""));
+				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(list.get(10));
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				valor = Double.parseDouble(list.get(10).replaceAll(",", ""));
+				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
@@ -1538,13 +1536,7 @@ public class MantTransacReport {
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(17));
-			
-				
-				
-			
 			}
-			
-			
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
@@ -1559,7 +1551,6 @@ public class MantTransacReport {
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			libro.write(fileOut);
 			fileOut.close();
-			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2115,7 +2106,829 @@ public class MantTransacReport {
 		return (id_mantTransacReport);
 	}
 	
+	public static List<MantTransacReport> allSoloMantPreventivo(Connection con, String db) {
+		List<MantTransacReport> lista = new ArrayList<MantTransacReport>();
+		Map<Long,Usuario> mapUserMada = Usuario.mapAll(con, db);
+		Map<Long, MantOperadorMecanico> mapOper = MantOperadorMecanico.mapAll(con, db);
+		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+		Map<Long,String> mapActorPersonal = MantActorPersonal.mapAll(con, db);
+		Map<Long,String> mapActividad = MantActividad.mapAll(con, db);
+		Map<Long,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAll(con, db);
+		
+		Map<Long,String> mapEstadoEnObra = MantEstadoEnObra.mapAll(con, db);
+		Map<Long,String> mapEstadoOperacional = MantEstadoOperacional.mapAll(con, db);
+		Map<Long,String> mapEstadoEnTaller = MantEstadoEnTaller.mapAll(con, db);
+		
+		Map<Long,String> mapItemIntervenido = MantItemIntervenido.mapAll(con, db);
+		Map<Long,String> mapTipoActividad = MantTipoActividad.mapAll(con, db);
+		Map<Long,TipoMantencion> mapTipoMantencion = TipoMantencion.mapAll(con, db);
+		Map<Long,String> mapTipoPlan = TipoPlan.mapAll(con, db);
+		
+		
+		try {
+			PreparedStatement smt = con.prepareStatement("select "
+					/* 1*/  + " id,"
+					/* 2*/  + " id_userMada,"
+					/* 3*/  + " id_mantActorPersonal,"
+					/* 4*/  + " id_mantActividad,"
+					/* 5*/  + " id_bodegaEmpresa,"
+					/* 6*/  + " id_equipo,"
+					/* 7*/  + " id_mantEstadoEnObra,"
+					/* 8*/  + " id_mantEstadoOperacional,"
+					/* 9*/  + " id_mantEstadoEnTaller,"
+					/* 10*/ + " id_mantItemIntervenido,"
+					/* 11*/ + " id_mantMecanico,"
+					/* 12*/ + " id_mantOperador,"
+					/* 13*/ + " id_mantTipoActividad,"
+					/* 14*/ + " id_tipoMantencion,"
+					/* 15*/ + " id_tipoPlan,"
+					/* 16*/ + " comentario,"
+					/* 17*/ + " descTrabajo,"
+					/* 18*/ + " estadoFinal,"
+					/* 19*/ + " fecha,"
+					/* 20*/ + " horaIni,"
+					/* 21*/ + " horaFin,"
+					/* 22*/ + " horaDif,"
+					/* 23*/ + " fechaIni,"
+					/* 24*/ + " fechaFin,"
+					/* 25*/ + " fechaDif,"
+					/* 26*/ + " lectAnterior,"
+					/* 27*/ + " lectActual,"
+					/* 28*/ + " lectDif,"
+					/* 29*/ + " observaciones,"
+					/* 30*/ + " docAnexo,"
+					/* 31*/ + " reportPDF,"
+					/* 32*/ + " firmaPDFoperador,"
+					/* 33*/ + " firmaPDFautorizador,"
+					/* 34*/ + " albumFotos"
+							+ " from `"+db+"`.mantTransacReport "
+							+ " where id_mantActorPersonal=2 and id_tipoPlan > 0;");
+			ResultSet rs = smt.executeQuery();
+			while(rs.next()) {
+				String userNameAdam = "";
+				if(rs.getLong(2) > 0 ) {
+					Usuario user = mapUserMada.get(rs.getLong(2));
+					if(user != null) {
+						userNameAdam = user.getUserName();
+					}
+				}
+				String nameActorPersonal = mapActorPersonal.get(rs.getLong(3));
+				if(nameActorPersonal == null) {
+					nameActorPersonal = "";
+				}
+				String fullNameMecanico = "";
+				String fullNameOperador = "";
+				String nameTipoPersonal = "";
+				if(rs.getLong(12) > 0) {
+					MantOperadorMecanico oper = mapOper.get(rs.getLong(12));
+					if(oper != null) {
+						fullNameOperador = oper.getNombre();
+						nameTipoPersonal = oper.getNameTipoPersonal();
+					}
+				}else if(rs.getLong(11) > 0){
+					MantOperadorMecanico mec = mapOper.get(rs.getLong(11));
+					if(mec != null) {
+						fullNameMecanico = mec.getNombre();
+						nameTipoPersonal = mec.getNameTipoPersonal();
+					}
+				}
+				String codigoEquipo = "";
+				String nameEquipo = "";
+				Equipo equipo = mapEquipo.get(rs.getLong(6));
+				if(equipo != null) {
+					codigoEquipo = equipo.getCodigo();
+					nameEquipo = equipo.getNombre();
+				}
+				String nameActividad = mapActividad.get(rs.getLong(4));
+				if(nameActividad == null) {
+					nameActividad = "";
+				}
+				BodegaEmpresa bodega = mapBodega.get(rs.getLong(5));
+				String nameBodega = "";
+				String nameTipoBodega = "";
+				if(bodega != null) {
+					nameBodega = bodega.getNombre();
+					nameTipoBodega = bodega.getNombreTipoBodega();
+				}
+				String nameEstadoEnObra = mapEstadoEnObra.get(rs.getLong(7));
+				if(nameEstadoEnObra == null) {
+					nameEstadoEnObra = "";
+				}
+				String nameEstadoOperacional = mapEstadoOperacional.get(rs.getLong(8));
+				if(nameEstadoOperacional == null) {
+					nameEstadoOperacional = "";
+				}
+				String nameEstadoEnTaller = mapEstadoEnTaller.get(rs.getLong(9));
+				if(nameEstadoEnTaller == null) {
+					nameEstadoEnTaller = "";
+				}
+				String nameItemIntervenido = mapItemIntervenido.get(rs.getLong(10));
+				if(nameItemIntervenido == null) {
+					nameItemIntervenido = "";
+				}
+				String nameTipoActividad = mapTipoActividad.get(rs.getLong(13));
+				if(nameTipoActividad == null) {
+					nameTipoActividad = "";
+				}
+				
+				
+				String nameTipoMantencion = "";
+				String namePlanMantencion = "no Aplica";
+				if(rs.getLong(11) > 0){
+					TipoMantencion aux = mapTipoMantencion.get(rs.getLong(14));
+					if(aux != null) {
+						nameTipoMantencion = aux.getNombre();
+					}
+					namePlanMantencion = mapTipoPlan.get(rs.getLong(15));
+					if(namePlanMantencion == null) {
+						namePlanMantencion = "no Aplica";
+					}
+				}
+				
+				
+				lista.add(new MantTransacReport(
+					rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getLong(8),
+					rs.getLong(9),rs.getLong(10),rs.getLong(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+					rs.getDouble(22),rs.getString(23),rs.getString(24),rs.getDouble(25),rs.getDouble(26),rs.getDouble(27),rs.getDouble(28),
+					rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getString(34),
+					userNameAdam, nameActorPersonal, nameActividad, nameBodega, codigoEquipo, nameEquipo,
+					nameEstadoEnObra, nameEstadoOperacional, nameEstadoEnTaller, nameItemIntervenido,
+					fullNameMecanico, fullNameOperador, nameTipoPersonal, nameTipoActividad,
+					nameTipoMantencion, namePlanMantencion, nameTipoBodega));
+			}
+			
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(lista);
+	}
 	
+	public static List<MantTransacReport> allSoloMantOperYCorrectivo(Connection con, String db) {
+		List<MantTransacReport> lista = new ArrayList<MantTransacReport>();
+		Map<Long,Usuario> mapUserMada = Usuario.mapAll(con, db);
+		Map<Long, MantOperadorMecanico> mapOper = MantOperadorMecanico.mapAll(con, db);
+		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+		Map<Long,String> mapActorPersonal = MantActorPersonal.mapAll(con, db);
+		Map<Long,String> mapActividad = MantActividad.mapAll(con, db);
+		Map<Long,BodegaEmpresa> mapBodega = BodegaEmpresa.mapAll(con, db);
+		
+		Map<Long,String> mapEstadoEnObra = MantEstadoEnObra.mapAll(con, db);
+		Map<Long,String> mapEstadoOperacional = MantEstadoOperacional.mapAll(con, db);
+		Map<Long,String> mapEstadoEnTaller = MantEstadoEnTaller.mapAll(con, db);
+		
+		Map<Long,String> mapItemIntervenido = MantItemIntervenido.mapAll(con, db);
+		Map<Long,String> mapTipoActividad = MantTipoActividad.mapAll(con, db);
+		Map<Long,TipoMantencion> mapTipoMantencion = TipoMantencion.mapAll(con, db);
+		Map<Long,String> mapTipoPlan = TipoPlan.mapAll(con, db);
+		
+		
+		try {
+			PreparedStatement smt = con.prepareStatement("select "
+					/* 1*/  + " id,"
+					/* 2*/  + " id_userMada,"
+					/* 3*/  + " id_mantActorPersonal,"
+					/* 4*/  + " id_mantActividad,"
+					/* 5*/  + " id_bodegaEmpresa,"
+					/* 6*/  + " id_equipo,"
+					/* 7*/  + " id_mantEstadoEnObra,"
+					/* 8*/  + " id_mantEstadoOperacional,"
+					/* 9*/  + " id_mantEstadoEnTaller,"
+					/* 10*/ + " id_mantItemIntervenido,"
+					/* 11*/ + " id_mantMecanico,"
+					/* 12*/ + " id_mantOperador,"
+					/* 13*/ + " id_mantTipoActividad,"
+					/* 14*/ + " id_tipoMantencion,"
+					/* 15*/ + " id_tipoPlan,"
+					/* 16*/ + " comentario,"
+					/* 17*/ + " descTrabajo,"
+					/* 18*/ + " estadoFinal,"
+					/* 19*/ + " fecha,"
+					/* 20*/ + " horaIni,"
+					/* 21*/ + " horaFin,"
+					/* 22*/ + " horaDif,"
+					/* 23*/ + " fechaIni,"
+					/* 24*/ + " fechaFin,"
+					/* 25*/ + " fechaDif,"
+					/* 26*/ + " lectAnterior,"
+					/* 27*/ + " lectActual,"
+					/* 28*/ + " lectDif,"
+					/* 29*/ + " observaciones,"
+					/* 30*/ + " docAnexo,"
+					/* 31*/ + " reportPDF,"
+					/* 32*/ + " firmaPDFoperador,"
+					/* 33*/ + " firmaPDFautorizador,"
+					/* 34*/ + " albumFotos"
+							+ " from `"+db+"`.mantTransacReport "
+							+ " where id_mantActorPersonal=1 or (id_mantActorPersonal=2 and id_tipoPlan = 0);");
+			ResultSet rs = smt.executeQuery();
+			while(rs.next()) {
+				String userNameAdam = "";
+				if(rs.getLong(2) > 0 ) {
+					Usuario user = mapUserMada.get(rs.getLong(2));
+					if(user != null) {
+						userNameAdam = user.getUserName();
+					}
+				}
+				String nameActorPersonal = mapActorPersonal.get(rs.getLong(3));
+				if(nameActorPersonal == null) {
+					nameActorPersonal = "";
+				}
+				String fullNameMecanico = "";
+				String fullNameOperador = "";
+				String nameTipoPersonal = "";
+				if(rs.getLong(12) > 0) {
+					MantOperadorMecanico oper = mapOper.get(rs.getLong(12));
+					if(oper != null) {
+						fullNameOperador = oper.getNombre();
+						nameTipoPersonal = oper.getNameTipoPersonal();
+					}
+				}else if(rs.getLong(11) > 0){
+					MantOperadorMecanico mec = mapOper.get(rs.getLong(11));
+					if(mec != null) {
+						fullNameMecanico = mec.getNombre();
+						nameTipoPersonal = mec.getNameTipoPersonal();
+					}
+				}
+				String codigoEquipo = "";
+				String nameEquipo = "";
+				Equipo equipo = mapEquipo.get(rs.getLong(6));
+				if(equipo != null) {
+					codigoEquipo = equipo.getCodigo();
+					nameEquipo = equipo.getNombre();
+				}
+				String nameActividad = mapActividad.get(rs.getLong(4));
+				if(nameActividad == null) {
+					nameActividad = "";
+				}
+				BodegaEmpresa bodega = mapBodega.get(rs.getLong(5));
+				String nameBodega = "";
+				String nameTipoBodega = "";
+				if(bodega != null) {
+					nameBodega = bodega.getNombre();
+					nameTipoBodega = bodega.getNombreTipoBodega();
+				}
+				String nameEstadoEnObra = mapEstadoEnObra.get(rs.getLong(7));
+				if(nameEstadoEnObra == null) {
+					nameEstadoEnObra = "";
+				}
+				String nameEstadoOperacional = mapEstadoOperacional.get(rs.getLong(8));
+				if(nameEstadoOperacional == null) {
+					nameEstadoOperacional = "";
+				}
+				String nameEstadoEnTaller = mapEstadoEnTaller.get(rs.getLong(9));
+				if(nameEstadoEnTaller == null) {
+					nameEstadoEnTaller = "";
+				}
+				String nameItemIntervenido = mapItemIntervenido.get(rs.getLong(10));
+				if(nameItemIntervenido == null) {
+					nameItemIntervenido = "";
+				}
+				String nameTipoActividad = mapTipoActividad.get(rs.getLong(13));
+				if(nameTipoActividad == null) {
+					nameTipoActividad = "";
+				}
+				
+				
+				String nameTipoMantencion = "";
+				String namePlanMantencion = "no Aplica";
+				if(rs.getLong(11) > 0){
+					TipoMantencion aux = mapTipoMantencion.get(rs.getLong(14));
+					if(aux != null) {
+						nameTipoMantencion = aux.getNombre();
+					}
+					namePlanMantencion = mapTipoPlan.get(rs.getLong(15));
+					if(namePlanMantencion == null) {
+						namePlanMantencion = "no Aplica";
+					}
+				}
+				
+				
+				lista.add(new MantTransacReport(
+					rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getLong(8),
+					rs.getLong(9),rs.getLong(10),rs.getLong(11),rs.getLong(12),rs.getLong(13),rs.getLong(14),rs.getLong(15),
+					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
+					rs.getDouble(22),rs.getString(23),rs.getString(24),rs.getDouble(25),rs.getDouble(26),rs.getDouble(27),rs.getDouble(28),
+					rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getString(34),
+					userNameAdam, nameActorPersonal, nameActividad, nameBodega, codigoEquipo, nameEquipo,
+					nameEstadoEnObra, nameEstadoOperacional, nameEstadoEnTaller, nameItemIntervenido,
+					fullNameMecanico, fullNameOperador, nameTipoPersonal, nameTipoActividad,
+					nameTipoMantencion, namePlanMantencion, nameTipoBodega));
+			}
+			
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(lista);
+	}
+	
+	public static Map<String, MantTransacReport> mapeoMantPreventivo (Connection con, String db){
+		Map<String, MantTransacReport> map = new HashMap<String, MantTransacReport>();
+		List<MantTransacReport> lista = MantTransacReport.allSoloMantPreventivo(con, db);
+		for(MantTransacReport l : lista) {
+			String key = l.getId_equipo()+"_"+l.getId_tipoMantencion();
+			MantTransacReport aux = map.get(key);
+			if(aux == null) {
+				map.put(key, l);
+			} else {
+				Long fecha1 = Long.parseLong(aux.fecha.replaceAll("-", ""));
+				Long fecha2 = Long.parseLong(l.fecha.replaceAll("-", ""));
+				if(fecha1 < fecha2) {
+					map.put(key, l);
+				}else if((fecha1 - fecha2) == (long) 0) {
+					Long id1 = aux.getId();
+					Long id2 = l.getId();
+					if(id1 < id2) {
+						map.put(key, l);
+					}
+				}
+			}
+		}
+		return (map);
+	}
+	
+	public static Map<Long, MantTransacReport> mapeoMantOperYCorrectivo (Connection con, String db){
+		Map<Long, MantTransacReport> map = new HashMap<Long, MantTransacReport>();
+		List<MantTransacReport> lista = MantTransacReport.allSoloMantOperYCorrectivo(con, db);
+		for(MantTransacReport l : lista) {
+			Long key = l.getId_equipo();
+			MantTransacReport aux = map.get(key);
+			if(aux == null) {
+				map.put(key, l);
+			} else {
+				Long fecha1 = Long.parseLong(aux.fecha.replaceAll("-", ""));
+				Long fecha2 = Long.parseLong(l.fecha.replaceAll("-", ""));
+				if(fecha1 < fecha2) {
+					map.put(key, l);
+				}else if((fecha1 - fecha2) == (long) 0) {
+					Long id1 = aux.getId();
+					Long id2 = l.getId();
+					if(id1 < id2) {
+						map.put(key, l);
+					}
+				}
+			}
+		}
+		return (map);
+	}
+	
+	public static List<List<String>> controlMantenciones(
+			Map<String, MantTransacReport> mapeoPreventivo, Map<Long, MantTransacReport> mapeoOperYCorrectivo, List<PlanMantencion> listPlanMant){
+		List<List<String>> lista = new ArrayList<List<String>>();
+		for(PlanMantencion l: listPlanMant) {
+			String key = l.getId_equipo()+"_"+l.getId_tipoPlan();
+			MantTransacReport mec = mapeoPreventivo.get(key);
+			if(mec != null) {
+				
+				String id_mantTransacReportOper = "0";
+				String ubicacion = "";
+				String lectActual = "";
+				String fechLectura = "";
+				String estadoEnObra = "";
+				String comentario = "";
+				Double auxLectActual = (double)0;
+				String pdfReportOper = "0";
+				MantTransacReport oper = mapeoOperYCorrectivo.get(l.getId_equipo());
+				if(oper != null) {
+					id_mantTransacReportOper = oper.getId().toString();
+					ubicacion = oper.nameBodega;
+					lectActual = DecimalFormato.formato(oper.getLectActual(),(long)2);
+					fechLectura = oper.fecha;
+					estadoEnObra = oper.getNameEstadoEnObra();
+					comentario = oper.comentario;
+					auxLectActual = oper.getLectActual();
+					pdfReportOper = oper.getReportPDF();
+				}
+				
+				Fechas hoy = Fechas.hoy();
+				String fechaEstimada = "";
+				Double proximaMant = Double.parseDouble(l.getProximaMantencion().replaceAll(",", ""));
+				Double rotacion = Double.parseDouble(l.getCadaNEstimado().replaceAll(",", ""));
+				
+				if((double) auxLectActual == (double) 0) {
+					lectActual = DecimalFormato.formato(mec.getLectActual(),(long)2);
+					auxLectActual = mec.getLectActual();
+					fechLectura = mec.getFecha();
+				}
+				
+				Double dif = proximaMant - auxLectActual;
+				if(dif <= 0 || rotacion <= 0){
+					fechaEstimada = hoy.getFechaStrAAMMDD();
+				}else {
+					int diasASumar = (int) Math.round( dif/rotacion * 30);
+					hoy = Fechas.addDias(hoy.getFechaCal(), diasASumar);
+					fechaEstimada = hoy.getFechaStrAAMMDD();
+				}
+				
+				List<String> aux = new ArrayList<String>();
+				aux.add(mec.getId().toString()); // 0 id_mantTransacReport MECANICO
+				aux.add(id_mantTransacReportOper);  // 1 id_mantTransacReport OPERADOR
+				aux.add(mec.getCodigoEquipo());	// 2 codigo equipo
+				aux.add(mec.nameEquipo);			// 3 nombre equipo
+				
+				aux.add(ubicacion);					// 4 ubicacion segun operador o correctivo
+				aux.add(lectActual);				// 5 lectura actual
+				aux.add(fechLectura);				// 6 fecha de lectura actual
+				aux.add(estadoEnObra);				// 7 estado en obra
+				aux.add(comentario);				// 8 comentario
+				
+				aux.add(mec.getFecha());									// 9 fecha ultima mantencion preventiva
+				aux.add(DecimalFormato.formato(auxLectActual,(long)2));		// 10 lectura de ultima mantencion
+				
+				aux.add(l.getCadaNEstimado());					// 11 frecuencia rotacion
+				aux.add(l.getProximaMantencion());				// 12 proxima mantencion
+				aux.add(DecimalFormato.formato(dif,(long)2));	// 13 falta para proxima mantencion
+				aux.add(fechaEstimada);							// 14 fecha estimada proxima mantencion
+				
+				aux.add(mec.getNameEstadoEnTaller());		// 15 estado en taller
+				aux.add(mec.getNameEstadoOperacional());		// 16 estado operacional
+				
+				aux.add(mec.getReportPDF()); 		// 17 pdf report mec preventivo
+				aux.add(pdfReportOper); 			// 18 pdf report oper y mec correctivo
+				lista.add(aux);
+			}
+		}
+		return(lista);
+	}
+	
+	public static File exportaControlMantencionesExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado) {
+		File tmp = TempFile.createTempFile("tmp","null");
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+            Workbook libro = WorkbookFactory.create(formato);
+            formato.close();
+            
+            // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+            CellStyle titulo = libro.createCellStyle();
+            Font font = libro.createFont();
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setColor((short)4);
+            font.setFontHeight((short)(14*20));
+            titulo.setFont(font);
+            
+            CellStyle subtitulo = libro.createCellStyle();
+            Font font2 = libro.createFont();
+            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setColor((short)0);
+            font2.setFontHeight((short)(12*20));
+            subtitulo.setFont(font2);
+            
+            CellStyle encabezado = libro.createCellStyle();
+            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+            encabezado.setBorderTop(CellStyle.BORDER_THIN);
+            encabezado.setBorderRight(CellStyle.BORDER_THIN);
+            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setFillForegroundColor((short)19);
+            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            
+            CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(CellStyle.BORDER_THIN);
+            detalle.setBorderTop(CellStyle.BORDER_THIN);
+            detalle.setBorderRight(CellStyle.BORDER_THIN);
+            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            CellStyle pie = libro.createCellStyle();
+            pie.setBorderBottom(CellStyle.BORDER_THIN);
+            pie.setBorderTop(CellStyle.BORDER_THIN);
+            pie.setBorderRight(CellStyle.BORDER_THIN);
+            pie.setBorderLeft(CellStyle.BORDER_THIN);
+            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setFillForegroundColor((short)19);
+            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            
+            
+            
+            CreationHelper creationHelper = libro.getCreationHelper();
+            CellStyle hora = libro.createCellStyle();
+            hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
+            hora.setBorderBottom(CellStyle.BORDER_THIN);
+            hora.setBorderTop(CellStyle.BORDER_THIN);
+            hora.setBorderRight(CellStyle.BORDER_THIN);
+            hora.setBorderLeft(CellStyle.BORDER_THIN);
+            
+            CellStyle fecha = libro.createCellStyle();
+            fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+            fecha.setBorderBottom(CellStyle.BORDER_THIN);
+            fecha.setBorderTop(CellStyle.BORDER_THIN);
+            fecha.setBorderRight(CellStyle.BORDER_THIN);
+            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+
+
+            
+            
+            //titulos del archivo
+            
+            libro.setSheetName(0, "report");
+            Sheet hoja1 = libro.getSheetAt(0);
+            
+            Row row = null;
+            Cell cell = null;
+            
+            row = hoja1.createRow(1);
+            cell = row.createCell(1);
+            cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CONTROL DE MANTENCIONES");
+			
+			row = hoja1.createRow(2);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+			
+			row = hoja1.createRow(3);
+            cell = row.createCell(1);
+            cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+			
+			
+			
+			//anchos de columnas
+			hoja1.setColumnWidth(1, 5*1000);
+			hoja1.setColumnWidth(2, 10*1000);
+			hoja1.setColumnWidth(3, 10*1000);
+			hoja1.setColumnWidth(4, 4*1000);
+			hoja1.setColumnWidth(5, 4*1000);
+			hoja1.setColumnWidth(6, 4*1000);
+			hoja1.setColumnWidth(7, 7*1000);
+			hoja1.setColumnWidth(8, 10*1000);
+			hoja1.setColumnWidth(9, 4*1000);
+			hoja1.setColumnWidth(10, 4*1000);
+			hoja1.setColumnWidth(11, 4*1000);
+			hoja1.setColumnWidth(12, 4*1000);
+			hoja1.setColumnWidth(13, 4*1000);
+			hoja1.setColumnWidth(14, 4*1000);
+			hoja1.setColumnWidth(15, 4*1000);
+			hoja1.setColumnWidth(16, 7*1000);
+			hoja1.setColumnWidth(17, 7*1000);
+			
+			
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+            byte[] bytes = IOUtils.toByteArray(x);
+            x.close();
+            int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+	        //set top-left corner for the image
+	        anchor.setCol1(9);
+	        anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+			
+			
+			// encabezado de la tabla
+			
+			int posRow = 8;
+			
+			row = hoja1.createRow(posRow);
+			int posCell = 0;
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CODIGO_EQUIPO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE_EQUIPO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("UBICACION");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("ID_OPER/MEC");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA_LECT");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("LECT_ACTUAL");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("ESTADO_OBRA");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("COMENTARIO");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("ID_MANT");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA_MANT");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("LECT_MANT");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FRECUENCIA");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROXIMA_MANT");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FALTA");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA_ESTIMADA");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("ESTADO_TALLER");
+			
+			posCell++;
+			cell = row.createCell(posCell);
+            cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("ESTADO_OPERACIONAL");
+			
+			
+			for(List<String> list: listado){
+				posRow++;
+				posCell = 0;
+		        row = hoja1.createRow(posRow);
+				
+		        posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(2));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(3));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(4));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				Double valor = Double.parseDouble(list.get(1).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(list.get(6)));
+				cell.setCellValue(fechax.fechaUtil);
+				cell.setCellStyle(fecha);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(7));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(8));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(0).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				fechax = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(list.get(9)));
+				cell.setCellValue(fechax.fechaUtil);
+				cell.setCellStyle(fecha);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(10).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(11).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(12).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(13).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				fechax = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(list.get(14)));
+				cell.setCellValue(fechax.fechaUtil);
+				cell.setCellStyle(fecha);
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(15));
+				
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(16));
+			}
+			
+			posRow = posRow + 5;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+			Hyperlink hiper = helper.createHyperlink(0);
+			hiper.setAddress("https://www.inqsol.cl");
+			cell.setHyperlink(hiper);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+        }
+		return(tmp);
+	}
 	
 	
 

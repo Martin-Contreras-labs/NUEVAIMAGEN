@@ -1,0 +1,152 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listado: List[List[String]])
+
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
+	
+	<form id="excel" class="formulario" method="post" action="/routes3/mantControlMantencionesExcel/"></form>
+	
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "CONTROL DE MANTENCIONES", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+				<div align="center">
+					<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+						Exportar a Excel
+					</button>
+				</div>
+				<br>
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>CODIGO<br>EQUIPO</TH>
+							<TH>NOMBRE<br>EQUIPO</TH>
+							<TH>UBICACION</TH>
+							<TH>ID<BR>OPER/MEC</TH>
+							<TH style="min-width:80px;">FECHA<br>LECTURA</TH>
+							<TH>LECTURA<br>ACTUAL</TH>
+							<TH>ESTADO<br>EN OBRA</TH>
+							<TH>COMENTARIO</TH>
+							
+							<TH>ID_MANT</TH>
+							<TH style="min-width:80px;">FECHA<br>MANT</TH>
+							<TH>LECTURA<br>MANT</TH>
+							<TH>FRECUENCIA</TH>
+							<TH>PROXIMA<br>MANT</TH>
+							<TH>FALTA</TH>
+							<TH style="min-width:80px;">FECHA<br>ESTIMADA</TH>
+							<TH>ESTADO<br>EN TALLER</TH>
+							<TH>ESTADO<br>OPERACIONAL</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listado){
+							<TR>
+								<td  style="text-align:left;">@lista1.get(2)</td>
+								<td  style="text-align:left;">@lista1.get(3)</td>
+								<td  style="text-align:left;">@lista1.get(4)</td>
+								<td  style="text-align:center;">
+									@if(lista1.get(18).equals("0")){
+										--
+									}else{
+										<a href="#" onclick="mostrarPDF('@lista1.get(18)')">
+											<kbd style="background-color: #85C1E9">@lista1.get(1)</kbd>
+										</a>
+									}
+								</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(6))</div>
+									@utilities.Fechas.DDMMAA(lista1.get(6))
+								</td>
+								<td  style="text-align:right;">@lista1.get(5)</td>
+								<td  style="text-align:left;">@lista1.get(7)</td>
+								<td  style="text-align:left;">@lista1.get(8)</td>
+								<td  style="text-align:center;">
+									@if(lista1.get(17).equals("0")){
+										--
+									}else{
+										<a href="#" onclick="mostrarPDF('@lista1.get(17)')">
+											<kbd style="background-color: #85C1E9">@lista1.get(0)</kbd>
+										</a>
+									}
+								</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(9))</div>
+									@utilities.Fechas.DDMMAA(lista1.get(9))
+								</td>
+								<td  style="text-align:right;">@lista1.get(10)</td>
+								<td  style="text-align:right;">@lista1.get(11)</td>
+								<td  style="text-align:right;">@lista1.get(12)</td>
+								<td  style="text-align:right;">@lista1.get(13)</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(14))</div>
+									@utilities.Fechas.DDMMAA(lista1.get(14))
+								</td>
+								<td  style="text-align:left;">@lista1.get(15)</td>
+								<td  style="text-align:left;">@lista1.get(16)</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>REPORT</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	
+	
+</script>
+
+
+		
+	
