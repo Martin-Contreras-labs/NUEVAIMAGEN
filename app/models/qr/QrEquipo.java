@@ -1,6 +1,7 @@
 
 package models.qr;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.IOUtils;
@@ -254,6 +257,25 @@ public class QrEquipo{
 			for (int i=0; i<lista.size(); i++) {
 				for (int j=0; j<lista.get(i).size(); j++) {
 					cell=table.getRow(i).getCell(j);
+					
+					
+					String rutaLogo = db+"/"+"InqSol.png"; //mapDiccionario.get("logoEmpresa");
+					InputStream inputStreamLogo = Archivos.leerArchivo(rutaLogo);
+					byte[] logo = IOUtils.toByteArray(inputStreamLogo);
+					BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(logo));
+	    			int originalWidth = bufferedImage.getWidth();
+	    			int originalHeight = bufferedImage.getHeight();
+	    			// Definir un ancho fijo y calcular la altura proporcionalmente
+	    			int targetWidth = Units.toEMU(60); // Tamaño fijo en EMU
+	    			int targetHeight = (originalHeight * targetWidth) / originalWidth; // Mantener proporción
+					inputStreamLogo.close();
+					XWPFParagraph paragraphLogo = cell.addParagraph();
+					paragraphLogo.setAlignment(ParagraphAlignment.CENTER);
+	    			XWPFRun run3 = paragraphLogo.createRun();
+	    			run3.addPicture(new ByteArrayInputStream(logo), XWPFDocument.PICTURE_TYPE_PNG, "firma", targetWidth, targetHeight);
+					
+					
+					
 					String ruta = db+"/"+lista.get(i).get(j).get(0);
 					InputStream inputStream = Archivos.leerArchivo(ruta);
 					byte[] qr = IOUtils.toByteArray(inputStream);

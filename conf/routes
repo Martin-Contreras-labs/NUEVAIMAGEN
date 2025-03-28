@@ -324,6 +324,7 @@ POST    /hojaVidaReportDetalle/			controllers.MnuPlanes.hojaVidaReportDetalle(re
 POST    /hojaVidaReportDetalleExcel/	controllers.MnuPlanes.hojaVidaReportDetalleExcel(request: Request)
 
 GET     /hojaVidaReportKpis/			controllers.MnuPlanes.hojaVidaReportKpis(request: Request)
+POST    /hojaVidaReportKpisExcel/		controllers.MnuPlanes.hojaVidaReportKpisExcel(request: Request)
 
 GET     /hojaVidaReportGrafico/:id_grupo,:periodo			controllers.MnuPlanes.hojaVidaReportGrafico(request: Request, id_grupo: Long, periodo: Long)
 

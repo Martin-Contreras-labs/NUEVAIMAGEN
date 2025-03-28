@@ -658,8 +658,11 @@ public class MnuCotizar extends Controller {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
-	   			return ok("error");
+	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
+	       		if(form.get("id_cotizacion") == null) {
+	       			return ok(mensajes.render("/",msgErrorFormulario));
+	       		}
 	       		Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
 	    		try {
 	    			Connection con = db.getConnection();

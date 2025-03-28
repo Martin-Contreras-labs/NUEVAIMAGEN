@@ -1901,6 +1901,42 @@ public class MnuPlanes extends Controller {
     	return ok(mensajes.render("/",msgError));
 	}
 	
+	public Result hojaVidaReportKpisExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		 
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+	    	if (form.hasErrors()) {
+	    		return ok(mensajes.render("/","ERROR DE DESCARGA: "+msgError));
+	    	}else {
+	    		try {
+	    			Connection con = db.getConnection();
+	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+	    			if(mapeoPermiso.get("analisisHojaVida")==null) {
+	    				con.close();
+	    				return ok(mensajes.render("/",msgSinPermiso));
+	    			}
+	    			List<List<String>> lista = ReportHojaVida.reportDiasNoOperativo(con, s.baseDato, mapeoDiccionario.get("pais"), Long.parseLong(s.id_sucursal));
+	    			Map<String,String> mapUbicacion = Equipo.mapUnaSolaUbicacion(con, s.baseDato);
+	    			
+					File file = ReportHojaVida.hojaVidaReportKpisExcel(s.baseDato, mapeoDiccionario, lista, mapUbicacion);
+					
+					if(file!=null) {
+		       			con.close();
+		       			return ok(file,false,Optional.of("ProductoDetalladoMada.xlsx"));
+		       		}else {
+		       			con.close();
+		       			return ok(mensajes.render("/hojaVidaMantencionLista/0","ERROR DE DESCARGA: "+msgError));
+		       		}
+				} catch (SQLException e) {
+	    			e.printStackTrace();
+	    		}
+	    	}
+		}
+		return ok(mensajes.render("/",msgError));
+	}
+	
 	
 	//============================================================
     // MNU planGraficos   PLANES/Graficos

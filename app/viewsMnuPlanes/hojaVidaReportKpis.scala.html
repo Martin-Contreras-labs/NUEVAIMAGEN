@@ -10,6 +10,8 @@ detalle: List[List[String]], mapUbicacion: Map[String,String])
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			
+				<form id="excel" class="formulario" method="post" action="/hojaVidaReportKpisExcel/"></form>
+				
 				<div class="noprint">
 					<table class="table table-sm table-condensed table-fluid">
 						<tr>
@@ -18,7 +20,9 @@ detalle: List[List[String]], mapUbicacion: Map[String,String])
 									<button type="button" class="btn btn-sm btn-success" onclick="window.print(); return false;">
 										Imprimir
 									</button>
-									
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
 									<button type="button"  class="btn btn-sm btn-success" 
 										onclick="location.href='/home/';">
 										Volver
