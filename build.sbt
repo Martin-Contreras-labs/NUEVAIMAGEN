@@ -7,6 +7,11 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
 scalaVersion := "2.13.12"
 
+// esto estoy agregando
+javaOptions += "--illegal-access=permit"
+libraryDependencies += "org.dom4j" % "dom4j" % "2.1.4"
+
+
 libraryDependencies += guice
 
 libraryDependencies ++= Seq(javaJdbc)
@@ -18,7 +23,7 @@ libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.8"
 libraryDependencies += "org.apache.poi" % "poi-scratchpad" % "3.8"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
 
-libraryDependencies += "org.apache.pdfbox" % "pdfbox" % "2.0.24"
+libraryDependencies += "org.apache.pdfbox" % "pdfbox" % "2.0.30"
 
 libraryDependencies += "com.typesafe.play" %% "play-mailer" % "8.0.0"
 libraryDependencies += "com.typesafe.play" %% "play-mailer-guice" % "8.0.0"
@@ -27,6 +32,7 @@ libraryDependencies += "fr.opensagres.xdocreport" % "org.apache.poi.xwpf.convert
 libraryDependencies += "com.google.zxing" % "core" % "2.0"
 
 libraryDependencies += "software.amazon.awssdk" % "s3" % "2.13.29"
+
 
 
 import com.typesafe.sbt.packager.docker.DockerChmodType
