@@ -10,7 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import controllers.HomeController;
 
 public class Grupo {
 	public Long id;
@@ -28,6 +31,8 @@ public class Grupo {
 	public void setId(Long id) {this.id = id;}
 	public String getNombre() {return nombre;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
+	
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	public static Map<Long,Grupo> mapAll(Connection con, String db) {
 		Map<Long,Grupo> map = new HashMap<Long,Grupo>();
@@ -242,16 +247,16 @@ public class Grupo {
 	
 	public static boolean modificaPorCampo(Connection con,String db, String campo, Long id_grupo, String valor) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.grupo set `"+campo+"` = ? WHERE id = ?");
-			smt.setString(1, valor.trim());
-			smt.setLong(2, id_grupo);
-			smt.executeUpdate();
-			smt.close();
-			flag=true;
+		String query = "update `"+db+"`.grupo set `"+campo+"` = ? WHERE id = ?;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
+				smt.setString(1, valor.trim());
+				smt.setLong(2, id_grupo);
+				int rowsAffected = smt.executeUpdate();
+				if (rowsAffected > 0) {
+	                flag = true;
+	            }
 		} catch (SQLException e) {
-				e.printStackTrace();
+			logger.error("Error de base de datos en Grupo.modificaPorCampo. BASE: " + db, e);
 		}
 		return (flag);
 	}

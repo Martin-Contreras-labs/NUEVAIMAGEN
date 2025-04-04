@@ -36,6 +36,8 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 
@@ -128,6 +130,7 @@ public class HomeController extends Controller {
 	public static String msgErrorFormulario = "Se presento un error con el formulario, por favor reingrese.";
 	public static String msgError = "Se presento un error de conexion o inactividad por mucho tiempo, por favor vuelva a ingresar.";
 	public static String msgSinPermiso = "USTED NO TIENE PERMISO PARA ACCEDER, POR FAVOR NO LO INTENTE, GRACIAS";
+	public static String msgReport = "Ocurrió un error al obtener el reporte. Intente nuevamente más tarde.";
 	
 	public static FormFactory formFactory;
 	public static Database dbWrite;
@@ -189,7 +192,18 @@ public class HomeController extends Controller {
 				e.printStackTrace();
 			}
     	}
-    }
+
+		public boolean isValid() {
+			return (userName != null && !userName.trim().isEmpty() &&
+					id_usuario != null && !id_usuario.trim().isEmpty() &&
+					baseDato != null && !baseDato.trim().isEmpty() &&
+					id_tipoUsuario != null && !id_tipoUsuario.trim().isEmpty() &&
+					porProyecto != null && !porProyecto.trim().isEmpty() &&
+					id_sucursal != null && !id_sucursal.trim().isEmpty() &&
+					aplicaPorSucursal != null && !aplicaPorSucursal.trim().isEmpty());
+		}
+
+	}
     
     
     //=============================================

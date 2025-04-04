@@ -61,7 +61,14 @@ public class FormBaja {
 		}
 		Map<Long,Precio> mapPrecio = Precio.mapAll(con, db, mapeoDiccionario, (long) 1);
 		Map<String,Long> decCompra = Moneda.numeroDecimalxNombre(con, db);
+		
+		
+		//CAMBIAR
 		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
+		
+		
+		
+		
 		Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, db);
 		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
 		Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);

@@ -250,7 +250,18 @@ public class FormRedimensionar {
 			String insertMovimiento = "";
 			for(Baja x: listBaja) {
 				
+				
+				
+				
+				
+				
+				//CAMBIAR
 				String id_bodegaEmpresa = "1";
+				
+				
+				
+				
+				
 				String id_equipo = x.getId_equipo().toString();
 				String id_tipoMovimiento = "2";
 				String cantidad = x.getCantidad().toString();

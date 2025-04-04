@@ -9,6 +9,10 @@ import java.sql.SQLException;
 
 import javax.inject.Inject;
 
+import javax.inject.Singleton;
+
+
+@Singleton
 public class DatabaseExecutionContext {
     private final Database dbWrite;
 
@@ -21,12 +25,19 @@ public class DatabaseExecutionContext {
         return dbWrite;
     }
     
-//    public Connection getConnection(DatabaseExecutionContext dbWrite) {
-//    	Database db2 = dbWrite.getDb();
-//    	return db2.getConnection();
-//    }
     
     public Connection getConnection() throws SQLException {
         return dbWrite.getConnection();
+    }
+    
+    public void executeWithConnection(DatabaseOperation operation) throws SQLException {
+        try (Connection connection = dbWrite.getConnection()) {
+            operation.execute(connection);
+        }
+    }
+    
+    @FunctionalInterface
+    public interface DatabaseOperation {
+        void execute(Connection connection) throws SQLException;
     }
 }

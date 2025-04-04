@@ -365,7 +365,11 @@
 						 	Redimensionar
 			        	</a>
 			        	<ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="background-color: #e3f2fd;">
-			        		@if(mapPermiso.get("redimensionarIngreso")!=null){
+							@if(mapPermiso.get("redimensionarIngreso")!=null){
+								<!--
+								<a class="dropdown-item" href="/routes2/redimensionarAsignaBodega/">Asigna @mapDiccionario.get("Bodega")</a>
+								<div class="dropdown-divider" style="border-color:black"></div>
+								-->
 			        			<a class="dropdown-item" href="/routes2/redimensionarPrepara/">Preparar</a>
 							}
 							@if(mapPermiso.get("redimensionarConfirma")!=null){

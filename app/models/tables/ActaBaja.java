@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import controllers.HomeController;
 import models.forms.FormBaja;
 
 public class ActaBaja {
@@ -19,7 +23,7 @@ public class ActaBaja {
 	public String fecha;
 	public String actaBajaPDF;
 	public String observaciones;
-	
+
 	public ActaBaja(Long id, Long numero, String fecha, String actaBajaPDF, String observaciones) {
 		super();
 		this.id = id;
@@ -28,7 +32,7 @@ public class ActaBaja {
 		this.actaBajaPDF = actaBajaPDF;
 		this.observaciones = observaciones;
 	}
-	
+
 	public ActaBaja(FormBaja form) {
 		super();
 		this.id = (long)0;
@@ -82,229 +86,196 @@ public class ActaBaja {
 		this.observaciones = observaciones;
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	
+
 	public static boolean modifyXCampo(Connection con, String db, String campo, String valor, Long id_actaBaja) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.actaBaja set `"+campo+"` = ? WHERE id = ?;");
+		String query = "update `"+db+"`.actaBaja set `"+campo+"` = ? WHERE id = ?;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_actaBaja);
 			smt.executeUpdate();
-			smt.close();
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR en ActaBaja.modifyXCampo. [BASE: {}]", db, e);
 		}
 		return (flag);
 	}
-	
+
 	public static Long findNuevoNumero(Connection con, String db) {
-		Long aux = (long) 1;
-		try {
-			PreparedStatement smt=null;
-			ResultSet resultado = null;
-			smt = con
-					.prepareStatement("select max(numero)+1 from `"+db+"`.actaBaja;");
-			resultado = smt.executeQuery();
-			if (resultado.next()) {		
-				aux = resultado.getLong(1);
+		Long nuevoNumero = 1L;
+		String query = "SELECT COALESCE(MAX(numero), 1) + 1 FROM `" + db + "`.actaBaja;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				if (rs.next()) {
+					nuevoNumero = rs.getLong(1);
+				}
 			}
-			smt.close();
-			resultado.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR en ActaBaja.findNuevoNumero. BASE: " + db, e);
 		}
-		if(aux < 1) {
-			aux = (long) 1;
-		}
-		return (aux);
+		return (nuevoNumero > 0 ? nuevoNumero : 1L);
 	}
 	
 	public static boolean existeNumero (Connection con, String db, Long numero) {
 		boolean aux = false;
-		try {
-			PreparedStatement smt=null;
-			ResultSet resultado = null;
-			smt = con
-					.prepareStatement("select numero from `"+db+"`.actaBaja where numero = ?;");
+		String query = "select numero from `"+db+"`.actaBaja where numero = ?;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setLong(1, numero);
-			resultado = smt.executeQuery();
-			if (resultado.next()) {		
-				aux = true;
+			try(ResultSet resultado = smt.executeQuery()){
+				if (resultado.next()) {
+					aux = true;
+				}
 			}
-			smt.close();
-			resultado.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR en ActaBaja.existeNumero. [BASE: {}]", db, e);
 		}
 		return (aux);
 	}
-	
+
 	public static Long findIdActaBaja (Connection con, String db, Long numero) {
 		Long aux = (long)0;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id from `"+db+"`.actaBaja where numero = ?;");
+		String query = "select id from `"+db+"`.actaBaja where numero = ?;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setLong(1, numero);
-			ResultSet rs = smt.executeQuery();
-			if (rs.next()) {		
-				aux = rs.getLong(1);
+			try(ResultSet rs = smt.executeQuery()){
+				if (rs.next()) {
+					aux = rs.getLong(1);
+				}
 			}
-			smt.close();
-			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR 2 en ActaBaja.findIdActaBaja. [BASE: {}]", db, e);
 		}
 		return (aux);
 	}
-	
+
 	public static Long create(Connection con, String db, ActaBaja actaBaja) {
 		Long id_acta = (long)0;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("insert into  `"+db+"`.actaBaja (numero,fecha,observaciones) " +
-								" values (?,?,?)");
+		String query = "insert into  `"+db+"`.actaBaja (numero,fecha,observaciones) values (?,?,?)";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setLong(1, actaBaja.getNumero());
 			smt.setString(2, actaBaja.getFecha());
 			smt.setString(3, actaBaja.getObservaciones());
 			smt.executeUpdate();
-			smt.close();
-			PreparedStatement smt2 = con
-					.prepareStatement("select id from `"+db+"`.actaBaja where numero = ?");
-			smt2.setLong(1, actaBaja.getNumero());
-			ResultSet rs2 = smt2.executeQuery();
-			if(rs2.next()) {
-				id_acta = rs2.getLong(1);
-			}
-			rs2.close();
-			smt2.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR 1 en ActaBaja.create (insert). [BASE: {}]", db, e);
+		}
+		String query2 = "select id from `"+db+"`.actaBaja where numero = ?";
+		try (PreparedStatement smt2 = con.prepareStatement(query2)) {
+			smt2.setLong(1, actaBaja.getNumero());
+			try(ResultSet rs2 = smt2.executeQuery()){
+				if(rs2.next()) {
+					id_acta = rs2.getLong(1);
+				}
+			}
+		} catch (SQLException e) {
+			logger.error("DB ERROR 2 en ActaBaja.create (select). [BASE: {}]", db, e);
 		}
 		return (id_acta);
 	}
-	
+
 	public static boolean delete(Connection con, String db, Long id_actaBaja) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("select id from `"+db+"`.baja WHERE id_actaBaja = ?;");
+		String query1 = "select id from `"+db+"`.baja WHERE id_actaBaja = ?;";
+		try (PreparedStatement smt1 = con.prepareStatement(query1)) {
 			smt1.setLong(1, id_actaBaja);
-			ResultSet resultado1 = smt1.executeQuery();
-			if (resultado1.next()) {
-				flag = false;
-			}else{			
-				PreparedStatement smt = con
-						.prepareStatement("delete from `"+db+"`.actaBaja WHERE id = ?;");
-				smt.setLong(1, id_actaBaja);
-				smt.executeUpdate();
-				smt.close();
+			try(ResultSet resultado1 = smt1.executeQuery()){
+				if (resultado1.next()) {
+					flag = false;
+				} else {
+					String query2 = "delete from `"+db+"`.actaBaja WHERE id = ?;";
+					try (PreparedStatement smt = con.prepareStatement(query2)) {
+						smt.setLong(1, id_actaBaja);
+						smt.executeUpdate();
+						flag = true;
+					}
+				}
 			}
-			smt1.close();
-			resultado1.close();
-			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR 2 en ActaBaja.delete. [BASE: {}]", db, e);
 		}
 		return (flag);
 	}
-	
+
 	public static List<ActaBaja> all(Connection con, String db) {
 		List<ActaBaja> lista = new ArrayList<ActaBaja>();
-		
-		try {
-			PreparedStatement smt=null;
-			ResultSet rs = null;
-			smt = con
-					.prepareStatement(" select " +
-							" id, numero, fecha, actaBajaPDF, observaciones " +
-							" from `"+db+"`.actaBaja;");
-			rs = smt.executeQuery();
-			while (rs.next()) {	
-				String fecha = null;
-				if (rs.getString(3) != null) {
-					fecha = myformatfecha.format(rs.getDate(3));
-				}
-				lista.add(new ActaBaja(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5)));
-			}
-			smt.close();
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return (lista);
-	}
-	
-	public static List<ActaBaja> allModificables(Connection con, String db) {
-		List<ActaBaja> lista = new ArrayList<ActaBaja>();
-		try {
-			Map<Long,Long> mapIdActas = new HashMap<Long,Long>();
-			PreparedStatement smt2=null;
-			ResultSet rs2 = null;
-			smt2 = con
-					.prepareStatement("select id_actaBaja from `"+db+"`.baja where esModificable=1 and fechaConfirma is null group by id_actaBaja;");
-			rs2 = smt2.executeQuery();
-			while (rs2.next()) {		
-				mapIdActas.put(rs2.getLong(1), rs2.getLong(1));
-			}
-			smt2.close();
-			rs2.close();
-			
-			PreparedStatement smt=null;
-			ResultSet rs = null;
-			smt = con
-					.prepareStatement(" select " +
-							" id, numero, fecha, actaBajaPDF, observaciones " +
-							" from `"+db+"`.actaBaja;");
-			rs = smt.executeQuery();
-			while (rs.next()) {
-				if(mapIdActas.get(rs.getLong(1)) != null) {
-					String fecha = null;		
+		String query = " select " +
+				" id, numero, fecha, actaBajaPDF, observaciones " +
+				" from `"+db+"`.actaBaja;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					String fecha = null;
 					if (rs.getString(3) != null) {
 						fecha = myformatfecha.format(rs.getDate(3));
 					}
 					lista.add(new ActaBaja(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5)));
 				}
 			}
-			smt.close();
-			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR 2 en ActaBaja.all. [BASE: {}]", db, e);
 		}
 		return (lista);
 	}
-	
+
+	public static List<ActaBaja> allModificables(Connection con, String db) {
+		List<ActaBaja> lista = new ArrayList<ActaBaja>();
+		String query = "select id_actaBaja from `"+db+"`.baja where esModificable=1 and fechaConfirma is null group by id_actaBaja;";
+		try (PreparedStatement smt2 = con.prepareStatement(query)) {
+			Map<Long,Long> mapIdActas = new HashMap<Long,Long>();
+			try (ResultSet rs2 = smt2.executeQuery()) {
+				while (rs2.next()) {
+					mapIdActas.put(rs2.getLong(1), rs2.getLong(1));
+				}
+				String query2 = " select " +
+						" id, numero, fecha, actaBajaPDF, observaciones " +
+						" from `"+db+"`.actaBaja;";
+				try (PreparedStatement smt = con.prepareStatement(query2)) {
+					try (ResultSet rs = smt.executeQuery()){
+						while (rs.next()) {
+							if(mapIdActas.get(rs.getLong(1)) != null) {
+								String fecha = null;
+								if (rs.getString(3) != null) {
+									fecha = myformatfecha.format(rs.getDate(3));
+								}
+								lista.add(new ActaBaja(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5)));
+							}
+						}
+					}
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR 2 en ActaBaja.allModificables query2. [BASE: {}]", db, e);
+			}
+		} catch (SQLException e) {
+			logger.error("DB ERROR 2 en ActaBaja.allModificables query. [BASE: {}]", db, e);
+		}
+		return (lista);
+	}
+
 	public static ActaBaja find(Connection con, String db, Long id_actaBaja) {
 		ActaBaja aux = null;
-		try {
-			PreparedStatement smt=null;
-			ResultSet rs = null;
-			smt = con
-					.prepareStatement(" select " +
-							" id, numero, fecha, actaBajaPDF, observaciones " +
-							" from `"+db+"`.actaBaja where id = ?;");
+		String query = " select " +
+				" id, numero, fecha, actaBajaPDF, observaciones " +
+				" from `"+db+"`.actaBaja where id = ?;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setLong(1, id_actaBaja);
-			rs = smt.executeQuery();
-			if (rs.next()) {
-				String fecha="";
-				if (rs.getString(3) != null) {fecha = myformatfecha.format(rs.getDate(3));}
-				aux = new ActaBaja(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5));
+			try (ResultSet rs = smt.executeQuery()) {
+				if (rs.next()) {
+					String fecha="";
+					if (rs.getString(3) != null) {
+						fecha = myformatfecha.format(rs.getDate(3));
+					}
+					aux = new ActaBaja(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5));
+				}
 			}
-			smt.close();
-			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("DB ERROR 2 en ActaBaja.find. [BASE: {}]", db, e);
 		}
 		return (aux);
 	}
-	
-	
-	
-	
-	
+
 }

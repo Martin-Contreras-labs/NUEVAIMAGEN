@@ -42,6 +42,8 @@ import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.db.Database;
@@ -67,6 +69,8 @@ public class MnuCompras extends Controller {
 	
 	private final WSClient ws;
 	public final MailerClient mailerClient;
+
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	@Inject
 	  public MnuCompras(WSClient ws, MailerClient mailerClient) {
@@ -351,21 +355,14 @@ public class MnuCompras extends Controller {
 	   		if (form.hasErrors()) {
 	   			return ok("error");
 	       	}else {
-	    	  	Long numeroFactura = Long.parseLong(form.get("numeroFactura").trim());
-	    	  	Long id_proveedor = Long.parseLong(form.get("id_proveedor").trim());
-				try {
-	    			Connection con = db.getConnection();
-	    				if(Factura.existeNumero(con, s.baseDato, numeroFactura, id_proveedor)) {
-	    	    			con.close();
-	    	    			return ok("existe");
-	    				}else {
-	    					con.close();
-	    					return ok("");
-	    				}
-				} catch (SQLException e) {
-	    			e.printStackTrace();
+				try (Connection con = db.getConnection()){
+					Long numeroFactura = Long.parseLong(form.get("numeroFactura").trim());
+					Long id_proveedor = Long.parseLong(form.get("id_proveedor").trim());
+					return ok(Factura.existeNumero(con, s.baseDato, numeroFactura, id_proveedor) ? "existe" : "");
+				} catch (Exception e) {
+					logger.error("Error en MnuCompras.verificaNumeroFacturaAjax. [BASE: {}]",s.baseDato, e);
+					return ok("error");
 	    		}
-				return ok("error");
 	       	}
     	}else {
     		return ok("error");

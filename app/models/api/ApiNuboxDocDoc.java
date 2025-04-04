@@ -297,7 +297,12 @@ public class ApiNuboxDocDoc {
 					//obtiene datos
 					
 					Long idGrupo = Grupo.findIdXnombre(con,db, datos.get(i).get(0));
-					Double auxPU = Double.parseDouble(datos.get(i).get(16).replaceAll(",", ""));
+					Double auxPU = (double) 1;
+					try {
+						
+					}catch(Exception e) {
+						auxPU = Double.parseDouble(datos.get(i).get(16).replaceAll(",", ""));
+					}
 
 					String precioUnita = myformatapi.format(Math.round(auxPU));
 					

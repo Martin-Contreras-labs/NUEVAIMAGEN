@@ -8,6 +8,9 @@ import java.sql.SQLException;
 
 import javax.inject.Inject;
 
+import javax.inject.Singleton;
+
+@Singleton
 public class DatabaseRead {
     private final Database dbRead;
 
@@ -16,16 +19,28 @@ public class DatabaseRead {
         this.dbRead = dbApi.getDatabase("read");
     }
 
+    
     public Database getDb() {
         return dbRead;
     }
     
-//    public Connection getConnection(DatabaseRead dbRead) {
-//    	Database db2 = dbRead.getDb();
-//    	return db2.getConnection();
-//    }
-    
     public Connection getConnection() throws SQLException {
         return dbRead.getConnection();
     }
+    
+    
+    
+    
+    
+    public void executeWithConnection(DatabaseOperation operation) throws SQLException {
+        try (Connection connection = dbRead.getConnection()) {
+            operation.execute(connection);
+        }
+    }
+    
+    @FunctionalInterface
+    public interface DatabaseOperation {
+        void execute(Connection connection) throws SQLException;
+    }
+    
 }

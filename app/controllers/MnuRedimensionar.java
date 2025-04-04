@@ -12,6 +12,7 @@ import models.forms.FormBaja;
 import models.forms.FormRedimensionar;
 import models.tables.ActaRedimensionar;
 import models.tables.BodegaEmpresa;
+import models.tables.BodegaRedimensionar;
 import models.tables.Equipo;
 import models.tables.Fabrica;
 import models.tables.Grupo;
@@ -44,6 +45,52 @@ public class MnuRedimensionar extends Controller {
 	
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
+	
+	
+	
+	
+	
+	public Result redimensionarAsignaBodega(Http.Request request) {
+    	Sessiones s = new Sessiones(request);
+    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+    		try {
+    			Connection con = db.getConnection();
+    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+    			if(mapeoPermiso.get("redimensionarIngreso")==null) {
+    				con.close();
+    				return ok(mensajes.render("/",msgSinPermiso));
+    			}
+    			Long id_bodegaEmpresa = BodegaRedimensionar.find(con, s.baseDato);
+    			
+    			Long numeroActaRedimensionar = ActaRedimensionar.findNuevoNumero(con, s.baseDato);
+    			String fecha = Fechas.hoy().getFechaStrAAMMDD();
+    			List<List<String>> listEquipBodOrige = FormBaja.listEquipEnBodBaja(con, s.baseDato, mapeoPermiso, mapeoDiccionario);
+    			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato);
+    			
+    			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
+    			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
+    			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
+    			
+    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+    			String optBodegas = "";
+    			for(List<String> x: listBodegas) {
+    				if( ! x.get(1).equals("1")) {
+    					optBodegas += "<option value='"+x.get(1)+"'>"+x.get(5)+"</option>";
+    				}
+    			}
+    			con.close();
+    			return ok(redimensionarPrepara.render(mapeoDiccionario,mapeoPermiso,userMnu,numeroActaRedimensionar,listEquipBodOrige, fecha,
+    					listEquipos, listGrupos, listFabrica, listUnidades, optBodegas));
+        	} catch (SQLException e) {
+    			e.printStackTrace();
+    		}
+    		return ok(mensajes.render("/",msgError));
+    	}else {
+    		return ok(mensajes.render("/",msgError));
+    	}
+    }
 	
     //============================================================
     // MNU redimensionarPrepara   Redimensionar/preparar -- redimensionar

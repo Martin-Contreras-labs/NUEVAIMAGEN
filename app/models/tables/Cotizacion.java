@@ -2214,7 +2214,7 @@ public class Cotizacion {
 	
 	public static List<List<String>> listCotiAllSinConfirmarClientesVig(Connection con, String db, String esPorSucursal, String id_sucursal, String desde, String hasta){
 		List<List<String>> listCotizacion = new ArrayList<List<String>>();
-		List<Cotizacion> listCoti = Cotizacion.allSinConfirmar(con, db);
+		List<Cotizacion> listCoti = Cotizacion.allSinConfirmarDesdeHasta(con, db, desde, hasta);
 		Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
 		Map<Long, Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
 		if(esPorSucursal.equals("1")) {
