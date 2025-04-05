@@ -94,14 +94,14 @@ public class ActaBaja {
 
 	public static boolean modifyXCampo(Connection con, String db, String campo, String valor, Long id_actaBaja) {
 		boolean flag = false;
-		String query = "update `"+db+"`.actaBaja set `"+campo+"` = ? WHERE id = ?;";
+		String query = String.format("UPDATE `%s`.actaBaja SET `%s` = ? WHERE id = ?", db, campo);
 		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_actaBaja);
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			logger.error("DB ERROR en ActaBaja.modifyXCampo. [BASE: {}]", db, e);
+			logger.error("DB ERROR en ActaBaja.modifyXCampo. Campo: {}, DB: {}", campo, db, e);
 		}
 		return (flag);
 	}
@@ -120,7 +120,7 @@ public class ActaBaja {
 		}
 		return (nuevoNumero > 0 ? nuevoNumero : 1L);
 	}
-	
+
 	public static boolean existeNumero (Connection con, String db, Long numero) {
 		boolean aux = false;
 		String query = "select numero from `"+db+"`.actaBaja where numero = ?;";

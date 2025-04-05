@@ -146,8 +146,10 @@ public class MnuReportes extends Controller {
 
 	public Result reportInventarioEquipoCorte(Http.Request request, String tipo) {
 		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
 		if (!s.isValid()) {
-			logger.error(msgSESSION);
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		try {
@@ -155,25 +157,28 @@ public class MnuReportes extends Controller {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("reportInventarioGeneral")==null) {
+				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
 				return ok(mensajes.render("/",msgSinPermiso));
 			}
 			Fechas hoy = Fechas.hoy();
 			return ok(reportInventarioEquipoCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
-			logger.error("ERROR en MnuReportes.reportInventarioEquipo. BASE: {}", s.baseDato, e);
-			return ok(mensajes.render("/",msgError));
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportInventarioEquipo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
 		if (!s.isValid()) {
-			logger.error(msgSESSION);
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
-			logger.error("FORM ERROR en MnuReportes.reportInventarioEquipo. BASE: {}", s.baseDato);
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
 			return ok(mensajes.render("/", msgErrorFormulario));
 		} else {
 			try (Connection con = dbRead.getConnection()) {
@@ -195,10 +200,10 @@ public class MnuReportes extends Controller {
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 				return ok(reportInventarioEquipo.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, fechaCorte, tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR en MnuReportes.reportInventarioEquipo. BASE: {}", s.baseDato, e);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
 				return internalServerError(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR en MnuReportes.reportInventarioEquipo. BASE: {}", s.baseDato, e);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
 				return internalServerError(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -206,107 +211,120 @@ public class MnuReportes extends Controller {
 
 	public Result reportInventarioGeneralXEquipo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
-	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-	    			Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioGeneralXEquipo(con, s.baseDato, equipo, fechaCorte, tipo, 
-	    					mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-	    			return ok(reportInventarioGeneralXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioGeneralXEquipo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioGeneralXEquipo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+				Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+				Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
+				List<List<String>> datos = ReportInventarios.reportInventarioGeneralXEquipo(con, s.baseDato, equipo, fechaCorte, tipo,
+						mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(reportInventarioGeneralXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventTrazaEquipoEnBod(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		try (Connection con = dbRead.getConnection()){
-	       			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			List<List<String>> datos = ReportInventarios.trazaEquipoEnBodega(con, s.baseDato, id_bodega, id_equipo, tipo, mapeoDiccionario);
-	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventTrazaEquipoEnBod. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventTrazaEquipoEnBod. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+				String tipo = form.get("tipo").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<List<String>> datos = ReportInventarios.trazaEquipoEnBodega(con, s.baseDato, id_bodega, id_equipo, tipo, mapeoDiccionario);
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioEquipoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
-	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
-	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-	    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
-	    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda, 
-	    					tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-	    			File file = ReportInventarios.reportInventarioGeneralExcel(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("InventarioPorEquipo.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioEquipoExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioEquipoExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String tipo = null;
+			String fechaCorte = null;
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				tipo = form.get("tipo").trim();
+				fechaCorte = form.get("fechaCorte").trim();
+				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+				Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+				Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+				Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+				Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+				datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda,
+						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.reportInventarioGeneralExcel(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
+				return ok(file,false,Optional.of("InventarioPorEquipo.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	//====================================================================================
@@ -315,169 +333,185 @@ public class MnuReportes extends Controller {
 	
 	public Result reportEquipoBodegaCorte(Http.Request request, String tipo) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try (Connection con = dbRead.getConnection()){
-				if(mapeoPermiso.get("reportInventarioGeneral")==null) {
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			Fechas hoy = Fechas.hoy();
-    			return ok(reportEquipoBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reportEquipoBodegaCorte. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reportEquipoBodegaCorte. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportInventarioGeneral")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			Fechas hoy = Fechas.hoy();
+			return ok(reportEquipoBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public Result reportEquipoBodega(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
-	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
-	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-	    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
-	    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoDesagrupado(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda, 
-	    					tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-	    			return ok(reportEquipoBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportEquipoBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportEquipoBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+				Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+				Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+				Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+				Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+				List<List<String>> datos = ReportInventarios.reportInventarioEquipoDesagrupado(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda,
+						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+				return ok(reportEquipoBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportEquipoBodegaXEquipo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
-	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-	    			Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioGeneralXEquipo(con, s.baseDato, equipo, fechaCorte, tipo, 
-	    					mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-	    			return ok(reportEquipoBodegaXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportEquipoBodegaXEquipo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportEquipoBodegaXEquipo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+				Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+				Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
+				List<List<String>> datos = ReportInventarios.reportInventarioGeneralXEquipo(con, s.baseDato, equipo, fechaCorte, tipo,
+						mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(reportEquipoBodegaXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
+			}catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 
 	public Result reportEquipoBodegaExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
-	    			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
-	    			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
-	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-	    			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
-	    			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoDesagrupado(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda, 
-	    					tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-	    			File file = ReportInventarios.reportInvGeneralExcelDesagrupado(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("InventarioPorEquipoBodega.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportEquipoBodegaExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportEquipoBodegaExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String tipo = null;
+			String fechaCorte = null;
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				tipo = form.get("tipo").trim();
+				fechaCorte = form.get("fechaCorte").trim();
+				Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
+				Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
+				Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,fechaCorte, mapeoDiccionario.get("pais"));
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+				Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
+				Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+				datos = ReportInventarios.reportInventarioEquipoDesagrupado(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda,
+						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.reportInvGeneralExcelDesagrupado(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
+				return ok(file,false,Optional.of("InventarioPorEquipoBodega.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 
 	public Result reportEquipoBodegaTrazaEquipoEnBod(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		try (Connection con = dbRead.getConnection()){
-	       			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			List<List<String>> datos = ReportInventarios.trazaEquipoEnBodega(con, s.baseDato, id_bodega, id_equipo, tipo, mapeoDiccionario);
-	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			return ok(reportEquipoBodegaTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportEquipoBodegaTrazaEquipoEnBod. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportEquipoBodegaTrazaEquipoEnBod. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+				String tipo = form.get("tipo").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<List<String>> datos = ReportInventarios.trazaEquipoEnBodega(con, s.baseDato, id_bodega, id_equipo, tipo, mapeoDiccionario);
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				return ok(reportEquipoBodegaTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	
@@ -487,152 +521,168 @@ public class MnuReportes extends Controller {
 	
 	public Result reportInventarioBodegaCorte(Http.Request request, String tipo) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportInventarioSelectivo")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try (Connection con = dbRead.getConnection()){
-				if(mapeoPermiso.get("reportInventarioSelectivo")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			Fechas hoy = Fechas.hoy();
-    			return ok(reportInventarioBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reportInventarioBodegaCorte. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reportInventarioBodegaCorte. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+			Fechas hoy = Fechas.hoy();
+			return ok(reportInventarioBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public Result reportInventarioBodega(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		Long soloVigentes = Long.parseLong(form.get("soloVigentes").trim());
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioGeneralXBodega(con, s.baseDato, fechaCorte, tipo, 
-	    					soloVigentes, permisoPorBodega, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-	    			return ok(reportInventarioBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				Long soloVigentes = Long.parseLong(form.get("soloVigentes").trim());
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> datos = ReportInventarios.reportInventarioGeneralXBodega(con, s.baseDato, fechaCorte, tipo,
+						soloVigentes, permisoPorBodega, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(reportInventarioBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioSelectivoXBodega(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o todo
-	       		String fechaCorte = form.get("fechaCorte").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
-	    			return ok(reportInventarioSelectivoXBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioSelectivoXBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioSelectivoXBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o todo
+				String fechaCorte = form.get("fechaCorte").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
+				return ok(reportInventarioSelectivoXBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos,fechaCorte,tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventProyectoTrazaEquipoEnBod(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-	       		Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
-	       		String tipo = form.get("tipo").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			List<List<String>> datos = ReportInventarios.trazaEquipoProyectoEnBodega(con, s.baseDato, id_bodega, id_equipo, id_cotizacion, tipo, mapeoDiccionario);
-	    			return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioSelectivoXBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioSelectivoXBodega. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
+				String tipo = form.get("tipo").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				List<List<String>> datos = ReportInventarios.trazaEquipoProyectoEnBodega(con, s.baseDato, id_bodega, id_equipo, id_cotizacion, tipo, mapeoDiccionario);
+				return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioSelectivoXBodegaExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
-	    			File file = ReportInventarios.exportaReportInventarioSelectivoXBodega(s.baseDato, datos, fechaCorte, mapeoDiccionario, bodega, tipo);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("InventarioPorBodega.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioSelectivoXBodegaExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioSelectivoXBodegaExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			String tipo = null;
+			String fechaCorte = null;
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			BodegaEmpresa bodega = null;
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				tipo = form.get("tipo").trim();
+				fechaCorte = form.get("fechaCorte").trim();
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.exportaReportInventarioSelectivoXBodega(s.baseDato, datos, fechaCorte, mapeoDiccionario, bodega, tipo);
+				return ok(file,false,Optional.of("InventarioPorBodega.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	//====================================================================================
@@ -641,113 +691,130 @@ public class MnuReportes extends Controller {
 	
 	public Result reportInventarioGrupoCorte(Http.Request request, String tipo) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		if(mapeoPermiso.get("reportInventarioGrupo")==null) {
-    			return ok(mensajes.render("/",msgSinPermiso));
-    		}
-    		Fechas hoy = Fechas.hoy();
-    		return ok(reportInventarioGrupoCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportInventarioGrupo")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		Fechas hoy = Fechas.hoy();
+		return ok(reportInventarioGrupoCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 	}
 	
 	public Result reportInventarioGrupo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				List<Grupo> grupos = Grupo.all(con, s.baseDato);
-	    			return ok(reportInventarioGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioGrupo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioGrupo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<Grupo> grupos = Grupo.all(con, s.baseDato);
+				return ok(reportInventarioGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupos,fechaCorte,tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioSelectivoXGrupo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXGrupo(con, s.baseDato, id_grupo, fechaCorte, 
-	    					permisoPorBodega, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-	    			Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
-	    			return ok(reportInventarioSelectivoXGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupo,datos,fechaCorte,tipo));
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioSelectivoXGrupo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioSelectivoXGrupo. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXGrupo(con, s.baseDato, id_grupo, fechaCorte,
+						permisoPorBodega, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+				Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
+				return ok(reportInventarioSelectivoXGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupo,datos,fechaCorte,tipo));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioSelectivoXGrupoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXGrupo(con, s.baseDato, id_grupo, fechaCorte, 
-	    					permisoPorBodega, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-	    			File file = ReportInventarios.exportaReportInventarioSelectivoXGrupo(s.baseDato, datos, fechaCorte, mapeoDiccionario, grupo, tipo);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("InventarioPorGrupo.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioSelectivoXGrupoExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioSelectivoXGrupoExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			String tipo = null;
+			String fechaCorte = null;
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			Grupo grupo = null;
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
+				tipo = form.get("tipo").trim();
+				fechaCorte = form.get("fechaCorte").trim();
+				grupo = Grupo.find(con, s.baseDato, id_grupo);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				datos = ReportInventarios.reportInventarioSelectivoXGrupo(con, s.baseDato, id_grupo, fechaCorte,
+						permisoPorBodega, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.exportaReportInventarioSelectivoXGrupo(s.baseDato, datos, fechaCorte, mapeoDiccionario, grupo, tipo);
+				return ok(file,false,Optional.of("InventarioPorGrupo.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	//====================================================================================
@@ -756,157 +823,170 @@ public class MnuReportes extends Controller {
 	
 	public Result reportInventarioMatrizCorte(Http.Request request, String tipo) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("inventarioMatriz")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("inventarioMatriz")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			Fechas hoy = Fechas.hoy();
+			List<Sucursal> listSucursal = new ArrayList<Sucursal>();
+			if(s.aplicaPorSucursal.equals("1")) {
+				Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
+				listSucursal.add(sucursal);
+			}else {
+				listSucursal = Sucursal.all(con, s.baseDato);
 			}
-			try (Connection con = dbRead.getConnection()){
-    			Fechas hoy = Fechas.hoy();
-    			List<Sucursal> listSucursal = new ArrayList<Sucursal>();
-    			if(s.aplicaPorSucursal.equals("1")) {
-    				Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
-    				listSucursal.add(sucursal);
-    			}else {
-    				listSucursal = Sucursal.all(con, s.baseDato);
-    			}
-    			return ok(reportInventarioMatrizCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo, listSucursal));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reportInventarioMatrizCorte. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reportInventarioMatrizCorte. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+			return ok(reportInventarioMatrizCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo, listSucursal));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public Result reportInventarioMatriz(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		String id_sucursal = form.get("id_sucursal").trim();
-	       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String tipo = form.get("tipo").trim();
+				String fechaCorte = form.get("fechaCorte").trim();
+				String id_sucursal = form.get("id_sucursal").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try (Connection con = dbRead.getConnection()){
-					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    				List<List<String>> listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte, 
-	    					permisoPorBodega, "1", id_sucursal, tipo);
-	    			if(tipo.equals("VENTA")) {
-	    				List<List<String>> aux = new ArrayList<List<String>>();
-	    				for(List<String> l: listaBodegas) {
-	    					if(!l.get(2).equals("1")) {
-	    						aux.add(l);
-	    					}
-	    				}
-	    				listaBodegas = aux;
-	    			}
-	    			List<List<String>> aux = new ArrayList<List<String>>();
-    				for(List<String> l: listaBodegas) {
-    					if(l.get(3).equals("1")) {
-    						aux.add(l);
-    					}
-    				}
-    				listaBodegas = aux;
-	    			List<String> titulos1 = ReportInventarios.listaMatrizEquiposTitulos1(listaBodegas, tipo, mapeoDiccionario);
-	    			List<String> titulos2 = ReportInventarios.listaMatrizEquiposTitulos2(listaBodegas);
-	    			List<String> titulos3 = ReportInventarios.listaMatrizEquiposTitulos3(listaBodegas);
-	    			List<List<String>> datos = ReportInventarios.listaMatrizEquipos(con, s.baseDato, permisoPorBodega, tipo, fechaCorte, listaBodegas, mapeoDiccionario);
-	    			Sucursal sucursal = new Sucursal();
-	    			sucursal.setId((long)0);
-    				sucursal.setNombre("TODAS");
-	    			if( ! id_sucursal.equals("0")) {
-	    				sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
-	    			}
-	    			if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
-	    				File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
-		    			if(file!=null) {
-			       			return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
-			       		}else {
-			       			return ok("");
-			       		}
-	    			}
-	    			return ok(reportInventarioMatriz.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,titulos1,titulos2,tipo,fechaCorte,sucursal));
-	        	} catch (SQLException e) {
-	        	    logger.error("Error de base de datos en MnuReportes.reportInventarioMatriz. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	} catch (Exception e) {
-	        	    logger.error("Error inesperado en MnuReportes.reportInventarioMatriz. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
+						permisoPorBodega, "1", id_sucursal, tipo);
+				if(tipo.equals("VENTA")) {
+					List<List<String>> aux = new ArrayList<List<String>>();
+					for(List<String> l: listaBodegas) {
+						if(!l.get(2).equals("1")) {
+							aux.add(l);
+						}
+					}
+					listaBodegas = aux;
+				}
+				List<List<String>> aux = new ArrayList<List<String>>();
+				for(List<String> l: listaBodegas) {
+					if(l.get(3).equals("1")) {
+						aux.add(l);
+					}
+				}
+				listaBodegas = aux;
+				aux = null;
+				List<String> titulos1 = ReportInventarios.listaMatrizEquiposTitulos1(listaBodegas, tipo, mapeoDiccionario);
+				List<String> titulos2 = ReportInventarios.listaMatrizEquiposTitulos2(listaBodegas);
+				List<String> titulos3 = ReportInventarios.listaMatrizEquiposTitulos3(listaBodegas);
+				List<List<String>> datos = ReportInventarios.listaMatrizEquipos(con, s.baseDato, permisoPorBodega, tipo, fechaCorte, listaBodegas, mapeoDiccionario);
+				Sucursal sucursal = new Sucursal();
+				sucursal.setId((long)0);
+				sucursal.setNombre("TODAS");
+				if( ! id_sucursal.equals("0")) {
+					sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
+				}
+				if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+					File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
+					return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
+				}
+				return ok(reportInventarioMatriz.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,titulos1,titulos2,tipo,fechaCorte,sucursal));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioMatrizExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String tipo = form.get("tipo").trim();
-	       		String fechaCorte = form.get("fechaCorte").trim();
-	       		String id_sucursal = form.get("id_sucursal").trim();
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
-	    					permisoPorBodega, "1", id_sucursal, tipo);
-	    			if(tipo.equals("VENTA")) {
-	    				List<List<String>> aux = new ArrayList<List<String>>();
-	    				for(List<String> l: listaBodegas) {
-	    					if(!l.get(2).equals("1")) {
-	    						aux.add(l);
-	    					}
-	    				}
-	    				listaBodegas = aux;
-	    			}
-	    			List<List<String>> aux = new ArrayList<List<String>>();
-    				for(List<String> l: listaBodegas) {
-    					if(l.get(3).equals("1")) {
-    						aux.add(l);
-    					}
-    				}
-    				listaBodegas = aux;
-	    			List<String> titulos2 = ReportInventarios.listaMatrizEquiposTitulos2(listaBodegas);
-	    			List<String> titulos3 = ReportInventarios.listaMatrizEquiposTitulos3(listaBodegas);
-	    			List<List<String>> datos = ReportInventarios.listaMatrizEquipos(con, s.baseDato, permisoPorBodega, tipo, fechaCorte, listaBodegas, mapeoDiccionario);
-	    			Sucursal sucursal = new Sucursal();
-	    			sucursal.setId((long)0);
-    				sucursal.setNombre("TODAS");
-	    			if( ! id_sucursal.equals("0")) {
-	    				sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
-	    			}
-	    			File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reportInventarioMatrizExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reportInventarioMatrizExcel. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			List<String> titulos2 = null;
+			List<String> titulos3 = null;
+			List<List<String>> datos = null;
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String tipo = null;
+			String fechaCorte = null;
+			Sucursal sucursal = new Sucursal();
+			try (Connection con = dbRead.getConnection()){
+				tipo = form.get("tipo").trim();
+				fechaCorte = form.get("fechaCorte").trim();
+				String id_sucursal = form.get("id_sucursal").trim();
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
+						permisoPorBodega, "1", id_sucursal, tipo);
+				if(tipo.equals("VENTA")) {
+					List<List<String>> aux = new ArrayList<List<String>>();
+					for(List<String> l: listaBodegas) {
+						if(!l.get(2).equals("1")) {
+							aux.add(l);
+						}
+					}
+					listaBodegas = aux;
+				}
+				List<List<String>> aux = new ArrayList<List<String>>();
+				for(List<String> l: listaBodegas) {
+					if(l.get(3).equals("1")) {
+						aux.add(l);
+					}
+				}
+				listaBodegas = aux;
+				aux = null;
+				titulos2 = ReportInventarios.listaMatrizEquiposTitulos2(listaBodegas);
+				titulos3 = ReportInventarios.listaMatrizEquiposTitulos3(listaBodegas);
+				datos = ReportInventarios.listaMatrizEquipos(con, s.baseDato, permisoPorBodega, tipo, fechaCorte, listaBodegas, mapeoDiccionario);
+				sucursal.setId((long)0);
+				sucursal.setNombre("TODAS");
+				if( ! id_sucursal.equals("0")) {
+					sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
+				return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	//====================================================================================
@@ -915,55 +995,63 @@ public class MnuReportes extends Controller {
 	
 	public Result reportInventarioTodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("inventarioStock")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-			try (Connection con = dbRead.getConnection()){
-    			List<List<String>> datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
-    			return ok(reportInventarioTodo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reportInventarioTodo. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reportInventarioTodo. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("inventarioStock")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			List<List<String>> datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
+			return ok(reportInventarioTodo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public Result reportInventarioTodoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		List<List<String>> datos = null;
-	       		try (Connection con = dbRead.getConnection()){
-	       			datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
-	        	} catch (SQLException e) {
-	        	    logger.error("Error de base de datos en MnuReportes.reportInventarioTodoExcel. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	} catch (Exception e) {
-	        	    logger.error("Error inesperado en MnuReportes.reportInventarioTodoExcel. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	}
-	       		if(datos != null) {
-	       			File file = ReportInventarios.exportaReportInventarioTodo(s.baseDato, datos, mapeoDiccionario);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("TodoElInventario.xlsx"));
-		       		}
-	       		}
-	       	}
-    	}
-    	return ok("");
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.exportaReportInventarioTodo(s.baseDato, datos, mapeoDiccionario);
+				return ok(file,false,Optional.of("TodoElInventario.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	//====================================================================================
@@ -972,57 +1060,64 @@ public class MnuReportes extends Controller {
 	
 	public Result reportEstadoBodegas(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("reportInventarioGeneral")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-			try (Connection con = dbRead.getConnection()){
-    			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato);
-    			return ok(reportEstadoBodegas.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reportEstadoBodegas. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reportEstadoBodegas. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportInventarioGeneral")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato);
+			return ok(reportEstadoBodegas.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public Result reportEstadoBodegasExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		try (Connection con = dbRead.getConnection()){
-	       			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato);
-	    			File file = ReportBodegas.estadoBodegasExcel(s.baseDato, mapeoDiccionario, datos);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("ReporteEstadoBodegas.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-	        	} catch (SQLException e) {
-	        	    logger.error("Error de base de datos en MnuReportes.reportEstadoBodegasExcel. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	} catch (Exception e) {
-	        	    logger.error("Error inesperado en MnuReportes.reportEstadoBodegasExcel. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				datos = ReportBodegas.estadoBodegas(con, s.baseDato);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportBodegas.estadoBodegasExcel(s.baseDato, mapeoDiccionario, datos);
+				return ok(file,false,Optional.of("ReporteEstadoBodegas.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
 	
 	//====================================================================================
     // MNU reportInventarioProyecto   Reportes/Existencias
@@ -1030,86 +1125,98 @@ public class MnuReportes extends Controller {
 	
 	public Result reportInventarioProyecto(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("reportInventarioProyecto")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-			try (Connection con = dbRead.getConnection()){
-    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			List<List<String>> datos = ReportInventarios.reportInventarioProyecto(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-    			return ok(reportInventarioProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reportInventarioProyecto. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reportInventarioProyecto. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportInventarioProyecto")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			List<List<String>> datos = ReportInventarios.reportInventarioProyecto(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+			return ok(reportInventarioProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
-	
+
 	public Result reportInventarioProyectoDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-	       		try (Connection con = dbRead.getConnection()){
-	       			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
-	    			return ok(reportInventarioProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos));
-	        	} catch (SQLException e) {
-	        	    logger.error("Error de base de datos en MnuReportes.reportInventarioProyectoDetalle. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	} catch (Exception e) {
-	        	    logger.error("Error inesperado en MnuReportes.reportInventarioProyectoDetalle. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
+				return ok(reportInventarioProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	public Result reportInventarioProyectoDetalleExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			try (Connection con = dbRead.getConnection()){
-    				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-	    			List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
-	    			File file = ReportInventarios.exportaReportInventarioProyectoDetalle(s.baseDato, datos, mapeoDiccionario, bodega);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("ExistenciasPorBodega.xlsx"));
-		       		}else {
-		       			return ok("");
-		       		}
-	        	} catch (SQLException e) {
-	        	    logger.error("Error de base de datos en MnuReportes.reportInventarioProyectoDetalleExcel. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	} catch (Exception e) {
-	        	    logger.error("Error inesperado en MnuReportes.reportInventarioProyectoDetalleExcel. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	}
-	       	}
-    	}else {
-    		return ok("");
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			BodegaEmpresa bodega = null;
+			List<List<String>> datos = null;
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportInventarios.exportaReportInventarioProyectoDetalle(s.baseDato, datos, mapeoDiccionario, bodega);
+				return ok(file,false,Optional.of("ExistenciasPorBodega.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 	
 	//====================================================================================
@@ -1118,962 +1225,1081 @@ public class MnuReportes extends Controller {
 	
 	public Result reporteMovimientosPeriodoAgrupado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("reporteMovimientos0")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-			try (Connection con = dbRead.getConnection()){
-    			Fechas hoy = Fechas.hoy();
-    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			return ok(reporteMovimientosPeriodoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-        	} catch (SQLException e) {
-        	    logger.error("Error de base de datos en MnuReportes.reporteMovimientosPeriodoAgrupado. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	} catch (Exception e) {
-        	    logger.error("Error inesperado en MnuReportes.reporteMovimientosPeriodoAgrupado. BASE: " + s.baseDato, e);
-        	    return internalServerError(mensajes.render("/home/", msgReport));
-        	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+    	String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reporteMovimientos0")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(reporteMovimientosPeriodoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public Result reporteMovimientosListaProyectosAgrupado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String desdeAAMMDD = form.get("fechaDesde").trim();
-	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-	    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			Map<Long,Double> tasas = null;
-    			Map<String, Double> mapFijaTasas = null;
-    			List<Long> listIdBodegaEmpresa = null;
-    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
-    			Map<String,Calc_Precio> mapPrecios = null;
-    			Map<Long,Calc_Precio> mapMaestroPrecios = null;
-    			List<Long> listIdGuia_fechaCorte = null;
-    			List<Inventarios> inventario = null;
-    			List<Inventarios> guiasPer = null;
-    			Map<String,String> mapPermanencias = null;
-    			Map<Long,List<String>> mapBodega = null;
-    			List<Calc_AjustesEP> listaAjustes = null;
-    			Map<Long,Long> dec = null;
-    			Map<String,String> map = null;
-    			try (Connection con = dbRead.getConnection()){
-    				Fechas hoy = Fechas.hoy();
-    				tasas = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-	    			mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-	    			mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-	    			mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-	    			mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-	    			listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-	    			inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-	    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-	    			guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-	    			listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-	    			mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-	    			dec = Moneda.numeroDecimal(con, s.baseDato);
-	    			map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-            	} catch (SQLException e) {
-            	    logger.error("Error de base de datos en MnuReportes.reporteMovimientosPeriodoAgrupado. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	} catch (Exception e) {
-            	    logger.error("Error inesperado en MnuReportes.reporteMovimientosPeriodoAgrupado. BASE: " + s.baseDato, e);
-            	    return internalServerError(mensajes.render("/home/", msgReport));
-            	}
-    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
-	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-    			inventario = null;
-    			listIdGuia_fechaCorte = null;
-	    		List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-	    		reporte = null;
-	    		listIdBodegaEmpresa = null;
-	    		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
-	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-	    		mapBodegaEmpresa = null;
-	    		mapPrecios = null;
-	    		mapMaestroPrecios = null;
-	    		guiasPer = null;
-	    		mapPermanencias = null;
-	    		List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-	    		guiasPeriodo = null;
-	    		inventarioInicial = null;
-	    		tasas = null;
-	    		mapFijaTasas = null;
-	    		listaAjustes = null;
-	    		List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-	    		mapBodega = null;
-	    		List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-	    		listado = null;
-	    		dec = null;
-	    		List<List<String>> proyectos = new ArrayList<List<String>>();
-    			if(map.size()>0) {
-	    			for(List<String> aux:proyectosAux) {
-	    				String idBodega = map.get(aux.get(1));
-	    				if(idBodega!=null) {
-	    					proyectos.add(aux);
-	    				}
-	    			}
-    			}else {
-    				proyectos = proyectosAux;
-    			}
-    			proyectosAux = null;
-    			map = null;
-    			Map<String,List<String>> mapTotal = new HashMap<String,List<String>>();
-    			for(List<String> total: resumenTotales){
-    				mapTotal.put(total.get(0), total);
-    			}
-    			resumenTotales = null;
-    			List<List<String>> datos = new ArrayList<List<String>>();
-    			for(List<String> lista1: proyectos){
-    				
-    				List<String> x = mapTotal.get(lista1.get(1));
-    					if(x!=null){
-    						List<String> aux = new ArrayList<String>();
-    						aux.add(lista1.get(0));  // 0 es cliente interno
-    						aux.add(lista1.get(1));  	// 1 idbodega empresa
-    						aux.add(lista1.get(2));  	// 2 id de cliente
-    						aux.add(lista1.get(3));  	// 3 id del proyecto
-    						aux.add("");  				// 4 tipo de cliente interno o externo
-    						aux.add(lista1.get(5));  	// 5 nombre bodega o empresa
-    						aux.add(lista1.get(6));  	// 6 rut del cliente
-    						aux.add(lista1.get(7));  	// 7 nombre del cliente
-    						aux.add(lista1.get(8));  	// 8 nombre del proyecto
-    						aux.add(lista1.get(9));  	// 9 comuna
-    						aux.add("");  				// 10 factorViga
-    						aux.add(lista1.get(14)); 	// 11 nameSucursal
-    						datos.add(aux);
-	    				}
-    			}
-	    		return ok(reporteMovimientosListaProyectosAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos, desdeAAMMDD,hastaAAMMDD));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+    	String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			Map<Long,Double> tasas = null;
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String,Calc_Precio> mapPrecios = null;
+			Map<Long,Calc_Precio> mapMaestroPrecios = null;
+			List<Long> listIdGuia_fechaCorte = null;
+			List<Inventarios> inventario = null;
+			List<Inventarios> guiasPer = null;
+			Map<String,String> mapPermanencias = null;
+			Map<Long,List<String>> mapBodega = null;
+			List<Calc_AjustesEP> listaAjustes = null;
+			Map<Long,Long> dec = null;
+			Map<String,String> map = null;
+			try (Connection con = dbRead.getConnection()){
+				Fechas hoy = Fechas.hoy();
+				tasas = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+				inventario = null;
+				listIdGuia_fechaCorte = null;
+				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+				reporte = null;
+				listIdBodegaEmpresa = null;
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				mapPermanencias = null;
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				guiasPeriodo = null;
+				inventarioInicial = null;
+				tasas = null;
+				mapFijaTasas = null;
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+				listado = null;
+				dec = null;
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if(!map.isEmpty()) {
+					for(List<String> aux:proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if(idBodega!=null) {
+							proyectos.add(aux);
+						}
+					}
+				}else {
+					proyectos = proyectosAux;
+				}
+				proyectosAux = null;
+				map = null;
+				Map<String,List<String>> mapTotal = new HashMap<String,List<String>>();
+				for(List<String> total: resumenTotales){
+					mapTotal.put(total.get(0), total);
+				}
+				resumenTotales = null;
+				List<List<String>> datos = new ArrayList<List<String>>();
+				for(List<String> lista1: proyectos){
+					List<String> x = mapTotal.get(lista1.get(1));
+					if(x!=null){
+						List<String> aux = new ArrayList<String>();
+						aux.add(lista1.get(0));  // 0 es cliente interno
+						aux.add(lista1.get(1));  	// 1 idbodega empresa
+						aux.add(lista1.get(2));  	// 2 id de cliente
+						aux.add(lista1.get(3));  	// 3 id del proyecto
+						aux.add("");  				// 4 tipo de cliente interno o externo
+						aux.add(lista1.get(5));  	// 5 nombre bodega o empresa
+						aux.add(lista1.get(6));  	// 6 rut del cliente
+						aux.add(lista1.get(7));  	// 7 nombre del cliente
+						aux.add(lista1.get(8));  	// 8 nombre del proyecto
+						aux.add(lista1.get(9));  	// 9 comuna
+						aux.add("");  				// 10 factorViga
+						aux.add(lista1.get(14)); 	// 11 nameSucursal
+						datos.add(aux);
+					}
+				}
+				return ok(reporteMovimientosListaProyectosAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos, desdeAAMMDD,hastaAAMMDD));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
+
 	}
 	
 	public Result reporteMovimientosDetalleAgrupado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-	       		String esVenta = form.get("esVenta").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try (Connection con = dbRead.getConnection()){
-	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
-	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, "s.baseDato", id_bodegaEmpresa);
-	    			String concepto = mapeoDiccionario.getOrDefault("ARRIENDO","ARRIENDO");
-	    			if("1".equals(esVenta)) {
-	    				concepto = "VENTA";
-	    			}
-	    			return ok(reporteMovimientosDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta));
-	        	} catch (SQLException e) {
-	        	    logger.error("Error de base de datos en reporteMovimientosDetalleAgrupado. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	} catch (Exception e) {
-	        	    logger.error("Error inesperado en reporteMovimientosDetalleAgrupado. BASE: " + s.baseDato, e);
-	        	    return internalServerError(mensajes.render("/home/", msgReport));
-	        	}
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+				String fechaDesde = form.get("fechaDesde").trim();
+				String fechaHasta = form.get("fechaHasta").trim();
+				String esVenta = form.get("esVenta").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<List<String>> datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				String concepto = mapeoDiccionario.getOrDefault("ARRIENDO","ARRIENDO");
+				if("1".equals(esVenta)) {
+					concepto = "VENTA";
+				}
+				return ok(reporteMovimientosDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	public Result reporteMovimientosDetalleAgrupadoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-	       		String esVenta = form.get("esVenta").trim();
-	       		List<List<String>> datos = null;
-	       		BodegaEmpresa bodega = null;
-	       		File file = null;
-	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
-	    			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			con.close();
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		
-	       		if(datos!=null && bodega!=null) {
-	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
-	    				concepto = "VENTA";
-	    			}
-	    			file = ReportMovimientos.movimientosExcelAgrupado(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
-		       		}
-	       		}
-	       	}
-    	}
-    	return ok("");
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String concepto = mapeoDiccionario.get("ARRIENDO");
+			List<List<String>> datos = null;
+			BodegaEmpresa bodega = null;
+			try (Connection con = dbRead.getConnection()){
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+				fechaDesde = form.get("fechaDesde").trim();
+				fechaHasta = form.get("fechaHasta").trim();
+				String esVenta = form.get("esVenta").trim();
+				datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				if("1".equals(esVenta)) {
+					concepto = "VENTA";
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportMovimientos.movimientosExcelAgrupado(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
+				return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	//====================================================================================
     // MNU reporteMovimientos0   Reportes/Movimientos/SoloBodegas Internas
     //====================================================================================
-	
+
 	public Result reporteMovSoloBodInternas0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato); 
-    		try {
-    			Connection con = dbRead.getConnection();
-    			if(mapeoPermiso.get("reporteMovimientos0")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			Fechas hoy = Fechas.hoy();
-    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			con.close();
-    			return ok(reporteMovSoloBodInternas0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reporteMovimientos0")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(reporteMovSoloBodInternas0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
-	
+
 	public Result reporteMovSoloBodInternas1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.reportInventarioSoloBodegasInternas(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-	    			con.close();
-	    			return ok(reporteMovSoloBodInternas1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				String fechaDesde = form.get("fechaDesde").trim();
+				String fechaHasta = form.get("fechaHasta").trim();
+				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> datos = ReportInventarios.reportInventarioSoloBodegasInternas(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(reporteMovSoloBodInternas1.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, fechaDesde, fechaHasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	public Result reporteMovSoloBodInternas2(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasSoloBodInternas(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
-	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			con.close();
-	    			return ok(reporteMovSoloBodInternas2.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,fechaDesde,fechaHasta));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+				String fechaDesde = form.get("fechaDesde").trim();
+				String fechaHasta = form.get("fechaHasta").trim();
+				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<List<String>> datos = ReportMovimientos.movimientoGuiasSoloBodInternas(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				return ok(reporteMovSoloBodInternas2.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega, fechaDesde, fechaHasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	public Result reporteMovSoloBodInternas2Excel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-	       		
-	       		List<List<String>> datos = null;
-	       		BodegaEmpresa bodega = null;
-	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			datos = ReportMovimientos.movimientoGuiasSoloBodInternas(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
-	    			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			con.close();
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		
-	       		if(datos!=null && bodega!=null) {
-	    			File file = ReportMovimientos.reporteMovSoloBodInternas3Excel(s.baseDato, datos, mapeoDiccionario, bodega, fechaDesde, fechaHasta);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("MovimientosPorBodegaInterna.xlsx"));
-		       		}
-	       		}
-	       	}
-    	}
-    	return ok("");
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			List<List<String>> datos = null;
+			BodegaEmpresa bodega = null;
+			String fechaDesde = null;
+			String fechaHasta = null;
+			try (Connection con = dbRead.getConnection()) {
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+				fechaDesde = form.get("fechaDesde").trim();
+				fechaHasta = form.get("fechaHasta").trim();
+				datos = ReportMovimientos.movimientoGuiasSoloBodInternas(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				File file = ReportMovimientos.reporteMovSoloBodInternas3Excel(s.baseDato, datos, mapeoDiccionario, bodega, fechaDesde, fechaHasta);
+				return ok(file, false, Optional.of("MovimientosPorBodegaInterna.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	//====================================================================================
     // MNU reporteMovimientos0   Reportes/Movimientos/Por proyecto (Agrupado)
     //====================================================================================
-	
+
 	public Result reportePorProyectoAgrupado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		try {
-    			Connection con = dbRead.getConnection();
-    			if(mapeoPermiso.get("reporteMovimientos0")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			Fechas hoy = Fechas.hoy();
-    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			con.close();
-    			return ok(reportePorProyectoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reporteMovimientos0")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(reportePorProyectoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
-	
+
 	public Result reportePorProyectoListaAgrupado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			List<List<String>> datos = ReportInventarios.listaProyectosAsignados(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-	    			con.close();
-	    			return ok(reportePorProyectoListaAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				String fechaDesde = form.get("fechaDesde").trim();
+				String fechaHasta = form.get("fechaHasta").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> datos = ReportInventarios.listaProyectosAsignados(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(reportePorProyectoListaAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	public Result reportePorProyectoDetalleAgrupado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-	       		String esVenta = form.get("esVenta").trim();
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	    			Connection con = dbRead.getConnection();
-	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			
-	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasPorProyecto(con, s.baseDato, id_proyecto, esVenta, fechaDesde, fechaHasta,
-	    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario);
-	    			
-	    			Proyecto proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
-	    			
-	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
-	    				concepto = "VENTA";
-	    			}
-	    			con.close();
-	    			return ok(reportePorProyectoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,proyecto,esVenta,concepto,fechaDesde,fechaHasta));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
+				String fechaDesde = form.get("fechaDesde").trim();
+				String fechaHasta = form.get("fechaHasta").trim();
+				String esVenta = form.get("esVenta").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> datos = ReportMovimientos.movimientoGuiasPorProyecto(con, s.baseDato, id_proyecto, esVenta, fechaDesde, fechaHasta,
+						permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario);
+				Proyecto proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
+				String concepto = mapeoDiccionario.get("ARRIENDO");
+				if("1".equals(esVenta)) {
+					concepto = "VENTA";
+				}
+				return ok(reportePorProyectoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,proyecto,esVenta,concepto,fechaDesde,fechaHasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	public Result reportePorProyectoDetalleAgrupadoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
+				logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return ok(mensajes.render("/", msgErrorFormulario));
 	       	}else {
-	       		Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
-	       		String fechaDesde = form.get("fechaDesde").trim();
-	       		String fechaHasta = form.get("fechaHasta").trim();
-	       		String esVenta = form.get("esVenta").trim();
-	       		
-	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		String permisoPorBodega = null;
-	       		List<List<String>> datos = null;
-	       		Proyecto proyecto = null;
-	       		
-	       		try {
-	    			Connection con = dbRead.getConnection();
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String permisoPorBodega = null;
+				List<List<String>> datos = null;
+				Proyecto proyecto = null;
+				String fechaDesde = null;
+				String fechaHasta = null;
+				String esVenta = null;
+				try (Connection con = dbRead.getConnection()) {
+					Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
+					fechaDesde = form.get("fechaDesde").trim();
+					fechaHasta = form.get("fechaHasta").trim();
+					esVenta = form.get("esVenta").trim();
 	    			permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			datos = ReportMovimientos.movimientoGuiasPorProyecto(con, s.baseDato, id_proyecto, esVenta, fechaDesde, fechaHasta,
 	    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario);
 	    			proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
-	    			con.close();
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	    		
-	       		if(permisoPorBodega!=null && datos!=null && proyecto!=null) {
-	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
-	    				concepto = "VENTA";
-	    			}
-	    			File file = ReportMovimientos.movPorProyectoExcelAgrupado(s.baseDato, datos, mapeoDiccionario, proyecto, concepto, fechaDesde, fechaHasta);
-	    			if(file!=null) {
-		       			return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
-		       		}
-		       	}
-	       	}
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+					return internalServerError(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+					return internalServerError(mensajes.render("/home/", msgReport));
+				}
+			try {
+				String concepto = mapeoDiccionario.get("ARRIENDO");
+				if("1".equals(esVenta)) {
+					concepto = "VENTA";
+				}
+				File file = ReportMovimientos.movPorProyectoExcelAgrupado(s.baseDato, datos, mapeoDiccionario, proyecto, concepto, fechaDesde, fechaHasta);
+	    		return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
     	}
-    	return ok("");
 	}
-	
+
 	//====================================================================================
     // MNU reporteMovimientos0   Reportes/Movimientos/Por proyecto (Valorizado)
     //====================================================================================
-	
+
 	public Result reportePorProyectoValorizado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		try {
-    			Connection con = dbRead.getConnection();
-    			if(mapeoPermiso.get("reporteMovimientos0")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
+		if(mapeoPermiso.get("reporteMovimientos0")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
     			Fechas hoy = Fechas.hoy();
     			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
     			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
     			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
-    			con.close();
     			return ok(reportePorProyectoValorizado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
-	
+
 	public Result reportePorProyectoListaValorizado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String desdeAAMMDD = form.get("fechaDesde").trim();
-	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
-	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
-	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
-	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-	    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	       			Connection con = dbRead.getConnection();
-		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
-		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
-		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
-		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
-	    			con.close();
-    			
-    			
-    			
-    			
-    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
-    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-    			
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
-    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-    			
-    			
-    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-    			
-    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-    			
-    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-	    			
-    			List<List<String>> proyAux = new ArrayList<List<String>>();
-    			for(List<String> aux:proyectosAux) {
-    				if(! aux.get(3).equals("0")) {
-    					proyAux.add(aux);
-    				}
-    				proyectosAux = proyAux;
-    			}
-	    			List<List<String>> proyectos = new ArrayList<List<String>>();
-	    			if(map.size()>0) {
-		    			for(List<String> aux:proyectosAux) {
-		    				String idBodega = map.get(aux.get(1));
-		    				if(idBodega!=null && ! aux.get(3).equals("0")) {
-		    					proyectos.add(aux);
-		    				}
-		    			}
-	    			}else {
-	    				proyectos = proyectosAux;
-	    			}
-	    			
-	    			Map<String,List<Double>> mapListado = new HashMap<String,List<Double>>();
-	    			for(List<String> lista1: proyectos){
-    					for(List<String> total: resumenTotales){
-    						if(lista1.get(1).equals(total.get(0))){
-    							String idProyecto = lista1.get(3);
-    							String nomProy = lista1.get(8);
-    							Double cfi = Double.parseDouble(total.get(3).replaceAll(",", ""));
-    							Double arr = Double.parseDouble(total.get(1).replaceAll(",", ""));
-    							Double vta = Double.parseDouble(total.get(2).replaceAll(",", ""));
-    							Double ajusteArr = Double.parseDouble(total.get(5).replaceAll(",", ""));
-    							Double ajusteVta = Double.parseDouble(total.get(6).replaceAll(",", ""));
-    							Double totTot = Double.parseDouble(total.get(4).replaceAll(",", ""));
-    							
-    							List<Double> aux = mapListado.get(idProyecto+"_:_"+nomProy);
-    							if(aux == null) {
-    								List<Double> l = new ArrayList<Double>();
-    								l.add(cfi);
-    								l.add(arr);
-    								l.add(vta);
-    								l.add(ajusteArr);
-    								l.add(ajusteVta);
-    								l.add(totTot);
-    								mapListado.put(idProyecto+"_:_"+nomProy, l);
-    							}else {
-    								aux.set(0, aux.get(0)+cfi);
-    								aux.set(1, aux.get(1)+arr);
-    								aux.set(2, aux.get(2)+vta);
-    								aux.set(3, aux.get(3)+ajusteArr);
-    								aux.set(4, aux.get(4)+ajusteVta);
-    								aux.set(5, aux.get(5)+totTot);
-    								mapListado.put(idProyecto+"_:_"+nomProy, aux);
-    							}
-    							
-    							
-    						}
-    					}
-	    			}
-	    			
-	    			
-	    			String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
-	    					+ "<thead style=\"background-color: #eeeeee\">"
-	    					+ "<TR> "
-	    					+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en "+mapeoDiccionario.get("PESOS")+")</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>"+mapeoDiccionario.get("ARRIENDO")+"</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>("+mapeoDiccionario.get("ARRIENDO")+")</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en "+mapeoDiccionario.get("PESOS")+")</TH>"
-	    					+ "<TH width=\"5%\" >"+mapeoDiccionario.get("ARRIENDO")+"<BR></TH>"
-	    					+ "<TH width=\"5%\" >VENTA<BR></TH>"
-	    					+ "</TR>"
-	    					+ "</thead>"
-	    					+ "<tbody>";
-	    					for (Map.Entry<String, List<Double>> entry : mapListado.entrySet()) {
-	    						String[] aux = entry.getKey().split("_:_");
-	    						List<Double> val = entry.getValue();
-	    						
-	    						tabla += "<TR>"
-		    								+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('"+aux[0]+"');\">"+aux[1]+"</a></td>"
-					    					+ "<td style= \"text-align:right;\" class=\"cfi\">"+DecimalFormato.formato(val.get(0),(long)0)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"arr\">"+DecimalFormato.formato(val.get(1),(long)0)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"vta\">"+DecimalFormato.formato(val.get(2),(long)0)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"ajustArr\">"+DecimalFormato.formato(val.get(3),(long)0)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"ajustVta\">"+DecimalFormato.formato(val.get(4),(long)0)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"granTotal\">"+DecimalFormato.formato(val.get(5),(long)0)+"</td>"
-					    					
-					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
-					    					+ "<form id=\"form0_"+aux[0]+"\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosListaProyectos/\">"
-					    					+ "<input type=\"hidden\" name=\"id_proyecto\" value=\""+aux[0]+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
-					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
-					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
-					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
-					    					+ "<a href=\"#\" onclick=\"document.getElementById('form0_"+aux[0]+"').submit()\">"
-					    					+ "<kbd style=\"background-color: #73C6B6\">"+mapeoDiccionario.get("Arriendos")+"</kbd>"
-					    					+ "</a>"
-					    					+ "</form>"
-					    					+ "</td>"
-					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
-					    					+ "<form id=\"form1_"+aux[0]+"\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosListaProyectos/\">"
-					    					+ "<input type=\"hidden\" name=\"id_proyecto\" value=\""+aux[0]+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
-					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
-					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
-					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
-					    					
-					    					+ "<a href=\"#\" onclick=\"document.getElementById('form1_"+aux[0]+"').submit()\">"
-					    					+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
-					    					+ "</a>"
-					    					+ "</form>"
-					    					+ "</td>"
-					    					+ "</TR>";
-		    				}
-		    				tabla += "</tbody>"
-		    					+ "<tfoot>"
-		    					+ "<TR>"
-		    					+ "<td style=\"background-color: #eeeeee\">TOTALES</td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
-		    					+ "</TR>"
-		    					+ "</tfoot>"
-		    					+ "</table>";
-	    			//reporteMovimientosListaProyectos
-		    				
-	    			return ok(reportePorProyectoListaValorizado.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD),Fechas.DDMMAA(hastaAAMMDD)));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String permisoPorBodega = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long, Calc_Precio> mapMaestroPrecios = null;
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdGuia_fechaCorte = null;
+			List<Inventarios> inventario = null;
+			String desdeAAMMDD = null;
+			String hastaAAMMDD = null;
+			Map<Long, Double> tasas = null;
+			List<Long> listIdGuia_entreFechas = null;
+			Double uf = null;
+			Double usd = null;
+			Double eur = null;
+			try (Connection con = dbRead.getConnection()) {
+				desdeAAMMDD = form.get("fechaDesde").trim();
+				hastaAAMMDD = form.get("fechaHasta").trim();
+				uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			inventario = null;
+			listIdGuia_fechaCorte = null;
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+			reporte = null;
+			List<Inventarios> guiasPer = null;
+			Map<String, String> mapPermanencias = null;
+			List<Calc_AjustesEP> listaAjustes = null;
+			Map<Long, List<String>> mapBodega = null;
+			Map<String, String> map = null;
+			Map<Long, Long> dec = null;
+			try (Connection con = dbRead.getConnection()) {
+				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				listIdGuia_entreFechas = null;
+				listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+			guiasPer = null;
+			mapBodegaEmpresa = null;
+			mapPrecios = null;
+			mapMaestroPrecios = null;
+			mapPermanencias = null;
+			List<ModeloCalculo> listado = null;
+			List<List<String>> proyectosAux = null;
+			List<List<String>> resumenTotales = null;
+			try {
+				listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				mapFijaTasas = null;
+				tasas = null;
+				listaAjustes = null;
+				proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+				mapBodega = null;
+				resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+				List<List<String>> proyAux = new ArrayList<List<String>>();
+				for (List<String> aux : proyectosAux) {
+					if (!aux.get(3).equals("0")) {
+						proyAux.add(aux);
+					}
+					proyectosAux = proyAux;
+				}
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if (!map.isEmpty()) {
+					for (List<String> aux : proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if (idBodega != null && !aux.get(3).equals("0")) {
+							proyectos.add(aux);
+						}
+					}
+				} else {
+					proyectos = proyectosAux;
+				}
+				map = null;
+				Map<String, List<Double>> mapListado = new HashMap<String, List<Double>>();
+				for (List<String> lista1 : proyectos) {
+					for (List<String> total : resumenTotales) {
+						if (lista1.get(1).equals(total.get(0))) {
+							String idProyecto = lista1.get(3);
+							String nomProy = lista1.get(8);
+							Double cfi = Double.parseDouble(total.get(3).replaceAll(",", ""));
+							Double arr = Double.parseDouble(total.get(1).replaceAll(",", ""));
+							Double vta = Double.parseDouble(total.get(2).replaceAll(",", ""));
+							Double ajusteArr = Double.parseDouble(total.get(5).replaceAll(",", ""));
+							Double ajusteVta = Double.parseDouble(total.get(6).replaceAll(",", ""));
+							Double totTot = Double.parseDouble(total.get(4).replaceAll(",", ""));
+							List<Double> aux = mapListado.get(idProyecto + "_:_" + nomProy);
+							if (aux == null) {
+								List<Double> l = new ArrayList<Double>();
+								l.add(cfi);
+								l.add(arr);
+								l.add(vta);
+								l.add(ajusteArr);
+								l.add(ajusteVta);
+								l.add(totTot);
+								mapListado.put(idProyecto + "_:_" + nomProy, l);
+							} else {
+								aux.set(0, aux.get(0) + cfi);
+								aux.set(1, aux.get(1) + arr);
+								aux.set(2, aux.get(2) + vta);
+								aux.set(3, aux.get(3) + ajusteArr);
+								aux.set(4, aux.get(4) + ajusteVta);
+								aux.set(5, aux.get(5) + totTot);
+								mapListado.put(idProyecto + "_:_" + nomProy, aux);
+							}
+						}
+					}
+				}
+				String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
+						+ "<thead style=\"background-color: #eeeeee\">"
+						+ "<TR> "
+						+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en " + mapeoDiccionario.get("PESOS") + ")</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>" + mapeoDiccionario.get("ARRIENDO") + "</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(" + mapeoDiccionario.get("ARRIENDO") + ")</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en " + mapeoDiccionario.get("PESOS") + ")</TH>"
+						+ "<TH width=\"5%\" >" + mapeoDiccionario.get("ARRIENDO") + "<BR></TH>"
+						+ "<TH width=\"5%\" >VENTA<BR></TH>"
+						+ "</TR>"
+						+ "</thead>"
+						+ "<tbody>";
+				for (Map.Entry<String, List<Double>> entry : mapListado.entrySet()) {
+					String[] aux = entry.getKey().split("_:_");
+					List<Double> val = entry.getValue();
+
+					tabla += "<TR>"
+							+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('" + aux[0] + "');\">" + aux[1] + "</a></td>"
+							+ "<td style= \"text-align:right;\" class=\"cfi\">" + DecimalFormato.formato(val.get(0), (long) 0) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"arr\">" + DecimalFormato.formato(val.get(1), (long) 0) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"vta\">" + DecimalFormato.formato(val.get(2), (long) 0) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"ajustArr\">" + DecimalFormato.formato(val.get(3), (long) 0) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + DecimalFormato.formato(val.get(4), (long) 0) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"granTotal\">" + DecimalFormato.formato(val.get(5), (long) 0) + "</td>"
+
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+							+ "<form id=\"form0_" + aux[0] + "\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosListaProyectos/\">"
+							+ "<input type=\"hidden\" name=\"id_proyecto\" value=\"" + aux[0] + "\">"
+							+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+							+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+							+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+							+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+							+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+							+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+							+ "<a href=\"#\" onclick=\"document.getElementById('form0_" + aux[0] + "').submit()\">"
+							+ "<kbd style=\"background-color: #73C6B6\">" + mapeoDiccionario.get("Arriendos") + "</kbd>"
+							+ "</a>"
+							+ "</form>"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+							+ "<form id=\"form1_" + aux[0] + "\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosListaProyectos/\">"
+							+ "<input type=\"hidden\" name=\"id_proyecto\" value=\"" + aux[0] + "\">"
+							+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+							+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+							+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
+							+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+							+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+							+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+
+							+ "<a href=\"#\" onclick=\"document.getElementById('form1_" + aux[0] + "').submit()\">"
+							+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
+							+ "</a>"
+							+ "</form>"
+							+ "</td>"
+							+ "</TR>";
+				}
+				tabla += "</tbody>"
+						+ "<tfoot>"
+						+ "<TR>"
+						+ "<td style=\"background-color: #eeeeee\">TOTALES</td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+						+ "</TR>"
+						+ "</tfoot>"
+						+ "</table>";
+				return ok(reportePorProyectoListaValorizado.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
-	
+
+
 	//====================================================================================
     // MNU reporteMovimientos1   Reportes/Movimientos/Por Fecha (Valorizado)
     //====================================================================================
-	
+
 	public Result reporteMovimientosPeriodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		try {
-    			Connection con = dbRead.getConnection();
-    			if(mapeoPermiso.get("reporteMovimientos1")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			Fechas hoy = Fechas.hoy();
-    			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-    			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-    			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
-    			con.close();
-    			return ok(reporteMovimientosPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reporteMovimientos1")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			return ok(reporteMovimientosPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return internalServerError(mensajes.render("/home/", msgReport));
+		}
 	}
-	
+
 	public Result reporteMovimientosListaProyectos(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		String desdeAAMMDD = form.get("fechaDesde").trim();
-	       		String hastaAAMMDD = form.get("fechaHasta").trim();
-	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
-	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
-	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		String id_proyecto = form.get("id_proyecto");
-	       		if(id_proyecto == null) {
-	       			id_proyecto = "0";
-	       		}
-	       		id_proyecto = id_proyecto.trim();
-	       		
-	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
-	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-	    		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	       		try {
-	       			Connection con = dbRead.getConnection();
-		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
-		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
-		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
-		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
-	    			con.close();
-    			
-    			
-    			
-    			
-    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
-    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-    			
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
-    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-    			
-    			
-    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-    			
-    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-    			
-    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-	    			
-	    			
-	    			
-	    			List<List<String>> proyectos = new ArrayList<List<String>>();
-	    			if(map.size()>0) {
-		    			for(List<String> aux:proyectosAux) {
-		    				String idBodega = map.get(aux.get(1));
-		    				if(idBodega!=null) {
-		    					proyectos.add(aux);
-		    				}
-		    			}
-	    			}else {
-	    				proyectos = proyectosAux;
-	    			}
-	    			
-	    			if( ! id_proyecto.equals("0")) {
-	    				List<List<String>> aux = new ArrayList<List<String>>();
-	    				for(List<String> lista1: proyectos){
-	    					if(lista1.get(3).trim().equals(id_proyecto)) {
-	    						aux.add(lista1);
-	    					}
-	    				}
-	    				proyectos = aux;
-	    			}
-	    			
-	    			
-	    			String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
-	    					+ "<thead style=\"background-color: #eeeeee\">"
-	    					+ "<TR> "
-	    					+ "<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>"
-	    					+ "<TH style= \"text-align: center;vertical-align: top;\">"+mapeoDiccionario.get("BODEGA")+"/PROYECTO</TH>"
-	    					+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>"
-	    					+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>"
-	    					+ "<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en "+mapeoDiccionario.get("PESOS")+")</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>"+mapeoDiccionario.get("ARRIENDO")+"</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>("+mapeoDiccionario.get("ARRIENDO")+")</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
-	    					+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en "+mapeoDiccionario.get("PESOS")+")</TH>"
-	    					+ "<TH width=\"5%\" >"+mapeoDiccionario.get("ARRIENDO")+"<BR></TH>"
-	    					+ "<TH width=\"5%\" >VENTA<BR></TH>"
-	    					+ "</TR>"
-	    					+ "</thead>"
-	    					+ "<tbody>";
-	    					for(List<String> lista1: proyectos){
-	    						tabla += "<TR>";
-		    					for(List<String> total: resumenTotales){
-		    						if(lista1.get(1).equals(total.get(0))){
-		    							tabla += "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(14)+"</td>"
-					    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoBodega('"+lista1.get(1)+"');\">"+lista1.get(5)+"</a></td>"
-					    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoCliente('"+lista1.get(2)+"');\">"+lista1.get(7)+"</a></td>"
-					    					+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('"+lista1.get(3)+"');\">"+lista1.get(8)+"</a></td>"
-					    					+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(10)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"cfi\">"+total.get(3)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"arr\">"+total.get(1)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"vta\">"+total.get(2)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"ajustArr\">"+total.get(5)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"ajustVta\">"+total.get(6)+"</td>"
-					    					+ "<td style= \"text-align:right;\" class=\"granTotal\">"+total.get(4)+"</td>"
-					    					+ "											"
-					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
-					    					+ "<form id=\"form0_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosDetalle/\">"
-					    					+ "<input type=\"hidden\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
-					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
-					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
-					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
-					    					+ "<a href=\"#\" onclick=\"document.getElementById('form0_"+lista1.get(1)+"').submit()\">"
-					    					+ "<kbd style=\"background-color: #73C6B6\">"+mapeoDiccionario.get("Arriendos")+"</kbd>"
-					    					+ "</a>"
-					    					+ "</form>"
-					    					+ "</td>"
-					    					+ "<td style=\"text-align:center;vertical-align:middle;\">"
-					    					+ "<form id=\"form1_"+lista1.get(1)+"\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosDetalle/\">"
-					    					+ "<input type=\"hidden\" name=\"id_bodega\" value=\""+lista1.get(1)+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaDesde\" value=\""+desdeAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"fechaHasta\" value=\""+hastaAAMMDD+"\">"
-					    					+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
-					    					+ "<input type=\"hidden\" name=\"uf\" value=\""+uf+"\">"
-					    					+ "<input type=\"hidden\" name=\"usd\" value=\""+usd+"\">"
-					    					+ "<input type=\"hidden\" name=\"eur\" value=\""+eur+"\">"
-					    					+ "<a href=\"#\" onclick=\"document.getElementById('form1_"+lista1.get(1)+"').submit()\">"
-					    					+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
-					    					+ "</a>"
-					    					+ "</form>"
-					    					+ "</td>";
-					    			}
-		    					}
-		    					tabla += "</TR>";
-		    				}
-		    				tabla += "</tbody>"
-		    					+ "<tfoot>"
-		    					+ "<TR>"
-		    					+ "<td style=\"background-color: #eeeeee\">TOTALES</td>"
-		    					+ "<td style=\"background-color: #eeeeee\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
-		    					+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
-		    					+ "</TR>"
-		    					+ "</tfoot>"
-		    					+ "</table>";
-	    			
-	    	
-	    			return ok(reporteMovimientosListaProyectos.render(mapeoDiccionario,mapeoPermiso,userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD),Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
-	    					uf, usd, eur, desdeAAMMDD, hastaAAMMDD));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok(mensajes.render("/",msgError));
-	       	}
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		String className = this.getClass().getSimpleName();
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		} else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String desdeAAMMDD = null;
+			String hastaAAMMDD = null;
+			Map<Long, Double> tasas = null;
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long, Calc_Precio> mapMaestroPrecios = null;
+			List<Long> listIdGuia_fechaCorte = null;
+			List<Inventarios> inventario = null;
+			List<Long> listIdGuia_entreFechas = null;
+			List<Calc_AjustesEP> listaAjustes = null;
+			Map<Long, List<String>> mapBodega = null;
+			Map<Long, Long> dec = null;
+			Map<String, String> map = null;
+			String id_proyecto = null;
+			Double uf = null;
+			Double usd = null;
+			Double eur = null;
+			try (Connection con = dbRead.getConnection()) {
+				desdeAAMMDD = form.get("fechaDesde").trim();
+				hastaAAMMDD = form.get("fechaHasta").trim();
+				uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				id_proyecto = form.get("id_proyecto");
+				if (id_proyecto == null) {
+					id_proyecto = "0";
+				}
+				id_proyecto = id_proyecto.trim();
+				tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+			listIdGuia_fechaCorte = null;
+			inventario = null;
+			List<Inventarios> guiasPer = null;
+			Map<String, String> mapPermanencias = null;
+			try (Connection con = dbRead.getConnection()) {
+				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+			try {
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapPermanencias = null;
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				mapFijaTasas = null;
+				tasas = null;
+				inventarioInicial = null;
+				guiasPeriodo = null;
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+				listado = null;
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if (!map.isEmpty()) {
+					for (List<String> aux : proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if (idBodega != null) {
+							proyectos.add(aux);
+						}
+					}
+				} else {
+					proyectos = proyectosAux;
+				}
+				proyectosAux = null;
+				if (!id_proyecto.equals("0")) {
+					List<List<String>> aux = new ArrayList<List<String>>();
+					for (List<String> lista1 : proyectos) {
+						if (lista1.get(3).trim().equals(id_proyecto)) {
+							aux.add(lista1);
+						}
+					}
+					proyectos = aux;
+				}
+				String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
+						+ "<thead style=\"background-color: #eeeeee\">"
+						+ "<TR> "
+						+ "<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">" + mapeoDiccionario.get("BODEGA") + "/PROYECTO</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en " + mapeoDiccionario.get("PESOS") + ")</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>" + mapeoDiccionario.get("ARRIENDO") + "</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(" + mapeoDiccionario.get("ARRIENDO") + ")</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en " + mapeoDiccionario.get("PESOS") + ")</TH>"
+						+ "<TH width=\"5%\" >" + mapeoDiccionario.get("ARRIENDO") + "<BR></TH>"
+						+ "<TH width=\"5%\" >VENTA<BR></TH>"
+						+ "</TR>"
+						+ "</thead>"
+						+ "<tbody>";
+				for (List<String> lista1 : proyectos) {
+					tabla += "<TR>";
+					for (List<String> total : resumenTotales) {
+						if (lista1.get(1).equals(total.get(0))) {
+							tabla += "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(14) + "</td>"
+									+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoBodega('" + lista1.get(1) + "');\">" + lista1.get(5) + "</a></td>"
+									+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoCliente('" + lista1.get(2) + "');\">" + lista1.get(7) + "</a></td>"
+									+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('" + lista1.get(3) + "');\">" + lista1.get(8) + "</a></td>"
+									+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(10) + "</td>"
+									+ "<td style= \"text-align:right;\" class=\"cfi\">" + total.get(3) + "</td>"
+									+ "<td style= \"text-align:right;\" class=\"arr\">" + total.get(1) + "</td>"
+									+ "<td style= \"text-align:right;\" class=\"vta\">" + total.get(2) + "</td>"
+									+ "<td style= \"text-align:right;\" class=\"ajustArr\">" + total.get(5) + "</td>"
+									+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + total.get(6) + "</td>"
+									+ "<td style= \"text-align:right;\" class=\"granTotal\">" + total.get(4) + "</td>"
+									+ "											"
+									+ "<td style=\"text-align:center;vertical-align:middle;\">"
+									+ "<form id=\"form0_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosDetalle/\">"
+									+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
+									+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+									+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+									+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+									+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+									+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+									+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+									+ "<a href=\"#\" onclick=\"document.getElementById('form0_" + lista1.get(1) + "').submit()\">"
+									+ "<kbd style=\"background-color: #73C6B6\">" + mapeoDiccionario.get("Arriendos") + "</kbd>"
+									+ "</a>"
+									+ "</form>"
+									+ "</td>"
+									+ "<td style=\"text-align:center;vertical-align:middle;\">"
+									+ "<form id=\"form1_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosDetalle/\">"
+									+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
+									+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+									+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+									+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
+									+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+									+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+									+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+									+ "<a href=\"#\" onclick=\"document.getElementById('form1_" + lista1.get(1) + "').submit()\">"
+									+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
+									+ "</a>"
+									+ "</form>"
+									+ "</td>";
+						}
+					}
+					tabla += "</TR>";
+				}
+				tabla += "</tbody>"
+						+ "<tfoot>"
+						+ "<TR>"
+						+ "<td style=\"background-color: #eeeeee\">TOTALES</td>"
+						+ "<td style=\"background-color: #eeeeee\"></td>"
+						+ "<td style=\"background-color: #eeeeee\"></td>"
+						+ "<td style=\"background-color: #eeeeee\"></td>"
+						+ "<td style=\"background-color: #eeeeee\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+						+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+						+ "</TR>"
+						+ "</tfoot>"
+						+ "</table>";
+				return ok(reporteMovimientosListaProyectos.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
+						uf, usd, eur, desdeAAMMDD, hastaAAMMDD));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, s.baseDato);
+				return internalServerError(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
-	
+
 	public Result reporteMovimientosDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		
+
 	       		String auxIdBodega = form.get("id_bodega");
 	       		Long id_bodegaEmpresa = (long)0;
 	       		if(auxIdBodega!=null) {
 	       			id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
 	       		}
-	       		
+
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
@@ -2081,24 +2307,24 @@ public class MnuReportes extends Controller {
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 	       		String id_proyecto = form.get("id_proyecto");
-	       		
+
 	       		if(id_proyecto == null) {
 	       			id_proyecto = "0";
 	       		}
 	       		id_proyecto = id_proyecto.trim();
-	       		
-	       		
-	       		
+
+
+
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			if(id_proyecto.equals("0")) {
 	    				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
 		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			String concepto = mapeoDiccionario.get("ARRIENDO");
-		    			if(esVenta.equals("1")) {
+						if("1".equals(esVenta)) {
 		    				concepto = "VENTA";
 		    			}
 		    			con.close();
@@ -2106,27 +2332,27 @@ public class MnuReportes extends Controller {
 	    			}else {
 	    				Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
 	    				String concepto = mapeoDiccionario.get("ARRIENDO");
-		    			if(esVenta.equals("1")) {
+						if("1".equals(esVenta)) {
 		    				concepto = "VENTA";
 		    			}
 	    				List<Long> listIdBodegas = BodegaEmpresa.allIdBodPorIdProy(con, s.baseDato, id_proyecto);
 	    				List<List<List<String>>> listDatos = new ArrayList<List<List<String>>>();
 	    				for(Long i: listIdBodegas) {
 	    					List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
-	    					
+
 	    					List<String> x = datos.get(datos.size()-1);
 	    					String y = x.get(x.size()-5);
 	    					Double total = Double.parseDouble(y.replaceAll(",", ""));
 	    					if(total > 0) {
 	    						listDatos.add(datos);
 	    					}
-	    					
+
 	    				}
 	    				con.close();
 	    				return ok(reporteMovimientosDetallePorProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,listDatos,proyecto,esVenta,concepto,fechaDesde,fechaHasta, usd, eur, uf, id_proyecto));
 	    			}
-	    			
-	    			
+
+
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -2136,7 +2362,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteMovimientosDetalleExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2149,7 +2375,7 @@ public class MnuReportes extends Controller {
 	       		if(auxIdBodega!=null) {
 	       			id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
 	       		}
-	       		
+
 	       		String fechaDesde = form.get("fechaDesde").trim();
 	       		String fechaHasta = form.get("fechaHasta").trim();
 	       		String esVenta = form.get("esVenta").trim();
@@ -2157,17 +2383,17 @@ public class MnuReportes extends Controller {
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 	       		String id_proyecto = form.get("id_proyecto");
-	       		
+
 	       		if(id_proyecto == null) {
 	       			id_proyecto = "0";
 	       		}
 	       		id_proyecto = id_proyecto.trim();
-	       		
+
 	       		if(id_proyecto.equals("0")) {
 	       			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> datos = null;
 	    			BodegaEmpresa bodega = null;
-	    			
+
 		       		try {
 		    			Connection con = dbRead.getConnection();
 		    			datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
@@ -2176,10 +2402,10 @@ public class MnuReportes extends Controller {
 		       		} catch (SQLException e) {
 		    			e.printStackTrace();
 		    		}
-		       		
+
 		       		if(datos!=null && bodega!=null) {
 		    			String concepto = mapeoDiccionario.get("ARRIENDO");
-		    			if(esVenta.equals("1")) {
+						if("1".equals(esVenta)) {
 		    				concepto = "VENTA";
 		    			}
 		    			File file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
@@ -2191,7 +2417,7 @@ public class MnuReportes extends Controller {
 	       			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       			List<List<List<String>>> listDatos = null;
 	    			Proyecto proyecto = null;
-	    			
+
 		       		try {
 		    			Connection con = dbRead.getConnection();
 		    			proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
@@ -2205,10 +2431,10 @@ public class MnuReportes extends Controller {
 		       		} catch (SQLException e) {
 		    			e.printStackTrace();
 		    		}
-		       		
+
 		       		if(listDatos!=null && proyecto!=null) {
 		    			String concepto = mapeoDiccionario.get("ARRIENDO");
-		    			if(esVenta.equals("1")) {
+						if("1".equals(esVenta)) {
 		    				concepto = "VENTA";
 		    			}
 		    			File file = ReportMovimientos.movimientosExcelPorProyecto(s.baseDato, listDatos, mapeoDiccionario, proyecto, concepto, fechaDesde, fechaHasta);
@@ -2217,20 +2443,20 @@ public class MnuReportes extends Controller {
 			       		}
 			       	}
 	       		}
-	       		
-	       		
+
+
 	       	}
     	}
     	return ok("");
 	}
-	
-	
-	
-	
+
+
+
+
 	//====================================================================================
     // MNU reporteMovimientos2   Reportes/Movimientos/Ordenado por Ingreso-Egreso
     //====================================================================================
-	
+
 	public Result reporteMovimientosListaProyectosIE(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2249,7 +2475,7 @@ public class MnuReportes extends Controller {
     			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
     			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
     			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-    			
+
     			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
     			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
     			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -2257,32 +2483,32 @@ public class MnuReportes extends Controller {
     			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
     			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-    			
+
     			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			
+
     			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-			
+
 			con.close();
-			
-			
-			
-			
-			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+
+
+
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
 			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-			
-			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-			
-			
+
+
 			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-			
+
 			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-			
+
 			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-    			
-    			
-    			
+
+
+
     			List<List<String>> proyectos = new ArrayList<List<String>>();
     			if(map.size()>0) {
 	    			for(List<String> aux:proyectosAux) {
@@ -2294,13 +2520,13 @@ public class MnuReportes extends Controller {
     			}else {
     				proyectos = proyectosAux;
     			}
-    			
+
     			Map<String,List<String>> mapTotal = new HashMap<String,List<String>>();
     			for(List<String> total: resumenTotales){
     				mapTotal.put(total.get(0), total);
     			}
-    			
-    			
+
+
     			List<List<String>> datos = new ArrayList<List<String>>();
     			for(List<String> lista1: proyectos){
     				List<String> x = mapTotal.get(lista1.get(1));
@@ -2321,7 +2547,7 @@ public class MnuReportes extends Controller {
     						datos.add(aux);
 	    				}
     			}
-    			
+
     			return ok(reporteMovimientosListaProyectosIE.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
         	} catch (SQLException e) {
     			e.printStackTrace();
@@ -2331,11 +2557,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteMovimientosDetalleIE(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2349,7 +2575,7 @@ public class MnuReportes extends Controller {
 	    			List<List<String>> datos = ReportMovimientos.movimientoGuiasIE(con, s.baseDato, id_bodegaEmpresa, esVenta);
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
+					if("1".equals(esVenta)) {
 	    				concepto = "VENTA";
 	    			}
 	    			con.close();
@@ -2363,7 +2589,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteMovimientosIEExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2373,11 +2599,11 @@ public class MnuReportes extends Controller {
 	       	}else {
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 	       		String esVenta = form.get("esVenta").trim();
-	       		
+
 	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		List<List<String>> datos = null;
     			BodegaEmpresa bodega = null;
-    			
+
 	       		try {
 	    			Connection con = dbRead.getConnection();
 	    			datos = ReportMovimientos.movimientoGuiasIE(con, s.baseDato, id_bodegaEmpresa, esVenta);
@@ -2386,10 +2612,10 @@ public class MnuReportes extends Controller {
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		
+
 	       		if(datos!=null && bodega!=null) {
 	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
+					if("1".equals(esVenta)) {
 	    				concepto = "VENTA";
 	    			}
 	    			File file = ReportMovimientos.movimientosExcelIE(s.baseDato, datos, mapeoDiccionario, bodega, concepto);
@@ -2401,11 +2627,11 @@ public class MnuReportes extends Controller {
     	}
     	return ok("");
 	}
-	
+
 	//====================================================================================
     // MNU reporteExcedentes   Reportes/Movimientos/Excedentes por bodega
     //====================================================================================
-	
+
 	public Result reporteExcedentesListaProyectos(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2430,11 +2656,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteExcedentesDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2457,11 +2683,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteExcedentesDetalleExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2489,15 +2715,15 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reporteExcedentes   Reportes/Movimientos/Excedentes por Equipo
     //====================================================================================
-	
+
 	public Result reporteExcedentesListaEquipos(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
@@ -2518,11 +2744,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteExcedentesDetalleEquipo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2546,11 +2772,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteExcedentesDetalleEquipoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2579,11 +2805,11 @@ public class MnuReportes extends Controller {
     	}
     	return ok("");
 	}
-	
+
 	//====================================================================================
     // MNU reportEstados   Reportes/Estados/Estados por Bodega/Cliente
     //====================================================================================
-	
+
 	public Result reporteEstadosTodos(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2608,11 +2834,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosTodosDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2641,11 +2867,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosTodosDetalleExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2679,11 +2905,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reportEstados   Reportes/Estados/Estados por Periodo
     //====================================================================================
-	
+
 	public Result reporteEstadosPeriodo0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2710,11 +2936,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosPeriodo1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2728,7 +2954,7 @@ public class MnuReportes extends Controller {
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportInventarios.reportInventarioPorEstadosPorPeriodo(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
 	    			List<List<String>> listado = ReportMovimientos.movGuiasPorEstadoPeriodo(con, s.baseDato, datos);
-	    			
+
 
 	    			con.close();
 	    			return ok(reporteEstadosPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,desdeAAMMDD,hastaAAMMDD,listado));
@@ -2740,25 +2966,25 @@ public class MnuReportes extends Controller {
     	}else {
     		return ok(mensajes.render("/",msgError));
     	}
-    	
+
 	}
-	
+
 	public Result reporteEstadosPeriodo1Excel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		String desdeAAMMDD = form.get("desdeAAMMDD").trim();
 	       		String hastaAAMMDD = form.get("hastaAAMMDD").trim();
-	       		
+
 	       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			String permisoPorBodega = null;
     			List<List<String>> datos = null;
     			List<List<String>> listado = null;
-	       		
+
 	       		try {
 	    			Connection con = dbRead.getConnection();
 	    			permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
@@ -2768,7 +2994,7 @@ public class MnuReportes extends Controller {
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		
+
 	       		if(permisoPorBodega!=null && datos!=null && listado!=null) {
 	    			File file = ReportMovimientos.estadosExcelPeriodo(s.baseDato, mapeoDiccionario, desdeAAMMDD, hastaAAMMDD, listado);
 	    			if(file!=null) {
@@ -2779,11 +3005,11 @@ public class MnuReportes extends Controller {
     	}
 	   	return ok("");
 	}
-	
+
 	//====================================================================================
     // MNU reportEstados   Reportes/Estados/Reparaciones por Bodega/Proyecto
     //====================================================================================
-	
+
 	public Result reporteEstadosAll0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2808,11 +3034,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosAll1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2840,11 +3066,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosAll1Excel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2873,11 +3099,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reportEstados   Reportes/Estados/Reparaciones por Periodo
     //====================================================================================
-	
+
 	public Result reporteEstadosPer0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2904,11 +3130,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosPer1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2936,11 +3162,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteEstadosPer1Excel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -2969,11 +3195,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reportTrazaEquipo   Reportes/Trazabilidad
     //====================================================================================
-	
+
 	public Result reportTrazaEquipo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -2997,11 +3223,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportTrazaEquipo2(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3023,11 +3249,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportTrazaEquipo2Excel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3054,11 +3280,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reporteEjecutivo1   Reportes/Reporte Ejecutivo
     //====================================================================================
-	
+
 	public Result reporteEjecutivo1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -3075,7 +3301,7 @@ public class MnuReportes extends Controller {
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
     			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
@@ -3083,24 +3309,24 @@ public class MnuReportes extends Controller {
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
     			Map<Long, Double> mapEquivalencia = UnidadTiempo.equivalencia(con,s.baseDato);
-    			
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda,
     					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-    			
+
     			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
     			String grafInversion = valorizado.get(2);
-    			
+
     			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(mapeoDiccionario, datos, "0", mapTipoBodega);
 
-    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal, 
+    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					mapTipoBodega, mapEquipo);
-    			
+
     			List<String> valorizadoPorBodega = ReportEjecutivos.graficoDistribucionResumenValorizadoPorBodega(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					mapPCompra, tasasCorte, dec);
-    			
+
     			List<String> graficoPotencialPorMesYGrupo = ReportEjecutivos.graficoPotencialPorMesYGrupo(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					tasasCorte, mapPLista, mapEquivalencia, dec);
-    			
+
     			con.close();
     			return ok(reporteEjecutivo1.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,grafInversion,graficoOcupacionValorizado,valorizadoPorBodega,graficoPotencialPorMesYGrupo));
         	} catch (SQLException e) {
@@ -3111,7 +3337,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result graficoInversionExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -3123,24 +3349,24 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
     			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
     			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
-    			
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda,
     					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-    			
+
     			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
-    			
+
     			String grafInversion = valorizado.get(2);
     			File file = ReportEjecutivos.graficoInversion(s.baseDato, grafInversion, mapeoDiccionario);
     			if(file!=null) {
@@ -3158,7 +3384,7 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result graficoOcupacionExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -3170,13 +3396,13 @@ public class MnuReportes extends Controller {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
-    			
-    			List<String> grafOcupacion = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal, 
+
+    			List<String> grafOcupacion = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					mapTipoBodega, mapEquipo);
-    			
+
     			File file = ReportEjecutivos.graficoOcupacion(s.baseDato, grafOcupacion, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -3193,38 +3419,38 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result graficoValorizadoGrupoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		 
+
     		try {
     			Connection con = dbRead.getConnection();
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
     			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
     			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
-    			
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda,
     					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-    			
+
     			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
-    			
-    			
+
+
     			File file = ReportEjecutivos.graficoValorizadoGrupo(s.baseDato, valorizado, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -3241,37 +3467,37 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result graficoUnidadesExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		 
+
     		try {
     			Connection con = dbRead.getConnection();
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
     			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
     			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
-    			
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda,
     					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-    			
+
     			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(mapeoDiccionario, datos, "0", mapTipoBodega);
-    			
+
     			File file = ReportEjecutivos.graficoUnidades(s.baseDato, porUnidades, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -3288,29 +3514,29 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result graficoValorizadoBodegaExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		 
+
     		try {
     			Connection con = dbRead.getConnection();
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-    			
+
     			List<String> valorizadoPorBodega = ReportEjecutivos.graficoDistribucionResumenValorizadoPorBodega(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					mapPCompra, tasasCorte, dec);
-    			
+
     			File file = ReportEjecutivos.graficoValorizadoBodega(s.baseDato, valorizadoPorBodega, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -3327,30 +3553,30 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result graficoPotencialExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		 
+
     		try {
     			Connection con = dbRead.getConnection();
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
     			Map<Long, Double> mapEquivalencia = UnidadTiempo.equivalencia(con,s.baseDato);
-    			
+
     			List<String> graficoPotencialPorMesYGrupo = ReportEjecutivos.graficoPotencialPorMesYGrupo(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					tasasCorte, mapPLista, mapEquivalencia, dec);
-    			
+
     			File file = ReportEjecutivos.graficoPotencial(s.baseDato, graficoPotencialPorMesYGrupo, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
@@ -3367,15 +3593,15 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reporteGerencial1   Reportes/Reporte Gerencial/Reporte Gerencial
     //====================================================================================
-	
+
 	public Result reporteGerencial(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
@@ -3396,15 +3622,15 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reporteGerencial2   Reportes/Reporte Gerencial/Reporte por Grupos
     //====================================================================================
-	
+
 	public Result reporteGerencialGrupo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
@@ -3424,11 +3650,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteGerencialGrupoDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3438,7 +3664,7 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbWrite.getConnection();
-	    			
+
 	    			Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
 	    			List<String> series = ReportGerenciales.graficoCategoriasAnioPorGrupo(con, s.baseDato, id_grupo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 	    			con.close();
@@ -3452,24 +3678,24 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reporteGerencial2   Reportes/Reporte Gerencial/Resumen KG movidos
     //====================================================================================
-	
+
 	public Result reportGerenKGPorPeriodo0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("reporteGerencial2")==null) {
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Fechas hoy = Fechas.hoy();
     			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
     			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
@@ -3483,15 +3709,15 @@ public class MnuReportes extends Controller {
     	}
     	return ok(mensajes.render("/",msgError));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Result reportGerenKGPorPeriodo1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3515,7 +3741,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Result reportGerenKGPorPeriodo1Excel(Http.Request request) {
     	Sessiones s = new Sessiones(request);
@@ -3550,16 +3776,16 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
     }
-	
+
 	public Result reporteGerencialKG(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbWrite.getConnection();
-    			
+
     			if(mapeoPermiso.get("reporteGerencial2")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -3583,13 +3809,13 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reporteGerencialKGExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    		 
+
     		try {
     			Connection con = dbWrite.getConnection();
     			if(mapeoPermiso.get("reporteEjecutivo1")==null) {
@@ -3606,7 +3832,7 @@ public class MnuReportes extends Controller {
     			List<List<String>> datosAnterior = ReportKilos.reportKilosArriendoPorGrupoAnual(con,s.baseDato, Long.parseLong(anioAnterior));
     			List<List<String>> datosAnteriorAnterior = ReportKilos.reportKilosArriendoPorGrupoAnual(con,s.baseDato, Long.parseLong(anioAnteriorAnterior));
     			File file = ReportKilos.reporteGerencialKGExcel(s.baseDato, mapeoDiccionario, datosActual, datosAnterior, datosAnteriorAnterior, anioActual, anioAnterior, anioAnteriorAnterior);
-    			
+
     			if(file!=null) {
 	       			con.close();
 	       			return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
@@ -3622,25 +3848,25 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reportGraficoGrupo1   Reportes/Graficos
     //====================================================================================
-	
+
 	public Result reportGraficoMovResumen(Http.Request request, String filtroGrupos, String vistaCheckBox ) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbWrite.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportGraficoGrupo1")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
@@ -3652,16 +3878,16 @@ public class MnuReportes extends Controller {
     			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
-    			
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda,
     					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 
     			List<String> valorizado = ReportEjecutivos.graficoDistribucionResumenValorizado(mapeoDiccionario, datos, "0", mapTipoBodega);
-    			
+
     			List<String> porUnidades = ReportEjecutivos.graficoDistribucionResumenPorUnidades(mapeoDiccionario, datos, "0", mapTipoBodega);
-    			
+
     			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
-    			
+
     			String subtitulo="RESUMEN POR "+mapeoDiccionario.get("BODEGA")+"/INTERNA y "+mapeoDiccionario.get("BODEGA")+"/PROYECTO";
     			con.close();
     			return ok(reportGraficoMovResumen.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,vistaCheckBox,subtitulo));
@@ -3673,11 +3899,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result refreshGraficoMovResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		FormGrafico form = formFactory.form(FormGrafico.class).withDirectFieldAccess(true).bindFromRequest(request).get();
     		if (form.listIdGrupos==null) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3693,7 +3919,7 @@ public class MnuReportes extends Controller {
 	    	  			for(int k=0; k<listIdGrupos.size(); k++){
 	    	  				if(listIdGrupos.get(k).equals(listGrupos.get(i).getId().toString())) aux ="checked";
 	    	  			}
-	    	  			vistaCheckBox = vistaCheckBox  + "<input type='checkbox' name='listIdGrupos[]' value='" + listGrupos.get(i).getId() + 
+	    	  			vistaCheckBox = vistaCheckBox  + "<input type='checkbox' name='listIdGrupos[]' value='" + listGrupos.get(i).getId() +
 	    	  					"' " + aux +">" + listGrupos.get(i).getNombre() + "<br>";
 	    	  		}
 	    			con.close();
@@ -3707,21 +3933,21 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportGraficoMovPorGrupo(Http.Request request, String filtroGrupos, String filtroBodegas, String vistaCheckBox, String idTipoBodega ) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbWrite.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportGraficoGrupo2")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			String subtitulo="";
     			if(idTipoBodega.equals("0")||idTipoBodega.equals("")) {
     				subtitulo = "RESUMEN POR "+mapeoDiccionario.get("BODEGA")+"/INTERNA y "+mapeoDiccionario.get("BODEGA")+"/PROYECTO";
@@ -3732,32 +3958,32 @@ public class MnuReportes extends Controller {
     			if(idTipoBodega.equals("2")){
     				subtitulo = "DETALLE POR "+mapeoDiccionario.get("BODEGA")+"/PROYECTO";
     			}
-    			
+
     			Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, s.baseDato);
     			Map<Long,List<Double>> mapPLista = Precio.maestroPListaPorSucursal(con, s.baseDato, Long.parseLong(s.id_sucursal));
     			Map<Long,String> moneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
     			Fechas hoy = Fechas.hoy();
-    			
+
     			Map<Long,Double> tasasCorte = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
     			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
     			Map<Long,UnidadTiempo> mapUnidadTiempo = UnidadTiempo.mapUnidadTiempo(con, s.baseDato);
     			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, s.baseDato);
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
-    			
-    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda, 
+
+    			List<List<String>> datos = ReportInventarios.reportInventarioEquipoConTipoBodega(con, s.baseDato, hoy.getFechaStrAAMMDD(), "", mapPCompra, mapPLista, moneda,
     					mapeoDiccionario.get("ARRIENDO"), mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
-    			
-    			List<String> valorizado = ReportGraficos.graficoDistribucionGrupoBodegasValorizado(mapeoDiccionario, filtroGrupos, filtroBodegas, idTipoBodega, 
+
+    			List<String> valorizado = ReportGraficos.graficoDistribucionGrupoBodegasValorizado(mapeoDiccionario, filtroGrupos, filtroBodegas, idTipoBodega,
     					s.aplicaPorSucursal, s.id_sucursal, datos);
-    			
-    			List<String> porUnidades = ReportGraficos.graficoDistribucionGrupoBodegasPorUnidades(mapeoDiccionario, filtroGrupos, filtroBodegas,idTipoBodega, 
+
+    			List<String> porUnidades = ReportGraficos.graficoDistribucionGrupoBodegasPorUnidades(mapeoDiccionario, filtroGrupos, filtroBodegas,idTipoBodega,
     					s.aplicaPorSucursal, s.id_sucursal, datos);
-    		
+
     			String filtroPorNombreBodega = valorizado.get(2);
     			String filtroPorNombreGrupo = valorizado.get(3);
-    			
+
     			List<Grupo> listGrupos = Grupo.allFiltroPorNombre(con, s.baseDato, filtroPorNombreGrupo);
-    			
+
     			List<BodegaEmpresa> listBodegas2 = BodegaEmpresa.allFiltroPorNombre(con, s.baseDato, filtroPorNombreBodega);
 
     			con.close();
@@ -3770,11 +3996,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result refreshGraficoMovPorGrupo(Http.Request request, String idTipoBodega) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		FormGrafico form = formFactory.form(FormGrafico.class).withDirectFieldAccess(true).bindFromRequest(request).get();
     		if (form.listIdGruposAll==null) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3784,36 +4010,36 @@ public class MnuReportes extends Controller {
 	       		if(listIdGrupos==null) {
 	       			listIdGrupos = new ArrayList<String>();
 	       		}
-	       		
+
 	       		List<String> listIdBodegasAll = form.listIdBodegasAll;
 	       		List<String> listIdBodegas = form.listIdBodegas;
 	       		if(listIdBodegas==null) {
 	       			listIdBodegas = new ArrayList<String>();
 	       		}
-	       		
+
 	       		try {
 	       			Connection con = dbWrite.getConnection();
-	    			
+
 	    			List<Grupo> listGrupos = Grupo.allFiltroPorId(con, s.baseDato, listIdGruposAll.toString().substring(1,listIdGruposAll.toString().length()-1));
 	    			List<BodegaEmpresa> listBodegas = BodegaEmpresa.allFiltroPorId(con, s.baseDato, listIdBodegasAll.toString().substring(1,listIdBodegasAll.toString().length()-1));
-	    			
+
 	    			String vistaCheckBox = "<h6>GRUPOS:</h6>";
 	    	  		for(int i=0;i<listGrupos.size();i++){
 	    	  			String aux = "";
 	    	  			for(int k=0; k<listIdGrupos.size(); k++){
 	    	  				if(listIdGrupos.get(k).equals(listGrupos.get(i).getId().toString())) aux ="checked";
 	    	  			}
-	    	  			vistaCheckBox = vistaCheckBox  + "<input type='hidden' name='listIdGruposAll[]' value='"+listGrupos.get(i).getId()+"'>" + "<input type='checkbox' name='listIdGrupos[]' value='" + listGrupos.get(i).getId() + 
+	    	  			vistaCheckBox = vistaCheckBox  + "<input type='hidden' name='listIdGruposAll[]' value='"+listGrupos.get(i).getId()+"'>" + "<input type='checkbox' name='listIdGrupos[]' value='" + listGrupos.get(i).getId() +
 	    	  					"' " + aux +">" + listGrupos.get(i).getNombre() + "<br>";
 	    	  		}
-	    	  		
+
 	    	  		vistaCheckBox = vistaCheckBox  + "<br><h6>BODEGAS:</h6>";
 	    	  		for(int i=0;i<listBodegas.size();i++){
 	    	  			String aux = "";
 	    	  			for(int k=0; k<listIdBodegas.size(); k++){
 	    	  				if(listIdBodegas.get(k).equals(listBodegas.get(i).getId().toString().trim())) aux ="checked";
 	    	  			}
-	    	  			vistaCheckBox = vistaCheckBox  + "<input type='hidden' name='listIdBodegasAll[]' value='"+listBodegas.get(i).getId()+"'>" + "<input type='checkbox' name='listIdBodegas[]' value='" + listBodegas.get(i).getId() + 
+	    	  			vistaCheckBox = vistaCheckBox  + "<input type='hidden' name='listIdBodegasAll[]' value='"+listBodegas.get(i).getId()+"'>" + "<input type='checkbox' name='listIdBodegas[]' value='" + listBodegas.get(i).getId() +
 	    	  					"' " + aux +">" + listBodegas.get(i).getNombre() + "<br>";
 	    	  		}
 	    			con.close();
@@ -3827,27 +4053,27 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportGraficoMovUso(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbWrite.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportGraficoOcupacion1")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
     			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
-    			
-    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal, 
+
+    			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorGrupoValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
     					mapTipoBodega, mapEquipo);
-    			
+
     			List<String> graficoOcupacionUnidades = ReportGraficos.graficoOcupacionPorGrupoUnidades(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(reportGraficoMovUso.render(mapeoDiccionario,mapeoPermiso,userMnu,graficoOcupacionValorizado,graficoOcupacionUnidades));
@@ -3859,20 +4085,20 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	//====================================================================================
     // MNU reportFacturaDetalleProyecto   Reportes/Proforma/ClienteProyecto
     //====================================================================================
-	
+
 	public Result reportFacturaPeriodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportFacturaDetalleProyecto")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -3892,11 +4118,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaProyecto(Http.Request request, String archivoPDF) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -3915,14 +4141,14 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	       			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -3930,31 +4156,31 @@ public class MnuReportes extends Controller {
 		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
+
 	    			con.close();
-	    			
-	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-	    			
+
 	    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-	    			
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-	    			
-	    			
+
+
 	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-	    			
-	    			
+
+
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-	    			
+
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-	    			
-	    			
-	    			
+
+
+
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
 		    			for(List<String> aux: proyectosAux) {
@@ -3967,9 +4193,9 @@ public class MnuReportes extends Controller {
 	    				for(int i=0;i<proyectosAux.size();i++ ) {
 	    					proyectos.add(proyectosAux.get(i));
 	    				}
-	    				
+
 	    			}
-	    			
+
 	    			String tabla = ""
 	    					+ " <table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
 	    					+ "		<thead style=\"background-color: #eeeeee\">\n"
@@ -3990,17 +4216,17 @@ public class MnuReportes extends Controller {
 	    					+ "			</TR>\n"
 	    					+ "			</thead>\n"
 	    					+ "			<tbody>\n";
-	    					
+
 	    					for(List<String> lista1: proyectos){
 	    						tabla += ""
 	    								+ "<TR class='lineasTR'>\n";
 	    						for(List<String> total: resumenTotales){
 	    							if(lista1.get(1).equals(total.get(0))){
-	    								
+
 	    								Double auxUf = uf;
 	    								Double auxUsd = usd;
 	    								Double auxEur = eur;
-	    								
+
 	    								for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
 	    				        	  		Long k = entry.getKey();
 	    				    				Double aux = mapFijaTasas.get(lista1.get(1) + "_" +k);
@@ -4014,7 +4240,7 @@ public class MnuReportes extends Controller {
 	    				    					}
 	    				    				}
 	    				    			}
-	    								
+
 	    								tabla += ""
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(14)+"</td>\n"
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(10)+"</td>\n"
@@ -4080,9 +4306,9 @@ public class MnuReportes extends Controller {
 	    					+ "	</TR>\n"
 	    					+ "</tfoot>\n"
 	    					+ "</table>";
-	    			
-	    			
-	    			return ok(reportFacturaProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,tabla,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, 
+
+
+	    			return ok(reportFacturaProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,tabla,desdeAAMMDD,hastaAAMMDD, usd, eur, uf,
 	    					Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD),archivoPDF));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -4093,12 +4319,12 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaProyectoGet(Http.Request request, String archivoPDF,
 			String desdeAAMMDD,String hastaAAMMDD,Double uf,Double usd,Double eur) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     		if(mapeoPermiso.get("reportFacturaDetalleProyecto")==null) {
 				return ok(mensajes.render("/",msgSinPermiso));
@@ -4115,14 +4341,14 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	       			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -4130,31 +4356,31 @@ public class MnuReportes extends Controller {
 		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
+
 	    			con.close();
-	    			
-	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-	    			
+
 	    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-	    			
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-	    			
-	    			
+
+
 	    			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-	    			
-	    			
+
+
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-	    			
+
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-	    			
-	    			
-	    			
+
+
+
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
 		    			for(List<String> aux: proyectosAux) {
@@ -4167,9 +4393,9 @@ public class MnuReportes extends Controller {
 	    				for(int i=0;i<proyectosAux.size();i++ ) {
 	    					proyectos.add(proyectosAux.get(i));
 	    				}
-	    				
+
 	    			}
-	    			
+
 	    			String tabla = ""
 	    					+ " <table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">\n"
 	    					+ "		<thead style=\"background-color: #eeeeee\">\n"
@@ -4190,17 +4416,17 @@ public class MnuReportes extends Controller {
 	    					+ "			</TR>\n"
 	    					+ "			</thead>\n"
 	    					+ "			<tbody>\n";
-	    					
+
 	    					for(List<String> lista1: proyectos){
 	    						tabla += ""
 	    								+ "<TR class='lineasTR'>\n";
 	    						for(List<String> total: resumenTotales){
 	    							if(lista1.get(1).equals(total.get(0))){
-	    								
+
 	    								Double auxUf = uf;
 	    								Double auxUsd = usd;
 	    								Double auxEur = eur;
-	    								
+
 	    								for (Map.Entry<Long, Double> entry : tasas.entrySet()) {
 	    				        	  		Long k = entry.getKey();
 	    				    				Double aux = mapFijaTasas.get(lista1.get(1) + "_" +k);
@@ -4214,7 +4440,7 @@ public class MnuReportes extends Controller {
 	    				    					}
 	    				    				}
 	    				    			}
-	    								
+
 	    								tabla += ""
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(14)+"</td>\n"
     										+ "<td style=\"text-align:left;vertical-align:middle;\">"+lista1.get(10)+"</td>\n"
@@ -4280,9 +4506,9 @@ public class MnuReportes extends Controller {
 	    					+ "	</TR>\n"
 	    					+ "</tfoot>\n"
 	    					+ "</table>";
-	    			
-	    			
-	    			return ok(reportFacturaProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,tabla,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, 
+
+
+	    			return ok(reportFacturaProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,tabla,desdeAAMMDD,hastaAAMMDD, usd, eur, uf,
 	    					Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD),archivoPDF));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -4293,11 +4519,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaProyectoExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -4307,7 +4533,7 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		
+
 	       		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 	    		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -4319,14 +4545,14 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	       			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -4334,31 +4560,31 @@ public class MnuReportes extends Controller {
 		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
+
 	    			con.close();
-    			
-    			
-    			
-    			
-    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+
+
+
+    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
     					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
     			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-    			
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
     					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-    			
-    			
+
+
     			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-    			
-    			
+
+
     			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
-    			
+
     			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
-	       			
+
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
 		    			for(List<String> aux: proyectosAux) {
@@ -4371,13 +4597,13 @@ public class MnuReportes extends Controller {
 	    				for(int i=0;i<proyectosAux.size();i++ ) {
 	    					proyectos.add(proyectosAux.get(i));
 	    				}
-	    				
+
 	    			}
-	    			
-	    			
+
+
 	    			File file = ReportFacturas.exportaProformaExcelProyectos(s.baseDato, mapeoDiccionario,
 	    					proyectos,desde,hasta,uf,usd,eur,resumenTotales);
-	    			
+
 	    			if(file!=null) {
 		       			return ok(file,false,Optional.of("EP_Proforma_Listado.xlsx"));
 		       		}else {
@@ -4392,8 +4618,8 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
-	
+
+
 	public class envioMasivoListadoProforma0 extends Thread {
 		String desdeAAMMDD;
 		String hastaAAMMDD;
@@ -4456,17 +4682,17 @@ public class MnuReportes extends Controller {
 		    			Map<String,String> mapFecha_primera_guiaMs2 = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 		    			Fechas hoy = Fechas.hoy();
 	    		con.close();
-	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, listIdBodegaEmpresaMs2, 
+	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, listIdBodegaEmpresaMs2,
 	    					mapBodegaEmpresaMs2, mapPreciosMs2, mapMaestroPreciosMs2, listIdGuia_fechaCorteMs2, inventarioMs2);
 	    			List<ModCalc_InvInicial> inventarioInicialMs2 = reporte.resumenInvInicial;
-	    			
-	    			List<ModCalc_GuiasPer> guiasPeriodoMs2 = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, 
+
+	    			List<ModCalc_GuiasPer> guiasPeriodoMs2 = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas,
 	    					mapBodegaEmpresaMs2, mapPreciosMs2, mapMaestroPreciosMs2, guiasPerMs2, mapPermanenciasMs2);
 	    			List<ModeloCalculo> listadoMs2 = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, inventarioInicialMs2,guiasPeriodoMs2, listaAjustesMs2);
 	    			List<List<String>> proyectosAuxMs2 = ReportFacturas.reportFacturaProyecto(listadoMs2, mapBodegaMs2);
 	    			List<List<String>> resumenTotalesMs2 = ReportFacturas.resumenTotalesPorProyecto(listadoMs2, decMs2);
 	    			List<List<String>> proyectosMs2 = new ArrayList<List<String>>();
-	    			
+
 	    			if(mapMs2.size()>0) {
 		    			for(List<String> aux: proyectosAuxMs2) {
 		    				String idBodega = mapMs2.get(aux.get(1));
@@ -4479,23 +4705,23 @@ public class MnuReportes extends Controller {
 	    					proyectosMs2.add(proyectosAuxMs2.get(i));
 	    				}
 	    			}
-	    			
+
 	    			for(List<String> lista1: proyectosMs2){
 						for(List<String> total: resumenTotalesMs2){
 							if(lista1.get(1).equals(total.get(0))){
-								
+
 								Double valorArr = Double.parseDouble((total.get(1)).replaceAll(",", ""));
 				    			Double valorVta = Double.parseDouble((total.get(2)).replaceAll(",", ""));
 				    			Double valorGranTotal = Double.parseDouble((total.get(4)).replaceAll(",", ""));
 				    			Double valorCompara = valorArr;
-				    			if(esVenta.equals("1")) {
+								if("1".equals(esVenta)) {
 				    				valorCompara = valorVta;
 				    			}
 								if(valorGranTotal>(double)0 && valorCompara>(double)0) {
 									String aux = MnuReportes.envioMasivoListadoProforma1(s, desdeAAMMDD, hastaAAMMDD,tasas,
-											Long.parseLong(lista1.get(1)), esVenta, 
+											Long.parseLong(lista1.get(1)), esVenta,
 											permisoPorBodegaMs2, listIdBodegaEmpresaMs2, mapBodegaEmpresaMs2,mapPreciosMs2,
-											mapMaestroPreciosMs2, mapFijaTasasMs2, listIdGuia_fechaCorteMs2, inventarioMs2, 
+											mapMaestroPreciosMs2, mapFijaTasasMs2, listIdGuia_fechaCorteMs2, inventarioMs2,
 											listIdGuia_entreFechasMs2, guiasPerMs2, decMs2, mapPermanenciasMs2, mapFecha_primera_guiaMs2,
 											mapeoPermisoMs2, mapeoDiccionarioMs2, form,
 											mapMonedaMs2, mapAllEquiposMs2, hoy);
@@ -4540,13 +4766,13 @@ public class MnuReportes extends Controller {
         			e.printStackTrace();
         		}
 		}
-		
+
 	}
-	
+
 	public static String envioMasivoListadoProforma1(Sessiones s, String desdeAAMMDDMs2, String hastaAAMMDDMs2, Map<Long,Double> tasas,
-			Long id_bodegaEmpresa, String esVenta, 
+			Long id_bodegaEmpresa, String esVenta,
 			String permisoPorBodega, List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios,
-			Map<Long,Calc_Precio> mapMaestroPrecios, Map<String, Double> mapFijaTasas, List<Long> listIdGuia_fechaCorteMs2, List<Inventarios> inventarioMs2, 
+			Map<Long,Calc_Precio> mapMaestroPrecios, Map<String, Double> mapFijaTasas, List<Long> listIdGuia_fechaCorteMs2, List<Inventarios> inventarioMs2,
 			List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<Long,Long> dec, Map<String,String> mapPermanencias, Map<String,String> mapFecha_primera_guia,
 			Map<String,String> mapeoPermiso, Map<String,String> mapeoDiccionario, FormFactura form,
 			Map<Long,String> mapMoneda, Map<Long,Equipo> mapAllEquipos, Fechas hoy) {
@@ -4561,12 +4787,12 @@ public class MnuReportes extends Controller {
 	    			String ocMs2 = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
 	    			Proforma proformaMs2 = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
 	    			Long cantDecMs2 = dec.get((long)1);
-	    			List<List<String>> inicioPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+	    			List<List<String>> inicioPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 	    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorteMs2, inventarioMs2, mapFecha_primera_guia, mapCotiAllConfirmadasMs2, mapMoneda, mapAllEquipos, dec);
-	    			Map<String,List<List<String>>> mapReportPorGuia10Ms2 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas, 
+	    			Map<String,List<List<String>>> mapReportPorGuia10Ms2 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 	    					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadasMs2, mapAllEquipos, mapMoneda);
-	    			List<List<String>> resumenSubtotalesMs2 = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPerMs2, listGuiasPerMs2, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas, 
+	    			List<List<String>> resumenSubtotalesMs2 = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPerMs2, listGuiasPerMs2, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas,
 	    					listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 	    					listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadasMs2, mapAllEquipos, mapMoneda, guiasPer);
 	    			Fechas hastaMs2 = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDDMs2);
@@ -4576,7 +4802,7 @@ public class MnuReportes extends Controller {
 	    			listIdGuia_fechaCorteMs2 = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDiaMs2.toString());
 	    			inventarioMs2 = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorteMs2);
 	    		con.close();
-    			List<List<String>> finalPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDiaMs2.toString(), hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+    			List<List<String>> finalPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDiaMs2.toString(), hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
     					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorteMs2, inventarioMs2, mapFecha_primera_guia, mapCotiAllConfirmadasMs2, mapMoneda, mapAllEquipos, dec);
     			List<String> fechasMs2 = new ArrayList<String>();
     			fechasMs2.add(desdeAAMMDDMs2);
@@ -4610,17 +4836,17 @@ public class MnuReportes extends Controller {
 				String fileOutNameDetalle = s.baseDato+"/"+proformaMs2.getEpExcelEp();
     			Archivos.grabarArchivo(fileMs2, fileOutNameDetalle);
     			String conceptoMs2 = mapeoDiccionario.get("ARRIENDO");
-    			if(esVenta.equals("1")) {
+				if("1".equals(esVenta)) {
     				conceptoMs2 = "VENTA";
     			}
     			Connection con2 = dbWrite.getConnection();
-    			
-	    			List<List<String>> datosMs2 = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDDMs2, hastaAAMMDDMs2, 
+
+	    			List<List<String>> datosMs2 = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDDMs2, hastaAAMMDDMs2,
 	    					tasas.get((long)2), tasas.get((long)3), tasas.get((long)4));
 	    			String fileOutNameMovimientosMs2 = proformaMs2.getEpExcelMov();
 	    			fileMs2 = ReportMovimientos.movimientosExcel(s.baseDato, datosMs2, mapeoDiccionario, bodegaMs2, conceptoMs2, desdeAAMMDDMs2, hastaAAMMDDMs2);
 	    			Archivos.grabarArchivo(fileMs2, s.baseDato+"/"+fileOutNameMovimientosMs2);
-    			
+
 	    			XmlFacturaReferencias referenciasMs2 = new XmlFacturaReferencias();
 	    			if(form.tpoDocRef!=null) {
 						  referenciasMs2.tpoDocRef = form.tpoDocRef;
@@ -4629,38 +4855,38 @@ public class MnuReportes extends Controller {
 						  referenciasMs2.razonRef = form.razonRef;
 						  referenciasMs2.obs = "";
 					}
-	    			
+
 	    			String comentarios = form.comentarios;
- 	            
+
 	    			EmisorTributario emisorTributarioMs2 = EmisorTributario.find(con2, s.baseDato);
 	    			BodegaEmpresa bodegaEmpresaMs2 = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proformaMs2.id_bodegaEmpresa);
-	    			
+
 	 	           if(esVenta.equals("0")) {
 	 	        	   // genera PDF de arriendo, XML, JSON y guarda json en proforma
 	 	        	   	proformaMs2.setTipo(mapeoDiccionario.get("Arriendo"));
 	 	        	    String conDetalleMs2 = mapeoPermiso.get("parametro.proformaInvConCompra");
-	 	        	    
-		 	            FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
-								resumenSubtotalesMs2,clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2,conDetalleMs2, inicioPerMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, finalPerMs2, 
+
+		 	            FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
+								resumenSubtotalesMs2,clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2,conDetalleMs2, inicioPerMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, finalPerMs2,
 								tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2, comentarios, form);
-		 				
-		 				
-		 	            
+
+
+
 	    			}else {
 	    				// genera PDF de venta, XML, JSON y guarda json en proforma
 	    				proformaMs2.setTipo("Venta");
-			 	        FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
+			 	        FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
 								clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2, comentarios, form);
 	    			}
  	           con2.close();
  	          return(proformaMs2.id.toString());
- 	          
+
     		} catch (SQLException e) {
     			e.printStackTrace();
     		}
     	return(null);
 	}
-	
+
 	public Result envioMasivoListadoProforma2(Http.Request request) {
 		Sessiones s = new Sessiones(request);
 		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -4689,7 +4915,7 @@ public class MnuReportes extends Controller {
 	       		} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		
+
 	       		if(HomeController.isValidEmail(mailDestino)) {
 	       			if(mailDestino != null) {
 		       			MnuReportes.envioMasivoListadoProforma0 generar = new MnuReportes.envioMasivoListadoProforma0(desdeAAMMDD, hastaAAMMDD, uf, usd, eur, esVenta, mailDestino, s, form);
@@ -4706,15 +4932,15 @@ public class MnuReportes extends Controller {
 	       		}
 	       	}
 		}else {
-			
+
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}
 	}
-	
+
 	public Result reportFacturaProyectoDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -4725,7 +4951,7 @@ public class MnuReportes extends Controller {
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-	       		
+
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
 	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -4733,92 +4959,92 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    		
+
 	    		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-		    			
+
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-		    			
-		    			
-		    			
+
+
+
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
-		    			
+
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
+
 		    			Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-		    			
+
 		    			Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 		    			Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
 		    			List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-		    			
+
 		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
 		    			Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-		    			
+
 		    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-		    			
+
 		    			List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
 		    			String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-		    			
+
 		    			Long cantDec = dec.get((long)1);
 		    			String idTipoUsuario = s.id_tipoUsuario;
-		        		
-		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+
+		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 		    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-		    			
-		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 		    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 		    					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-		    			
-		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 		    					listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 		    					listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-		    			
+
 		    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-		    			
+
 		    			Calendar hastaMas1 = hasta.getFechaCal();
 		    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 		    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-		    			
+
 		    			listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 		    			inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-		    			
+
 		    			List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
-		    			
+
 		    			con.close();
-	    			
-	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+
+	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 	    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-	    			
-	    			
-	    			
+
+
+
 	    			List<String> fechas = new ArrayList<String>();
 	    			fechas.add(desdeAAMMDD);
 	    			fechas.add(hastaAAMMDD);
 	    			fechas.add(Fechas.DDMMAA(desdeAAMMDD));
 	    			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
 	    			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-	    			
+
 	    			List<Double> tasaCambio = new ArrayList<Double>();
 	    			tasaCambio.add(uf);
 	    			tasaCambio.add(usd);
 	    			tasaCambio.add(eur);
-	    			
-	    			
+
+
 		    		return ok(reportFacturaProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,idTipoUsuario,
 		    				inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
 		    				resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias,
@@ -4828,17 +5054,17 @@ public class MnuReportes extends Controller {
 	    		}
 	    		return ok(mensajes.render("/",msgError));
 	       	}
-	    		
+
     	}else {
     		return ok(mensajes.render("/",msgError));
     	}
-		
+
 	}
-	
+
 	public Result reportFacturaProyectoDetExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -4849,7 +5075,7 @@ public class MnuReportes extends Controller {
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-	       		
+
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
 	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -4857,84 +5083,84 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    		
+
 	    		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
+
 		    			Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-		    			
+
 		    			Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 		    			Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
 		    			List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-		    			
+
 		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
 		    			Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-		    			
+
 		    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-		    			
+
 		    			Long cantDec = dec.get((long)1);
-	    			
-		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+
+		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 		    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-		    			
-		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 		    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 		    					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-		    			
-		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 		    					listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 		    					listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-		    			
+
 		    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-		    			
+
 		    			Calendar hastaMas1 = hasta.getFechaCal();
 		    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 		    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-		    			
+
 		    			listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 		    			inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-	    			
+
 	    			con.close();
-	    			
-	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+
+	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 	    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-	    			
-	    			
-	    			
+
+
+
 	    			List<String> fechas = new ArrayList<String>();
 	    			fechas.add(desdeAAMMDD);
 	    			fechas.add(hastaAAMMDD);
 	    			fechas.add(Fechas.DDMMAA(desdeAAMMDD));
 	    			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
 	    			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-	    			
+
 	    			List<Double> tasaCambio = new ArrayList<Double>();
 	    			tasaCambio.add(uf);
 	    			tasaCambio.add(usd);
 	    			tasaCambio.add(eur);
-	    			
-	    			
+
+
 	    			File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
 		    				inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
 		    				resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
-	    			
+
 	    			if(file!=null) {
 		       			return ok(file,false,Optional.of("EP_Proforma_"+bodega.nombre+".xlsx"));
 		       		}else {
@@ -4949,11 +5175,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result generarProformaPdfXlsxXmlJson(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
     		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 	   		if (formEsVenta.hasErrors() || form.idBodega==null) {
@@ -4966,7 +5192,7 @@ public class MnuReportes extends Controller {
 	       		Double eur = Double.parseDouble(form.eur.replaceAll(",", "").trim());
 	       		Long id_bodegaEmpresa = Long.parseLong(form.idBodega.trim());
 	       		String esVenta = formEsVenta.get("esVenta").trim();
-	       		
+
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
 	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -4974,70 +5200,70 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			
+
 	    		try {
 	    			Connection con = dbWrite.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
+
 		    			Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-		    			
+
 		    			Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 		    			Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
 		    			List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-		    			
+
 		    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 		    			Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
 		    			Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-		    			
+
 		    			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-		    			
+
 		    			String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-		    			
+
 		    			Fechas hoy = Fechas.hoy();
 		    			Proforma proforma = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
-		    			
+
 		    			Long cantDec = dec.get((long)1);
-	    			
-		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+
+		    			List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 		    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-		    			
-		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+		    			Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 		    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 		    					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-		 
-		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+		    			List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 		    					listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 		    					listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-		    			
+
 		    			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 		    			Calendar hastaMas1 = hasta.getFechaCal();
 		    			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
 		    			java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-		    			
+
 		    			listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 		    			inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-	    			
+
 		    		con.close();
-		    			
-	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
+
+	    			List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 	    					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-	    			
-	    			
+
+
 	    			List<String> fechas = new ArrayList<String>();
 	    			fechas.add(desdeAAMMDD);
 	    			fechas.add(hastaAAMMDD);
@@ -5047,8 +5273,8 @@ public class MnuReportes extends Controller {
 	    			tasaCambio.add(uf);
 	    			tasaCambio.add(usd);
 	    			tasaCambio.add(eur);
-	    			
-	    			
+
+
 	    			  proforma.setFecha(hoy.getFechaStrAAMMDD());
 					  proforma.setDesde(desdeAAMMDD);
 					  proforma.setHasta(hastaAAMMDD);
@@ -5066,29 +5292,29 @@ public class MnuReportes extends Controller {
 					  proforma.setIva((double)0);
 					  proforma.setTotal((double)0);
 					  proforma.setTipo(mapeoDiccionario.get("Arriendo"));
-	    			
+
 					  File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
 			    				inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
 			    				resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
-					
+
 					String fileOutNameDetalle = s.baseDato+"/"+proforma.getEpExcelEp();
 	    			Archivos.grabarArchivo(file, fileOutNameDetalle);
-	    			
+
 	    			String concepto = mapeoDiccionario.get("ARRIENDO");
-	    			if(esVenta.equals("1")) {
+					if("1".equals(esVenta)) {
 	    				concepto = "VENTA";
 	    			}
-	    			
-	    			
-	    			
-	    			
+
+
+
+
 	    			Connection con2 = dbWrite.getConnection();
-	    			
+
 		    			List<List<String>> datos = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDD, hastaAAMMDD, usd, eur, uf);
 		    			String fileOutNameMovimientos = proforma.getEpExcelMov();
 		    			file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, desdeAAMMDD, hastaAAMMDD);
 		    			Archivos.grabarArchivo(file, s.baseDato+"/"+fileOutNameMovimientos);
-	    			
+
 		    			XmlFacturaReferencias referencias = new XmlFacturaReferencias();
 		    			if(form.tpoDocRef!=null) {
 							  referencias.tpoDocRef = form.tpoDocRef;
@@ -5097,30 +5323,30 @@ public class MnuReportes extends Controller {
 							  referencias.razonRef = form.razonRef;
 							  referencias.obs = "";
 						}
-		    			
+
 		    			String comentarios = form.comentarios;
-		    			
-	 	            
+
+
 		    			String archivoPDF = "0";
-		    			
+
 		    			EmisorTributario emisorTributario = EmisorTributario.find(con2, s.baseDato);
 		    			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proforma.id_bodegaEmpresa);
-		    			
+
 		 	           if(esVenta.equals("0")) {
 		 	        	   // genera PDF de arriendo, XML, JSON y guarda json en proforma
 		 	        	   	proforma.setTipo(mapeoDiccionario.get("Arriendo"));
 		 	        	    String conDetalle = mapeoPermiso.get("parametro.proformaInvConCompra");
-			 	            archivoPDF = FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
+			 	            archivoPDF = FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
 									resumenSubtotales,cliente,proforma,referencias,detalleAjuste,conDetalle, inicioPer, listGuiasPer, mapReportPorGuia10, finalPer, uf, usd, eur, oc,
 									dec, emisorTributario, bodegaEmpresa, comentarios, form);
 		    			}else {
 		    				// genera PDF de venta, XML, JSON y guarda json en proforma
 		    				proforma.setTipo("Venta");
-				 	        archivoPDF = FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso, 
+				 	        archivoPDF = FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
 									cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc, comentarios, form);
 		    			}
 	 	           con2.close();
-	 	           
+
 	 	          String titulo = "NOTA DE VENTA";
 	    			String url = "%2FreportFacturaProyectoGet%2F0&"+desdeAAMMDD+"&"+hastaAAMMDD+"&"+uf+"&"+usd+"&"+eur;
 	    			con.close();
@@ -5130,29 +5356,29 @@ public class MnuReportes extends Controller {
 	    		}
 	    		return ok(mensajes.render("/",msgError));
 	       	}
-	    		
+
     	}else {
     		return ok(mensajes.render("/",msgError));
     	}
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	//====================================================================================
     // MNU proformaResumen   Reportes/Proforma/Resumen y Detalle (por mes)
     //====================================================================================
-	
+
 	public Result reportFacturaPeriodoResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaResumen")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -5172,16 +5398,16 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaPeriodoResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaResumen")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -5201,11 +5427,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -5215,7 +5441,7 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		
+
 	       		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 	    		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -5233,11 +5459,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -5247,7 +5473,7 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		
+
 	       		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 	    		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -5273,11 +5499,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaResumenJson(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok("ERROR");
@@ -5287,7 +5513,7 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		
+
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
 	    		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 	    		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -5296,15 +5522,15 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	       			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-		    			
+
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -5312,31 +5538,31 @@ public class MnuReportes extends Controller {
 		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
-		    			
-		    			
+
+
+
 	    			con.close();
-	    			
-	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+	    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
 	    			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-	    			
-	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+	    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 	    					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-	    			
+
 	    			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-	    			
+
 	    			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-	    			
+
 	    			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-	    			
+
 	    			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 
-	    			
+
 	    			//filtro solo las bodegas con permiso:
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
@@ -5350,7 +5576,7 @@ public class MnuReportes extends Controller {
 	    				for(int i=0;i<proyectosAux.size();i++ ) {
 	    					proyectos.add(proyectosAux.get(i));
 	    				}
-	    				
+
 	    			}
 
 	    			List<List<String>> resumenPorGrupoYProyecto = new ArrayList<List<String>>();
@@ -5361,16 +5587,16 @@ public class MnuReportes extends Controller {
 	    					resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
 		    			con2.close();
 	    			}
-	    			
+
 	    			String resumenPorPJson = Json.toJson(proyectos).toString();
 	    			String resumenPorPyGJson = Json.toJson(resumenPorGrupoYProyecto).toString();
 	    			String resumenTotalesJson = Json.toJson(resumenTotales).toString();
-	    			
+
 	    			String json = "{\"resumenPorPJson\":"+resumenPorPJson+",\"resumenPorPyGJson\":"+resumenPorPyGJson
 					+",\"resumenTotalesJson\":"+resumenTotalesJson+"}";
-	    			
+
 	    			return ok(json).as("application/json");
-	    			
+
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -5380,7 +5606,7 @@ public class MnuReportes extends Controller {
     		return ok("ERROR");
     	}
 	}
-	
+
 	public Result reportFacturaResumenExcel0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -5394,7 +5620,7 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		
+
 	       		if(mapeoPermiso.get("parametro.excel_porEMail")!=null && mapeoPermiso.get("parametro.excel_porEMail").equals("1")) {
 	       			String mailDestino = "";
 	       			try {
@@ -5411,15 +5637,15 @@ public class MnuReportes extends Controller {
 		    			e.printStackTrace();
 		    		}
 	       			if(HomeController.isValidEmail(mailDestino)) {
-	       				MnuReportes.reportFacturaResumenExcel0mail generar = new MnuReportes.reportFacturaResumenExcel0mail(s.baseDato, desdeAAMMDD, hastaAAMMDD, 
+	       				MnuReportes.reportFacturaResumenExcel0mail generar = new MnuReportes.reportFacturaResumenExcel0mail(s.baseDato, desdeAAMMDD, hastaAAMMDD,
 		       					uf, usd, eur, s.id_usuario, s.aplicaPorSucursal, s.id_sucursal, mailDestino);
 	       				generar.start();
 		       		}
 	       			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara algunos minutos para recibir el correo";
 	    			return ok(mensajes.render("/home/",mensaje));
 	       		}
-	       		
-	       		
+
+
 	       		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 	    		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -5428,17 +5654,17 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    		
+
 	       		try {
 	       			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -5446,32 +5672,32 @@ public class MnuReportes extends Controller {
 		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
-		    			
+
+
 	    			con.close();
-    			
-    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
     					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
     			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-    			
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
     					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-    			
+
     			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-    			
+
     			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-    			
+
     			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-    			
+
     			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 
-	    			
+
 	    			//filtro solo las bodegas con permiso:
-	    			
+
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
 		    			for(List<String> aux: proyectosAux) {
@@ -5484,25 +5710,25 @@ public class MnuReportes extends Controller {
 	    				for(int i=0;i<proyectosAux.size();i++ ) {
 	    					proyectos.add(proyectosAux.get(i));
 	    				}
-	    				
+
 	    			}
-	    
-	    			
+
+
 	    			Connection con2 = dbRead.getConnection();
-	    		
+
 		    			Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, s.baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
-		    			
+
 		    			List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
-		    			
+
 		    			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, s.baseDato, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO
 		    			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, s.baseDato, guiasPeriodo);  									// RESUMEN POR ESTADOS DE PAGO
-		    			
-		    			List<List<String>> resumenPorProyectoGrupoYdetalle = 
+
+		    			List<List<String>> resumenPorProyectoGrupoYdetalle =
 		    					ReportFacturas.resumenEstadosDePago(con2, s.baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);   // RESUMEN POR ESTADOS DE PAGO
-		    			
-	    			
+
+
 	    			con2.close();
-	    			
+
 	    			File file = ReportFacturas.exportaProformaExcelResumen0(s.baseDato, mapeoDiccionario,
 	    					proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle);
 	    			if(file!=null) {
@@ -5519,7 +5745,7 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public class reportFacturaResumenExcel0mail extends Thread {
 		String baseDato;
 		String desdeAAMMDD;
@@ -5531,7 +5757,7 @@ public class MnuReportes extends Controller {
 		String aplicaPorSucursal;
 		String id_sucursal;
 		String eMail;
-		
+
 		public reportFacturaResumenExcel0mail(String baseDato, String desdeAAMMDD, String hastaAAMMDD, Double uf, Double usd, Double eur, String id_usuario,
 				String aplicaPorSucursal, String id_sucursal, String eMail) {
 			super();
@@ -5573,10 +5799,10 @@ public class MnuReportes extends Controller {
 	    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
 	    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
     			con.close();
-				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
 				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
 				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
@@ -5594,14 +5820,14 @@ public class MnuReportes extends Controller {
     				for(int i=0;i<proyectosAux.size();i++ ) {
     					proyectos.add(proyectosAux.get(i));
     				}
-    				
+
     			}
     			Connection con2 = dbRead.getConnection();
 	    			Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, baseDato, valorTotalporBodegaYGrupo);
 	    			List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, baseDato, proyectos, mapResumenPorGrupo);
 	    			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, baseDato, inventarioInicial);
-	    			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo); 
-	    			List<List<String>> resumenPorProyectoGrupoYdetalle = 
+	    			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo);
+	    			List<List<String>> resumenPorProyectoGrupoYdetalle =
 	    					ReportFacturas.resumenEstadosDePago(con2, baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
     			con2.close();
     			File file = ReportFacturas.exportaProformaExcelResumen0(baseDato, mapeoDiccionario,
@@ -5623,7 +5849,7 @@ public class MnuReportes extends Controller {
             }
 		}
 	}
-	
+
 	public Result reportFacturaResumenExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -5637,7 +5863,7 @@ public class MnuReportes extends Controller {
 	       		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 	       		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 	       		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-	       		
+
 	       		Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 	    		Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 	       		Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -5646,7 +5872,7 @@ public class MnuReportes extends Controller {
 	    		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 	    		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			
+
     			if(mapeoPermiso.get("parametro.excel_porEMail")!=null && mapeoPermiso.get("parametro.excel_porEMail").equals("1")) {
 	       			String mailDestino = "";
 	       			try {
@@ -5663,24 +5889,24 @@ public class MnuReportes extends Controller {
 		    			e.printStackTrace();
 		    		}
 	       			if(HomeController.isValidEmail(mailDestino)) {
-	       				MnuReportes.reportFacturaResumenExcelMail generar = new MnuReportes.reportFacturaResumenExcelMail(s.baseDato, desdeAAMMDD, hastaAAMMDD, 
+	       				MnuReportes.reportFacturaResumenExcelMail generar = new MnuReportes.reportFacturaResumenExcelMail(s.baseDato, desdeAAMMDD, hastaAAMMDD,
 		       					uf, usd, eur, s.id_usuario, s.aplicaPorSucursal, s.id_sucursal, mailDestino);
 	       				generar.start();
 		       		}
 	       			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara algunos minutos para recibir el correo";
 	    			return ok(mensajes.render("/home/",mensaje));
 	       		}
-	    		
+
 	       		try {
 	       			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 		    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
 		    			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
 		    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
 		    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
 		    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-		    			
+
 		    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
 		    			List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -5688,32 +5914,32 @@ public class MnuReportes extends Controller {
 		    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 		    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 		    			Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-		    			
+
 		    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-	    			
-		    			
+
+
 	    			con.close();
-    			
-    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+
+    			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
     					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
     			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-    			
-    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+
+    			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
     					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-    			
+
     			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-    			
+
     			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-    			
+
     			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-    			
+
     			List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 
-	    			
+
 	    			//filtro solo las bodegas con permiso:
-	    			
+
 	    			List<List<String>> proyectos = new ArrayList<List<String>>();
 	    			if(map.size()>0) {
 		    			for(List<String> aux: proyectosAux) {
@@ -5726,29 +5952,29 @@ public class MnuReportes extends Controller {
 	    				for(int i=0;i<proyectosAux.size();i++ ) {
 	    					proyectos.add(proyectosAux.get(i));
 	    				}
-	    				
+
 	    			}
-	    
-	    			
+
+
 	    			Connection con2 = dbRead.getConnection();
-	    		
+
 		    			Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, s.baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
-		    			
+
 		    			List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
-		    			
+
 		    			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, s.baseDato, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO
 		    			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, s.baseDato, guiasPeriodo);  									// RESUMEN POR ESTADOS DE PAGO
-		    			
-		    			List<List<String>> resumenPorProyectoGrupoYdetalle = 
+
+		    			List<List<String>> resumenPorProyectoGrupoYdetalle =
 		    					ReportFacturas.resumenEstadosDePago(con2, s.baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);   // RESUMEN POR ESTADOS DE PAGO
-		    			
+
 		    			Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, s.baseDato);
-	    			
+
 	    			con2.close();
 
 	    			File file = ReportFacturas.exportaProformaExcelResumen(s.baseDato, mapeoDiccionario,
 	    					proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
-	    			
+
 	    			if(file!=null) {
 		       			return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
 		       		}else {
@@ -5763,7 +5989,7 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public class reportFacturaResumenExcelMail extends Thread {
 		String baseDato;
 		String desdeAAMMDD;
@@ -5775,7 +6001,7 @@ public class MnuReportes extends Controller {
 		String aplicaPorSucursal;
 		String id_sucursal;
 		String eMail;
-		
+
 		public reportFacturaResumenExcelMail(String baseDato, String desdeAAMMDD, String hastaAAMMDD, Double uf, Double usd, Double eur, String id_usuario,
 				String aplicaPorSucursal, String id_sucursal, String eMail) {
 			super();
@@ -5817,10 +6043,10 @@ public class MnuReportes extends Controller {
 	    			Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
 	    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
     			con.close();
-			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
 			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
 			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
 			List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
@@ -5838,14 +6064,14 @@ public class MnuReportes extends Controller {
     				for(int i=0;i<proyectosAux.size();i++ ) {
     					proyectos.add(proyectosAux.get(i));
     				}
-    				
+
     			}
     			Connection con2 = dbRead.getConnection();
 	    			Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, baseDato, valorTotalporBodegaYGrupo);
 	    			List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, baseDato, proyectos, mapResumenPorGrupo);
 	    			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, baseDato, inventarioInicial);
 	    			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo);
-	    			List<List<String>> resumenPorProyectoGrupoYdetalle = 
+	    			List<List<String>> resumenPorProyectoGrupoYdetalle =
 	    					ReportFacturas.resumenEstadosDePago(con2, baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
 	    			Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, baseDato);
     			con2.close();
@@ -5868,21 +6094,21 @@ public class MnuReportes extends Controller {
             }
 		}
 	}
-	
-	
+
+
 	//====================================================================================
     // MNU proformaConsolidado   Reportes/Proforma/Consolidado (varios Meses)
     //====================================================================================
-	
+
 	public Result reportFacturaConsolidado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaConsolidado")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -5900,32 +6126,32 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaConsolidadoRtp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 	       		fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
-	       		
+
 	       		Long meses = Long.parseLong(form.get("cantMeses").trim());
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			List<List<String>> datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-	    			
+
 	    			List<String> categorias = new ArrayList<String>();
 	    	    	for(int i=1; i<datos.get(0).size()-1; i++) {
 	    	    		categorias.add("'" + datos.get(0).get(i) + "'");
 	    	    	}
-	    	    	
+
 	    	    	List<String> nameSerie = new ArrayList<String>();
 	    	    	Map<String,List<String>> mapDataSerie = new HashMap<String,List<String>>();
 	    	    	for(int i=1; i<datos.size()-1; i++) {
@@ -5936,7 +6162,7 @@ public class MnuReportes extends Controller {
 	    	    		}
 	    	    		mapDataSerie.put("'" + datos.get(i).get(1) + "'",dataSerie);
 	    	    	}
-	    	    	
+
 	    	    	if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 	    				File file = ReportFacturaConsolidado.reportFacturaConsolidadoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 		    			if(file!=null) {
@@ -5947,10 +6173,10 @@ public class MnuReportes extends Controller {
 			       			return ok("");
 			       		}
 	    			}
-	    			
+
 	    			con.close();
 	    			return ok(reportFacturaConsolidadoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, nameSerie, mapDataSerie));
-	    			
+
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -5960,11 +6186,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFacturaConsolidadoRtpExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -5993,21 +6219,21 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
-	
+
+
 	//====================================================================================
     // MNU proformaConsolidado   Reportes/Proforma/Consolidado (detalle por grupos)
     //====================================================================================
-	
+
 	public Result reportFactConsolconGrupo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaConsolidado")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -6025,43 +6251,43 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFactConsolconGrupoRtp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 	       		fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
-	       		
+
 	       		Long meses = Long.parseLong(form.get("cantMeses").trim());
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-		    			
+
 		    		con.close();
-		    		
+
 	    			List<String> categorias = new ArrayList<String>();
 	    	    	for(int i=4; i<datos.get(0).size()-1; i=i+3) {
 	    	    		categorias.add("'" + datos.get(0).get(i) + "'");
 	    	    	}
-	    	    	
-	    	    	
+
+
 	    	    	//GRAFICOS POR EMPRESA
 	    	    	String aux ="";
 	    	    	List<String> listSeleccion = new ArrayList<String>();
 	    	    	List<String> listGrupo = new ArrayList<String>();
 	    	    	Map<String,List<String>> mapGrupo = new HashMap<String,List<String>>();
 	    	    	Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
-	    	    	
+
 	    	    	for(int i=2; i<datos.size()-1; i++) {
 	    	    		if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
 	    	    			if(i>2) {
@@ -6071,21 +6297,21 @@ public class MnuReportes extends Controller {
 	    	    			listSeleccion.add("'"+datos.get(i).get(0)+"'");
 	    	    			aux = "'"+datos.get(i).get(0)+"'";
 	    	    		}
-	    	    		
+
 	    	    		if(aux.equals("'"+datos.get(i).get(0)+"'")) {
 	    	    			listGrupo.add("'"+datos.get(i).get(1)+"'");
 	    	    			mapGrupo.put(aux, listGrupo);
 	    	    		}
-	    	    		
+
 	    	    		List<String> listDatos = new ArrayList<String>();
 	    	    		for(int j=4; j<datos.get(i).size()-3; j = j+3) {
 	    	    			listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
 	    	    		}
 	    	    		mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(1)+"'", listDatos);
 	    	    	}
-	    	    	
-	    	    	
-	    	    	
+
+
+
 	    	    	//GRAFICOS POR GRUPO
 	    	    	//ORDENA LA LISTA POR GRUPO
 	    			for(int j=2;j<datos.size()-1;j++) {
@@ -6100,13 +6326,13 @@ public class MnuReportes extends Controller {
 	    	                }
 	    	            }
 	    	        }
-	    	    	
+
 	    	    	String aux2 ="";
 	    	    	List<String> listSeleccion2 = new ArrayList<String>();
 	    	    	List<String> listEmpresa = new ArrayList<String>();
 	    	    	Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
 	    	    	Map<String,List<String>> mapDatosGrupo = new HashMap<String,List<String>>();
-	    	    	
+
 	    	    	for(int i=2; i<datos.size()-1; i++) {
 	    	    		if(!aux2.equals("'"+datos.get(i).get(1)+"'")) {
 	    	    			if(i>2) {
@@ -6116,19 +6342,19 @@ public class MnuReportes extends Controller {
 	    	    			listSeleccion2.add("'"+datos.get(i).get(1)+"'");
 	    	    			aux2 = "'"+datos.get(i).get(1)+"'";
 	    	    		}
-	    	    		
+
 	    	    		if(aux2.equals("'"+datos.get(i).get(1)+"'")) {
 	    	    			listEmpresa.add("'"+datos.get(i).get(0)+"'");
 	    	    			mapEmpresas.put(aux2, listEmpresa);
 	    	    		}
-	    	    		
+
 	    	    		List<String> listDatos = new ArrayList<String>();
 	    	    		for(int j=4; j<datos.get(i).size()-3; j = j+3) {
 	    	    			listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
 	    	    		}
 	    	    		mapDatosGrupo.put("'"+datos.get(i).get(1)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
 	    	    	}
-	    	    	
+
 	    	    	if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 	    	    		File file = ReportFacturaConsolidado.reportConsDetalladoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 		    			if(file!=null) {
@@ -6137,8 +6363,8 @@ public class MnuReportes extends Controller {
 			       			return ok("");
 			       		}
 	    			}
-	    	    	
-	    			
+
+
 	    			return ok(reportFactConsolconGrupoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, listSeleccion, mapGrupo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosGrupo));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -6149,11 +6375,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFactConsolconGrupoRtpExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6182,21 +6408,21 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
-	
+
+
 	//====================================================================================
     // MNU proformaConsolidado   Reportes/Proforma/Consolidado (detalle por equipos)
     //====================================================================================
-	
+
 	public Result reportFactConsolconEquipos(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaConsolidado")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -6214,42 +6440,42 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFactConsolconEquiposRtp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
 	       		Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 	       		fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
-	       		
+
 	       		Long meses = Long.parseLong(form.get("cantMeses").trim());
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 		    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-		    			
+
 		    			List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-		    			
+
 	    			con.close();
-	    			
+
 	    			List<String> categorias = new ArrayList<String>();
 	    	    	for(int i=4; i<datos.get(0).size()-1; i=i+3) {
 	    	    		categorias.add("'" + datos.get(0).get(i) + "'");
 	    	    	}
-	    	    	
+
 	    	    	//GRAFICOS POR EMPRESA
 	    	    	String aux ="";
 	    	    	List<String> listSeleccion = new ArrayList<String>();
 	    	    	List<String> listEquipo = new ArrayList<String>();
 	    	    	Map<String,List<String>> mapEquipo = new HashMap<String,List<String>>();
 	    	    	Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
-	    	    	
+
 	    	    	for(int i=2; i<datos.size()-1; i++) {
 	    	    		if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
 	    	    			if(i>2) {
@@ -6259,20 +6485,20 @@ public class MnuReportes extends Controller {
 	    	    			listSeleccion.add("'"+datos.get(i).get(0)+"'");
 	    	    			aux = "'"+datos.get(i).get(0)+"'";
 	    	    		}
-	    	    		
+
 	    	    		if(aux.equals("'"+datos.get(i).get(0)+"'")) {
 	    	    			listEquipo.add("'"+datos.get(i).get(2)+"'");
 	    	    			mapEquipo.put(aux, listEquipo);
 	    	    		}
-	    	    		
+
 	    	    		List<String> listDatos = new ArrayList<String>();
 	    	    		for(int j=4; j<datos.get(i).size()-3; j = j+3) {
 	    	    			listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
 	    	    		}
 	    	    		mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(2)+"'", listDatos);
 	    	    	}
-	    	    	
-	    	    	
+
+
 	    	    	//GRAFICOS POR EQUIPO
 	    	    	//ORDENA LA LISTA POR EQUIPO
 	    			for(int j=2;j<datos.size()-1;j++) {
@@ -6287,14 +6513,14 @@ public class MnuReportes extends Controller {
 	    	                }
 	    	            }
 	    	        }
-	    			
+
 	    	    	String aux2 ="";
 	    	    	List<String> listSeleccion2 = new ArrayList<String>();
 	    	    	List<String> listEmpresa = new ArrayList<String>();
 	    	    	Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
 	    	    	Map<String,List<String>> mapDatosEquipo = new HashMap<String,List<String>>();
 	    	    	Map<String, String> mapNomEquip = new HashMap<String,String>();
-	    	    	
+
 	    	    	for(int i=2; i<datos.size()-1; i++) {
 	    	    		if(!aux2.equals("'"+datos.get(i).get(2)+"'")) {
 	    	    			if(i>2) {
@@ -6305,19 +6531,19 @@ public class MnuReportes extends Controller {
 	    	    			mapNomEquip.put("'"+datos.get(i).get(2)+"'", datos.get(i).get(2)+" - "+datos.get(i).get(3));
 	    	    			aux2 = "'"+datos.get(i).get(2)+"'";
 	    	    		}
-	    	    		
+
 	    	    		if(aux2.equals("'"+datos.get(i).get(2)+"'")) {
 	    	    			listEmpresa.add("'"+datos.get(i).get(0)+"'");
 	    	    			mapEmpresas.put(aux2, listEmpresa);
 	    	    		}
-	    	    		
+
 	    	    		List<String> listDatos = new ArrayList<String>();
 	    	    		for(int j=6; j<datos.get(i).size()-3; j = j+3) {
 	    	    			listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
 	    	    		}
 	    	    		mapDatosEquipo.put("'"+datos.get(i).get(2)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
 	    	    	}
-	    	    	
+
 	    	    	if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 	    	    		File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 		    			if(file!=null) {
@@ -6326,9 +6552,9 @@ public class MnuReportes extends Controller {
 			       			return ok("");
 			       		}
 	    			}
-	    			return ok(reportFactConsolconEquiposRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), 
+	    			return ok(reportFactConsolconEquiposRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"),
 	    					categorias, listSeleccion, mapEquipo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosEquipo, mapNomEquip));
-	    			
+
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6338,11 +6564,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportFactConsolconEquiposRtpExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6371,22 +6597,22 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
-	
-	
-	
+
+
+
+
 	//====================================================================================
     // MNU proformaListado   Reportes/Proforma/Listado de Proformas
     //====================================================================================
-	
-	
+
+
 	public class proformaListaPdf0 extends Thread {
 		String baseDato;
 		int desdeNro;
 		int hastaNro;
 		Map<String, String> map;
 		String eMail;
-		
+
 		public proformaListaPdf0(String baseDato, int desdeNro, int hastaNro, Map<String, String> map, String eMail) {
 			super();
 			this.baseDato = baseDato;
@@ -6394,7 +6620,7 @@ public class MnuReportes extends Controller {
 			this.hastaNro = hastaNro;
 			this.map = map;
 			this.eMail = eMail;
-			
+
 		}
 		public void run() {
 			PDFMergerUtility merger = new PDFMergerUtility();
@@ -6410,11 +6636,11 @@ public class MnuReportes extends Controller {
             				InputStream archivo = Archivos.leerArchivo(path);
     		    			merger.addSource(archivo);
             			}catch(Exception e) {
-            				
+
             			}
-		    			
+
             		}
-            		
+
             	}
                 merger.setDestinationFileName(outputFile.getAbsolutePath());
                 MemoryUsageSetting memoryUsageSetting = MemoryUsageSetting.setupMainMemoryOnly();
@@ -6434,9 +6660,9 @@ public class MnuReportes extends Controller {
 					email.addAttachment("proformas.pdf", outputFile);
 		   		    mailerClient.send(email);
                 } catch (Exception x) {
-                	
+
                 	x.printStackTrace();
-                	
+
                 	long fileSizeInBytes = outputFile.length();
                     double fileSizeInKB = (double) fileSizeInBytes / 1024;
                     double fileSizeInMB = fileSizeInKB / 1024;
@@ -6453,18 +6679,18 @@ public class MnuReportes extends Controller {
 		   		    		" </body></html>");
 					email.addTo(eMail);
 		   		    mailerClient.send(email);
-		   		    
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 		}
 	}
-	
+
 	public Result proformaListaPdf(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6482,7 +6708,7 @@ public class MnuReportes extends Controller {
 	    			for(List<String> l: lista) {
 	    				map.put(l.get(0), l.get(0));
 	    			}
-	    			
+
 	    			Usuario usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			if( usuario != null) {
 	    				mailDestino = usuario.getEmail().trim().toLowerCase();
@@ -6494,14 +6720,14 @@ public class MnuReportes extends Controller {
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
-	       		
+
 	       		if(HomeController.isValidEmail(mailDestino)) {
 	       			if(map !=null && mailDestino != null) {
 		       			MnuReportes.proformaListaPdf0 generar = new MnuReportes.proformaListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
 		    			generar.start();
 		    			String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
 		    			return ok(mensajes.render("/home/",mensaje));
-		       			
+
 		       		}else {
 		       			String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
 		       			return ok(mensajes.render("/home/",mensaje));
@@ -6514,16 +6740,16 @@ public class MnuReportes extends Controller {
     	}
     	return ok("SE PRESENTO UN ERROR");
     }
-	
+
 	public Result proformaListaPeriodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaListado")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -6542,11 +6768,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result proformaLista(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -6574,11 +6800,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result proformaListaGet(Http.Request request, String desde, String hasta) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("proformaListado")==null) {
@@ -6598,11 +6824,11 @@ public class MnuReportes extends Controller {
     	}
     	return ok(mensajes.render("/",msgError));
 	}
-	
+
 	 public Result proformaListaExcel(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6618,11 +6844,11 @@ public class MnuReportes extends Controller {
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-	    			
+
 	    			List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
-	    			
+
 	    			File file = Proforma.listadoPorAnioExcel(s.baseDato, mapeoDiccionario, lista);
-	       		
+
 	    			if(file!=null) {
 		       			con.close();
 		       			return ok(file,false,Optional.of("ListadoDeProformas.xlsx"));
@@ -6639,11 +6865,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
     }
-	
+
 	public Result generaProformaXml(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6655,7 +6881,7 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbWrite.getConnection();
-	    			
+
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			InputStream auxfile = Archivos.leerArchivo(s.baseDato+"/"+proforma.proformaXml);
 		       		File file = Archivos.parseInputStreamToFile(auxfile);
@@ -6679,13 +6905,13 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
-	
-	
+
+
+
 	public Result sendXMLFacura(Http.Request request, Long id_proforma, String desde, String hasta){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		FormXmlFactura form = formFactory.form(FormXmlFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 	       		try {
 	       			Connection con = dbWrite.getConnection();
@@ -6721,11 +6947,11 @@ public class MnuReportes extends Controller {
 			return ok("");
 		}
    	}
-	
+
 	public Result generaProformaApiManager(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6748,11 +6974,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result generaProformaApiNubox(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6777,11 +7003,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result generaProformaApiSapConconcreto(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6807,7 +7033,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result generaProformaWebMaximise(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -6820,30 +7046,30 @@ public class MnuReportes extends Controller {
 	       		String codigoMaximise = form.get("codigoMaximise").trim();
 	       		String desde = form.get("fechaDesde");
 	       		String hasta = form.get("fechaHasta");
-	    		
+
 	    		String ware_code = "BSTGO";
 				if(sucurMaximise.equals("2")) {
 					ware_code = "BANTO";
 				}
-				
+
 				String part_code = "VT-001";
 				String desc_text = "Arriendo Andamios";
 				if(codigoMaximise.equals("VT-002")) {
 					part_code = "VT-002";
 					desc_text = "Arriendo Encofrados";
 				}
-				
+
 	       		try {
 	       			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 	    			EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
-	    			
+
 	    			String xmlEncode = proforma.getJsonGenerado();
 	    			xmlEncode = xmlEncode.replace("colocaPartCode", part_code);
 	    			xmlEncode = xmlEncode.replace("colocaWareCode", ware_code);
 	    			xmlEncode = xmlEncode.replace("colocaDescText", desc_text);
 	    			Proforma.updateJsonApi(con, s.baseDato, id_proforma, xmlEncode);
-	    			
+
 	    			String rs = WebMaximise.generaFactura(con, s.baseDato, xmlEncode, ws, emisorTributario, id_proforma);
 	    			try {
 		       			Long nroInterno = Long.parseLong(rs);
@@ -6863,7 +7089,7 @@ public class MnuReportes extends Controller {
     	}
     	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
-	
+
 	public Result downFacturaMaximise(Long nroIntOrden, Http.Request request, String desde, String hasta){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -6875,7 +7101,7 @@ public class MnuReportes extends Controller {
 	       			Connection con = dbWrite.getConnection();
 	       			EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
 	       			String nroIntFactura = WebMaximise.downOrderMaximise(con, s.baseDato, ws, emisorTributario, nroIntOrden);
-	       			
+
 	       			if(nroIntFactura.equals("DTE aun no emitido")) {
 	       				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"DTE aun no emitido"));
 	       			}else {
@@ -6894,11 +7120,11 @@ public class MnuReportes extends Controller {
     	}
     	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
-	
+
 	public Result generaFacturaIConstruye(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		
+
 			DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6922,12 +7148,12 @@ public class MnuReportes extends Controller {
 			return ok("");
 		}
    	}
-	
-	
+
+
 	public Result downFacturaIconstruye(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		
+
 			DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6956,11 +7182,11 @@ public class MnuReportes extends Controller {
     	}
     	return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
-	
+
 	public Result generaProformaApiRelBase(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -6983,8 +7209,8 @@ public class MnuReportes extends Controller {
 	       	        } catch (IOException e) {
 	       	            e.printStackTrace();
 	       	        }
-	    			
-	    			
+
+
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6994,7 +7220,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result generaProformaApiRelBase2(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -7002,7 +7228,7 @@ public class MnuReportes extends Controller {
     		if (form.id_proforma == null) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	       		
+
 	       		try {
 	    			Connection con = dbWrite.getConnection();
 	    			Proforma proforma = Proforma.find(con, s.baseDato, form.id_proforma);
@@ -7062,7 +7288,7 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/",msgError));
 		}
    	}
-	
+
 	public Result validarClienteAjax(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -7097,7 +7323,7 @@ public class MnuReportes extends Controller {
 			return ok("0");
 		}
    	}
-	
+
 	public Result generaProformaApiSapSchwager(Http.Request request){
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -7130,11 +7356,11 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/",msgError));
 		}
    	}
-	
+
 	public Result proformaElimina(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7156,23 +7382,23 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
-	
-	
-	
+
+
+
+
 	//====================================================================================
     // MNU proformaHaceAjustes   Reportes/Proforma/Hacer Ajustes EP-Proforma
     //====================================================================================
-	
+
 	public Result ajustesEp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaHaceAjustes")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7189,11 +7415,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpListado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7203,7 +7429,7 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
 	    			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 	    			con.close();
@@ -7217,11 +7443,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajusteGrabaPDF(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
     		Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
 			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
@@ -7250,11 +7476,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpModificar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7264,7 +7490,7 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			AjustesEP ajusteEp = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
 	    			List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
 	    			List<TipoAjustesVenta> listAjustesVenta = TipoAjustesVenta.all(con, s.baseDato);
@@ -7280,11 +7506,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpUpdate(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		AjustesEP form = formFactory.form(AjustesEP.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 	   		if (form.id == null) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7309,11 +7535,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpEliminar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7339,11 +7565,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpNuevo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7353,7 +7579,7 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 	    			Fechas hoy = Fechas.hoy();
 	    			List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
@@ -7371,11 +7597,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpGrabar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		AjustesEP form = formFactory.form(AjustesEP.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 	   		if (form.id_bodegaEmpresa == null) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7400,21 +7626,21 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
-	
+
+
 	//====================================================================================
     // MNU proformaListaAjustes   Reportes/Proforma/Reporte Ajustes X Bodegas/proyecto
     //====================================================================================
-	
+
 	public Result ajustesEpRpt(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaListaAjustes")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7433,11 +7659,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesEpRptDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7447,7 +7673,7 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
 	    			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 	    			con.close();
@@ -7461,20 +7687,20 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	//====================================================================================
     // MNU proformaAjustesPorPeriodo   Reportes/Proforma/Reporte Ajustes X Periodo
     //====================================================================================
-	
+
 	public Result ajustesPeriodoEpRpt1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("proformaAjustesPorPeriodo")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7492,11 +7718,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result ajustesPeriodoEpRpt2(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7507,12 +7733,12 @@ public class MnuReportes extends Controller {
     			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	       		try {
 	    			Connection con = dbRead.getConnection();
-	    			
+
 	    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 	    			permisoPorBodega = permisoPorBodega.replace("movimiento", "bodegaEmpresa");
 	    			permisoPorBodega = permisoPorBodega.replace("id_bodegaEmpresa", "id");
 	    			List<AjustesEP> lista = AjustesEP.allPorPeriodos(con, s.baseDato, fechaDesde, fechaHasta, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-	    			
+
 	    			con.close();
 	    			return ok(ajustesPeriodoEpRpt2.render(mapeoDiccionario,mapeoPermiso,userMnu,lista, Fechas.DDMMAA(fechaDesde), Fechas.DDMMAA(fechaHasta)));
 	        	} catch (SQLException e) {
@@ -7524,21 +7750,21 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
-	
+
+
 	//====================================================================================
     // MNU reportFacturaDetalleProyecto   Reportes/Proforma/Ventas por Periodo
     //====================================================================================
-	
+
 	public Result reportVentasPorPeriodo0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportVentasPorPeriodo")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7562,7 +7788,7 @@ public class MnuReportes extends Controller {
 	public Result reportVentasPorPeriodo1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7583,7 +7809,7 @@ public class MnuReportes extends Controller {
 	       			Connection con = dbRead.getConnection();
 	    			List<List<String>> datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
 	    			con.close();
-	    			return ok(reportVentasPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,desdeAAMMDD,hastaAAMMDD, usd, eur, uf, 
+	    			return ok(reportVentasPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,desdeAAMMDD,hastaAAMMDD, usd, eur, uf,
 	    					Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -7594,7 +7820,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result reportVentasPorPeriodo1Excel(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -7633,20 +7859,20 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
     }
-	
+
 	//====================================================================================
     // MNU reportesHOHE   Reportes/Proforma/todo SOLO HOHE
     //====================================================================================
-	
+
 	public Result hoheReportTodo0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportesHOHE")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7664,11 +7890,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheReportTodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7696,16 +7922,16 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result hoheTodoResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportesHOHE")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7723,11 +7949,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheTodoResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7755,16 +7981,16 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result hoheMatrizVerticalInventario0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportesHOHE")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7780,7 +8006,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheMatrizVerticalInv0Coti(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -7789,7 +8015,7 @@ public class MnuReportes extends Controller {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportesHOHE")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7805,11 +8031,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheMatrizVerticalInventario(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7835,11 +8061,11 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result hoheMatrizVerticalInvCoti(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7865,16 +8091,16 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result hoheEstadoCotiOt(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportesHOHE")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7890,11 +8116,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheEstadoCotiOtExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7920,16 +8146,16 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
+
 	public Result hoheEstadoCotiSinOt(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
+    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     		try {
     			Connection con = dbRead.getConnection();
-    			
+
     			if(mapeoPermiso.get("reportesHOHE")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
@@ -7945,11 +8171,11 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheEstadoCotiSinOtExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		 
+
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -7975,13 +8201,13 @@ public class MnuReportes extends Controller {
     		return ok("");
     	}
 	}
-	
-	
-	
+
+
+
 	//====================================================================================
     // MNU reportesDOM   Reportes/Proforma/ SOLO DOM
     //====================================================================================
-	
+
 	public Result domStockDiarioExcel0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -8005,7 +8231,7 @@ public class MnuReportes extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result domStockDiarioExcel1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -8013,7 +8239,7 @@ public class MnuReportes extends Controller {
 			if(mapeoPermiso.get("reportesDOM")==null) {
 				return ok(mensajes.render("/",msgSinPermiso));
 			}
-			
+
 			DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
@@ -8021,13 +8247,13 @@ public class MnuReportes extends Controller {
 	       		try {
 	    			Connection con = dbRead.getConnection();
 	    			String fechaCorte = form.get("fechaCorte").trim();
-	    			
+
 	    			List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2 					*** N° 1, N° 2 y N° 98
 	    			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock 						*** N° 63, N° 113, N° 52 y N° 115
 	    			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo			*** N° 114 y N° 102
 	    			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas		*** N° 112 y N° 101
 	    			Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil						*** N° 108
-	    			
+
 	    				PreparedStatement smt = con
 	    						.prepareStatement(" select"
 	    								+ " movimiento.id_bodegaEmpresa,"
@@ -8037,7 +8263,7 @@ public class MnuReportes extends Controller {
 	    								+ " from `"+s.baseDato+"`.movimiento"
 	    								+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
 	    								// 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas
-	    								+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)" 
+	    								+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)"
 	    								+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || movimiento.fecha_factura <= ? || movimiento.fecha_actaBaja <= ?)"
 	    								+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo;");
 	    				smt.setString(1, fechaCorte);
@@ -8045,14 +8271,14 @@ public class MnuReportes extends Controller {
 	    				smt.setString(3, fechaCorte);
 	    				ResultSet rs = smt.executeQuery();
 	    				while (rs.next()) {
-	    					// bodegas 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas 
+	    					// bodegas 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas
 	    					// bodega_equipo vs cantidad stock de equipos disponibles
 	    					String key = rs.getString(1)+"_"+rs.getString(2);
 	    					mapCantStock.put(key, rs.getLong(3));
 	    				}
 	    				rs.close();
 	    				smt.close();
-	    				
+
 	    				PreparedStatement smt1 = con
 	    						.prepareStatement("select id, codigo, nombre, kg, m2 from `"+s.baseDato+"`.equipo where vigente = 1;");
 	    				ResultSet rs1 = smt1.executeQuery();
@@ -8068,7 +8294,7 @@ public class MnuReportes extends Controller {
 	    				}
 	    				rs1.close();
 	    				smt1.close();
-	    				
+
 	    				PreparedStatement smt2 = con
 	    						.prepareStatement("select auxiliar.id_susucursal, auxiliar.id_equipo, sum(auxiliar.cantidad)"
 	    								+ " from"
@@ -8091,12 +8317,12 @@ public class MnuReportes extends Controller {
 	    				while (rs2.next()) {
 	    					// sucursales 1 stgo 2 pto varas
 	    					// sucursal_equipo vs cantidad de equipos arrendados por sucursal
-	    					String key = rs2.getString(1)+"_"+rs2.getString(2); 
+	    					String key = rs2.getString(1)+"_"+rs2.getString(2);
 	    					mapCantArr.put(key, rs2.getLong(3));
 	    				}
 	    				rs2.close();
 	    				smt2.close();
-	    				
+
 	    				PreparedStatement smt3 = con
 	    						.prepareStatement("select"
 	    								+ " bodegaEmpresa.id_sucursal,"
@@ -8115,22 +8341,22 @@ public class MnuReportes extends Controller {
 	    				ResultSet rs3 = smt3.executeQuery();
 	    				while (rs3.next()) {
 	    					// sucursal_equipo vs cantidad de equipos pendientes por despachar desde ot por sucursal
-	    					String key = rs3.getString(1)+"_"+rs3.getString(2); 
+	    					String key = rs3.getString(1)+"_"+rs3.getString(2);
 	    					mapPorDespachar.put(key, rs3.getLong(3));
 	    				}
 	    				rs3.close();
 	    				smt3.close();
-	    				
-	    				
-	    				
+
+
+
 	    				Map<String,Long> mapSumCantPorDias = new HashMap<String,Long>(); // bod_cot_equ vs cant-dias para calculo de promedio 60 dias
 	    				Fechas ini = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
 	    				ini = Fechas.addMeses(ini.getFechaCal(), -2);
 	    				Fechas fin = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
 	    				String fechaIni = ini.getFechaStrAAMMDD();
-	    				
+
 	    				int dias = Fechas.diasEntreFechas(ini.getFechaCal(), fin.getFechaCal()) + 1;
-	    				
+
 	    				PreparedStatement smt4 = con
 	    						.prepareStatement("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad)"
 	    								+ " from ("
@@ -8150,7 +8376,7 @@ public class MnuReportes extends Controller {
 	    				ResultSet rs4 = smt4.executeQuery();
 	    				while (rs4.next()) {
 	    					// bod_cot_equ vs cant - dias inventario inicial
-	    					String key = rs4.getString(1)+"_"+rs4.getString(2)+"_"+rs4.getString(3); 
+	    					String key = rs4.getString(1)+"_"+rs4.getString(2)+"_"+rs4.getString(3);
 	    					Long aux = mapSumCantPorDias.get(key);
 	    					if(aux != null) {
 	    						aux += rs4.getLong(4) * dias;
@@ -8161,7 +8387,7 @@ public class MnuReportes extends Controller {
 	    				}
 	    				rs4.close();
 	    				smt4.close();
-	    				
+
 	    				PreparedStatement smt5 = con
 	    						.prepareStatement("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad), auxiliar.fecha"
 	    								+ " from ("
@@ -8185,7 +8411,7 @@ public class MnuReportes extends Controller {
 	    					Fechas auxFech = Fechas.obtenerFechaDesdeStrAAMMDD(rs5.getString(5));
 	    					dias = Fechas.diasEntreFechas(auxFech.getFechaCal(), fin.getFechaCal()) + 1;
 	    					// bod_cot_equ vs cant - dias acumulando inventario
-	    					String key = rs5.getString(1)+"_"+rs5.getString(2)+"_"+rs5.getString(3); 
+	    					String key = rs5.getString(1)+"_"+rs5.getString(2)+"_"+rs5.getString(3);
 	    					Long aux = mapSumCantPorDias.get(key);
 	    					if(aux != null) {
 	    						aux += rs5.getLong(4) * dias;
@@ -8196,12 +8422,12 @@ public class MnuReportes extends Controller {
 	    				}
 	    				rs5.close();
 	    				smt5.close();
-	    				
+
 	    				// AGRUPO RESULTADOS POR EQUIPO cantPorDia y total suma producto Precio
 	    				Map<String,List<Double>> mapListaPrecios = ListaPrecio.mapListaPreciosAll(con, s.baseDato);
-	    				
+
 	    				con.close();
-	    				
+
 	    				Map<Long,List<Double>> mapPrecios = new HashMap<Long,List<Double>>();
 	    				for (Map.Entry<String, Long> entry : mapSumCantPorDias.entrySet()) {
 	    					// key = id_bodegaEmpresa + id_cotizacion + id_equipo
@@ -8228,7 +8454,7 @@ public class MnuReportes extends Controller {
 	    		        	   mapPrecios.put(id_equipo, aux2);
 	    		           }
 	    		        }
-	    				
+
 	    				for (Map.Entry<Long, List<Double>> entry : mapPrecios.entrySet()) {
 	    					Long key = entry.getKey();
 	    					List<Double> val = entry.getValue();
@@ -8238,16 +8464,16 @@ public class MnuReportes extends Controller {
 	    					}
 	    					mapMediaMovil.put(key, media);
 	    				}
-	    				
-	    				
+
+
 	    			/*
 	    				List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2 					*** N° 1, N° 2 y N° 98
 	        			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock 						*** N° 63, N° 113, N° 52 y N° 115
 	        			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo			*** N° 114 y N° 102
 	        			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas		*** N° 112 y N° 101
-	        			Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil			
+	        			Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil
 	    			 */
-	    				
+
 	    			List<List<String>> datos = new ArrayList<List<String>>();
 	    			for(List<String> l: listEquip) {
 	    				List<String> aux = new ArrayList<String>();
@@ -8288,7 +8514,7 @@ public class MnuReportes extends Controller {
 	    				if(medMovArrUn == null) {
 	    					medMovArrUn = (double) 0;
 	    				}
-	    				
+
 	    				aux.add(l.get(1));					// 0 N° 1 - Codigo de Articulo
 	    				aux.add(l.get(2));					// 1 N° 2 - Nombre de Articulo
 	    				aux.add(stockMantPtoV.toString());	// 2 N° 52 - Bodega Mantencion Puerto Varas
@@ -8303,40 +8529,40 @@ public class MnuReportes extends Controller {
 	    				aux.add(stockDispPtoV.toString());	// 11 N° 115 - Bodega Disponible Puerto Varas
 	    				datos.add(aux);
 	    			}
-	    			
-	    			
+
+
 	    			File tmp = TempFile.createTempFile("tmp","null");
 	    			try {
 	    				String path = s.baseDato+"/formatos/DOM_Stock_Detallado.xlsx";
 	    				InputStream formato = Archivos.leerArchivo(path);
 	    	            Workbook libro = WorkbookFactory.create(formato);
 	    	            formato.close();
-	    	            
+
 	    	            Sheet hoja1 = libro.getSheetAt(0);
 	    	            Row row = null;
 	    	            Cell cell = null;
 	    	            Double auxDbl = (double) 0;
-	    	            
+
 	    	            row = hoja1.getRow(0);
-	    	            
+
 	    	            cell = row.getCell(116);
 	    	            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    	            Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
     					cell.setCellValue(fecha.fechaUtil);
-    					
+
     					Fechas hoyChile = Fechas.hoyChile();
-    					
+
     					cell = row.getCell(118);
 	    	            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
     					cell.setCellValue(hoyChile.fechaUtil);
-	    				
-    					
-    					
-    					
+
+
+
+
 	    				for(int i=0;i<datos.size();i++){
-	    					
+
 	    					row = hoja1.createRow(i+1);
-	    					
+
 	    		            cell = row.createCell(0);
 	    		            try {
 	    		            	auxDbl = Double.parseDouble(datos.get(i).get(0));
@@ -8346,63 +8572,63 @@ public class MnuReportes extends Controller {
 	    		            	cell.setCellType(Cell.CELL_TYPE_STRING);
 	        					cell.setCellValue(datos.get(i).get(0));
 	    		            }
-	    					
+
 	    					cell = row.createCell(1);
 	    					cell.setCellType(Cell.CELL_TYPE_STRING);
 	    					cell.setCellValue(datos.get(i).get(1));
-	    					
+
 	    					cell = row.createCell(51);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(2));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(62);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(3));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(97);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(4));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(100);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(5));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(101);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(6));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(107);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(7));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(111);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(8));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(112);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(9));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(113);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(10));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    					cell = row.createCell(114);
 	    					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 	    					auxDbl = Double.parseDouble(datos.get(i).get(11));
 	    					cell.setCellValue(auxDbl);
-	    					
+
 	    				}
-	    				
+
 	    				FormulaEvaluator evaluator = libro.getCreationHelper().createFormulaEvaluator();
 	    		        evaluator.evaluateAll(); // Recalcular todas las fórmulas en todas las hojas
 
@@ -8410,30 +8636,30 @@ public class MnuReportes extends Controller {
 	    				FileOutputStream fileOut = new FileOutputStream(tmp);
 	    				libro.write(fileOut);
 	    				fileOut.close();
-	    				
+
 	    			} catch (Exception e) {
 	    				e.printStackTrace();
 	    	        }
-	    			
+
 	    			return ok(tmp,false,Optional.of(fechaCorte + "_Stock_Detallado.xlsx"));
-	    			
+
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
 	       	}
-    		
+
     		return ok(mensajes.render("/",msgError));
     	}else {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
-	
+
 	public Result hoheValySubePlantillaNV(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 
 			DynamicForm form = formFactory.form().bindFromRequest(request);
-			
+
 			if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
@@ -8445,17 +8671,17 @@ public class MnuReportes extends Controller {
 	    		Http.MultipartFormData.FilePart<TemporaryFile> archivo = aux.file;
 	    		if (archivo != null) {
 	    			File file = Archivos.parseMultipartFormDatatoFile(archivo);
-	    			
+
 	    			try {
 	    	            Workbook libro = WorkbookFactory.create(file);
 	    	            Sheet hoja1 = libro.getSheetAt(0);
 	    	            Row row = null;
 	    	            Cell cell = null;
-	    	            
-	    	            
+
+
 	    	            List<String> listErr = new ArrayList<String>();
 	    	            List<List<String>> listado = new ArrayList<List<String>>();
-	    	            
+
 	    	            // valido datos
 	    	            int fila = 1;
 	    	            row = hoja1.getRow(fila);
@@ -8463,7 +8689,7 @@ public class MnuReportes extends Controller {
 	    	            	cell = row.getCell(1);
 	    	            	Map<String,Cliente> mapClientes = null;
 	    	            	Map<Long,BodegaEmpresa> mapBodegas = null;
-	    	            	
+
 	    	            	try {
 	    		    			Connection con = dbRead.getConnection();
 	    		    			mapClientes = Cliente.mapAllClientesPorRut(con, s.baseDato);
@@ -8472,12 +8698,12 @@ public class MnuReportes extends Controller {
 	    	            	} catch (SQLException e) {
 	    	        			e.printStackTrace();
 	    	        		}
-	    	            	
+
 	    	            	while (row != null && cell != null) {
-	    	            		
+
 	    	            		boolean flag = true;
 	    	            		List<String> auxList = new ArrayList<String>();
-	    	            		
+
 	    	            		// Valido fechas
 	    	            		try {
         							Date fecha = cell.getDateCellValue();
@@ -8487,8 +8713,8 @@ public class MnuReportes extends Controller {
     	                    		listErr.add("EN FILA "+(fila+1)+": fecha no valida.");
     	                    		flag = false;
     	                    	}
-	    	            		
-	    	            			
+
+
 	    	            		// Valido rut
 	    	            		cell = row.getCell(2);
 	    	            		if(cell !=  null) {
@@ -8497,7 +8723,7 @@ public class MnuReportes extends Controller {
 			    	            		Cliente cliente = mapClientes.get(rut);
 			    	            		if(cliente != null) {
 			    	            			auxList.add(rut);
-			    	            		} else { 
+			    	            		} else {
 			    	            			listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
 			    	            			flag = false;
 			    	            		}
@@ -8509,7 +8735,7 @@ public class MnuReportes extends Controller {
 	    	            			listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
 	    	            			flag = false;
 	    	            		}
-	    	            		
+
 	    	            		// Valido neto
 	    	            		cell = row.getCell(3);
 	    	            		if(cell != null) {
@@ -8529,7 +8755,7 @@ public class MnuReportes extends Controller {
 	    	            			listErr.add("EN FILA "+(fila+1)+": neto no valido, debe ser un tipo numero obligado.");
 	    	            			flag = false;
 	    	            		}
-	    	            		
+
 	    	            		// Valido concepto 1
 	    	            		cell = row.getCell(4);
 	    	            		if(cell != null) {
@@ -8544,9 +8770,9 @@ public class MnuReportes extends Controller {
 	    	            			listErr.add("EN FILA "+(fila+1)+": el concepto 1 esta vacio (es obligatorio).");
 	    	            			flag = false;
 	    	            		}
-	    	            		
+
 	    	            		// agregar el concepto 2
-	    	            		
+
 	    	            		cell = row.getCell(5);
 	    	            		if(cell != null) {
 	    	            			try {
@@ -8559,7 +8785,7 @@ public class MnuReportes extends Controller {
 	    	            		} else {
 	    	            			auxList.add("");
 	    	            		}
-	    	            		
+
 	    	            		// Valido id bodega
 	    	            		cell = row.getCell(6);
 	    	            		if(cell != null) {
@@ -8573,7 +8799,7 @@ public class MnuReportes extends Controller {
                 							} else {
                 								auxList.add(id_bodega.toString());
                 							}
-            							} else { 
+            							} else {
             								listErr.add("EN FILA "+(fila+1)+": el ID BODEGA no es valido obligatorio.");
 			    	            			flag = false;
 			    	            		}
@@ -8585,12 +8811,12 @@ public class MnuReportes extends Controller {
 	    	            			listErr.add("EN FILA "+(fila+1)+": el ID BODEGA no es valido obligatorio.");
 	    	            			flag = false;
 	    	            		}
-	    	            		
-	    	            		
+
+
 	    	            		if(flag) {
 	    	            			listado.add(auxList);
 	    	            		}
-	    	            		
+
 	    	            		//siguiente linea
 	    	            		fila++;
 	    	            		row = hoja1.getRow(fila);
@@ -8600,14 +8826,14 @@ public class MnuReportes extends Controller {
 	    	            			cell = null;
 	    	            		}
 	    	            	}
-	    	            	
+
 	    	            } else {
 	    	            	listErr.add("LA PLANTILLA NO CORRESPONDE");
 	    	            	return ok("{\"status\":false}").as("application/json");
 	    	            }
-	    	            
+
 	    	            // GRABACION Y ENVIO DE NV
-	    	            
+
 	    	            if(listErr.size() > 0) {
 	    	            	String jsonMsg = Json.toJson(listErr).toString();
 	    	            	return ok("{\"status\":true,\"error\":true,\"detalle\":"+jsonMsg+"}").as("application/json");
@@ -8625,11 +8851,11 @@ public class MnuReportes extends Controller {
 			        		}
 	    	            	MnuReportes.hoheGeneraNVdesdeExcel generar = new MnuReportes.hoheGeneraNVdesdeExcel(listado, s, mailDestino);
 			       			generar.start();
-			       			
+
 			       			String msg = "NV en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
 			       			return ok("{\"status\":true,\"error\":false,\"msg\":\""+msg+"\"}").as("application/json");
 	    	            }
-	    	            
+
 	    			} catch (Exception e) {
 	    	        	e.printStackTrace();
 	    	        	return ok("{\"status\":false}").as("application/json");
@@ -8640,7 +8866,7 @@ public class MnuReportes extends Controller {
     	}
     	return ok("{\"status\":false}").as("application/json");
 	}
-	
+
 	public class hoheGeneraNVdesdeExcel extends Thread {
 		List<List<String>> listado;
 		Sessiones s;
@@ -8652,7 +8878,7 @@ public class MnuReportes extends Controller {
 			this.mailDestino = mailDestino;
 		}
 		public void run() {
-			
+
 			Map<String,Cliente> mapClie = null;
 			Map<Long,BodegaEmpresa> mapBodegas = null;
 			EmisorTributario emisor = null;
@@ -8665,20 +8891,20 @@ public class MnuReportes extends Controller {
             } catch (SQLException e) {
     			e.printStackTrace();
     		}
-			
+
 			List<List<String>> newListado = new ArrayList<List<String>>();
 			List<String> resultado = new ArrayList<String>();
 			try {
     			Connection con1 = dbWrite.getConnection();
-    			
+
     			for(List<String> l: listado){
     				String fecha = l.get(0);
     				String rutClie = l.get(1);
     				String auxNeto = l.get(2);
     				Cliente cliente = mapClie.get(rutClie);
     				BodegaEmpresa bodega = mapBodegas.get(Long.parseLong(l.get(5)));
-    				
-    				
+
+
     				if(cliente != null && bodega !=null) {
     					Long neto = Math.round(Double.parseDouble(auxNeto));
     					Long iva = Math.round(neto * emisor.getTasaIva() / 100);
@@ -8697,7 +8923,7 @@ public class MnuReportes extends Controller {
         				smt1.setString(8, "EXCEL");
         				smt1.setString(9, l.get(5));
         				smt1.executeUpdate();
-    					
+
         				Long id_proforma = (long)0;
         				ResultSet rs1 = smt1.getGeneratedKeys();
         	            if (rs1.next()) {
@@ -8709,7 +8935,7 @@ public class MnuReportes extends Controller {
         	            }
         	            smt1.close();
         	            rs1.close();
-        	            
+
         				String concepto1 = l.get(3);
         				String concepto2 = l.get(4);
 
@@ -8721,7 +8947,7 @@ public class MnuReportes extends Controller {
         					api.fecha_ref = Fechas.DDMMAA(fecha);
         					api.rut_cliente = rutClie;
         					api.dire_cliente = "LEGAL";
-        					api.cod_vendedor = bodega.getComercial();  
+        					api.cod_vendedor = bodega.getComercial();
         					api.lista_precio = "2";
         					api.plazo_pago = "0";
         					api.cod_moneda = "CLP";
@@ -8730,11 +8956,11 @@ public class MnuReportes extends Controller {
         					api.monto_desc_global = "0";
         					api.iva = iva.toString();
         					api.total = total.toString();
-        					
+
         					String[] bod = bodega.nombre.split(" ");
         					String comercial = bodega.getComercial();
         					String[] fechaArr = Fechas.AAMMDD(fecha).split("-");
-        					
+
         					api.comentario1 = bod[0];
         					api.comentario2 = comercial;
         					api.comentario3 = fechaArr[1];
@@ -8760,7 +8986,7 @@ public class MnuReportes extends Controller {
         					detalle.add(det);
         				api.detalles = detalle;
         				String datos = Json.toJson(api).toString();
-        				
+
         				Proforma.updateJsonApi(con1, s.baseDato, id_proforma, datos);
         				String rs = ApiManagerDocDoc.genera(con1, s.baseDato, datos, ws, id_proforma);
         				rs = "NV nro "+id_proforma+": "+rs;
@@ -8771,8 +8997,8 @@ public class MnuReportes extends Controller {
             } catch (SQLException e) {
     			e.printStackTrace();
     		}
-			
-			
+
+
 			try {
             	Email email = new Email();
 	    		String asunto = "NV generadas";
@@ -8791,7 +9017,7 @@ public class MnuReportes extends Controller {
             } catch (Exception x) { }
 		}
 	}
-	
+
 	public Result hohePlantillaNV(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
