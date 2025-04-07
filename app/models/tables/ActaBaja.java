@@ -101,7 +101,9 @@ public class ActaBaja {
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			logger.error("DB ERROR en ActaBaja.modifyXCampo. Campo: {}, DB: {}", campo, db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (flag);
 	}
@@ -116,7 +118,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR en ActaBaja.findNuevoNumero. BASE: " + db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (nuevoNumero > 0 ? nuevoNumero : 1L);
 	}
@@ -132,7 +136,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR en ActaBaja.existeNumero. [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (aux);
 	}
@@ -148,7 +154,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR 2 en ActaBaja.findIdActaBaja. [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (aux);
 	}
@@ -162,7 +170,9 @@ public class ActaBaja {
 			smt.setString(3, actaBaja.getObservaciones());
 			smt.executeUpdate();
 		} catch (SQLException e) {
-			logger.error("DB ERROR 1 en ActaBaja.create (insert). [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR 1. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		String query2 = "select id from `"+db+"`.actaBaja where numero = ?";
 		try (PreparedStatement smt2 = con.prepareStatement(query2)) {
@@ -173,7 +183,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR 2 en ActaBaja.create (select). [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR 2. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (id_acta);
 	}
@@ -196,7 +208,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR 2 en ActaBaja.delete. [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (flag);
 	}
@@ -217,7 +231,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR 2 en ActaBaja.all. [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (lista);
 	}
@@ -248,10 +264,14 @@ public class ActaBaja {
 					}
 				}
 			} catch (SQLException e) {
-				logger.error("DB ERROR 2 en ActaBaja.allModificables query2. [BASE: {}]", db, e);
+				String className = ActaBaja.class.getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("DB ERROR 1. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR 2 en ActaBaja.allModificables query. [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR 2. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (lista);
 	}
@@ -273,7 +293,9 @@ public class ActaBaja {
 				}
 			}
 		} catch (SQLException e) {
-			logger.error("DB ERROR 2 en ActaBaja.find. [BASE: {}]", db, e);
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db);
 		}
 		return (aux);
 	}
