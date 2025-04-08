@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import models.tables.*;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.poi.ss.usermodel.Cell;
@@ -68,31 +69,6 @@ import models.reports.ReportKilos;
 import models.reports.ReportMovimientos;
 import models.reports.ReportTrazabilidades;
 import models.reports.ReportVentas;
-import models.tables.AjustesEP;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Compra;
-import models.tables.CotizaSolucion;
-import models.tables.Cotizacion;
-import models.tables.EmisorTributario;
-import models.tables.Equipo;
-import models.tables.Grupo;
-import models.tables.ListaPrecio;
-import models.tables.Moneda;
-import models.tables.Parametros;
-import models.tables.Precio;
-import models.tables.Proforma;
-import models.tables.Proyecto;
-import models.tables.Sucursal;
-import models.tables.TasasCambio;
-import models.tables.TipoAjustes;
-import models.tables.TipoAjustesVenta;
-import models.tables.TipoBodega;
-import models.tables.TipoEstado;
-import models.tables.TipoReferencia;
-import models.tables.UnidadTiempo;
-import models.tables.Usuario;
-import models.tables.UsuarioPermiso;
 import models.utilities.Archivos;
 import models.utilities.DatabaseRead;
 import models.utilities.DecimalFormato;
@@ -131,8 +107,6 @@ public class MnuReportes extends Controller {
 	private static WSClient ws;
 	private final MailerClient mailerClient;
 
-	private static final String msgSESSION = "SESSION INVALID en MnuReportes.reportInventarioEquipo.";
-
 	@Inject
 	public MnuReportes(WSClient ws, MailerClient mailerClient) {
 		MnuReportes.ws = ws;
@@ -163,7 +137,7 @@ public class MnuReportes extends Controller {
 			return ok(reportInventarioEquipoCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -200,10 +174,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioEquipo.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, fechaCorte, tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -237,10 +211,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioGeneralXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -270,10 +244,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -311,17 +285,17 @@ public class MnuReportes extends Controller {
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.reportInventarioGeneralExcel(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
 				return ok(file,false,Optional.of("InventarioPorEquipo.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -350,7 +324,7 @@ public class MnuReportes extends Controller {
 			return ok(reportEquipoBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -387,10 +361,10 @@ public class MnuReportes extends Controller {
 				return ok(reportEquipoBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -424,10 +398,10 @@ public class MnuReportes extends Controller {
 				return ok(reportEquipoBodegaXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			}catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -465,17 +439,17 @@ public class MnuReportes extends Controller {
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.reportInvGeneralExcelDesagrupado(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
 				return ok(file,false,Optional.of("InventarioPorEquipoBodega.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -505,10 +479,10 @@ public class MnuReportes extends Controller {
 				return ok(reportEquipoBodegaTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -538,7 +512,7 @@ public class MnuReportes extends Controller {
 			return ok(reportInventarioBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -568,10 +542,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -601,10 +575,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioSelectivoXBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -635,10 +609,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -669,17 +643,17 @@ public class MnuReportes extends Controller {
 				datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioSelectivoXBodega(s.baseDato, datos, fechaCorte, mapeoDiccionario, bodega, tipo);
 				return ok(file,false,Optional.of("InventarioPorBodega.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -730,10 +704,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupos,fechaCorte,tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -765,10 +739,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioSelectivoXGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupo,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -801,17 +775,17 @@ public class MnuReportes extends Controller {
 						permisoPorBodega, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioSelectivoXGrupo(s.baseDato, datos, fechaCorte, mapeoDiccionario, grupo, tipo);
 				return ok(file,false,Optional.of("InventarioPorGrupo.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -847,10 +821,10 @@ public class MnuReportes extends Controller {
 			return ok(reportInventarioMatrizCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo, listSucursal));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -911,10 +885,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioMatriz.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,titulos1,titulos2,tipo,fechaCorte,sucursal));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -973,17 +947,17 @@ public class MnuReportes extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
 				return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1012,10 +986,10 @@ public class MnuReportes extends Controller {
 			return ok(reportInventarioTodo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1038,17 +1012,17 @@ public class MnuReportes extends Controller {
 				datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioTodo(s.baseDato, datos, mapeoDiccionario);
 				return ok(file,false,Optional.of("TodoElInventario.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1077,10 +1051,10 @@ public class MnuReportes extends Controller {
 			return ok(reportEstadoBodegas.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1103,17 +1077,17 @@ public class MnuReportes extends Controller {
 				datos = ReportBodegas.estadoBodegas(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportBodegas.estadoBodegasExcel(s.baseDato, mapeoDiccionario, datos);
 				return ok(file,false,Optional.of("ReporteEstadoBodegas.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1143,10 +1117,10 @@ public class MnuReportes extends Controller {
 			return ok(reportInventarioProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1173,10 +1147,10 @@ public class MnuReportes extends Controller {
 				return ok(reportInventarioProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1203,17 +1177,17 @@ public class MnuReportes extends Controller {
 				datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioProyectoDetalle(s.baseDato, datos, mapeoDiccionario, bodega);
 				return ok(file,false,Optional.of("ExistenciasPorBodega.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1244,7 +1218,7 @@ public class MnuReportes extends Controller {
 			return ok(reporteMovimientosPeriodoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1300,10 +1274,10 @@ public class MnuReportes extends Controller {
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -1372,7 +1346,7 @@ public class MnuReportes extends Controller {
 				return ok(reporteMovimientosListaProyectosAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos, desdeAAMMDD,hastaAAMMDD));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 
@@ -1408,10 +1382,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteMovimientosDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1447,17 +1421,17 @@ public class MnuReportes extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportMovimientos.movimientosExcelAgrupado(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
 				return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1488,10 +1462,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteMovSoloBodInternas0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1519,10 +1493,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteMovSoloBodInternas1.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, fechaDesde, fechaHasta));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1552,10 +1526,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteMovSoloBodInternas2.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega, fechaDesde, fechaHasta));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1586,17 +1560,17 @@ public class MnuReportes extends Controller {
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportMovimientos.reporteMovSoloBodInternas3Excel(s.baseDato, datos, mapeoDiccionario, bodega, fechaDesde, fechaHasta);
 				return ok(file, false, Optional.of("MovimientosPorBodegaInterna.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1627,7 +1601,7 @@ public class MnuReportes extends Controller {
 			return ok(reportePorProyectoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1655,10 +1629,10 @@ public class MnuReportes extends Controller {
 				return ok(reportePorProyectoListaAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1695,10 +1669,10 @@ public class MnuReportes extends Controller {
 				return ok(reportePorProyectoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,proyecto,esVenta,concepto,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1734,10 +1708,10 @@ public class MnuReportes extends Controller {
 				proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				String concepto = mapeoDiccionario.get("ARRIENDO");
@@ -1748,7 +1722,7 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -1780,10 +1754,10 @@ public class MnuReportes extends Controller {
 			return ok(reportePorProyectoValorizado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -1840,10 +1814,10 @@ public class MnuReportes extends Controller {
 				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -1867,10 +1841,10 @@ public class MnuReportes extends Controller {
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
@@ -2020,7 +1994,7 @@ public class MnuReportes extends Controller {
 				return ok(reportePorProyectoListaValorizado.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2054,10 +2028,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteMovimientosPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -2128,10 +2102,10 @@ public class MnuReportes extends Controller {
 
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -2145,10 +2119,10 @@ public class MnuReportes extends Controller {
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
@@ -2279,7 +2253,7 @@ public class MnuReportes extends Controller {
 						uf, usd, eur, desdeAAMMDD, hastaAAMMDD));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2346,10 +2320,10 @@ public class MnuReportes extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2393,10 +2367,10 @@ public class MnuReportes extends Controller {
 						bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					} catch (SQLException e) {
 						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-						return internalServerError(mensajes.render("/home/", msgReport));
+						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
 						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-						return internalServerError(mensajes.render("/home/", msgReport));
+						return ok(mensajes.render("/home/", msgReport));
 					}
 					String concepto = mapeoDiccionario.get("ARRIENDO");
 					if("1".equals(esVenta)) {
@@ -2418,10 +2392,10 @@ public class MnuReportes extends Controller {
 						}
 					} catch (SQLException e) {
 						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-						return internalServerError(mensajes.render("/home/", msgReport));
+						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
 						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-						return internalServerError(mensajes.render("/home/", msgReport));
+						return ok(mensajes.render("/home/", msgReport));
 					}
 					String concepto = mapeoDiccionario.get("ARRIENDO");
 					if("1".equals(esVenta)) {
@@ -2432,7 +2406,7 @@ public class MnuReportes extends Controller {
 				}
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2494,10 +2468,10 @@ public class MnuReportes extends Controller {
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -2563,7 +2537,7 @@ public class MnuReportes extends Controller {
 			return ok(reporteMovimientosListaProyectosIE.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -2595,10 +2569,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteMovimientosDetalleIE.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2627,10 +2601,10 @@ public class MnuReportes extends Controller {
 					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				}
 				String concepto = mapeoDiccionario.get("ARRIENDO");
 				if("1".equals(esVenta)) {
@@ -2640,7 +2614,7 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("MovimientosPorBodegaIE.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2670,10 +2644,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteExcedentesListaProyectos.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -2700,10 +2674,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteExcedentesDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2730,10 +2704,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("ExcedentesPorBodega.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2763,10 +2737,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteExcedentesListaEquipos.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -2794,10 +2768,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteExcedentesDetalleEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,equipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2828,10 +2802,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("ExcedentesPorBodega.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2861,10 +2835,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteEstadosTodos.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -2897,10 +2871,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteEstadosTodosDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, listTipoEstados, mapDatos, bodega));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2933,10 +2907,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("EstadosPorBodega.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -2968,7 +2942,7 @@ public class MnuReportes extends Controller {
 			return ok(reporteEstadosPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -2997,10 +2971,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteEstadosPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,desdeAAMMDD,hastaAAMMDD,listado));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3032,10 +3006,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("EstadosPorPeriodo.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3065,10 +3039,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteEstadosAll0.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3100,10 +3074,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteEstadosAll1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, bodegaEmpresa));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3131,10 +3105,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("ReporteEstadosTodo.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3166,7 +3140,7 @@ public class MnuReportes extends Controller {
 			return ok(reporteEstadosPer0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3198,10 +3172,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteEstadosPer1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3229,10 +3203,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("ReporteEstadosPorPeriodo.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3261,10 +3235,10 @@ public class MnuReportes extends Controller {
 			return ok(reportTrazaEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3290,10 +3264,10 @@ public class MnuReportes extends Controller {
 				return ok(reportTrazaEquipo2.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,id_equipo));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3319,10 +3293,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("TrazabilidadPorEquipo.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3377,10 +3351,10 @@ public class MnuReportes extends Controller {
 					graficoPotencialPorMesYGrupo));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3421,10 +3395,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("GraficoInversion.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3452,10 +3426,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("GraficoOcupacion.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3495,10 +3469,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("GraficoValorizadoGrupo.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3538,10 +3512,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("GraficoPorUnidadesGrupo.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3571,10 +3545,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("GraficoValorizadoBodega.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3605,10 +3579,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("GraficoPotencialPorMesYGrupo.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3637,10 +3611,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"TODO EL INVENTARIO"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3668,10 +3642,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteGerencialGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3699,10 +3673,10 @@ public class MnuReportes extends Controller {
 				return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"(NO CONSIDERA AJUSTES)  GRUPO: "+grupo.nombre));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3734,10 +3708,10 @@ public class MnuReportes extends Controller {
 			return ok(reportGerenKGPorPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3770,10 +3744,10 @@ public class MnuReportes extends Controller {
 				return ok(reportGerenKGPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,cabecera1,cabecera2,datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3803,10 +3777,10 @@ public class MnuReportes extends Controller {
 				return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -3840,10 +3814,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteGerencialKG.render(mapeoDiccionario,mapeoPermiso,userMnu,datosActual,datosAnterior,datosAnteriorAnterior, anioActual,anioAnterior,anioAnteriorAnterior));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3875,10 +3849,10 @@ public class MnuReportes extends Controller {
 			return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3925,10 +3899,10 @@ public class MnuReportes extends Controller {
 			return ok(reportGraficoMovResumen.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,vistaCheckBox,subtitulo));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -3961,10 +3935,10 @@ public class MnuReportes extends Controller {
 				return (reportGraficoMovResumen(request,listIdGrupos.toString(),vistaCheckBox));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -4021,10 +3995,10 @@ public class MnuReportes extends Controller {
 			return ok(reportGraficoMovPorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,listBodegas2,vistaCheckBox,idTipoBodega,subtitulo));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -4075,10 +4049,10 @@ public class MnuReportes extends Controller {
 				return (reportGraficoMovPorGrupo(request,listIdGrupos.toString(),listIdBodegas.toString(),vistaCheckBox,idTipoBodega));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -4107,10 +4081,10 @@ public class MnuReportes extends Controller {
 			return ok(reportGraficoMovUso.render(mapeoDiccionario,mapeoPermiso,userMnu,graficoOcupacionValorizado,graficoOcupacionUnidades));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -4142,10 +4116,10 @@ public class MnuReportes extends Controller {
 			return ok(reportFacturaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return internalServerError(mensajes.render("/home/", msgReport));
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
@@ -4208,10 +4182,10 @@ public class MnuReportes extends Controller {
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -4355,7 +4329,7 @@ public class MnuReportes extends Controller {
 						Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), archivoPDF));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -4419,10 +4393,10 @@ public class MnuReportes extends Controller {
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -4566,7 +4540,7 @@ public class MnuReportes extends Controller {
 						Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), archivoPDF));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -4579,7 +4553,6 @@ public class MnuReportes extends Controller {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
-		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -4596,7 +4569,6 @@ public class MnuReportes extends Controller {
 				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
 				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
 				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
-				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Fechas desde = null;
 				Fechas hasta = null;
@@ -4634,10 +4606,10 @@ public class MnuReportes extends Controller {
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-					return internalServerError(mensajes.render("/home/", msgReport));
+					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -4666,16 +4638,14 @@ public class MnuReportes extends Controller {
 						}
 					}
 				} else {
-					for (int i = 0; i < proyectosAux.size(); i++) {
-						proyectos.add(proyectosAux.get(i));
-					}
+                    proyectos.addAll(proyectosAux);
 				}
 				File file = ReportFacturas.exportaProformaExcelProyectos(s.baseDato, mapeoDiccionario,
 						proyectos,desde,hasta,uf,usd,eur,resumenTotales);
 				return ok(file,false,Optional.of("EP_Proforma_Listado.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-				return internalServerError(mensajes.render("/home/", msgReport));
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
@@ -4865,34 +4835,63 @@ public class MnuReportes extends Controller {
 													 List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<Long,Long> dec, Map<String,String> mapPermanencias, Map<String,String> mapFecha_primera_guia,
 													 Map<String,String> mapeoPermiso, Map<String,String> mapeoDiccionario, FormFactura form,
 													 Map<Long,String> mapMoneda, Map<Long,Equipo> mapAllEquipos, Fechas hoy) {
-		try {
-			Connection con = dbWrite.getConnection();
-			Map<Long,Cotizacion> mapCotiAllConfirmadasMs2 = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
-			List<List<String>> listGuiasPerMs2 = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2);
-			BodegaEmpresa bodegaMs2 = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-			Proyecto proyectoMs2 = Proyecto.find(con,s.baseDato , bodegaMs2.getId_proyecto());
-			Cliente clienteMs2 = Cliente.find(con, s.baseDato, bodegaMs2.getId_cliente());
-			List<List<String>> detalleAjusteMs2 = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2);
-			String ocMs2 = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-			Proforma proformaMs2 = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
-			Long cantDecMs2 = dec.get((long)1);
-			List<List<String>> inicioPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+		String className = ActaBaja.class.getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		Map<Long,Cotizacion> mapCotiAllConfirmadasMs2 = null;
+		List<List<String>> listGuiasPerMs2 = null;
+		BodegaEmpresa bodegaMs2 = null;
+		Proyecto proyectoMs2 = null;
+		Cliente clienteMs2 = null;
+		List<List<String>> detalleAjusteMs2 = null;
+		String ocMs2 = null;
+		Proforma proformaMs2 = null;
+		Long cantDecMs2 = null;
+		List<List<String>> inicioPerMs2 = null;
+		Map<String,List<List<String>>> mapReportPorGuia10Ms2 = null;
+		List<List<String>> resumenSubtotalesMs2 = null;
+		Fechas hastaMs2 = null;
+		Calendar hastaMas1Ms2 = null;
+		java.sql.Date masUnDiaMs2 = null;
+		try (Connection con = dbWrite.getConnection()) {
+			mapCotiAllConfirmadasMs2 = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+			listGuiasPerMs2 = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2);
+			bodegaMs2 = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			proyectoMs2 = Proyecto.find(con,s.baseDato , bodegaMs2.getId_proyecto());
+			clienteMs2 = Cliente.find(con, s.baseDato, bodegaMs2.getId_cliente());
+			detalleAjusteMs2 = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2);
+			ocMs2 = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+			proformaMs2 = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
+			cantDecMs2 = dec.get((long)1);
+			inicioPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorteMs2, inventarioMs2, mapFecha_primera_guia, mapCotiAllConfirmadasMs2, mapMoneda, mapAllEquipos, dec);
-			Map<String,List<List<String>>> mapReportPorGuia10Ms2 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas,
+			mapReportPorGuia10Ms2 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadasMs2, mapAllEquipos, mapMoneda);
-			List<List<String>> resumenSubtotalesMs2 = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPerMs2, listGuiasPerMs2, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas,
+			resumenSubtotalesMs2 = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPerMs2, listGuiasPerMs2, id_bodegaEmpresa, desdeAAMMDDMs2, hastaAAMMDDMs2, mapFijaTasas, tasas,
 					listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 					listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadasMs2, mapAllEquipos, mapMoneda, guiasPer);
-			Fechas hastaMs2 = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDDMs2);
-			Calendar hastaMas1Ms2 = hastaMs2.getFechaCal();
+			hastaMs2 = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDDMs2);
+			hastaMas1Ms2 = hastaMs2.getFechaCal();
 			hastaMas1Ms2.add(Calendar.DAY_OF_MONTH, 1);
-			java.sql.Date masUnDiaMs2 = new java.sql.Date(hastaMas1Ms2.getTimeInMillis());
+			masUnDiaMs2 = new java.sql.Date(hastaMas1Ms2.getTimeInMillis());
 			listIdGuia_fechaCorteMs2 = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDiaMs2.toString());
 			inventarioMs2 = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorteMs2);
-			con.close();
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+		}
+		try{
 			List<List<String>> finalPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDiaMs2.toString(), hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 					mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorteMs2, inventarioMs2, mapFecha_primera_guia, mapCotiAllConfirmadasMs2, mapMoneda, mapAllEquipos, dec);
+			mapCotiAllConfirmadasMs2 = null;
+			listIdGuia_fechaCorteMs2 = null;
+			inventarioMs2 = null;
+			mapAllEquipos = null;
+			mapBodegaEmpresa = null;
+			listIdBodegaEmpresa = null;
+			mapPrecios = null;
+			mapMaestroPrecios = null;
 			List<String> fechasMs2 = new ArrayList<String>();
 			fechasMs2.add(desdeAAMMDDMs2);
 			fechasMs2.add(hastaAAMMDDMs2);
@@ -4928,119 +4927,132 @@ public class MnuReportes extends Controller {
 			if("1".equals(esVenta)) {
 				conceptoMs2 = "VENTA";
 			}
-			Connection con2 = dbWrite.getConnection();
-
-			List<List<String>> datosMs2 = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDDMs2, hastaAAMMDDMs2,
-					tasas.get((long)2), tasas.get((long)3), tasas.get((long)4));
-			String fileOutNameMovimientosMs2 = proformaMs2.getEpExcelMov();
-			fileMs2 = ReportMovimientos.movimientosExcel(s.baseDato, datosMs2, mapeoDiccionario, bodegaMs2, conceptoMs2, desdeAAMMDDMs2, hastaAAMMDDMs2);
-			Archivos.grabarArchivo(fileMs2, s.baseDato+"/"+fileOutNameMovimientosMs2);
-
-			XmlFacturaReferencias referenciasMs2 = new XmlFacturaReferencias();
-			if(form.tpoDocRef!=null) {
-				referenciasMs2.tpoDocRef = form.tpoDocRef;
-				referenciasMs2.folioRef = form.folioRef;
-				referenciasMs2.fchRef = form.fchRef;
-				referenciasMs2.razonRef = form.razonRef;
-				referenciasMs2.obs = "";
+			try (Connection con2 = dbWrite.getConnection()) {
+				List<List<String>> datosMs2 = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDDMs2, hastaAAMMDDMs2,
+						tasas.get((long)2), tasas.get((long)3), tasas.get((long)4));
+				String fileOutNameMovimientosMs2 = proformaMs2.getEpExcelMov();
+				fileMs2 = ReportMovimientos.movimientosExcel(s.baseDato, datosMs2, mapeoDiccionario, bodegaMs2, conceptoMs2, desdeAAMMDDMs2, hastaAAMMDDMs2);
+				Archivos.grabarArchivo(fileMs2, s.baseDato+"/"+fileOutNameMovimientosMs2);
+				bodegaMs2 = null;
+				XmlFacturaReferencias referenciasMs2 = new XmlFacturaReferencias();
+				if(form.tpoDocRef!=null) {
+					referenciasMs2.tpoDocRef = form.tpoDocRef;
+					referenciasMs2.folioRef = form.folioRef;
+					referenciasMs2.fchRef = form.fchRef;
+					referenciasMs2.razonRef = form.razonRef;
+					referenciasMs2.obs = "";
+				}
+				String comentarios = form.comentarios;
+				EmisorTributario emisorTributarioMs2 = EmisorTributario.find(con2, s.baseDato);
+				BodegaEmpresa bodegaEmpresaMs2 = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proformaMs2.id_bodegaEmpresa);
+				if(esVenta.equals("0")) {
+					// genera PDF de arriendo, XML, JSON y guarda json en proforma
+					proformaMs2.setTipo(mapeoDiccionario.get("Arriendo"));
+					String conDetalleMs2 = mapeoPermiso.get("parametro.proformaInvConCompra");
+					FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
+							resumenSubtotalesMs2,clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2,conDetalleMs2, inicioPerMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, finalPerMs2,
+							tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2, comentarios, form);
+				}else {
+					// genera PDF de venta, XML, JSON y guarda json en proforma
+					proformaMs2.setTipo("Venta");
+					FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
+							clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2, comentarios, form);
+				}
+				listGuiasPerMs2 = null;
+				inicioPerMs2 = null;
+				mapReportPorGuia10Ms2 = null;
+				resumenSubtotalesMs2 = null;
+				finalPerMs2 = null;
+				return(proformaMs2.id.toString());
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			}
-
-			String comentarios = form.comentarios;
-
-			EmisorTributario emisorTributarioMs2 = EmisorTributario.find(con2, s.baseDato);
-			BodegaEmpresa bodegaEmpresaMs2 = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proformaMs2.id_bodegaEmpresa);
-
-			if(esVenta.equals("0")) {
-				// genera PDF de arriendo, XML, JSON y guarda json en proforma
-				proformaMs2.setTipo(mapeoDiccionario.get("Arriendo"));
-				String conDetalleMs2 = mapeoPermiso.get("parametro.proformaInvConCompra");
-
-				FormFactura.generaProformaArriendo(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
-						resumenSubtotalesMs2,clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2,conDetalleMs2, inicioPerMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, finalPerMs2,
-						tasas.get((long)4), tasas.get((long)2), tasas.get((long)3), ocMs2,dec, emisorTributarioMs2, bodegaEmpresaMs2, comentarios, form);
-
-
-
-			}else {
-				// genera PDF de venta, XML, JSON y guarda json en proforma
-				proformaMs2.setTipo("Venta");
-				FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
-						clienteMs2,proformaMs2,referenciasMs2,detalleAjusteMs2, listGuiasPerMs2, mapReportPorGuia10Ms2, ocMs2, comentarios, form);
-			}
-			con2.close();
-			return(proformaMs2.id.toString());
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 		}
 		return(null);
 	}
 
 	public Result envioMasivoListadoProforma2(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
-			FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-			if (formEsVenta.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
+		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (formEsVenta.hasErrors()) {
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.fechaDesde;
 				String hastaAAMMDD = form.fechaHasta;
 				Double uf = Double.parseDouble(form.uf.replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.usd.replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.eur.replaceAll(",", "").trim());
 				String esVenta = formEsVenta.get("esVenta").trim();
-				String mailDestino =  null;
-				try {
-					Connection con = dbRead.getConnection();
+				String mailDestino = null;
+				try (Connection con = dbRead.getConnection()) {
 					Usuario usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
-					if( usuario != null) {
+					if (usuario != null) {
 						mailDestino = usuario.getEmail().trim().toLowerCase();
-						if(mailDestino.length() < 4) {
+						if (mailDestino.length() < 4) {
 							usuario = null;
 						}
 					}
-					con.close();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-
-				if(HomeController.isValidEmail(mailDestino)) {
-					if(mailDestino != null) {
+				if (HomeController.isValidEmail(mailDestino)) {
+					if (mailDestino != null) {
 						MnuReportes.envioMasivoListadoProforma0 generar = new MnuReportes.envioMasivoListadoProforma0(desdeAAMMDD, hastaAAMMDD, uf, usd, eur, esVenta, mailDestino, s, form);
 						generar.start();
-						String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos u horas para recibir el correo, dependiendo de la cantidad de proformas a generar.";
-						return ok(mensajes.render("/home/",mensaje));
-					}else {
+						String mensaje = "Solicitud en preparación, recibira el resultado al correo:" + mailDestino + ". Tomara varios minutos u horas para recibir el correo, dependiendo de la cantidad de proformas a generar.";
+						return ok(mensajes.render("/home/", mensaje));
+					} else {
 						String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
-						return ok(mensajes.render("/home/",mensaje));
+						return ok(mensajes.render("/home/", mensaje));
 					}
-				}else {
+				} else {
 					String mensaje = "No es posible generar la solicitud debido a que el mail que existe en la configuración de su usuario no es valido";
-					return ok(mensajes.render("/home/",mensaje));
+					return ok(mensajes.render("/home/", mensaje));
 				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-
-			return ok(mensajes.render("/",msgErrorFormulario));
 		}
 	}
 
 	public Result reportFacturaProyectoDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-
 				Map<Long,Double> tasas = new HashMap<Long,Double>();
 				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -5048,123 +5060,135 @@ public class MnuReportes extends Controller {
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-
-				try {
-					Connection con = dbRead.getConnection();
-
+				java.sql.Date masUnDia = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				Map<String,String> mapFecha_primera_guia = null;
+				Map<Long,Cotizacion> mapCotiAllConfirmadas = null;
+				Map<Long,String> mapMoneda = null;
+				Map<Long,Equipo> mapAllEquipos = null;
+				Map<Long,Long> dec = null;
+				List<List<String>> inicioPer = null;
+				List<List<String>> listGuiasPer = null;
+				BodegaEmpresa bodega = null;
+				Proyecto proyecto = null;
+				String idTipoUsuario = null;
+				Cliente cliente = null;
+				Map<String,List<List<String>>> mapReportPorGuia10 = null;
+				List<List<String>> resumenSubtotales = null;
+				List<List<String>> detalleAjuste = null;
+				Long cantDec = null;
+				List<TipoReferencia> listReferencias = null;
+				List<CotizaSolucion> listSol = null;
+				String oc = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-
-					Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-					Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-
-					List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-
-
-
-					List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-
-
+					dec = Moneda.numeroDecimal(con, s.baseDato);
 					Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-					Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-					Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
-					Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-					Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
-					List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-
-					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-					Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-					Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-
-					List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-
-					List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
-					String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-
-					Long cantDec = dec.get((long)1);
-					String idTipoUsuario = s.id_tipoUsuario;
-
-					List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+					mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+					mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+					mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+					listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
+					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+					proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+					cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+					detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
+					listReferencias = TipoReferencia.all(con, s.baseDato);
+					oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+					cantDec = dec.get((long)1);
+					idTipoUsuario = s.id_tipoUsuario;
+					inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-
-					Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 							guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-
-					List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 							listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-
+					listIdGuia_entreFechas = null;
+					guiasPer = null;
+					mapPermanencias = null;
 					Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-
 					Calendar hastaMas1 = hasta.getFechaCal();
 					hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
-					java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-
+					masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
 					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-
-					List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
-
-					con.close();
-
-					List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
-							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-
-
-
-					List<String> fechas = new ArrayList<String>();
-					fechas.add(desdeAAMMDD);
-					fechas.add(hastaAAMMDD);
-					fechas.add(Fechas.DDMMAA(desdeAAMMDD));
-					fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-					fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-
-					List<Double> tasaCambio = new ArrayList<Double>();
-					tasaCambio.add(uf);
-					tasaCambio.add(usd);
-					tasaCambio.add(eur);
-
-
-					return ok(reportFacturaProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,idTipoUsuario,
-							inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
-							resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias,
-							oc, listSol));
+					listSol = CotizaSolucion.all(con, s.baseDato);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok(mensajes.render("/",msgError));
+				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+						mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
+				listIdBodegaEmpresa = null;
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				mapFijaTasas = null;
+				listIdGuia_fechaCorte = null;
+				inventario = null;
+				mapCotiAllConfirmadas = null;
+				mapAllEquipos = null;
+				List<String> fechas = new ArrayList<String>();
+				fechas.add(desdeAAMMDD);
+				fechas.add(hastaAAMMDD);
+				fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				List<Double> tasaCambio = new ArrayList<Double>();
+				tasaCambio.add(uf);
+				tasaCambio.add(usd);
+				tasaCambio.add(eur);
+				return ok(reportFacturaProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,idTipoUsuario,
+						inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
+						resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias,
+						oc, listSol));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
-
 	}
 
 	public Result reportFacturaProyectoDetExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-
 				Map<Long,Double> tasas = new HashMap<Long,Double>();
 				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -5172,108 +5196,123 @@ public class MnuReportes extends Controller {
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-
-				try {
-					Connection con = dbRead.getConnection();
-
+				java.sql.Date masUnDia = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				Map<String,String> mapFecha_primera_guia = null;
+				Map<Long,Cotizacion> mapCotiAllConfirmadas = null;
+				Map<Long,String> mapMoneda = null;
+				Map<Long,Equipo> mapAllEquipos = null;
+				Map<Long,Long> dec = null;
+				List<List<String>> inicioPer = null;
+				List<List<String>> listGuiasPer = null;
+				BodegaEmpresa bodega = null;
+				Proyecto proyecto = null;
+				Cliente cliente = null;
+				Map<String,List<List<String>>> mapReportPorGuia10 = null;
+				List<List<String>> resumenSubtotales = null;
+				List<List<String>> detalleAjuste = null;
+				Long cantDec = null;
+				String oc = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-					Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-					Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-
-					List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-					List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-
+					dec = Moneda.numeroDecimal(con, s.baseDato);
 					Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-					Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-					Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
-					Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-					Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
-					List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-
-					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-					Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-					Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-
-					List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-
-					Long cantDec = dec.get((long)1);
-
-					List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+					mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+					mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+					mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+					listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
+					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+					proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+					cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+					detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
+					cantDec = dec.get((long)1);
+					inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-
-					Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 							guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-
-					List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 							listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-
+					listIdGuia_entreFechas = null;
+					guiasPer = null;
+					mapPermanencias = null;
 					Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-
 					Calendar hastaMas1 = hasta.getFechaCal();
 					hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
-					java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-
+					masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
 					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-
-					con.close();
-
-					List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
-							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-
-
-
-					List<String> fechas = new ArrayList<String>();
-					fechas.add(desdeAAMMDD);
-					fechas.add(hastaAAMMDD);
-					fechas.add(Fechas.DDMMAA(desdeAAMMDD));
-					fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-					fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-
-					List<Double> tasaCambio = new ArrayList<Double>();
-					tasaCambio.add(uf);
-					tasaCambio.add(usd);
-					tasaCambio.add(eur);
-
-
-					File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
-							inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
-							resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
-
-					if(file!=null) {
-						return ok(file,false,Optional.of("EP_Proforma_"+bodega.nombre+".xlsx"));
-					}else {
-						return ok("");
-					}
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("");
+				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+						mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
+				listIdBodegaEmpresa = null;
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				mapFijaTasas = null;
+				listIdGuia_fechaCorte = null;
+				inventario = null;
+				mapCotiAllConfirmadas = null;
+				mapAllEquipos = null;
+				List<String> fechas = new ArrayList<String>();
+				fechas.add(desdeAAMMDD);
+				fechas.add(hastaAAMMDD);
+				fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				List<Double> tasaCambio = new ArrayList<Double>();
+				tasaCambio.add(uf);
+				tasaCambio.add(usd);
+				tasaCambio.add(eur);
+				File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
+						inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
+						resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
+				return ok(file,false,Optional.of("EP_Proforma_"+bodega.nombre+".xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
 	public Result generarProformaPdfXlsxXmlJson(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
-			FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-			if (formEsVenta.hasErrors() || form.idBodega==null) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
+		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (formEsVenta.hasErrors() || form.idBodega==null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.fechaDesde;
 				String hastaAAMMDD = form.fechaHasta;
 				Double uf = Double.parseDouble(form.uf.replaceAll(",", "").trim());
@@ -5281,7 +5320,6 @@ public class MnuReportes extends Controller {
 				Double eur = Double.parseDouble(form.eur.replaceAll(",", "").trim());
 				Long id_bodegaEmpresa = Long.parseLong(form.idBodega.trim());
 				String esVenta = formEsVenta.get("esVenta").trim();
-
 				Map<Long,Double> tasas = new HashMap<Long,Double>();
 				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
@@ -5289,121 +5327,130 @@ public class MnuReportes extends Controller {
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-
-				try {
-					Connection con = dbWrite.getConnection();
-
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				List<Long> listIdGuia_entreFechas = null;
+				Map<Long,Long> dec = null;
+				Map<String,String> mapPermanencias = null;
+				Map<String,String> mapFecha_primera_guia = null;
+				Map<Long,Cotizacion> mapCotiAllConfirmadas = null;
+				Map<Long,String> mapMoneda = null;
+				Map<Long,Equipo> mapAllEquipos = null;
+				List<List<String>> listGuiasPer = null;
+				BodegaEmpresa bodega = null;
+				Proyecto proyecto = null;
+				Cliente cliente = null;
+				List<List<String>> detalleAjuste = null;
+				String oc = null;
+				Fechas hoy = null;
+				Proforma proforma = null;
+				Long cantDec = null;
+				List<List<String>> inicioPer = null;
+				Map<String,List<List<String>>> mapReportPorGuia10 = null;
+				List<List<String>> resumenSubtotales = null;
+				java.sql.Date masUnDia = null;
+				try (Connection con = dbWrite.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-					Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-					Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-
-					List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-					List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-
-					Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-					Map<String,String> mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-					Map<Long,Cotizacion> mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
-					Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-					Map<Long,Equipo> mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
-					List<List<String>> listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-
-					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-					Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-					Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-
-					List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-
-					String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-
-					Fechas hoy = Fechas.hoy();
-					Proforma proforma = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
-
-					Long cantDec = dec.get((long)1);
-
-					List<List<String>> inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+					dec = Moneda.numeroDecimal(con, s.baseDato);
+					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+					mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+					mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+					listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
+					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+					proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+					cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+					detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
+					oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+					hoy = Fechas.hoy();
+					proforma = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
+					cantDec = dec.get((long)1);
+					inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
 							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-
-					Map<String,List<List<String>>> mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 							guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-
-					List<List<String>> resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+					resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
 							listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-
+					guiasPer = null;
 					Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 					Calendar hastaMas1 = hasta.getFechaCal();
 					hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
-					java.sql.Date masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-
+					masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
 					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-
-					con.close();
-
-					List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
-							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-
-
-					List<String> fechas = new ArrayList<String>();
-					fechas.add(desdeAAMMDD);
-					fechas.add(hastaAAMMDD);
-					fechas.add(Fechas.DDMMAA(desdeAAMMDD));
-					fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-					List<Double> tasaCambio = new ArrayList<Double>();
-					tasaCambio.add(uf);
-					tasaCambio.add(usd);
-					tasaCambio.add(eur);
-
-
-					proforma.setFecha(hoy.getFechaStrAAMMDD());
-					proforma.setDesde(desdeAAMMDD);
-					proforma.setHasta(hastaAAMMDD);
-					proforma.setId_cliente(cliente.id);
-					proforma.setId_bodegaEmpresa(bodega.id);
-					proforma.setId_proyecto(proyecto.id);
-					proforma.setDocRef("--");
-					proforma.setEpExcelMov("PRmov_" + proforma.id + "_proformaArriendo.xlsx");
-					proforma.setEpExcelEp("PRep_" + proforma.id + "_proformaArriendo.xlsx");
-					proforma.setProformaPdf("PRpdf" + proforma.id + "_proformaArriendo.pdf");
-					proforma.setProformaXml("PRxml" + proforma.id + "_proformaArriendo.xml");
-					proforma.setDocAnexo("0");
-					proforma.setDescuento((double)0);
-					proforma.setNeto((double)0);
-					proforma.setIva((double)0);
-					proforma.setTotal((double)0);
-					proforma.setTipo(mapeoDiccionario.get("Arriendo"));
-
-					File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
-							inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
-							resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
-
-					String fileOutNameDetalle = s.baseDato+"/"+proforma.getEpExcelEp();
-					Archivos.grabarArchivo(file, fileOutNameDetalle);
-
-					String concepto = mapeoDiccionario.get("ARRIENDO");
-					if("1".equals(esVenta)) {
-						concepto = "VENTA";
-					}
-
-
-
-
-					Connection con2 = dbWrite.getConnection();
-
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+						mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				inventario = null;
+				mapCotiAllConfirmadas = null;
+				mapAllEquipos = null;
+				List<String> fechas = new ArrayList<String>();
+				fechas.add(desdeAAMMDD);
+				fechas.add(hastaAAMMDD);
+				fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				List<Double> tasaCambio = new ArrayList<Double>();
+				tasaCambio.add(uf);
+				tasaCambio.add(usd);
+				tasaCambio.add(eur);
+				proforma.setFecha(hoy.getFechaStrAAMMDD());
+				proforma.setDesde(desdeAAMMDD);
+				proforma.setHasta(hastaAAMMDD);
+				proforma.setId_cliente(cliente.id);
+				proforma.setId_bodegaEmpresa(bodega.id);
+				proforma.setId_proyecto(proyecto.id);
+				proforma.setDocRef("--");
+				proforma.setEpExcelMov("PRmov_" + proforma.id + "_proformaArriendo.xlsx");
+				proforma.setEpExcelEp("PRep_" + proforma.id + "_proformaArriendo.xlsx");
+				proforma.setProformaPdf("PRpdf" + proforma.id + "_proformaArriendo.pdf");
+				proforma.setProformaXml("PRxml" + proforma.id + "_proformaArriendo.xml");
+				proforma.setDocAnexo("0");
+				proforma.setDescuento((double)0);
+				proforma.setNeto((double)0);
+				proforma.setIva((double)0);
+				proforma.setTotal((double)0);
+				proforma.setTipo(mapeoDiccionario.get("Arriendo"));
+				File file = ReportFacturas.reportFacturaProyectoDetExcel(s.baseDato,mapeoDiccionario,mapeoPermiso,
+						inicioPer,listGuiasPer,fechas,bodega,proyecto,tasaCambio,
+						resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
+				String fileOutNameDetalle = s.baseDato+"/"+proforma.getEpExcelEp();
+				Archivos.grabarArchivo(file, fileOutNameDetalle);
+				String concepto = mapeoDiccionario.get("ARRIENDO");
+				if("1".equals(esVenta)) {
+					concepto = "VENTA";
+				}
+				String archivoPDF = "0";
+				try (Connection con2 = dbWrite.getConnection()) {
 					List<List<String>> datos = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDD, hastaAAMMDD, usd, eur, uf);
 					String fileOutNameMovimientos = proforma.getEpExcelMov();
 					file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, desdeAAMMDD, hastaAAMMDD);
 					Archivos.grabarArchivo(file, s.baseDato+"/"+fileOutNameMovimientos);
-
 					XmlFacturaReferencias referencias = new XmlFacturaReferencias();
 					if(form.tpoDocRef!=null) {
 						referencias.tpoDocRef = form.tpoDocRef;
@@ -5412,15 +5459,9 @@ public class MnuReportes extends Controller {
 						referencias.razonRef = form.razonRef;
 						referencias.obs = "";
 					}
-
 					String comentarios = form.comentarios;
-
-
-					String archivoPDF = "0";
-
 					EmisorTributario emisorTributario = EmisorTributario.find(con2, s.baseDato);
 					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proforma.id_bodegaEmpresa);
-
 					if(esVenta.equals("0")) {
 						// genera PDF de arriendo, XML, JSON y guarda json en proforma
 						proforma.setTipo(mapeoDiccionario.get("Arriendo"));
@@ -5434,26 +5475,22 @@ public class MnuReportes extends Controller {
 						archivoPDF = FormFactura.generaProformaVenta(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
 								cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc, comentarios, form);
 					}
-					con2.close();
-
-					String titulo = "NOTA DE VENTA";
-					String url = "%2FreportFacturaProyectoGet%2F0&"+desdeAAMMDD+"&"+hastaAAMMDD+"&"+uf+"&"+usd+"&"+eur;
-					con.close();
-					return redirect("/routes2/redirShowPDF/"+archivoPDF+","+titulo+","+url);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok(mensajes.render("/",msgError));
+				String titulo = "NOTA DE VENTA";
+				String url = "%2FreportFacturaProyectoGet%2F0&"+desdeAAMMDD+"&"+hastaAAMMDD+"&"+uf+"&"+usd+"&"+eur;
+				return redirect("/routes2/redirShowPDF/"+archivoPDF+","+titulo+","+url);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
-
 	}
-
-
-
 
 	//====================================================================================
 	// MNU proformaResumen   Reportes/Proforma/Resumen y Detalle (por mes)
