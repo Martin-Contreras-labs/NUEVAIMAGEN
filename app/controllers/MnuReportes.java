@@ -3669,7 +3669,6 @@ public class MnuReportes extends Controller {
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
 				List<String> series = ReportGerenciales.graficoCategoriasAnioPorGrupo(con, s.baseDato, id_grupo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-				con.close();
 				return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"(NO CONSIDERA AJUSTES)  GRUPO: "+grupo.nombre));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -3740,7 +3739,6 @@ public class MnuReportes extends Controller {
 				List<String> cabecera1 = (List<String>) map.get("cabecera1");
 				List<String> cabecera2 = (List<String>) map.get("cabecera2");
 				List<List<String>> datos = (List<List<String>>) map.get("datos");
-				con.close();
 				return ok(reportGerenKGPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,cabecera1,cabecera2,datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -3810,7 +3808,6 @@ public class MnuReportes extends Controller {
 			List<List<String>> datosActual = ReportKilos.reportKilosArriendoPorGrupoAnual(con, s.baseDato, Long.parseLong(anioActual));
 			List<List<String>> datosAnterior = ReportKilos.reportKilosArriendoPorGrupoAnual(con,s.baseDato, Long.parseLong(anioAnterior));
 			List<List<String>> datosAnteriorAnterior = ReportKilos.reportKilosArriendoPorGrupoAnual(con,s.baseDato, Long.parseLong(anioAnteriorAnterior));
-			con.close();
 			return ok(reporteGerencialKG.render(mapeoDiccionario,mapeoPermiso,userMnu,datosActual,datosAnterior,datosAnteriorAnterior, anioActual,anioAnterior,anioAnteriorAnterior));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -5498,259 +5495,291 @@ public class MnuReportes extends Controller {
 
 	public Result reportFacturaPeriodoResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaResumen")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
-				con.close();
-				return ok(reportFacturaPeriodoResumen0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaResumen")==null) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			return ok(reportFacturaPeriodoResumen0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportFacturaPeriodoResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaResumen")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
-				con.close();
-				return ok(reportFacturaPeriodoResumen.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaResumen")==null) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			return ok(reportFacturaPeriodoResumen.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportFacturaResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-
 				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-				Map<Long,Double> tasas = new HashMap<Long,Double>();
-				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				return ok(reportFacturaResumen0.render(mapeoDiccionario,mapeoPermiso,userMnu,
-						desde,hasta,uf,usd,eur));
+				Map<Long, Double> tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				return ok(reportFacturaResumen0.render(mapeoDiccionario, mapeoPermiso, userMnu,
+						desde, hasta, uf, usd, eur));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result reportFacturaResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-
 				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-				Map<Long,Double> tasas = new HashMap<Long,Double>();
-				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
+				Map<Long, Double> tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				try (Connection con = dbRead.getConnection()) {
+					Map<Long, Long> dec = Moneda.numeroDecimal(con, s.baseDato);
 					Long nroDec = dec.get((long) 1);
-					con.close();
-					return ok(reportFacturaResumen.render(mapeoDiccionario,mapeoPermiso,userMnu,
-							desde,hasta,uf,usd,eur,nroDec));
+					return ok(reportFacturaResumen.render(mapeoDiccionario, mapeoPermiso, userMnu,
+							desde, hasta, uf, usd, eur, nroDec));
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok(mensajes.render("/",msgError));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result reportFacturaResumenJson(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok("ERROR");
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-
 				Map<Long,Double> tasas = new HashMap<Long,Double>();
 				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				List<Inventarios> guiasPer = null;
+				List<Calc_AjustesEP> listaAjustes = null;
+				Map<Long,List<String>> mapBodega = null;
+				Map<Long,Long> dec = null;
+				Map<String,String> map = null;
+				Map<String,String> mapPermanencias = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-					Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-
-					Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-
-					List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-					List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-
-					Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-
-
-					con.close();
-
-					ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
-							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-					List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-
-					List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
-							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-
-					List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-
-					List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-
-					List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-
-					List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
-
-
-					//filtro solo las bodegas con permiso:
-					List<List<String>> proyectos = new ArrayList<List<String>>();
-					if(map.size()>0) {
-						for(List<String> aux: proyectosAux) {
-							String idBodega = map.get(aux.get(1));
-							if(idBodega!=null) {
-								proyectos.add(aux);
-							}
+					guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+					listIdGuia_entreFechas = null;
+					listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					dec = Moneda.numeroDecimal(con, s.baseDato);
+					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				mapPermanencias = null;
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+				valorTotalPorBodega = null;
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if(!map.isEmpty()) {
+					for(List<String> aux: proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if(idBodega!=null) {
+							proyectos.add(aux);
 						}
-					}else {
-						for(int i=0;i<proyectosAux.size();i++ ) {
-							proyectos.add(proyectosAux.get(i));
-						}
-
 					}
-
-					List<List<String>> resumenPorGrupoYProyecto = new ArrayList<List<String>>();
-
-					if(!mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
-						Connection con2 = dbRead.getConnection();
+				}else {
+                    proyectos.addAll(proyectosAux);
+				}
+				proyectosAux = null;
+				List<List<String>> resumenPorGrupoYProyecto = new ArrayList<List<String>>();
+				if(!mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+					try (Connection con2 = dbRead.getConnection()) {
 						Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, s.baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
 						resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
-						con2.close();
+					} catch (SQLException e) {
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
+					} catch (Exception e) {
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
 					}
-
-					String resumenPorPJson = Json.toJson(proyectos).toString();
-					String resumenPorPyGJson = Json.toJson(resumenPorGrupoYProyecto).toString();
-					String resumenTotalesJson = Json.toJson(resumenTotales).toString();
-
-					String json = "{\"resumenPorPJson\":"+resumenPorPJson+",\"resumenPorPyGJson\":"+resumenPorPyGJson
-							+",\"resumenTotalesJson\":"+resumenTotalesJson+"}";
-
-					return ok(json).as("application/json");
-
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
-				return ok("ERROR");
+				String resumenPorPJson = Json.toJson(proyectos).toString();
+				String resumenPorPyGJson = Json.toJson(resumenPorGrupoYProyecto).toString();
+				String resumenTotalesJson = Json.toJson(resumenTotales).toString();
+				String json = "{\"resumenPorPJson\":"+resumenPorPJson+",\"resumenPorPyGJson\":"+resumenPorPyGJson
+						+",\"resumenTotalesJson\":"+resumenTotalesJson+"}";
+				return ok(json).as("application/json");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("ERROR");
 		}
 	}
 
 	public Result reportFacturaResumenExcel0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-
 				if(mapeoPermiso.get("parametro.excel_porEMail")!=null && mapeoPermiso.get("parametro.excel_porEMail").equals("1")) {
 					String mailDestino = "";
-					try {
-						Connection con = dbRead.getConnection();
+					try (Connection con = dbRead.getConnection()) {
 						Usuario usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
 						if( usuario != null) {
 							mailDestino = usuario.getEmail().trim().toLowerCase();
@@ -5758,9 +5787,12 @@ public class MnuReportes extends Controller {
 								usuario = null;
 							}
 						}
-						con.close();
 					} catch (SQLException e) {
-						e.printStackTrace();
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
+					} catch (Exception e) {
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
 					}
 					if(HomeController.isValidEmail(mailDestino)) {
 						MnuReportes.reportFacturaResumenExcel0mail generar = new MnuReportes.reportFacturaResumenExcel0mail(s.baseDato, desdeAAMMDD, hastaAAMMDD,
@@ -5770,8 +5802,6 @@ public class MnuReportes extends Controller {
 					String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara algunos minutos para recibir el correo";
 					return ok(mensajes.render("/home/",mensaje));
 				}
-
-
 				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 				Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -5780,95 +5810,100 @@ public class MnuReportes extends Controller {
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-
-				try {
-					Connection con = dbRead.getConnection();
-
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				List<Inventarios> guiasPer = null;
+				List<Calc_AjustesEP> listaAjustes = null;
+				Map<Long,List<String>> mapBodega = null;
+				Map<Long,Long> dec = null;
+				Map<String,String> map = null;
+				Map<String,String> mapPermanencias = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-					Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-					Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-
-					List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-					List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-
-					Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-
-					con.close();
-
-					ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+					guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+					listIdGuia_entreFechas = null;
+					listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					dec = Moneda.numeroDecimal(con, s.baseDato);
+					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-					List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-
-					List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+				listIdBodegaEmpresa = null;
+				listIdGuia_fechaCorte = null;
+				inventario = null;
+				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+				reporte = null;
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-
-					List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-
-					List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-
-					List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-
-					List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
-
-
-					//filtro solo las bodegas con permiso:
-
-					List<List<String>> proyectos = new ArrayList<List<String>>();
-					if(map.size()>0) {
-						for(List<String> aux: proyectosAux) {
-							String idBodega = map.get(aux.get(1));
-							if(idBodega!=null) {
-								proyectos.add(aux);
-							}
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				mapPermanencias = null;
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+				valorTotalPorBodega = null;
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if(!map.isEmpty()) {
+					for(List<String> aux: proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if(idBodega!=null) {
+							proyectos.add(aux);
 						}
-					}else {
-						for(int i=0;i<proyectosAux.size();i++ ) {
-							proyectos.add(proyectosAux.get(i));
-						}
-
 					}
-
-
-					Connection con2 = dbRead.getConnection();
-
+				}else {
+                    proyectos.addAll(proyectosAux);
+				}
+				proyectosAux = null;
+				try (Connection con2 = dbRead.getConnection()) {
 					Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, s.baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
-
 					List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
-
+					mapResumenPorGrupo = null;
 					Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, s.baseDato, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO
 					Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, s.baseDato, guiasPeriodo);  									// RESUMEN POR ESTADOS DE PAGO
-
 					List<List<String>> resumenPorProyectoGrupoYdetalle =
 							ReportFacturas.resumenEstadosDePago(con2, s.baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);   // RESUMEN POR ESTADOS DE PAGO
-
-
-					con2.close();
-
+					mapInicioPer = null;
+					mapGuiasPer = null;
 					File file = ReportFacturas.exportaProformaExcelResumen0(s.baseDato, mapeoDiccionario,
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle);
-					if(file!=null) {
-						return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
-					}else {
-						return ok("");
-					}
+					return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
@@ -5898,44 +5933,75 @@ public class MnuReportes extends Controller {
 			this.id_sucursal = id_sucursal;
 			this.eMail = eMail;
 		}
+
 		public void run() {
-			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
-			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-			Map<Long,Double> tasas = new HashMap<Long,Double>();
-			tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-			tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-			tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-			tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
+			String className = this.getClass().getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			try {
-				Connection con = dbRead.getConnection();
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, baseDato, Long.parseLong(id_usuario));
-				List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
-				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
-				Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
-				Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
-				Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
-				List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, baseDato, desdeAAMMDD);
-				List<Inventarios> inventario = Inventarios.inventario(con, baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, baseDato, desdeAAMMDD, hastaAAMMDD);
-				List<Inventarios> guiasPer = Inventarios.guiasPer(con, baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-				List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD);
-				Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, baseDato, aplicaPorSucursal, id_sucursal);
-				Map<Long,Long> dec = Moneda.numeroDecimal(con, baseDato);
-				Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
-				Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
-				con.close();
+				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+				Map<Long,Double> tasas = new HashMap<Long,Double>();
+				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				List<Inventarios> guiasPer = null;
+				List<Calc_AjustesEP> listaAjustes = null;
+				Map<Long,List<String>> mapBodega = null;
+				Map<Long,Long> dec = null;
+				Map<String,String> map = null;
+				Map<String,String> mapPermanencias = null;
+				try (Connection con = dbRead.getConnection()){
+					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, baseDato, Long.parseLong(id_usuario));
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, baseDato, desdeAAMMDD, hastaAAMMDD);
+					guiasPer = Inventarios.guiasPer(con, baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+					listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD);
+					mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, baseDato, aplicaPorSucursal, id_sucursal);
+					dec = Moneda.numeroDecimal(con, baseDato);
+					map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
+					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+				listIdBodegaEmpresa = null;
+				listIdGuia_fechaCorte = null;
+				inventario = null;
 				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+				reporte = null;
 				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				mapPermanencias = null;
 				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				listaAjustes = null;
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+				valorTotalPorBodega = null;
 				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
-				if(map.size()>0) {
+				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {
 						String idBodega = map.get(aux.get(1));
 						if(idBodega!=null) {
@@ -5943,53 +6009,66 @@ public class MnuReportes extends Controller {
 						}
 					}
 				}else {
-					for(int i=0;i<proyectosAux.size();i++ ) {
-						proyectos.add(proyectosAux.get(i));
-					}
-
+                    proyectos.addAll(proyectosAux);
 				}
-				Connection con2 = dbRead.getConnection();
-				Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, baseDato, valorTotalporBodegaYGrupo);
-				List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, baseDato, proyectos, mapResumenPorGrupo);
-				Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, baseDato, inventarioInicial);
-				Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo);
-				List<List<String>> resumenPorProyectoGrupoYdetalle =
-						ReportFacturas.resumenEstadosDePago(con2, baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
-				con2.close();
-				File file = ReportFacturas.exportaProformaExcelResumen0(baseDato, mapeoDiccionario,
+				proyectosAux = null;
+				try (Connection con2 = dbRead.getConnection()) {
+					Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, baseDato, valorTotalporBodegaYGrupo);
+					valorTotalporBodegaYGrupo = null;
+					List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, baseDato, proyectos, mapResumenPorGrupo);
+					mapResumenPorGrupo = null;
+					Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, baseDato, inventarioInicial);
+					inventarioInicial = null;
+					Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo);
+					List<List<String>> resumenPorProyectoGrupoYdetalle =
+							ReportFacturas.resumenEstadosDePago(con2, baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
+					mapInicioPer = null;
+					mapGuiasPer = null;
+					File file = ReportFacturas.exportaProformaExcelResumen0(baseDato, mapeoDiccionario,
 						proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle);
-				try {
-					Email email = new Email();
-					String asunto = "REPORTE RESUMEN Y DETALLE POR TODOS LOS PROYECTOS AGRUPADO (PERIODO: desde "+desde.getFechaStrDDMMAA()+" a "+hasta.getFechaStrDDMMAA();
-					email.setSubject(asunto);
-					email.setFrom("desde MADA <informaciones@inqsol.cl>");
-					email.setBodyHtml("<html>Archivo adjunto</html>");
-					email.addTo(eMail);
-					email.addAttachment("EP_Proforma_Resumen.xlsx", file);
-					mailerClient.send(email);
-				} catch (Exception x) {
-					x.printStackTrace();
+					try {
+						Email email = new Email();
+						String asunto = "REPORTE RESUMEN Y DETALLE POR TODOS LOS PROYECTOS AGRUPADO (PERIODO: desde "+desde.getFechaStrDDMMAA()+" a "+hasta.getFechaStrDDMMAA();
+						email.setSubject(asunto);
+						email.setFrom("desde MADA <informaciones@inqsol.cl>");
+						email.setBodyHtml("<html>Archivo adjunto</html>");
+						email.addTo(eMail);
+						email.addAttachment("EP_Proforma_Resumen.xlsx", file);
+						mailerClient.send(email);
+					} catch (Exception e) {
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					}
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
 			}
 		}
 	}
 
 	public Result reportFacturaResumenExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-
 				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
 				Map<Long,Double> tasas = new HashMap<Long,Double>();
@@ -5998,11 +6077,9 @@ public class MnuReportes extends Controller {
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-
 				if(mapeoPermiso.get("parametro.excel_porEMail")!=null && mapeoPermiso.get("parametro.excel_porEMail").equals("1")) {
 					String mailDestino = "";
-					try {
-						Connection con = dbRead.getConnection();
+					try (Connection con = dbRead.getConnection()) {
 						Usuario usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
 						if( usuario != null) {
 							mailDestino = usuario.getEmail().trim().toLowerCase();
@@ -6010,9 +6087,12 @@ public class MnuReportes extends Controller {
 								usuario = null;
 							}
 						}
-						con.close();
 					} catch (SQLException e) {
-						e.printStackTrace();
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
+					} catch (Exception e) {
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
 					}
 					if(HomeController.isValidEmail(mailDestino)) {
 						MnuReportes.reportFacturaResumenExcelMail generar = new MnuReportes.reportFacturaResumenExcelMail(s.baseDato, desdeAAMMDD, hastaAAMMDD,
@@ -6022,97 +6102,99 @@ public class MnuReportes extends Controller {
 					String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara algunos minutos para recibir el correo";
 					return ok(mensajes.render("/home/",mensaje));
 				}
-
-				try {
-					Connection con = dbRead.getConnection();
-
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				List<Long> listIdGuia_entreFechas = null;
+				List<Inventarios> guiasPer = null;
+				List<Calc_AjustesEP> listaAjustes = null;
+				Map<Long,List<String>> mapBodega = null;
+				Map<Long,Long> dec = null;
+				Map<String,String> map = null;
+				Map<String,String> mapPermanencias = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-					Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-					Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-
-					List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-					List<Inventarios> inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-					List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-					Map<Long,Long> dec = Moneda.numeroDecimal(con, s.baseDato);
-
-					Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-
-
-					con.close();
-
-					ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
-							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
-					List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-
-					List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
-							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
-
-					List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-
-					List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-
-					List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-
-					List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
-
-
-					//filtro solo las bodegas con permiso:
-
-					List<List<String>> proyectos = new ArrayList<List<String>>();
-					if(map.size()>0) {
-						for(List<String> aux: proyectosAux) {
-							String idBodega = map.get(aux.get(1));
-							if(idBodega!=null) {
-								proyectos.add(aux);
-							}
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+					listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					dec = Moneda.numeroDecimal(con, s.baseDato);
+					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+				listIdBodegaEmpresa = null;
+				listIdGuia_fechaCorte = null;
+				inventario = null;
+				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				mapPermanencias = null;
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+				valorTotalPorBodega = null;
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if(!map.isEmpty()) {
+					for(List<String> aux: proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if(idBodega!=null) {
+							proyectos.add(aux);
 						}
-					}else {
-						for(int i=0;i<proyectosAux.size();i++ ) {
-							proyectos.add(proyectosAux.get(i));
-						}
-
 					}
-
-
-					Connection con2 = dbRead.getConnection();
-
+				}else {
+                    proyectos.addAll(proyectosAux);
+				}
+				try (Connection con2 = dbRead.getConnection()) {
 					Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, s.baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
-
-					List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
-
-					Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, s.baseDato, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO
-					Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, s.baseDato, guiasPeriodo);  									// RESUMEN POR ESTADOS DE PAGO
-
+					valorTotalporBodegaYGrupo = null;
+					List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo);
+					mapResumenPorGrupo = null;
+					Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, s.baseDato, inventarioInicial);
+					inventarioInicial = null;
+					Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, s.baseDato, guiasPeriodo);
 					List<List<String>> resumenPorProyectoGrupoYdetalle =
-							ReportFacturas.resumenEstadosDePago(con2, s.baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);   // RESUMEN POR ESTADOS DE PAGO
-
-					Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, s.baseDato);
-
-					con2.close();
-
+							ReportFacturas.resumenEstadosDePago(con2, s.baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
+					mapInicioPer = null;
+					mapGuiasPer = null;Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, s.baseDato);
 					File file = ReportFacturas.exportaProformaExcelResumen(s.baseDato, mapeoDiccionario,
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
-
-					if(file!=null) {
-						return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
-					}else {
-						return ok("");
-					}
+					return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
@@ -6143,43 +6225,73 @@ public class MnuReportes extends Controller {
 			this.eMail = eMail;
 		}
 		public void run() {
-			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
-			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-			Map<Long,Double> tasas = new HashMap<Long,Double>();
-			tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-			tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-			tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-			tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, baseDato, Long.parseLong(id_usuario));
-				List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
-				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
-				Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
-				Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
-				Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
-				List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, baseDato, desdeAAMMDD);
-				List<Inventarios> inventario = Inventarios.inventario(con, baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, baseDato, desdeAAMMDD, hastaAAMMDD);
-				List<Inventarios> guiasPer = Inventarios.guiasPer(con, baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-				List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD);
-				Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, baseDato, aplicaPorSucursal, id_sucursal);
-				Map<Long,Long> dec = Moneda.numeroDecimal(con, baseDato);
-				Map<String,String> map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
-				Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
-				con.close();
+			String className = this.getClass().getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			try{
+				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+				Map<Long,Double> tasas = new HashMap<Long,Double>();
+				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
+				List<Long> listIdBodegaEmpresa = null;
+				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+				Map<String,Calc_Precio> mapPrecios = null;
+				Map<Long,Calc_Precio> mapMaestroPrecios = null;
+				Map<String, Double> mapFijaTasas = null;
+				List<Long> listIdGuia_fechaCorte = null;
+				List<Inventarios> inventario = null;
+				List<Long> listIdGuia_entreFechas = null;
+				List<Inventarios> guiasPer = null;
+				List<Calc_AjustesEP> listaAjustes = null;
+				Map<Long,List<String>> mapBodega = null;
+				Map<Long,Long> dec = null;
+				Map<String,String> map = null;
+				Map<String,String> mapPermanencias = null;
+				try (Connection con = dbRead.getConnection()) {
+					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, baseDato, Long.parseLong(id_usuario));
+					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
+					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, baseDato);
+					mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
+					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
+					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
+					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, baseDato, desdeAAMMDD);
+					inventario = Inventarios.inventario(con, baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+					listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, baseDato, desdeAAMMDD, hastaAAMMDD);
+					guiasPer = Inventarios.guiasPer(con, baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+					listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD);
+					mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, baseDato, aplicaPorSucursal, id_sucursal);
+					dec = Moneda.numeroDecimal(con, baseDato);
+					map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
+					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+				listIdBodegaEmpresa = null;
+				listIdGuia_fechaCorte = null;
+				inventario = null;
 				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
 				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				mapPermanencias = null;
 				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				listaAjustes = null;
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
+				valorTotalPorBodega = null;
 				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
-				if(map.size()>0) {
+				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {
 						String idBodega = map.get(aux.get(1));
 						if(idBodega!=null) {
@@ -6187,22 +6299,28 @@ public class MnuReportes extends Controller {
 						}
 					}
 				}else {
-					for(int i=0;i<proyectosAux.size();i++ ) {
-						proyectos.add(proyectosAux.get(i));
-					}
-
+                    proyectos.addAll(proyectosAux);
 				}
-				Connection con2 = dbRead.getConnection();
-				Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, baseDato, valorTotalporBodegaYGrupo);
-				List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, baseDato, proyectos, mapResumenPorGrupo);
-				Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, baseDato, inventarioInicial);
-				Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo);
-				List<List<String>> resumenPorProyectoGrupoYdetalle =
-						ReportFacturas.resumenEstadosDePago(con2, baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
-				Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, baseDato);
-				con2.close();
-				File file = ReportFacturas.exportaProformaExcelResumen(baseDato, mapeoDiccionario,
-						proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
+				File file = null;
+				try (Connection con2 = dbRead.getConnection()) {
+					Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
+					valorTotalporBodegaYGrupo = null;
+					List<List<String>> resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, baseDato, proyectos, mapResumenPorGrupo);
+					mapResumenPorGrupo = null;
+					Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con2, baseDato, inventarioInicial);
+					inventarioInicial = null;
+					Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con2, baseDato, guiasPeriodo);
+					List<List<String>> resumenPorProyectoGrupoYdetalle =
+							ReportFacturas.resumenEstadosDePago(con2, baseDato, proyectos, desdeAAMMDD, hastaAAMMDD,mapeoDiccionario.get("nEmpresa"), mapInicioPer, mapGuiasPer);
+					mapInicioPer = null;
+					mapGuiasPer = null;Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, baseDato);
+					file = ReportFacturas.exportaProformaExcelResumen(baseDato, mapeoDiccionario,
+							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				}
 				try {
 					Email email = new Email();
 					String asunto = "REPORTE RESUMEN Y DETALLE POR TODOS LOS PROYECTOS POR FAMILIA (PERIODO: desde "+desde.getFechaStrDDMMAA()+" a "+hasta.getFechaStrDDMMAA();
@@ -6212,11 +6330,11 @@ public class MnuReportes extends Controller {
 					email.addTo(eMail);
 					email.addAttachment("EP_Proforma_Resumen.xlsx", file);
 					mailerClient.send(email);
-				} catch (Exception x) {
-					x.printStackTrace();
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
 			}
 		}
 	}
