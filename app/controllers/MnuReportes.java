@@ -5505,8 +5505,8 @@ public class MnuReportes extends Controller {
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		if(mapeoPermiso.get("proformaResumen")==null) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()) {
 			Fechas hoy = Fechas.hoy();
@@ -5536,8 +5536,8 @@ public class MnuReportes extends Controller {
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		if(mapeoPermiso.get("proformaResumen")==null) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()) {
 			Fechas hoy = Fechas.hoy();
@@ -6346,121 +6346,121 @@ public class MnuReportes extends Controller {
 
 	public Result reportFacturaConsolidado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaConsolidado")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(reportFacturaConsolidado.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaConsolidado")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(reportFacturaConsolidado.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportFacturaConsolidadoRtp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
-
 				Long meses = Long.parseLong(form.get("cantMeses").trim());
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<List<String>> datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-
-					List<String> categorias = new ArrayList<String>();
-					for(int i=1; i<datos.get(0).size()-1; i++) {
-						categorias.add("'" + datos.get(0).get(i) + "'");
-					}
-
-					List<String> nameSerie = new ArrayList<String>();
-					Map<String,List<String>> mapDataSerie = new HashMap<String,List<String>>();
-					for(int i=1; i<datos.size()-1; i++) {
-						nameSerie.add("'" + datos.get(i).get(1) + "'");
-						List<String> dataSerie = new ArrayList<String>();
-						for(int j=2; j<datos.get(i).size()-1; j++) {
-							dataSerie.add(datos.get(i).get(j).replaceAll(",", ""));
-						}
-						mapDataSerie.put("'" + datos.get(i).get(1) + "'",dataSerie);
-					}
-
-					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
-						File file = ReportFacturaConsolidado.reportFacturaConsolidadoRtpExcel(s.baseDato, mapeoDiccionario, datos);
-						if(file!=null) {
-							con.close();
-							return ok(file,false,Optional.of("Consol_ep_por_meses.xlsx"));
-						}else {
-							con.close();
-							return ok("");
-						}
-					}
-
-					con.close();
-					return ok(reportFacturaConsolidadoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, nameSerie, mapDataSerie));
-
+					datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok(mensajes.render("/",msgError));
+				List<String> categorias = new ArrayList<String>();
+				for(int i=1; i<datos.get(0).size()-1; i++) {
+					categorias.add("'" + datos.get(0).get(i) + "'");
+				}
+				List<String> nameSerie = new ArrayList<String>();
+				Map<String,List<String>> mapDataSerie = new HashMap<String,List<String>>();
+				for(int i=1; i<datos.size()-1; i++) {
+					nameSerie.add("'" + datos.get(i).get(1) + "'");
+					List<String> dataSerie = new ArrayList<String>();
+					for(int j=2; j<datos.get(i).size()-1; j++) {
+						dataSerie.add(datos.get(i).get(j).replaceAll(",", ""));
+					}
+					mapDataSerie.put("'" + datos.get(i).get(1) + "'",dataSerie);
+				}
+				if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+					File file = ReportFacturaConsolidado.reportFacturaConsolidadoRtpExcel(s.baseDato, mapeoDiccionario, datos);
+					return ok(file,false,Optional.of("Consol_ep_por_meses.xlsx"));
+				}
+				return ok(reportFacturaConsolidadoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, nameSerie, mapDataSerie));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result reportFacturaConsolidadoRtpExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				Long meses = Long.parseLong(form.get("cantMeses"));
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()){
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<List<String>> datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-					File file = ReportFacturaConsolidado.reportFacturaConsolidadoRtpExcel(s.baseDato, mapeoDiccionario, datos);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("Consol_ep_por_meses.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
+					datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("");
+					File file = ReportFacturaConsolidado.reportFacturaConsolidadoRtpExcel(s.baseDato, mapeoDiccionario, datos);
+					return ok(file,false,Optional.of("Consol_ep_por_meses.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
@@ -6471,188 +6471,184 @@ public class MnuReportes extends Controller {
 
 	public Result reportFactConsolconGrupo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaConsolidado")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(reportFactConsolconGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaConsolidado")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(reportFactConsolconGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportFactConsolconGrupoRtp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
-
 				Long meses = Long.parseLong(form.get("cantMeses").trim());
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-
-					con.close();
-
-					List<String> categorias = new ArrayList<String>();
-					for(int i=4; i<datos.get(0).size()-1; i=i+3) {
-						categorias.add("'" + datos.get(0).get(i) + "'");
-					}
-
-
-					//GRAFICOS POR EMPRESA
-					String aux ="";
-					List<String> listSeleccion = new ArrayList<String>();
-					List<String> listGrupo = new ArrayList<String>();
-					Map<String,List<String>> mapGrupo = new HashMap<String,List<String>>();
-					Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
-
-					for(int i=2; i<datos.size()-1; i++) {
-						if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
-							if(i>2) {
-								mapGrupo.put(aux, listGrupo);
-								listGrupo = new ArrayList<String>();
-							}
-							listSeleccion.add("'"+datos.get(i).get(0)+"'");
-							aux = "'"+datos.get(i).get(0)+"'";
-						}
-
-						if(aux.equals("'"+datos.get(i).get(0)+"'")) {
-							listGrupo.add("'"+datos.get(i).get(1)+"'");
-							mapGrupo.put(aux, listGrupo);
-						}
-
-						List<String> listDatos = new ArrayList<String>();
-						for(int j=4; j<datos.get(i).size()-3; j = j+3) {
-							listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
-						}
-						mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(1)+"'", listDatos);
-					}
-
-
-
-					//GRAFICOS POR GRUPO
-					//ORDENA LA LISTA POR GRUPO
-					for(int j=2;j<datos.size()-1;j++) {
-						for(int i=2;i<datos.size()-j;i++) {
-							String A = datos.get(i).get(1) + "_" + datos.get(i).get(0);
-							String B = datos.get(i+1).get(1) + "_" + datos.get(i+1).get(0);
-							if (i+1!=datos.size() && A.compareToIgnoreCase(B)>0) {
-								List<String> auxlista;
-								auxlista=datos.get(i);
-								datos.set(i,datos.get(i+1));
-								datos.set(i+1, auxlista);
-							}
-						}
-					}
-
-					String aux2 ="";
-					List<String> listSeleccion2 = new ArrayList<String>();
-					List<String> listEmpresa = new ArrayList<String>();
-					Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
-					Map<String,List<String>> mapDatosGrupo = new HashMap<String,List<String>>();
-
-					for(int i=2; i<datos.size()-1; i++) {
-						if(!aux2.equals("'"+datos.get(i).get(1)+"'")) {
-							if(i>2) {
-								mapEmpresas.put(aux2, listEmpresa);
-								listEmpresa = new ArrayList<String>();
-							}
-							listSeleccion2.add("'"+datos.get(i).get(1)+"'");
-							aux2 = "'"+datos.get(i).get(1)+"'";
-						}
-
-						if(aux2.equals("'"+datos.get(i).get(1)+"'")) {
-							listEmpresa.add("'"+datos.get(i).get(0)+"'");
-							mapEmpresas.put(aux2, listEmpresa);
-						}
-
-						List<String> listDatos = new ArrayList<String>();
-						for(int j=4; j<datos.get(i).size()-3; j = j+3) {
-							listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
-						}
-						mapDatosGrupo.put("'"+datos.get(i).get(1)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
-					}
-
-					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
-						File file = ReportFacturaConsolidado.reportConsDetalladoRtpExcel(s.baseDato, mapeoDiccionario, datos);
-						if(file!=null) {
-							return ok(file,false,Optional.of("Consol_ep_por_grupo_meses.xlsx"));
-						}else {
-							return ok("");
-						}
-					}
-
-
-					return ok(reportFactConsolconGrupoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, listSeleccion, mapGrupo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosGrupo));
+					datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok(mensajes.render("/",msgError));
+				List<String> categorias = new ArrayList<String>();
+				for(int i=4; i<datos.get(0).size()-1; i=i+3) {
+					categorias.add("'" + datos.get(0).get(i) + "'");
+				}
+				//GRAFICOS POR EMPRESA
+				String aux ="";
+				List<String> listSeleccion = new ArrayList<String>();
+				List<String> listGrupo = new ArrayList<String>();
+				Map<String,List<String>> mapGrupo = new HashMap<String,List<String>>();
+				Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
+				for(int i=2; i<datos.size()-1; i++) {
+					if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
+						if(i>2) {
+							mapGrupo.put(aux, listGrupo);
+							listGrupo = new ArrayList<String>();
+						}
+						listSeleccion.add("'"+datos.get(i).get(0)+"'");
+						aux = "'"+datos.get(i).get(0)+"'";
+					}
+
+					if(aux.equals("'"+datos.get(i).get(0)+"'")) {
+						listGrupo.add("'"+datos.get(i).get(1)+"'");
+						mapGrupo.put(aux, listGrupo);
+					}
+
+					List<String> listDatos = new ArrayList<String>();
+					for(int j=4; j<datos.get(i).size()-3; j = j+3) {
+						listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
+					}
+					mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(1)+"'", listDatos);
+				}
+				//GRAFICOS POR GRUPO
+				//ORDENA LA LISTA POR GRUPO
+				for(int j=2;j<datos.size()-1;j++) {
+					for(int i=2;i<datos.size()-j;i++) {
+						String A = datos.get(i).get(1) + "_" + datos.get(i).get(0);
+						String B = datos.get(i+1).get(1) + "_" + datos.get(i+1).get(0);
+						if (i+1!=datos.size() && A.compareToIgnoreCase(B)>0) {
+							List<String> auxlista;
+							auxlista=datos.get(i);
+							datos.set(i,datos.get(i+1));
+							datos.set(i+1, auxlista);
+						}
+					}
+				}
+				String aux2 ="";
+				List<String> listSeleccion2 = new ArrayList<String>();
+				List<String> listEmpresa = new ArrayList<String>();
+				Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
+				Map<String,List<String>> mapDatosGrupo = new HashMap<String,List<String>>();
+				for(int i=2; i<datos.size()-1; i++) {
+					if(!aux2.equals("'"+datos.get(i).get(1)+"'")) {
+						if(i>2) {
+							mapEmpresas.put(aux2, listEmpresa);
+							listEmpresa = new ArrayList<String>();
+						}
+						listSeleccion2.add("'"+datos.get(i).get(1)+"'");
+						aux2 = "'"+datos.get(i).get(1)+"'";
+					}
+
+					if(aux2.equals("'"+datos.get(i).get(1)+"'")) {
+						listEmpresa.add("'"+datos.get(i).get(0)+"'");
+						mapEmpresas.put(aux2, listEmpresa);
+					}
+
+					List<String> listDatos = new ArrayList<String>();
+					for(int j=4; j<datos.get(i).size()-3; j = j+3) {
+						listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
+					}
+					mapDatosGrupo.put("'"+datos.get(i).get(1)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
+				}
+				if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+					File file = ReportFacturaConsolidado.reportConsDetalladoRtpExcel(s.baseDato, mapeoDiccionario, datos);
+					if(file!=null) {
+						return ok(file,false,Optional.of("Consol_ep_por_grupo_meses.xlsx"));
+					}else {
+						return ok("");
+					}
+				}
+				return ok(reportFactConsolconGrupoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, listSeleccion, mapGrupo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosGrupo));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result reportFactConsolconGrupoRtpExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				Long meses = Long.parseLong(form.get("cantMeses"));
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-					File file = ReportFacturaConsolidado.reportConsDetalladoRtpExcel(s.baseDato, mapeoDiccionario, datos);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("Consol_ep_por_grupo_meses.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
+					datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("");
+				File file = ReportFacturaConsolidado.reportConsDetalladoRtpExcel(s.baseDato, mapeoDiccionario, datos);
+				return ok(file,false,Optional.of("Consol_ep_por_grupo_meses.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
-
 
 	//====================================================================================
 	// MNU proformaConsolidado   Reportes/Proforma/Consolidado (detalle por equipos)
@@ -6660,185 +6656,177 @@ public class MnuReportes extends Controller {
 
 	public Result reportFactConsolconEquipos(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaConsolidado")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(reportFactConsolconEquipos.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaConsolidado")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(reportFactConsolconEquipos.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportFactConsolconEquiposRtp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
-
 				Long meses = Long.parseLong(form.get("cantMeses").trim());
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-
-					con.close();
-
-					List<String> categorias = new ArrayList<String>();
-					for(int i=4; i<datos.get(0).size()-1; i=i+3) {
-						categorias.add("'" + datos.get(0).get(i) + "'");
-					}
-
-					//GRAFICOS POR EMPRESA
-					String aux ="";
-					List<String> listSeleccion = new ArrayList<String>();
-					List<String> listEquipo = new ArrayList<String>();
-					Map<String,List<String>> mapEquipo = new HashMap<String,List<String>>();
-					Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
-
-					for(int i=2; i<datos.size()-1; i++) {
-						if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
-							if(i>2) {
-								mapEquipo.put(aux, listEquipo);
-								listEquipo = new ArrayList<String>();
-							}
-							listSeleccion.add("'"+datos.get(i).get(0)+"'");
-							aux = "'"+datos.get(i).get(0)+"'";
-						}
-
-						if(aux.equals("'"+datos.get(i).get(0)+"'")) {
-							listEquipo.add("'"+datos.get(i).get(2)+"'");
-							mapEquipo.put(aux, listEquipo);
-						}
-
-						List<String> listDatos = new ArrayList<String>();
-						for(int j=4; j<datos.get(i).size()-3; j = j+3) {
-							listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
-						}
-						mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(2)+"'", listDatos);
-					}
-
-
-					//GRAFICOS POR EQUIPO
-					//ORDENA LA LISTA POR EQUIPO
-					for(int j=2;j<datos.size()-1;j++) {
-						for(int i=2;i<datos.size()-j;i++) {
-							String A = datos.get(i).get(2) + "_" + datos.get(i).get(0);
-							String B = datos.get(i+1).get(2) + "_" + datos.get(i+1).get(0);
-							if (i+1!=datos.size() && A.compareToIgnoreCase(B)>0) {
-								List<String> auxlista;
-								auxlista=datos.get(i);
-								datos.set(i,datos.get(i+1));
-								datos.set(i+1, auxlista);
-							}
-						}
-					}
-
-					String aux2 ="";
-					List<String> listSeleccion2 = new ArrayList<String>();
-					List<String> listEmpresa = new ArrayList<String>();
-					Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
-					Map<String,List<String>> mapDatosEquipo = new HashMap<String,List<String>>();
-					Map<String, String> mapNomEquip = new HashMap<String,String>();
-
-					for(int i=2; i<datos.size()-1; i++) {
-						if(!aux2.equals("'"+datos.get(i).get(2)+"'")) {
-							if(i>2) {
-								mapEmpresas.put(aux2, listEmpresa);
-								listEmpresa = new ArrayList<String>();
-							}
-							listSeleccion2.add("'"+datos.get(i).get(2)+"'");
-							mapNomEquip.put("'"+datos.get(i).get(2)+"'", datos.get(i).get(2)+" - "+datos.get(i).get(3));
-							aux2 = "'"+datos.get(i).get(2)+"'";
-						}
-
-						if(aux2.equals("'"+datos.get(i).get(2)+"'")) {
-							listEmpresa.add("'"+datos.get(i).get(0)+"'");
-							mapEmpresas.put(aux2, listEmpresa);
-						}
-
-						List<String> listDatos = new ArrayList<String>();
-						for(int j=6; j<datos.get(i).size()-3; j = j+3) {
-							listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
-						}
-						mapDatosEquipo.put("'"+datos.get(i).get(2)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
-					}
-
-					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
-						File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
-						if(file!=null) {
-							return ok(file,false,Optional.of("Consol_ep_por_equipo_meses.xlsx"));
-						}else {
-							return ok("");
-						}
-					}
-					return ok(reportFactConsolconEquiposRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"),
-							categorias, listSeleccion, mapEquipo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosEquipo, mapNomEquip));
-
+					datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok(mensajes.render("/",msgError));
+				List<String> categorias = new ArrayList<String>();
+				for(int i=4; i<datos.get(0).size()-1; i=i+3) {
+					categorias.add("'" + datos.get(0).get(i) + "'");
+				}
+				//GRAFICOS POR EMPRESA
+				String aux ="";
+				List<String> listSeleccion = new ArrayList<String>();
+				List<String> listEquipo = new ArrayList<String>();
+				Map<String,List<String>> mapEquipo = new HashMap<String,List<String>>();
+				Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
+				for(int i=2; i<datos.size()-1; i++) {
+				if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
+					if(i>2) {
+						mapEquipo.put(aux, listEquipo);
+						listEquipo = new ArrayList<String>();
+					}
+					listSeleccion.add("'"+datos.get(i).get(0)+"'");
+					aux = "'"+datos.get(i).get(0)+"'";
+				}
+					if(aux.equals("'"+datos.get(i).get(0)+"'")) {
+						listEquipo.add("'"+datos.get(i).get(2)+"'");
+						mapEquipo.put(aux, listEquipo);
+					}
+					List<String> listDatos = new ArrayList<String>();
+					for(int j=4; j<datos.get(i).size()-3; j = j+3) {
+						listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
+					}
+					mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(2)+"'", listDatos);
+				}
+				//GRAFICOS POR EQUIPO
+				//ORDENA LA LISTA POR EQUIPO
+				for(int j=2;j<datos.size()-1;j++) {
+					for(int i=2;i<datos.size()-j;i++) {
+						String A = datos.get(i).get(2) + "_" + datos.get(i).get(0);
+						String B = datos.get(i+1).get(2) + "_" + datos.get(i+1).get(0);
+						if (i+1!=datos.size() && A.compareToIgnoreCase(B)>0) {
+							List<String> auxlista;
+							auxlista=datos.get(i);
+							datos.set(i,datos.get(i+1));
+							datos.set(i+1, auxlista);
+						}
+					}
+				}
+				String aux2 ="";
+				List<String> listSeleccion2 = new ArrayList<String>();
+				List<String> listEmpresa = new ArrayList<String>();
+				Map<String,List<String>> mapEmpresas = new HashMap<String,List<String>>();
+				Map<String,List<String>> mapDatosEquipo = new HashMap<String,List<String>>();
+				Map<String, String> mapNomEquip = new HashMap<String,String>();
+				for(int i=2; i<datos.size()-1; i++) {
+					if(!aux2.equals("'"+datos.get(i).get(2)+"'")) {
+						if(i>2) {
+							mapEmpresas.put(aux2, listEmpresa);
+							listEmpresa = new ArrayList<String>();
+						}
+						listSeleccion2.add("'"+datos.get(i).get(2)+"'");
+						mapNomEquip.put("'"+datos.get(i).get(2)+"'", datos.get(i).get(2)+" - "+datos.get(i).get(3));
+						aux2 = "'"+datos.get(i).get(2)+"'";
+					}
+					if(aux2.equals("'"+datos.get(i).get(2)+"'")) {
+						listEmpresa.add("'"+datos.get(i).get(0)+"'");
+						mapEmpresas.put(aux2, listEmpresa);
+					}
+					List<String> listDatos = new ArrayList<String>();
+					for(int j=6; j<datos.get(i).size()-3; j = j+3) {
+						listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
+					}
+					mapDatosEquipo.put("'"+datos.get(i).get(2)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
+				}
+				if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+					File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
+					return ok(file,false,Optional.of("Consol_ep_por_equipo_meses.xlsx"));
+				}
+				return ok(reportFactConsolconEquiposRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"),
+							categorias, listSeleccion, mapEquipo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosEquipo, mapNomEquip));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result reportFactConsolconEquiposRtpExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				Long meses = Long.parseLong(form.get("cantMeses"));
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<List<String>> datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
-					File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("Consol_ep_por_equipo_meses.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
+					datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("");
+				File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
+				return ok(file,false,Optional.of("Consol_ep_por_equipo_meses.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
@@ -6866,7 +6854,10 @@ public class MnuReportes extends Controller {
 			this.eMail = eMail;
 
 		}
+
 		public void run() {
+			String className = this.getClass().getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			PDFMergerUtility merger = new PDFMergerUtility();
 			File outputFile = TempFile.createTempFile("tmp","null");
 			try {
@@ -6879,8 +6870,8 @@ public class MnuReportes extends Controller {
 						try {
 							InputStream archivo = Archivos.leerArchivo(path);
 							merger.addSource(archivo);
-						}catch(Exception e) {
-
+						} catch (Exception e) {
+							logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
 						}
 
 					}
@@ -6904,13 +6895,10 @@ public class MnuReportes extends Controller {
 					email.addAttachment("proformas.pdf", outputFile);
 					mailerClient.send(email);
 				} catch (Exception x) {
-
 					x.printStackTrace();
-
 					long fileSizeInBytes = outputFile.length();
 					double fileSizeInKB = (double) fileSizeInBytes / 1024;
 					double fileSizeInMB = fileSizeInKB / 1024;
-
 					Email email = new Email();
 					String asunto = "Lista de proformas desde nro: "+desdeNro+" hasta nro: "+hastaNro;
 					String desde = "desde MADA <informaciones@inqsol.cl>";
@@ -6923,55 +6911,60 @@ public class MnuReportes extends Controller {
 							" </body></html>");
 					email.addTo(eMail);
 					mailerClient.send(email);
-
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
 			}
 		}
 	}
 
 	public Result proformaListaPdf(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
 				int desdeNro = Integer.parseInt(form.get("nroIni"));
 				int hastaNro = Integer.parseInt(form.get("nroFin"));
 				String mailDestino =  null;
 				Map<String,String> map = new HashMap<String,String>();
-				try {
-					Connection con = dbRead.getConnection();
+				Usuario usuario = null;
+				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, desde, hasta, s.aplicaPorSucursal, s.id_sucursal);
 					for(List<String> l: lista) {
 						map.put(l.get(0), l.get(0));
 					}
-
-					Usuario usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
-					if( usuario != null) {
-						mailDestino = usuario.getEmail().trim().toLowerCase();
-						if(mailDestino.length() < 4) {
-							usuario = null;
-						}
-					}
-					con.close();
+					usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-
+				if( usuario != null) {
+					mailDestino = usuario.getEmail().trim().toLowerCase();
+					if(mailDestino.length() < 4) {
+						usuario = null;
+					}
+				}
 				if(HomeController.isValidEmail(mailDestino)) {
 					if(map !=null && mailDestino != null) {
 						MnuReportes.proformaListaPdf0 generar = new MnuReportes.proformaListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
 						generar.start();
 						String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
 						return ok(mensajes.render("/home/",mensaje));
-
 					}else {
 						String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
 						return ok(mensajes.render("/home/",mensaje));
@@ -6980,36 +6973,37 @@ public class MnuReportes extends Controller {
 					String mensaje = "No es posible generar la solicitud debido a que el mail que existe en la configuración de su usuario no es valido";
 					return ok(mensajes.render("/home/",mensaje));
 				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
-		return ok("SE PRESENTO UN ERROR");
 	}
 
 	public Result proformaListaPeriodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaListado")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(proformaListaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaListado")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(proformaListaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
