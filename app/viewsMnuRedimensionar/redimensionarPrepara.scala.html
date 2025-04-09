@@ -1,13 +1,14 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 numeroActaRedimensionar: Long, listEquipBodOrigen: List[List[String]], fecha: String,
 listEquipos: List[tables.Equipo], listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad],
-optBodegas: String )
+optBodegas: String, id_bodegaOrigen: Long)
 
     	
 @main("") {
 
 @menues(mapDiccionario, mapPermiso, userMnu, " ")
 	<form action="/routes2/redimensionarNuevo/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
+		<input type="hidden" name="id_bodegaOrigen" value="@id_bodegaOrigen">
 		<div id="mostrarmostrar" style="display:none;">
 			@barraTitulo(mapDiccionario, "PREPARAR ACTA PARA REDIMENSIONAR","")
 			<div class="row  justify-content-md-center">

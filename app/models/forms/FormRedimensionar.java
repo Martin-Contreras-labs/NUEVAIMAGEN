@@ -8,14 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import models.calculo.Inventarios;
-import models.tables.ActaBaja;
-import models.tables.ActaRedimensionar;
-import models.tables.Baja;
-import models.tables.Compra;
-import models.tables.Factura;
-import models.tables.Movimiento;
-import models.tables.Proveedor;
-import models.tables.Redimensionar;
+import models.tables.*;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 import models.utilities.Registro;
@@ -36,9 +29,11 @@ public class FormRedimensionar {
 	public List<String> cantEquipoRedimensionar;
 	public List<Long> id_bodegaDestino;
 
+	public Long id_bodegaOrigen;
+
 	public FormRedimensionar(Long id_actaRedimensionar, Long numero, String fecha, String observaciones,
 			List<Long> id_equipoOrigen, List<String> cantEquipoOrigen, List<Long> id_a_redimensionar,
-			List<Long> id_redimensionar, List<String> cantEquipoRedimensionar,  List<Long> id_bodegaDestino) {
+			List<Long> id_redimensionar, List<String> cantEquipoRedimensionar,  List<Long> id_bodegaDestino, Long id_bodegaOrigen) {
 		super();
 		this.id_actaRedimensionar = id_actaRedimensionar;
 		this.numero = numero;
@@ -50,6 +45,7 @@ public class FormRedimensionar {
 		this.id_redimensionar = id_redimensionar;
 		this.cantEquipoRedimensionar = cantEquipoRedimensionar;
 		this.id_bodegaDestino = id_bodegaDestino;
+		this.id_bodegaOrigen = id_bodegaOrigen;
 	}
 
 	public FormRedimensionar() {
@@ -68,7 +64,7 @@ public class FormRedimensionar {
 		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 			soloArriendo = (long) 0;
 		}
-		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
+		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, form.id_bodegaOrigen, soloArriendo);
 		Map<Long,Double> mapCantBaja = new HashMap<Long,Double>();
 		
 		for(int i=0; i<form.id_equipoOrigen.size(); i++) {
@@ -116,7 +112,6 @@ public class FormRedimensionar {
 	            	detalle += "('"+id_actaRedimensionar+"','"+entry.getKey()+"','"+entry.getValue()+"','0','0','0'),";
 	            }
 	        }
-			
 			if(form.id_a_redimensionar!=null) {
 				if(detalle.length()>10) {
 					detalle = detalle.substring(0,detalle.length()-1);
@@ -251,12 +246,12 @@ public class FormRedimensionar {
 			for(Baja x: listBaja) {
 				
 				
-				
-				
+				ActaRedimensionar actaRedimensionar = ActaRedimensionar.find(con,db, id_actaRedimensionar);
+
 				
 				
 				//CAMBIAR
-				String id_bodegaEmpresa = "1";
+				Long id_bodegaEmpresa = actaRedimensionar.getId_bodegaOrigen();
 				
 				
 				
@@ -300,9 +295,88 @@ public class FormRedimensionar {
 		
 		ActaRedimensionar.modifyXCampo(con, db, "fechaConfirma", hoy.getFechaStrAAMMDD(), id_actaRedimensionar);
 	}
-	
-	
-	
+
+
+	public static List<List<String>> listEquipEnBodRedimensionar (Connection con, String db, Map<String,String> mapeoPermiso, Map<String,String> mapeoDiccionario, Long id_bodegaOrigen){
+		Long soloArriendo = (long) 1;
+		if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+			soloArriendo = (long) 0;
+		}
+		Map<Long, Precio> mapPrecio = Precio.mapAll(con, db, mapeoDiccionario, (long) 1);
+		Map<String,Long> decCompra = Moneda.numeroDecimalxNombre(con, db);
+
+
+		//CAMBIAR
+		Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, id_bodegaOrigen, soloArriendo);
+
+
+
+
+		Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, db);
+		Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+		Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);
+		List<List<String>> listEquipEnBodBaja = new ArrayList<List<String>>();
+		map.forEach((k,v)->{
+			if(v.getCantidad()>0) {
+				Equipo equipo = mapEquipo.get(v.getId_equipo());
+				if(equipo!=null) {
+					Grupo grupo = mapGrupo.get(equipo.getId_grupo());
+					Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
+					Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
+					Double kg = equipo.getKg();
+					Double m2 = equipo.getM2();
+					Precio precio = mapPrecio.get(v.getId_equipo());
+					String moneda = "", pcompra = "";
+					Double auxPcompra = (double) 0;
+					if(precio!=null) {
+						moneda = precio.getMonedaCompra();
+						pcompra = precio.getPrecioCompra();
+						auxPcompra = Double.parseDouble(pcompra.replaceAll(",", ""));
+					}
+					Double total = v.getCantidad() * auxPcompra;
+					if(moneda != null) {
+						moneda = moneda.toUpperCase();
+					}
+					Long auxDecimal = decCompra.get(moneda);
+					if(auxDecimal==null) auxDecimal = (long)2;
+					switch(auxDecimal.toString()) {
+						case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
+						default : myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
+					}
+
+					List<String> aux = new ArrayList<String>();
+					aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+					aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
+					aux.add(grupo.getNombre()); 						// 2 nombre de grupo
+					aux.add(numCoti.toString()); 						// 3 numero cotizacion
+					aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
+					aux.add(equipo.getNombre()); 						// 5 nombre de equipo
+					aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
+					aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
+					aux.add(equipo.getUnidad());						// 8 unidad
+					aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
+					aux.add(moneda);									// 10 moneda de compra
+					aux.add(pcompra);									// 11 precio de compra
+					aux.add(myformatdoubleCompra.format(total));		// 12 total a pcompra
+					listEquipEnBodBaja.add(aux);
+				}
+
+			}
+		});
+
+		//ORDENA LA LISTA
+		for(int j=0;j<listEquipEnBodBaja.size();j++) {
+			for(int i=0;i<listEquipEnBodBaja.size()-j;i++) {
+				if (i+1!=listEquipEnBodBaja.size()&&listEquipEnBodBaja.get(i).get(5).compareTo(listEquipEnBodBaja.get(i+1).get(5))>0) {
+					List<String> aux;
+					aux=listEquipEnBodBaja.get(i);
+					listEquipEnBodBaja.set(i,listEquipEnBodBaja.get(i+1));
+					listEquipEnBodBaja.set(i+1, aux);
+				}
+			}
+		}
+		return (listEquipEnBodBaja);
+	}
 	
 	
 	

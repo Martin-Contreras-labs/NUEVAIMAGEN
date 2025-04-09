@@ -21,8 +21,9 @@ public class ActaRedimensionar {
 	public String actaPDF;
 	public String observaciones;
 	public String fechaConfirma;
+	public Long id_bodegaOrigen;
 	
-	public ActaRedimensionar(Long id, Long numero, String fecha, String actaPDF, String observaciones, String fechaConfirma) {
+	public ActaRedimensionar(Long id, Long numero, String fecha, String actaPDF, String observaciones, String fechaConfirma, Long id_bodegaOrigen) {
 		super();
 		this.id = id;
 		this.numero = numero;
@@ -30,6 +31,7 @@ public class ActaRedimensionar {
 		this.actaPDF = actaPDF;
 		this.observaciones = observaciones;
 		this.fechaConfirma = fechaConfirma;
+		this.id_bodegaOrigen = id_bodegaOrigen;
 	}
 	
 	public ActaRedimensionar(FormRedimensionar form) {
@@ -39,6 +41,7 @@ public class ActaRedimensionar {
 		this.fecha = form.fecha;
 		this.actaPDF = "";
 		this.observaciones = form.observaciones;
+		this.id_bodegaOrigen = form.id_bodegaOrigen;
 	}
 
 	public ActaRedimensionar() {
@@ -89,9 +92,18 @@ public class ActaRedimensionar {
 		return fechaConfirma;
 	}
 
-	public void setFechaConfirma(String fechaConfirma) {
-		this.fechaConfirma = fechaConfirma;
+	public void setFechaConfirma(Long fechaConfirma) {
+		this.fechaConfirma = myformatfecha.format(fechaConfirma);
 	}
+
+	public Long getId_bodegaOrigen() {
+		return id_bodegaOrigen;
+	}
+	public void setId_bodegaOrigen(Long id_bodegaOrigen) {
+		this.id_bodegaOrigen = id_bodegaOrigen;
+	}
+
+
 
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
@@ -101,16 +113,19 @@ public class ActaRedimensionar {
 		Long id_acta = (long)0;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into  `"+db+"`.actaRedimensionar (numero,fecha,observaciones) " +
-								" values (?,?,?);",Statement.RETURN_GENERATED_KEYS);
+					.prepareStatement("insert into  `"+db+"`.actaRedimensionar (numero,fecha,observaciones, id_bodegaOrigen) " +
+								" values (?,?,?,?);",Statement.RETURN_GENERATED_KEYS);
 			smt.setLong(1, actaRedireccionar.getNumero());
 			smt.setString(2, actaRedireccionar.getFecha());
 			smt.setString(3, actaRedireccionar.getObservaciones());
+			smt.setLong(4, actaRedireccionar.getId_bodegaOrigen());
 			smt.executeUpdate();
 			
 			ResultSet rs = smt.getGeneratedKeys();
             if (rs.next()) {
             	id_acta = rs.getLong(1);
+				System.out.println(smt.toString());
+				System.out.println(id_acta);
             }
             smt.close();
             rs.close();
@@ -210,14 +225,14 @@ public class ActaRedimensionar {
 			PreparedStatement smt=null;
 			ResultSet rs = null;
 			smt = con
-					.prepareStatement("select id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,'') "
+					.prepareStatement("select id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,''), id_bodegaOrigen "
 							+ " from `"+db+"`.actaRedimensionar"
 							+ " where fechaConfirma is null;");
 			rs = smt.executeQuery();
 			while (rs.next()) {
 				String fecha = myformatfecha.format(rs.getDate(3));
 				String fechaConfirma = rs.getString(6);	
-					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma));
+					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma, rs.getLong(7)));
 			}
 			smt.close();
 			rs.close();
@@ -233,14 +248,14 @@ public class ActaRedimensionar {
 			PreparedStatement smt=null;
 			ResultSet rs = null;
 			smt = con
-					.prepareStatement("select id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,'') "
+					.prepareStatement("select id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,''), id_bodegaOrigen "
 							+ " from `"+db+"`.actaRedimensionar"
 							+ " where fechaConfirma is not null;");
 			rs = smt.executeQuery();
 			while (rs.next()) {
 				String fecha = myformatfecha.format(rs.getDate(3));
 				String fechaConfirma = rs.getString(6);	
-					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma));
+					lista.add(new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma, rs.getLong(7)));
 			}
 			smt.close();
 			rs.close();
@@ -258,14 +273,14 @@ public class ActaRedimensionar {
 			ResultSet rs = null;
 			smt = con
 					.prepareStatement(" select " +
-							" id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,'') " +
+							" id, numero, ifnull(fecha,''), actaPDF, ifnull(observaciones,''), ifnull(fechaConfirma,''), id_bodegaOrigen " +
 							" from `"+db+"`.actaRedimensionar where id = ?;");
 			smt.setLong(1, id_actaRedimensionar);
 			rs = smt.executeQuery();
 			if (rs.next()) {
 				String fecha = rs.getString(3);
 				String fechaConfirma = rs.getString(6);	
-				aux = new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma);
+				aux = new ActaRedimensionar(rs.getLong(1),rs.getLong(2),fecha,rs.getString(4),rs.getString(5),fechaConfirma, rs.getLong(7));
 			}
 			smt.close();
 			rs.close();

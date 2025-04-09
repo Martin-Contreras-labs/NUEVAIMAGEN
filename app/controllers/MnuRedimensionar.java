@@ -1,6 +1,7 @@
 package controllers;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -63,26 +64,13 @@ public class MnuRedimensionar extends Controller {
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
     			Long id_bodegaEmpresa = BodegaRedimensionar.find(con, s.baseDato);
-    			
-    			Long numeroActaRedimensionar = ActaRedimensionar.findNuevoNumero(con, s.baseDato);
-    			String fecha = Fechas.hoy().getFechaStrAAMMDD();
-    			List<List<String>> listEquipBodOrige = FormBaja.listEquipEnBodBaja(con, s.baseDato, mapeoPermiso, mapeoDiccionario);
-    			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato);
-    			
-    			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
-    			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
-    			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
-    			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-    			String optBodegas = "";
-    			for(List<String> x: listBodegas) {
-    				if( ! x.get(1).equals("1")) {
-    					optBodegas += "<option value='"+x.get(1)+"'>"+x.get(5)+"</option>";
-    				}
-    			}
+				if(id_bodegaEmpresa==null) {
+					return ok(mensajes.render("/",msgError));
+				}
+				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				List<BodegaEmpresa> listBodegas = BodegaEmpresa.allInternas(con, s.baseDato);
     			con.close();
-    			return ok(redimensionarPrepara.render(mapeoDiccionario,mapeoPermiso,userMnu,numeroActaRedimensionar,listEquipBodOrige, fecha,
-    					listEquipos, listGrupos, listFabrica, listUnidades, optBodegas));
+    			return ok(redimensionarAsignaBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaEmpresa,listBodegas));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -91,6 +79,37 @@ public class MnuRedimensionar extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
     }
+
+	public Result redimensionarAsignaBodegaUpdate(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+				try {
+					Connection con = db.getConnection();
+					PreparedStatement smt = con
+							.prepareStatement("truncate `"+s.baseDato+"`.bodegaRedimensionar;");
+					smt.executeUpdate();
+					smt.close();
+					PreparedStatement smt2 = con
+							.prepareStatement("insert into `"+s.baseDato+"`.bodegaRedimensionar (id_bodegaEmpresa) values (?);");
+					smt2.setLong(1, id_bodegaEmpresa);
+					smt2.executeUpdate();
+					smt2.close();
+					con.close();
+					return redirect("/home/");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok(mensajes.render("/",msgError));
+			}
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
 	
     //============================================================
     // MNU redimensionarPrepara   Redimensionar/preparar -- redimensionar
@@ -110,7 +129,9 @@ public class MnuRedimensionar extends Controller {
     			}
     			Long numeroActaRedimensionar = ActaRedimensionar.findNuevoNumero(con, s.baseDato);
     			String fecha = Fechas.hoy().getFechaStrAAMMDD();
-    			List<List<String>> listEquipBodOrige = FormBaja.listEquipEnBodBaja(con, s.baseDato, mapeoPermiso, mapeoDiccionario);
+
+				Long id_bodegaOrigen = BodegaRedimensionar.find(con, s.baseDato);
+    			List<List<String>> listEquipBodOrige = FormRedimensionar.listEquipEnBodRedimensionar(con, s.baseDato, mapeoPermiso, mapeoDiccionario, id_bodegaOrigen);
     			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato);
     			
     			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
@@ -126,7 +147,7 @@ public class MnuRedimensionar extends Controller {
     			}
     			con.close();
     			return ok(redimensionarPrepara.render(mapeoDiccionario,mapeoPermiso,userMnu,numeroActaRedimensionar,listEquipBodOrige, fecha,
-    					listEquipos, listGrupos, listFabrica, listUnidades, optBodegas));
+    					listEquipos, listGrupos, listFabrica, listUnidades, optBodegas, id_bodegaOrigen));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}

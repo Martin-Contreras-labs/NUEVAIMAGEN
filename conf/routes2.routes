@@ -28,6 +28,7 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 GET		/redimensionarAsignaBodega/				controllers.MnuRedimensionar.redimensionarAsignaBodega(request: Request)
+POST    /redimensionarAsignaBodegaUpdate/       controllers.MnuRedimensionar.redimensionarAsignaBodegaUpdate(request: Request)
 
 GET		/redimensionarPrepara/				controllers.MnuRedimensionar.redimensionarPrepara(request: Request)
 POST	/redimensionarNuevo/				controllers.MnuRedimensionar.redimensionarNuevo(request: Request)
