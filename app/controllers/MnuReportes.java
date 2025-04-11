@@ -136,7 +136,7 @@ public class MnuReportes extends Controller {
 			Fechas hoy = Fechas.hoy();
 			return ok(reportInventarioEquipoCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -173,10 +173,10 @@ public class MnuReportes extends Controller {
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 				return ok(reportInventarioEquipo.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, fechaCorte, tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -210,10 +210,10 @@ public class MnuReportes extends Controller {
 						mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reportInventarioGeneralXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -243,10 +243,10 @@ public class MnuReportes extends Controller {
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -284,17 +284,17 @@ public class MnuReportes extends Controller {
 				datos = ReportInventarios.reportInventarioEquipo(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda,
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.reportInventarioGeneralExcel(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
 				return ok(file,false,Optional.of("InventarioPorEquipo.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -323,7 +323,7 @@ public class MnuReportes extends Controller {
 			Fechas hoy = Fechas.hoy();
 			return ok(reportEquipoBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -360,10 +360,10 @@ public class MnuReportes extends Controller {
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 				return ok(reportEquipoBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -397,10 +397,10 @@ public class MnuReportes extends Controller {
 						mapPCompra, mapPLista, moneda, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reportEquipoBodegaXEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			}catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -438,17 +438,17 @@ public class MnuReportes extends Controller {
 				datos = ReportInventarios.reportInventarioEquipoDesagrupado(con, s.baseDato, fechaCorte, permisoPorBodega, mapPCompra, mapPLista, moneda,
 						tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal, mapEquipo, mapSucursal, mapUnidadTiempo, tasasCorte, dec);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.reportInvGeneralExcelDesagrupado(s.baseDato, datos, fechaCorte, mapeoDiccionario, tipo);
 				return ok(file,false,Optional.of("InventarioPorEquipoBodega.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -478,10 +478,10 @@ public class MnuReportes extends Controller {
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				return ok(reportEquipoBodegaTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -511,7 +511,7 @@ public class MnuReportes extends Controller {
 			Fechas hoy = Fechas.hoy();
 			return ok(reportInventarioBodegaCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -541,10 +541,10 @@ public class MnuReportes extends Controller {
 						soloVigentes, permisoPorBodega, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reportInventarioBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -574,10 +574,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
 				return ok(reportInventarioSelectivoXBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -608,10 +608,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.trazaEquipoProyectoEnBodega(con, s.baseDato, id_bodega, id_equipo, id_cotizacion, tipo, mapeoDiccionario);
 				return ok(reportInventTrazaEquipoEnBod.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega, datos, tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -642,17 +642,17 @@ public class MnuReportes extends Controller {
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				datos = ReportInventarios.reportInventarioSelectivoXBodega(con, s.baseDato, bodega, fechaCorte, tipo, mapeoDiccionario);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioSelectivoXBodega(s.baseDato, datos, fechaCorte, mapeoDiccionario, bodega, tipo);
 				return ok(file,false,Optional.of("InventarioPorBodega.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -703,10 +703,10 @@ public class MnuReportes extends Controller {
 				List<Grupo> grupos = Grupo.all(con, s.baseDato);
 				return ok(reportInventarioGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupos,fechaCorte,tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -738,10 +738,10 @@ public class MnuReportes extends Controller {
 				Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
 				return ok(reportInventarioSelectivoXGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,grupo,datos,fechaCorte,tipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -774,17 +774,17 @@ public class MnuReportes extends Controller {
 				datos = ReportInventarios.reportInventarioSelectivoXGrupo(con, s.baseDato, id_grupo, fechaCorte,
 						permisoPorBodega, tipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioSelectivoXGrupo(s.baseDato, datos, fechaCorte, mapeoDiccionario, grupo, tipo);
 				return ok(file,false,Optional.of("InventarioPorGrupo.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -820,10 +820,10 @@ public class MnuReportes extends Controller {
 			}
 			return ok(reportInventarioMatrizCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo, listSucursal));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -884,10 +884,10 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reportInventarioMatriz.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,titulos1,titulos2,tipo,fechaCorte,sucursal));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -946,17 +946,17 @@ public class MnuReportes extends Controller {
 					sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
 				}
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
 				return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -985,10 +985,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
 			return ok(reportInventarioTodo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1011,17 +1011,17 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbRead.getConnection()){
 				datos = ReportInventarios.listaFullEquipos(con, s.baseDato);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioTodo(s.baseDato, datos, mapeoDiccionario);
 				return ok(file,false,Optional.of("TodoElInventario.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1050,10 +1050,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato);
 			return ok(reportEstadoBodegas.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1076,17 +1076,17 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbRead.getConnection()){
 				datos = ReportBodegas.estadoBodegas(con, s.baseDato);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportBodegas.estadoBodegasExcel(s.baseDato, mapeoDiccionario, datos);
 				return ok(file,false,Optional.of("ReporteEstadoBodegas.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1116,10 +1116,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportInventarios.reportInventarioProyecto(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reportInventarioProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1146,10 +1146,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
 				return ok(reportInventarioProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,datos));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1176,17 +1176,17 @@ public class MnuReportes extends Controller {
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				datos = ReportInventarios.reportInventarioProyectoDetalle(con, s.baseDato, bodega.getId(), mapeoDiccionario);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportInventarios.exportaReportInventarioProyectoDetalle(s.baseDato, datos, mapeoDiccionario, bodega);
 				return ok(file,false,Optional.of("ExistenciasPorBodega.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1217,7 +1217,7 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reporteMovimientosPeriodoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1273,10 +1273,10 @@ public class MnuReportes extends Controller {
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
@@ -1345,7 +1345,7 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reporteMovimientosListaProyectosAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos, desdeAAMMDD,hastaAAMMDD));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1381,10 +1381,10 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reporteMovimientosDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1420,17 +1420,17 @@ public class MnuReportes extends Controller {
 					concepto = "VENTA";
 				}
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportMovimientos.movimientosExcelAgrupado(s.baseDato, datos, mapeoDiccionario, bodega, concepto, fechaDesde, fechaHasta);
 				return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1461,10 +1461,10 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reporteMovSoloBodInternas0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1492,10 +1492,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.reportInventarioSoloBodegasInternas(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reporteMovSoloBodInternas1.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, fechaDesde, fechaHasta));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1525,10 +1525,10 @@ public class MnuReportes extends Controller {
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				return ok(reporteMovSoloBodInternas2.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega, fechaDesde, fechaHasta));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1559,17 +1559,17 @@ public class MnuReportes extends Controller {
 				datos = ReportMovimientos.movimientoGuiasSoloBodInternas(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
 				File file = ReportMovimientos.reporteMovSoloBodInternas3Excel(s.baseDato, datos, mapeoDiccionario, bodega, fechaDesde, fechaHasta);
 				return ok(file, false, Optional.of("MovimientosPorBodegaInterna.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1600,7 +1600,7 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reportePorProyectoAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1628,10 +1628,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.listaProyectosAsignados(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reportePorProyectoListaAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1668,10 +1668,10 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reportePorProyectoDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,proyecto,esVenta,concepto,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1707,10 +1707,10 @@ public class MnuReportes extends Controller {
 						permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario);
 				proyecto = Proyecto.find(con, s.baseDato, id_proyecto);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
@@ -1721,7 +1721,7 @@ public class MnuReportes extends Controller {
 				File file = ReportMovimientos.movPorProyectoExcelAgrupado(s.baseDato, datos, mapeoDiccionario, proyecto, concepto, fechaDesde, fechaHasta);
 				return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1753,10 +1753,10 @@ public class MnuReportes extends Controller {
 			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
 			return ok(reportePorProyectoValorizado.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -1813,10 +1813,10 @@ public class MnuReportes extends Controller {
 				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -1840,10 +1840,10 @@ public class MnuReportes extends Controller {
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
@@ -1993,7 +1993,7 @@ public class MnuReportes extends Controller {
 						+ "</table>";
 				return ok(reportePorProyectoListaValorizado.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2027,10 +2027,10 @@ public class MnuReportes extends Controller {
 			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
 			return ok(reporteMovimientosPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -2101,10 +2101,10 @@ public class MnuReportes extends Controller {
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -2118,10 +2118,10 @@ public class MnuReportes extends Controller {
 				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			try {
@@ -2252,7 +2252,7 @@ public class MnuReportes extends Controller {
 				return ok(reporteMovimientosListaProyectos.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
 						uf, usd, eur, desdeAAMMDD, hastaAAMMDD));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2319,10 +2319,10 @@ public class MnuReportes extends Controller {
 					return ok(reporteMovimientosDetallePorProyecto.render(mapeoDiccionario, mapeoPermiso, userMnu, listDatos, proyecto, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf, id_proyecto));
 				}
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2366,10 +2366,10 @@ public class MnuReportes extends Controller {
 						datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf);
 						bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					} catch (SQLException e) {
-						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
-						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					}
 					String concepto = mapeoDiccionario.get("ARRIENDO");
@@ -2391,10 +2391,10 @@ public class MnuReportes extends Controller {
 							listDatos.add(datos);
 						}
 					} catch (SQLException e) {
-						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
-						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					}
 					String concepto = mapeoDiccionario.get("ARRIENDO");
@@ -2405,7 +2405,7 @@ public class MnuReportes extends Controller {
 					return ok(file,false,Optional.of("MovimientosPorProyectoValorizado.xlsx"));
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2467,10 +2467,10 @@ public class MnuReportes extends Controller {
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -2536,7 +2536,7 @@ public class MnuReportes extends Controller {
 			}
 			return ok(reporteMovimientosListaProyectosIE.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -2568,10 +2568,10 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reporteMovimientosDetalleIE.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2600,10 +2600,10 @@ public class MnuReportes extends Controller {
 					datos = ReportMovimientos.movimientoGuiasIE(con, s.baseDato, id_bodegaEmpresa, esVenta);
 					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				String concepto = mapeoDiccionario.get("ARRIENDO");
@@ -2613,7 +2613,7 @@ public class MnuReportes extends Controller {
 				File file = ReportMovimientos.movimientosExcelIE(s.baseDato, datos, mapeoDiccionario, bodega, concepto);
 				return ok(file,false,Optional.of("MovimientosPorBodegaIE.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2643,10 +2643,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportExcedentes.reportExcedentesSoloProyectosSelectivo(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reporteExcedentesListaProyectos.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -2673,10 +2673,10 @@ public class MnuReportes extends Controller {
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				return ok(reporteExcedentesDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2703,10 +2703,10 @@ public class MnuReportes extends Controller {
 				File file = ReportExcedentes.excedentesExcel(con, s.baseDato, datos, mapeoDiccionario, bodega);
 				return ok(file,false,Optional.of("ExcedentesPorBodega.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2736,10 +2736,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportExcedentes.reportExcedentesEquiposSelectivo(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reporteExcedentesListaEquipos.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -2767,10 +2767,10 @@ public class MnuReportes extends Controller {
 				Equipo equipo = Equipo.find(con, s.baseDato, Long.parseLong(id_equipo));
 				return ok(reporteExcedentesDetalleEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,equipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2801,10 +2801,10 @@ public class MnuReportes extends Controller {
 				File file = ReportExcedentes.excedentesExcelEquipo(s.baseDato, datos, mapeoDiccionario, equipo);
 				return ok(file,false,Optional.of("ExcedentesPorBodega.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2834,10 +2834,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportInventarios.reportInventarioPorEstadosDeEquiposTodos(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reporteEstadosTodos.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -2870,10 +2870,10 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reporteEstadosTodosDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, listTipoEstados, mapDatos, bodega));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2906,10 +2906,10 @@ public class MnuReportes extends Controller {
 				File file = ReportMovimientos.estadosExcel(s.baseDato, listTipoEstados, mapDatos, bodega, mapeoDiccionario);
 				return ok(file,false,Optional.of("EstadosPorBodega.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -2941,7 +2941,7 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reporteEstadosPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -2970,10 +2970,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> listado = ReportMovimientos.movGuiasPorEstadoPeriodo(con, s.baseDato, datos);
 				return ok(reporteEstadosPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,desdeAAMMDD,hastaAAMMDD,listado));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3005,10 +3005,10 @@ public class MnuReportes extends Controller {
 				File file = ReportMovimientos.estadosExcelPeriodo(s.baseDato, mapeoDiccionario, desdeAAMMDD, hastaAAMMDD, listado);
 				return ok(file,false,Optional.of("EstadosPorPeriodo.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3038,10 +3038,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportInventarios.reportInventarioPorEstadosDeEquiposTodos(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reporteEstadosAll0.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3073,10 +3073,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.reportInventarioPorEstadosAll(con, s.baseDato, permisoPorBodega, bodegaEmpresa.getId());
 				return ok(reporteEstadosAll1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, bodegaEmpresa));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3104,10 +3104,10 @@ public class MnuReportes extends Controller {
 				File file = ReportInventarios.reporteEstadosAllExcel(s.baseDato, mapeoDiccionario, datos, bodegaEmpresa);
 				return ok(file,false,Optional.of("ReporteEstadosTodo.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3139,7 +3139,7 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reporteEstadosPer0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3171,10 +3171,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportInventarios.reportInventarioEstadosPorPer(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD);
 				return ok(reporteEstadosPer1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3202,10 +3202,10 @@ public class MnuReportes extends Controller {
 				File file = ReportInventarios.reportInventarioEstadosPorPerExcel(s.baseDato, mapeoDiccionario, datos, desdeAAMMDD, hastaAAMMDD);
 				return ok(file,false,Optional.of("ReporteEstadosPorPeriodo.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3234,10 +3234,10 @@ public class MnuReportes extends Controller {
 			List<Equipo> datos = Equipo.allVigentes(con, s.baseDato);
 			return ok(reportTrazaEquipo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3263,10 +3263,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = ReportTrazabilidades.trazaEquipo(con, s.baseDato, id_equipo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reportTrazaEquipo2.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,id_equipo));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3292,10 +3292,10 @@ public class MnuReportes extends Controller {
 				File file = ReportTrazabilidades.trazaEquipoExcel(s.baseDato, datos, mapeoDiccionario);
 				return ok(file,false,Optional.of("TrazabilidadPorEquipo.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3350,10 +3350,10 @@ public class MnuReportes extends Controller {
 			return ok(reporteEjecutivo1.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,grafInversion,graficoOcupacionValorizado,valorizadoPorBodega,
 					graficoPotencialPorMesYGrupo));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3394,10 +3394,10 @@ public class MnuReportes extends Controller {
 			File file = ReportEjecutivos.graficoInversion(s.baseDato, grafInversion, mapeoDiccionario);
 			return ok(file,false,Optional.of("GraficoInversion.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3425,10 +3425,10 @@ public class MnuReportes extends Controller {
 			File file = ReportEjecutivos.graficoOcupacion(s.baseDato, grafOcupacion, mapeoDiccionario);
 			return ok(file,false,Optional.of("GraficoOcupacion.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3468,10 +3468,10 @@ public class MnuReportes extends Controller {
 			File file = ReportEjecutivos.graficoValorizadoGrupo(s.baseDato, valorizado, mapeoDiccionario);
 			return ok(file,false,Optional.of("GraficoValorizadoGrupo.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3511,10 +3511,10 @@ public class MnuReportes extends Controller {
 			File file = ReportEjecutivos.graficoUnidades(s.baseDato, porUnidades, mapeoDiccionario);
 			return ok(file,false,Optional.of("GraficoPorUnidadesGrupo.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3544,10 +3544,10 @@ public class MnuReportes extends Controller {
 			File file = ReportEjecutivos.graficoValorizadoBodega(s.baseDato, valorizadoPorBodega, mapeoDiccionario);
 			return ok(file,false,Optional.of("GraficoValorizadoBodega.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3578,10 +3578,10 @@ public class MnuReportes extends Controller {
 			File file = ReportEjecutivos.graficoPotencial(s.baseDato, graficoPotencialPorMesYGrupo, mapeoDiccionario);
 			return ok(file,false,Optional.of("GraficoPotencialPorMesYGrupo.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3610,10 +3610,10 @@ public class MnuReportes extends Controller {
 			List<String> series = ReportGerenciales.graficoCategoriasAnio(con, s.baseDato, id_grupo, mapeoDiccionario, "0", "1");
 			return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"TODO EL INVENTARIO"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3641,10 +3641,10 @@ public class MnuReportes extends Controller {
 			List<Grupo> lista = Grupo.all(con, s.baseDato);
 			return ok(reporteGerencialGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3671,10 +3671,10 @@ public class MnuReportes extends Controller {
 				List<String> series = ReportGerenciales.graficoCategoriasAnioPorGrupo(con, s.baseDato, id_grupo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"(NO CONSIDERA AJUSTES)  GRUPO: "+grupo.nombre));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3706,10 +3706,10 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reportGerenKGPorPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3741,10 +3741,10 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = (List<List<String>>) map.get("datos");
 				return ok(reportGerenKGPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,cabecera1,cabecera2,datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3774,10 +3774,10 @@ public class MnuReportes extends Controller {
 				File file = ReportKilos.reportGerenKGPorPeriodo1Excel(s.baseDato, mapeoDiccionario, cabecera1, cabecera2, datos, desdeAAMMDD, hastaAAMMDD);
 				return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3810,10 +3810,10 @@ public class MnuReportes extends Controller {
 			List<List<String>> datosAnteriorAnterior = ReportKilos.reportKilosArriendoPorGrupoAnual(con,s.baseDato, Long.parseLong(anioAnteriorAnterior));
 			return ok(reporteGerencialKG.render(mapeoDiccionario,mapeoPermiso,userMnu,datosActual,datosAnterior,datosAnteriorAnterior, anioActual,anioAnterior,anioAnteriorAnterior));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3845,10 +3845,10 @@ public class MnuReportes extends Controller {
 			File file = ReportKilos.reporteGerencialKGExcel(s.baseDato, mapeoDiccionario, datosActual, datosAnterior, datosAnteriorAnterior, anioActual, anioAnterior, anioAnteriorAnterior);
 			return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3895,10 +3895,10 @@ public class MnuReportes extends Controller {
 			String subtitulo="RESUMEN POR "+mapeoDiccionario.get("BODEGA")+"/INTERNA y "+mapeoDiccionario.get("BODEGA")+"/PROYECTO";
 			return ok(reportGraficoMovResumen.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,vistaCheckBox,subtitulo));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -3931,10 +3931,10 @@ public class MnuReportes extends Controller {
 				}
 				return (reportGraficoMovResumen(request,listIdGrupos.toString(),vistaCheckBox));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -3991,10 +3991,10 @@ public class MnuReportes extends Controller {
 			List<BodegaEmpresa> listBodegas2 = BodegaEmpresa.allFiltroPorNombre(con, s.baseDato, filtroPorNombreBodega);
 			return ok(reportGraficoMovPorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,valorizado,porUnidades,listGrupos,listBodegas2,vistaCheckBox,idTipoBodega,subtitulo));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -4045,10 +4045,10 @@ public class MnuReportes extends Controller {
 				}
 				return (reportGraficoMovPorGrupo(request,listIdGrupos.toString(),listIdBodegas.toString(),vistaCheckBox,idTipoBodega));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -4077,10 +4077,10 @@ public class MnuReportes extends Controller {
 			List<String> graficoOcupacionUnidades = ReportGraficos.graficoOcupacionPorGrupoUnidades(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reportGraficoMovUso.render(mapeoDiccionario,mapeoPermiso,userMnu,graficoOcupacionValorizado,graficoOcupacionUnidades));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -4112,10 +4112,10 @@ public class MnuReportes extends Controller {
 			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
 			return ok(reportFacturaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -4178,10 +4178,10 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -4325,7 +4325,7 @@ public class MnuReportes extends Controller {
 				return ok(reportFacturaProyecto.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, desdeAAMMDD, hastaAAMMDD, usd, eur, uf,
 						Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), archivoPDF));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -4389,10 +4389,10 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -4536,7 +4536,7 @@ public class MnuReportes extends Controller {
 				return ok(reportFacturaProyecto.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, desdeAAMMDD, hastaAAMMDD, usd, eur, uf,
 						Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), archivoPDF));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -4602,10 +4602,10 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -4641,7 +4641,7 @@ public class MnuReportes extends Controller {
 						proyectos,desde,hasta,uf,usd,eur,resumenTotales);
 				return ok(file,false,Optional.of("EP_Proforma_Listado.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -4678,9 +4678,9 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbWrite.getConnection()) {
 				Parametros.modify(con, s.baseDato, "envioMasivoProformas", (long)2);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			}
 			String nros = "";
 			try {
@@ -4732,9 +4732,9 @@ public class MnuReportes extends Controller {
 					mapFecha_primera_guiaMs2 = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 					hoy = Fechas.hoy();
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, listIdBodegaEmpresaMs2,
 						mapBodegaEmpresaMs2, mapPreciosMs2, mapMaestroPreciosMs2, listIdGuia_fechaCorteMs2, inventarioMs2);
@@ -4788,7 +4788,7 @@ public class MnuReportes extends Controller {
 				proyectosMs2 = null;
 				resumenTotalesMs2 = null;
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			}
 			try {
 				Email email = new Email();
@@ -4818,9 +4818,9 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbWrite.getConnection()) {
 				Parametros.modify(con, s.baseDato, "envioMasivoProformas", (long)1);
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			}
 		}
 	}
@@ -4874,9 +4874,9 @@ public class MnuReportes extends Controller {
 			listIdGuia_fechaCorteMs2 = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDiaMs2.toString());
 			inventarioMs2 = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorteMs2);
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 		}
 		try{
 			List<List<String>> finalPerMs2 = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDiaMs2.toString(), hastaAAMMDDMs2, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
@@ -4962,12 +4962,12 @@ public class MnuReportes extends Controller {
 				finalPerMs2 = null;
 				return(proformaMs2.id.toString());
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			}
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 		}
 		return(null);
 	}
@@ -5002,10 +5002,10 @@ public class MnuReportes extends Controller {
 						}
 					}
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				if (HomeController.isValidEmail(mailDestino)) {
@@ -5023,7 +5023,7 @@ public class MnuReportes extends Controller {
 					return ok(mensajes.render("/home/", mensaje));
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5128,10 +5128,10 @@ public class MnuReportes extends Controller {
 					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 					listSol = CotizaSolucion.all(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
@@ -5160,7 +5160,7 @@ public class MnuReportes extends Controller {
 						resumenSubtotales,id_bodegaEmpresa,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec, listReferencias,
 						oc, listSol));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5257,10 +5257,10 @@ public class MnuReportes extends Controller {
 					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
@@ -5289,7 +5289,7 @@ public class MnuReportes extends Controller {
 						resumenSubtotales,finalPer,cliente,detalleAjuste,mapReportPorGuia10, cantDec);
 				return ok(file,false,Optional.of("EP_Proforma_"+bodega.nombre+".xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5393,10 +5393,10 @@ public class MnuReportes extends Controller {
 					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
 					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
@@ -5473,17 +5473,17 @@ public class MnuReportes extends Controller {
 								cliente,proforma,referencias,detalleAjuste, listGuiasPer, mapReportPorGuia10, oc, comentarios, form);
 					}
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				String titulo = "NOTA DE VENTA";
 				String url = "%2FreportFacturaProyectoGet%2F0&"+desdeAAMMDD+"&"+hastaAAMMDD+"&"+uf+"&"+usd+"&"+eur;
 				return redirect("/routes2/redirShowPDF/"+archivoPDF+","+titulo+","+url);
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5516,10 +5516,10 @@ public class MnuReportes extends Controller {
 			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
 			return ok(reportFacturaPeriodoResumen0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -5547,10 +5547,10 @@ public class MnuReportes extends Controller {
 			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
 			return ok(reportFacturaPeriodoResumen.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
 		} catch (SQLException e) {
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -5587,7 +5587,7 @@ public class MnuReportes extends Controller {
 				return ok(reportFacturaResumen0.render(mapeoDiccionario, mapeoPermiso, userMnu,
 						desde, hasta, uf, usd, eur));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5628,14 +5628,14 @@ public class MnuReportes extends Controller {
 					return ok(reportFacturaResumen.render(mapeoDiccionario, mapeoPermiso, userMnu,
 							desde, hasta, uf, usd, eur, nroDec));
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5697,10 +5697,10 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -5737,10 +5737,10 @@ public class MnuReportes extends Controller {
 						Map<String, List<List<String>>> mapResumenPorGrupo = ReportFacturas.mapResumenPorGrupo2(con2, s.baseDato, valorTotalporBodegaYGrupo); 		// RESUMEN POR GRUPO
 						resumenPorGrupoYProyecto = ReportFacturas.resumenPorGrupoYProyecto(con2, s.baseDato, proyectos, mapResumenPorGrupo); 		// RESUMEN POR GRUPO
 					} catch (SQLException e) {
-						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
-						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					}
 				}
@@ -5751,7 +5751,7 @@ public class MnuReportes extends Controller {
 						+",\"resumenTotalesJson\":"+resumenTotalesJson+"}";
 				return ok(json).as("application/json");
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5788,10 +5788,10 @@ public class MnuReportes extends Controller {
 							}
 						}
 					} catch (SQLException e) {
-						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
-						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					}
 					if(HomeController.isValidEmail(mailDestino)) {
@@ -5841,10 +5841,10 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -5894,14 +5894,14 @@ public class MnuReportes extends Controller {
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle);
 					return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -5976,9 +5976,9 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -6036,15 +6036,15 @@ public class MnuReportes extends Controller {
 						email.addAttachment("EP_Proforma_Resumen.xlsx", file);
 						mailerClient.send(email);
 					} catch (Exception e) {
-						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 					}
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 			}
 		}
 	}
@@ -6088,10 +6088,10 @@ public class MnuReportes extends Controller {
 							}
 						}
 					} catch (SQLException e) {
-						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					} catch (Exception e) {
-						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 						return ok(mensajes.render("/home/", msgReport));
 					}
 					if(HomeController.isValidEmail(mailDestino)) {
@@ -6133,10 +6133,10 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
@@ -6185,14 +6185,14 @@ public class MnuReportes extends Controller {
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
 					return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6267,9 +6267,9 @@ public class MnuReportes extends Controller {
 					map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				}
 				ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(baseDato,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
@@ -6317,9 +6317,9 @@ public class MnuReportes extends Controller {
 					file = ReportFacturas.exportaProformaExcelResumen(baseDato, mapeoDiccionario,
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				}
 				try {
 					Email email = new Email();
@@ -6331,10 +6331,10 @@ public class MnuReportes extends Controller {
 					email.addAttachment("EP_Proforma_Resumen.xlsx", file);
 					mailerClient.send(email);
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 			}
 		}
 	}
@@ -6365,7 +6365,7 @@ public class MnuReportes extends Controller {
 			String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reportFacturaConsolidado.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -6395,10 +6395,10 @@ public class MnuReportes extends Controller {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<String> categorias = new ArrayList<String>();
@@ -6421,7 +6421,7 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reportFacturaConsolidadoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, nameSerie, mapDataSerie));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6449,16 +6449,16 @@ public class MnuReportes extends Controller {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 					File file = ReportFacturaConsolidado.reportFacturaConsolidadoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 					return ok(file,false,Optional.of("Consol_ep_por_meses.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6490,7 +6490,7 @@ public class MnuReportes extends Controller {
 			String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reportFactConsolconGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -6520,10 +6520,10 @@ public class MnuReportes extends Controller {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<String> categorias = new ArrayList<String>();
@@ -6607,7 +6607,7 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reportFactConsolconGrupoRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"), categorias, listSeleccion, mapGrupo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosGrupo));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6635,16 +6635,16 @@ public class MnuReportes extends Controller {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					datos = ReportFacturaConsolidado.reportConsDetalladoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				File file = ReportFacturaConsolidado.reportConsDetalladoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 				return ok(file,false,Optional.of("Consol_ep_por_grupo_meses.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6675,7 +6675,7 @@ public class MnuReportes extends Controller {
 			String fecha = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(reportFactConsolconEquipos.render(mapeoDiccionario,mapeoPermiso,userMnu, fecha));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
@@ -6705,10 +6705,10 @@ public class MnuReportes extends Controller {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<String> categorias = new ArrayList<String>();
@@ -6787,7 +6787,7 @@ public class MnuReportes extends Controller {
 				return ok(reportFactConsolconEquiposRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"),
 							categorias, listSeleccion, mapEquipo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosEquipo, mapNomEquip));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6815,16 +6815,16 @@ public class MnuReportes extends Controller {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					datos = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 				return ok(file,false,Optional.of("Consol_ep_por_equipo_meses.xlsx"));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -6871,7 +6871,7 @@ public class MnuReportes extends Controller {
 							InputStream archivo = Archivos.leerArchivo(path);
 							merger.addSource(archivo);
 						} catch (Exception e) {
-							logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+							logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 						}
 
 					}
@@ -6913,7 +6913,7 @@ public class MnuReportes extends Controller {
 					mailerClient.send(email);
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 			}
 		}
 	}
@@ -6947,10 +6947,10 @@ public class MnuReportes extends Controller {
 					}
 					usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
 				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				if( usuario != null) {
@@ -6974,7 +6974,7 @@ public class MnuReportes extends Controller {
 					return ok(mensajes.render("/home/",mensaje));
 				}
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -7002,563 +7002,598 @@ public class MnuReportes extends Controller {
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			return ok(proformaListaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result proformaLista(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbRead.getConnection();
-					if(mapeoPermiso.get("proformaListado")==null) {
-						con.close();
-						return ok(mensajes.render("/",msgSinPermiso));
-					}
-					String fechaDesde = form.get("fechaDesde");
-					String fechaHasta = form.get("fechaHasta");
-					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
-					con.close();
-					return ok(proformaLista.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, fechaDesde, fechaHasta));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if(mapeoPermiso.get("proformaListado")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbRead.getConnection()) {
+				String fechaDesde = form.get("fechaDesde");
+				String fechaHasta = form.get("fechaHasta");
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(proformaLista.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, fechaDesde, fechaHasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result proformaListaGet(Http.Request request, String desde, String hasta) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("proformaListado")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-			try {
-				Connection con = dbRead.getConnection();
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-				List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, desde, hasta, s.aplicaPorSucursal, s.id_sucursal);
-				con.close();
-				return ok(proformaLista.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, desde, hasta));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
 		}
-		return ok(mensajes.render("/",msgError));
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if (mapeoPermiso.get("proformaListado") == null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/", msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, desde, hasta, s.aplicaPorSucursal, s.id_sucursal);
+			return ok(proformaLista.render(mapeoDiccionario, mapeoPermiso, userMnu, lista, desde, hasta));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
 	}
 
 	public Result proformaListaExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				String fechaDesde = form.get("fechaDesde");
 				String fechaHasta = form.get("fechaHasta");
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-					if(mapeoPermiso.get("proformaListado")==null) {
-						con.close();
-						return ok(mensajes.render("/",msgSinPermiso));
-					}
-					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-
-					List<List<String>> lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
-
-					File file = Proforma.listadoPorAnioExcel(s.baseDato, mapeoDiccionario, lista);
-
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ListadoDeProformas.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
+				if(mapeoPermiso.get("proformaListado")==null) {
+					logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/", msgSinPermiso));
 				}
+				List<List<String>> lista = null;
+				try (Connection con = dbRead.getConnection()) {
+					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+					lista = Proforma.listadoPorPeriodo(con, s.baseDato, permisoPorBodega, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				File file = Proforma.listadoPorAnioExcel(s.baseDato, mapeoDiccionario, lista);
+				return ok(file,false,Optional.of("ListadoDeProformas.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-			return ok("");
-		}else {
-			return ok("");
 		}
 	}
 
 	public Result generaProformaXml(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbWrite.getConnection();
-
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					InputStream auxfile = Archivos.leerArchivo(s.baseDato+"/"+proforma.proformaXml);
-					File file = Archivos.parseInputStreamToFile(auxfile);
-					if(file!=null) {
-						FormXmlFactura facturaXml = FormXmlFactura.leerArchivoXml(file);
-						List<TipoReferencia> listTipoReferencias = TipoReferencia.all(con, s.baseDato);
-						Map<String,String> mapAllCodVsConcep = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
-						con.close();
-						return ok(generaProformaXml.render(mapeoDiccionario,mapeoPermiso,userMnu, facturaXml, id_proforma, listTipoReferencias, mapAllCodVsConcep,
-								desde, hasta));
-					}else {
-						con.close();
-						return ok("NO LEO");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				InputStream auxfile = Archivos.leerArchivo(s.baseDato+"/"+proforma.proformaXml);
+				File file = Archivos.parseInputStreamToFile(auxfile);
+				FormXmlFactura facturaXml = FormXmlFactura.leerArchivoXml(file);
+				List<TipoReferencia> listTipoReferencias = TipoReferencia.all(con, s.baseDato);
+				Map<String,String> mapAllCodVsConcep = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
+				return ok(generaProformaXml.render(mapeoDiccionario,mapeoPermiso,userMnu, facturaXml, id_proforma, listTipoReferencias, mapAllCodVsConcep,
+						desde, hasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
-
-
 	public Result sendXMLFacura(Http.Request request, Long id_proforma, String desde, String hasta){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			FormXmlFactura form = formFactory.form(FormXmlFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-			try {
-				Connection con = dbWrite.getConnection();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-				FormXmlFactura.grabarReferencias(s.baseDato, mapeoPermiso, proforma.proformaXml, form);
-				InputStream auxfile = Archivos.leerArchivo(s.baseDato+"/"+proforma.proformaXml);
-				File file = Archivos.parseInputStreamToFile(auxfile);
-				if(!file.canRead()){
-					con.close();
-					return ok("NO LEO");
-				}else {
-					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-					String correoDestino = emisor.emailEnvioXML;
-					Email email = new Email();
-					String asunto = "Envio de XML desde MADA ";
-					String desdeMail = "desde MADA <informaciones@inqsol.cl>";
-					email.setSubject(asunto);
-					email.setFrom(desdeMail);
-					email.setBodyHtml("<html>Archivo adjunto</html>");
-					email.addTo(correoDestino);
-					email.addAttachment(proforma.proformaXml, file);
-					mailerClient.send(email);
-					//MailerPlugin.send(email);
-					con.close();
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"DTE enviado enviado al correo: "+correoDestino ));
-				}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		FormXmlFactura form = formFactory.form(FormXmlFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		try {
+			Proforma proforma = null;
+			EmisorTributario emisor = null;
+			try (Connection con = dbWrite.getConnection()) {
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					proforma = Proforma.find(con, s.baseDato, id_proforma);
+					FormXmlFactura.grabarReferencias(s.baseDato, mapeoPermiso, proforma.proformaXml, form);
+					emisor = EmisorTributario.find(con, s.baseDato);
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-			return ok("");
-		}else {
-			return ok("");
+			InputStream auxfile = Archivos.leerArchivo(s.baseDato+"/"+proforma.proformaXml);
+			File file = Archivos.parseInputStreamToFile(auxfile);
+			String correoDestino = emisor.emailEnvioXML;
+			Email email = new Email();
+			String asunto = "Envio de XML desde MADA ";
+			String desdeMail = "desde MADA <informaciones@inqsol.cl>";
+			email.setSubject(asunto);
+			email.setFrom(desdeMail);
+			email.setBodyHtml("<html>Archivo adjunto</html>");
+			email.addTo(correoDestino);
+			email.addAttachment(proforma.proformaXml, file);
+			mailerClient.send(email);
+			return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"DTE enviado enviado al correo: "+correoDestino ));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result generaProformaApiManager(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					String rs = ApiManagerDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma);
-					con.close();
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"API Manager enviada: "+rs ));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				Connection con = dbWrite.getConnection();
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				String rs = ApiManagerDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma);
+				con.close();
+				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, "API Manager enviada: " + rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result generaProformaApiNubox(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					Long id_guia = (long)0;
-					String rs = ApiNuboxDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
-					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API NUBOX nro: "+proforma.getId());
-					con.close();
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				Long id_guia = (long) 0;
+				String rs = ApiNuboxDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API NUBOX nro: " + proforma.getId());
+				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result generaProformaApiSapConconcreto(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					Long id_guia = (long)0;
-					String rs = ApiSapConconcreto.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
-					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API SAP Conconcreto nro: "+proforma.getId());
-					con.close();
-					rs = rs.replace("\r", "").replace("\n", "");
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				Long id_guia = (long)0;
+				String rs = ApiSapConconcreto.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API SAP Conconcreto nro: "+proforma.getId());
+				rs = rs.replace("\r", "").replace("\n", "");
+				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result generaProformaWebMaximise(Http.Request request){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 				String sucurMaximise = form.get("sucursalMaximise").trim();
 				String codigoMaximise = form.get("codigoMaximise").trim();
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-
 				String ware_code = "BSTGO";
-				if(sucurMaximise.equals("2")) {
+				if (sucurMaximise.equals("2")) {
 					ware_code = "BANTO";
 				}
-
 				String part_code = "VT-001";
 				String desc_text = "Arriendo Andamios";
-				if(codigoMaximise.equals("VT-002")) {
+				if (codigoMaximise.equals("VT-002")) {
 					part_code = "VT-002";
 					desc_text = "Arriendo Encofrados";
 				}
-
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
-
-					String xmlEncode = proforma.getJsonGenerado();
-					xmlEncode = xmlEncode.replace("colocaPartCode", part_code);
-					xmlEncode = xmlEncode.replace("colocaWareCode", ware_code);
-					xmlEncode = xmlEncode.replace("colocaDescText", desc_text);
-					Proforma.updateJsonApi(con, s.baseDato, id_proforma, xmlEncode);
-
-					String rs = WebMaximise.generaFactura(con, s.baseDato, xmlEncode, ws, emisorTributario, id_proforma);
-					try {
-						Long nroInterno = Long.parseLong(rs);
-						Proforma.updateNroFiscal(con, s.baseDato, id_proforma, nroInterno.toString());
-						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura  WS MAXIMISE nro: "+proforma.getId());
-						rs = "Orden enviada a Maximise";
-					}catch(Exception e) {
-						rs = "ERROR: "+ rs;
-					};
-					con.close();
-					rs = rs.replace("\r", "").replace("\n", "");
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
+				String xmlEncode = proforma.getJsonGenerado();
+				xmlEncode = xmlEncode.replace("colocaPartCode", part_code);
+				xmlEncode = xmlEncode.replace("colocaWareCode", ware_code);
+				xmlEncode = xmlEncode.replace("colocaDescText", desc_text);
+				Proforma.updateJsonApi(con, s.baseDato, id_proforma, xmlEncode);
+				String rs = WebMaximise.generaFactura(con, s.baseDato, xmlEncode, ws, emisorTributario, id_proforma);
+				Long nroInterno = Long.parseLong(rs);
+				Proforma.updateNroFiscal(con, s.baseDato, id_proforma, nroInterno.toString());
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura  WS MAXIMISE nro: " + proforma.getId());
+				rs = "Orden enviada a Maximise";
+				rs = rs.replace("\r", "").replace("\n", "");
+				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
-		return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 
 	public Result downFacturaMaximise(Long nroIntOrden, Http.Request request, String desde, String hasta){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbWrite.getConnection();
-					EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
-					String nroIntFactura = WebMaximise.downOrderMaximise(con, s.baseDato, ws, emisorTributario, nroIntOrden);
-
-					if(nroIntFactura.equals("DTE aun no emitido")) {
-						return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"DTE aun no emitido"));
-					}else {
-						File file = WebMaximise.downFacturaMaximise(con, s.baseDato, nroIntFactura, ws, emisorTributario);
-						con.close();
-						if(file!=null) {
-							return ok(file,false,Optional.of(nroIntFactura+"_FacturaInterna.pdf"));
-						}else {
-							return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"Documento aun no ha sido enviado al portal o inexistente."));
-						}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
+				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
+				String nroIntFactura = WebMaximise.downOrderMaximise(con, s.baseDato, ws, emisorTributario, nroIntOrden);
+				if (nroIntFactura.equals("DTE aun no emitido")) {
+					return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, "DTE aun no emitido"));
+				} else {
+					File file = WebMaximise.downFacturaMaximise(con, s.baseDato, nroIntFactura, ws, emisorTributario);
+					if (file != null) {
+						return ok(file, false, Optional.of(nroIntFactura + "_FacturaInterna.pdf"));
+					} else {
+						return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, "Documento aun no ha sido enviado al portal o inexistente."));
 					}
-				} catch (SQLException e) {
-					e.printStackTrace();
 				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
-		return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 
 	public Result generaFacturaIConstruye(Http.Request request){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					String xml = proforma.getJsonGenerado();
-					String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, (long)0, id_proforma);
-					con.close();
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				String xml = proforma.getJsonGenerado();
+				String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, (long)0, id_proforma);
+				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
-
 	public Result downFacturaIconstruye(Http.Request request){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbRead.getConnection();
-					Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					String rsBody = proforma.getResponse();
-					int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
-					int finpdf64 = rsBody.indexOf("</a:PdfDte>");
-					String pdf64 = rsBody.substring(inipdf64,finpdf64);
-					File file = TempFile.createTempFile("tmp","null");
-					try (FileOutputStream fos = new FileOutputStream(file)) {
-						byte[] bytes = Base64.getDecoder().decode(pdf64);
-						fos.write(bytes);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					con.close();
-					return ok(file,false,Optional.of("factura_"+proforma.getNroFiscal()+".pdf"));
-				} catch (SQLException e) {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				String rsBody = proforma.getResponse();
+				int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
+				int finpdf64 = rsBody.indexOf("</a:PdfDte>");
+				String pdf64 = rsBody.substring(inipdf64,finpdf64);
+				File file = TempFile.createTempFile("tmp","null");
+				try (FileOutputStream fos = new FileOutputStream(file)) {
+					byte[] bytes = Base64.getDecoder().decode(pdf64);
+					fos.write(bytes);
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				return ok(file,false,Optional.of("factura_"+proforma.getNroFiscal()+".pdf"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
-		return ok(mensajes.render("/","SE PRESENTARON ERRORES"));
 	}
 
 	public Result generaProformaApiRelBase(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/", msgErrorFormulario));
+		} else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					String json = proforma.getJsonGenerado();
-					Map<String,String> mapReferencias = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
-					con.close();
-					try {
-						ObjectMapper objectMapper = new ObjectMapper();
-						String jsonRefer = objectMapper.writeValueAsString(mapReferencias);
-						return ok(generaProformaApiRelBase.render(mapeoDiccionario,mapeoPermiso,userMnu, json, jsonRefer, id_proforma, desde, hasta));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				String json = proforma.getJsonGenerado();
+				Map<String, String> mapReferencias = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
+				ObjectMapper objectMapper = new ObjectMapper();
+				String jsonRefer = objectMapper.writeValueAsString(mapReferencias);
+				return ok(generaProformaApiRelBase.render(mapeoDiccionario, mapeoPermiso, userMnu, json, jsonRefer, id_proforma, desde, hasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result generaProformaApiRelBase2(Http.Request request){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-			if (form.id_proforma == null) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, form.id_proforma);
-					String json = proforma.getJsonGenerado();
-					ObjectMapper objectMapper = new ObjectMapper();
-					JsonNode jsonNode = objectMapper.readTree(json);
-					ArrayNode newReferences = objectMapper.createArrayNode();
-					int cantRef = 0;
-					try {
-						cantRef = form.tpoDocRef.size();
-					}catch(Exception e) {}
-					if(cantRef > 0) {
-						if ( ! jsonNode.has("references")) {
-							((ObjectNode) jsonNode).set("references", objectMapper.createArrayNode());
-						}
-						for (int i = 0; i < cantRef; i++) {
-							if( ! form.folioRef.get(i).trim().equals("")) {
-								ObjectNode aux = objectMapper.createObjectNode();
-								aux.put("reference_id", form.tpoDocRef.get(i));
-								aux.put("folio_ref", form.folioRef.get(i));
-								aux.put("date_ref", form.fchRef.get(i));
-								aux.put("razon_ref", form.razonRef.get(i));
-								newReferences.add(aux);
-							}
-						}
-						((ObjectNode) jsonNode).set("references", newReferences);
-					}else {
-						if (jsonNode.has("references")) {
-							((ObjectNode) jsonNode).remove("references");
-						}
-					}
-					String comentarios = form.sol_observaciones;
-					comentarios = comentarios.replace("\r", "\\r").replace("\n", "\\n");
-					((ObjectNode) jsonNode).put("comment", comentarios);
-					if(Proforma.updateJsonApi(con, s.baseDato, proforma.id, jsonNode.toString())){
-						proforma = Proforma.find(con, s.baseDato, form.id_proforma);
-						EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-						int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, (long)0, form.id_proforma);
-						String desdeAAMMDD = Fechas.AAMMDD(form.fechaDesde);
-						String hastaAAMMDD = Fechas.AAMMDD(form.fechaHasta);
-						if(folio_dte > 0) {
-							Proforma.updateNroFiscal(con, s.baseDato, form.id_proforma, ""+folio_dte);
-							String retorno = "/proformaListaGet/"+desdeAAMMDD+","+hastaAAMMDD;
-							Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", (long)0, "send", "envia DTE a RelBase nro: "+folio_dte);
-							return ok(mensajes.render(retorno,"DTE enviado a RelBase con exito" ));
-						}
-						con.close();
-						String retorno = "/proformaListaGet/"+desdeAAMMDD+","+hastaAAMMDD;
-						return ok(mensajes.render(retorno,"ERROR: DTE rechazado por RelBase, revise si el rut del cliente existe tanto en RelBase como en Mada." ));
-					}
-				} catch (SQLException | JsonProcessingException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.id_proforma == null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/", msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbWrite.getConnection()) {
+				Proforma proforma = Proforma.find(con, s.baseDato, form.id_proforma);
+				String json = proforma.getJsonGenerado();
+				ObjectMapper objectMapper = new ObjectMapper();
+				JsonNode jsonNode = objectMapper.readTree(json);
+				ArrayNode newReferences = objectMapper.createArrayNode();
+				int cantRef = 0;
+				try {
+					cantRef = form.tpoDocRef.size();
+				} catch (Exception e) {
+				}
+				if (cantRef > 0) {
+					if (!jsonNode.has("references")) {
+						((ObjectNode) jsonNode).set("references", objectMapper.createArrayNode());
+					}
+					for (int i = 0; i < cantRef; i++) {
+						if (!form.folioRef.get(i).trim().equals("")) {
+							ObjectNode aux = objectMapper.createObjectNode();
+							aux.put("reference_id", form.tpoDocRef.get(i));
+							aux.put("folio_ref", form.folioRef.get(i));
+							aux.put("date_ref", form.fchRef.get(i));
+							aux.put("razon_ref", form.razonRef.get(i));
+							newReferences.add(aux);
+						}
+					}
+					((ObjectNode) jsonNode).set("references", newReferences);
+				} else {
+					if (jsonNode.has("references")) {
+						((ObjectNode) jsonNode).remove("references");
+					}
+				}
+				String comentarios = form.sol_observaciones;
+				comentarios = comentarios.replace("\r", "\\r").replace("\n", "\\n");
+				((ObjectNode) jsonNode).put("comment", comentarios);
+				if (Proforma.updateJsonApi(con, s.baseDato, proforma.id, jsonNode.toString())) {
+					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+					int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, (long) 0, form.id_proforma);
+					String desdeAAMMDD = Fechas.AAMMDD(form.fechaDesde);
+					String hastaAAMMDD = Fechas.AAMMDD(form.fechaHasta);
+					if (folio_dte > 0) {
+						Proforma.updateNroFiscal(con, s.baseDato, form.id_proforma, "" + folio_dte);
+						String retorno = "/proformaListaGet/" + desdeAAMMDD + "," + hastaAAMMDD;
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", (long) 0, "send", "envia DTE a RelBase nro: " + folio_dte);
+						return ok(mensajes.render(retorno, "DTE enviado a RelBase con exito"));
+					}
+					String retorno = "/proformaListaGet/" + desdeAAMMDD + "," + hastaAAMMDD;
+					return ok(mensajes.render(retorno, "ERROR: DTE rechazado por RelBase, revise si el rut del cliente existe tanto en RelBase como en Mada."));
+				} else {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result validarClienteAjax(Http.Request request){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				Long id_cliente = Long.parseLong(form.get("id_cliente").trim());
-				try {
-					Connection con = dbWrite.getConnection();
-					Cliente cliente = Cliente.find(con, s.baseDato, id_cliente);
-					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-					String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
-					if (rutCliente.length() > 1) {
-						rutCliente = rutCliente.substring(0, rutCliente.length() - 1) + "-" + rutCliente.charAt(rutCliente.length() - 1);
-						rutCliente = "query="+rutCliente;
-					}
-					int idRelBase = ApiRelBase.consultaIdCliente(emisor, ws, rutCliente);
-					if(idRelBase == 0) {
-						con.close();
-						return ok("0");
-					}else {
-						con.close();
-						return ok(""+idRelBase);
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("0");
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/", msgErrorFormulario));
 		}else {
-			return ok("0");
+			try (Connection con = dbWrite.getConnection()) {
+				Long id_cliente = Long.parseLong(form.get("id_cliente").trim());
+				Cliente cliente = Cliente.find(con, s.baseDato, id_cliente);
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				String rutCliente = cliente.getRut().replaceAll("[,\\.\\s]", "").toUpperCase();
+				if (rutCliente.length() > 1) {
+					rutCliente = rutCliente.substring(0, rutCliente.length() - 1) + "-" + rutCliente.charAt(rutCliente.length() - 1);
+					rutCliente = "query="+rutCliente;
+				}
+				int idRelBase = ApiRelBase.consultaIdCliente(emisor, ws, rutCliente);
+				if(idRelBase == 0) {
+					return ok("0");
+				}else {
+					return ok(""+idRelBase);
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
