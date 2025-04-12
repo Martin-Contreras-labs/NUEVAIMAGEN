@@ -152,7 +152,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		} else {
 			try (Connection con = dbRead.getConnection()) {
 				UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -194,7 +194,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
@@ -231,7 +231,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
@@ -263,7 +263,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			String tipo = null;
@@ -340,7 +340,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				String tipo = form.get("tipo").trim();
@@ -381,7 +381,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
@@ -417,7 +417,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			String tipo = null;
@@ -466,7 +466,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
@@ -528,7 +528,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				String tipo = form.get("tipo").trim();
@@ -562,11 +562,11 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
-				String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o todo
+				String tipo = form.get("tipo").trim();  // tipo es VENTA o ARRIENDO o
 				String fechaCorte = form.get("fechaCorte").trim();
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -595,7 +595,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
@@ -628,7 +628,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			String tipo = null;
 			String fechaCorte = null;
@@ -693,7 +693,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				String tipo = form.get("tipo").trim();
@@ -724,7 +724,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
@@ -758,7 +758,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			String tipo = null;
 			String fechaCorte = null;
@@ -840,7 +840,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				String tipo = form.get("tipo").trim();
@@ -904,7 +904,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			List<String> titulos2 = null;
 			List<String> titulos3 = null;
@@ -963,7 +963,7 @@ public class MnuReportes extends Controller {
 	}
 
 	//====================================================================================
-	// MNU inventarioStock   Reportes/Inventario/Arriendo/Todo: Equipos con Stock y Precios
+	// MNU inventarioStock   Reportes/Inventario/Arriendo/Todos: Equipos con Stock y Precios
 	//====================================================================================
 
 	public Result reportInventarioTodo(Http.Request request) {
@@ -1004,7 +1004,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			List<List<String>> datos = null;
@@ -1070,7 +1070,7 @@ public class MnuReportes extends Controller {
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			List<List<String>> datos = null;
 			try (Connection con = dbRead.getConnection()){
@@ -1138,7 +1138,7 @@ public class MnuReportes extends Controller {
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
@@ -1166,7 +1166,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			BodegaEmpresa bodega = null;
@@ -1234,7 +1234,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			String desdeAAMMDD = form.get("fechaDesde").trim();
 			String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -1364,7 +1364,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
@@ -1401,7 +1401,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			String fechaDesde = form.get("fechaDesde").trim();
@@ -1481,7 +1481,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String fechaDesde = form.get("fechaDesde").trim();
@@ -1513,7 +1513,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
@@ -1545,7 +1545,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			List<List<String>> datos = null;
@@ -1617,7 +1617,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String fechaDesde = form.get("fechaDesde").trim();
@@ -1649,7 +1649,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_proyecto = Long.parseLong(form.get("id_proyecto").trim());
@@ -1688,7 +1688,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			String permisoPorBodega = null;
@@ -1773,7 +1773,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2047,7 +2047,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		} else {
 			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2270,7 +2270,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		} else {
 			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2339,7 +2339,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try {
 				String auxIdBodega = form.get("id_bodega");
@@ -2553,7 +2553,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
@@ -2588,7 +2588,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try {
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2663,7 +2663,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
@@ -2693,7 +2693,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
@@ -2756,7 +2756,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String id_equipo = form.get("id_equipo").trim();
@@ -2787,7 +2787,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String id_equipo = form.get("id_equipo").trim();
@@ -2854,7 +2854,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
@@ -2890,7 +2890,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -2958,7 +2958,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -2990,7 +2990,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String desdeAAMMDD = form.get("desdeAAMMDD").trim();
@@ -3058,7 +3058,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -3093,7 +3093,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
@@ -3156,7 +3156,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		} else {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3191,7 +3191,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String desdeAAMMDD = form.get("desdeAAMMDD").trim();
@@ -3254,7 +3254,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
@@ -3283,7 +3283,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
@@ -3661,7 +3661,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
@@ -3727,7 +3727,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			String desdeAAMMDD = form.get("fechaDesde").trim();
 			String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -3761,7 +3761,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -3914,7 +3914,7 @@ public class MnuReportes extends Controller {
 		FormGrafico form = formFactory.form(FormGrafico.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (form.listIdGrupos==null) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				List<String> listIdGrupos = form.listIdGrupos;
@@ -4010,7 +4010,7 @@ public class MnuReportes extends Controller {
 		FormGrafico form = formFactory.form(FormGrafico.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (form.listIdGruposAll==null) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				List<String> listIdGruposAll = form.listIdGruposAll;
@@ -4132,7 +4132,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -4349,7 +4349,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Map<Long, Double> tasas = new HashMap<Long, Double>();
@@ -4553,7 +4553,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -4983,7 +4983,8 @@ public class MnuReportes extends Controller {
 		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
 		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (formEsVenta.hasErrors()) {
-			return ok(mensajes.render("/",msgErrorFormulario));
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.fechaDesde;
@@ -5041,7 +5042,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -5177,7 +5178,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -5307,7 +5308,7 @@ public class MnuReportes extends Controller {
 		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (formEsVenta.hasErrors() || form.idBodega==null) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.fechaDesde;
@@ -5567,7 +5568,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -5605,7 +5606,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -5652,7 +5653,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -5769,7 +5770,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -6061,7 +6062,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
@@ -6382,7 +6383,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
@@ -6438,7 +6439,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
@@ -6507,7 +6508,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
@@ -6624,7 +6625,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
@@ -6692,7 +6693,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
@@ -6804,7 +6805,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
@@ -6929,7 +6930,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String desde = form.get("fechaDesde");
@@ -7025,7 +7026,7 @@ public class MnuReportes extends Controller {
 		}
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String fechaDesde = form.get("fechaDesde");
@@ -7082,7 +7083,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				String fechaDesde = form.get("fechaDesde");
@@ -7125,7 +7126,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
@@ -7205,7 +7206,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
@@ -7237,7 +7238,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
@@ -7269,7 +7270,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
@@ -7302,7 +7303,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
@@ -7355,7 +7356,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
@@ -7391,7 +7392,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
@@ -7422,7 +7423,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/",msgErrorFormulario));
+			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
@@ -7461,7 +7462,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		} else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
@@ -7496,7 +7497,7 @@ public class MnuReportes extends Controller {
 		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (form.id_proforma == null) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Proforma proforma = Proforma.find(con, s.baseDato, form.id_proforma);
@@ -7570,7 +7571,7 @@ public class MnuReportes extends Controller {
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/", msgErrorFormulario));
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_cliente = Long.parseLong(form.get("id_cliente").trim());
@@ -7599,65 +7600,69 @@ public class MnuReportes extends Controller {
 
 	public Result generaProformaApiSapSchwager(Http.Request request){
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()){
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-					String json = proforma.getJsonGenerado();
-					String rs = ApiSapSchwager.generaDteFactura(con, s.baseDato, emisor, json, ws, proforma.getId());
-					if( ! rs.contains("ERROR:")) {
-						String folioNumber = rs;
-						Proforma.updateNroFiscal(con, s.baseDato, id_proforma, "Fact: "+folioNumber);
-						rs = "DTE enviado a SAP con exito";
-					}
-					con.close();
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta, rs));
-				} catch (SQLException e) {
-					e.printStackTrace();
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				String json = proforma.getJsonGenerado();
+				String rs = ApiSapSchwager.generaDteFactura(con, s.baseDato, emisor, json, ws, proforma.getId());
+				if( ! rs.contains("ERROR:")) {
+					String folioNumber = rs;
+					Proforma.updateNroFiscal(con, s.baseDato, id_proforma, "Fact: "+folioNumber);
+					rs = "DTE enviado a SAP con exito";
 				}
-				return ok(mensajes.render("/",msgError));
+				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta, rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result proformaElimina(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				try {
-					Connection con = dbWrite.getConnection();
-					Proforma.eliminaProforma(con, s.baseDato, id_proforma);
-					con.close();
-					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"Proforma nro: "+id_proforma+" eliminada" ));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				Proforma.eliminaProforma(con, s.baseDato, id_proforma);
+				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"Proforma nro: "+id_proforma+" eliminada" ));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
-
-
-
 
 	//====================================================================================
 	// MNU proformaHaceAjustes   Reportes/Proforma/Hacer Ajustes EP-Proforma
@@ -7665,238 +7670,259 @@ public class MnuReportes extends Controller {
 
 	public Result ajustesEp(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
 			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaHaceAjustes")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-				List<List<String>> lista = BodegaEmpresa.listaAllBodVigExtFiltClientesVig(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-				con.close();
-				return ok(ajustesEp.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		if(mapeoPermiso.get("proformaHaceAjustes")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			List<List<String>> lista = BodegaEmpresa.listaAllBodVigExtFiltClientesVig(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+			return ok(ajustesEp.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result ajustesEpListado(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				Long id_bodega = Long.parseLong(form.get("id_bodega"));
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
-					List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
-					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-					con.close();
-					return ok(ajustesEpListado.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbRead.getConnection()) {
+				Long id_bodega = Long.parseLong(form.get("id_bodega"));
+				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
+				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				return ok(ajustesEpListado.render(mapeoDiccionario, mapeoPermiso, userMnu, lista, bodegaEmpresa));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result ajusteGrabaPDF(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
-				try {
-					Connection con = dbWrite.getConnection();
-					String path = "0";
-					if (docAdjunto != null) {
-						String nombreArchivoSinExtencion = "Ajuste-ID-" + id_ajuste;
-						path = Archivos.grabarArchivos(docAdjunto, s.baseDato, nombreArchivoSinExtencion);
-						AjustesEP.modifyPDF(con, s.baseDato, path, id_ajuste);
-					}
-					AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
-					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "update", "agrega documento a ajusteEP en bodega "+ajuste.bodegaEmpresa );
-					con.close();
-					return (ajustesEpListado(request));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
+		Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbWrite.getConnection()) {
+				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
+				String path = "0";
+				if (docAdjunto != null) {
+					String nombreArchivoSinExtencion = "Ajuste-ID-" + id_ajuste;
+					path = Archivos.grabarArchivos(docAdjunto, s.baseDato, nombreArchivoSinExtencion);
+					AjustesEP.modifyPDF(con, s.baseDato, path, id_ajuste);
+				}
+				AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "update", "agrega documento a ajusteEP en bodega "+ajuste.bodegaEmpresa );
+				return (ajustesEpListado(request));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result ajustesEpModificar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
 				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
-					AjustesEP ajusteEp = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
-					List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
-					List<TipoAjustesVenta> listAjustesVenta = TipoAjustesVenta.all(con, s.baseDato);
-					Long numDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
-					con.close();
-					return ok(ajustesEpModificar.render(mapeoDiccionario,mapeoPermiso,userMnu,ajusteEp,listAjustes,listAjustesVenta,numDec));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				AjustesEP ajusteEp = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
+				List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
+				List<TipoAjustesVenta> listAjustesVenta = TipoAjustesVenta.all(con, s.baseDato);
+				Long numDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				return ok(ajustesEpModificar.render(mapeoDiccionario,mapeoPermiso,userMnu,ajusteEp,listAjustes,listAjustesVenta,numDec));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result ajustesEpUpdate(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			AjustesEP form = formFactory.form(AjustesEP.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-			if (form.id == null) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbWrite.getConnection();
-					if(AjustesEP.update(con, s.baseDato, form)) {
-						AjustesEP ajuste = AjustesEP.find(con, s.baseDato, form.id, s.aplicaPorSucursal, s.id_sucursal);
-						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", form.id, "update", "modifica ajuste de ep en bodega "+ajuste.bodegaEmpresa);
-						con.close();
-						return (ajustesEpListado(request));
-					}else {
-						con.close();
-						return ok(mensajes.render("/",msgError));
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		AjustesEP form = formFactory.form(AjustesEP.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.id == null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbWrite.getConnection()){
+				if(AjustesEP.update(con, s.baseDato, form)) {
+					AjustesEP ajuste = AjustesEP.find(con, s.baseDato, form.id, s.aplicaPorSucursal, s.id_sucursal);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", form.id, "update", "modifica ajuste de ep en bodega "+ajuste.bodegaEmpresa);
+					return (ajustesEpListado(request));
+				}else {
+					return ok(mensajes.render("/",msgError));
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result ajustesEpEliminar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
-				try {
-					Connection con = dbWrite.getConnection();
-					if(AjustesEP.delete(con, s.baseDato, id_ajuste)) {
-						AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
-						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "delete", "elimina ajuste de ep en bodega "+ajuste.bodegaEmpresa);
-						con.close();
-						return (ajustesEpListado(request));
-					}else {
-						con.close();
-						return ok(mensajes.render("/",msgError));
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbWrite.getConnection()) {
+				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
+				if (AjustesEP.delete(con, s.baseDato, id_ajuste)) {
+					AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "delete", "elimina ajuste de ep en bodega " + ajuste.bodegaEmpresa);
+					return (ajustesEpListado(request));
+				} else {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result ajustesEpNuevo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
 				Long id_bodega = Long.parseLong(form.get("id_bodega"));
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
-					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-					Fechas hoy = Fechas.hoy();
-					List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
-					List<TipoAjustesVenta> listAjustesVenta = TipoAjustesVenta.all(con, s.baseDato);
-					Long numDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
-					Moneda moneda = Moneda.find(con, s.baseDato, (long)1);
-					con.close();
-					return ok(ajustesEpNuevo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,hoy,listAjustes,listAjustesVenta,numDec,moneda));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				Fechas hoy = Fechas.hoy();
+				List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
+				List<TipoAjustesVenta> listAjustesVenta = TipoAjustesVenta.all(con, s.baseDato);
+				Long numDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				Moneda moneda = Moneda.find(con, s.baseDato, (long)1);
+				return ok(ajustesEpNuevo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodega,hoy,listAjustes,listAjustesVenta,numDec,moneda));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result ajustesEpGrabar(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			AjustesEP form = formFactory.form(AjustesEP.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-			if (form.id_bodegaEmpresa == null) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbWrite.getConnection();
-					if(AjustesEP.create(con, s.baseDato, form)) {
-						BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, form.id_bodegaEmpresa);
-						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", (long)0, "create", "agrega nuevo ajuste de ep en bodega "+bodega.getNombre());
-						con.close();
-						return (ajustesEpListado(request));
-					}else {
-						con.close();
-						return (ajustesEpListado(request));
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		AjustesEP form = formFactory.form(AjustesEP.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.id_bodegaEmpresa == null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok(mensajes.render("/",msgError));
+			try (Connection con = dbWrite.getConnection()) {
+				if(AjustesEP.create(con, s.baseDato, form)) {
+					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, form.id_bodegaEmpresa);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", (long)0, "create", "agrega nuevo ajuste de ep en bodega "+bodega.getNombre());
+					return (ajustesEpListado(request));
+				}else {
+					return (ajustesEpListado(request));
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
@@ -7907,57 +7933,62 @@ public class MnuReportes extends Controller {
 
 	public Result ajustesEpRpt(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaListaAjustes")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-				permisoPorBodega = permisoPorBodega.replace("movimiento", "bodegaEmpresa");
-				permisoPorBodega = permisoPorBodega.replace("id_bodegaEmpresa", "id");
-				List<List<String>> lista = BodegaEmpresa.listaAllBodegasVigentesExternasConAjustes(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-				con.close();
-				return ok(ajustesEpRpt.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaListaAjustes")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			permisoPorBodega = permisoPorBodega.replace("movimiento", "bodegaEmpresa");
+			permisoPorBodega = permisoPorBodega.replace("id_bodegaEmpresa", "id");
+			List<List<String>> lista = BodegaEmpresa.listaAllBodegasVigentesExternasConAjustes(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+			return ok(ajustesEpRpt.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result ajustesEpRptDetalle(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
 				Long id_bodega = Long.parseLong(form.get("id_bodega"));
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
-					List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
-					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
-					con.close();
-					return ok(ajustesEpRptDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
+				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+				return ok(ajustesEpRptDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
@@ -7967,60 +7998,61 @@ public class MnuReportes extends Controller {
 
 	public Result ajustesPeriodoEpRpt1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("proformaAjustesPorPeriodo")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(ajustesPeriodoEpRpt1.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaAjustesPorPeriodo")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(ajustesPeriodoEpRpt1.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result ajustesPeriodoEpRpt2(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-
-					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					permisoPorBodega = permisoPorBodega.replace("movimiento", "bodegaEmpresa");
-					permisoPorBodega = permisoPorBodega.replace("id_bodegaEmpresa", "id");
-					List<AjustesEP> lista = AjustesEP.allPorPeriodos(con, s.baseDato, fechaDesde, fechaHasta, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
-
-					con.close();
-					return ok(ajustesPeriodoEpRpt2.render(mapeoDiccionario,mapeoPermiso,userMnu,lista, Fechas.DDMMAA(fechaDesde), Fechas.DDMMAA(fechaHasta)));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				permisoPorBodega = permisoPorBodega.replace("movimiento", "bodegaEmpresa");
+				permisoPorBodega = permisoPorBodega.replace("id_bodegaEmpresa", "id");
+				List<AjustesEP> lista = AjustesEP.allPorPeriodos(con, s.baseDato, fechaDesde, fechaHasta, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);
+				return ok(ajustesPeriodoEpRpt2.render(mapeoDiccionario,mapeoPermiso,userMnu,lista, Fechas.DDMMAA(fechaDesde), Fechas.DDMMAA(fechaHasta)));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
@@ -8031,41 +8063,50 @@ public class MnuReportes extends Controller {
 
 	public Result reportVentasPorPeriodo0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportVentasPorPeriodo")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
-				con.close();
-				return ok(reportVentasPorPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportVentasPorPeriodo")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			return ok(reportVentasPorPeriodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result reportVentasPorPeriodo1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
@@ -8078,29 +8119,33 @@ public class MnuReportes extends Controller {
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-					List<List<String>> datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
-					con.close();
-					return ok(reportVentasPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,desdeAAMMDD,hastaAAMMDD, usd, eur, uf,
-							Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok(mensajes.render("/",msgError));
+				List<List<String>> datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
+				return ok(reportVentasPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,desdeAAMMDD,hastaAAMMDD, usd, eur, uf,
+						Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD)));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result reportVentasPorPeriodo1Excel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
@@ -8112,366 +8157,379 @@ public class MnuReportes extends Controller {
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				try {
-					Connection con = dbRead.getConnection();
-					List<List<String>> datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
-					File file = ReportVentas.reportVentasPorPeriodo1Excel(s.baseDato, mapeoDiccionario, datos, desdeAAMMDD, hastaAAMMDD);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReportVentasPorPeriodo.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
+					datos = ReportVentas.ventasPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, tasas);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
 				}
+				File file = ReportVentas.reportVentasPorPeriodo1Excel(s.baseDato, mapeoDiccionario, datos, desdeAAMMDD, hastaAAMMDD);
+				return ok(file,false,Optional.of("ReportVentasPorPeriodo.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-			return ok("");
-		}else {
-			return ok("");
 		}
 	}
 
 	//====================================================================================
-	// MNU reportesHOHE   Reportes/Proforma/todo SOLO HOHE
+	// MNU reportesHOHE   Reportes/Proforma/ SOLO HOHE
 	//====================================================================================
 
 	public Result hoheReportTodo0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportesHOHE")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(hoheReportTodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportesHOHE")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(hoheReportTodo0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result hoheReportTodo(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try {
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
-				try {
-					Connection con = dbRead.getConnection();
-					List<List<String>> lista = ReportHohe.datos(con, s.baseDato, fechaDesde, fechaHasta);
+				List<List<String>> lista = null;
+				try (Connection con = dbRead.getConnection()) {
+					lista = ReportHohe.datos(con, s.baseDato, fechaDesde, fechaHasta);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
 					InputStream formato = Archivos.leerArchivo("formatos/hoheReportTodo.xlsx");
 					File file = ReportHohe.reporteHoheExcel(fechaDesde, fechaHasta, lista, formato);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReporteMatrizTodo.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
+					return ok(file,false,Optional.of("ReporteMatrizTodo.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-		}else {
-			return ok("");
 		}
 	}
 
 	public Result hoheTodoResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportesHOHE")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				con.close();
-				return ok(hoheTodoResumen0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportesHOHE")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(hoheTodoResumen0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result hoheTodoResumen(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				String fechaDesde = form.get("fechaDesde").trim();
-				String fechaHasta = form.get("fechaHasta").trim();
-				try {
-					Connection con = dbRead.getConnection();
-					List<List<String>> lista = ReportHohe.datosResumen(con, s.baseDato, fechaDesde, fechaHasta);
-					InputStream formato = Archivos.leerArchivo("formatos/hoheReportResumen.xlsx");
-					File file = ReportHohe.reporteHoheResumenExcel(fechaDesde, fechaHasta, lista, formato);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReporteMatrizResumen.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			try {
+				List<List<String>> lista = null;
+				String fechaDesde = null;
+				String fechaHasta = null;
+				try (Connection con = dbRead.getConnection()) {
+					fechaDesde = form.get("fechaDesde").trim();
+					fechaHasta = form.get("fechaHasta").trim();
+					lista = ReportHohe.datosResumen(con, s.baseDato, fechaDesde, fechaHasta);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				InputStream formato = Archivos.leerArchivo("formatos/hoheReportResumen.xlsx");
+				File file = ReportHohe.reporteHoheResumenExcel(fechaDesde, fechaHasta, lista, formato);
+				return ok(file,false,Optional.of("ReporteMatrizResumen.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result hoheMatrizVerticalInventario0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportesHOHE")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				con.close();
-				return ok(hoheMatrizVerticalInventario0.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD()));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportesHOHE")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			return ok(hoheMatrizVerticalInventario0.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD()));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result hoheMatrizVerticalInv0Coti(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
 			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportesHOHE")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				Fechas hoy = Fechas.hoy();
-				con.close();
-				return ok(hoheMatrizVerticalInv0Coti.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD()));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		if(mapeoPermiso.get("reportesHOHE")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			return ok(hoheMatrizVerticalInv0Coti.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD()));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result hoheMatrizVerticalInventario(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				String fechaCorte = form.get("fechaCorte").trim();
-				try {
-					Connection con = dbRead.getConnection();
-					InputStream formato = Archivos.leerArchivo("formatos/hoheReporteInventarioMatriz.xlsx");
-					File file = ReportHohe.listaMatrizEquiposHOHE0(con, s.baseDato, fechaCorte, formato);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReporteInventarioMatrizVertical.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			try (Connection con = dbRead.getConnection()) {
+				String fechaCorte = form.get("fechaCorte").trim();
+				InputStream formato = Archivos.leerArchivo("formatos/hoheReporteInventarioMatriz.xlsx");
+				File file = ReportHohe.listaMatrizEquiposHOHE0(con, s.baseDato, fechaCorte, formato);
+				return ok(file,false,Optional.of("ReporteInventarioMatrizVertical.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result hoheMatrizVerticalInvCoti(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				String fechaCorte = form.get("fechaCorte").trim();
-				try {
-					Connection con = dbRead.getConnection();
-					InputStream formato = Archivos.leerArchivo("formatos/hoheReporteInventarioMatriz.xlsx");
-					File file = ReportHohe.listaMatrizEquiposHOHE0Coti(con, s.baseDato, fechaCorte, formato);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReporteInventarioMatrizVertical.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			String fechaCorte = form.get("fechaCorte").trim();
+			try (Connection con = dbRead.getConnection()) {
+				InputStream formato = Archivos.leerArchivo("formatos/hoheReporteInventarioMatriz.xlsx");
+				File file = ReportHohe.listaMatrizEquiposHOHE0Coti(con, s.baseDato, fechaCorte, formato);
+				return ok(file,false,Optional.of("ReporteInventarioMatrizVertical.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result hoheEstadoCotiOt(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportesHOHE")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				List<List<String>> datos = ReportHohe.estadoOtDespachos(con, s.baseDato);
-				con.close();
-				return ok(hoheEstadoCotiOt.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportesHOHE")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			List<List<String>> datos = ReportHohe.estadoOtDespachos(con, s.baseDato);
+			return ok(hoheEstadoCotiOt.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result hoheEstadoCotiOtExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbRead.getConnection();
-					InputStream formato = Archivos.leerArchivo("formatos/hoheReporteEstadoCotiOt.xlsx");
-					List<List<String>> datos = ReportHohe.estadoOtDespachos(con, s.baseDato);
-					File file = ReportHohe.estadoCotiOtExcel(datos, formato);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReporteEstadoCotiOt.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			try {
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
+					datos = ReportHohe.estadoOtDespachos(con, s.baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				InputStream formato = Archivos.leerArchivo("formatos/hoheReporteEstadoCotiOt.xlsx");
+				File file = ReportHohe.estadoCotiOtExcel(datos, formato);
+				return ok(file,false,Optional.of("ReporteEstadoCotiOt.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
 	public Result hoheEstadoCotiSinOt(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			try {
-				Connection con = dbRead.getConnection();
-
-				if(mapeoPermiso.get("reportesHOHE")==null) {
-					con.close();
-					return ok(mensajes.render("/",msgSinPermiso));
-				}
-				List<List<String>> datos = ReportHohe.estadoCotiConfYnoConfSinOt(con, s.baseDato);
-				con.close();
-				return ok(hoheEstadoCotiSinOt.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportesHOHE")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			List<List<String>> datos = ReportHohe.estadoCotiConfYnoConfSinOt(con, s.baseDato);
+			con.close();
+			return ok(hoheEstadoCotiSinOt.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result hoheEstadoCotiSinOtExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbRead.getConnection();
-					InputStream formato = Archivos.leerArchivo("formatos/hoheReporteEstadoCotiSinOt.xlsx");
-					List<List<String>> datos = ReportHohe.estadoCotiConfYnoConfSinOt(con, s.baseDato);
-					File file = ReportHohe.estadoCotiSinOtExcel(datos, formato);
-					if(file!=null) {
-						con.close();
-						return ok(file,false,Optional.of("ReporteEstadoCotiSinOt.xlsx"));
-					}else {
-						con.close();
-						return ok("");
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				return ok("");
-			}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			try {
+				List<List<String>> datos = null;
+				try (Connection con = dbRead.getConnection()) {
+					datos = ReportHohe.estadoCotiConfYnoConfSinOt(con, s.baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				InputStream formato = Archivos.leerArchivo("formatos/hoheReporteEstadoCotiSinOt.xlsx");
+				File file = ReportHohe.estadoCotiSinOtExcel(datos, formato);
+				return ok(file,false,Optional.of("ReporteEstadoCotiSinOt.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
 	}
 
@@ -8483,974 +8541,913 @@ public class MnuReportes extends Controller {
 
 	public Result domStockDiarioExcel0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			if(mapeoPermiso.get("reportesDOM")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-			try {
-				Connection con = dbRead.getConnection();
-				Fechas hoy = Fechas.hoy();
-				Fechas ayer = Fechas.addDias(hoy.getFechaCal(), -1);
-				con.close();
-				return ok(domStockDiarioExcel0.render(mapeoDiccionario,mapeoPermiso,userMnu,ayer.getFechaStrAAMMDD()));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportesDOM")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			Fechas ayer = Fechas.addDias(hoy.getFechaCal(), -1);
+			return ok(domStockDiarioExcel0.render(mapeoDiccionario,mapeoPermiso,userMnu,ayer.getFechaStrAAMMDD()));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
 	public Result domStockDiarioExcel1(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			if(mapeoPermiso.get("reportesDOM")==null) {
-				return ok(mensajes.render("/",msgSinPermiso));
-			}
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbRead.getConnection();
-					String fechaCorte = form.get("fechaCorte").trim();
-
-					List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2 					*** N° 1, N° 2 y N° 98
-					Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock 						*** N° 63, N° 113, N° 52 y N° 115
-					Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo			*** N° 114 y N° 102
-					Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas		*** N° 112 y N° 101
-					Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil						*** N° 108
-
-					PreparedStatement smt = con
-							.prepareStatement(" select"
-									+ " movimiento.id_bodegaEmpresa,"
-									+ " movimiento.id_equipo,"
-									+ " if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,"
-									+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
-									+ " from `"+s.baseDato+"`.movimiento"
-									+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
-									// 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas
-									+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)"
-									+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || movimiento.fecha_factura <= ? || movimiento.fecha_actaBaja <= ?)"
-									+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo;");
-					smt.setString(1, fechaCorte);
-					smt.setString(2, fechaCorte);
-					smt.setString(3, fechaCorte);
-					ResultSet rs = smt.executeQuery();
-					while (rs.next()) {
-						// bodegas 2->DISPONIBLE Santiago  404->MANTENCION Santiago  405->DISPONOBLE Puerto Varas  406->MANTENCION Puerto Varas
-						// bodega_equipo vs cantidad stock de equipos disponibles
-						String key = rs.getString(1)+"_"+rs.getString(2);
-						mapCantStock.put(key, rs.getLong(3));
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		if(mapeoPermiso.get("reportesDOM")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try {
+				String fechaCorte = form.get("fechaCorte").trim();
+				List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2
+				Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock
+				Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo
+				Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas
+				Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil
+				Map<String,Long> mapSumCantPorDias = null;
+				List<Double> listPrecios = null;
+				Map<String,List<Double>> mapListaPrecios = null;
+				try (Connection con = dbRead.getConnection()) {
+					String query = String.format(
+							"select"
+							+ " movimiento.id_bodegaEmpresa,"
+							+ " movimiento.id_equipo,"
+							+ " if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,"
+							+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+							+ " from `%s`.movimiento"
+							+ " left join `%s`.guia on guia.id = movimiento.id_guia"
+							+ " where movimiento.id_bodegaEmpresa in (2, 404, 405, 406)"
+							+ " and movimiento.esVenta = 0 and (guia.fecha <= ? || movimiento.fecha_factura <= ? || movimiento.fecha_actaBaja <= ?)"
+							+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo;", s.baseDato, s.baseDato);
+					try (PreparedStatement smt = con.prepareStatement(query)) {
+						smt.setString(1, fechaCorte);
+						smt.setString(2, fechaCorte);
+						smt.setString(3, fechaCorte);
+						try (ResultSet rs = smt.executeQuery()) {
+							while (rs.next()) {
+								String key = rs.getString(1) + "_" + rs.getString(2);
+								mapCantStock.put(key, rs.getLong(3));
+							}
+						}
 					}
-					rs.close();
-					smt.close();
-
-					PreparedStatement smt1 = con
-							.prepareStatement("select id, codigo, nombre, kg, m2 from `"+s.baseDato+"`.equipo where vigente = 1;");
-					ResultSet rs1 = smt1.executeQuery();
-					//  lista de equipos a desplegar
-					while (rs1.next()) {
-						List<String> aux = new ArrayList<String>();
-						aux.add(rs1.getString(1)); // 0 id_equipo
-						aux.add(rs1.getString(2)); // 1 codigo
-						aux.add(rs1.getString(3)); // 2 nombre
-						aux.add(rs1.getString(4)); // 3 kg
-						aux.add(rs1.getString(5)); // 4 m2
-						listEquip.add(aux);
+					query = String.format("select select id, codigo, nombre, kg, m2 from `%s`.equipo where vigente = 1;", s.baseDato);
+					try (PreparedStatement smt1 = con.prepareStatement(query)) {
+						try (ResultSet rs1 = smt1.executeQuery()) {
+							while (rs1.next()) {
+								List<String> aux = new ArrayList<String>();
+								aux.add(rs1.getString(1)); // 0 id_equipo
+								aux.add(rs1.getString(2)); // 1 codigo
+								aux.add(rs1.getString(3)); // 2 nombre
+								aux.add(rs1.getString(4)); // 3 kg
+								aux.add(rs1.getString(5)); // 4 m2
+								listEquip.add(aux);
+							}
+						}
 					}
-					rs1.close();
-					smt1.close();
-
-					PreparedStatement smt2 = con
-							.prepareStatement("select auxiliar.id_susucursal, auxiliar.id_equipo, sum(auxiliar.cantidad)"
-									+ " from"
-									+ "	 ("
-									+ "	select"
-									+ " bodegaEmpresa.id_sucursal as id_susucursal,"
-									+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
-									+ "	movimiento.id_equipo as id_equipo,"
-									+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
-									+ "	from `"+s.baseDato+"`.movimiento"
-									+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-									+ " left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
-									+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
-									+ " and movimiento.esVenta = 0 and (guia.fecha <= ?)"
-									+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
-									+ "	) as auxiliar"
-									+ " group by auxiliar.id_susucursal, auxiliar.id_equipo;");
-					smt2.setString(1, fechaCorte);
-					ResultSet rs2 = smt2.executeQuery();
-					while (rs2.next()) {
-						// sucursales 1 stgo 2 pto varas
-						// sucursal_equipo vs cantidad de equipos arrendados por sucursal
-						String key = rs2.getString(1)+"_"+rs2.getString(2);
-						mapCantArr.put(key, rs2.getLong(3));
+					query = String.format(
+							"select auxiliar.id_susucursal, auxiliar.id_equipo, sum(auxiliar.cantidad)"
+							+ " from"
+							+ "	 ("
+							+ "	select"
+							+ " bodegaEmpresa.id_sucursal as id_susucursal,"
+							+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+							+ "	movimiento.id_equipo as id_equipo,"
+							+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)<0,0,sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)) as cantidad"
+							+ "	from `%s`.movimiento"
+							+ "	left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+							+ " left join `%s`.guia on guia.id = movimiento.id_guia"
+							+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1"
+							+ " and movimiento.esVenta = 0 and (guia.fecha <= ?)"
+							+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, bodegaEmpresa.id_sucursal"
+							+ "	) as auxiliar"
+							+ " group by auxiliar.id_susucursal, auxiliar.id_equipo;", s.baseDato, s.baseDato, s.baseDato);
+					try (PreparedStatement smt2 = con.prepareStatement(query)) {
+						smt2.setString(1, fechaCorte);
+						try (ResultSet rs2 = smt2.executeQuery()) {
+							while (rs2.next()) {
+								String key = rs2.getString(1) + "_" + rs2.getString(2);
+								mapCantArr.put(key, rs2.getLong(3));
+							}
+						}
 					}
-					rs2.close();
-					smt2.close();
-
-					PreparedStatement smt3 = con
-							.prepareStatement("select"
-									+ " bodegaEmpresa.id_sucursal,"
-									+ " cotizaDetalle.id_equipo, sum(cotizaDetalle.cantidad) - sum(ifnull(otDespachado.cantidadRebajaOt,0)) as porDespachar"
-									+ " from `"+s.baseDato+"`.cotizaDetalle"
-									+ " left join `"+s.baseDato+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
-									+ " left join `"+s.baseDato+"`.ot on ot.id = cotizacion.id_ot"
-									+ " left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = cotizacion.id_bodegaEmpresa"
-									+ " left join `"+s.baseDato+"`.otDespachado on otDespachado.id_cotizaDetalle = cotizaDetalle.id"
-									+ " left Join `"+s.baseDato+"`.guia on guia.id = otDespachado.id_guia"
-									+ " where cotizacion.id_ot > 0 and ot.confirmada = 1 and ot.fechaConfirmada <= ? and (guia.fecha <= ? || guia.fecha is null)"
-									+ " group by bodegaEmpresa.id_sucursal, cotizaDetalle.id_equipo"
-									+ " having porDespachar > 0;");
-					smt3.setString(1, fechaCorte);
-					smt3.setString(2, fechaCorte);
-					ResultSet rs3 = smt3.executeQuery();
-					while (rs3.next()) {
-						// sucursal_equipo vs cantidad de equipos pendientes por despachar desde ot por sucursal
-						String key = rs3.getString(1)+"_"+rs3.getString(2);
-						mapPorDespachar.put(key, rs3.getLong(3));
+					query = String.format(
+							" select"
+							+ " bodegaEmpresa.id_sucursal,"
+							+ " cotizaDetalle.id_equipo, sum(cotizaDetalle.cantidad) - sum(ifnull(otDespachado.cantidadRebajaOt,0)) as porDespachar"
+							+ " from `%s`.cotizaDetalle"
+							+ " left join `%s`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
+							+ " left join `%s`.ot on ot.id = cotizacion.id_ot"
+							+ " left join `%s`.bodegaEmpresa on bodegaEmpresa.id = cotizacion.id_bodegaEmpresa"
+							+ " left join `%s`.otDespachado on otDespachado.id_cotizaDetalle = cotizaDetalle.id"
+							+ " left Join `%s`.guia on guia.id = otDespachado.id_guia"
+							+ " where cotizacion.id_ot > 0 and ot.confirmada = 1 and ot.fechaConfirmada <= ? and (guia.fecha <= ? || guia.fecha is null)"
+							+ " group by bodegaEmpresa.id_sucursal, cotizaDetalle.id_equipo"
+							+ " having porDespachar > 0;", s.baseDato, s.baseDato, s.baseDato, s.baseDato, s.baseDato, s.baseDato);
+					try (PreparedStatement smt3 = con.prepareStatement(query)) {
+						smt3.setString(1, fechaCorte);
+						smt3.setString(2, fechaCorte);
+						try (ResultSet rs3 = smt3.executeQuery()) {
+							while (rs3.next()) {
+								// sucursal_equipo vs cantidad de equipos pendientes por despachar desde ot por sucursal
+								String key = rs3.getString(1) + "_" + rs3.getString(2);
+								mapPorDespachar.put(key, rs3.getLong(3));
+							}
+						}
 					}
-					rs3.close();
-					smt3.close();
-
-
-
-					Map<String,Long> mapSumCantPorDias = new HashMap<String,Long>(); // bod_cot_equ vs cant-dias para calculo de promedio 60 dias
+					mapSumCantPorDias = new HashMap<String,Long>(); // bod_cot_equ vs cant-dias para calculo de promedio 60 dias
 					Fechas ini = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
 					ini = Fechas.addMeses(ini.getFechaCal(), -2);
 					Fechas fin = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
 					String fechaIni = ini.getFechaStrAAMMDD();
-
 					int dias = Fechas.diasEntreFechas(ini.getFechaCal(), fin.getFechaCal()) + 1;
-
-					PreparedStatement smt4 = con
-							.prepareStatement("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad)"
-									+ " from ("
-									+ "	select "
-									+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
-									+ " movimiento.id_cotizacion as id_cotizacion,"
-									+ "	movimiento.id_equipo as id_equipo,"
-									+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) < 0, 0 , sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad)) as cantidad"
-									+ "	from `"+s.baseDato+"`.movimiento"
-									+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-									+ "	left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
-									+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1 and movimiento.esVenta = 0 and (guia.fecha <= ?)"
-									+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_cotizacion, movimiento.id_equipo"
-									+ ") as auxiliar"
-									+ " group by auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo;");
-					smt4.setString(1, fechaIni);
-					ResultSet rs4 = smt4.executeQuery();
-					while (rs4.next()) {
-						// bod_cot_equ vs cant - dias inventario inicial
-						String key = rs4.getString(1)+"_"+rs4.getString(2)+"_"+rs4.getString(3);
-						Long aux = mapSumCantPorDias.get(key);
-						if(aux != null) {
-							aux += rs4.getLong(4) * dias;
-							mapSumCantPorDias.put(key, aux);
-						}else {
-							mapSumCantPorDias.put(key, rs4.getLong(4) * dias);
-						}
-					}
-					rs4.close();
-					smt4.close();
-
-					PreparedStatement smt5 = con
-							.prepareStatement("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad), auxiliar.fecha"
-									+ " from ("
-									+ "	select "
-									+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
-									+ " movimiento.id_cotizacion as id_cotizacion,"
-									+ "	movimiento.id_equipo as id_equipo,"
-									+ "	sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) as cantidad,"
-									+ "	guia.fecha as fecha"
-									+ "	from `"+s.baseDato+"`.movimiento"
-									+ "	left join `"+s.baseDato+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-									+ "	left join `"+s.baseDato+"`.guia on guia.id = movimiento.id_guia"
-									+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1 and movimiento.esVenta = 0 and (guia.fecha > ? and guia.fecha <= ?)"
-									+ "	group by guia.fecha, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion, movimiento.id_equipo"
-									+ ") as auxiliar"
-									+ " group by auxiliar.fecha, auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo;");
-					smt5.setString(1, fechaIni);
-					smt5.setString(2, fechaCorte);
-					ResultSet rs5 = smt5.executeQuery();
-					while (rs5.next()) {
-						Fechas auxFech = Fechas.obtenerFechaDesdeStrAAMMDD(rs5.getString(5));
-						dias = Fechas.diasEntreFechas(auxFech.getFechaCal(), fin.getFechaCal()) + 1;
-						// bod_cot_equ vs cant - dias acumulando inventario
-						String key = rs5.getString(1)+"_"+rs5.getString(2)+"_"+rs5.getString(3);
-						Long aux = mapSumCantPorDias.get(key);
-						if(aux != null) {
-							aux += rs5.getLong(4) * dias;
-							mapSumCantPorDias.put(key, aux);
-						}else {
-							mapSumCantPorDias.put(key, rs5.getLong(4) * dias);
-						}
-					}
-					rs5.close();
-					smt5.close();
-
-					// AGRUPO RESULTADOS POR EQUIPO cantPorDia y total suma producto Precio
-					Map<String,List<Double>> mapListaPrecios = ListaPrecio.mapListaPreciosAll(con, s.baseDato);
-
-					con.close();
-
-					Map<Long,List<Double>> mapPrecios = new HashMap<Long,List<Double>>();
-					for (Map.Entry<String, Long> entry : mapSumCantPorDias.entrySet()) {
-						// key = id_bodegaEmpresa + id_cotizacion + id_equipo
-						String key = entry.getKey();
-						String aux[] = key.split("_");
-						Long id_equipo = Long.parseLong(aux[2]);
-						Long cantPorDias = entry.getValue();
-						List<Double> listPrecios = mapListaPrecios.get(key);
-						Double precioDiaUnit = (double) 0;
-						if(listPrecios != null) {
-							Double precioUnit = listPrecios.get(1);
-							Double factor = listPrecios.get(4);
-							precioDiaUnit = precioUnit / factor;
-						}
-						List<Double> precio = mapPrecios.get(id_equipo);
-						if(precio != null) {
-							precio.set(0, precio.get(0) + cantPorDias);
-							precio.set(1, precio.get(1) + cantPorDias * precioDiaUnit);
-							mapPrecios.put(id_equipo, precio);
-						}else {
-							List<Double> aux2 = new ArrayList<Double>();
-							aux2.add((double) cantPorDias);
-							aux2.add(cantPorDias * precioDiaUnit);
-							mapPrecios.put(id_equipo, aux2);
-						}
-					}
-
-					for (Map.Entry<Long, List<Double>> entry : mapPrecios.entrySet()) {
-						Long key = entry.getKey();
-						List<Double> val = entry.getValue();
-						Double media = (double) 0;
-						if(val.get(0) > 0) {
-							media = val.get(1)/val.get(0);
-						}
-						mapMediaMovil.put(key, media);
-					}
-
-
-	    			/*
-	    				List<List<String>> listEquip = new ArrayList<List<String>>(); // lista con id, cod, equipo, kg, m2 					*** N° 1, N° 2 y N° 98
-	        			Map<String,Long> mapCantStock = new HashMap<String,Long>(); // map idBodega_idEquip vs stock 						*** N° 63, N° 113, N° 52 y N° 115
-	        			Map<String,Long> mapCantArr = new HashMap<String,Long>(); // map idSucursal_idEquip vs cantidad en arriendo			*** N° 114 y N° 102
-	        			Map<String,Long> mapPorDespachar = new HashMap<String,Long>(); // map idSucursal_idEquip vs cant por desp de OT confirmadas		*** N° 112 y N° 101
-	        			Map<Long,Double> mapMediaMovil = new HashMap<Long,Double>(); // map idEquipo vs precioArr movil
-	    			 */
-
-					List<List<String>> datos = new ArrayList<List<String>>();
-					for(List<String> l: listEquip) {
-						List<String> aux = new ArrayList<String>();
-						Long id_equipo = Long.parseLong(l.get(0));
-						Long stockMantStgo = mapCantStock.get("404_"+id_equipo.toString());
-						if(stockMantStgo == null) {
-							stockMantStgo = (long) 0;
-						}
-						Long stockDispStgo = mapCantStock.get("2_"+id_equipo.toString());
-						if(stockDispStgo == null) {
-							stockDispStgo = (long) 0;
-						}
-						Long pendDespStgo = mapPorDespachar.get("1_"+id_equipo.toString());
-						if(pendDespStgo == null) {
-							pendDespStgo = (long) 0;
-						}
-						Long totArrStgo = mapCantArr.get("1_"+id_equipo.toString());
-						if(totArrStgo == null) {
-							totArrStgo = (long) 0;
-						}
-						Long stockMantPtoV = mapCantStock.get("406_"+id_equipo.toString());
-						if(stockMantPtoV == null) {
-							stockMantPtoV = (long) 0;
-						}
-						Long stockDispPtoV = mapCantStock.get("405_"+id_equipo.toString());
-						if(stockDispPtoV == null) {
-							stockDispPtoV = (long) 0;
-						}
-						Long pendDespPtoV = mapPorDespachar.get("2_"+id_equipo.toString());
-						if(pendDespPtoV == null) {
-							pendDespPtoV = (long) 0;
-						}
-						Long totArrPtoV = mapCantArr.get("2_"+id_equipo.toString());
-						if(totArrPtoV == null) {
-							totArrPtoV = (long) 0;
-						}
-						Double medMovArrUn = mapMediaMovil.get(id_equipo);
-						if(medMovArrUn == null) {
-							medMovArrUn = (double) 0;
-						}
-
-						aux.add(l.get(1));					// 0 N° 1 - Codigo de Articulo
-						aux.add(l.get(2));					// 1 N° 2 - Nombre de Articulo
-						aux.add(stockMantPtoV.toString());	// 2 N° 52 - Bodega Mantencion Puerto Varas
-						aux.add(stockMantStgo.toString());	// 3 N° 63 - Bodega Mantencion Santiago
-						aux.add(l.get(4));					// 4 N° 98 - Dimensión en M2 del Artículo
-						aux.add(pendDespPtoV.toString());	// 5 N° 101 - Pendientes por despachar Puerto Varas
-						aux.add(totArrPtoV.toString());		// 6 N° 102 - En arriendo Puerto Varas
-						aux.add(medMovArrUn.toString());	// 7 N° 108 - Valor promedio de arriendo diario últimos 60 días.
-						aux.add(pendDespStgo.toString());	// 8 N° 112 - Pendientes por despachar Santiago
-						aux.add(stockDispStgo.toString());	// 9 N° 113 - Bodega Disponible Santiago
-						aux.add(totArrStgo.toString());		// 10 N° 114 - Total en Arriendo Santiago
-						aux.add(stockDispPtoV.toString());	// 11 N° 115 - Bodega Disponible Puerto Varas
-						datos.add(aux);
-					}
-
-
-					File tmp = TempFile.createTempFile("tmp","null");
-					try {
-						String path = s.baseDato+"/formatos/DOM_Stock_Detallado.xlsx";
-						InputStream formato = Archivos.leerArchivo(path);
-						Workbook libro = WorkbookFactory.create(formato);
-						formato.close();
-
-						Sheet hoja1 = libro.getSheetAt(0);
-						Row row = null;
-						Cell cell = null;
-						Double auxDbl = (double) 0;
-
-						row = hoja1.getRow(0);
-
-						cell = row.getCell(116);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
-						cell.setCellValue(fecha.fechaUtil);
-
-						Fechas hoyChile = Fechas.hoyChile();
-
-						cell = row.getCell(118);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(hoyChile.fechaUtil);
-
-
-
-
-						for(int i=0;i<datos.size();i++){
-
-							row = hoja1.createRow(i+1);
-
-							cell = row.createCell(0);
-							try {
-								auxDbl = Double.parseDouble(datos.get(i).get(0));
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-								cell.setCellValue(auxDbl);
-							}catch(Exception e) {
-								cell.setCellType(Cell.CELL_TYPE_STRING);
-								cell.setCellValue(datos.get(i).get(0));
+					query = String.format("select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad)"
+							+ " from ("
+							+ "	select "
+							+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+							+ " movimiento.id_cotizacion as id_cotizacion,"
+							+ "	movimiento.id_equipo as id_equipo,"
+							+ "	if(sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) < 0, 0 , sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad)) as cantidad"
+							+ "	from `%s`.movimiento"
+							+ "	left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+							+ "	left join `%s`.guia on guia.id = movimiento.id_guia"
+							+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1 and movimiento.esVenta = 0 and (guia.fecha <= ?)"
+							+ "	group by movimiento.id_bodegaEmpresa, movimiento.id_cotizacion, movimiento.id_equipo"
+							+ ") as auxiliar"
+							+ " group by auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo;", s.baseDato, s.baseDato, s.baseDato);
+					try (PreparedStatement smt4 = con.prepareStatement(query)) {
+						smt4.setString(1, fechaIni);
+						try (ResultSet rs4 = smt4.executeQuery()) {
+							while (rs4.next()) {
+								// bod_cot_equ vs cant - dias inventario inicial
+								String key = rs4.getString(1) + "_" + rs4.getString(2) + "_" + rs4.getString(3);
+								Long aux = mapSumCantPorDias.get(key);
+								if (aux != null) {
+									aux += rs4.getLong(4) * dias;
+									mapSumCantPorDias.put(key, aux);
+								} else {
+									mapSumCantPorDias.put(key, rs4.getLong(4) * dias);
+								}
 							}
-
-							cell = row.createCell(1);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(datos.get(i).get(1));
-
-							cell = row.createCell(51);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(2));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(62);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(3));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(97);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(4));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(100);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(5));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(101);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(6));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(107);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(7));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(111);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(8));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(112);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(9));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(113);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(10));
-							cell.setCellValue(auxDbl);
-
-							cell = row.createCell(114);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-							auxDbl = Double.parseDouble(datos.get(i).get(11));
-							cell.setCellValue(auxDbl);
-
 						}
-
-						FormulaEvaluator evaluator = libro.getCreationHelper().createFormulaEvaluator();
-						evaluator.evaluateAll(); // Recalcular todas las fórmulas en todas las hojas
-
-						// Write the output to a file tmp
-						FileOutputStream fileOut = new FileOutputStream(tmp);
-						libro.write(fileOut);
-						fileOut.close();
-
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
-
-					return ok(tmp,false,Optional.of(fechaCorte + "_Stock_Detallado.xlsx"));
-
+					query = String.format(
+							"select auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo, sum(auxiliar.cantidad), auxiliar.fecha"
+							+ " from ("
+							+ "	select "
+							+ "	movimiento.id_bodegaEmpresa as id_bodegaEmpresa,"
+							+ " movimiento.id_cotizacion as id_cotizacion,"
+							+ "	movimiento.id_equipo as id_equipo,"
+							+ "	sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad) as cantidad,"
+							+ "	guia.fecha as fecha"
+							+ "	from `%s`.movimiento"
+							+ "	left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
+							+ "	left join `%s`.guia on guia.id = movimiento.id_guia"
+							+ "	where bodegaEmpresa.esInterna = 2 and bodegaEmpresa.vigente = 1 and movimiento.esVenta = 0 and (guia.fecha > ? and guia.fecha <= ?)"
+							+ "	group by guia.fecha, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion, movimiento.id_equipo"
+							+ ") as auxiliar"
+							+ " group by auxiliar.fecha, auxiliar.id_bodegaEmpresa, auxiliar.id_cotizacion, auxiliar.id_equipo;", s.baseDato, s.baseDato, s.baseDato);
+					try (PreparedStatement smt5 = con.prepareStatement(query)) {
+						smt5.setString(1, fechaIni);
+						smt5.setString(2, fechaCorte);
+						try (ResultSet rs5 = smt5.executeQuery()) {
+							while (rs5.next()) {
+								Fechas auxFech = Fechas.obtenerFechaDesdeStrAAMMDD(rs5.getString(5));
+								dias = Fechas.diasEntreFechas(auxFech.getFechaCal(), fin.getFechaCal()) + 1;
+								String key = rs5.getString(1) + "_" + rs5.getString(2) + "_" + rs5.getString(3);
+								Long aux = mapSumCantPorDias.get(key);
+								if (aux != null) {
+									aux += rs5.getLong(4) * dias;
+									mapSumCantPorDias.put(key, aux);
+								} else {
+									mapSumCantPorDias.put(key, rs5.getLong(4) * dias);
+								}
+							}
+						}
+					}
+					// AGRUPO RESULTADOS POR EQUIPO cantPorDia y total suma producto Precio
+					mapListaPrecios = ListaPrecio.mapListaPreciosAll(con, s.baseDato);
 				} catch (SQLException e) {
-					e.printStackTrace();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
 				}
+				Map<Long,List<Double>> mapPrecios = new HashMap<Long,List<Double>>();
+				for (Map.Entry<String, Long> entry : mapSumCantPorDias.entrySet()) {
+					// key = id_bodegaEmpresa + id_cotizacion + id_equipo
+					String key = entry.getKey();
+					String aux[] = key.split("_");
+					Long id_equipo = Long.parseLong(aux[2]);
+					Long cantPorDias = entry.getValue();
+					listPrecios = mapListaPrecios.get(key);
+					Double precioDiaUnit = (double) 0;
+					if(listPrecios != null) {
+						Double precioUnit = listPrecios.get(1);
+						Double factor = listPrecios.get(4);
+						precioDiaUnit = precioUnit / factor;
+					}
+					List<Double> precio = mapPrecios.get(id_equipo);
+					if(precio != null) {
+						precio.set(0, precio.get(0) + cantPorDias);
+						precio.set(1, precio.get(1) + cantPorDias * precioDiaUnit);
+						mapPrecios.put(id_equipo, precio);
+					}else {
+						List<Double> aux2 = new ArrayList<Double>();
+						aux2.add((double) cantPorDias);
+						aux2.add(cantPorDias * precioDiaUnit);
+						mapPrecios.put(id_equipo, aux2);
+					}
+				}
+				for (Map.Entry<Long, List<Double>> entry : mapPrecios.entrySet()) {
+					Long key = entry.getKey();
+					List<Double> val = entry.getValue();
+					Double media = (double) 0;
+					if(val.get(0) > 0) {
+						media = val.get(1)/val.get(0);
+					}
+					mapMediaMovil.put(key, media);
+				}
+				List<List<String>> datos = new ArrayList<List<String>>();
+				for(List<String> l: listEquip) {
+					List<String> aux = new ArrayList<String>();
+					Long id_equipo = Long.parseLong(l.get(0));
+					Long stockMantStgo = mapCantStock.get("404_"+id_equipo.toString());
+					if(stockMantStgo == null) {
+						stockMantStgo = (long) 0;
+					}
+					Long stockDispStgo = mapCantStock.get("2_"+id_equipo.toString());
+					if(stockDispStgo == null) {
+						stockDispStgo = (long) 0;
+					}
+					Long pendDespStgo = mapPorDespachar.get("1_"+id_equipo.toString());
+					if(pendDespStgo == null) {
+						pendDespStgo = (long) 0;
+					}
+					Long totArrStgo = mapCantArr.get("1_"+id_equipo.toString());
+					if(totArrStgo == null) {
+						totArrStgo = (long) 0;
+					}
+					Long stockMantPtoV = mapCantStock.get("406_"+id_equipo.toString());
+					if(stockMantPtoV == null) {
+						stockMantPtoV = (long) 0;
+					}
+					Long stockDispPtoV = mapCantStock.get("405_"+id_equipo.toString());
+					if(stockDispPtoV == null) {
+						stockDispPtoV = (long) 0;
+					}
+					Long pendDespPtoV = mapPorDespachar.get("2_"+id_equipo.toString());
+					if(pendDespPtoV == null) {
+						pendDespPtoV = (long) 0;
+					}
+					Long totArrPtoV = mapCantArr.get("2_"+id_equipo.toString());
+					if(totArrPtoV == null) {
+						totArrPtoV = (long) 0;
+					}
+					Double medMovArrUn = mapMediaMovil.get(id_equipo);
+					if(medMovArrUn == null) {
+						medMovArrUn = (double) 0;
+					}
+					aux.add(l.get(1));					// 0 N° 1 - Codigo de Articulo
+					aux.add(l.get(2));					// 1 N° 2 - Nombre de Articulo
+					aux.add(stockMantPtoV.toString());	// 2 N° 52 - Bodega Mantencion Puerto Varas
+					aux.add(stockMantStgo.toString());	// 3 N° 63 - Bodega Mantencion Santiago
+					aux.add(l.get(4));					// 4 N° 98 - Dimensión en M2 del Artículo
+					aux.add(pendDespPtoV.toString());	// 5 N° 101 - Pendientes por despachar Puerto Varas
+					aux.add(totArrPtoV.toString());		// 6 N° 102 - En arriendo Puerto Varas
+					aux.add(medMovArrUn.toString());	// 7 N° 108 - Valor promedio de arriendo diario últimos 60 días.
+					aux.add(pendDespStgo.toString());	// 8 N° 112 - Pendientes por despachar Santiago
+					aux.add(stockDispStgo.toString());	// 9 N° 113 - Bodega Disponible Santiago
+					aux.add(totArrStgo.toString());		// 10 N° 114 - Total en Arriendo Santiago
+					aux.add(stockDispPtoV.toString());	// 11 N° 115 - Bodega Disponible Puerto Varas
+					datos.add(aux);
+				}
+				File tmp = TempFile.createTempFile("tmp","null");
+				String path = s.baseDato+"/formatos/DOM_Stock_Detallado.xlsx";
+				InputStream formato = Archivos.leerArchivo(path);
+				Workbook libro = WorkbookFactory.create(formato);
+				formato.close();
+				Sheet hoja1 = libro.getSheetAt(0);
+				Row row = null;
+				Cell cell = null;
+				Double auxDbl = (double) 0;
+				row = hoja1.getRow(0);
+				cell = row.getCell(116);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
+				cell.setCellValue(fecha.fechaUtil);
+				Fechas hoyChile = Fechas.hoyChile();
+				cell = row.getCell(118);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(hoyChile.fechaUtil);
+				for(int i=0;i<datos.size();i++){
+					row = hoja1.createRow(i+1);
+					cell = row.createCell(0);
+					try {
+						auxDbl = Double.parseDouble(datos.get(i).get(0));
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(auxDbl);
+					}catch(Exception e) {
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(datos.get(i).get(0));
+					}
+					cell = row.createCell(1);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(datos.get(i).get(1));
+					cell = row.createCell(51);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(2));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(62);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(3));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(97);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(4));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(100);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(5));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(101);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(6));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(107);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(7));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(111);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(8));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(112);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(9));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(113);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(10));
+					cell.setCellValue(auxDbl);
+					cell = row.createCell(114);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					auxDbl = Double.parseDouble(datos.get(i).get(11));
+					cell.setCellValue(auxDbl);
+				}
+				FormulaEvaluator evaluator = libro.getCreationHelper().createFormulaEvaluator();
+				evaluator.evaluateAll(); // Recalcular todas las fórmulas en todas las hojas
+				// Write the output to a file tmp
+				FileOutputStream fileOut = new FileOutputStream(tmp);
+				libro.write(fileOut);
+				fileOut.close();
+				if (tmp != null) {
+					return ok(tmp, Optional.of("plantillaFacturasManager.xlsx"));
+				} else {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
-
-			return ok(mensajes.render("/",msgError));
-		}else {
-			return ok(mensajes.render("/",msgError));
 		}
 	}
 
 	public Result hoheValySubePlantillaNV(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try {
 				String dePaso = form.get("hoheValySubePlantillaNV");
-				if( dePaso !=null && ! dePaso.equals("hoheValySubePlantillaNV")) {
+				if (dePaso != null && !dePaso.equals("hoheValySubePlantillaNV")) {
 					return ok("{\"status\":false}").as("application/json");
 				}
 				Archivos aux = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 				Http.MultipartFormData.FilePart<TemporaryFile> archivo = aux.file;
 				if (archivo != null) {
 					File file = Archivos.parseMultipartFormDatatoFile(archivo);
-
-					try {
-						Workbook libro = WorkbookFactory.create(file);
-						Sheet hoja1 = libro.getSheetAt(0);
-						Row row = null;
-						Cell cell = null;
-
-
-						List<String> listErr = new ArrayList<String>();
-						List<List<String>> listado = new ArrayList<List<String>>();
-
-						// valido datos
-						int fila = 1;
-						row = hoja1.getRow(fila);
-						if(row != null) {
-							cell = row.getCell(1);
-							Map<String,Cliente> mapClientes = null;
-							Map<Long,BodegaEmpresa> mapBodegas = null;
-
+					Workbook libro = WorkbookFactory.create(file);
+					Sheet hoja1 = libro.getSheetAt(0);
+					Row row = null;
+					Cell cell = null;
+					List<String> listErr = new ArrayList<String>();
+					List<List<String>> listado = new ArrayList<List<String>>();
+					// valido datos
+					int fila = 1;
+					row = hoja1.getRow(fila);
+					if (row != null) {
+						cell = row.getCell(1);
+						Map<String, Cliente> mapClientes = null;
+						Map<Long, BodegaEmpresa> mapBodegas = null;
+						try (Connection con = dbRead.getConnection()) {
+							mapClientes = Cliente.mapAllClientesPorRut(con, s.baseDato);
+							mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
+						} catch (SQLException e) {
+							logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+							return ok(mensajes.render("/home/", msgReport));
+						} catch (Exception e) {
+							logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+							return ok(mensajes.render("/home/", msgReport));
+						}
+						while (row != null && cell != null) {
+							boolean flag = true;
+							List<String> auxList = new ArrayList<String>();
+							// Valido fechas
 							try {
-								Connection con = dbRead.getConnection();
-								mapClientes = Cliente.mapAllClientesPorRut(con, s.baseDato);
-								mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
-								con.close();
-							} catch (SQLException e) {
-								e.printStackTrace();
+								Date fecha = cell.getDateCellValue();
+								Fechas aux1 = Fechas.obtenerFechaDesdeDate(fecha);
+								auxList.add(aux1.getFechaStrAAMMDD());
+							} catch (Exception e) {
+								listErr.add("EN FILA " + (fila + 1) + ": fecha no valida.");
+								flag = false;
 							}
-
-							while (row != null && cell != null) {
-
-								boolean flag = true;
-								List<String> auxList = new ArrayList<String>();
-
-								// Valido fechas
+							// Valido rut
+							cell = row.getCell(2);
+							if (cell != null) {
 								try {
-									Date fecha = cell.getDateCellValue();
-									Fechas aux1 = Fechas.obtenerFechaDesdeDate(fecha);
-									auxList.add(aux1.getFechaStrAAMMDD());
-								}catch(Exception e){
-									listErr.add("EN FILA "+(fila+1)+": fecha no valida.");
-									flag = false;
-								}
-
-
-								// Valido rut
-								cell = row.getCell(2);
-								if(cell !=  null) {
-									try {
-										String rut = cell.getStringCellValue().trim();
-										Cliente cliente = mapClientes.get(rut);
-										if(cliente != null) {
-											auxList.add(rut);
-										} else {
-											listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
-											flag = false;
-										}
-									}catch (Exception e) {
-										listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
+									String rut = cell.getStringCellValue().trim();
+									Cliente cliente = mapClientes.get(rut);
+									if (cliente != null) {
+										auxList.add(rut);
+									} else {
+										listErr.add("EN FILA " + (fila + 1) + ": RUT no valido, campo obligado.");
 										flag = false;
 									}
-								}else {
-									listErr.add("EN FILA "+(fila+1)+": RUT no valido, campo obligado.");
+								} catch (Exception e) {
+									listErr.add("EN FILA " + (fila + 1) + ": RUT no valido, campo obligado.");
 									flag = false;
 								}
-
-								// Valido neto
-								cell = row.getCell(3);
-								if(cell != null) {
-									try {
-										Double neto = cell.getNumericCellValue();
-										if(neto <= (double)0) {
-											listErr.add("EN FILA "+(fila+1)+": neto no valido menor o igual que cero.");
-											flag = false;
-										} else {
-											auxList.add(neto.toString());
-										}
-									}catch(Exception e){
-										listErr.add("EN FILA "+(fila+1)+": neto no valido, debe ser un tipo numero obligado.");
-										flag = false;
-									}
-								}else {
-									listErr.add("EN FILA "+(fila+1)+": neto no valido, debe ser un tipo numero obligado.");
-									flag = false;
-								}
-
-								// Valido concepto 1
-								cell = row.getCell(4);
-								if(cell != null) {
-									try {
-										String concepto1 = cell.getStringCellValue().trim();
-										auxList.add(concepto1);
-									}catch (Exception e) {
-										Double concepto1 = cell.getNumericCellValue();
-										auxList.add(concepto1.toString());
-									}
-								}else {
-									listErr.add("EN FILA "+(fila+1)+": el concepto 1 esta vacio (es obligatorio).");
-									flag = false;
-								}
-
-								// agregar el concepto 2
-
-								cell = row.getCell(5);
-								if(cell != null) {
-									try {
-										String concepto2 = cell.getStringCellValue().trim();
-										auxList.add(concepto2);
-									}catch (Exception e) {
-										Double concepto2 = cell.getNumericCellValue();
-										auxList.add(concepto2.toString());
-									}
-								} else {
-									auxList.add("");
-								}
-
-								// Valido id bodega
-								cell = row.getCell(6);
-								if(cell != null) {
-									try {
-										Long id_bodega = (long) cell.getNumericCellValue();
-										BodegaEmpresa bodega = mapBodegas.get(id_bodega);
-										if(bodega!=null) {
-											if(id_bodega <= (long)0) {
-												listErr.add("EN FILA "+(fila+1)+": el ID BODEGA no es valido obligatorio.");
-												flag = false;
-											} else {
-												auxList.add(id_bodega.toString());
-											}
-										} else {
-											listErr.add("EN FILA "+(fila+1)+": el ID BODEGA no es valido obligatorio.");
-											flag = false;
-										}
-									}catch(Exception e){
-										listErr.add("EN FILA "+(fila+1)+": el ID BODEGA no es valido obligatorio.");
-										flag = false;
-									}
-								}else {
-									listErr.add("EN FILA "+(fila+1)+": el ID BODEGA no es valido obligatorio.");
-									flag = false;
-								}
-
-
-								if(flag) {
-									listado.add(auxList);
-								}
-
-								//siguiente linea
-								fila++;
-								row = hoja1.getRow(fila);
-								if(row != null) {
-									cell = row.getCell(1);
-								} else {
-									cell = null;
-								}
+							} else {
+								listErr.add("EN FILA " + (fila + 1) + ": RUT no valido, campo obligado.");
+								flag = false;
 							}
-
-						} else {
-							listErr.add("LA PLANTILLA NO CORRESPONDE");
-							return ok("{\"status\":false}").as("application/json");
-						}
-
-						// GRABACION Y ENVIO DE NV
-
-						if(listErr.size() > 0) {
-							String jsonMsg = Json.toJson(listErr).toString();
-							return ok("{\"status\":true,\"error\":true,\"detalle\":"+jsonMsg+"}").as("application/json");
-						}else {
-							String mailDestino = "";
-							try {
-								Connection con0 = dbRead.getConnection();
-								Usuario usuario = Usuario.findXIdUser(con0, s.baseDato, Long.parseLong(s.id_usuario));
-								if( usuario != null) {
-									mailDestino = usuario.getEmail().trim().toLowerCase();
+							// Valido neto
+							cell = row.getCell(3);
+							if (cell != null) {
+								try {
+									Double neto = cell.getNumericCellValue();
+									if (neto <= (double) 0) {
+										listErr.add("EN FILA " + (fila + 1) + ": neto no valido menor o igual que cero.");
+										flag = false;
+									} else {
+										auxList.add(neto.toString());
+									}
+								} catch (Exception e) {
+									listErr.add("EN FILA " + (fila + 1) + ": neto no valido, debe ser un tipo numero obligado.");
+									flag = false;
 								}
-								con0.close();
-							} catch (SQLException e) {
-								e.printStackTrace();
+							} else {
+								listErr.add("EN FILA " + (fila + 1) + ": neto no valido, debe ser un tipo numero obligado.");
+								flag = false;
 							}
-							MnuReportes.hoheGeneraNVdesdeExcel generar = new MnuReportes.hoheGeneraNVdesdeExcel(listado, s, mailDestino);
-							generar.start();
-
-							String msg = "NV en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
-							return ok("{\"status\":true,\"error\":false,\"msg\":\""+msg+"\"}").as("application/json");
+							// Valido concepto 1
+							cell = row.getCell(4);
+							if (cell != null) {
+								try {
+									String concepto1 = cell.getStringCellValue().trim();
+									auxList.add(concepto1);
+								} catch (Exception e) {
+									Double concepto1 = cell.getNumericCellValue();
+									auxList.add(concepto1.toString());
+								}
+							} else {
+								listErr.add("EN FILA " + (fila + 1) + ": el concepto 1 esta vacio (es obligatorio).");
+								flag = false;
+							}
+							// agregar el concepto 2
+							cell = row.getCell(5);
+							if (cell != null) {
+								try {
+									String concepto2 = cell.getStringCellValue().trim();
+									auxList.add(concepto2);
+								} catch (Exception e) {
+									Double concepto2 = cell.getNumericCellValue();
+									auxList.add(concepto2.toString());
+								}
+							} else {
+								auxList.add("");
+							}
+							// Valido id bodega
+							cell = row.getCell(6);
+							if (cell != null) {
+								try {
+									Long id_bodega = (long) cell.getNumericCellValue();
+									BodegaEmpresa bodega = mapBodegas.get(id_bodega);
+									if (bodega != null) {
+										if (id_bodega <= (long) 0) {
+											listErr.add("EN FILA " + (fila + 1) + ": el ID BODEGA no es valido obligatorio.");
+											flag = false;
+										} else {
+											auxList.add(id_bodega.toString());
+										}
+									} else {
+										listErr.add("EN FILA " + (fila + 1) + ": el ID BODEGA no es valido obligatorio.");
+										flag = false;
+									}
+								} catch (Exception e) {
+									listErr.add("EN FILA " + (fila + 1) + ": el ID BODEGA no es valido obligatorio.");
+									flag = false;
+								}
+							} else {
+								listErr.add("EN FILA " + (fila + 1) + ": el ID BODEGA no es valido obligatorio.");
+								flag = false;
+							}
+							if (flag) {
+								listado.add(auxList);
+							}
+							//siguiente linea
+							fila++;
+							row = hoja1.getRow(fila);
+							if (row != null) {
+								cell = row.getCell(1);
+							} else {
+								cell = null;
+							}
 						}
-
-					} catch (Exception e) {
-						e.printStackTrace();
+					} else {
+						listErr.add("LA PLANTILLA NO CORRESPONDE");
 						return ok("{\"status\":false}").as("application/json");
 					}
+					// GRABACION Y ENVIO DE NV
+					if (listErr.size() > 0) {
+						String jsonMsg = Json.toJson(listErr).toString();
+						return ok("{\"status\":true,\"error\":true,\"detalle\":" + jsonMsg + "}").as("application/json");
+					} else {
+						String mailDestino = "";
+						try (Connection con0 = dbRead.getConnection()) {
+							Usuario usuario = Usuario.findXIdUser(con0, s.baseDato, Long.parseLong(s.id_usuario));
+							if (usuario != null) {
+								mailDestino = usuario.getEmail().trim().toLowerCase();
+							}
+						} catch (SQLException e) {
+							logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+							return ok(mensajes.render("/home/", msgReport));
+						} catch (Exception e) {
+							logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+							return ok(mensajes.render("/home/", msgReport));
+						}
+						MnuReportes.hoheGeneraNVdesdeExcel generar = new MnuReportes.hoheGeneraNVdesdeExcel(listado, s, mailDestino);
+						generar.start();
+						String msg = "NV en preparación, recibira el resultado al correo:" + mailDestino + ". Tomara varios minutos para recibir el correo";
+						return ok("{\"status\":true,\"error\":false,\"msg\":\"" + msg + "\"}").as("application/json");
+					}
+				} else {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-				return ok("{\"status\":false}").as("application/json");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
-		return ok("{\"status\":false}").as("application/json");
 	}
 
 	public class hoheGeneraNVdesdeExcel extends Thread {
 		List<List<String>> listado;
 		Sessiones s;
 		String mailDestino;
+
 		public hoheGeneraNVdesdeExcel(List<List<String>> listado, Sessiones s, String mailDestino) {
 			super();
 			this.listado = listado;
 			this.s = s;
 			this.mailDestino = mailDestino;
 		}
+
 		public void run() {
-
-			Map<String,Cliente> mapClie = null;
-			Map<Long,BodegaEmpresa> mapBodegas = null;
-			EmisorTributario emisor = null;
 			try {
-				Connection con0 = dbRead.getConnection();
-				mapClie = Cliente.mapAllClientesPorRut(con0, s.baseDato);
-				mapBodegas = BodegaEmpresa.mapAll(con0, s.baseDato);
-				emisor = EmisorTributario.find(con0, s.baseDato);
-				con0.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-
-			List<List<String>> newListado = new ArrayList<List<String>>();
-			List<String> resultado = new ArrayList<String>();
-			try {
-				Connection con1 = dbWrite.getConnection();
-
-				for(List<String> l: listado){
-					String fecha = l.get(0);
-					String rutClie = l.get(1);
-					String auxNeto = l.get(2);
-					Cliente cliente = mapClie.get(rutClie);
-					BodegaEmpresa bodega = mapBodegas.get(Long.parseLong(l.get(5)));
-
-
-					if(cliente != null && bodega !=null) {
-						Long neto = Math.round(Double.parseDouble(auxNeto));
-						Long iva = Math.round(neto * emisor.getTasaIva() / 100);
-						Long total = neto + iva;
-						PreparedStatement smt1 = con1
-								.prepareStatement("insert into  `"+s.baseDato+"`.proforma"
-										+ " (fecha,desde,hasta,id_cliente,neto,iva,total,tipo,id_bodegaEmpresa) VALUES"
-										+ " (?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
-						smt1.setString(1, fecha);
-						smt1.setString(2, fecha);
-						smt1.setString(3, fecha);
-						smt1.setString(4, cliente.getId().toString());
-						smt1.setString(5, neto.toString());
-						smt1.setString(6, iva.toString());
-						smt1.setString(7, total.toString());
-						smt1.setString(8, "EXCEL");
-						smt1.setString(9, l.get(5));
-						smt1.executeUpdate();
-
-						Long id_proforma = (long)0;
-						ResultSet rs1 = smt1.getGeneratedKeys();
-						if (rs1.next()) {
-							id_proforma = rs1.getLong(1);
-							l.add(id_proforma.toString());
-							l.add(iva.toString());
-							l.add(total.toString());
-							newListado.add(l);
+				Map<String, Cliente> mapClie = null;
+				Map<Long, BodegaEmpresa> mapBodegas = null;
+				EmisorTributario emisor = null;
+				try (Connection con0 = dbRead.getConnection()) {
+					mapClie = Cliente.mapAllClientesPorRut(con0, s.baseDato);
+					mapBodegas = BodegaEmpresa.mapAll(con0, s.baseDato);
+					emisor = EmisorTributario.find(con0, s.baseDato);
+				} catch (SQLException e) {
+					String className = this.getClass().getSimpleName();
+					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				} catch (Exception e) {
+					String className = this.getClass().getSimpleName();
+					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				}
+				List<List<String>> newListado = new ArrayList<List<String>>();
+				List<String> resultado = new ArrayList<String>();
+				try (Connection con1 = dbWrite.getConnection()) {
+					for (List<String> l : listado) {
+						String fecha = l.get(0);
+						String rutClie = l.get(1);
+						String auxNeto = l.get(2);
+						Cliente cliente = mapClie.get(rutClie);
+						BodegaEmpresa bodega = mapBodegas.get(Long.parseLong(l.get(5)));
+						if (cliente != null && bodega != null) {
+							Long neto = Math.round(Double.parseDouble(auxNeto));
+							Long iva = Math.round(neto * emisor.getTasaIva() / 100);
+							Long total = neto + iva;
+							Long id_proforma = null;
+							String query = query = String.format(
+									"insert into  `%s`.proforma"
+											+ " (fecha,desde,hasta,id_cliente,neto,iva,total,tipo,id_bodegaEmpresa) VALUES"
+											+ " (?,?,?,?,?,?,?,?,?);", s.baseDato);
+							try (PreparedStatement smt1 = con1.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+								smt1.setString(1, fecha);
+								smt1.setString(2, fecha);
+								smt1.setString(3, fecha);
+								smt1.setString(4, cliente.getId().toString());
+								smt1.setString(5, neto.toString());
+								smt1.setString(6, iva.toString());
+								smt1.setString(7, total.toString());
+								smt1.setString(8, "EXCEL");
+								smt1.setString(9, l.get(5));
+								smt1.executeUpdate();
+								id_proforma = (long) 0;
+								try (ResultSet rs1 = smt1.getGeneratedKeys()) {
+									if (rs1.next()) {
+										id_proforma = rs1.getLong(1);
+										l.add(id_proforma.toString());
+										l.add(iva.toString());
+										l.add(total.toString());
+										newListado.add(l);
+									}
+								}
+							}
+							String concepto1 = l.get(3);
+							String concepto2 = l.get(4);
+							ApiManagerDocDoc api = new ApiManagerDocDoc();
+							api.rut_empresa = emisor.rut;
+							api.tipodocumento = "NV";
+							api.num_doc = id_proforma.toString();
+							api.fecha_doc = Fechas.DDMMAA(fecha);
+							api.fecha_ref = Fechas.DDMMAA(fecha);
+							api.rut_cliente = rutClie;
+							api.dire_cliente = "LEGAL";
+							api.cod_vendedor = bodega.getComercial();
+							api.lista_precio = "2";
+							api.plazo_pago = "0";
+							api.cod_moneda = "CLP";
+							api.afecto = neto.toString();
+							api.tipo_desc_global = "M";
+							api.monto_desc_global = "0";
+							api.iva = iva.toString();
+							api.total = total.toString();
+							String[] bod = bodega.nombre.split(" ");
+							String comercial = bodega.getComercial();
+							String[] fechaArr = Fechas.AAMMDD(fecha).split("-");
+							api.comentario1 = bod[0];
+							api.comentario2 = comercial;
+							api.comentario3 = fechaArr[1];
+							api.comentario4 = fechaArr[0];
+							api.comentario5 = "";
+							api.modalidad = "";
+							api.emitir = "S";
+							api.referencia = "";
+							List<ApiManagerDocDet> detalle = new ArrayList<ApiManagerDocDet>();
+							ApiManagerDocDet det = new ApiManagerDocDet();
+							det.cod_producto = "I001";
+							det.cantidad = "1";
+							det.unidad = "UNS";
+							det.precio_unit = neto.toString();
+							det.moneda_det = "CLP";
+							det.cen_cos = "1";
+							det.tipo_desc = "M";
+							det.ubicacion = "";
+							det.bodega = "";
+							det.descrip = concepto1;
+							det.stock = "R";
+							det.desc_adic = concepto2;
+							detalle.add(det);
+							api.detalles = detalle;
+							String datos = Json.toJson(api).toString();
+							Proforma.updateJsonApi(con1, s.baseDato, id_proforma, datos);
+							String rs = ApiManagerDocDoc.genera(con1, s.baseDato, datos, ws, id_proforma);
+							rs = "NV nro " + id_proforma + ": " + rs;
+							resultado.add(rs);
 						}
-						smt1.close();
-						rs1.close();
-
-						String concepto1 = l.get(3);
-						String concepto2 = l.get(4);
-
-						ApiManagerDocDoc api = new ApiManagerDocDoc();
-						api.rut_empresa = emisor.rut;
-						api.tipodocumento = "NV";
-						api.num_doc = id_proforma.toString();
-						api.fecha_doc = Fechas.DDMMAA(fecha);
-						api.fecha_ref = Fechas.DDMMAA(fecha);
-						api.rut_cliente = rutClie;
-						api.dire_cliente = "LEGAL";
-						api.cod_vendedor = bodega.getComercial();
-						api.lista_precio = "2";
-						api.plazo_pago = "0";
-						api.cod_moneda = "CLP";
-						api.afecto = neto.toString();
-						api.tipo_desc_global = "M";
-						api.monto_desc_global = "0";
-						api.iva = iva.toString();
-						api.total = total.toString();
-
-						String[] bod = bodega.nombre.split(" ");
-						String comercial = bodega.getComercial();
-						String[] fechaArr = Fechas.AAMMDD(fecha).split("-");
-
-						api.comentario1 = bod[0];
-						api.comentario2 = comercial;
-						api.comentario3 = fechaArr[1];
-						api.comentario4 = fechaArr[0];
-						api.comentario5 = "";
-						api.modalidad = "";
-						api.emitir = "S";
-						api.referencia = "";
-						List<ApiManagerDocDet> detalle = new ArrayList<ApiManagerDocDet>();
-						ApiManagerDocDet det = new ApiManagerDocDet();
-						det.cod_producto = "I001";
-						det.cantidad = "1";
-						det.unidad = "UNS";
-						det.precio_unit = neto.toString();
-						det.moneda_det = "CLP";
-						det.cen_cos = "1";
-						det.tipo_desc = "M";
-						det.ubicacion = "";
-						det.bodega = "";
-						det.descrip = concepto1;
-						det.stock = "R";
-						det.desc_adic = concepto2;
-						detalle.add(det);
-						api.detalles = detalle;
-						String datos = Json.toJson(api).toString();
-
-						Proforma.updateJsonApi(con1, s.baseDato, id_proforma, datos);
-						String rs = ApiManagerDocDoc.genera(con1, s.baseDato, datos, ws, id_proforma);
-						rs = "NV nro "+id_proforma+": "+rs;
-						resultado.add(rs);
 					}
+				} catch (SQLException e) {
+					String className = this.getClass().getSimpleName();
+					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				} catch (Exception e) {
+					String className = this.getClass().getSimpleName();
+					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				}
-				con1.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
+				try {
+					Email email = new Email();
+					String asunto = "NV generadas";
+					String desde = "desde MADA <informaciones@inqsol.cl>";
+					email.setSubject(asunto);
+					email.setFrom(desde);
+					String body = "<html><body>" +
+							" <p>Se generaron las siguientes NV:</p>";
+					for (String x : resultado) {
+						body += x + "<br>";
+					}
+					body += " </body></html>";
+					email.setBodyHtml(body);
+					email.addTo(mailDestino);
+					mailerClient.send(email);
+				} catch (Exception e) {
+					String className = this.getClass().getSimpleName();
+					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				}
+			} catch (Exception e) {
+				String className = this.getClass().getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			}
-
-
-			try {
-				Email email = new Email();
-				String asunto = "NV generadas";
-				String desde = "desde MADA <informaciones@inqsol.cl>";
-				email.setSubject(asunto);
-				email.setFrom(desde);
-				String body = "<html><body>" +
-						" <p>Se generaron las siguientes NV:</p>";
-				for(String x: resultado) {
-					body += x+"<br>";
-				}
-				body += " </body></html>";
-				email.setBodyHtml(body);
-				email.addTo(mailDestino);
-				mailerClient.send(email);
-			} catch (Exception x) { }
 		}
 	}
 
 	public Result hohePlantillaNV(Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-			if (form.hasErrors()) {
-				return ok(mensajes.render("/",msgErrorFormulario));
-			}else {
-				try {
-					Connection con = dbRead.getConnection();
-
-					File tmp = TempFile.createTempFile("tmp","null");
-					String path = "formatos/excel.xlsx";
-					InputStream formato = Archivos.leerArchivo(path);
-					Workbook libro = WorkbookFactory.create(formato);
-					formato.close();
-
-					CellStyle encabezado = libro.createCellStyle();
-					encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-					encabezado.setBorderTop(CellStyle.BORDER_THIN);
-					encabezado.setBorderRight(CellStyle.BORDER_THIN);
-					encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-					encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
-					encabezado.setFillForegroundColor((short)19);
-					encabezado.setAlignment(CellStyle.ALIGN_LEFT);
-
-					libro.setSheetName(0, "PLANTILLA");
-					Sheet hoja1 = libro.getSheetAt(0);
-
-					Row row = null;
-					Cell cell = null;
-
-					row = hoja1.createRow(0);
-					cell = row.createCell(1);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("FECHA");
-
-					cell = row.createCell(2);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("RUT CLIENTE");
-
-					cell = row.createCell(3);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("TOTAL NETO");
-
-					cell = row.createCell(4);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("CONCEPTO 1");
-
-					cell = row.createCell(5);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("CONCEPTO 2");
-
-					cell = row.createCell(6);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("ID_BODEGA");
-
-
-					libro.setSheetName(1, "AUXILIAR");
-					Sheet hoja2 = libro.getSheetAt(1);
-
-					List<Cliente> listCliente = Cliente.all(con, s.baseDato);
-					List<BodegaEmpresa> listBodegas = BodegaEmpresa.allExternas(con, s.baseDato);
-
-					int largo = listCliente.size();
-					if(largo < listBodegas.size()) {
-						largo = listBodegas.size();
-					}
-					largo = largo + 20;
-
-					for(int i=0; i<largo; i++) {
-						hoja2.createRow(i);
-					}
-
-					hoja2.setColumnWidth(1, 15*1000);
-					hoja2.setColumnWidth(5, 15*1000);
-
-					row = hoja2.getRow(0);
-					cell = row.createCell(0);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("RUT");
-					cell = row.createCell(1);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("CLIENTE");
-					for(int i=0; i<listCliente.size(); i++ ) {
-						row = hoja2.getRow(i+1);
-						cell = row.createCell(0);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listCliente.get(i).getRut());
-						cell = row.createCell(1);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listCliente.get(i).getNickName());
-					}
-
-					row = hoja2.getRow(0);
-					cell = row.createCell(3);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("ID_BODEGA");
-					cell = row.createCell(4);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("COMERCIAL");
-					cell = row.createCell(5);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("NOMBRE BODEGA");
-					cell = row.createCell(6);
-					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("ID_BODEGA");
-
-					int cont = 1;
-					for(int i=0; i<listBodegas.size(); i++ ) {
-						if(listBodegas.get(i).getComercial().length()>0) {
-							row = hoja2.getRow(cont);
-							cell = row.createCell(3);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(listBodegas.get(i).getId());
-							cell = row.createCell(4);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(listBodegas.get(i).getComercial());
-							cell = row.createCell(5);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(listBodegas.get(i).getNombre());
-							cell = row.createCell(6);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(listBodegas.get(i).getId());
-							cont++;
-						}
-					}
-
-					// Write the output to a file tmp
-					FileOutputStream fileOut = new FileOutputStream(tmp);
-					libro.write(fileOut);
-					fileOut.close();
-
-					if(tmp != null) {
-						con.close();
-						return ok(tmp, Optional.of("plantillaFacturasManager.xlsx"));
-					}else {
-						con.close();
-						return ok(mensajes.render("/",msgError));
-					}
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try {
+				File tmp = TempFile.createTempFile("tmp", "null");
+				String path = "formatos/excel.xlsx";
+				InputStream formato = Archivos.leerArchivo(path);
+				Workbook libro = WorkbookFactory.create(formato);
+				formato.close();
+				CellStyle encabezado = libro.createCellStyle();
+				encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+				encabezado.setBorderTop(CellStyle.BORDER_THIN);
+				encabezado.setBorderRight(CellStyle.BORDER_THIN);
+				encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+				encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				encabezado.setFillForegroundColor((short) 19);
+				encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+				libro.setSheetName(0, "PLANTILLA");
+				Sheet hoja1 = libro.getSheetAt(0);
+				Row row = null;
+				Cell cell = null;
+				row = hoja1.createRow(0);
+				cell = row.createCell(1);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("FECHA");
+				cell = row.createCell(2);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("RUT CLIENTE");
+				cell = row.createCell(3);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("TOTAL NETO");
+				cell = row.createCell(4);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("CONCEPTO 1");
+				cell = row.createCell(5);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("CONCEPTO 2");
+				cell = row.createCell(6);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("ID_BODEGA");
+				libro.setSheetName(1, "AUXILIAR");
+				Sheet hoja2 = libro.getSheetAt(1);
+				List<Cliente> listCliente = null;
+				List<BodegaEmpresa> listBodegas = null;
+				try (Connection con = dbRead.getConnection()) {
+					listCliente = Cliente.all(con, s.baseDato);
+					listBodegas = BodegaEmpresa.allExternas(con, s.baseDato);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
 				}
+				int largo = listCliente.size();
+				if (largo < listBodegas.size()) {
+					largo = listBodegas.size();
+				}
+				largo = largo + 20;
+
+				for (int i = 0; i < largo; i++) {
+					hoja2.createRow(i);
+				}
+				hoja2.setColumnWidth(1, 15 * 1000);
+				hoja2.setColumnWidth(5, 15 * 1000);
+				row = hoja2.getRow(0);
+				cell = row.createCell(0);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("RUT");
+				cell = row.createCell(1);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("CLIENTE");
+				for (int i = 0; i < listCliente.size(); i++) {
+					row = hoja2.getRow(i + 1);
+					cell = row.createCell(0);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(listCliente.get(i).getRut());
+					cell = row.createCell(1);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(listCliente.get(i).getNickName());
+				}
+				row = hoja2.getRow(0);
+				cell = row.createCell(3);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("ID_BODEGA");
+				cell = row.createCell(4);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("COMERCIAL");
+				cell = row.createCell(5);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("NOMBRE BODEGA");
+				cell = row.createCell(6);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("ID_BODEGA");
+				int cont = 1;
+				for (int i = 0; i < listBodegas.size(); i++) {
+					if (listBodegas.get(i).getComercial().length() > 0) {
+						row = hoja2.getRow(cont);
+						cell = row.createCell(3);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listBodegas.get(i).getId());
+						cell = row.createCell(4);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listBodegas.get(i).getComercial());
+						cell = row.createCell(5);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listBodegas.get(i).getNombre());
+						cell = row.createCell(6);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listBodegas.get(i).getId());
+						cont++;
+					}
+				}
+				// Write the output to a file tmp
+				FileOutputStream fileOut = new FileOutputStream(tmp);
+				libro.write(fileOut);
+				fileOut.close();
+				if (tmp != null) {
+					return ok(tmp, Optional.of("plantillaFacturasManager.xlsx"));
+				} else {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
-		return ok(mensajes.render("/",msgError));
 	}
-
 
 
 }
