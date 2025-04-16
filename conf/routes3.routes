@@ -58,6 +58,8 @@ POST	/mantControlMantencionesExcel/					controllers.MnuMantencion.mantControlMan
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 GET		/mantCantOperacional0/						controllers.MnuMantencion.mantCantOperacional0(request: Request)
 POST	/mantCantOperacional1/						controllers.MnuMantencion.mantCantOperacional1(request: Request)
+POST	/mantCantOperacional1Excel/					controllers.MnuMantencion.mantCantOperacional1Excel(request: Request)
+
 GET		/mantCantMantencion0/						controllers.MnuMantencion.mantCantMantencion0(request: Request)
 
 

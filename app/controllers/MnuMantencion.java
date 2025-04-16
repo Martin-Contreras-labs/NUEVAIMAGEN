@@ -28,14 +28,9 @@ import models.tables.MantTipoActividad;
 import models.tables.MantTipoPersonal;
 import models.tables.MantTransacComponentes;
 import models.tables.MantTransacReport;
-import models.tables.OperadorServicio;
 import models.tables.PlanMantencion;
-import models.tables.TasasCambio;
 import models.tables.TipoMantencion;
-import models.tables.Usuario;
-import models.tables.VentaServicio;
 import models.utilities.Archivos;
-import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
@@ -48,11 +43,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import views.html.mensajes;
 import viewsMnuMantencion.html.*;
-import viewsMnuOdo.html.odoFirmaAutorizador;
-import viewsMnuOdo.html.odoFirmaOperador;
-import viewsMnuOdo.html.odoListarVentas0;
-import viewsMnuOdo.html.odoListarVentas1;
-import viewsMnuOdo.html.odoVentas;
 
 
 /**
@@ -154,7 +144,6 @@ public class MnuMantencion extends Controller {
 							aux.set(5,"0.00");
 							aux.set(6,"0");
     					}
-System.out.println("aux: "+aux.toString());
     					mapEquipos.put(x.getId_equipo(), aux);
     				}
     			}
@@ -2375,7 +2364,7 @@ System.out.println("aux: "+aux.toString());
     }
 
 	//============================================================
-	// MNU PLANES MANTENCION   Historial Report
+	// MNU PLANES MANTENCION   Cantidad Operacional y Mantencion
 	//============================================================
 
 	public Result mantCantOperacional0(Http.Request request) {
@@ -2414,24 +2403,122 @@ System.out.println("aux: "+aux.toString());
 					Connection con = db.getConnection();
 					Map<Long,List<String>> mapCantMecCorr = MantTransacReport.mapCantMecCorr(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
 					Map<Long,List<String>> mapCantOper = MantTransacReport.mapCantOper(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					Map<Long,List<String>> mapAux = new HashMap<Long,List<String>>();
+
+					for(Map.Entry<Long, List<String>> entry : mapCantOper.entrySet()) {
+						Long k = entry.getKey();
+						List<String> v = entry.getValue();
+						if(k!=null) {
+							mapAux.put(k,Arrays.asList(k.toString(), v.get(1), v.get(2)));
+						}
+					}
+					for(Map.Entry<Long, List<String>> entry : mapCantMecCorr.entrySet()) {
+						Long k = entry.getKey();
+						List<String> v = entry.getValue();
+						if(k!=null) {
+							mapAux.put(k,Arrays.asList(k.toString(), v.get(1), v.get(2)));
+						}
+					}
 					List<List<String>> lista = new ArrayList<List<String>>();
-					for(List<String> x: mapCantMecCorr.values()) {
-						if(x!=null) {
-							lista.add(x);
+					for(Map.Entry<Long, List<String>> entry : mapAux.entrySet()) {
+						Long k = entry.getKey();
+						List<String> v = entry.getValue();
+						List<String> aux = Arrays.asList(k.toString(), v.get(1), v.get(2), "", "", "", "");
+						List<String> auxCantOper = mapCantOper.get(k);
+						if(auxCantOper!=null) {
+							aux.set(3,auxCantOper.get(3));
+							aux.set(4,auxCantOper.get(4));
+						}else {
+							aux.set(3,"0.00");
+							aux.set(4,"0.00");
 						}
-					}
-					for(List<String> x: mapCantOper.values()) {
-						if(x!=null) {
-							lista.add(x);
+						List<String> auxCantMecCorr = mapCantMecCorr.get(k);
+						if(auxCantMecCorr!=null) {
+							aux.set(5,auxCantMecCorr.get(3));
+							aux.set(6,auxCantMecCorr.get(4));
+						}else {
+							aux.set(5,"0.00");
+							aux.set(6,"0.00");
 						}
+						lista.add(aux);
 					}
-					lista = new ArrayList<>(new HashSet<>(lista));
-
-
-
-
 					con.close();
-					return ok(lista.toString());
+					return ok(mantCantOperacional1.render(mapeoDiccionario,mapeoPermiso,userMnu, lista, desdeAAMMDD, hastaAAMMDD));
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return ok(mensajes.render("/",msgError));
+	}
+
+	public Result mantCantOperacional1Excel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				String desdeAAMMDD = form.get("fechaDesde").trim();
+				String hastaAAMMDD = form.get("fechaHasta").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				if(mapeoPermiso.get("mantReportEnMada")==null) {
+					return ok(mensajes.render("/",msgSinPermiso));
+				}
+				try {
+					Connection con = db.getConnection();
+					Map<Long,List<String>> mapCantMecCorr = MantTransacReport.mapCantMecCorr(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					Map<Long,List<String>> mapCantOper = MantTransacReport.mapCantOper(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+					Map<Long,List<String>> mapAux = new HashMap<Long,List<String>>();
+
+					for(Map.Entry<Long, List<String>> entry : mapCantOper.entrySet()) {
+						Long k = entry.getKey();
+						List<String> v = entry.getValue();
+						if(k!=null) {
+							mapAux.put(k,Arrays.asList(k.toString(), v.get(1), v.get(2)));
+						}
+					}
+					for(Map.Entry<Long, List<String>> entry : mapCantMecCorr.entrySet()) {
+						Long k = entry.getKey();
+						List<String> v = entry.getValue();
+						if(k!=null) {
+							mapAux.put(k,Arrays.asList(k.toString(), v.get(1), v.get(2)));
+						}
+					}
+					List<List<String>> lista = new ArrayList<List<String>>();
+					for(Map.Entry<Long, List<String>> entry : mapAux.entrySet()) {
+						Long k = entry.getKey();
+						List<String> v = entry.getValue();
+						List<String> aux = Arrays.asList(k.toString(), v.get(1), v.get(2), "", "", "", "");
+						List<String> auxCantOper = mapCantOper.get(k);
+						if(auxCantOper!=null) {
+							aux.set(3,auxCantOper.get(3));
+							aux.set(4,auxCantOper.get(4));
+						}else {
+							aux.set(3,"0.00");
+							aux.set(4,"0.00");
+						}
+						List<String> auxCantMecCorr = mapCantMecCorr.get(k);
+						if(auxCantMecCorr!=null) {
+							aux.set(5,auxCantMecCorr.get(3));
+							aux.set(6,auxCantMecCorr.get(4));
+						}else {
+							aux.set(5,"0.00");
+							aux.set(6,"0.00");
+						}
+						lista.add(aux);
+					}
+					con.close();
+					File file = MantTransacReport.mantCantOperacionalExcel(s.baseDato, mapeoDiccionario, lista, desdeAAMMDD, hastaAAMMDD);
+					if(file!=null) {
+						con.close();
+						return ok(file,false,Optional.of("cant_operacional_correctivo.xlsx"));
+					}else {
+						con.close();
+						return ok("");
+					}
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
