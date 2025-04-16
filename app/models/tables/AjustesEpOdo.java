@@ -11,8 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // 4 y 13
 public class AjustesEpOdo {
+
+	private static final Logger logger = LoggerFactory.getLogger(AjustesEP.class);
+
 	public Long id;
 	public Long id_bodegaEmpresa;
 	public Long id_tipoAjuste;
@@ -22,16 +28,16 @@ public class AjustesEpOdo {
 	public String totalAjuste;
 	public String observaciones;
 	public String ajustePDF;
-	
+
 	public String bodegaEmpresa;
 	public String tipoAjuste;
 	public String moneda;
 	public Long factor;
 	public String nameSucursal;
-	
+
 	public AjustesEpOdo(Long id, Long id_bodegaEmpresa, Long id_tipoAjuste, String concepto, String fechaAjuste,
-			Long id_moneda, String totalAjuste, String observaciones, String ajustePDF, String bodegaEmpresa,
-			String tipoAjuste, String moneda, Long factor, String nameSucursal) {
+						Long id_moneda, String totalAjuste, String observaciones, String ajustePDF, String bodegaEmpresa,
+						String tipoAjuste, String moneda, Long factor, String nameSucursal) {
 		super();
 		this.id = id;
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
@@ -139,236 +145,189 @@ public class AjustesEpOdo {
 
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	
+
 	//OBTIENE LA LISTA DETALLE DE AJUSTES POR UNA BODEGAEMPRESA EN UN DETERMINADO PERIODO
 	public static List<List<String>> detalleAjuste(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-		switch(dec.get((long)1).toString()) {
-		 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-		 default:  break;
-		}
-		try {
-			PreparedStatement smt = con.prepareStatement("select if(id_tipoAjuste=1,'Menos ', 'Mas '), concepto, if(id_tipoAjuste=1,-1,1)*totalAjuste from `"+db+"`.ajustesEpOdo " + 
-							" where id_bodegaEmpresa=? and (fechaAjuste between ? and ?); ");
+		final String query = String.format(
+				"select " +
+				" if(id_tipoAjuste=1,'Menos ', 'Mas ')," +
+				" concepto, if(id_tipoAjuste=1,-1,1)*totalAjuste" +
+				" from `$s`.ajustesEpOdo " +
+				" where id_bodegaEmpresa=? and (fechaAjuste between ? and ?)", db);
+		try (PreparedStatement smt = con.prepareStatement(query)) {
+			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+			switch(dec.get((long)1).toString()) {
+				case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+				case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+				case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+				case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				default:  break;
+			}
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setString(2, desdeAAMMDD);
 			smt.setString(3, hastaAAMMDD);
-			ResultSet rs = smt.executeQuery();
-			while (rs.next()) {
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)+rs.getString(2));
-				aux.add(myformatdouble.format(rs.getDouble(3)));
-				lista.add(aux);
+			try (ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs.getString(1)+rs.getString(2));
+					aux.add(myformatdouble.format(rs.getDouble(3)));
+					lista.add(aux);
+				}
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		} catch (Exception e) {
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
-	
+
 	public static List<AjustesEpOdo> allPorBodega(Connection con, String db, Long id_bodegaEmpresa, String esPorSucursal, String id_sucursal){
 		List<AjustesEpOdo> lista = new ArrayList<AjustesEpOdo>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select " + 
-							" ajustesEpOdo.id," + 
-							" ajustesEpOdo.id_bodegaEmpresa," + 
-							" ajustesEpOdo.id_tipoAjuste," + 
-							" ajustesEpOdo.concepto," + 
-							" ajustesEpOdo.fechaAjuste," + 
-							" ajustesEpOdo.id_moneda," + 
-							" ajustesEpOdo.totalAjuste," + 
-							" ajustesEpOdo.observaciones," + 
-							" ajustesEpOdo.ajustePDF," + 
-							" bodegaEmpresa.nombre," + 
-							" tipoAjuste.ajuste," +  
-							" moneda.nickName, " + 
-							" tipoAjuste.factor, " +
-							" bodegaEmpresa.id_sucursal " +
-							" from `"+db+"`.ajustesEpOdo" + 
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" + 
-							" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" + 
-							" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" + 
-							" where ajustesEpOdo.id_bodegaEmpresa = ? " +
-							" order by ajustesEpOdo.fechaAjuste desc, ajustesEpOdo.id desc;");
+		try (PreparedStatement smt = con
+				.prepareStatement(" select " +
+						" ajustesEpOdo.id," +
+						" ajustesEpOdo.id_bodegaEmpresa," +
+						" ajustesEpOdo.id_tipoAjuste," +
+						" ajustesEpOdo.concepto," +
+						" ajustesEpOdo.fechaAjuste," +
+						" ajustesEpOdo.id_moneda," +
+						" ajustesEpOdo.totalAjuste," +
+						" ajustesEpOdo.observaciones," +
+						" ajustesEpOdo.ajustePDF," +
+						" bodegaEmpresa.nombre," +
+						" tipoAjuste.ajuste," +
+						" moneda.nickName, " +
+						" tipoAjuste.factor, " +
+						" bodegaEmpresa.id_sucursal " +
+						" from `"+db+"`.ajustesEpOdo" +
+						" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" +
+						" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" +
+						" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" +
+						" where ajustesEpOdo.id_bodegaEmpresa = ? " +
+						" order by ajustesEpOdo.fechaAjuste desc, ajustesEpOdo.id desc;")) {
 			smt.setLong(1, id_bodegaEmpresa);
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			while (rs.next()) {
-				switch(dec.get(rs.getLong(6)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-				 default:  break;
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				while (rs.next()) {
+					switch(dec.get(rs.getLong(6)).toString()) {
+						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						default:  break;
+					}
+					String fecha = "";
+					if (rs.getString(5) != null) {
+						fecha = myformatfecha.format(rs.getDate(5));
+					}
+					String nameSucursal = "";
+					Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					lista.add(new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
+							rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal));
 				}
-				String fecha = "";	
-				if (rs.getString(5) != null) {
-					fecha = myformatfecha.format(rs.getDate(5));
-				}
-				String nameSucursal = "";
-				Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
-				}
-				lista.add(new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
-						rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal));
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
-	
+
 	public static boolean modifyPDF(Connection con, String db, String ajustePDF, Long idAjuste) {
 		boolean flag=true;
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("update `"+db+"`.ajustesEpOdo set ajustePDF = ?  WHERE id = ?");
-				smt.setString(1, ajustePDF.trim());
-				smt.setLong(2, idAjuste);
-				smt.executeUpdate();
-				smt.close();
+		try (PreparedStatement smt = con
+				.prepareStatement("update `"+db+"`.ajustesEpOdo set ajustePDF = ?  WHERE id = ?")) {
+			smt.setString(1, ajustePDF.trim());
+			smt.setLong(2, idAjuste);
+			smt.executeUpdate();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			flag=false;
 		}
 		return (flag);
 	}
-	
+
 	public static AjustesEpOdo find(Connection con, String db, Long id_ajuste, String esPorSucursal, String id_sucursal){
 		AjustesEpOdo aux = new AjustesEpOdo();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select " + 
-							" ajustesEpOdo.id," + 
-							" ajustesEpOdo.id_bodegaEmpresa," + 
-							" ajustesEpOdo.id_tipoAjuste," + 
-							" ajustesEpOdo.concepto," + 
-							" ajustesEpOdo.fechaAjuste," + 
-							" ajustesEpOdo.id_moneda," + 
-							" ajustesEpOdo.totalAjuste," + 
-							" ajustesEpOdo.observaciones," + 
-							" ajustesEpOdo.ajustePDF," + 
-							" bodegaEmpresa.nombre," + 
-							" tipoAjuste.ajuste," +  
-							" moneda.nickName, " + 
-							" tipoAjuste.factor, " +
-							" bodegaEmpresa.id_sucursal " +
-							" from `"+db+"`.ajustesEpOdo" + 
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" + 
-							" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" + 
-							" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" + 
-							" where ajustesEpOdo.id = ? " +
-							" order by ajustesEpOdo.fechaAjuste desc;");
+		try (PreparedStatement smt = con
+				.prepareStatement(" select " +
+						" ajustesEpOdo.id," +
+						" ajustesEpOdo.id_bodegaEmpresa," +
+						" ajustesEpOdo.id_tipoAjuste," +
+						" ajustesEpOdo.concepto," +
+						" ajustesEpOdo.fechaAjuste," +
+						" ajustesEpOdo.id_moneda," +
+						" ajustesEpOdo.totalAjuste," +
+						" ajustesEpOdo.observaciones," +
+						" ajustesEpOdo.ajustePDF," +
+						" bodegaEmpresa.nombre," +
+						" tipoAjuste.ajuste," +
+						" moneda.nickName, " +
+						" tipoAjuste.factor, " +
+						" bodegaEmpresa.id_sucursal " +
+						" from `"+db+"`.ajustesEpOdo" +
+						" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" +
+						" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" +
+						" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" +
+						" where ajustesEpOdo.id = ? " +
+						" order by ajustesEpOdo.fechaAjuste desc;")) {
 			smt.setLong(1, id_ajuste);
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			if (rs.next()) {
-				switch(dec.get(rs.getLong(6)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-				 default:  break;
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				if (rs.next()) {
+					switch(dec.get(rs.getLong(6)).toString()) {
+						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						default:  break;
+					}
+					String fecha = "";
+					if (rs.getString(5) != null) {
+						fecha = myformatfecha.format(rs.getDate(5));
+					}
+					String nameSucursal = "";
+					Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+
+					aux = new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
+							rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal);
 				}
-				String fecha = "";	
-				if (rs.getString(5) != null) {
-					fecha = myformatfecha.format(rs.getDate(5));
-				}
-				String nameSucursal = "";
-				Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
-				}
-				
-				aux = new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
-						rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal);
 			}
-			
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (aux);
 	}
-	
+
 	public static boolean update(Connection con, String db, AjustesEpOdo aux){
 		boolean flag = false;
 		try {
 			String auxNum = aux.totalAjuste;
 			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 			Double valor = myformatdouble.parse(auxNum).doubleValue();
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.ajustesEpOdo set "+ 
+			try (PreparedStatement smt = con
+					.prepareStatement("update `"+db+"`.ajustesEpOdo set "+
 							" id_bodegaEmpresa=?,id_tipoAjuste=?,concepto=?,fechaAjuste=?,id_moneda=?,totalAjuste=?,observaciones=? " +
-							" where id=?;");
-			smt.setLong(1, aux.id_bodegaEmpresa);
-			smt.setLong(2, aux.id_tipoAjuste);
-			smt.setString(3, aux.concepto);
-			smt.setString(4, aux.fechaAjuste);
-			smt.setLong(5, aux.id_moneda);
-			smt.setDouble(6, valor);
-			smt.setString(7, aux.observaciones);
-			smt.setLong(8, aux.id);
-			smt.executeUpdate();
-			smt.close();
-			flag = true;
-		} catch (SQLException | ParseException e) {
-			e.printStackTrace();
-		}
-		return (flag);
-	}
-	
-	public static boolean delete(Connection con, String db, Long idAjuste){
-		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("delete from `"+db+"`.ajustesEpOdo where id=?;");
-			smt.setLong(1, idAjuste);
-			smt.executeUpdate();
-			smt.close();
-			flag = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return (flag);
-	}
-	
-	public static boolean create(Connection con, String db, AjustesEpOdo aux){
-		boolean flag = false;
-		try {
-			String auxNum = aux.totalAjuste;
-			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-			Double valor = myformatdouble.parse(auxNum).doubleValue();
-			
-			PreparedStatement smt2 = con
-					.prepareStatement("Select id from `"+db+"`.ajustesEpOdo where "+ 
-							" id_bodegaEmpresa=? and id_tipoAjuste=? and concepto=? and fechaAjuste=? and id_moneda=? and totalAjuste=? and observaciones=?;");
-			smt2.setLong(1, aux.id_bodegaEmpresa);
-			smt2.setLong(2, aux.id_tipoAjuste);
-			smt2.setString(3, aux.concepto);
-			smt2.setString(4, aux.fechaAjuste);
-			smt2.setLong(5, aux.id_moneda);
-			smt2.setDouble(6, valor);
-			smt2.setString(7, aux.observaciones);
-			ResultSet rs2 = smt2.executeQuery();
-			if(!rs2.next()) {
-				PreparedStatement smt = con
-						.prepareStatement("insert into `"+db+"`.ajustesEpOdo "+ 
-								" (id_bodegaEmpresa,id_tipoAjuste,concepto,fechaAjuste,id_moneda,totalAjuste,observaciones) values " +
-								" (?,?,?,?,?,?,?);");
+							" where id=?;")) {
 				smt.setLong(1, aux.id_bodegaEmpresa);
 				smt.setLong(2, aux.id_tipoAjuste);
 				smt.setString(3, aux.concepto);
@@ -376,87 +335,140 @@ public class AjustesEpOdo {
 				smt.setLong(5, aux.id_moneda);
 				smt.setDouble(6, valor);
 				smt.setString(7, aux.observaciones);
+				smt.setLong(8, aux.id);
 				smt.executeUpdate();
-				smt.close();
 				flag = true;
 			}
-			smt2.close();
-			rs2.close();
 		} catch (SQLException | ParseException e) {
-			e.printStackTrace();
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		
 		return (flag);
 	}
-	
+
+	public static boolean delete(Connection con, String db, Long idAjuste){
+		boolean flag = false;
+		try (PreparedStatement smt = con
+				.prepareStatement("delete from `"+db+"`.ajustesEpOdo where id=?;")) {
+			smt.setLong(1, idAjuste);
+			smt.executeUpdate();
+			flag = true;
+		} catch (SQLException e) {
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (flag);
+	}
+
+	public static boolean create(Connection con, String db, AjustesEpOdo aux){
+		boolean flag = false;
+		try {
+			String auxNum = aux.totalAjuste;
+			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+			Double valor = myformatdouble.parse(auxNum).doubleValue();
+
+			try (PreparedStatement smt2 = con
+					.prepareStatement("Select id from `"+db+"`.ajustesEpOdo where "+
+							" id_bodegaEmpresa=? and id_tipoAjuste=? and concepto=? and fechaAjuste=? and id_moneda=? and totalAjuste=? and observaciones=?;")) {
+				smt2.setLong(1, aux.id_bodegaEmpresa);
+				smt2.setLong(2, aux.id_tipoAjuste);
+				smt2.setString(3, aux.concepto);
+				smt2.setString(4, aux.fechaAjuste);
+				smt2.setLong(5, aux.id_moneda);
+				smt2.setDouble(6, valor);
+				smt2.setString(7, aux.observaciones);
+				try (ResultSet rs2 = smt2.executeQuery()) {
+					if(!rs2.next()) {
+						try (PreparedStatement smt = con
+								.prepareStatement("insert into `"+db+"`.ajustesEpOdo "+
+										" (id_bodegaEmpresa,id_tipoAjuste,concepto,fechaAjuste,id_moneda,totalAjuste,observaciones) values " +
+										" (?,?,?,?,?,?,?);")) {
+							smt.setLong(1, aux.id_bodegaEmpresa);
+							smt.setLong(2, aux.id_tipoAjuste);
+							smt.setString(3, aux.concepto);
+							smt.setString(4, aux.fechaAjuste);
+							smt.setLong(5, aux.id_moneda);
+							smt.setDouble(6, valor);
+							smt.setString(7, aux.observaciones);
+							smt.executeUpdate();
+							flag = true;
+						}
+					}
+				}
+			}
+		} catch (SQLException | ParseException e) {
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+
+		return (flag);
+	}
+
 	public static List<AjustesEpOdo> allPorPeriodos(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, String esPorSucursal, String id_sucursal){
 		List<AjustesEpOdo> lista = new ArrayList<AjustesEpOdo>();
-		
+
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select " + 
-							" ajustesEpOdo.id," + 
-							" ajustesEpOdo.id_bodegaEmpresa," + 
-							" ajustesEpOdo.id_tipoAjuste," + 
-							" ajustesEpOdo.concepto," + 
-							" ajustesEpOdo.fechaAjuste," + 
-							" ajustesEpOdo.id_moneda," + 
-							" ajustesEpOdo.totalAjuste," + 
-							" ajustesEpOdo.observaciones," + 
-							" ajustesEpOdo.ajustePDF," + 
-							" bodegaEmpresa.nombre," + 
-							" tipoAjuste.ajuste," + 
-							" moneda.nickName, " + 
-							" tipoAjuste.factor, " +
-							" bodegaEmpresa.id_sucursal " +
-							" from `"+db+"`.ajustesEpOdo" + 
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" + 
-							" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" + 
-							" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" + 
-							" where fechaAjuste between ? and ? " + condSucursal +
-							" order by bodegaEmpresa.nombre, ajustesEpOdo.fechaAjuste desc;");
+
+		try (PreparedStatement smt = con
+				.prepareStatement(" select " +
+						" ajustesEpOdo.id," +
+						" ajustesEpOdo.id_bodegaEmpresa," +
+						" ajustesEpOdo.id_tipoAjuste," +
+						" ajustesEpOdo.concepto," +
+						" ajustesEpOdo.fechaAjuste," +
+						" ajustesEpOdo.id_moneda," +
+						" ajustesEpOdo.totalAjuste," +
+						" ajustesEpOdo.observaciones," +
+						" ajustesEpOdo.ajustePDF," +
+						" bodegaEmpresa.nombre," +
+						" tipoAjuste.ajuste," +
+						" moneda.nickName, " +
+						" tipoAjuste.factor, " +
+						" bodegaEmpresa.id_sucursal " +
+						" from `"+db+"`.ajustesEpOdo" +
+						" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" +
+						" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" +
+						" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" +
+						" where fechaAjuste between ? and ? " + condSucursal +
+						" order by bodegaEmpresa.nombre, ajustesEpOdo.fechaAjuste desc;")) {
 			smt.setString(1, desdeAAMMDD);
 			smt.setString(2, hastaAAMMDD);
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			while (rs.next()) {
-				switch(dec.get(rs.getLong(6)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-				 default:  break;
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				while (rs.next()) {
+					switch(dec.get(rs.getLong(6)).toString()) {
+						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						default:  break;
+					}
+					String fecha = "";
+					if (rs.getString(5) != null) {
+						fecha = myformatfecha.format(rs.getDate(5));
+					}
+					String nameSucursal = "";
+					Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					lista.add(new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
+							rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal));
 				}
-				String fecha = "";	
-				if (rs.getString(5) != null) {
-					fecha = myformatfecha.format(rs.getDate(5));
-				}
-				String nameSucursal = "";
-				Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
-				}
-				lista.add(new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
-						rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal));
 			}
-			
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
-	
 
-	
-	
-	
-	
 }

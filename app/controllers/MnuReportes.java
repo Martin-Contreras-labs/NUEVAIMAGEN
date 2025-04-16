@@ -7208,14 +7208,12 @@ public class MnuReportes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
-			try {
+			try (Connection con = dbWrite.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Connection con = dbWrite.getConnection();
 				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 				String rs = ApiManagerDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma);
-				con.close();
 				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, "API Manager enviada: " + rs));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -8488,7 +8486,6 @@ public class MnuReportes extends Controller {
 		}
 		try (Connection con = dbRead.getConnection()){
 			List<List<String>> datos = ReportHohe.estadoCotiConfYnoConfSinOt(con, s.baseDato);
-			con.close();
 			return ok(hoheEstadoCotiSinOt.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);

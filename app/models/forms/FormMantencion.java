@@ -109,6 +109,8 @@ public class FormMantencion {
 	public String observaciones_mecP;
 	public String observaciones_oper;
 
+	public Long id_unidadMantencion;
+
 	public FormMantencion(String cantidad_mec, String cantidad_mecP, String cantidad_oper, List<String> cantidadC,
 			List<String> cantidadP, String comentario, String descTrabajo, String descTrabajoP, String docAnexo,
 			String estadoFinal, String estadoFinalP, String fecha, String firmaAprobador, String firmaEjecutor,
@@ -123,7 +125,7 @@ public class FormMantencion {
 			Long id_operador, Long id_tipoMantencion, Long id_tipoPlan_mec, Long id_tipoPlan_mecP, Long id_userMada,
 			String lecturaIni_mec, String lecturaIni_mecP, String lecturaIni_oper, String lecturaTer_mec,
 			String lecturaTer_mecP, String lecturaTer_oper, String observaciones_mec, String observaciones_mecP,
-			String observaciones_oper) {
+			String observaciones_oper,Long id_unidadMantencion) {
 		super();
 		this.cantidad_mec = cantidad_mec;
 		this.cantidad_mecP = cantidad_mecP;
@@ -186,6 +188,7 @@ public class FormMantencion {
 		this.observaciones_mec = observaciones_mec;
 		this.observaciones_mecP = observaciones_mecP;
 		this.observaciones_oper = observaciones_oper;
+		this.id_unidadMantencion = id_unidadMantencion;
 	}
 
 	public FormMantencion() {
@@ -389,7 +392,7 @@ public class FormMantencion {
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			row = table.getRow(4);
 			cell = row.getCell(1);
-			TipoPlan tipoPlan = TipoPlan.find(con, db, mantTransacReport.getId_planMantencion());
+			TipoPlan tipoPlan = TipoPlan.find(con, db, mantTransacReport.getId_tipoPlan());
 			auxTexto = "NO APLICA";
 			if(tipoPlan != null) {
 				auxTexto = tipoPlan.getNombre();

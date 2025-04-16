@@ -111,7 +111,8 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 										btoa('@lista.getTipoPlanNombre()'),
 										'@lista.getId_tipoPlan()',
 										'@lista.getUnidadMantencion()',
-										'@lista.getEstadoActual()')">
+										'@lista.getEstadoActual()',
+										'@lista.getId_unidadMantencion()')">
 									<td style="text-align:left"><a href="#">@lista.getEquipoGrupo()</a></td>	
 									<td style="text-align:left"><a href="#">@lista.getEquipoCodigo()</a></td>
 									<td style="text-align:left"><a href="#">@lista.getEquipoNombre()</a></td>
@@ -149,13 +150,14 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 						<tbody>
 							@for(lista <- listEquipos){
 								<TR onclick="selectEquipo(
-										'@lista.get(0)', 
-										btoa('@lista.get(2)'), 
+										'@lista.get(0)',
+										btoa('@lista.get(2)'),
 										btoa('@lista.get(3)'),
 										btoa('no Aplica'),
 										'0',
 										'@lista.get(4)',
-										'@lista.get(5)')">
+										'@lista.get(5)',
+										'@lista.get(6)')">
 									<td style="text-align:left"><a href="#">@lista.get(1)</a></td>	
 									<td style="text-align:left"><a href="#">@lista.get(2)</a></td>
 									<td style="text-align:left"><a href="#">@lista.get(3)</a></td>
@@ -600,7 +602,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 		$('#modalListaMecanicos').modal('hide');
 	}
 	
-	function selectEquipo(id_equipo, codigo, equipo, tipoPlan, id_tipoPlan, unidad, estadoActual){
+	function selectEquipo(id_equipo, codigo, equipo, tipoPlan, id_tipoPlan, unidad, estadoActual, id_unidadMantencion){
 		codigo = atob(codigo);
 		equipo = atob(equipo);
 		tipoPlan = atob(tipoPlan);
@@ -706,9 +708,15 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 				"</div>";
 				$('#tipoBodega').val("");
 		}
+
+		$('#idUnidadMant_oper').val(id_unidadMantencion);
+		$('#idUnidadMant_mec').val(id_unidadMantencion);
+		$('#idUnidadMant_mecP').val(id_unidadMantencion);
+
 		$('#lectIni_oper').text("Lect_INI ("+unidad+"):");
 		$('#lectIni_mec').text("Lect_INI ("+unidad+"):");
 		$('#lectIni_mecP').text("Lect_INI ("+unidad+"):");
+
 		$('#lecturaIni_oper').val(estadoActual);
 		$('#lecturaIni_mec').val(estadoActual);
 		$('#lecturaIni_mecP').val(estadoActual);

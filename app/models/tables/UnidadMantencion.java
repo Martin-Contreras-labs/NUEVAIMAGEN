@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class UnidadMantencion {
@@ -25,7 +27,15 @@ public class UnidadMantencion {
 	public String getNombre() {return nombre;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
 
-	
+	public static Map<Long,UnidadMantencion> mapAll(Connection con, String db) {
+		Map<Long,UnidadMantencion> map = new HashMap<Long,UnidadMantencion>();
+		List<UnidadMantencion> all = UnidadMantencion.all(con, db);
+		for(UnidadMantencion x: all){
+			map.put(x.getId(), x);
+		}
+		return (map);
+	}
+
 	public static List<UnidadMantencion> all(Connection con, String db) {
 		List<UnidadMantencion> lista = new ArrayList<UnidadMantencion>();
 		try {

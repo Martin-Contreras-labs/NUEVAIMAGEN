@@ -53,6 +53,14 @@ POST	/mantHistorialReports1Excel/					controllers.MnuMantencion.mantHistorialRep
 GET		/mantControlMantenciones/						controllers.MnuMantencion.mantControlMantenciones(request: Request)
 POST	/mantControlMantencionesExcel/					controllers.MnuMantencion.mantControlMantencionesExcel(request: Request)
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU Cantidad Operacional y Mantencion
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET		/mantCantOperacional0/						controllers.MnuMantencion.mantCantOperacional0(request: Request)
+POST	/mantCantOperacional1/						controllers.MnuMantencion.mantCantOperacional1(request: Request)
+GET		/mantCantMantencion0/						controllers.MnuMantencion.mantCantMantencion0(request: Request)
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU TABLAS

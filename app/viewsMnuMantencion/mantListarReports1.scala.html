@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
+listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete: Map[String,String])
 
 
 @main("") {
@@ -114,9 +114,11 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 								
 								@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
 									<td  style="text-align:center;">
-										<a href="#" onclick= "eliminarMantReport('@lista1.get(0)')">
-											<kbd style="background-color: red">X</kbd>
-										</a>
+										@if(mapDelete.get(lista1.get(0))!=null) {
+											<a href="#" onclick= "eliminarMantReport('@lista1.get(0)')">
+												<kbd style="background-color: red">X</kbd>
+											</a>
+										}
 									</td>
 								}
 								

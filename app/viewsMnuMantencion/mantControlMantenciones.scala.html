@@ -28,14 +28,17 @@ listado: List[List[String]])
 							<TH>CODIGO<br>EQUIPO</TH>
 							<TH>NOMBRE<br>EQUIPO</TH>
 							<TH>UBICACION</TH>
-							<TH>ID<BR>OPER/MEC</TH>
+							<TH>ID_REPORT<br>OPER_CORR</TH>
 							<TH style="min-width:80px;">FECHA<br>LECTURA</TH>
+							<TH>UNIDAD</TH>
 							<TH>LECTURA<br>ACTUAL</TH>
 							<TH>ESTADO<br>EN OBRA</TH>
 							<TH>COMENTARIO</TH>
-							
-							<TH>ID_MANT</TH>
+
+							<TH>ID_REPORT<br>PREVENTIVO</TH>
 							<TH style="min-width:80px;">FECHA<br>MANT</TH>
+							<TH>PLAN MANTENCION</TH>
+							<TH>UNIDAD</TH>
 							<TH>LECTURA<br>MANT</TH>
 							<TH>FRECUENCIA</TH>
 							<TH>PROXIMA<br>MANT</TH>
@@ -43,6 +46,7 @@ listado: List[List[String]])
 							<TH style="min-width:80px;">FECHA<br>ESTIMADA</TH>
 							<TH>ESTADO<br>EN TALLER</TH>
 							<TH>ESTADO<br>OPERACIONAL</TH>
+							<TH>USO<br>ACUM</TH>
 						</TR>
 					</thead>
 					<tbody>
@@ -64,6 +68,7 @@ listado: List[List[String]])
 									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(6))</div>
 									@utilities.Fechas.DDMMAA(lista1.get(6))
 								</td>
+								<td  style="text-align:center;">@lista1.get(22)</td>
 								<td  style="text-align:right;">@lista1.get(5)</td>
 								<td  style="text-align:left;">@lista1.get(7)</td>
 								<td  style="text-align:left;">@lista1.get(8)</td>
@@ -80,6 +85,8 @@ listado: List[List[String]])
 									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(9))</div>
 									@utilities.Fechas.DDMMAA(lista1.get(9))
 								</td>
+								<td  style="text-align:right;">@lista1.get(21)</td>
+								<td  style="text-align:right;">@lista1.get(19)</td>
 								<td  style="text-align:right;">@lista1.get(10)</td>
 								<td  style="text-align:right;">@lista1.get(11)</td>
 								<td  style="text-align:right;">@lista1.get(12)</td>
@@ -90,6 +97,7 @@ listado: List[List[String]])
 								</td>
 								<td  style="text-align:left;">@lista1.get(15)</td>
 								<td  style="text-align:left;">@lista1.get(16)</td>
+								<td  style="text-align:right;">@lista1.get(20)</td>
 							</TR>
 			 			}
 					</tbody>
@@ -134,7 +142,14 @@ listado: List[List[String]])
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		  
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "desc" ],[ 0, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
 		  document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
