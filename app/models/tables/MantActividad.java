@@ -153,7 +153,6 @@ public class MantActividad {
 					.prepareStatement("update `"+db+"`.mantActividad set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_actividad);
-			System.out.println(smt);
 			smt.executeUpdate();
 			smt.close();
 			flag=true;

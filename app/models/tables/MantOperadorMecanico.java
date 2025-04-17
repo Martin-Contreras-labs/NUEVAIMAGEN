@@ -224,7 +224,46 @@ public class MantOperadorMecanico {
 		}
 		return (aux);
 	}
-	
+
+	public static MantOperadorMecanico findXUserNameUser(Connection con, String db, String userName) {
+		MantOperadorMecanico aux = null;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select"
+							+ " mantOperadorMecanico.id,"
+							+ " mantOperadorMecanico.userName,"
+							+ " mantOperadorMecanico.userKey,"
+							+ " mantOperadorMecanico.rut,"
+							+ " mantOperadorMecanico.nombre,"
+							+ " mantOperadorMecanico.cargo,"
+							+ " mantOperadorMecanico.fono,"
+							+ " mantOperadorMecanico.emailCor,"
+							+ " mantOperadorMecanico.emailPer,"
+							+ " mantOperadorMecanico.id_mantActorPersonal,"
+							+ " mantOperadorMecanico.id_mantTipoPersonal,"
+							+ " mantOperadorMecanico.observaciones,"
+							+ " mantOperadorMecanico.vigente,"
+							+ " mantActorPersonal.nombre,"
+							+ " mantTipoPersonal.nombre"
+							+ " from `"+db+"`.mantOperadorMecanico"
+							+ " left join `"+db+"`.mantActorPersonal on mantActorPersonal.id = mantOperadorMecanico.id_mantActorPersonal"
+							+ " left join `"+db+"`.mantTipoPersonal on mantTipoPersonal.id = mantOperadorMecanico.id_mantTipoPersonal"
+							+ " where UPPER(mantOperadorMecanico.userName) = ?;" );
+			smt.setString(1, userName.toUpperCase().trim());
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {
+				aux = new MantOperadorMecanico(rs.getLong(1),
+						rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
+						rs.getLong(10),rs.getLong(11),rs.getString(12),rs.getLong(13),rs.getString(14),rs.getString(15));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+
 	public static boolean existe(Connection con, String db, String nombre) {
 		boolean flag = false;
 		try {

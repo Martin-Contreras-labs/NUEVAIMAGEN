@@ -3466,4 +3466,281 @@ public class MantTransacReport {
 		return(tmp);
 	}
 
+	public static List<List<String>> listCantMecPrev (Connection con, String db, String desde, String hasta){
+		List<List<String>> lista = new ArrayList<List<String>>();
+		try {
+			PreparedStatement smt = con.prepareStatement("select" +
+					" id_equipo," +
+					" equipo.codigo," +
+					" equipo.nombre," +
+					" id_tipoPlan," +
+					" sum(horaDif) * sum(fechaDif) as cantHoras," +
+					" sum(lectDif)" +
+					" from `"+db+"`.mantTransacReport" +
+					" left join `"+db+"`.equipo on equipo.id = mantTransacReport.id_equipo" +
+					" where id_mantOperador = 0 and id_tipoPlan > 0 and fecha between ? and ?" +
+					" group by id_equipo, id_tipoPlan;");
+			smt.setString(1, desde);
+			smt.setString(2, hasta);
+			ResultSet rs = smt.executeQuery();
+			Map<Long,String> mapTipo = TipoPlan.mapAll(con,db);
+			while(rs.next()){
+				String nameTipo = mapTipo.get(rs.getLong(4));
+				if(nameTipo == null) nameTipo = "";
+				List<String> aux = new ArrayList<String>();
+				aux.add(rs.getString(1));
+				aux.add(rs.getString(2));
+				aux.add(rs.getString(3));
+				aux.add(nameTipo);
+				aux.add(DecimalFormato.formato(rs.getDouble(5),2L));
+				aux.add(DecimalFormato.formato(rs.getDouble(6),2L));
+				lista.add(aux);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return(lista);
+	}
+
+	public static File mantCantMantencionExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado,
+												String desde, String hasta) {
+		File tmp = TempFile.createTempFile("tmp","null");
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+			Workbook libro = WorkbookFactory.create(formato);
+			formato.close();
+
+			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+			CellStyle titulo = libro.createCellStyle();
+			Font font = libro.createFont();
+			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setColor((short)4);
+			font.setFontHeight((short)(14*20));
+			titulo.setFont(font);
+
+			CellStyle subtitulo = libro.createCellStyle();
+			Font font2 = libro.createFont();
+			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setColor((short)0);
+			font2.setFontHeight((short)(12*20));
+			subtitulo.setFont(font2);
+
+			CellStyle encabezado = libro.createCellStyle();
+			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+			encabezado.setBorderTop(CellStyle.BORDER_THIN);
+			encabezado.setBorderRight(CellStyle.BORDER_THIN);
+			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setFillForegroundColor((short)19);
+			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setWrapText(true);
+
+			CellStyle detalle = libro.createCellStyle();
+			detalle.setBorderBottom(CellStyle.BORDER_THIN);
+			detalle.setBorderTop(CellStyle.BORDER_THIN);
+			detalle.setBorderRight(CellStyle.BORDER_THIN);
+			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+
+			CellStyle pie = libro.createCellStyle();
+			pie.setBorderBottom(CellStyle.BORDER_THIN);
+			pie.setBorderTop(CellStyle.BORDER_THIN);
+			pie.setBorderRight(CellStyle.BORDER_THIN);
+			pie.setBorderLeft(CellStyle.BORDER_THIN);
+			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setFillForegroundColor((short)19);
+			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+
+
+
+			CreationHelper creationHelper = libro.getCreationHelper();
+			CellStyle hora = libro.createCellStyle();
+			hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
+			hora.setBorderBottom(CellStyle.BORDER_THIN);
+			hora.setBorderTop(CellStyle.BORDER_THIN);
+			hora.setBorderRight(CellStyle.BORDER_THIN);
+			hora.setBorderLeft(CellStyle.BORDER_THIN);
+
+			CellStyle fecha = libro.createCellStyle();
+			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+			fecha.setBorderBottom(CellStyle.BORDER_THIN);
+			fecha.setBorderTop(CellStyle.BORDER_THIN);
+			fecha.setBorderRight(CellStyle.BORDER_THIN);
+			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+
+
+
+
+			//titulos del archivo
+
+			libro.setSheetName(0, "report");
+			Sheet hoja1 = libro.getSheetAt(0);
+
+			Row row = null;
+			Cell cell = null;
+
+			row = hoja1.createRow(1);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CANTIDADES PREVENTIVO (MANTENCION)");
+
+			row = hoja1.createRow(2);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+
+			row = hoja1.createRow(3);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+
+			row = hoja1.createRow(5);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PERIODO: desde "+Fechas.DDMMAA(desde)+" hasta "+Fechas.DDMMAA(hasta));
+
+
+
+			//anchos de columnas
+			hoja1.setColumnWidth(1, 5*1000);
+			hoja1.setColumnWidth(2, 10*1000);
+			hoja1.setColumnWidth(3, 1*1000);
+			hoja1.setColumnWidth(4, 10*1000);
+			hoja1.setColumnWidth(5, 1*1000);
+			hoja1.setColumnWidth(6, 4*1000);
+			hoja1.setColumnWidth(7, 4*1000);
+
+
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+			byte[] bytes = IOUtils.toByteArray(x);
+			x.close();
+			int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+			//set top-left corner for the image
+			anchor.setCol1(9);
+			anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+
+
+			// encabezado de la tabla
+
+			int posRow = 8;
+
+			row = hoja1.createRow(posRow);
+			int posCell = 0;
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CODIGO_EQUIPO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE_EQUIPO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PLAN_MANTENCION");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CONSUMO\nREPORT MEC");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("HORAS\nOPERADOR");
+
+			for(List<String> list: listado){
+				posRow++;
+				posCell = 0;
+				row = hoja1.createRow(posRow);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(1));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(2));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(3));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				Double valor = Double.parseDouble(list.get(4).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(valor);
+			}
+
+			posRow = posRow + 5;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+			Hyperlink hiper = helper.createHyperlink(0);
+			hiper.setAddress("https://www.inqsol.cl");
+			cell.setHyperlink(hiper);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return(tmp);
+	}
+
+
 }

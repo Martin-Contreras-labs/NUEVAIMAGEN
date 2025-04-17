@@ -1,5 +1,7 @@
 package models.utilities;
 
+import models.tables.MantOperadorMecanico;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -174,6 +176,27 @@ public class Inicio {
 		}
 		return (aux);
 	}
+
+	public static String findBaseDatoVigente(Connection con, String empresa, String pais) {
+		String aux = "sinBd";
+		try {
+			PreparedStatement smt1 = con
+					.prepareStatement("select  id, empresa, baseDato, vigente, logoEmpresa " +
+							" from mada.empresa where UPPER(empresa) = ? and UPPER(pais) = ?" );
+			smt1.setString(1, empresa.toUpperCase().trim());
+			smt1.setString(2, pais.toUpperCase().trim());
+			ResultSet rs1 = smt1.executeQuery();
+			if (rs1.next()) {
+				aux = rs1.getString(3);
+			}
+			rs1.close();
+			smt1.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+
 	
 	
 	

@@ -127,7 +127,6 @@ public class PlanMantencion {
 							+ " where equipo.id=? and planMantencion.id_tipoPlan=?;");
 			smt.setLong(1, id_equipo);
 			smt.setLong(2, id_tipoPlan);
-			System.out.println("smt.executeUpdate() = " + smt);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				Double proximaMantencion = rs.getDouble(7);

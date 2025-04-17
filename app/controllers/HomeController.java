@@ -36,8 +36,6 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 
@@ -72,13 +70,15 @@ import play.libs.ws.WSResponse;
 import play.mvc.*;
 
 import views.html.*;
+import viewsMnuOdo.html.odoShowPDF;
 import viewsMnuOdoAppWeb.html.*;
-import viewsMnuOdo.html.*;
+import viewsMnuOdoAppWeb.html.odoAutorizaListarVentasWeb;
 
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
  */
+
 public class HomeController extends Controller {
 	
 	
@@ -335,7 +335,8 @@ public class HomeController extends Controller {
 			return ok("");
 		}
    	}
-    
+
+
     public Result redirShowPDF(String fileNamePDF, String titulo, String url, Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -479,7 +480,7 @@ public class HomeController extends Controller {
 			}else if(origen.equals("Report")){
 				titulo = "REPORT ";
 			}
-    		
+
     		return ok(muestraAlbumFotos.render(mapeoDiccionario, mapeoPermiso, userMnu, listado, carpeta, titulo));
 		}else {
 			return ok(mensajes.render("/",msgError));
@@ -541,7 +542,7 @@ public class HomeController extends Controller {
        	}
    		
 	}
-    
+
     public static File reporteEnWordHome(String db, List<List<List<String>>> lista, Guia guia, VentaServicio ventaServicio) {
 		File tmp = TempFile.createTempFile("tmp","null");
 		try {
@@ -645,7 +646,7 @@ public class HomeController extends Controller {
     	
     	
     	try {
-    		List<String> lista = new ArrayList<String>();
+			List<String> lista = new ArrayList<String>();
 			Connection con = dbRead.getConnection();
 			PreparedStatement smt = con.
 					prepareStatement("select pais from paises order by orden;");
@@ -711,7 +712,7 @@ public class HomeController extends Controller {
        		String gRecaptchaResponse = form.get("gRecaptchaResponse");
        		
        		
-       		if(!empresa.equals("ALTRAD RMDK CHILE")) {
+       		if(!empresa.equals("DEMO")) {
        			boolean verificado = false;
                 try {
         			verificado = VerificarCaptcha.verificar(gRecaptchaResponse);
@@ -864,7 +865,7 @@ public class HomeController extends Controller {
     			
     			Long aux_huella = AuxHuella.findHuella(con, s.baseDato, userMnu.getId_usuario());
     			con.close();
-    			return ok(odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listOperadores,lista,aux_huella));
+    			return ok(viewsMnuOdoAppWeb.html.odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listOperadores,lista,aux_huella));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}

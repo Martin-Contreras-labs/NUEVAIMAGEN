@@ -61,6 +61,25 @@ public class Parametros {
 		}
 		return (true);
 	}
+
+	public static boolean validaParametro(Connection con, String db, String nombreParametro) {
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select valor from `"+db+"`.parametros where nombre = ?;");
+			smt.setString(1, nombreParametro);
+			ResultSet resultado = smt.executeQuery();
+			if (resultado.next()) {
+				smt.close();
+				return (true);
+			}else{
+				smt.close();
+				return (false);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return (false);
+		}
+	}
 	
 	
 	

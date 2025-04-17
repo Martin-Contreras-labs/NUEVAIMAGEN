@@ -124,8 +124,6 @@ public class ActaRedimensionar {
 			ResultSet rs = smt.getGeneratedKeys();
             if (rs.next()) {
             	id_acta = rs.getLong(1);
-				System.out.println(smt.toString());
-				System.out.println(id_acta);
             }
             smt.close();
             rs.close();

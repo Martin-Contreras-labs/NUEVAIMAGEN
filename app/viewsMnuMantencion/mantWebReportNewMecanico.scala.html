@@ -1,0 +1,55 @@
+@(mapDiccionario: Map[String,String], fecha: String, listEstaOperacional: List[tables.MantEstadoEnObra],
+		operMec: tables.MantOperadorMecanico, listTipoMantencion: List[tables.TipoMantencion],
+listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.MantItemIntervenido] )	
+	
+	<table class="table table-sm table-bordered table-condensed table-fluid">
+		<thead>
+			<tr>
+				<td style="text-align:left;"><strong>MECANICO (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<input type="hidden" id="id_mecanico" name="id_mecanico" value="@operMec.getId()" required>
+					<input type="hidden" value="@operMec.getNombre()" readonly>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<input class="form-control" id="tipoMecanico" type="text" value="" readonly>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>TIPO DE MANTENCION (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<select class="form-control form-control-sm" 
+						id="id_tipoMantencion" 
+						name="id_tipoMantencion"
+						onchange="selectTipoMantencion(value)"
+						style="font-weight: bold; color: blue; font-size: 14px;"
+						required>
+			        		<option class="blank" value="0">-- Select --</option>
+		            		@for(lista <- listTipoMantencion){
+		                		<option value="@lista.id" >@lista.nombre.toUpperCase()</option>
+							}
+			        </select> 
+		        </td>
+			</tr>
+		</thead>
+	</table>
+	
+	<div id="viewPreventivo" style="display:none;">		
+		@mantWebReportNewMecanicoPreventivo(mapDiccionario, fecha, listEstaOperacional, operMec, listTipoMantencion,
+			listEstadoEnTaller,listActividad,listTipoActividad,listItemIntervenido,listComponentes)
+	</div>
+	
+	<div id="viewCorrectivo" style="display:none;">
+		@mantWebReportNewMecanicoCorrectivo(mapDiccionario, fecha, listEstaOperacional, operMec, listTipoMantencion,
+			listEstadoEnTaller,listActividad,listTipoActividad,listItemIntervenido,listComponentes)
+	</div>
+	
+
+	
+	
+	
+	

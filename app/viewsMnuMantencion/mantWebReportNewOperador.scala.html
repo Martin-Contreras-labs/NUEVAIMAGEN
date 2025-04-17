@@ -1,0 +1,276 @@
+@(mapDiccionario: Map[String,String], fecha: String, listEstaObra: List[tables.MantEstadoEnObra], operMec: tables.MantOperadorMecanico)
+	
+	<table class="table table-sm table-bordered table-condensed table-fluid">
+		<thead>
+			<tr>
+				<td style="text-align:left;"><strong>OPERADOR (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<input type="hidden" id="id_mecanico" name="id_mecanico" value="@operMec.getId()" required>
+					<input type="hidden" value="@operMec.getNombre()" readonly>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<input class="form-control" id="tipoOperador" type="text" value="" readonly>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>EQUIPO (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<input type="hidden" id="id_equipo_oper" name="id_equipo_oper" value="0">
+		        	<div id="nombreEquipo_oper">
+		        		<div class="input-group input-group-sm">
+						  <input class="form-control" type="text" 
+							onclick="$('#modalListaEquipos_oper').modal('show');" 
+							id="valNomEquip_oper"
+							value="--- select ---" readonly>
+						  <div class="input-group-append">
+						    <span class="input-group-text" onclick="$('#modalListaEquipos_oper').modal('show');">Buscar</span>
+						  </div>
+						</div> 
+    				</div>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<input type="hidden" id="id_bodega_oper" name="id_bodega_oper" value="0">
+		        	<div id="nombreBodega_oper">
+		        		<div class="input-group input-group-sm">
+						  <input class="form-control" type="text" 
+							onclick="$('#modalListaBodegas').modal('show');" 
+							id="valNomBod_oper"
+							value="--- select ---" readonly>
+						  <div class="input-group-append">
+						    <span class="input-group-text" onclick="$('#modalListaBodegas').modal('show');">Buscar</span>
+						  </div>
+						</div> 
+    				</div>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<input class="form-control" id="tipoBodega_oper" type="text" value="" readonly>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>ESTADO EN SITIO (*):</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+		        	<select class="form-control form-control-sm" 
+						id="id_mantEstadoEnObra" 
+						name="id_mantEstadoEnObra"
+						required disabled>
+			        		<option class="blank" value="0">-- Select --</option>
+		            		@for(lista <- listEstaObra){
+		                		<option value="@lista.id" >@lista.nombre</option>
+							}
+			        </select> 
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>Hr_INI:</strong></td>
+		        <td style="text-align:left">
+					<input type="time" class="form-control form-control-sm left" style="max-width:100px"
+						id="horaIni_oper" 
+						name="horaIni_oper"
+						onblur="validarHoraIni_oper()">
+		        </td>
+				<td style="text-align:left;"><strong>Hr_TER:</strong></td>
+		        <td style="text-align:left" colspan="2">
+					<input type="time" class="form-control form-control-sm left"  style="max-width:100px"
+						id="horaTer_oper" 
+						name="horaTer_oper"
+						onblur="validarHoraTer_oper()">
+		        </td>
+			</tr>
+			
+			<tr>
+				<td style="text-align:left;"><strong><div id="lectIni_oper">Lect_INI:</div></strong></td>
+		        <td style="text-align:left">
+					<input type="hidden" id="idUnidadMant_oper" name="id_unidadMantencion">
+					<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+						id="lecturaIni_oper" 
+						name="lecturaIni_oper"
+						value = "0.00"
+						onClick="this.select();"
+						onfocus="value=value.replace(/,/g,'')" 
+						onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
+						onkeypress="return ingresoDouble(event,value)"
+						onchange="validarLectIni_oper()"
+						autocomplete="off"
+						required disabled>
+		        </td>
+				<td style="text-align:left;"><strong><div id="lectTer_oper">Lect_TER(*):</div></strong></td>
+		        <td style="text-align:left" colspan="2">
+					<input type="text" class="form-control form-control-sm left" style="max-width:200px"
+						id="lecturaTer_oper" 
+						name="lecturaTer_oper"
+						value = "0.00"
+						onClick="this.select();"
+						onfocus="value=value.replace(/,/g,'')" 
+						onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
+						onkeypress="return ingresoDouble(event,value)"
+						onchange="validarLectTer_oper()"
+						autocomplete="off"
+						required disabled>
+		        </td>
+			</tr>
+			
+			<tr>
+				<td style="text-align:left;"><strong><div id="cant_oper">CANT:</div></strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<input type="text" class="form-control form-control-sm left"
+						id="cantidad_oper" 
+						name="cantidad_oper"
+						value = "0.00"
+						onClick="this.select();"
+						onfocus="value=value.replace(/,/g,'')" 
+						onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
+						onkeypress="return ingresoDouble(event,value)"
+						onchange="if(value.trim()=='') value=formatStandar(0,2);"
+						autocomplete="off"
+						required disabled>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>COMENTARIOS:</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<textarea class="form-control form-control-sm" rows="1" 
+						id="comentario"
+						name="comentario" 
+						autocomplete="off"></textarea>
+		        </td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"><strong>OBSERVACIONES:</strong></td>
+		        <td style="text-align:left" width="70%" colspan="4">
+					<textarea class="form-control form-control-sm" rows="2" 
+						id="observaciones_oper"
+						name="observaciones_oper" 
+						autocomplete="off"></textarea>
+		        </td>
+			</tr>
+			
+			<tr>
+				<td style="text-align:left;"  colspan="5">
+					FIRMA OPERADOR:<br>
+					<div class="wrapper" align="center">
+					<canvas id="signature-pad" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+					</div>
+					<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="signaturePad.clear()">Borrar firma</button>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align:left;"   colspan="5">
+					FIRMA AUTORIZADA:<br>
+					<div class="wrapper" align="center">
+					<canvas id="signature-pad2" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+					</div>
+					<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="signaturePad2.clear()">Borrar firma</button>
+				</td>
+			</tr>
+		
+			<tr>
+				<td colspan="5" style="text-align:center;">
+					<button type="button" class="btn btn-sm btn-success" style="font-size: 10px;"onclick="grabarOperador();" >GRABAR REPORT
+					</button>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/report'">SALIR</button>
+				</td>
+			</tr>
+		</thead>
+	</table>
+	
+
+	
+	
+	
+<script>
+	function validarLectIni_oper(){
+		let lecturaIni = $("#lecturaIni_oper").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_oper").val().replace(/,/g,'');
+		try{
+			lectAnterior = lectAnterior.replace(/,/g,'');
+		}catch(e){
+			lectAnterior = lectAnterior;
+		}
+		if(parseFloat(lecturaIni) < parseFloat(lectAnterior)){
+			alertify.alert("La lectura inicial no puede ser menor a la ultima lectura registrada");
+			$("#lecturaIni_oper").val(formatStandar(lectAnterior,2));
+		}else if(lecturaTer!="0.00"){
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaIni_oper").val(formatStandar(formatStandar(lectAnterior,2)));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_oper").val(formatStandar(dif,2));
+			}
+		}
+	}
+	
+	function validarLectTer_oper(){
+		let lecturaIni = $("#lecturaIni_oper").val().replace(/,/g,'');
+		let lecturaTer = $("#lecturaTer_oper").val().replace(/,/g,'');
+			if(parseFloat(lecturaIni) > parseFloat(lecturaTer)){
+				alertify.alert("La lectura inicial no puede ser menor a la lectura de termino");
+				$("#lecturaTer_oper").val(formatStandar(0,2));
+				$("#cantidad_oper").val(formatStandar(0,2));
+			}else{
+				let dif = parseFloat(lecturaTer) - parseFloat(lecturaIni);
+				$("#cantidad_oper").val(formatStandar(dif,2));
+			}
+	}
+	
+	function validarHoraIni_oper(){
+		let horaIni = $("#horaIni_oper").val();
+		let horaTer = $("#horaTer_oper").val();
+		if(horaTer!=""){
+			if(parseFloat(horaIni) >= parseFloat(horaTer)){
+				alertify.alert("La hora inicial no puede ser menor o igual a la hora de termino");
+				$("#horaIni_oper").val("");
+				$("#horaTer_oper").val("");
+			}
+		}
+	}
+	
+	function validarHoraTer_oper(){
+		let horaIni = $("#horaIni_oper").val();
+		let horaTer = $("#horaTer_oper").val();
+		if(horaIni==""){
+			alertify.alert("Primero debe ingresar la hora inicial");
+			$("#horaTer_oper").val("");
+		}else{
+			if(horaIni > horaTer){
+				alertify.alert("La hora inicial no puede ser menor a la hora de termino");
+				$("#horaTer_oper").val("");
+			}
+		}
+	}
+	
+	function grabarOperador(){ 
+		  
+		  if($('#id_operador').val()==0){
+			  alertify.alert('Debe seleccionar un Operador');
+		  }else if($('#id_equipo_oper').val()==0){
+			  alertify.alert('Debe seleccionar un Equipo');
+		  }else if($('#id_bodega_oper').val()==0){
+			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
+		  }else if($('#id_mantEstadoEnObra').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Sitio');
+		  }else if($('#lecturaTer_oper').val()=="0.00"){
+			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
+		  }else{
+			let data = signaturePad.toDataURL('image/png');
+			let encodedImage = data.split(",");
+			$("#firmaEjecutor").val(encodedImage[1]);
+			
+			data = signaturePad2.toDataURL('image/png');
+			encodedImage = data.split(",");
+			$("#firmaAprobador").val(encodedImage[1]);
+			
+			$("#grabarRptOperadorMecanico").submit();
+		  }
+	}
+</script>

@@ -154,7 +154,6 @@ public class MantEstadoEnObra {
 					.prepareStatement("update `"+db+"`.mantEstadoEnObra set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_estado);
-			System.out.println(smt);
 			smt.executeUpdate();
 			smt.close();
 			flag=true;

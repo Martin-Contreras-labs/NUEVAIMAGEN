@@ -19,6 +19,17 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 
 
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU INGRESO APP WEB
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST	/mantWebInicio1/					controllers.MnuMantencion.mantWebInicio1(request: Request)
+
+
+
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MENU INGRESO REPORT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,6 +72,8 @@ POST	/mantCantOperacional1/						controllers.MnuMantencion.mantCantOperacional1(
 POST	/mantCantOperacional1Excel/					controllers.MnuMantencion.mantCantOperacional1Excel(request: Request)
 
 GET		/mantCantMantencion0/						controllers.MnuMantencion.mantCantMantencion0(request: Request)
+POST	/mantCantMantencion1/						controllers.MnuMantencion.mantCantMantencion1(request: Request)
+POST	/mantCantMantencion1Excel/					controllers.MnuMantencion.mantCantMantencion1Excel(request: Request)
 
 
 

@@ -153,7 +153,6 @@ public class MantItemIntervenido {
 					.prepareStatement("update `"+db+"`.mantItemIntervenido set `"+campo+"` = ? WHERE id = ?");
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_item);
-			System.out.println(smt);
 			smt.executeUpdate();
 			smt.close();
 			flag=true;

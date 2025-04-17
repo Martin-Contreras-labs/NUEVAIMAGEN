@@ -1,0 +1,983 @@
+@(mapDiccionario: Map[String,String], fecha: String, actor: tables.MantActorPersonal, operMec: tables.MantOperadorMecanico,
+listPlanMant: List[tables.PlanMantencion], mapIdEquipVsBod: String, listBod: List[tables.BodegaEmpresa],
+listEstaObra: List[tables.MantEstadoEnObra], listEquipos: List[List[String]],
+listTipoMantencion: List[tables.TipoMantencion], listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
+listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.MantItemIntervenido])
+
+
+
+@main("") {
+
+
+	<div id="mostrarmostrar" style="display:none;">
+
+		
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+				<br>
+				<form id="grabarRptOperadorMecanico" action="/routes3/mantReportNewSave/" enctype="multipart/form-data" method="POST" enctype="multipart/form-data">
+
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<thead>
+							<tr>
+								<td style="text-align:left;"><strong>FECHA (*):</strong></td>
+								<td style="text-align:left;" width="70%" colspan="3">
+									<input style="max-width:150px" type="date" class="form-control form-control-sm"
+										id="fecha"
+										name="fecha"
+										value="@fecha"
+										onblur="actualizaFechaReal()"
+										required>
+								</td>
+								<td style="text-align:center; width: 70px" >
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+											<input type="hidden" name="docAnexo" value="0">
+											<div id="txtBtn">Adjuntar</div>
+											<input type="file" multiple id="docAdjunto" name="docAdjunto[]" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
+									</span>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;"><strong>PERFIL (*):</strong></td>
+								<td style="text-align:left; width: 70px" colspan="4">
+									<input type="hidden" name="id_userMada" value="0">
+									<input type="hidden" name="id_mantActorPersonal" value="@actor.getId()">
+									<input type="text" name="id_mantActorPersonal" value="@actor.getNombre()" readonly>
+								</td>
+							</tr>
+							</thead>
+					</table>
+
+					<input type="hidden" name="firmaEjecutor" id="firmaEjecutor" value="0">
+					<input type="hidden" name="firmaAprobador" id="firmaAprobador" value="0">
+
+					@if(actor.getId() == 1L){
+						@mantWebReportNewOperador(mapDiccionario, fecha, listEstaObra, operMec)
+					}
+
+					@if(actor.getId() == 2L){
+						@mantWebReportNewMecanico(mapDiccionario, fecha, listEstaObra, operMec, listTipoMantencion,
+							listEstadoEnTaller, listActividad, listTipoActividad, listComponentes, listItemIntervenido)
+					}
+					<span style="font-size: 12px;">(*) Campos Obligatorios</span>
+				</form>
+			</div>
+		</div>
+		
+		<div id="modalListaEquipos_mec" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar </h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+					<table id="tablaEquipos_mec" class="table table-sm table-bordered table-condensed table-hover table-fluid">
+				        <thead style="background-color: #eeeeee">
+							<TR> 
+								<th>GRUPO</th>
+								<th>CODIGO</th>
+								<th>EQUIPO</th>
+								<th>TIPO PLAN</th>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista <- listPlanMant){
+								<TR onclick="selectEquipo(
+										'@lista.getId_equipo()', 
+										btoa('@lista.getEquipoCodigo()'), 
+										btoa('@lista.getEquipoNombre()'),
+										btoa('@lista.getTipoPlanNombre()'),
+										'@lista.getId_tipoPlan()',
+										'@lista.getUnidadMantencion()',
+										'@lista.getEstadoActual()',
+										'@lista.getId_unidadMantencion()')">
+									<td style="text-align:left"><a href="#">@lista.getEquipoGrupo()</a></td>	
+									<td style="text-align:left"><a href="#">@lista.getEquipoCodigo()</a></td>
+									<td style="text-align:left"><a href="#">@lista.getEquipoNombre()</a></td>
+									<td style="text-align:left"><a href="#">@lista.getTipoPlanNombre()</a></td>
+								</TR>
+							}
+						</tbody>
+					</table>
+					<div style="text-align: center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>
+		
+		<div id="modalListaEquipos_oper" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar </h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+					<table id="tablaEquipos_oper" class="table table-sm table-bordered table-condensed table-hover table-fluid">
+				        <thead style="background-color: #eeeeee">
+							<TR> 
+								<th>GRUPO</th>
+								<th>CODIGO</th>
+								<th>EQUIPO</th>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista <- listEquipos){
+								<TR onclick="selectEquipo(
+										'@lista.get(0)',
+										btoa('@lista.get(2)'),
+										btoa('@lista.get(3)'),
+										btoa('no Aplica'),
+										'0',
+										'@lista.get(4)',
+										'@lista.get(5)',
+										'@lista.get(6)')">
+									<td style="text-align:left"><a href="#">@lista.get(1)</a></td>	
+									<td style="text-align:left"><a href="#">@lista.get(2)</a></td>
+									<td style="text-align:left"><a href="#">@lista.get(3)</a></td>
+								</TR>
+							}
+						</tbody>
+					</table>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>
+		
+		<div id="modalListaBodegas" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar @mapDiccionario("Bodega")/Proyecto</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+					<table id="tablaBodegas" class="table table-sm table-bordered table-condensed table-hover table-fluid">
+				        <thead style="background-color: #eeeeee">
+							<TR> 
+								<th>Sucursal</th>
+								<th>Tipo</th>
+								<th>@mapDiccionario("Bodega")/Proyecto</th>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista <- listBod){
+								<TR onclick="selectBodega('@lista.getId()', btoa('@lista.getNameSucursal()'), btoa('@lista.getNombreTipoBodega()') , btoa('@lista.getNombre()') )">
+									<td style="text-align:left"><a href="#">@lista.getNameSucursal()</a></td>	
+									<td style="text-align:left"><a href="#">@lista.getNombreTipoBodega()</a></td>
+									<td style="text-align:left"><a href="#">@lista.getNombre()</a></td>													
+								</TR>
+							}
+						</tbody>
+					</table>
+			        <br>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>
+		
+		<div id="modalComponentesC" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar componentes</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+						<table id="tablaComponentesC" class="table table-sm table-bordered table-condensed table-hover table-fluid" style="width:100%">
+		     				<thead style='background-color: #eeeeee'>
+								<TR>
+									<th style='display:none'>id_componenteC</th>
+									<th>Nombre</th>
+								</TR>
+							</thead>
+							<tbody>
+								@for(lista <- listComponentes){
+									<tr onclick="selectComponenteC('@lista.getId()',btoa('@lista.getNombre()'))">
+										<td style='display:none'>@lista.getId()</td>
+										<td><a href="#">@lista.getNombre()</a></td>
+									</tr>
+								}
+							</tbody>
+			      		</table>
+			        <br>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>	
+		
+		<div id="modalComponentesP" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title">Seleccionar componentes</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+						<table id="tablaComponentesP" class="table table-sm table-bordered table-condensed table-hover table-fluid" style="width:100%">
+		     				<thead style='background-color: #eeeeee'>
+								<TR>
+									<th style='display:none'>id_componenteP</th>
+									<th>Nombre</th>
+								</TR>
+							</thead>
+							<tbody>
+								@for(lista <- listComponentes){
+									<tr onclick="selectComponenteP('@lista.getId()',btoa('@lista.getNombre()'))">
+										<td style='display:none'>@lista.getId()</td>
+										<td><a href="#">@lista.getNombre()</a></td>
+									</tr>
+								}
+							</tbody>
+			      		</table>
+			        <br>
+					<div align="center">
+			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
+				    </div>
+			      </div>
+			    </div>
+			 </div>
+		</div>	
+	
+		
+	</div>
+}
+
+
+<!-- CONFIGURA PAD -->
+
+<script src="@routes.Assets.versioned("javascripts/signature_pad.min.js")"></script>
+	<script>
+		let signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+		
+		let signaturePad2 = new SignaturePad(document.getElementById('signature-pad2'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+		let signaturePad3 = new SignaturePad(document.getElementById('signature-pad3'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+		
+		let signaturePad4 = new SignaturePad(document.getElementById('signature-pad4'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+		
+		let signaturePad5 = new SignaturePad(document.getElementById('signature-pad5'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+		
+		let signaturePad6 = new SignaturePad(document.getElementById('signature-pad6'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+	</script>
+	
+	<style>
+		.wrapper {
+		  position: relative;
+		  width: 350px;
+		  height: 90px;
+		  -moz-user-select: none;
+		  -webkit-user-select: none;
+		  -ms-user-select: none;
+		  user-select: none;
+		}
+		
+		.signature-pad {
+		  position: absolute;
+		  left: 0;
+		  top: 0;
+		  width:350px;
+		  height:90px;
+		}
+	</style>
+<!-- FIN PAD -->
+	
+<script>
+	
+	$(document).ready(function() {
+		$('#tablaOperadores').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": false,
+	    	"paging":   false,
+	        "ordering": [['1','asc']],
+	        "info":     false,
+			"searching": true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+
+		$('#tablaEquipos_oper').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": false,
+	    	"paging":   false,
+	        "ordering": [['1','asc']],
+	        "info":     false,
+			"searching": true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+		$('#tablaEquipos_mec').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": false,
+	    	"paging":   false,
+	        "ordering": [['1','asc']],
+	        "info":     false,
+			"searching": true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+		$('#tablaBodegas').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": false,
+	    	"paging":   false,
+	        "ordering": [['1','asc']],
+	        "info":     false,
+			"searching": true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+
+		$('#tablaComponentesC').DataTable({
+			"dom": '<"pull-left"f><"pull-right"l>tip',
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"paging":   true,
+	        "ordering": true,
+	        "info":     true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+
+		$('#tablaComponentesP').DataTable({
+			"dom": '<"pull-left"f><"pull-right"l>tip',
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"paging":   true,
+	        "ordering": true,
+	        "info":     true,
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	    } );
+
+ 		document.getElementById('mostrarmostrar').style.display="block";
+	
+	
+	
+	} );
+	
+	
+	const selectPerfil = (id_mantActor) => { 
+		if(id_mantActor == 1){
+			$("#id_operador").val(0);
+			$("#valNomOperador").val("--- select ---");
+			$("#tipoOperador").val("");
+			$("#id_equipo_oper").val(0);
+			$("#valNomEquip_oper").val("--- select ---");
+			$("#id_bodega_oper").val(0);
+			$("#valNomBod_oper").val("--- select ---");
+			$("#tipoBodega_oper").val("");
+			document.querySelector("#id_mantEstadoEnObra").value = "0";
+			$("#horaIni_oper").val("");
+			$("#horaTer_oper").val("");
+			$("#lecturaIni_oper").val("0.00");
+			$("#lecturaTer_oper").val("0.00");
+			$("#cantidad_oper").val("0.00");
+			$("#comentario").val("");
+			$("#observaciones_oper").val("");
+			signaturePad.clear();
+			signaturePad2.clear();
+			document.getElementById('viewOperador').style.display="block";
+			document.getElementById('viewMecanico').style.display="none";
+			document.getElementById('viewCorrectivo').style.display="none";
+			document.getElementById('viewPreventivo').style.display="none";
+		}else if(id_mantActor == 2){
+			$("#id_mecanico").val(0);
+			$("#valNomMecanico").val("--- select ---");
+			$("#tipoMecanico").val("");
+			document.querySelector("#id_tipoMantencion").value = "0";
+			limpiaMecanico();
+			document.getElementById('viewMecanico').style.display="block";
+			document.getElementById('viewOperador').style.display="none";
+		}
+		
+		bloqueaDisabled();
+		
+	}
+	
+	const liberaDisabled = () =>{
+		$("#id_mantEstadoEnObra").attr("disabled",false);
+		$("#lecturaIni_oper").attr("disabled",false);
+		$("#lecturaTer_oper").attr("disabled",false);
+		$("#cantidad_oper").attr("disabled",false);
+			
+		$("#id_mantEstadoOperacional").attr("disabled",false);
+		$("#id_mantEstadoEnTaller").attr("disabled",false);
+		$("#id_mantActividad").attr("disabled",false);
+		$("#id_mantTipoActividad").attr("disabled",false);
+		$("#id_mantItemIntervenido").attr("disabled",false);
+		$("#lecturaIni_mec").attr("disabled",false);
+		$("#lecturaTer_mec").attr("disabled",false);
+		$("#cantidad_mec").attr("disabled",false);
+		
+		$("#id_mantEstadoOperacionalP").attr("disabled",false);
+		$("#id_mantEstadoEnTallerP").attr("disabled",false);
+		$("#id_mantActividadP").attr("disabled",false);
+		$("#id_mantTipoActividadP").attr("disabled",false);
+		$("#id_mantItemIntervenidoP").attr("disabled",false);
+		$("#lecturaIni_mecP").attr("disabled",false);
+		$("#lecturaTer_mecP").attr("disabled",false);
+		$("#cantidad_mecP").attr("disabled",false);
+	}
+	
+	const bloqueaDisabled = () =>{
+		$("#id_mantEstadoEnObra").attr("disabled",true);
+		$("#lecturaIni_oper").attr("disabled",true);
+		$("#lecturaTer_oper").attr("disabled",true);
+		$("#cantidad_oper").attr("disabled",true);
+			
+		$("#id_mantEstadoOperacional").attr("disabled",true);
+		$("#id_mantEstadoEnTaller").attr("disabled",true);
+		$("#id_mantActividad").attr("disabled",true);
+		$("#id_mantTipoActividad").attr("disabled",true);
+		$("#id_mantItemIntervenido").attr("disabled",true);
+		$("#lecturaIni_mec").attr("disabled",true);
+		$("#lecturaTer_mec").attr("disabled",true);
+		$("#cantidad_mec").attr("disabled",true);
+		
+		$("#id_mantEstadoOperacionalP").attr("disabled",true);
+		$("#id_mantEstadoEnTallerP").attr("disabled",true);
+		$("#id_mantActividadP").attr("disabled",true);
+		$("#id_mantTipoActividadP").attr("disabled",true);
+		$("#id_mantItemIntervenidoP").attr("disabled",true);
+		$("#lecturaIni_mecP").attr("disabled",true);
+		$("#lecturaTer_mecP").attr("disabled",true);
+		$("#cantidad_mecP").attr("disabled",true);
+	}
+	
+	const selectTipoMantencion = (id_tipoMantencion) => { 
+		if(id_tipoMantencion == 1){
+			limpiaMecanico();
+			document.getElementById('viewPreventivo').style.display="block";
+			document.getElementById('viewCorrectivo').style.display="none";
+		}else if(id_tipoMantencion == 2){
+			limpiaMecanico();
+			document.getElementById('viewCorrectivo').style.display="block";
+			document.getElementById('viewPreventivo').style.display="none";
+		}
+		bloqueaDisabled();
+	}
+	
+	const limpiaMecanico = () =>{
+		$("#id_equipo_mec").val(0);
+		$("#valNomEquip_mec").val("--- select ---");
+		$("#id_tipoPlan_mec").val(0);
+		$("#tipoPlan_mec").val("");
+		$("#id_bodega_mec").val(0);
+		$("#valNomBod_mec").val("--- select ---");
+		$("#tipoBodega_mec").val("");
+		document.querySelector("#id_mantEstadoOperacional").value = "0";
+		document.querySelector("#id_mantEstadoEnTaller").value = "0";
+		document.querySelector("#id_mantActividad").value = "0";
+		document.querySelector("#id_mantTipoActividad").value = "0";
+		document.querySelector("#id_mantItemIntervenido").value = "0";
+		$("#horaIni_mec").val("");
+		$("#horaTer_mec").val("");
+		$("#lecturaIni_mec").val("0.00");
+		$("#lecturaTer_mec").val("0.00");
+		$("#cantidad_mec").val("0.00");
+		$("#descTrabajo").val("");
+		$("#estadoFinal").val("");
+		$("#observaciones_mec").val("");
+		signaturePad3.clear();
+		signaturePad4.clear();
+		
+		$("#id_equipo_mecP").val(0);
+		$("#valNomEquip_mecP").val("--- select ---");
+		$("#id_tipoPlan_mecP").val(0);
+		$("#tipoPlan_mecP").val("");
+		$("#id_bodega_mecP").val(0);
+		$("#valNomBod_mecP").val("--- select ---");
+		$("#tipoBodega_mecP").val("");
+		document.querySelector("#id_mantEstadoOperacionalP").value = "0";
+		document.querySelector("#id_mantEstadoEnTallerP").value = "0";
+		document.querySelector("#id_mantActividadP").value = "0";
+		document.querySelector("#id_mantTipoActividadP").value = "0";
+		document.querySelector("#id_mantItemIntervenidoP").value = "0";
+		$("#horaIni_mecP").val("");
+		$("#horaTer_mecP").val("");
+		$("#lecturaIni_mecP").val("0.00");
+		$("#lecturaTer_mecP").val("0.00");
+		$("#cantidad_mecP").val("0.00");
+		$("#descTrabajoP").val("");
+		$("#estadoFinalP").val("");
+		$("#observaciones_mecP").val("");
+		signaturePad5.clear();
+		signaturePad6.clear();
+		
+	}
+	
+	function selectOperador(id_operador, operador, tipo){
+		operador = atob(operador);
+		tipo = atob(tipo);
+		$('#id_operador').val(id_operador);
+		$('#tipoOperador').val(tipo);
+		document.getElementById("nombreOperador").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaOperadores').modal('show');\" "+
+					" id=\"valNomOperador\" value='"+operador+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaOperadores').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		$('#modalListaOperadores').modal('hide');
+	}
+	
+	function selectMecanico(id_mecanico, mecanico, tipo){
+		mecanico = atob(mecanico);
+		tipo = atob(tipo);
+		$('#id_mecanico').val(id_mecanico);
+		$('#tipoMecanico').val(tipo);
+		document.getElementById("nombreMecanico").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaMecanicos').modal('show');\" "+
+				" id=\"valNomMecanico\" value='"+mecanico+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaMecanicos').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		$('#modalListaMecanicos').modal('hide');
+	}
+	
+	function selectEquipo(id_equipo, codigo, equipo, tipoPlan, id_tipoPlan, unidad, estadoActual, id_unidadMantencion){
+		codigo = atob(codigo);
+		equipo = atob(equipo);
+		tipoPlan = atob(tipoPlan);
+		$('#id_equipo_oper').val(id_equipo);
+		$('#id_equipo_mec').val(id_equipo);
+		$('#tipoPlan_mec').val(tipoPlan);
+		$('#id_tipoPlan_mec').val(id_tipoPlan);
+		$('#id_equipo_mecP').val(id_equipo);
+		$('#tipoPlan_mecP').val(tipoPlan);
+		$('#id_tipoPlan_mecP').val(id_tipoPlan);
+		document.getElementById("nombreEquipo_oper").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaEquipos_oper').modal('show');\" "+
+				" id=\"valNomEquip_oper\" value='"+codigo+" - "+equipo+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaEquipos_oper').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		document.getElementById("nombreEquipo_mec").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaEquipos_oper').modal('show');\" "+
+				" id=\"valNomEquip_mec\" value='"+codigo+" - "+equipo+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaEquipos_oper').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		document.getElementById("nombreEquipo_mecP").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaEquipos_mec').modal('show');\" "+
+				" id=\"valNomEquip_mecP\" value='"+codigo+" - "+equipo+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaEquipos_mec').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		let aux = "@mapIdEquipVsBod";
+		aux = aux.replace(/&quot;/g, '"');
+		let mapIdEquipVsBod = JSON.parse(aux);
+		try{
+			let aux2 = mapIdEquipVsBod[id_equipo];
+			let aux3 = aux2.split("_&amp;_");
+			$("#id_bodega_oper").val(aux3[1]);
+			document.getElementById("nombreBodega_oper").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+				  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+					" id=\"valNomBod_oper\" value='"+aux3[0]+"' readonly>"+
+				  "<div class='input-group-append'>"+
+				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+				  "</div>"+
+				"</div>";
+			$("#tipoBodega_oper").val(aux3[2]);
+				
+			$("#id_bodega_mec").val(aux3[1]);
+			document.getElementById("nombreBodega_mec").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+				  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+					" id=\"valNomBod_mec\" value='"+aux3[0]+"' readonly>"+
+				  "<div class='input-group-append'>"+
+				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+				  "</div>"+
+				"</div>";
+			$("#tipoBodega_mec").val(aux3[2]);
+			
+			$("#id_bodega_mecP").val(aux3[1]);
+			document.getElementById("nombreBodega_mecP").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+				  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+					" id=\"valNomBod_mecP\" value='"+aux3[0]+"' readonly>"+
+				  "<div class='input-group-append'>"+
+				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+				  "</div>"+
+				"</div>";
+			$("#tipoBodega_mecP").val(aux3[2]);
+			
+		}catch(e){
+			$("#id_bodega_oper").val(0);
+			document.getElementById("nombreBodega_oper").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+				  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+					" id=\"valNomBod_oper\" value='--- select ---' readonly>"+
+				  "<div class='input-group-append'>"+
+				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+				  "</div>"+
+				"</div>";
+				$('#tipoBodega').val("");
+			$("#id_bodega_mec").val(0);
+			document.getElementById("nombreBodega_mec").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+				  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+					" id=\"valNomBod_mec\" value='--- select ---' readonly>"+
+				  "<div class='input-group-append'>"+
+				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+				  "</div>"+
+				"</div>";
+				$('#tipoBodega').val("");
+			$("#id_bodega_mecP").val(0);
+			document.getElementById("nombreBodega_mecP").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+				  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+					" id=\"valNomBod_mecP\" value='--- select ---' readonly>"+
+				  "<div class='input-group-append'>"+
+				    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+				  "</div>"+
+				"</div>";
+				$('#tipoBodega').val("");
+		}
+
+		$('#idUnidadMant_oper').val(id_unidadMantencion);
+		$('#idUnidadMant_mec').val(id_unidadMantencion);
+		$('#idUnidadMant_mecP').val(id_unidadMantencion);
+
+		$('#lectIni_oper').text("Lect_INI ("+unidad+"):");
+		$('#lectIni_mec').text("Lect_INI ("+unidad+"):");
+		$('#lectIni_mecP').text("Lect_INI ("+unidad+"):");
+
+		$('#lecturaIni_oper').val(estadoActual);
+		$('#lecturaIni_mec').val(estadoActual);
+		$('#lecturaIni_mecP').val(estadoActual);
+		lectAnterior = estadoActual;
+		$('#lectTer_oper').text("Lect_TER ("+unidad+") (*):");
+		$('#lectTer_mec').text("Lect_TER ("+unidad+") (*):");
+		$('#lectTer_mecP').text("Lect_TER ("+unidad+") (*):");
+		$('#lecturaTer_mec').val("0.00");
+		$('#lecturaTer_meP').val("0.00");
+		$('#cant_oper').text("CANT ("+unidad+"):");
+		$('#cant_mec').text("CANT ("+unidad+"):");
+		$('#cant_mecP').text("CANT ("+unidad+"):");
+			
+		liberaDisabled();
+			
+		$('#modalListaEquipos_oper').modal('hide');
+		$('#modalListaEquipos_mec').modal('hide');
+	}
+	
+	function selectBodega(id_bodega, sucursal, tipo, nombre){
+		sucursal = atob(sucursal);
+		tipo = atob(tipo);
+		nombre = atob(nombre);
+		$("#id_bodega_oper").val(id_bodega);
+		document.getElementById("nombreBodega_oper").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+				" id=\"valNomBod_oper\" value='"+sucursal+" - "+nombre+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		$('#tipoBodega_oper').val(tipo);
+		$('#modalListaBodegas').modal('hide');
+		
+		$("#id_bodega_mec").val(id_bodega);
+		document.getElementById("nombreBodega_mec").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+				" id=\"valNomBod_mec\" value='"+sucursal+" - "+nombre+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		$('#tipoBodega_mec').val(tipo);
+		$('#modalListaBodegas').modal('hide');
+		
+		$("#id_bodega_mecP").val(id_bodega);
+		document.getElementById("nombreBodega_mecP").innerHTML=
+			"<div class='input-group input-group-sm'>"+
+			  "<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" "+
+				" id=\"valNomBod_mecP\" value='"+sucursal+" - "+nombre+"' readonly>"+
+			  "<div class='input-group-append'>"+
+			    "<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
+			  "</div>"+
+			"</div>";
+		$('#tipoBodega_mecP').val(tipo);
+		$('#modalListaBodegas').modal('hide');
+	}
+	
+	let lectAnterior = 0;
+	
+	function actualizaFechaReal() {
+		if(!isValidDate($('#fecha').val())){
+    		alertify.alert("Debe ingresar una fecha valida");
+       		$('#fecha').val("@fecha");
+    	}else{
+    		var fechaMas = new Date();
+        	var fechaMenos = new Date();
+        	var fecha = new Date($('#fecha').val());
+        	fechaMas.setDate(fechaMas.getDate() + 0);
+        	fechaMenos.setDate(fechaMenos.getDate() - 180);
+        	if(fecha>fechaMas){
+        		alertify.alert("La fecha no puede ser posterior a la fecha actual.");
+        		$('#fecha').val('@fecha');
+        	}else if(fecha<fechaMenos){
+           		alertify.alert("La fecha no puede tener mas de 180 d&iacute;as de antiguedad.");
+           		$('#fecha').val('@fecha');
+        	}
+    	}
+    	
+    }
+
+
+// ************************ COMPONENTES CORRECTIVO *****************************
+	const showComponentesC = () => {
+		var tabla = document.getElementById('tablaComponentesC');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			var classIdComponentesC = document.getElementsByClassName("classIdComponentesC");
+			for(var j=0; j<classIdComponentesC.length; j++){
+				var id_componenteC = classIdComponentesC[j].value;
+				if(row[0].innerHTML == id_componenteC){
+					document.getElementById("tablaComponentesC").rows[i].style.display='none';
+					tabla.rows[i].style.display = 'none';
+				}
+			}
+		}
+		$('#modalComponentesC').modal('show')
+  	}
+
+    const selectComponenteC = (id_componente, componente) => {
+		componente = atob(componente);
+		$('#id_componenteC0').val(id_componente);
+		document.getElementById('divCantidadC0').innerHTML=
+			"<input type='text' class='form-control form-control-sm' id='cantidadC"+id_componente+"' name='cantidadC[]' style='text-align:right;'"+
+			" onfocus=\"value=value.replace(/,/g,'')\" onkeypress='return ingresoDouble(event,value)' onChange='value=formatStandar2(value);' value='1.00' required>";
+		document.getElementById('componenteC0').innerHTML="<input type='text' class='form-control form-control-sm' value='"+componente+"' readonly>";
+		document.getElementById('delLineaC0').innerHTML="<a href='#' onclick='eliminarLineaC(this,"+id_componente+")'><kbd style='background-color:red'>X</kbd></a>";
+		document.getElementById('tdId_componenteC0').innerHTML=id_componente;
+		document.getElementById('id_componenteC0').setAttribute("id", "id_id_componenteC"+id_componente);
+		document.getElementById('componenteC0').setAttribute("id", "componenteC"+id_componente);
+		document.getElementById('delLineaC0').setAttribute("id", "delLineaC"+id_componente);
+		document.getElementById('divCantidadC0').setAttribute("id", "divCantidadC"+id_componente);
+		document.getElementById('tdId_componenteC0').setAttribute("id", "tdId_componenteC"+id_componente);
+		agregaLineaC();
+		$('#modalComponentesC').modal('hide');
+	}
+	
+	function agregaLineaC(){
+		var tabla = document.getElementById('tblComponentesC');
+			var row = tabla.insertRow(tabla.rows.length);
+		var cell=row.insertCell(0);
+		cell.style.textAlign="left";
+		cell.style.textAlign="left";
+		cell.innerHTML=
+			"<input type='hidden' class='classIdComponentesC' id='id_componenteC0' name='id_mantComponenteC[]' value='0'>"+
+				"<div id='componenteC0'>"+
+					"<div class='input-group input-group-sm'>"+
+					  "<input class='form-control' type='text' onclick='showComponentesC()' readonly>"+
+					  "<div class='input-group-append'>"+
+					    "<span class='input-group-text' onclick='showComponentesC()'>Buscar</span>"+
+					  "</div>"+
+					"</div>"+
+				"</div>";
+		var cell=row.insertCell(1);
+		cell.innerHTML="<div id='divCantidadC0'><input type='text' style='text-align:right;' class='form-control form-control-sm' "+
+							"name='cantidadC[]' id='cantidadC0' readonly></div>";
+		var cell=row.insertCell(2);
+		cell.style.textAlign="center";
+		cell.innerHTML="<div id='delLineaC0'></div>";
+		var cell=row.insertCell(3);
+		cell.style.display="none";
+		cell.setAttribute("id", "tdId_componenteC0");
+		cell.innerHTML="<td style='display:none'>0</td>";
+	}
+	
+	function eliminarLineaC(nodo, id_componente){
+		var nodoTd = nodo.parentNode.parentNode; 
+		var nodoTr = nodoTd.parentNode; 
+		$(nodoTr).remove();
+		var tabla = document.getElementById('tablaComponentesC');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			if(row[0].innerHTML == id_componente){
+				tabla.rows[i].style.display="";
+			}
+		}
+	}
+// ************************ FIN CORRECTIVO *****************************
+
+// ************************ COMPONENTES PREVENTIVO *****************************
+	const showComponentesP = () => {
+		var tabla = document.getElementById('tablaComponentesP');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			var classIdComponentesP = document.getElementsByClassName("classIdComponentesP");
+			for(var j=0; j<classIdComponentesP.length; j++){
+				var id_componenteP = classIdComponentesP[j].value;
+				if(row[0].innerHTML == id_componenteP){
+					document.getElementById("tablaComponentesP").rows[i].style.display='none';
+					tabla.rows[i].style.display = 'none';
+				}
+			}
+		}
+		$('#modalComponentesP').modal('show')
+  	}
+
+    const selectComponenteP = (id_componente, componente) => {
+		componente = atob(componente);
+		$('#id_componenteP0').val(id_componente);
+		document.getElementById('divCantidadP0').innerHTML=
+			"<input type='text' class='form-control form-control-sm' id='cantidadP"+id_componente+"' name='cantidadP[]' style='text-align:right;'"+
+			" onfocus=\"value=value.replace(/,/g,'')\" onkeypress='return ingresoDouble(event,value)' onChange='value=formatStandar2(value);' value='1.00' required>";
+		document.getElementById('componenteP0').innerHTML="<input type='text' class='form-control form-control-sm' value='"+componente+"' readonly>";
+		document.getElementById('delLineaP0').innerHTML="<a href='#' onclick='eliminarLineaP(this,"+id_componente+")'><kbd style='background-color:red'>X</kbd></a>";
+		document.getElementById('tdId_componenteP0').innerHTML=id_componente;
+		document.getElementById('id_componenteP0').setAttribute("id", "id_id_componenteP"+id_componente);
+		document.getElementById('componenteP0').setAttribute("id", "componenteP"+id_componente);
+		document.getElementById('delLineaP0').setAttribute("id", "delLineaP"+id_componente);
+		document.getElementById('divCantidadP0').setAttribute("id", "divCantidadP"+id_componente);
+		document.getElementById('tdId_componenteP0').setAttribute("id", "tdId_componenteP"+id_componente);
+		agregaLineaP();
+		$('#modalComponentesP').modal('hide');
+	}
+	
+	function agregaLineaP(){
+		var tabla = document.getElementById('tblComponentesP');
+			var row = tabla.insertRow(tabla.rows.length);
+		var cell=row.insertCell(0);
+		cell.style.textAlign="left";
+		cell.style.textAlign="left";
+		cell.innerHTML=
+			"<input type='hidden' class='classIdComponentesP' id='id_componenteP0' name='id_mantComponenteP[]' value='0'>"+
+				"<div id='componenteP0'>"+
+					"<div class='input-group input-group-sm'>"+
+					  "<input class='form-control' type='text' onclick='showComponentesP()' readonly>"+
+					  "<div class='input-group-append'>"+
+					    "<span class='input-group-text' onclick='showComponentesP()'>Buscar</span>"+
+					  "</div>"+
+					"</div>"+
+				"</div>";
+		var cell=row.insertCell(1);
+		cell.innerHTML="<div id='divCantidadP0'><input type='text' style='text-align:right;' class='form-control form-control-sm' "+
+							"name='cantidadP[]' id='cantidadP0' readonly></div>";
+		var cell=row.insertCell(2);
+		cell.style.textAlign="center";
+		cell.innerHTML="<div id='delLineaP0'></div>";
+		var cell=row.insertCell(3);
+		cell.style.display="none";
+		cell.setAttribute("id", "tdId_componenteP0");
+		cell.innerHTML="<td style='display:none'>0</td>";
+	}
+	
+	function eliminarLineaP(nodo, id_componente){
+		var nodoTd = nodo.parentNode.parentNode; 
+		var nodoTr = nodoTd.parentNode; 
+		$(nodoTr).remove();
+		var tabla = document.getElementById('tablaComponentesP');
+		for (var i=1; i<tabla.rows.length; i++){
+			var row = tabla.rows[i].getElementsByTagName('td');
+			if(row[0].innerHTML == id_componente){
+				tabla.rows[i].style.display="";
+			}
+		}
+	}
+// ************************ FIN CORRECTIVO *****************************
+	
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		
+		if (!file) return;
+		
+		const $inputArchivos = document.querySelector("#docAdjunto");
+		const archivosParaSubir = $inputArchivos.files;
+		let tamanio = 0;
+		let allowSubmit = false;
+		
+		for(let i=0; i<archivosParaSubir.length; i++){
+			tamanio += archivosParaSubir[i].size;
+			let nombre = archivosParaSubir[i].name;
+			let extencion = nombre.substring(nombre.lastIndexOf(".")).toLowerCase();
+			for (let j = 0; j < extArray.length; j++) {
+				if (extArray[j] == extencion) { 
+					allowSubmit = true;
+				}
+			}
+			if(allowSubmit && i < archivosParaSubir.length -1){
+				allowSubmit = false;
+			}
+		}
+		
+		if (allowSubmit) {
+			if(tamanio > 200000000){
+				alert("Se permite máximo subir 200 MB,"
+				+" lo que se intenta subir pesa: "+Math.round(tamanio/10000)/100+" MB");
+				form.docAdjunto.value="";
+			}else{
+				alert("Documento subido con éxito");
+				$("#txtBtn").text("Cambiar Documento");
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione solo archivos con extenciones permitidas "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+		
+</script>
+	
+

@@ -8,7 +8,7 @@
 	
 	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 	
-	<form id="excel" class="formulario" method="post" action="/routes3/mantCantOperacional1Excel/">
+	<form id="excel" class="formulario" method="post" action="/routes3/mantCantMantencion1Excel/">
 		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
 		<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
 		
@@ -16,7 +16,7 @@
 	
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "CANTIDADES OPERACIONAL Y CORRECTIVO","DESDE: "+utilities.Fechas.DDMMAA(desdeAAMMDD)+" HASTA: "+utilities.Fechas.DDMMAA(hastaAAMMDD))
+		@barraTitulo(mapDiccionario, "CANTIDADES PREVENTIVO (MANTENCION)","DESDE: "+utilities.Fechas.DDMMAA(desdeAAMMDD)+" HASTA: "+utilities.Fechas.DDMMAA(hastaAAMMDD))
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			
@@ -32,8 +32,7 @@
 							<TH>CODIGO</TH>
 							<TH>EQUIPO</TH>
 							<TH></TH>
-							<TH>CONSUMO<BR>REPORT OPER</TH>
-							<TH>HORAS<BR>OPERADOR</TH>
+							<TH>PLAN MANTENCION</TH>
 							<TH></TH>
 							<TH>CONSUMO<BR>REPORT MEC</TH>
 							<TH>HORAS<BR>MECANICO</TH>
@@ -45,11 +44,10 @@
 								<td  style="text-align:left;">@lista1.get(1)</td>
 								<td  style="text-align:left;">@lista1.get(2)</td>
 								<td></td>
-								<td  style="text-align:right;">@lista1.get(3)</td>
-								<td  style="text-align:right;">@lista1.get(4)</td>
+								<td  style="text-align:left;">@lista1.get(3)</td>
 								<td></td>
+								<td  style="text-align:right;">@lista1.get(4)</td>
 								<td  style="text-align:right;">@lista1.get(5)</td>
-								<td  style="text-align:right;">@lista1.get(6)</td>
 							</TR>
 			 			}
 					</tbody>
