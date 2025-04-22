@@ -9,11 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -907,6 +903,41 @@ public class MantTransacReport {
 		}
 		return(listado);
 	}
+
+	public static List<List<String>> listaDeReportsPorIdOperMec(List<MantTransacReport> listReport, Long id_userOperMec) {
+		List<List<String>> listado = new ArrayList<List<String>>();
+		for(MantTransacReport x: listReport) {
+			if(Objects.equals(x.getId_mantOperador(), id_userOperMec) || Objects.equals(x.getId_mantMecanico(), id_userOperMec)) {
+				String userMada = x.getUserNameAdam();
+				String operMec = x.getNameActorPersonal();
+				String userOperMec = "";
+				if(x.getId_mantOperador() > 0) {
+					userOperMec = x.getFullNameOperador();
+				}else if(x.getId_mantMecanico() > 0){
+					userOperMec = x.getFullNameMecanico();
+				}
+				String tipoMantencion = x.getNameTipoMantencion();
+				String codigo = x.getCodigoEquipo();
+				String equip = x.getNameEquipo();
+				List<String> a = new ArrayList<String>();
+				a.add(x.getId().toString());
+				a.add(x.getFecha());
+				a.add(userMada);
+				a.add(operMec);
+				a.add(userOperMec);
+				a.add(tipoMantencion);
+				a.add(codigo);
+				a.add(equip);
+				a.add(x.getReportPDF());
+				a.add(x.getDocAnexo());
+				a.add(x.getFirmaPDFoperador());
+				a.add(x.getFirmaPDFautorizador());
+				listado.add(a);
+			}
+
+		}
+		return(listado);
+	}
 	
 	public static List<List<String>> historialDeReports(Connection con, String db, List<MantTransacReport> listReport,
 			Long id_mantActorPersonal, Long id_operMec, Long id_tipoMantencion, Long id_equipo){
@@ -1177,7 +1208,7 @@ public class MantTransacReport {
 			
 			for(List<String> list: listado){
 				posRow++;
-				posCell = 0;
+				posCell = 1;
 		        row = hoja1.createRow(posRow);
 				
 				cell = row.createCell(posCell);
@@ -3156,7 +3187,7 @@ public class MantTransacReport {
 					" id_equipo," +
 					" equipo.codigo," +
 					" equipo.nombre," +
-					" sum(horaDif) * sum(fechaDif) as cantHoras," +
+					" sum(horaDif) * sum(if(fechaDif=0,1,fechaDif)) as cantHoras," +
 					" sum(lectDif)" +
 					" from `"+db+"`.mantTransacReport" +
 					" left join `"+db+"`.equipo on equipo.id = mantTransacReport.id_equipo" +
@@ -3187,7 +3218,7 @@ public class MantTransacReport {
 					" id_equipo," +
 					" equipo.codigo," +
 					" equipo.nombre," +
-					" sum(horaDif) * sum(fechaDif) as cantHoras," +
+					" sum(horaDif) * sum(if(fechaDif=0,1,fechaDif)) as cantHoras," +
 					" sum(lectDif)" +
 					" from `"+db+"`.mantTransacReport" +
 					" left join `"+db+"`.equipo on equipo.id = mantTransacReport.id_equipo" +

@@ -4,20 +4,15 @@
 		<thead>
 			<tr>
 				<td style="text-align:left;"><strong>OPERADOR (*):</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
-					<input type="hidden" id="id_mecanico" name="id_mecanico" value="@operMec.getId()" required>
-					<input type="hidden" value="@operMec.getNombre()" readonly>
-		        </td>
-			</tr>
-			<tr>
-				<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
-					<input class="form-control" id="tipoOperador" type="text" value="" readonly>
+		        <td style="text-align:left;  width: 70%"  colspan="4">
+					<input type="hidden" id="id_operador" name="id_operador" value="@operMec.getId()" required>
+					<input type="hidden" id="id_mecanico" name="id_mecanico" value="0" required>
+					<input type="text" class="form-control" value="@operMec.getNombre()" readonly>
 		        </td>
 			</tr>
 			<tr>
 				<td style="text-align:left;"><strong>EQUIPO (*):</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
+		        <td style="text-align:left; width: 70%" colspan="4">
 		        	<input type="hidden" id="id_equipo_oper" name="id_equipo_oper" value="0">
 		        	<div id="nombreEquipo_oper">
 		        		<div class="input-group input-group-sm">
@@ -34,7 +29,7 @@
 			</tr>
 			<tr>
 				<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO (*):</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
+		        <td style="text-align:left; width: 70%" colspan="4">
 		        	<input type="hidden" id="id_bodega_oper" name="id_bodega_oper" value="0">
 		        	<div id="nombreBodega_oper">
 		        		<div class="input-group input-group-sm">
@@ -51,13 +46,13 @@
 			</tr>
 			<tr>
 				<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
+		        <td style="text-align:left; width: 70%" colspan="4">
 					<input class="form-control" id="tipoBodega_oper" type="text" value="" readonly>
 		        </td>
 			</tr>
 			<tr>
 				<td style="text-align:left;"><strong>ESTADO EN SITIO (*):</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
+		        <td style="text-align:left; width: 70%" colspan="4">
 		        	<select class="form-control form-control-sm" 
 						id="id_mantEstadoEnObra" 
 						name="id_mantEstadoEnObra"
@@ -182,9 +177,18 @@
 			</tr>
 		</thead>
 	</table>
-	
 
-	
+<div id="viewMecanico" style="display:none;">
+	<canvas id="signature-pad3" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+	<canvas id="signature-pad4" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+	<canvas id="signature-pad5" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+	<canvas id="signature-pad6" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+</div>
+
+<input type="hidden" id="nombreEquipo_mec" value="0">
+<input type="hidden" id="nombreEquipo_mecP" value="0">
+<input type="hidden" id="nombreBodega_mec" value="0">
+<input type="hidden" id="nombreBodega_mecP" value="0">
 	
 	
 <script>
@@ -250,27 +254,27 @@
 	}
 	
 	function grabarOperador(){ 
-		  
-		  if($('#id_operador').val()==0){
-			  alertify.alert('Debe seleccionar un Operador');
-		  }else if($('#id_equipo_oper').val()==0){
-			  alertify.alert('Debe seleccionar un Equipo');
-		  }else if($('#id_bodega_oper').val()==0){
-			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
-		  }else if($('#id_mantEstadoEnObra').val()==0){
-			  alertify.alert('Debe ingresar un Estado en Sitio');
-		  }else if($('#lecturaTer_oper').val()=="0.00"){
-			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
-		  }else{
-			let data = signaturePad.toDataURL('image/png');
-			let encodedImage = data.split(",");
-			$("#firmaEjecutor").val(encodedImage[1]);
-			
-			data = signaturePad2.toDataURL('image/png');
-			encodedImage = data.split(",");
-			$("#firmaAprobador").val(encodedImage[1]);
-			
-			$("#grabarRptOperadorMecanico").submit();
-		  }
+		  $("#grabarRptOperadorMecanico").submit();
+@*		  if($('#id_operador').val()==0){*@
+@*			  alertify.alert('Debe seleccionar un Operador');*@
+@*		  }else if($('#id_equipo_oper').val()==0){*@
+@*			  alertify.alert('Debe seleccionar un Equipo');*@
+@*		  }else if($('#id_bodega_oper').val()==0){*@
+@*			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');*@
+@*		  }else if($('#id_mantEstadoEnObra').val()==0){*@
+@*			  alertify.alert('Debe ingresar un Estado en Sitio');*@
+@*		  }else if($('#lecturaTer_oper').val()=="0.00"){*@
+@*			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');*@
+@*		  }else{*@
+@*			let data = signaturePad.toDataURL('image/png');*@
+@*			let encodedImage = data.split(",");*@
+@*			$("#firmaEjecutor").val(encodedImage[1]);*@
+@*			*@
+@*			data = signaturePad2.toDataURL('image/png');*@
+@*			encodedImage = data.split(",");*@
+@*			$("#firmaAprobador").val(encodedImage[1]);*@
+@*			*@
+@*			$("#grabarRptOperadorMecanico").submit();*@
+@*		  }*@
 	}
 </script>

@@ -411,38 +411,38 @@ function validarLectIni_mecP(){
 	}
 	
 	function grabarMecanicoP(){
-		  
-		  if($('#id_mecanico').val()==0){
-			  alertify.alert('Debe seleccionar un Mecanico');
-		  }else if($('#id_tipoMantencion').val()==0){
-			  alertify.alert('Debe seleccionar un Tipo de Mantencion');
-		  }else if($('#id_equipo_mecP').val()==0){
-			  alertify.alert('Debe seleccionar un Equipo');
-		  }else if($('#id_bodega_mecP').val()==0){
-			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
-		  }else if($('#id_mantEstadoOperacionalP').val()==0){
-			  alertify.alert('Debe ingresar un Estado en Operacional');
-		  }else if($('#id_mantEstadoEnTallerP').val()==0){
-			  alertify.alert('Debe ingresar un Estado en Taller');
-		  }else if($('#id_mantActividadP').val()==0){
-			  alertify.alert('Debe ingresar una Actividad');
-	      }else if($('#id_mantTipoActividadP').val()==0){
-			  alertify.alert('Debe ingresar un tipo de Actividad');
-		  }else if($('#id_mantItemIntervenidoP').val()==0){
-			  alertify.alert('Debe ingresar un Item Intervenido');
-		  }else if($('#lecturaTer_mecP').val()=="0.00"){
-			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
-		  }else{
-			let data = signaturePad5.toDataURL('image/png');
-			let encodedImage = data.split(",");
-			$("#firmaEjecutor").val(encodedImage[1]);
-			
-			data = signaturePad6.toDataURL('image/png');
-			encodedImage = data.split(",");
-			$("#firmaAprobador").val(encodedImage[1]);
-			
-			$("#grabarRptOperadorMecanico").submit();
-		  }
+	$("#grabarRptOperadorMecanico").submit();
+@*		  if($('#id_mecanico').val()==0){*@
+@*			  alertify.alert('Debe seleccionar un Mecanico');*@
+@*		  }else if($('#id_tipoMantencion').val()==0){*@
+@*			  alertify.alert('Debe seleccionar un Tipo de Mantencion');*@
+@*		  }else if($('#id_equipo_mecP').val()==0){*@
+@*			  alertify.alert('Debe seleccionar un Equipo');*@
+@*		  }else if($('#id_bodega_mecP').val()==0){*@
+@*			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');*@
+@*		  }else if($('#id_mantEstadoOperacionalP').val()==0){*@
+@*			  alertify.alert('Debe ingresar un Estado en Operacional');*@
+@*		  }else if($('#id_mantEstadoEnTallerP').val()==0){*@
+@*			  alertify.alert('Debe ingresar un Estado en Taller');*@
+@*		  }else if($('#id_mantActividadP').val()==0){*@
+@*			  alertify.alert('Debe ingresar una Actividad');*@
+@*	      }else if($('#id_mantTipoActividadP').val()==0){*@
+@*			  alertify.alert('Debe ingresar un tipo de Actividad');*@
+@*		  }else if($('#id_mantItemIntervenidoP').val()==0){*@
+@*			  alertify.alert('Debe ingresar un Item Intervenido');*@
+@*		  }else if($('#lecturaTer_mecP').val()=="0.00"){*@
+@*			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');*@
+@*		  }else{*@
+@*			let data = signaturePad5.toDataURL('image/png');*@
+@*			let encodedImage = data.split(",");*@
+@*			$("#firmaEjecutor").val(encodedImage[1]);*@
+@*			*@
+@*			data = signaturePad6.toDataURL('image/png');*@
+@*			encodedImage = data.split(",");*@
+@*			$("#firmaAprobador").val(encodedImage[1]);*@
+@*			*@
+@*			$("#grabarRptOperadorMecanico").submit();*@
+@*		  }*@
 	}
 	
 </script>

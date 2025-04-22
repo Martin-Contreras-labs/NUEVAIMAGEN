@@ -164,7 +164,7 @@ public class Equipo {
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				String tipoBodega = "CLIENTE/PROYECTO";
-				if(rs.getLong(5) == (long)1) {
+				if(rs.getLong(5) == (long)6) {
 					tipoBodega = mapeoDiccionario.get("BODEGA")+"/INTERNA";
 				}
 				map.put(rs.getString(3), rs.getString(1)+" - "+rs.getString(2)+"_&_"+rs.getString(4)+"_&_"+tipoBodega);

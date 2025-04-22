@@ -25,9 +25,12 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 POST	/mantWebInicio1/					controllers.MnuMantencion.mantWebInicio1(request: Request)
+POST    /mantWebReportNewSave/              controllers.MnuMantencion.mantWebReportNewSave(request: Request)
+GET     /mantWebInicio1get/:id_operMec      controllers.MnuMantencion.mantWebInicio1get(request: Request, id_operMec: Long)
 
-
-
+POST     /mantWebListarReports0/            controllers.MnuMantencion.mantWebListarReports0(request: Request)
+POST    /mantWebListarReports1/             controllers.MnuMantencion.mantWebListarReports1(request: Request)
+POST    /mantWebListarReports1Excel/        controllers.MnuMantencion.mantWebListarReports1Excel(request: Request)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

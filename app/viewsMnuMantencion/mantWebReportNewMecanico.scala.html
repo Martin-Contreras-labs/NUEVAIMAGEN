@@ -10,13 +10,8 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 				<td style="text-align:left;"><strong>MECANICO (*):</strong></td>
 		        <td style="text-align:left" width="70%" colspan="4">
 		        	<input type="hidden" id="id_mecanico" name="id_mecanico" value="@operMec.getId()" required>
-					<input type="hidden" value="@operMec.getNombre()" readonly>
-		        </td>
-			</tr>
-			<tr>
-				<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
-					<input class="form-control" id="tipoMecanico" type="text" value="" readonly>
+					<input type="hidden" id="id_operador" name="id_operador" value="0" required>
+					<input type="text" class="form-control" value="@operMec.getNombre()" readonly>
 		        </td>
 			</tr>
 			<tr>
@@ -47,9 +42,15 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 		@mantWebReportNewMecanicoCorrectivo(mapDiccionario, fecha, listEstaOperacional, operMec, listTipoMantencion,
 			listEstadoEnTaller,listActividad,listTipoActividad,listItemIntervenido,listComponentes)
 	</div>
-	
 
-	
-	
-	
+	<div style="display: none">
+		<canvas id="signature-pad" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+		<canvas id="signature-pad2" class="signature-pad" width=350 height=90 style="border:1px solid #000000;"></canvas>
+	</div>
+
+		<input type="hidden" id="nombreEquipo_oper" value="0">
+		<input type="hidden" id="nombreBodega_oper" value="0">
+
+
+
 	

@@ -12,14 +12,25 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 
 	<div id="mostrarmostrar" style="display:none;">
 
+		<form id="mantWebListarReports1" action="/routes3/mantWebListarReports0/" method="POST">
+			<input type="hidden" name="id_userOperMec" value="@operMec.getId()">
+		</form>
 		
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 				<br>
-				<form id="grabarRptOperadorMecanico" action="/routes3/mantReportNewSave/" enctype="multipart/form-data" method="POST" enctype="multipart/form-data">
+				<form id="grabarRptOperadorMecanico" action="/routes3/mantWebReportNewSave/" method="POST" enctype="multipart/form-data">
 
 					<table class="table table-sm table-bordered table-condensed table-fluid">
 						<thead>
+							<tr>
+								<td colspan="5" style="text-align:center;">
+									<button type="button" class="btn btn-sm btn-info" style="font-size: 10px;"onclick="$('#mantWebListarReports1').submit();" >MIS REPORT
+									</button>
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/report'">SALIR</button>
+								</td>
+							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>FECHA (*):</strong></td>
 								<td style="text-align:left;" width="70%" colspan="3">
@@ -43,7 +54,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 								<td style="text-align:left; width: 70px" colspan="4">
 									<input type="hidden" name="id_userMada" value="0">
 									<input type="hidden" name="id_mantActorPersonal" value="@actor.getId()">
-									<input type="text" name="id_mantActorPersonal" value="@actor.getNombre()" readonly>
+									<input type="text" class="form-control" name="id_mantActorPersonal" value="@actor.getNombre()" readonly>
 								</td>
 							</tr>
 							</thead>
@@ -646,7 +657,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 				  "</div>"+
 				"</div>";
 			$("#tipoBodega_mec").val(aux3[2]);
-			
+
 			$("#id_bodega_mecP").val(aux3[1]);
 			document.getElementById("nombreBodega_mecP").innerHTML=
 				"<div class='input-group input-group-sm'>"+
@@ -657,7 +668,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 				  "</div>"+
 				"</div>";
 			$("#tipoBodega_mecP").val(aux3[2]);
-			
+
 		}catch(e){
 			$("#id_bodega_oper").val(0);
 			document.getElementById("nombreBodega_oper").innerHTML=
@@ -679,6 +690,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 				  "</div>"+
 				"</div>";
 				$('#tipoBodega').val("");
+
 			$("#id_bodega_mecP").val(0);
 			document.getElementById("nombreBodega_mecP").innerHTML=
 				"<div class='input-group input-group-sm'>"+
@@ -711,9 +723,9 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 		$('#cant_oper').text("CANT ("+unidad+"):");
 		$('#cant_mec').text("CANT ("+unidad+"):");
 		$('#cant_mecP').text("CANT ("+unidad+"):");
-			
+
 		liberaDisabled();
-			
+
 		$('#modalListaEquipos_oper').modal('hide');
 		$('#modalListaEquipos_mec').modal('hide');
 	}
