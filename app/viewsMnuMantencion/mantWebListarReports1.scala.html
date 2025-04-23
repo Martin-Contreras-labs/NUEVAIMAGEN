@@ -3,6 +3,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 
 @main("") {
 
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 
 	<form id="excel" class="formulario" method="post" action="/routes3/mantWebListarReports1Excel/">
 		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
@@ -38,9 +39,6 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 							<TH>ANEXO</TH>
 							<TH>FIRMA<br>OPER/MEC</TH>
 							<TH>FIRMA<br>SUPERVISOR</TH>
-							@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
-								<TH>DEL</TH>
-							}
 							
 						</TR>
 					</thead>
@@ -68,7 +66,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 									}
 								</td>
 								<td style="text-align:center;">
-									<form id="mantReportDetalle_@lista1.get(0)" action="/routes3/mantReportDetalle/" method="POST">
+									<form id="mantReportDetalle_@lista1.get(0)" action="/routes3/mantWebReportDetalle/" method="POST">
 										<input type="hidden" name="id_mantTransacReport" value="@lista1.get(0)">
 										<input type="hidden" name="desdeAAMMDD" value="@desdeAAMMDD">
 										<input type="hidden" name="hastaAAMMDD" value="@hastaAAMMDD">
@@ -80,7 +78,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 								<td  style="text-align:center;">
 									@if(lista1.get(9).equals("0")){
 										<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
-											<form id="mantReportGrabaDocAnexo_@lista1.get(0)" action="/routes3/mantReportGrabaDocAnexo/" enctype="multipart/form-data" method="POST">
+											<form id="mantWebReportGrabaDocAnexo_@lista1.get(0)" action="/routes3/mantWebReportGrabaDocAnexo/" enctype="multipart/form-data" method="POST">
 												<input type="hidden" name="id_mantTransacReport" value="@lista1.get(0)">
 												<input type="hidden" name="desdeAAMMDD" value="@desdeAAMMDD">
 												<input type="hidden" name="hastaAAMMDD" value="@hastaAAMMDD">
@@ -97,27 +95,18 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 									}
 								</td>
 								<td style="text-align:center;">
-									<a href="/routes3/mantFirmaOperador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
+									<a href="/routes3/mantWebFirmaOperador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
 										<kbd style="background-color: #F0B27A">FIR</kbd>
 									</a>
 									<img src="data:image/jpeg;base64, @lista1.get(10)" height="10px" />
 								</td>
 								<td style="text-align:center;">
-									<a href="/routes3/mantFirmaAutorizador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
+									<a href="/routes3/mantWebFirmaAutorizador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
 										<kbd style="background-color: #F7DC6F">FIR</kbd>
 									</a>
 									<img src="data:image/jpeg;base64, @lista1.get(11)" height="10px" />
 								</td>
-								
-								@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
-									<td  style="text-align:center;">
-										@if(mapDelete.get(lista1.get(0))!=null) {
-											<a href="#" onclick= "eliminarMantReport('@lista1.get(0)')">
-												<kbd style="background-color: red">X</kbd>
-											</a>
-										}
-									</td>
-								}
+
 								
 							</TR>
 			 			}
@@ -155,12 +144,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 		</div>
 	</div>
 	
-	
-	<form id="form_eliminar" method="post" action="/routes3/mantReportElimina/">
-		<input type="hidden" id="id_mantTransacReport" name="id_mantTransacReport">
-		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
-		<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
-	</form>
+
 	
 	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
 		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
@@ -186,15 +170,6 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 	const mostrarPDF = (nombrePDF) => {
 		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
 		  $('#muestraPDF').modal('show');
-	}
-	
-	const eliminarMantReport = (id_mantTransacReport) => {
-		alertify.confirm("Esta seguro de eliminar este report ID: "+id_mantTransacReport, function (e) {
-			if (e) {
-				$("#id_mantTransacReport").val(id_mantTransacReport);
-				document.getElementById("form_eliminar").submit();
-			}
-		});
 	}
 	
 	const descargaDocumento = (nombreDOC) => {
@@ -241,7 +216,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 			return;
 		}
 		document.getElementById('enCarga').style.display="block";
-		$("#mantReportGrabaDocAnexo_"+id_mantTransacReport).submit();
+		$("#mantWebReportGrabaDocAnexo_"+id_mantTransacReport).submit();
 	}
 	
 </script>

@@ -30,7 +30,18 @@ GET     /mantWebInicio1get/:id_operMec      controllers.MnuMantencion.mantWebIni
 
 POST     /mantWebListarReports0/            controllers.MnuMantencion.mantWebListarReports0(request: Request)
 POST    /mantWebListarReports1/             controllers.MnuMantencion.mantWebListarReports1(request: Request)
+GET		/mantWebListarReports1Get/:d,:a		controllers.MnuMantencion.mantWebListarReports1Get(request: Request, d: String, a: String)
+
 POST    /mantWebListarReports1Excel/        controllers.MnuMantencion.mantWebListarReports1Excel(request: Request)
+POST    /mantWebReportDetalle/              controllers.MnuMantencion.mantWebReportDetalle(request: Request)
+
+POST	/mantWebReportGrabaDocAnexo/						controllers.MnuMantencion.mantWebReportGrabaDocAnexo(request: Request)
+GET     /mantWebFirmaOperador/:id_venta,:desde,:hasta		controllers.MnuMantencion.mantWebFirmaOperador(request: Request, id_venta: Long, desde: String, hasta: String)
+POST	/mantWebGrabarFirmaOperador/						controllers.MnuMantencion.mantWebGrabarFirmaOperador(request: Request)
+GET     /mantWebFirmaAutorizador/:id_venta,:desde,:hasta	controllers.MnuMantencion.mantWebFirmaAutorizador(request: Request, id_venta: Long, desde: String, hasta: String)
+POST	/mantWebGrabarFirmaAutorizador/					    controllers.MnuMantencion.mantWebGrabarFirmaAutorizador(request: Request)
+
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
