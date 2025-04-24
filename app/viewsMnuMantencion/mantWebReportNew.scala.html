@@ -1,9 +1,10 @@
 @(mapDiccionario: Map[String,String], fecha: String, actor: tables.MantActorPersonal, operMec: tables.MantOperadorMecanico,
-listPlanMant: List[tables.PlanMantencion], mapIdEquipVsBod: String, listBod: List[tables.BodegaEmpresa],
-listEstaObra: List[tables.MantEstadoEnObra], listEquipos: List[List[String]],
-listTipoMantencion: List[tables.TipoMantencion], listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
-listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
-listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.MantItemIntervenido])
+		listPlanMant: List[tables.PlanMantencion], mapIdEquipVsBod: String, listBod: List[tables.BodegaEmpresa],
+		listEstaObra: List[tables.MantEstadoEnObra], listEquipos: List[List[String]],
+		listTipoMantencion: List[tables.TipoMantencion], listEstadoEnTaller: List[tables.MantEstadoEnTaller],
+		listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad],
+		listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.MantItemIntervenido],
+		idEquipo: String, cod_nameEquipo: String, id_bodega: String, suc_nameBodega: String, nameTipoBodega: String, estadoActual: String)
 
 
 
@@ -14,6 +15,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 
 		<form id="mantWebListarReports1" action="/routes3/mantWebListarReports0/" method="POST">
 			<input type="hidden" name="id_userOperMec" value="@operMec.getId()">
+			<input type="hidden" name="id_equipo" value="@idEquipo">
 		</form>
 		
 		<div class="row  justify-content-md-center">
@@ -33,7 +35,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>FECHA (*):</strong></td>
-								<td style="text-align:left;" width="70%" colspan="3">
+								<td style="text-align:left; width: 70%" colspan="3">
 									<input style="max-width:150px" type="date" class="form-control form-control-sm"
 										id="fecha"
 										name="fecha"
@@ -41,7 +43,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 										onblur="actualizaFechaReal()"
 										required>
 								</td>
-								<td style="text-align:center; width: 70px" >
+								<td style="text-align:center; width: 70%" >
 									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
 											<input type="hidden" name="docAnexo" value="0">
 											<div id="txtBtn">Adjuntar</div>
@@ -51,7 +53,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>PERFIL (*):</strong></td>
-								<td style="text-align:left; width: 70px" colspan="4">
+								<td style="text-align:left; width: 70%" colspan="4">
 									<input type="hidden" name="id_userMada" value="0">
 									<input type="hidden" name="id_mantActorPersonal" value="@actor.getId()">
 									<input type="text" class="form-control" name="id_mantActorPersonal" value="@actor.getNombre()" readonly>
@@ -64,12 +66,14 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 					<input type="hidden" name="firmaAprobador" id="firmaAprobador" value="0">
 
 					@if(actor.getId() == 1L){
-						@mantWebReportNewOperador(mapDiccionario, fecha, listEstaObra, operMec)
+						@mantWebReportNewOperador(mapDiccionario, fecha, listEstaObra, operMec,
+							idEquipo, cod_nameEquipo, id_bodega, suc_nameBodega, nameTipoBodega))
 					}
 
 					@if(actor.getId() == 2L){
 						@mantWebReportNewMecanico(mapDiccionario, fecha, listEstaObra, operMec, listTipoMantencion,
-							listEstadoEnTaller, listActividad, listTipoActividad, listComponentes, listItemIntervenido)
+							listEstadoEnTaller, listActividad, listTipoActividad, listComponentes, listItemIntervenido,
+							idEquipo, cod_nameEquipo, id_bodega, suc_nameBodega, nameTipoBodega)
 					}
 					<span style="font-size: 12px;">(*) Campos Obligatorios</span>
 				</form>
@@ -334,7 +338,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 <!-- FIN PAD -->
 	
 <script>
-	
+	let lectAnterior = 0;
 	$(document).ready(function() {
 		$('#tablaOperadores').DataTable({
 	    	"fixedHeader": true,
@@ -406,7 +410,15 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 	        }
 	    } );
 
- 		document.getElementById('mostrarmostrar').style.display="block";
+		if("@idEquipo" != "0"){
+			$('#lecturaIni_oper').val('@estadoActual');
+			$('#lecturaIni_mec').val('@estadoActual');
+			$('#lecturaIni_mecP').val('@estadoActual');
+			lectAnterior = '@estadoActual';
+			liberaDisabled();
+		}
+
+		document.getElementById('mostrarmostrar').style.display="block";
 	
 	
 	
@@ -456,7 +468,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 		$("#lecturaIni_oper").attr("disabled",false);
 		$("#lecturaTer_oper").attr("disabled",false);
 		$("#cantidad_oper").attr("disabled",false);
-			
+
 		$("#id_mantEstadoOperacional").attr("disabled",false);
 		$("#id_mantEstadoEnTaller").attr("disabled",false);
 		$("#id_mantActividad").attr("disabled",false);
@@ -506,22 +518,32 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 			limpiaMecanico();
 			document.getElementById('viewPreventivo').style.display="block";
 			document.getElementById('viewCorrectivo').style.display="none";
+			bloqueaDisabled();
 		}else if(id_tipoMantencion == 2){
 			limpiaMecanico();
+			if("@idEquipo" != "0"){
+				$('#lecturaIni_oper').val('@estadoActual');
+				$('#lecturaIni_mec').val('@estadoActual');
+				$('#lecturaIni_mecP').val('@estadoActual');
+				lectAnterior = '@estadoActual';
+				liberaDisabled();
+			}else{
+				bloqueaDisabled();
+			}
 			document.getElementById('viewCorrectivo').style.display="block";
 			document.getElementById('viewPreventivo').style.display="none";
 		}
-		bloqueaDisabled();
+
 	}
 	
 	const limpiaMecanico = () =>{
-		$("#id_equipo_mec").val(0);
-		$("#valNomEquip_mec").val("--- select ---");
+		$("#id_equipo_mec").val("@idEquipo");
+		$("#valNomEquip_mec").val("@cod_nameEquipo");
 		$("#id_tipoPlan_mec").val(0);
 		$("#tipoPlan_mec").val("");
-		$("#id_bodega_mec").val(0);
-		$("#valNomBod_mec").val("--- select ---");
-		$("#tipoBodega_mec").val("");
+		$("#id_bodega_mec").val("@id_bodega");
+		$("#valNomBod_mec").val("@suc_nameBodega");
+		$("#tipoBodega_mec").val("@nameTipoBodega");
 		document.querySelector("#id_mantEstadoOperacional").value = "0";
 		document.querySelector("#id_mantEstadoEnTaller").value = "0";
 		document.querySelector("#id_mantActividad").value = "0";
@@ -728,6 +750,7 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 
 		$('#modalListaEquipos_oper').modal('hide');
 		$('#modalListaEquipos_mec').modal('hide');
+
 	}
 	
 	function selectBodega(id_bodega, sucursal, tipo, nombre){
@@ -770,8 +793,6 @@ listComponentes: List[tables.MantComponente], listItemIntervenido: List[tables.M
 		$('#tipoBodega_mecP').val(tipo);
 		$('#modalListaBodegas').modal('hide');
 	}
-	
-	let lectAnterior = 0;
 	
 	function actualizaFechaReal() {
 		if(!isValidDate($('#fecha').val())){

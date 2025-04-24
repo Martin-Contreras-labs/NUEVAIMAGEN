@@ -255,7 +255,8 @@ public class FormMantencion {
 			row = table.getRow(5);
 			cell = row.getCell(1);
 			MantEstadoEnObra mantEstado = MantEstadoEnObra.find(con, db, mantTransacReport.getId_mantEstadoEnObra());
-			auxTexto = mantEstado.getNombre();
+			auxTexto = "";
+			if(mantEstado != null) auxTexto = mantEstado.getNombre();
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			
 			table = doc.getTables().get(2);
@@ -411,27 +412,32 @@ public class FormMantencion {
 			row = table.getRow(7);
 			cell = row.getCell(1);
 			MantEstadoOperacional mantOperacional = MantEstadoOperacional.find(con, db, mantTransacReport.getId_mantEstadoOperacional());
-			auxTexto = mantOperacional.getNombre();
+			auxTexto = "";
+			if(mantOperacional != null) auxTexto = mantOperacional.getNombre();
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			row = table.getRow(8);
 			cell = row.getCell(1);
 			MantEstadoEnTaller mantEnTaller = MantEstadoEnTaller.find(con, db, mantTransacReport.getId_mantEstadoEnTaller());
-			auxTexto = mantEnTaller.getNombre();
+			auxTexto = "";
+			if(mantEnTaller != null) auxTexto = mantEnTaller.getNombre();
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			row = table.getRow(9);
 			cell = row.getCell(1);
 			MantActividad mantActividad = MantActividad.find(con, db, mantTransacReport.getId_mantActividad());
-			auxTexto = mantActividad.getNombre();
+			auxTexto = "";
+			if(mantActividad != null) auxTexto = mantActividad.getNombre();
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			row = table.getRow(10);
 			cell = row.getCell(1);
 			MantTipoActividad mantTipoActividad = MantTipoActividad.find(con, db, mantTransacReport.getId_mantTipoActividad());
-			auxTexto = mantTipoActividad.getNombre();
+			auxTexto = "";
+			if(mantTipoActividad != null) auxTexto = mantTipoActividad.getNombre();
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			row = table.getRow(11);
 			cell = row.getCell(1);
 			MantItemIntervenido mantItemIntervenido = MantItemIntervenido.find(con, db, mantTransacReport.getId_mantItemIntervenido());
-			auxTexto = mantItemIntervenido.getNombre();
+			auxTexto = "";
+			if(mantItemIntervenido != null) auxTexto = mantItemIntervenido.getNombre();
 			setCelda(cell,"Arial",10,1,"000000",auxTexto.toUpperCase(),false);
 			
 			

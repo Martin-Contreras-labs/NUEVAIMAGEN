@@ -22,7 +22,7 @@ listEquipQr: List[qr.QrEquipo])
 						@for(lista <- listEquipQr){
 							<TR>
 								<td style="text-align: left;">@lista.grupo</td>
-								<td style="text-align: center;">@lista.codigo</td>
+								<td style="text-align: left;">@lista.codigo</td>
 						        <td style="text-align:left">@lista.nombre</td>
 						        <td style="text-align:center">
 									<form id="form_@lista.id_equipo" method="post" action="/qrAgregaEquipo/">

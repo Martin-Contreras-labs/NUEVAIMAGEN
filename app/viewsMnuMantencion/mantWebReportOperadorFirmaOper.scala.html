@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String],
-mantTransacReport: tables.MantTransacReport, desdeAAMMDD: String, hastaAAMMDD: String)
+		mantTransacReport: tables.MantTransacReport, desdeAAMMDD: String, hastaAAMMDD: String, id_equipo: Long)
 
 
 
@@ -16,6 +16,7 @@ mantTransacReport: tables.MantTransacReport, desdeAAMMDD: String, hastaAAMMDD: S
 					<input type="hidden" name="id_mantTransacReport" value="@mantTransacReport.getId()">
 					<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
 					<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+					<input type="hidden" name="id_equipo" value="@id_equipo">
 
 					<table class="table table-sm table-bordered table-condensed table-fluid">
 						<thead>
@@ -195,7 +196,7 @@ mantTransacReport: tables.MantTransacReport, desdeAAMMDD: String, hastaAAMMDD: S
 								<td colspan="5" style="text-align:center;">
 									<button type="button" class="btn btn-sm btn-success" style="font-size: 10px;"onclick="grabar();" >GRABAR</button>
 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/routes3/mantWebListarReports1Get/@desdeAAMMDD,@hastaAAMMDD'">CANCELAR</button>
+									<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/routes3/mantWebListarReports1Get/@desdeAAMMDD,@hastaAAMMDD,@id_equipo'">CANCELAR</button>
 								</td>
 							</tr>
 						</thead>

@@ -42,7 +42,7 @@ public class MnuMantencion extends Controller {
 	// MENU INGRESO APP WEB
 	//============================================================
 
-	public Result mantWebInicio0() throws InterruptedException {
+	public Result mantWebInicio0(Long id_equipo) throws InterruptedException {
 		try {
 			List<String> lista = new ArrayList<String>();
 			Connection con = dbRead.getConnection();
@@ -55,7 +55,7 @@ public class MnuMantencion extends Controller {
 			rs.close();
 			smt.close();
 			con.close();
-			return ok(mantWebInicio0.render(lista,"0")).withNewSession()
+			return ok(mantWebInicio0.render(lista,"0", id_equipo)).withNewSession()
 					.discardingCookie("username")
 					.discardingCookie("project")
 					.discardingCookie("company")
@@ -76,6 +76,8 @@ public class MnuMantencion extends Controller {
 			String userKey = form.get("userKey");
 			String pais = form.get("pais");
 			String gRecaptchaResponse = form.get("gRecaptchaResponse");
+			String idEquipo = form.get("id_equipo");
+			Long id_equipo = Long.parseLong(idEquipo);
 			if(!empresa.equals("DEMO")) {
 				boolean verificado = false;
 				try {
@@ -159,19 +161,62 @@ public class MnuMantencion extends Controller {
 						}
 					}
 					List<List<String>> listEquipos = new ArrayList<List<String>>();
-					mapEquipos.forEach((k,v) -> {
-						listEquipos.add(v);
-					});
+					String estadoActual = "0.00";
+					if(id_equipo > 0) {
+						for(Map.Entry<Long, List<String>> entry : mapEquipos.entrySet()){
+							Long k = entry.getKey();
+							List<String> v = entry.getValue();
+							if (id_equipo == k.longValue()) {
+								listEquipos.add(v);
+								estadoActual = v.get(5);
+							}
+						}
+						List<PlanMantencion> aux = new ArrayList<PlanMantencion>();
+						for(PlanMantencion x: listPlanMant) {
+							if(x.getId_equipo() == id_equipo.longValue()) {
+								aux.add(x);
+							}
+						}
+						listPlanMant = aux;
+					}else{
+						mapEquipos.forEach((k, v) -> {
+							listEquipos.add(v);
+						});
+					}
 					List<TipoMantencion> listTipoMantencion = TipoMantencion.all(con, db);
 					List<MantEstadoEnTaller> listEstadoEnTaller = MantEstadoEnTaller.all(con, db);
 					List<MantActividad> listActividad = MantActividad.all(con, db);
 					List<MantTipoActividad> listTipoActividad = MantTipoActividad.all(con, db);
 					List<MantComponente> listComponentes = MantComponente.all(con, db);
 					List<MantItemIntervenido> listItemIntervenido = MantItemIntervenido.all(con, db);
+
+					String cod_nameEquipo = "--- select ---";
+					String id_bodega = "0";
+					String suc_nameBodega = "--- select ---";
+					String nameTipoBodega = "";
+					System.out.println("id_equipo = "+id_equipo);
+					if(id_equipo > 0){
+						Equipo equipo = Equipo.find(con, db, id_equipo);
+						if(equipo != null) {
+							cod_nameEquipo = equipo.getCodigo() + " - " + equipo.getNombre();
+							// id_equipo vs nameSucursal-nameBodega_&_id_bodega_&_nameTipoBodega
+							String sucurBodegaTipo = mapIdEquipVsBododega.get(idEquipo);
+							System.out.println("sucurBodegaTipo = "+sucurBodegaTipo);
+							if(sucurBodegaTipo != null) {
+								String[] aux = sucurBodegaTipo.split("_&_");
+								if(aux.length == 3) {
+									id_bodega = aux[1];
+									suc_nameBodega = aux[0];
+									nameTipoBodega = aux[2];
+								}
+							}
+						}
+					}
 					con.close();
 					return ok(mantWebReportNew.render(mapeoDiccionario, fechaAAMMDD,actor,user,
 							listPlanMant,mapIdEquipVsBod,listBod,listEstaObra, listEquipos, listTipoMantencion,
-							listEstadoEnTaller,listActividad,listTipoActividad,listComponentes,listItemIntervenido))
+							listEstadoEnTaller,listActividad,listTipoActividad,listComponentes,listItemIntervenido,
+							idEquipo,cod_nameEquipo,id_bodega,suc_nameBodega,nameTipoBodega,estadoActual))
 							.addingToSession(request, "userName", user.getUserName())
 							.addingToSession(request, "id_usuario", user.getId().toString())
 							.addingToSession(request, "baseDato", db)
@@ -187,7 +232,7 @@ public class MnuMantencion extends Controller {
 		return ok(mensajes.render("/report",msgErrorFormulario));
 	}
 
-	public Result mantWebInicio1get(Http.Request request, Long id_operMec) {
+	public Result mantWebInicio1get(Http.Request request, Long id_operMec, Long id_equipo) {
 		Sessiones s = new Sessiones(request);
 		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -241,19 +286,64 @@ public class MnuMantencion extends Controller {
 						}
 					}
 					List<List<String>> listEquipos = new ArrayList<List<String>>();
-					mapEquipos.forEach((k,v) -> {
-						listEquipos.add(v);
-					});
+					String estadoActual = "0.00";
+					if(id_equipo > 0) {
+						for(Map.Entry<Long, List<String>> entry : mapEquipos.entrySet()){
+							Long k = entry.getKey();
+							List<String> v = entry.getValue();
+							if (id_equipo == k.longValue()) {
+								listEquipos.add(v);
+								estadoActual = v.get(5);
+							}
+						}
+						List<PlanMantencion> aux = new ArrayList<PlanMantencion>();
+						for(PlanMantencion x: listPlanMant) {
+							if(x.getId_equipo() == id_equipo.longValue()) {
+								aux.add(x);
+							}
+						}
+						listPlanMant = aux;
+					}else{
+						mapEquipos.forEach((k, v) -> {
+							listEquipos.add(v);
+						});
+					}
 					List<TipoMantencion> listTipoMantencion = TipoMantencion.all(con, s.baseDato);
 					List<MantEstadoEnTaller> listEstadoEnTaller = MantEstadoEnTaller.all(con, s.baseDato);
 					List<MantActividad> listActividad = MantActividad.all(con, s.baseDato);
 					List<MantTipoActividad> listTipoActividad = MantTipoActividad.all(con, s.baseDato);
 					List<MantComponente> listComponentes = MantComponente.all(con, s.baseDato);
 					List<MantItemIntervenido> listItemIntervenido = MantItemIntervenido.all(con, s.baseDato);
+
+					String idEquipo = id_equipo.toString();
+					String cod_nameEquipo = "--- select ---";
+					String id_bodega = "0";
+					String suc_nameBodega = "--- select ---";
+					String nameTipoBodega = "";
+					System.out.println("id_equipo = "+id_equipo);
+					if(id_equipo > 0){
+						Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
+						if(equipo != null) {
+							cod_nameEquipo = equipo.getCodigo() + " - " + equipo.getNombre();
+							// id_equipo vs nameSucursal-nameBodega_&_id_bodega_&_nameTipoBodega
+							String sucurBodegaTipo = mapIdEquipVsBododega.get(idEquipo);
+							System.out.println("sucurBodegaTipo = "+sucurBodegaTipo);
+							if(sucurBodegaTipo != null) {
+								String[] aux = sucurBodegaTipo.split("_&_");
+								if(aux.length == 3) {
+									id_bodega = aux[1];
+									suc_nameBodega = aux[0];
+									nameTipoBodega = aux[2];
+								}
+							}
+						}
+					}
+
 					con.close();
 					return ok(mantWebReportNew.render(mapeoDiccionario, fechaAAMMDD,actor,user,
 							listPlanMant,mapIdEquipVsBod,listBod,listEstaObra, listEquipos, listTipoMantencion,
-							listEstadoEnTaller,listActividad,listTipoActividad,listComponentes,listItemIntervenido));
+							listEstadoEnTaller,listActividad,listTipoActividad,listComponentes,listItemIntervenido,
+							idEquipo,cod_nameEquipo,id_bodega,suc_nameBodega,nameTipoBodega,estadoActual));
 
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -337,10 +427,11 @@ public class MnuMantencion extends Controller {
 				return ok(mensajes.render("/report",msgErrorFormulario));
 			}else {
 				Long id_userOperMec = Long.parseLong(form.get("id_userOperMec").trim());
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 				Fechas hoy = Fechas.hoy();
 				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-				return ok(mantWebListarReports0.render(mapeoDiccionario,mapeoPermiso, desde, hasta, id_userOperMec));
+				return ok(mantWebListarReports0.render(mapeoDiccionario,mapeoPermiso, desde, hasta, id_userOperMec, id_equipo));
 			}
 
 		}
@@ -361,6 +452,7 @@ public class MnuMantencion extends Controller {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Long id_userOperMec = Long.parseLong(form.get("id_userOperMec").trim());
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				try {
 					Connection con = dbWrite.getConnection();
@@ -377,7 +469,7 @@ public class MnuMantencion extends Controller {
 					rs.close();
 					smt.close();
 					con.close();
-					return ok(mantWebListarReports1.render(mapeoDiccionario,mapeoPermiso,listado,desdeAAMMDD,hastaAAMMDD, mapDelete, id_userOperMec));
+					return ok(mantWebListarReports1.render(mapeoDiccionario,mapeoPermiso,listado,desdeAAMMDD,hastaAAMMDD, mapDelete, id_userOperMec, id_equipo));
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -386,7 +478,7 @@ public class MnuMantencion extends Controller {
 		return ok(mensajes.render("/report",msgError));
 	}
 
-	public Result mantWebListarReports1Get(Http.Request request, String desdeAAMMDD, String hastaAAMMDD) {
+	public Result mantWebListarReports1Get(Http.Request request, String desdeAAMMDD, String hastaAAMMDD, Long id_equipo) {
 		Sessiones s = new Sessiones(request);
 		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			try {
@@ -410,7 +502,7 @@ public class MnuMantencion extends Controller {
 				rs.close();
 				smt.close();
 				con.close();
-				return ok(mantWebListarReports1.render(mapeoDiccionario,mapeoPermiso,listado,desdeAAMMDD,hastaAAMMDD, mapDelete, id_userOperMec));
+				return ok(mantWebListarReports1.render(mapeoDiccionario,mapeoPermiso,listado,desdeAAMMDD,hastaAAMMDD, mapDelete, id_userOperMec, id_equipo));
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -507,12 +599,13 @@ public class MnuMantencion extends Controller {
 							Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport").trim());
 							String desdeAAMMDD = form.get("desdeAAMMDD").trim();
 							String hastaAAMMDD = form.get("hastaAAMMDD").trim();
+							Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 							String nombreArchivoSinExtencion = MantTransacReport.nombreDocAnexo(con, s.baseDato, archivos, id_mantTransacReport);
 							MnuMantencion.grabarFilesThread grabarFile = new MnuMantencion.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 							grabarFile.run();
 							String msg = "Archivos subidos con exito, esto puede tomar algunos minutos en actualizar la lista";
 							con.close();
-							return ok(mensajes.render("/routes3/mantWebListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD,msg));
+							return ok(mensajes.render("/routes3/mantWebListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD+","+id_equipo, msg));
 
 						} catch (SQLException e) {
 							e.printStackTrace();
@@ -525,7 +618,7 @@ public class MnuMantencion extends Controller {
 		return ok(mensajes.render("/report",msgError));
 	}
 
-	public Result mantWebFirmaOperador(Http.Request request, Long id_mantTransacReport, String desdeAAMMDD, String hastaAAMMDD) {
+	public Result mantWebFirmaOperador(Http.Request request, Long id_mantTransacReport, String desdeAAMMDD, String hastaAAMMDD, Long id_equipo) {
 		Sessiones s = new Sessiones(request);
 		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -538,11 +631,11 @@ public class MnuMantencion extends Controller {
 				MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
 				if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
 					con.close();
-					return ok(mantWebReportOperadorFirmaOper.render(mapeoDiccionario,mapeoPermiso,mantTransacReport, desdeAAMMDD, hastaAAMMDD));
+					return ok(mantWebReportOperadorFirmaOper.render(mapeoDiccionario,mapeoPermiso,mantTransacReport, desdeAAMMDD, hastaAAMMDD, id_equipo));
 				}else {
 					List<MantTransacComponentes> mantTransacComponentes = MantTransacComponentes.allPorIdMantTransacReport(con, s.baseDato, id_mantTransacReport);
 					con.close();
-					return ok(mantWebReportMecanicoFirmaMec.render(mapeoDiccionario,mapeoPermiso,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD));
+					return ok(mantWebReportMecanicoFirmaMec.render(mapeoDiccionario,mapeoPermiso,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD, id_equipo));
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -567,6 +660,7 @@ public class MnuMantencion extends Controller {
 				String firmaPDFoperador = form.get("firmaPDFoperador").trim();
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 				try {
 					Connection con = dbWrite.getConnection();
 					if(MantTransacReport.modificaPorCampo(con, s.baseDato, "firmaPDFoperador", id_mantTransacReport, firmaPDFoperador)) {
@@ -579,7 +673,7 @@ public class MnuMantencion extends Controller {
 						}
 					}
 					con.close();
-					return redirect("/routes3/mantWebListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD);
+					return redirect("/routes3/mantWebListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD+","+id_equipo);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -588,7 +682,7 @@ public class MnuMantencion extends Controller {
 		return ok(mensajes.render("/report",msgError));
 	}
 
-	public Result mantWebFirmaAutorizador(Http.Request request, Long id_mantTransacReport, String desdeAAMMDD, String hastaAAMMDD) {
+	public Result mantWebFirmaAutorizador(Http.Request request, Long id_mantTransacReport, String desdeAAMMDD, String hastaAAMMDD, Long id_equipo) {
 		Sessiones s = new Sessiones(request);
 		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -601,11 +695,11 @@ public class MnuMantencion extends Controller {
 				MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
 				if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
 					con.close();
-					return ok(mantWebReportOperadorFirmaSuper.render(mapeoDiccionario,mapeoPermiso,mantTransacReport, desdeAAMMDD, hastaAAMMDD));
+					return ok(mantWebReportOperadorFirmaSuper.render(mapeoDiccionario,mapeoPermiso,mantTransacReport, desdeAAMMDD, hastaAAMMDD, id_equipo));
 				}else {
 					List<MantTransacComponentes> mantTransacComponentes = MantTransacComponentes.allPorIdMantTransacReport(con, s.baseDato, id_mantTransacReport);
 					con.close();
-					return ok(mantWebReportMecanicoFirmaSuper.render(mapeoDiccionario,mapeoPermiso,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD));
+					return ok(mantWebReportMecanicoFirmaSuper.render(mapeoDiccionario,mapeoPermiso,mantTransacReport,mantTransacComponentes,desdeAAMMDD,hastaAAMMDD, id_equipo));
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -629,6 +723,7 @@ public class MnuMantencion extends Controller {
 				String firmaPDFautorizador = form.get("firmaPDFautorizador").trim();
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
 				try {
 					Connection con = dbWrite.getConnection();
 					if(MantTransacReport.modificaPorCampo(con, s.baseDato, "firmaPDFautorizador", id_mantTransacReport, firmaPDFautorizador)) {
@@ -641,7 +736,7 @@ public class MnuMantencion extends Controller {
 						}
 					}
 					con.close();
-					return redirect("/routes3/mantWebListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD);
+					return redirect("/routes3/mantWebListarReports1Get/"+desdeAAMMDD+","+hastaAAMMDD+","+id_equipo);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

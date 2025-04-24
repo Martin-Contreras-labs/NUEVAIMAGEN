@@ -1,4 +1,4 @@
-@(nEmpresa: String, base: String, equipo: tables.Equipo, stock: Double, ubicacion: String, cantTransacEquipo: Long)
+@(nEmpresa: String, base: String, equipo: tables.Equipo, stock: Double, ubicacion: String, cantTransacEquipo: Long, conBtnMantencion: Long)
 
 @mainQR("MADA_QR") {
 
@@ -110,6 +110,13 @@
 			</form>
 			<br><br>
 		}
+
+		@if(conBtnMantencion > 0){
+			<button type="button" class="btn btn-warning btn-lg btn-block" style="font-size:40px" onclick="location.href='http://localhost:9001/report?id_equipo=@equipo.getId()'">
+				Ingresar Nuevos Report
+			</button>
+		}
+
 		
 	</div>
 	

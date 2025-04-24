@@ -23,10 +23,7 @@ import models.qr.QrEquipo;
 import models.qr.QrTipoContenido;
 import models.qr.QrTransacEquipo;
 import models.reports.ReportTrazabilidades;
-import models.tables.Atributo;
-import models.tables.BodegaEmpresa;
-import models.tables.Equipo;
-import models.tables.HojaVida;
+import models.tables.*;
 import models.utilities.Archivos;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
@@ -687,8 +684,12 @@ public class MnuQr extends Controller {
 					}
 				}
 				List<QrTransacEquipo> listTransacEquipo = QrTransacEquipo.allPorIdEquipo(con, base, Long.parseLong(id_equipo));
+				Long conBtnMantencion = 0L;
+				if(Parametros.validaParametro(con, base,"mnuMANTENCION")){
+					conBtnMantencion = 1L;
+				}
 				con.close();
-				return ok(inicioQr.render(nEmpresa.toUpperCase(), base, equipo, stock, ubicacion, (long) listTransacEquipo.size()))
+				return ok(inicioQr.render(nEmpresa.toUpperCase(), base, equipo, stock, ubicacion, (long) listTransacEquipo.size(), conBtnMantencion))
 						.addingToSession(request, "strEncoded", strEncoded);
 			} catch (SQLException e) {
 				e.printStackTrace();

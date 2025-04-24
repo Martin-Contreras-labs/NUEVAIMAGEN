@@ -2,13 +2,13 @@
 		operMec: tables.MantOperadorMecanico, listTipoMantencion: List[tables.TipoMantencion],
 listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
 listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad], listItemIntervenido: List[tables.MantItemIntervenido],
-listComponentes: List[tables.MantComponente])	
-
+listComponentes: List[tables.MantComponente])
+<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 		<table class="table table-sm table-bordered table-condensed table-fluid">
 			<thead>
 				<tr>
 					<td style="text-align:left;"><strong>EQUIPO (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<input type="hidden" id="id_equipo_mecP" name="id_equipo_mecP" value="0">
 			        	<div id="nombreEquipo_mecP">
 			        		<div class="input-group input-group-sm">
@@ -25,14 +25,14 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>TIPO DE PLAN:</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 						<input type="hidden" id="id_tipoPlan_mecP" name="id_tipoPlan_mecP" value="0">
 						<input class="form-control" id="tipoPlan_mecP" type="text" value="" readonly>
 			        </td>
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<input type="hidden" id="id_bodega_mecP" name="id_bodega_mecP" value="0">
 			        	<div id="nombreBodega_mecP">
 			        		<div class="input-group input-group-sm">
@@ -49,13 +49,13 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 						<input class="form-control" id="tipoBodega_mecP" type="text" value="" readonly>
 			        </td>
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>ESTADO OPERACIONAL (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<select class="form-control form-control-sm" 
 							id="id_mantEstadoOperacionalP" 
 							name="id_mantEstadoOperacionalP"
@@ -69,7 +69,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>ESTADO EN TALLER (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<select class="form-control form-control-sm" 
 							id="id_mantEstadoEnTallerP" 
 							name="id_mantEstadoEnTallerP"
@@ -83,7 +83,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>ACTIVIDAD (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<select class="form-control form-control-sm" 
 							id="id_mantActividadP" 
 							name="id_mantActividadP"
@@ -97,7 +97,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>TIPO DE ACTIVIDAD (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<select class="form-control form-control-sm" 
 							id="id_mantTipoActividadP" 
 							name="id_mantTipoActividadP"
@@ -111,7 +111,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>ITEM INTERVENIDO (*):</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<select class="form-control form-control-sm" 
 							id="id_mantItemIntervenidoP" 
 							name="id_mantItemIntervenidoP"
@@ -125,13 +125,13 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>COMPONENTES:</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 			        	<table id="tblComponentesP" class="table table-sm table-bordered table-condensed table-fluid">
 							<thead>
 								<tr>
-									<th width="70%" style="text-align:left; vertical-align: middle;">Componentes</th>
-									<th width="10%" style="text-align:left; vertical-align: middle;">Cantidad</th>
-									<th width="5%" style="text-align:left; vertical-align: middle;">DEL</th>
+									<th style="text-align:left; vertical-align: middle; width: 70%">Componentes</th>
+									<th style="text-align:left; vertical-align: middle; width: 70%">Cantidad</th>
+									<th style="text-align:left; vertical-align: middle; width: 70%">DEL</th>
 									<th style='display:none'>id_producto</th>
 								</tr>
 							</thead>
@@ -231,7 +231,7 @@ listComponentes: List[tables.MantComponente])
 				
 				<tr>
 					<td style="text-align:left;"><strong><div id="cant_mecP">CANT:</div></strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 						<input type="text" class="form-control form-control-sm left"
 							id="cantidad_mecP" 
 							name="cantidad_mecP"
@@ -247,7 +247,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>DESCRIPCION TRABAJO:</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 						<textarea class="form-control form-control-sm" rows="1" 
 							id="descTrabajoP"
 							name="descTrabajoP" 
@@ -256,7 +256,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>ESTADO FINAL:</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 						<textarea class="form-control form-control-sm" rows="1" 
 							id="estadoFinalP"
 							name="estadoFinalP" 
@@ -265,7 +265,7 @@ listComponentes: List[tables.MantComponente])
 				</tr>
 				<tr>
 					<td style="text-align:left;"><strong>OBSERVACIONES:</strong></td>
-			        <td style="text-align:left" width="70%" colspan="4">
+			        <td style="text-align:left; width: 70%"  colspan="4">
 						<textarea class="form-control form-control-sm" rows="2" 
 							id="observaciones_mecP"
 							name="observaciones_mecP" 
@@ -411,38 +411,37 @@ function validarLectIni_mecP(){
 	}
 	
 	function grabarMecanicoP(){
-	$("#grabarRptOperadorMecanico").submit();
-@*		  if($('#id_mecanico').val()==0){*@
-@*			  alertify.alert('Debe seleccionar un Mecanico');*@
-@*		  }else if($('#id_tipoMantencion').val()==0){*@
-@*			  alertify.alert('Debe seleccionar un Tipo de Mantencion');*@
-@*		  }else if($('#id_equipo_mecP').val()==0){*@
-@*			  alertify.alert('Debe seleccionar un Equipo');*@
-@*		  }else if($('#id_bodega_mecP').val()==0){*@
-@*			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');*@
-@*		  }else if($('#id_mantEstadoOperacionalP').val()==0){*@
-@*			  alertify.alert('Debe ingresar un Estado en Operacional');*@
-@*		  }else if($('#id_mantEstadoEnTallerP').val()==0){*@
-@*			  alertify.alert('Debe ingresar un Estado en Taller');*@
-@*		  }else if($('#id_mantActividadP').val()==0){*@
-@*			  alertify.alert('Debe ingresar una Actividad');*@
-@*	      }else if($('#id_mantTipoActividadP').val()==0){*@
-@*			  alertify.alert('Debe ingresar un tipo de Actividad');*@
-@*		  }else if($('#id_mantItemIntervenidoP').val()==0){*@
-@*			  alertify.alert('Debe ingresar un Item Intervenido');*@
-@*		  }else if($('#lecturaTer_mecP').val()=="0.00"){*@
-@*			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');*@
-@*		  }else{*@
-@*			let data = signaturePad5.toDataURL('image/png');*@
-@*			let encodedImage = data.split(",");*@
-@*			$("#firmaEjecutor").val(encodedImage[1]);*@
-@*			*@
-@*			data = signaturePad6.toDataURL('image/png');*@
-@*			encodedImage = data.split(",");*@
-@*			$("#firmaAprobador").val(encodedImage[1]);*@
-@*			*@
-@*			$("#grabarRptOperadorMecanico").submit();*@
-@*		  }*@
+		  if($('#id_mecanico').val()==0){
+			  alertify.alert('Debe seleccionar un Mecanico');
+		  }else if($('#id_tipoMantencion').val()==0){
+			  alertify.alert('Debe seleccionar un Tipo de Mantencion');
+		  }else if($('#id_equipo_mecP').val()==0){
+			  alertify.alert('Debe seleccionar un Equipo');
+		  }else if($('#id_bodega_mecP').val()==0){
+			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
+		  }else if($('#id_mantEstadoOperacionalP').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Operacional');
+		  }else if($('#id_mantEstadoEnTallerP').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Taller');
+		  }else if($('#id_mantActividadP').val()==0){
+			  alertify.alert('Debe ingresar una Actividad');
+	      }else if($('#id_mantTipoActividadP').val()==0){
+			  alertify.alert('Debe ingresar un tipo de Actividad');
+		  }else if($('#id_mantItemIntervenidoP').val()==0){
+			  alertify.alert('Debe ingresar un Item Intervenido');
+		  }else if($('#lecturaTer_mecP').val()=="0.00"){
+			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
+		  }else{
+			let data = signaturePad5.toDataURL('image/png');
+			let encodedImage = data.split(",");
+			$("#firmaEjecutor").val(encodedImage[1]);
+
+			data = signaturePad6.toDataURL('image/png');
+			encodedImage = data.split(",");
+			$("#firmaAprobador").val(encodedImage[1]);
+			document.getElementById('enCarga').style.display="block";
+			$("#grabarRptOperadorMecanico").submit();
+		  }
 	}
 	
 </script>

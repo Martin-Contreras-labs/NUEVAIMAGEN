@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String],
-listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete: Map[String,String], id_userOperMec: Long)
+		listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete: Map[String,String],
+		id_userOperMec: Long, id_equipo: Long)
 
 @main("") {
 
@@ -95,16 +96,16 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 									}
 								</td>
 								<td style="text-align:center;">
-									<a href="/routes3/mantWebFirmaOperador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
+									<a href="/routes3/mantWebFirmaOperador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD,@id_equipo">
 										<kbd style="background-color: #F0B27A">FIR</kbd>
 									</a>
-									<img src="data:image/jpeg;base64, @lista1.get(10)" height="10px" />
+									<img src="data:image/jpeg;base64" height="10px" />
 								</td>
 								<td style="text-align:center;">
-									<a href="/routes3/mantWebFirmaAutorizador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD">
+									<a href="/routes3/mantWebFirmaAutorizador/@lista1.get(0),@desdeAAMMDD,@hastaAAMMDD,@id_equipo">
 										<kbd style="background-color: #F7DC6F">FIR</kbd>
 									</a>
-									<img src="data:image/jpeg;base64, @lista1.get(11)" height="10px" />
+									<img src="data:image/jpeg;base64" height="10px" />
 								</td>
 
 								
@@ -117,7 +118,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 		<div class="noprint">
 			<div class="row justify-content-md-center" >
 				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes3/mantWebInicio1get/@id_userOperMec';">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes3/mantWebInicio1get/@id_userOperMec,@id_equipo';">
 				</div>
 			</div>
 		</div>

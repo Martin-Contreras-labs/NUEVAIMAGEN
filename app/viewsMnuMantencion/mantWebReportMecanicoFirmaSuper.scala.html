@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String],
-mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables.MantTransacComponentes], desdeAAMMDD: String, hastaAAMMDD: String)
+mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables.MantTransacComponentes], desdeAAMMDD: String, hastaAAMMDD: String, id_equipo: Long)
  
 
 
@@ -16,12 +16,13 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 					<input type="hidden" name="id_mantTransacReport" value="@mantTransacReport.getId()">
 					<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
 					<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+					<input type="hidden" name="id_equipo" value="@id_equipo">
 					
 					<table class="table table-sm table-bordered table-condensed table-fluid">
 						<thead>
 							<tr>
 								<td style="text-align:left;"><strong>ID:</strong></td>
-						        <td style="text-align:left;" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input style="max-width:150px" type="text" class="form-control"
 										value="@mantTransacReport.getId()"
 										readonly>
@@ -29,7 +30,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>FECHA:</strong></td>
-						        <td style="text-align:left;" width="70%" colspan="3">
+						        <td style="text-align:left; width: 70%" colspan="3">
 						        	<input style="max-width:150px" type="date" class="form-control form-control-sm" 
 										value="@mantTransacReport.getFecha()" 
 										readonly>
@@ -44,7 +45,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>USER_MADA:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input type="text" class="form-control"
 										value="@mantTransacReport.getUserNameAdam()"
 										readonly>
@@ -52,7 +53,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>PERFIL:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getNameActorPersonal()"
 										readonly>
@@ -64,7 +65,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 						<thead>
 							<tr>
 								<td style="text-align:left;"><strong>MECANICO:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getFullNameMecanico()"
 										readonly>
@@ -72,7 +73,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>ORIGEN/TIPO:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getNameTipoPersonal()"
 										readonly>
@@ -80,7 +81,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>TIPO DE MANTENCION (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getNameTipoMantencion().toUpperCase()"
 										readonly>
@@ -88,7 +89,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>EQUIPO:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getCodigoEquipo() - @mantTransacReport.getNameEquipo()"
 										readonly>
@@ -96,7 +97,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>TIPO DE PLAN:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getNamePlanMantencion()"
 										readonly>
@@ -104,7 +105,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getNameBodega()"
 										readonly>
@@ -112,7 +113,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control"
 										value="@mantTransacReport.getNameTipoBodega()"
 										readonly>
@@ -121,7 +122,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							
 							<tr>
 								<td style="text-align:left;"><strong>ESTADO OPERACIONAL (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input type="text" class="form-control"
 										value="@mantTransacReport.getNameEstadoOperacional()"
 										readonly>
@@ -129,7 +130,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>ESTADO EN TALLER (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input type="text" class="form-control"
 										value="@mantTransacReport.getNameEstadoEnTaller()"
 										readonly>
@@ -137,7 +138,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>ACTIVIDAD (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input type="text" class="form-control"
 										value="@mantTransacReport.getNameActividad()"
 										readonly>
@@ -145,7 +146,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>TIPO DE ACTIVIDAD (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input type="text" class="form-control"
 										value="@mantTransacReport.getNameTipoActividad()"
 										readonly>
@@ -153,7 +154,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>ITEM INTERVENIDO (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<input type="text" class="form-control"
 										value="@mantTransacReport.getNameItemIntervenido()"
 										readonly>
@@ -162,11 +163,11 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							
 							<tr>
 								<td style="text-align:left;"><strong>COMPONENTES (*):</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 						        	<table id="tblComponentesC" class="table table-sm table-bordered table-condensed table-fluid">
 										<thead>
 											<tr>
-												<th width="70%" style="text-align:left; vertical-align: middle;">Componentes</th>
+												<th style="text-align:left; vertical-align: middle; width: 70%">Componentes</th>
 												<th width="10%" style="text-align:left; vertical-align: middle;">Cantidad</th>
 											</tr>
 										</thead>
@@ -244,7 +245,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							
 							<tr>
 								<td style="text-align:left;"><strong><div id="cant_oper">CANT:</div></strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<input type="text" class="form-control form-control-sm left" style="max-width:200px"
 										value="@mantTransacReport.getLectDif()"
 										readonly>
@@ -252,21 +253,21 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>DESCRIPCION TRABAJO:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<textarea class="form-control form-control-sm" rows="1" 
 										readonly>@mantTransacReport.getDescTrabajo()</textarea>
 						        </td>
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>ESTADO FINAL:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<textarea class="form-control form-control-sm" rows="1" 
 										readonly>@mantTransacReport.getEstadoFinal()</textarea>
 						        </td>
 							</tr>
 							<tr>
 								<td style="text-align:left;"><strong>OBSERVACIONES:</strong></td>
-						        <td style="text-align:left" width="70%" colspan="4">
+						        <td style="text-align:left; width: 70%" colspan="4">
 									<textarea class="form-control form-control-sm" rows="2" 
 										readonly>@mantTransacReport.getObservaciones()</textarea>
 						        </td>
@@ -295,7 +296,7 @@ mantTransacReport: tables.MantTransacReport, mantTransacComponentes: List[tables
 								<td colspan="5" style="text-align:center;">
 									<button type="button" class="btn btn-sm btn-success" style="font-size: 10px;"onclick="grabar();" >GRABAR</button>
 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/routes3/mantListarReports1Get/@desdeAAMMDD,@hastaAAMMDD'">VOLVER</button>
+									<button type="button" class="btn btn-sm btn-warning" style="font-size: 10px;" onclick="location.href = '/routes3/mantListarReports1Get/@desdeAAMMDD,@hastaAAMMDD,@id_equipo'">VOLVER</button>
 								</td>
 							</tr>
 						</thead>

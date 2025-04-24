@@ -1,5 +1,6 @@
-@(mapDiccionario: Map[String,String], fecha: String, listEstaObra: List[tables.MantEstadoEnObra], operMec: tables.MantOperadorMecanico)
-	
+@(mapDiccionario: Map[String,String], fecha: String, listEstaObra: List[tables.MantEstadoEnObra], operMec: tables.MantOperadorMecanico,
+		idEquipo: String, cod_nameEquipo: String, id_bodega: String, suc_nameBodega: String, nameTipoBodega: String)
+<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 	<table class="table table-sm table-bordered table-condensed table-fluid">
 		<thead>
 			<tr>
@@ -13,13 +14,13 @@
 			<tr>
 				<td style="text-align:left;"><strong>EQUIPO (*):</strong></td>
 		        <td style="text-align:left; width: 70%" colspan="4">
-		        	<input type="hidden" id="id_equipo_oper" name="id_equipo_oper" value="0">
+		        	<input type="hidden" id="id_equipo_oper" name="id_equipo_oper" value="@idEquipo">
 		        	<div id="nombreEquipo_oper">
 		        		<div class="input-group input-group-sm">
 						  <input class="form-control" type="text" 
 							onclick="$('#modalListaEquipos_oper').modal('show');" 
 							id="valNomEquip_oper"
-							value="--- select ---" readonly>
+							value="@cod_nameEquipo" readonly>
 						  <div class="input-group-append">
 						    <span class="input-group-text" onclick="$('#modalListaEquipos_oper').modal('show');">Buscar</span>
 						  </div>
@@ -30,13 +31,13 @@
 			<tr>
 				<td style="text-align:left;"><strong>@mapDiccionario.get("BODEGA")/PROYECTO (*):</strong></td>
 		        <td style="text-align:left; width: 70%" colspan="4">
-		        	<input type="hidden" id="id_bodega_oper" name="id_bodega_oper" value="0">
+		        	<input type="hidden" id="id_bodega_oper" name="id_bodega_oper" value="@id_bodega">
 		        	<div id="nombreBodega_oper">
 		        		<div class="input-group input-group-sm">
 						  <input class="form-control" type="text" 
 							onclick="$('#modalListaBodegas').modal('show');" 
 							id="valNomBod_oper"
-							value="--- select ---" readonly>
+							value="@suc_nameBodega" readonly>
 						  <div class="input-group-append">
 						    <span class="input-group-text" onclick="$('#modalListaBodegas').modal('show');">Buscar</span>
 						  </div>
@@ -47,7 +48,7 @@
 			<tr>
 				<td style="text-align:left;"><strong>TIPO @mapDiccionario.get("BODEGA")/PROYECTO:</strong></td>
 		        <td style="text-align:left; width: 70%" colspan="4">
-					<input class="form-control" id="tipoBodega_oper" type="text" value="" readonly>
+					<input class="form-control" id="tipoBodega_oper" type="text" value="@nameTipoBodega" readonly>
 		        </td>
 			</tr>
 			<tr>
@@ -115,7 +116,7 @@
 			
 			<tr>
 				<td style="text-align:left;"><strong><div id="cant_oper">CANT:</div></strong></td>
-		        <td style="text-align:left" width="70%" colspan="4">
+		        <td style="text-align:left; width: 70%" width="70%" colspan="4">
 					<input type="text" class="form-control form-control-sm left"
 						id="cantidad_oper" 
 						name="cantidad_oper"
@@ -253,28 +254,27 @@
 		}
 	}
 	
-	function grabarOperador(){ 
-		  $("#grabarRptOperadorMecanico").submit();
-@*		  if($('#id_operador').val()==0){*@
-@*			  alertify.alert('Debe seleccionar un Operador');*@
-@*		  }else if($('#id_equipo_oper').val()==0){*@
-@*			  alertify.alert('Debe seleccionar un Equipo');*@
-@*		  }else if($('#id_bodega_oper').val()==0){*@
-@*			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');*@
-@*		  }else if($('#id_mantEstadoEnObra').val()==0){*@
-@*			  alertify.alert('Debe ingresar un Estado en Sitio');*@
-@*		  }else if($('#lecturaTer_oper').val()=="0.00"){*@
-@*			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');*@
-@*		  }else{*@
-@*			let data = signaturePad.toDataURL('image/png');*@
-@*			let encodedImage = data.split(",");*@
-@*			$("#firmaEjecutor").val(encodedImage[1]);*@
-@*			*@
-@*			data = signaturePad2.toDataURL('image/png');*@
-@*			encodedImage = data.split(",");*@
-@*			$("#firmaAprobador").val(encodedImage[1]);*@
-@*			*@
-@*			$("#grabarRptOperadorMecanico").submit();*@
-@*		  }*@
+	function grabarOperador(){
+		  if($('#id_operador').val()==0){
+			  alertify.alert('Debe seleccionar un Operador');
+		  }else if($('#id_equipo_oper').val()==0){
+			  alertify.alert('Debe seleccionar un Equipo');
+		  }else if($('#id_bodega_oper').val()==0){
+			  alertify.alert('Debe seleccionar una @mapDiccionario.get("Bodega")/Proyecto');
+		  }else if($('#id_mantEstadoEnObra').val()==0){
+			  alertify.alert('Debe ingresar un Estado en Sitio');
+		  }else if($('#lecturaTer_oper').val()=="0.00"){
+			  alertify.alert('Debe ingresar Lect_TER que debe ser mayor a cero');
+		  }else{
+			let data = signaturePad.toDataURL('image/png');
+			let encodedImage = data.split(",");
+			$("#firmaEjecutor").val(encodedImage[1]);
+
+			data = signaturePad2.toDataURL('image/png');
+			encodedImage = data.split(",");
+			$("#firmaAprobador").val(encodedImage[1]);
+			document.getElementById('enCarga').style.display="block";
+			$("#grabarRptOperadorMecanico").submit();
+		  }
 	}
 </script>

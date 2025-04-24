@@ -35,7 +35,7 @@ POST	/estadoBodegasJson/					controllers.Apis.estadoBodegasJson(request: Request
 POST	/hoheTodoResumenJson/				controllers.Apis.hoheTodoResumenJson(request: Request, desdeAAMMDD: String, hastaAAMMDD: String)
 
 
-GET		/report					controllers.MnuMantencion.mantWebInicio0()
+GET		/report					controllers.MnuMantencion.mantWebInicio0(id_equipo: Long ?= 0)
 
 
 

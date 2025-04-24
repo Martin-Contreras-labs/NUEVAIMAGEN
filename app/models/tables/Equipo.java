@@ -167,6 +167,7 @@ public class Equipo {
 				if(rs.getLong(5) == (long)6) {
 					tipoBodega = mapeoDiccionario.get("BODEGA")+"/INTERNA";
 				}
+				// id_equipo vs nameSucursal-nameBodega_&_id_bodega_&_nameTipoBodega
 				map.put(rs.getString(3), rs.getString(1)+" - "+rs.getString(2)+"_&_"+rs.getString(4)+"_&_"+tipoBodega);
 			}
 			rs.close();

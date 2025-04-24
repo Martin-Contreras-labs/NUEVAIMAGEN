@@ -2,8 +2,8 @@
 listOperMec: List[tables.MantOperadorMecanico], listTipoMantencion: List[tables.TipoMantencion],
 listEstadoEnTaller: List[tables.MantEstadoEnTaller], 
 listActividad: List[tables.MantActividad], listTipoActividad: List[tables.MantTipoActividad], listItemIntervenido: List[tables.MantItemIntervenido],
-listComponentes: List[tables.MantComponente])		
-
+listComponentes: List[tables.MantComponente])
+<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 		<table class="table table-sm table-bordered table-condensed table-fluid">
 			<thead>
 				<tr>
@@ -23,7 +23,7 @@ listComponentes: List[tables.MantComponente])
 	    				</div>
 			        </td>
 				</tr>
-				<tr>
+				<tr style="display: none">
 					<td style="text-align:left;"><strong>TIPO DE PLAN:</strong></td>
 			        <td style="text-align:left" width="70%" colspan="4">
 						<input type="hidden" id="id_tipoPlan_mec" name="id_tipoPlan_mec" value="0">
@@ -432,7 +432,7 @@ listComponentes: List[tables.MantComponente])
 			data = signaturePad4.toDataURL('image/png');
 			encodedImage = data.split(",");
 			$("#firmaAprobador").val(encodedImage[1]);
-			
+			document.getElementById('enCarga').style.display="block";
 			$("#grabarRptOperadorMecanico").submit();
 		  }
 	}

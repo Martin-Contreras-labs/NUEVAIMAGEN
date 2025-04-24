@@ -1,4 +1,4 @@
-@(listaPaises: List[String], mensaje: String)
+@(listaPaises: List[String], mensaje: String, id_equipo: Long)
 
 @main("") {
 
@@ -20,7 +20,6 @@
 						<div class="col-xs-10 col-sm-4 col-md-4 col-lg-4">
 	                    	<h2>MADA MANTENCION</h2>
 		                    <form onsubmit="return validarIngreso()">
-<!-- <a href="/routes2/prueba/" target="_blank">Abrir en nueva pestaña</a> -->
 		                    		<input type="hidden" id="gRecaptchaResponse" name="gRecaptchaResponse">
 		                    		<div class="input-group mb-3">
 									  <div class="input-group-prepend">
@@ -83,6 +82,7 @@
 	<input type="hidden" id="ingEmpresa" name="empresa">
 	<input type="hidden" id="ingUserName" name="userName">
 	<input type="hidden" id="ingUserKey" name="userKey">
+	<input type="hidden" name="id_equipo" value="@id_equipo">
 </form>
 
 

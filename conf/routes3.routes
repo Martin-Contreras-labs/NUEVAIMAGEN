@@ -24,22 +24,22 @@ GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeCon
 # MENU INGRESO APP WEB
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-POST	/mantWebInicio1/					controllers.MnuMantencion.mantWebInicio1(request: Request)
-POST    /mantWebReportNewSave/              controllers.MnuMantencion.mantWebReportNewSave(request: Request)
-GET     /mantWebInicio1get/:id_operMec      controllers.MnuMantencion.mantWebInicio1get(request: Request, id_operMec: Long)
+POST	/mantWebInicio1/					            controllers.MnuMantencion.mantWebInicio1(request: Request)
+POST    /mantWebReportNewSave/                          controllers.MnuMantencion.mantWebReportNewSave(request: Request)
+GET     /mantWebInicio1get/:id_operMec,:id_equipo       controllers.MnuMantencion.mantWebInicio1get(request: Request, id_operMec: Long, id_equipo: Long)
 
-POST     /mantWebListarReports0/            controllers.MnuMantencion.mantWebListarReports0(request: Request)
-POST    /mantWebListarReports1/             controllers.MnuMantencion.mantWebListarReports1(request: Request)
-GET		/mantWebListarReports1Get/:d,:a		controllers.MnuMantencion.mantWebListarReports1Get(request: Request, d: String, a: String)
+POST     /mantWebListarReports0/                        controllers.MnuMantencion.mantWebListarReports0(request: Request)
+POST    /mantWebListarReports1/                             controllers.MnuMantencion.mantWebListarReports1(request: Request)
+GET		/mantWebListarReports1Get/:de,:a,:id_equipo		controllers.MnuMantencion.mantWebListarReports1Get(request: Request, de: String, a: String, id_equipo: Long)
 
 POST    /mantWebListarReports1Excel/        controllers.MnuMantencion.mantWebListarReports1Excel(request: Request)
 POST    /mantWebReportDetalle/              controllers.MnuMantencion.mantWebReportDetalle(request: Request)
 
-POST	/mantWebReportGrabaDocAnexo/						controllers.MnuMantencion.mantWebReportGrabaDocAnexo(request: Request)
-GET     /mantWebFirmaOperador/:id_venta,:desde,:hasta		controllers.MnuMantencion.mantWebFirmaOperador(request: Request, id_venta: Long, desde: String, hasta: String)
-POST	/mantWebGrabarFirmaOperador/						controllers.MnuMantencion.mantWebGrabarFirmaOperador(request: Request)
-GET     /mantWebFirmaAutorizador/:id_venta,:desde,:hasta	controllers.MnuMantencion.mantWebFirmaAutorizador(request: Request, id_venta: Long, desde: String, hasta: String)
-POST	/mantWebGrabarFirmaAutorizador/					    controllers.MnuMantencion.mantWebGrabarFirmaAutorizador(request: Request)
+POST	/mantWebReportGrabaDocAnexo/						        controllers.MnuMantencion.mantWebReportGrabaDocAnexo(request: Request)
+GET     /mantWebFirmaOperador/:id_venta,:de,:a,:id_equipo		    controllers.MnuMantencion.mantWebFirmaOperador(request: Request, id_venta: Long, de: String, a: String, id_equipo: Long)
+POST	/mantWebGrabarFirmaOperador/						        controllers.MnuMantencion.mantWebGrabarFirmaOperador(request: Request)
+GET     /mantWebFirmaAutorizador/:id_venta,:de,:a,:id_equipo	    controllers.MnuMantencion.mantWebFirmaAutorizador(request: Request, id_venta: Long, de: String, a: String, id_equipo: Long)
+POST	/mantWebGrabarFirmaAutorizador/					            controllers.MnuMantencion.mantWebGrabarFirmaAutorizador(request: Request)
 
 
 

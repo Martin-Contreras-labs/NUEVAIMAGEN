@@ -1,5 +1,5 @@
-@(mapDiccionario: Map[String,String], fecha: String, listEstaObra: List[tables.MantEstadoEnObra], listOperMec: List[tables.MantOperadorMecanico])	
-	
+@(mapDiccionario: Map[String,String], fecha: String, listEstaObra: List[tables.MantEstadoEnObra], listOperMec: List[tables.MantOperadorMecanico])
+<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
 	<table class="table table-sm table-bordered table-condensed table-fluid">
 		<thead>
 			<tr>
@@ -317,7 +317,7 @@
 			data = signaturePad2.toDataURL('image/png');
 			encodedImage = data.split(",");
 			$("#firmaAprobador").val(encodedImage[1]);
-			
+			document.getElementById('enCarga').style.display="block";
 			$("#grabarRptOperadorMecanico").submit();
 		  }
 	}
