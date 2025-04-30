@@ -2192,8 +2192,18 @@ public class ReportMovimientos {
 						aux.add(myformatdouble2.format(tasa)+" %"); //tasaArriendo
 						aux.add(myformatMoneda.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // arriendo mes
 						DecimalFormat allDec = new DecimalFormat("#0.00000000000000");
-						aux.add(allDec.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //  14 arriendo dia solo ALZATEC
-						//aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+
+						if(db.equals("madaAlzatec")){
+							aux.add(allDec.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  // arriendo dia solo ALZATEC
+						}else{
+							if(dec.get(rs3.getLong(15)) < 2){
+								aux.add(myformatdouble2.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+							}else{
+								aux.add(myformatMoneda.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+							}
+
+						}
+
 					}
 					aux.add(rs3.getString(12)); //  8 id cotizacion
 					aux.add(rs3.getString(13)); //  9 numero coti
@@ -2670,8 +2680,11 @@ public class ReportMovimientos {
 						try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
 						totPorColl=totPorColl+auxTot;
 					}
-					
+					if(cell >= lista.get(0).size() - 7 && cell < lista.get(0).size() -4){
+						aux.add("");
+					}else{
 						aux.add(myformatdouble2.format(totPorColl));
+					}
 				}
 
 				
@@ -2705,8 +2718,12 @@ public class ReportMovimientos {
 						
 						totPorColl=totPorColl+(auxTotCant*auxTotKg);
 					}
-					
+					if(cell >= lista.get(0).size() - 7 && cell < lista.get(0).size() -4){
+						auxKg.add("");
+					}else{
 						auxKg.add(myformatdouble2.format(totPorColl));
+					}
+
 				} 
 				
 
@@ -2735,23 +2752,19 @@ public class ReportMovimientos {
 				
 				for(int cell=11;cell<lista.get(0).size();cell++) {
 					Double totPorColl = (double)0;
-					for(int coll=5;coll<lista.size();coll++) {
-						
-						Double auxTotCant = (double)0;
-						String auxNum = lista.get(coll).get(cell).trim();
-		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-						try {auxTotCant = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
-						
-						Double auxTotVal = (double)0;
-						auxNum = lista.get(coll).get(7).trim();
-		 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-						try {auxTotVal = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
-						
-						totPorColl=totPorColl+(auxTotCant*auxTotVal);
-					}
-					
-						auxValorizado.add(myformatMoneda.format(totPorColl));
 
+					for(int coll=5; coll < lista.size(); coll++) {
+						Double auxTot = (double)0;
+						String auxNum = lista.get(coll).get(cell).trim();
+						if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+						try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+						totPorColl=totPorColl+auxTot;
+					}
+					if(cell >= lista.get(0).size() - 7 && cell < lista.get(0).size() -4){
+						auxValorizado.add(myformatdouble2.format(totPorColl));
+					}else{
+						auxValorizado.add("");
+					}
 				} 
 				
 				lista.add(auxValorizado);

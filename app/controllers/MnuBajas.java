@@ -87,7 +87,6 @@ public class MnuBajas extends Controller {
     	    				String msg = "El numero de acta de baja ya fue utilizado, debe volver a ingresar el acta de baja";
     	    				return ok(mensajes.render("/home/",msg));
     	    			}
-    	    			
     	    			if(FormBaja.create(con, s.baseDato, mapeoPermiso, form, docAdjunto)) {
     	    				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "baja", (long)0, "create", "ingresa nueva acta de baja nro: "+form.numero);
     	    			}

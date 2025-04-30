@@ -2308,6 +2308,362 @@ public class ReportFacturas {
 	  return tmp;
 		
 	}
+
+	public static File reportFacturaProyectoDetHExcel(String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
+													 String idTipoUsuario, List<List<String>> lista, BodegaEmpresa bodega, String esVenta,
+													  String concepto, String fechaDesde, String fechaHasta, Double usd, Double eur, Double uf,
+													  String id_proyecto, Cliente cliente, Proyecto proyecto, List<List<String>> detalleAjuste,
+													  String oc, List<List<String>> resumenSubtotales, Long nroDecimales){
+
+		File tmp = TempFile.createTempFile("tmp","null");
+
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+			Workbook libro = WorkbookFactory.create(formato);
+			formato.close();
+
+			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+			CellStyle titulo = libro.createCellStyle();
+			Font font = libro.createFont();
+			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setColor((short)4);
+			font.setFontHeight((short)(14*20));
+			titulo.setFont(font);
+
+			CellStyle subtitulo = libro.createCellStyle();
+			Font font2 = libro.createFont();
+			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setColor((short)0);
+			font2.setFontHeight((short)(12*20));
+			subtitulo.setFont(font2);
+
+			CellStyle encabezado = libro.createCellStyle();
+			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+			encabezado.setBorderTop(CellStyle.BORDER_THIN);
+			encabezado.setBorderRight(CellStyle.BORDER_THIN);
+			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setFillForegroundColor((short)19);
+			encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+
+			CellStyle detalle = libro.createCellStyle();
+			detalle.setBorderBottom(CellStyle.BORDER_THIN);
+			detalle.setBorderTop(CellStyle.BORDER_THIN);
+			detalle.setBorderRight(CellStyle.BORDER_THIN);
+			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+
+			//********************************
+			//ESTADO DE PAGO DETALLADO
+			//***********************************
+
+			libro.setSheetName(0, "EP PROFORMA DETALLE");
+			Sheet hoja1 = libro.getSheetAt(0);
+
+			Row row = null;
+			Cell cell = null;
+
+			row = hoja1.createRow(1);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("DETALLE EP/FACTURA PROFORMA SIMPLE");
+
+			row = hoja1.createRow(2);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+
+			row = hoja1.createRow(3);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+
+			row = hoja1.createRow(5);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CLIENTE: "+cliente.rut + " --- " + cliente.nombre);
+
+			row = hoja1.createRow(6);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodega.getNombre().toUpperCase());
+
+			row = hoja1.createRow(7);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROYECTO: "+proyecto.nickName.toUpperCase());
+
+			row = hoja1.createRow(8);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PERIODO: desde " + Fechas.DDMMAA(fechaDesde)  + " hasta " + Fechas.DDMMAA(fechaHasta));
+
+			row = hoja1.createRow(9);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("COMERCIAL: "+bodega.comercial);
+
+			int posRow = 11;
+
+			row = hoja1.createRow(posRow);
+			int posCell = 0;
+
+			Double arr = (double)0;
+
+			//RESUMEN
+			posRow++;
+			posRow++;
+			posCell = 0;
+			row = hoja1.createRow(posRow);
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("RESUMEN TOTAL NETO CON AJUSTES");
+			posRow++;
+			for(int i=0; i<resumenSubtotales.size(); i++){
+				posRow++;
+				row = hoja1.createRow(posRow);
+				posCell = 1;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(resumenSubtotales.get(i).get(0));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				try {
+					Double aux = Double.parseDouble(resumenSubtotales.get(i).get(1).replaceAll(",", "").trim());
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					arr += aux;
+				}catch (Exception e) {}
+
+			}
+
+			posRow++;
+			row = hoja1.createRow(posRow);
+			posCell = 1;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUBTOTAL NETO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(arr);
+
+			for(int i=0; i<detalleAjuste.size(); i++){
+				posRow++;
+				row = hoja1.createRow(posRow);
+				posCell = 1;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(detalleAjuste.get(i).get(0));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				try {
+					Double aux = Double.parseDouble(detalleAjuste.get(i).get(1).replaceAll(",", "").trim());
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					arr += aux;
+				}catch (Exception e) {}
+
+			}
+
+			posRow++;
+			row = hoja1.createRow(posRow);
+			posCell = 1;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL NETO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(arr);
+
+			posRow++;
+
+			//DETALLE DE LA TABLA EP DETALLADO
+
+			posRow++;
+			posRow++;
+			posCell = 0;
+			row = hoja1.createRow(posRow);
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("DETALLE NETO SIN AJUSTES");
+			posRow++;
+			posRow++;
+
+			row = hoja1.createRow(posRow);
+
+			posRow++;
+			posCell = 0;
+
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 7*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("GRUPO");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 3*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Nro.Coti");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Codigo");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 10*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Descripcion");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 3*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("KG");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 3*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Moneda");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Precio Venta");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(mapDiccionario.get("Arriendo")+ "Mes");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(mapDiccionario.get("Arriendo")+ "Dia");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue(mapDiccionario.get("Cantidad")+ "Dias");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL MON ORIGEN");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL MON CLP");
+
+
+
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+			byte[] bytes = IOUtils.toByteArray(x);
+			x.close();
+			int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+			//set top-left corner for the image
+			anchor.setCol1(13);
+			anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+
+			posRow--;
+			for(int i=0; i<lista.size(); i++) {
+				if (i > 2) {
+					posRow++;
+					row = hoja1.createRow(posRow);
+					posCell = 0;
+
+					for (int j = 0; j < lista.get(i).size(); j++) {
+						if(j<4){
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(lista.get(i).get(j));
+						}else{
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							try {
+								Double aux = Double.parseDouble(lista.get(i).get(j).replaceAll(",", "").trim());
+								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+								cell.setCellValue(aux);
+							}catch (Exception e) {
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(lista.get(i).get(j));
+							}
+						}
+					}
+				}
+			}
+
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return tmp;
+
+	}
 	
 	public static Map<String, List<List<String>>> mapResumenPorGrupo2(Connection con, String db, List<ModeloCalculo> valorTotalporBodegaYGrupo){
 		Map<String, List<List<String>>> map = new HashMap<String, List<List<String>>>();

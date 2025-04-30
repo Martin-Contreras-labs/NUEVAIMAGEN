@@ -194,14 +194,12 @@ public class MnuMantencion extends Controller {
 					String id_bodega = "0";
 					String suc_nameBodega = "--- select ---";
 					String nameTipoBodega = "";
-					System.out.println("id_equipo = "+id_equipo);
 					if(id_equipo > 0){
 						Equipo equipo = Equipo.find(con, db, id_equipo);
 						if(equipo != null) {
 							cod_nameEquipo = equipo.getCodigo() + " - " + equipo.getNombre();
 							// id_equipo vs nameSucursal-nameBodega_&_id_bodega_&_nameTipoBodega
 							String sucurBodegaTipo = mapIdEquipVsBododega.get(idEquipo);
-							System.out.println("sucurBodegaTipo = "+sucurBodegaTipo);
 							if(sucurBodegaTipo != null) {
 								String[] aux = sucurBodegaTipo.split("_&_");
 								if(aux.length == 3) {
@@ -320,14 +318,12 @@ public class MnuMantencion extends Controller {
 					String id_bodega = "0";
 					String suc_nameBodega = "--- select ---";
 					String nameTipoBodega = "";
-					System.out.println("id_equipo = "+id_equipo);
 					if(id_equipo > 0){
 						Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
 						if(equipo != null) {
 							cod_nameEquipo = equipo.getCodigo() + " - " + equipo.getNombre();
 							// id_equipo vs nameSucursal-nameBodega_&_id_bodega_&_nameTipoBodega
 							String sucurBodegaTipo = mapIdEquipVsBododega.get(idEquipo);
-							System.out.println("sucurBodegaTipo = "+sucurBodegaTipo);
 							if(sucurBodegaTipo != null) {
 								String[] aux = sucurBodegaTipo.split("_&_");
 								if(aux.length == 3) {
@@ -587,7 +583,6 @@ public class MnuMantencion extends Controller {
 				if(archivos.docAdjunto != null) {
 					DynamicForm form = formFactory.form().bindFromRequest(request);
 					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-					System.out.println("XX "+s.id_tipoUsuario);
 					if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 						return ok(mensajes.render("/report",msgSinPermiso));
 					}

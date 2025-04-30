@@ -101,11 +101,12 @@ actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
 									<td  style="text-align:right;">@lista1.get(11)</td>
 									<td  style="text-align:right;" class="total">@lista1.get(12)</td>
 									<td  style="text-align:center;">
+										<div style="display: none"><script>@lista1.get(13).replaceAll(",","")</script></div>
 										<input type="text" class="cantidad form-control right"
 											name="cantidad[]"
 											id="cantidad_@lista1.get(0)_@lista1.get(1)"
 											value="@lista1.get(13)"
-											onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+											onfocus="value=value.replace(/,/g,''); cantAux = value;"
 											onkeypress="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)', value);">
@@ -120,7 +121,7 @@ actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
 				 			}
 				 			<TR style="background-color: #eeeeee">
 						        <td></td>
-								<td>TOTALES</td>
+								<td><div style="display: none">Zzzzzzzzzzzz</div> TOTALES</td>
 								<td></td>
 								<td><div id="totalStock" align="right">0.00</div></td>
 								<td></td>
@@ -159,6 +160,17 @@ actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
 
 	$(document).ready(function() {
 		sumaTotales();
+		$(document).ready(function() {
+			$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	// "lengthMenu": [[-1], [All]],
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
@@ -175,7 +187,7 @@ actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
 		sumaTotales();
 	}
 	
-	
+	let revisaTotal = 0;
 	const sumaTotales = () => {
 		 let sum = 0;
 			$(".stock").each(function() {
@@ -191,14 +203,16 @@ actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
 			$(".cantidad").each(function() {
 				let val = $(this).val().replace(/,/g,'');
 				sum += parseFloat(val);
-			}); $("#totalCantidad").text(formatStandar(sum,2));
+			});
+			revisaTotal = sum;
+			$("#totalCantidad").text(formatStandar(sum,2));
 	}
 	
 	const validarForm = () =>{
 		$("#aplica").attr('disabled',true);
 		let flag = false;
 		let cantTotal = $("#totalCantidad").text().replace(/,/g,'');
-		if(parseFloat(cantTotal) > 0){
+		if(revisaTotal>0){
 			return(true);
 		}else{
 			flag = false;

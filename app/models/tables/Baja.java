@@ -158,7 +158,7 @@ public class Baja {
 				aux.add(rs.getString(4));
 				aux.add(rs.getString(5));
 				aux.add(rs.getString(6));
-				aux.add(myformatint.format(rs.getLong(7)));
+				aux.add(myformatdouble2.format(rs.getDouble(7)));
 				aux.add(rs.getString(8));
 				if(rs.getDate(9)!=null){
 					aux.add(myformatfecha.format(rs.getDate(9)));
@@ -330,7 +330,7 @@ public class Baja {
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();
-				String cantidad = myformatdouble2.format(rs.getLong(7));
+				String cantidad = myformatdouble2.format(rs.getDouble(7));
 				aux.add(rs.getString(1));		// 0 id_baja
 				aux.add(rs.getString(2));		// 1 fecha acta baja
 				aux.add(rs.getString(3));		// 2 numero de acta

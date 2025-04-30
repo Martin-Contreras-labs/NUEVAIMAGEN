@@ -11,13 +11,9 @@ uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String)
 	@modalContactoProyecto()
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@if(id_proyecto.equals("0")){
-			@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","REPORTE DETALLE DE MOVIMIENTOS (VALORIZADO)")
-		}else{
-			@barraTitulo(mapDiccionario, "SELECCION DE PROYECTO","DETALLE DE MOVIMIENTOS POR PROYECTO (VALORIZADO)")
-		}
-		
-		
+
+		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","PROCESO DE EP/FACTURACION PROFORMA SIMPLE")
+
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<div class="noprint">
@@ -33,8 +29,10 @@ uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String)
 										onkeyup="doSearch2('tablaPrincipal');">
 								</div>
 							</td>
-							<td></td>
-							<td></td>
+							<td>
+							</td>
+							<td>
+							</td>
 						</tr>
 					</table>
 				</div>

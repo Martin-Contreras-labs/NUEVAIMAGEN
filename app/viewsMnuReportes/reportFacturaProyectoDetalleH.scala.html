@@ -1,0 +1,450 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, idTipoUsuario: String,
+		lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concepto: String, fechaDesde: String, fechaHasta: String,
+		usd: Double, eur: Double, uf: Double, id_proyecto: String,
+		cliente: tables.Cliente, proyecto: tables.Proyecto, detalleAjuste: List[List[String]], oc: String, resumenSubtotales: List[List[String]],
+		nroDecimales: Long, listSol: List[tables.CotizaSolucion], listReferencias: List[tables.TipoReferencia])
+
+
+
+
+
+<form id="formProforma" class="formulario" method="post" action="/generarProformaPdfXlsxXmlJsonH/">
+
+	@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+		<div id="modalAdicRelBase" class="modal" data-backdrop="static" data-keyboard="false">
+			<div class='modal-dialog modal-dialog-scrollable' style="min-width: 60%;" role='document'>
+				<div class='modal-content'>
+					<div class='modal-header'>
+						<h5 class="modal-title">CONCEPTO, DESCRIPCION Y OBSERVACIONES</h5>
+					</div>
+					<div class="modal-body">
+						<table id="tablaSoluciones" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+							<thead style="background-color: #eeeeee">
+								<TR>
+									<th style="width:40%; white-space: nowrap;">
+										CONCEPTO<br>
+										<select class="form-control form-control-sm" name="id_cotizaSolucion">
+										@for(lista <- listSol){
+											<option value="@lista.getId()">@lista.getSolucion()</option>
+										}
+										</select>
+									</th>
+									<th>
+										DESCRIPCION <textarea class="form-control form-control-sm"
+									rows="2"
+									name="sol_description"
+									autocomplete="off"> </textarea>
+									</th>
+								</TR>
+								<TR>
+									<th colspan="2" >
+										OBSERVACIONES <textarea class="form-control form-control-sm"
+									rows="8"
+									name="sol_observaciones"
+									autocomplete="off">@Html("PERIODO: de "+utilities.Fechas.DDMMAA(fechaDesde)+" a "+utilities.Fechas.DDMMAA(fechaHasta))</textarea>
+									</th>
+								</TR>
+							</thead>
+						</table>
+						<div align="center">
+							<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('formProforma').submit()">
+								GENERAR @mapDiccionario.get("PROFORMA")
+							</button>
+							<button type='button' class='btn btn-sm btn-light' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+<input type="hidden" name="idBodega" value="@bodega.id">
+<input type="hidden" name="fechaDesde" value="@fechaDesde">
+<input type="hidden" name="fechaHasta" value="@fechaHasta">
+<input type="hidden" name="uf" value="@uf">
+<input type="hidden" name="usd" value="@usd">
+<input type="hidden" name="eur" value="@eur">
+<input type="hidden" id="esVenta" name="esVenta">
+
+<div id='modalAgregaReferencias' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+	<div class='modal-dialog modal-dialog-scrollable' style="max-width: 50% !important;" role='document'>
+		<div class='modal-content'>
+			<div class='modal-header'>
+				<h5 class='modal-title'>REFERENCIAS</h5>
+				<div align="right">
+					@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+						<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal'
+						onclick="$('#modalAdicRelBase').modal('show');">
+							GENERAR @mapDiccionario.get("PROFORMA")
+						</button>
+					}else{
+						<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('formProforma').submit()">
+							GENERAR @mapDiccionario.get("PROFORMA")
+						</button>
+					}
+
+					<button type='button' class='close' data-dismiss='modal' aria-label='Close'
+					onclick='document.getElementById("btnArr").disabled=false;'>
+						<span aria-hidden='true'>&times;</span>
+					</button>
+				</div>
+			</div>
+			<div class="modal-body">
+				<table id="referencia" class="table table-hover table-sm table-condensed table-bordered table-fluid">
+					<tr>
+						<td colspan="4">REFERENCIAS:</td>
+						<td colspan="2">
+							<div align="right">
+								<a type="button"  class="btn btn-sm btn-info" style='font-size: 10px;' onclick="agregarReferencia()">agregar referencia</a>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>NroLinRef</td>
+						<td>TpoDocRef</td>
+						<td>FolioRef</td>
+						<td>FchRef</td>
+						<td>RazonRef</td>
+						<td width="5%">del</td>
+					</tr>
+				</table>
+				<br>
+				@if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
+					<div class="mb-3">
+						<label for="comentarios" class="form-label">COMENTARIOS:</label>
+						<textarea class="form-control" id="comentarios" rows="2"
+						name="comentarios"
+						autocomplete="off"></textarea>
+					</div>
+				}else{
+					<input type="text" name="comentarios" value="" style="display: none">
+					}
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+
+<script>
+
+			let validarCliente = (id_cliente) =>{
+				if(id_cliente=="0"){
+						let msg = "ERROR 1: El RUT del cliente no existe en RELBASE o no esta asociado el cliente al proyecto.<br>"
+							+"No se puede generar la proforma, antes debe corregir";
+			    		alertify.alert(msg, function () {});
+				}else{
+					var formData = new FormData();
+					formData.append('id_cliente', id_cliente);
+					$.ajax({
+						url: "/validarClienteAjax/",
+			            type: "POST",
+			            method: "POST",
+			            data: formData,
+			            cache: false,
+			            contentType: false,
+				     	processData: false,
+				     	success: function(rs){
+				     		if(rs=="0"){
+								let msg = "ERROR 2: El RUT del cliente no existe en RELBASE o no esta asociado el cliente al proyecto.<br>"
+									+"No se puede generar la proforma, antes debe corregir";
+					    		alertify.alert(msg, function () {});
+							}else{
+								 $('#modalAgregaReferencias').modal('show');
+							}
+				     	}
+			        });
+				}
+
+			}
+
+
+
+		 	let eliminaReferencia = (nodo) =>{
+		 			nodo.parentNode.parentNode.remove();
+		 			let tabla = document.getElementById('referencia');
+		 			for (let i = 2; i < tabla.rows.length; i++){
+		 				let cellsOfRow = tabla.rows[i].getElementsByTagName('td');
+		 				cellsOfRow[0].innerHTML=i-1;
+		 			}
+		 	}
+	 		let agregarReferencia = () =>{
+	 			let tabla = document.getElementById('referencia');
+				let row = tabla.insertRow(tabla.rows.length);
+				let cell = row.insertCell(0);
+				let indice = tabla.rows.length-2;
+				cell.innerHTML=indice+"<input type='hidden' name='nroLinRef[]' value='"+indice+"'>";
+				cell = row.insertCell(1);
+				let listado = "<select  name='tpoDocRef[]'>";
+				@for(referencia <- listReferencias){
+	listado = listado + "<option value='@referencia.codigo'>@referencia.concepto</option>";
+}
+	listado = listado + "</select>";
+	cell.innerHTML=listado;
+	cell=row.insertCell(2);
+	cell.innerHTML="<input type='text' name='folioRef[]' value=''>";
+	cell=row.insertCell(3);
+	cell.innerHTML="<input type='date' name='fchRef[]' value=''>";
+	cell=row.insertCell(4);
+	cell.innerHTML="<input type='text' name='razonRef[]' value=''>";
+	cell=row.insertCell(5);
+	cell.innerHTML="<a class='btn btn-mini btn-danger' onclick='eliminaReferencia(this)'>X</a>";
+	}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE EP/FACTURA PROFORMA SIMPLE " + mapDiccionario.get("BODEGA") + "/PROYECTO: " + bodega.getNombre(),
+			"PERIODO: desde " + utilities.Fechas.DDMMAA(fechaDesde) +" --- hasta: " +  utilities.Fechas.DDMMAA(fechaHasta))
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td style="width: 25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch3('tablaPrincipal');">
+								</div>
+							</td>
+							<td>
+								<div style="text-align: center;">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+							<td style="width: 25%">
+								@if(!idTipoUsuario.equals("7")){
+									<div style="text-align: right">
+										HACER @mapDiccionario.get("PROFORMA"):
+										<button id="btnArr" type="button" class="btn btn-mini btn-info" tabindex="-1"
+											onclick=" this.disabled = true;
+											$('#modalAgregaReferencias').modal('show');
+												var numero = new DecimalFormat('#,##0.00');
+												if(parseFloat(numero.formatBack($('#resumenTotal12').text()))>0){
+													$('#esVenta').val('0');
+													@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+														validarCliente('@cliente.id');
+													}else {
+														$('#modalAgregaReferencias').modal('show');
+													}
+												} else {
+													alertify.alert('No hay valor de alquiler a emitir', function () {});
+												}"
+										>
+											DE @mapDiccionario.get("ARRIENDO")
+										</button>
+									</div>
+								}
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<TR>
+						<td style= "text-align: left; vertical-align:top; width: 44%;">
+							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								@if(!cliente.rut.equals(null)){
+									<tr style= "background-color: #F2F5A9;">
+										<th style="text-align:left;">CLIENTE</th>
+										<th style="text-align:left;">@cliente.rut -- @cliente.nombre</th>
+									</tr>
+								}
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">@mapDiccionario.get("BODEGA")</th>
+									<TH style="text-align:left;">@bodega.nombre.toUpperCase()</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">PROYECTO</th>
+									<th style="text-align:left;">@proyecto.nickName.toUpperCase()</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">PERIODO</th>
+									<th style="text-align:left;">desde @utilities.Fechas.DDMMAA(fechaDesde) hasta @utilities.Fechas.DDMMAA(fechaHasta)</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">COMERCIAL</th>
+									<th style="text-align:left;">@bodega.comercial</TH>
+								</tr>
+							</table>
+
+						</td>
+						<td style="width: 2%">&nbsp;</td>
+						<td colspan="7" style= "text-align: left; width: 44%;">
+							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<tr>
+									<th style="width: 55%" colspan="2">TOTAL NETO CON AJUSTES</th>
+									<th style="text-align:right; width: 15%;" colspan="2"><div id="resumenTotal3"></div></th>
+								</tr>
+							</table>
+							<table id="resumen" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<tr>
+									<th style="width: 55%"></th>
+									<th style="text-align:center; width: 15%;">@mapDiccionario.get("ARRIENDO")</th>
+								</tr>
+
+									@for(lista <- resumenSubtotales){
+										<tr>
+											<td style="text-align:left;">@lista.get(0).toUpperCase()</td>
+											<td style="text-align:right;" class="subtotales">@lista.get(1)</td>
+										</tr>
+									}
+								<tr>
+									<th style="text-align:left;">SUBTOTAL NETO</th>
+
+									<th style="text-align:right;"><div id="resumenTotal1"></div></th>
+								</tr>
+							</table>
+							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								@for(lista <- detalleAjuste){
+									<tr>
+										<td style= "text-align: left; width: 55%;">@lista.get(0)</td>
+
+										<td style= "text-align: right; width: 15%;" class="ajustes">@lista.get(1)</td>
+									</tr>
+								}
+
+								<tr>
+									<th  style= "text-align: left; width: 55%;">TOTAL NETO:</th>
+
+									<th  style="text-align:right; width: 15%;"><div id="resumenTotal12"></div></th>
+								</tr>
+								<tr>
+									<td colspan="4" style= "text-align: left;">@oc</td>
+								</tr>
+							</table>
+						</td>
+					</TR>
+				</table>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #dddddd">
+					        @for((nivel1,index1) <- lista.zipWithIndex) {
+								@if(index1 < 3){
+									<TR>
+										@for(nivel2 <- nivel1) {
+											<td style="text-align: center">@nivel2</td>
+										}
+									</TR>
+								}
+							}
+						</thead>
+						<tbody>
+							@for((nivel1,index1) <- lista.zipWithIndex) {
+								@if(index1 > 2){
+									<TR>
+										@for((nivel2,index2) <- nivel1.zipWithIndex) {
+											@if(index2 == 1){
+												@if(nivel2.equals("0") || nivel2.equals("")){
+													<td style="text-align: center;">--</td>
+												}else{
+													<td style="text-align: center;"><a href="#" onclick="buscaCotizacion('@nivel2')">@nivel2</td>
+												}
+											}else if(index2 < 4) {
+												@if(index2 == 2 || index2 ==3){
+													<td><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
+												}else{
+													<td>@nivel2</td>
+												}
+											}else{
+												<td style="text-align: right;">@nivel2</td>
+											}
+										}
+									</TR>
+								}
+							 }
+						</tbody>
+						
+
+					</table>
+				</div>
+			</div>
+
+	
+	<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoDetalleHExcel/">
+		<input type="hidden" name="id_bodega" value="@bodega.getId()">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+		<input type="hidden" name="esVenta" value="@esVenta">
+		<input type="hidden" name="uf" value="@uf">
+		<input type="hidden" name="usd" value="@usd">
+		<input type="hidden" name="eur" value="@eur">
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		var tabla = document.getElementById("tablaPrincipal");
+			for(var k=0;k<tabla.rows[0].cells.length;k++){
+				tabla.rows[tabla.rows.length-1].cells[k].style.backgroundColor="#dddddd";
+			}
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+	let sumaSubtotales = 0;
+	document.querySelectorAll('td.subtotales').forEach(td => {
+		const valor = parseFloat(td.textContent.replace(/,/g, ''));
+		if (!isNaN(valor)) {
+			sumaSubtotales += valor;
+	  	}
+	});
+	$("#resumenTotal1").text(formatStandar(sumaSubtotales,"@nroDecimales"));
+
+	let sumaAjustes = 0;
+	document.querySelectorAll('td.ajustes').forEach(td => {
+	const valor = parseFloat(td.textContent.replace(/,/g, ''));
+	if (!isNaN(valor)) {
+		sumaAjustes += valor;
+	}
+	});
+	let totalConAjustes = sumaAjustes + sumaSubtotales;
+	$("#resumenTotal12").text(formatStandar(totalConAjustes,"@nroDecimales"));
+	$("#resumenTotal3").text(formatStandar(totalConAjustes,"@nroDecimales"));
+
+	
+</script>
+
+
+
+
+		
+		
+	
