@@ -113,7 +113,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
-    			
+
     			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigInterExterConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
     			con.close();
     			return ok(movimientoSelectBodegaOrigen.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
@@ -125,8 +125,80 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     		return ok(mensajes.render("/",msgError));
     	}
     }
-	
+
 	public Result movimientoOrigenDestinoMultiple(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+				try {
+					Connection con = db.getConnection();
+
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+					if(mapeoPermiso.get("movimientoSelectBodegaOrigen")==null) {
+						con.close();
+						return ok(mensajes.render("/",msgSinPermiso));
+					}
+					BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+
+					List<List<String>> listBodegas = new ArrayList<List<String>>();
+
+					if((long)bodegaOrigen.getEsInterna() == (long)1) {
+						listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternasExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+					}else {
+						listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					}
+					List<List<String>> listBodegasDestino =  new ArrayList<List<String>>();
+					listBodegas.forEach(l->{
+						if(!l.get(1).equals(id_bodegaEmpresa.toString())) {
+							listBodegasDestino.add(l);
+						}
+					});
+
+					Long nuevoNumeroGuia = Guia.findNuevoNumero(con, s.baseDato);
+					Fechas hoy = Fechas.hoy();
+					Long soloArriendo = (long) 1;
+					if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+						soloArriendo = (long) 0;
+					}
+					Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+					List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+					Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
+					mapStock.forEach((k,v)->{
+						Equipo equipo = mapEquipo.get(v.getId_equipo());
+						if(equipo!=null) {
+							if(v.getCantidad()>0) {
+								List<String> aux = new ArrayList<String>();
+								aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+								listEquipBodOrigen.add(aux);
+							}
+						}
+					});
+					if(listEquipBodOrigen.size()==0) {
+						String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos para trasladar (no hay existencia)";
+						con.close();
+						return ok(mensajes.render("/movimientoSelectBodegaOrigen/",mensaje));
+					}
+
+					con.close();
+					return ok(movimientoOrigenDestinoMultiple.render(mapeoDiccionario,mapeoPermiso,userMnu,
+							bodegaOrigen, listBodegasDestino, nuevoNumeroGuia, hoy.getFechaStrAAMMDD()));
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok(mensajes.render("/",msgError));
+			}
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result movimientoOrigenDestinoMultiple1(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
@@ -134,7 +206,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	   		if (form.hasErrors()) {
 	   			return ok(mensajes.render("/",msgErrorFormulario));
 	       	}else {
-	    	  	Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+	    	  	Long id_bodegaOrigen = Long.parseLong(form.get("id_bodegaOrigen").trim());
+				Long id_bodegaDestino = Long.parseLong(form.get("id_bodegaDestino").trim());
 	    		try {
 	    			Connection con = db.getConnection();
 	    			
@@ -144,14 +217,14 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}
-	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			List<List<String>> listBodegasDestino =  new ArrayList<List<String>>();
+	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaOrigen);
+
 	    			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
 	    			Long soloArriendo = (long) 1;
 	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 	    				soloArriendo = (long) 0;
 	    			}
-	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaOrigen, soloArriendo);
 	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
@@ -244,28 +317,10 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		    			}
 	    			}
 	    			
-	    			
-	    			List<List<String>> listBodegas = new ArrayList<List<String>>();
-	    			
-	    			if((long)bodegaOrigen.getEsInterna() == (long)1) {
-	    				listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternasExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
-	    			}else {
-	    				listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
-	    			}
-	    			
-	    			listBodegas.forEach(l->{
-	    				if(!l.get(1).equals(id_bodegaEmpresa.toString())) {
-	    					listBodegasDestino.add(l);
-	    				}
-	    			});
-	    			
 	    			Long nuevoNumeroGuia = Guia.findNuevoNumero(con, s.baseDato);
 	    			Fechas hoy = Fechas.hoy();
 	    			List<List<String>> listEquipNoEnBodOrigen = new ArrayList<List<String>>();
-	    			
-	    			
-	    			
-	    			
+
 	    			Map<Long,List<String>> mapAuxiliar = new HashMap<Long,List<String>>();
 	    			
 	    			mapEquipo.forEach((k,v)->{
@@ -289,12 +344,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    			mapAuxiliar.forEach((k,v)->{
 	    				listEquipNoEnBodOrigen.add(v);
 	    			});
-	    			
+
+					BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaDestino);
 	    			List<TipoEstado> listTipoEstado = new ArrayList<TipoEstado>();
 					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 						listTipoEstado = TipoEstado.all(con, s.baseDato);
 					}else {
-						listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+						listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaDestino.getId_sucursal());
 					}
 					
 	    			List<TipoReparacion> listTipoReparacion = TipoReparacion.all(con, s.baseDato);
@@ -318,14 +374,13 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				comercial.setId((long)-1);
 	    				comercial.setNameUsuario("");
 	    			}
-	    			
+
 	    			String sinVenta="0";
 	    			if(soloArriendo == (long)1 && bodegaOrigen.getEsInterna() == (long)2) {
 	    				sinVenta = "1";
 	    			}
-	    			
 	    			con.close();
-	    			return ok(movimientoOrigenDestinoMultiple.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listBodegasDestino,
+	    			return ok(movimientoOrigenDestinoMultiple1.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,bodegaDestino,
 	    						nuevoNumeroGuia,hoy.getFechaStrAAMMDD(),listEquipNoEnBodOrigen,listTipoEstado,listTipoReparacion,listaTransporte,
 	    						sucursal, comercial, sinVenta));
 	        	} catch (SQLException e) {
@@ -337,7 +392,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
     		return ok(mensajes.render("/",msgError));
     	}
     }
-	
+
 	public Result movValySubePlantilla(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
@@ -446,12 +501,12 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	       	}else {
 	    	  	Long id_bodegaOrigen = Long.parseLong(form.get("id_bodegaOrigen").trim());
 	    	  	Long id_bodegaDestino = Long.parseLong(form.get("id_bodegaDestino").trim());
-				
+
 				try {
 	    			Connection con = db.getConnection();
 	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaOrigen);
 	    			BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaDestino);
-	    			
+
 	    			String nickCliente = "No Aplica";
 	    			if(bodegaOrigen!=null && bodegaDestino!=null) {
 	    				if((long)bodegaOrigen.getEsInterna() == (long)2 ){
@@ -876,7 +931,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 					if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 						listTipoEstado = TipoEstado.all(con, s.baseDato);
 					}else {
-						listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+						listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaDestino.getId_sucursal());
 					}
 					
 	    			List<TipoReparacion> listTipoReparacion = TipoReparacion.all(con, s.baseDato);
@@ -923,7 +978,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	    				comercial.setId((long)0);
 	    				comercial.setNameUsuario("");
 	    			}
-	    			
+
 	    			Sucursal sucursalOrigen = Sucursal.find(con, s.baseDato, bodegaOrigen.getId_sucursal().toString());
 	    			Sucursal sucursalDestino = Sucursal.find(con, s.baseDato, bodegaDestino.getId_sucursal().toString());
 	    			

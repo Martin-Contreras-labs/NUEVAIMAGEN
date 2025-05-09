@@ -448,7 +448,7 @@ GET     /reportFacturaPeriodoH/					controllers.MnuReportes.reportFacturaPeriodo
 POST    /reportFacturaProyectoH/:archivoPDF		controllers.MnuReportes.reportFacturaProyectoH(request: Request, archivoPDF: String)
 POST    /reportFacturaProyectoDetalleH/			controllers.MnuReportes.reportFacturaProyectoDetalleH(request: Request)
 POST    /reportFacturaProyectoDetalleHExcel/	controllers.MnuReportes.reportFacturaProyectoDetalleHExcel(request: Request)
-
+POST    /generarProformaPdfXlsxXmlJsonH/		controllers.MnuReportes.generarProformaPdfXlsxXmlJsonH(request: Request)
 
 
 
@@ -752,6 +752,7 @@ POST	/eliminaCompra/						controllers.MnuCompras.eliminaCompra(request: Request)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 GET		/movimientoSelectBodegaOrigen/						controllers.MnuMovimientos.movimientoSelectBodegaOrigen(request: Request)
 POST	/movimientoOrigenDestinoMultiple/					controllers.MnuMovimientos.movimientoOrigenDestinoMultiple(request: Request)
+POST	/movimientoOrigenDestinoMultiple1/					controllers.MnuMovimientos.movimientoOrigenDestinoMultiple1(request: Request)
 POST	/verificaNumeroGuiaAjax/							controllers.MnuMovimientos.verificaNumeroGuiaAjax(request: Request)
 POST	/nameComercialAjax/									controllers.MnuMovimientos.nameComercialAjax(request: Request)
 POST	/nickNameClienteAjax/								controllers.MnuMovimientos.nickNameClienteAjax(request: Request)

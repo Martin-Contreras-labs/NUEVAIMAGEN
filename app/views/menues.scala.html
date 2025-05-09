@@ -163,7 +163,9 @@
 										<li><a class="dropdown-item" href="/routes2/cotizaListaResumen0/">Hacer Resumen</a></li>
 										<li><a class="dropdown-item" href="/routes2/cotizaListaBiblioteca/">Biblioteca Resumenes</a></li>
 										<li><a class="dropdown-item" href="/reportCotizaSel/">Reporte Movil Cotizaciones</a></li>
-										<li><a class="dropdown-item" href="/routes2/reportPipelineSel/">Pipeline</a></li>
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href="/routes2/reportPipelineSelRes/">Pipeline (Resumido)</a></li>
+										<li><a class="dropdown-item" href="/routes2/reportPipelineSelDet/">Pipeline (Detallado)</a></li>
 									}
 									
 
@@ -1032,7 +1034,7 @@
 								<ul class="dropdown-menu">
 									@if(mapPermiso.get("reportFacturaDetalleProyecto")!=null){
 										<li><a class="dropdown-item" href='/reportFacturaPeriodo/'>@mapDiccionario.get("tipoBodega_2")</a></li>
-@*										<li><a class="dropdown-item" href='/reportFacturaPeriodoH/'>Pre-Factura Simple</a></li>*@
+										<li><a class="dropdown-item" href='/reportFacturaPeriodoH/'>Pre-Factura Simple</a></li>
 									}
 									@if(mapPermiso.get("proformaResumen")!=null){
 										<div class="dropdown-divider" style="border-color:black"></div>

@@ -182,7 +182,7 @@ public class ReportFacturas {
 				tasaCambio = tasas.get(precios.id_moneda); if(tasaCambio==null) tasaCambio = (double) 1;
 				id_moneda = precios.id_moneda;
 			}
-			String fecha_primera_guia = mapFecha_primera_guia.get(resumenInvInicial.get(i).id_equipo.toString()+"_"+resumenInvInicial.get(i).id_cotizacion.toString());
+			String fecha_primera_guia = mapFecha_primera_guia.get(resumenInvInicial.get(i).id_equipo.toString()+"_"+resumenInvInicial.get(i).id_bodegaEmpresa+"_"+resumenInvInicial.get(i).id_cotizacion.toString());
 			if(fecha_primera_guia==null) {
 				fecha_primera_guia = "";
 			}
@@ -2353,6 +2353,22 @@ public class ReportFacturas {
 			detalle.setBorderRight(CellStyle.BORDER_THIN);
 			detalle.setBorderLeft(CellStyle.BORDER_THIN);
 
+			CreationHelper creationHelper = libro.getCreationHelper();
+
+			CellStyle hora = libro.createCellStyle();
+			hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
+			hora.setBorderBottom(CellStyle.BORDER_THIN);
+			hora.setBorderTop(CellStyle.BORDER_THIN);
+			hora.setBorderRight(CellStyle.BORDER_THIN);
+			hora.setBorderLeft(CellStyle.BORDER_THIN);
+
+			CellStyle fecha = libro.createCellStyle();
+			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+			fecha.setBorderBottom(CellStyle.BORDER_THIN);
+			fecha.setBorderTop(CellStyle.BORDER_THIN);
+			fecha.setBorderRight(CellStyle.BORDER_THIN);
+			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+
 			//********************************
 			//ESTADO DE PAGO DETALLADO
 			//***********************************
@@ -2605,6 +2621,34 @@ public class ReportFacturas {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL MON CLP");
 
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("GUIA ULTIMO INGRESO");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("GUIA FECHA INGRESO");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("GUIA ULTIMA SALIDA");
+
+			posCell++;
+			hoja1.setColumnWidth(posCell, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("GUIA FECHA SALIDA");
+
 
 
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
@@ -2630,12 +2674,22 @@ public class ReportFacturas {
 					posCell = 0;
 
 					for (int j = 0; j < lista.get(i).size(); j++) {
-						if(j<4){
+						if (j < 4) {
 							posCell++;
 							cell = row.createCell(posCell);
 							cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(lista.get(i).get(j));
+						} else if (j == 13 || j == 15){
+							posCell++;
+							cell = row.createCell(posCell);
+							if(lista.get(i).get(j).length() > 6){
+								Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(lista.get(i).get(j)));
+								cell.setCellValue(fechax.fechaUtil);
+								cell.setCellStyle(fecha);
+							}else{
+								cell.setCellStyle(detalle);
+							}
 						}else{
 							posCell++;
 							cell = row.createCell(posCell);

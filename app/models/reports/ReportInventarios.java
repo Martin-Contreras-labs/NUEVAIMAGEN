@@ -112,6 +112,7 @@ public class ReportInventarios {
 							" where (guia.fecha is null or guia.fecha<=?) " +
 							" and (fecha_factura is null or fecha_factura<=?) " +
 							" and (fecha_actaBaja is null or fecha_actaBaja<=?)" +
+							" and movimiento.id_bodegaEmpresa <> 0" +
 							condSucursal +
 							permisoPorBodega+
 							" group by bodegaEmpresa.esInterna, bodegaEmpresa.id, movimiento.id_equipo;");

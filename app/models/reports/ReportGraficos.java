@@ -120,6 +120,7 @@ public class ReportGraficos {
 		
 		List<String> nomBodegas = new ArrayList<String>();
 		for (Map.Entry<String, Double> bodega : mapNombBodegasVsCompra.entrySet()) {
+
 			Double total = mapNombBodegasVsCompra.get(bodega.getKey());
 			if((double)total > (double)0) {
 				nomBodegas.add(bodega.getKey());

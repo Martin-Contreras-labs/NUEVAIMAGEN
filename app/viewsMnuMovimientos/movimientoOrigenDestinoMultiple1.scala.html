@@ -1,0 +1,1677 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], bodegaDestino: tables.BodegaEmpresa,
+nuevoNumeroGuia: Long, hoy: String, listEquipNoEnBodOrigen: List[List[String]], listTipoEstado: List[tables.TipoEstado], listTipoReparacion: List[tables.TipoReparacion],
+listaTransporte: List[tables.Transportista], 
+sucursal: tables.Sucursal, comercial: tables.Comercial,
+sinVenta: String)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>Ahora se esta cargando.....</h1></div>
+	
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+	
+	<script>
+		let auxBueno = -1;
+		let auxIndex = -1;
+	</script>
+	
+	<form action="/movimientoAplicar/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "MOVIMIENTOS ENTRE "+mapDiccionario.get("BODEGA")+" Y/O PROYECTOS", "")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="25%">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Origen</span>
+								  		</div>
+								  		<input type="hidden" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
+	  									<input type="text" class="form-control" 
+	  										value="@bodegaOrigen.getNombre().toUpperCase" 
+	  										readonly>
+									</div>
+								</td>
+								<td width="25%">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Destino</span>
+								  		</div>
+	  										<input type="hidden" name="id_bodegaDestino" id="id_bodegaDestino" value="@bodegaDestino.getId()">
+											<input type="text" class="form-control left"
+												id="nombreBodegaDestino"
+												style="background:white"
+											    value="@bodegaDestino.getNombre().toUpperCase"
+												required
+												readonly>
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
+								  		</div>
+											@if(mapPermiso.get("parametro.bloqueoNrosMovimientos")!=null && mapPermiso.get("parametro.bloqueoNrosMovimientos").equals("1")){
+												<input type="text" class="form-control left"
+									  				name="numeroGuia"
+													id="numeroGuia"
+													value = "@nuevoNumeroGuia"
+													readonly
+													required>
+											}else{
+												<input type="text" class="form-control left"
+									  				name="numeroGuia"
+													id="numeroGuia"
+													value = "@nuevoNumeroGuia"
+													onkeypress="return ingresoInt(event)"
+													onchange="verificarNumeroGuia(value)"
+													autocomplete="off"
+													required>
+											}
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
+								  		</div>
+								  		<input type="text" class="form-control left"
+								  				name="numGuiaCliente"
+								  				autocomplete="off"
+								  				maxlength="50">
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
+								  		</div>
+								  		<input type="date" class="form-control center"
+								  			name="fechaGuia" 
+								  			id="fechaGuia"
+								  			onblur="if(!limitaFecha(value,720,10)) value='@hoy';"
+								  			value="@hoy"
+						        			required>
+									</div>
+								</td>
+								<td>
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+										<input type="hidden" name="docAnexo" value="0">
+										<div id="txtBtn">Subir Documento</div>
+				    					<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos" onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
+									</span>
+								</td>
+							</tr>
+							
+							
+							
+							
+							<tr>
+								<td align="center">
+									<input type="hidden" id="id_sucursalOrigen" name="id_sucursalOrigen" value="@sucursal.getId()">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+								  		</div>
+											<input type="text" class="form-control left"
+												value = "@sucursal.getNombre()"
+												readonly>
+									</div>
+								</td>
+								<td align="center">
+									<input type="hidden" id="id_sucursalDestino" name="id_sucursalDestino">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+								  		</div>
+											<input type="text" id="nameSucursalDestino" class="form-control left"
+											    value="@bodegaDestino.getNameSucursal()"
+												readonly>
+									</div>
+								</td>
+								
+								
+								<td colspan="20" rowspan="3">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
+								  		</div>
+	  									<textarea class="form-control" rows="3"
+	  										name="observaciones" 
+	  										autocomplete="off"></textarea>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Comercial</span>
+								  		</div>
+											<input type="text" class="form-control left"
+												id = "nameComercial"
+												value = "@comercial.getNameUsuario()"
+												readonly>
+									</div>
+								</td>
+								<td align="center">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Cliente</span>
+								  		</div>
+											<input type="text" class="form-control left"
+												id = "nickCliente"
+												value = ""
+												readonly>
+									</div>
+								</td>
+							</tr>
+							
+							
+
+						</thead>
+					</table>
+					
+					
+					@if(bodegaOrigen.esInterna == 1){
+						<div class="noprint" align="center">
+							<div class="row justify-content-md-center" >
+								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+									<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+										onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
+								</div>
+							</div>
+						</div>
+					}
+					
+					
+					
+					
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>GRUPO</TH>
+								<TH>Nro.@mapDiccionario.get("OT")</TH>
+								<TH with="80px">Fecha<br>@mapDiccionario.get("OT")</TH>
+								<TH>Nro.COTI</TH>
+								<TH>CODIGO</TH>
+								<TH>EQUIPO</TH>
+								<TH>KG</TH>
+						        <TH>M2</TH>
+						        <TH>UN</TH>
+								<TH>STOCK</TH>
+								<TH>SALIDA</TH>
+								@if(sinVenta.equals("1")){
+									<TH style="display:none">VENTA</TH>
+								}else{
+									<TH>VENTA</TH>
+								}
+								<TH style="display:none"></TH>
+								<TH>EXCESO</TH>
+								<TH>TOT.KG</TH>
+								<TH>TOT.M2</TH>
+								@if(bodegaOrigen.esInterna!=1){
+									<th style="display:none"></th>
+									@for(titEstado <- listTipoEstado){
+										<TH style="font-size:10px; vertical-align:middle">
+											@titEstado.getSigla()
+										</TH>
+									}
+									@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+										<TH style="text-align:center;">cliente</TH>
+										<TH style="text-align:center;">diferen</TH>
+									}
+								}
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listEquipBodOrigen){
+								<TR>
+									<td  style="text-align:left;">
+										<input type="hidden" name="id_equipo[]" value="@lista1.get(0)">
+										<input type="hidden" name="id_cotizacion[]" value="@lista1.get(1)">
+										@lista1.get(2)
+									</td>
+									
+									@if(lista1.get(10).equals("0") || lista1.get(10).equals("")){
+										<td style="text-align: center;">--</td>
+									}else{
+										<td style="text-align:center;" class="sorting_2">
+											<a href="#" onclick="verOt('@lista1.get(10)')">
+												<kbd style="background-color: rgb(90, 200, 245)">
+													<font color="green">@lista1.get(11)</font>
+												</kbd>
+											</a>
+										</td>
+									}
+									
+									<td style="text-align: center;">
+										<div style="display: none;"> @utilities.Fechas.AAMMDD(lista1.get(12))</div>
+										@lista1.get(12)
+									</td>
+									
+									@if(lista1.get(3).equals("0") || lista1.get(3).equals("")){
+										<td style="text-align: center;">--</td>
+									}else{
+										<td style="text-align: center;">@lista1.get(3)</td>
+									}
+									
+									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');"><div class="codigo">@lista1.get(4)</div></a></td>
+									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(5)</a></td>
+									<td  class="kgUnit" style="text-align:right;">@lista1.get(6)</td>
+									<td  class="m2Unit" style="text-align:right;">@lista1.get(7)</td>
+									<td  style="text-align:center;">@lista1.get(8)</td>
+									<td  style="text-align:right;">
+										<div class="verificaStock" id="stock_@lista1.get(0)_@lista1.get(1)">@lista1.get(9)</div>
+									</td>
+									<td  style="text-align:center;">
+										<div align="center">
+											<input type="text" class="cantidad form-control height23px right width80px"
+												name="cantidad[]"
+												id="cantidad_@lista1.get(0)_@lista1.get(1)"
+												value="0.00"
+												onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+												onkeypress="return ingresoDouble(event,value)"
+												autocomplete="off"
+												onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)',value,'@lista1.get(6)','@lista1.get(7)','@listTipoEstado.size()');">
+										</div>
+									</td>
+									@if(sinVenta.equals("1")){
+										<td  style="text-align:center; display:none;">
+											<input type="hidden" class="esVenta0" name="esVenta[]" id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
+											<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1) 
+											$("#esVenta_@lista1.get(0)_@lista1.get(1)").val(0); else $("#esVenta_@lista1.get(0)_@lista1.get(1)").val(1);'>
+										</td>
+									}else{
+										<td  style="text-align:center;">
+											<input type="hidden" class="esVenta0" name="esVenta[]" id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
+											<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1) 
+											$("#esVenta_@lista1.get(0)_@lista1.get(1)").val(0); else $("#esVenta_@lista1.get(0)_@lista1.get(1)").val(1);'>
+										</td>
+									}
+									<td width="1px" style="text-align:center; display:none"">
+										<input type="hidden" name="esNuevo[]" id="esNuevo_@lista1.get(0)_@lista1.get(1)" value="0">
+									</td>
+									<td style="text-align:center;">
+										<div align="center">
+											<input type="text" class="exceso form-control height23px right width80px"
+												name="exceso[]"
+												id="exceso_@lista1.get(0)_@lista1.get(1)"
+												value="0.00"
+												readonly>
+										</div>
+									</td>
+									<td style="text-align:right;"><div class="KG" id="KG_@lista1.get(0)_@lista1.get(1)">0.00</div></td>
+									<td style="text-align:right;"><div class="M2" id="M2_@lista1.get(0)_@lista1.get(1)">0.00</div></td>
+									@if(bodegaOrigen.esInterna!=1){
+										<td style="display:none">
+											<input type="hidden" name="estados[]"   id="estados_@lista1.get(0)_@lista1.get(1)">
+											<input type="hidden" name="reparaciones[]"   id="reparaciones_@lista1.get(0)_@lista1.get(1)">
+										</td>
+										@for((est,index) <- listTipoEstado.zipWithIndex){
+											<td style="font-size:10px; vertical-align:middle">
+												@if(est.getId() == 999){
+													<input type="text" class="form-control height23px right width60px"
+														style="font-size:10px; vertical-align:middle"
+														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
+														value="0.00"
+														readonly>
+													<script>
+														auxBueno = 999;
+														auxIndex = "@index";
+													</script>
+												}else if( mapDiccionario.get("nEmpresa").equals("HOHE") && ( est.getId() == 2 || est.getId() == 3 ) ){
+													<input type="text" class="form-control height23px right width60px"
+														style="font-size:10px; vertical-align:middle"
+														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
+														value="0.00"
+														readonly>
+													<script>
+														auxBueno = "@est.getId()";
+														auxIndex = "@index";
+													</script>
+												}else{
+													<input type="text" class="form-control height23px right width60px"
+														style="font-size:10px; vertical-align:middle"
+														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
+														value="0.00"
+														onfocus="value=value.replace(/,/g,'')" 
+														onkeypress="return ingresoDouble(event,value)"
+														autocomplete="off"
+														ondblclick = "if(value>0 && '@est.getReparable()'=='1') editaReparaciones('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()')"
+														onchange="if(value=='') {
+																		value='0.00';
+																		verificaCantEstado('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()');
+																  }else{ 
+																		verificaCantEstado('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()');
+																  }">
+												}
+											</td>
+										}
+										@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+											<td  style="text-align:center;">
+												<div align="center">
+													<input type="text" class="cantCliente form-control height23px right width80px"
+														name="cantCliente[]"
+														id="cantCliente_@lista1.get(0)_@lista1.get(1)"
+														value="0.00"
+														onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+														onkeypress="return ingresoDouble(event,value)"
+														autocomplete="off"
+														onchange="if(value=='') value=0; actualizaCantCliente('@lista1.get(0)', '@lista1.get(1)')">
+												</div>
+											</td>
+											<td style="text-align:right;"><div class="difCliente" id="difCliente_@lista1.get(0)_@lista1.get(1)">0.00</div></td>
+										}
+									}
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+			
+			
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-left" >
+					<div class="col-xs-5 col-sm-3 col-md-3 col-lg-3">
+						@if(bodegaOrigen.esInterna != 1){
+							<input type="button"  id="agregarEquiposNoEnviados" value="Agregar equipos que no fueron enviados" 
+								class="btn btn-warning btn-sm rounded-pill btn-block" 
+								onclick='$("#equipNoEnBodOrigen").modal("show")'>
+						}
+					</div>
+				</div>
+			
+
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  id="transporte" value='Agregar Transportista' class="btn btn-info btn-sm rounded-pill btn-block" onclick="selectTransporte(0);" >
+					</div>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  id="verifica" value='Verificar' class="btn btn-success btn-sm rounded-pill btn-block" onclick="verificaMovimientos();" >
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input id="cancelar" type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="submit"  id="aplica" value='Confirmar' class="btn btn-primary btn-sm rounded-pill btn-block" style="visibility:hidden" 
+							onclick="
+								document.getElementById('aplica').style.visibility = 'hidden';
+								document.getElementById('verifica').style.visibility = 'hidden';
+								document.getElementById('modifica').style.visibility = 'hidden';
+								document.getElementById('aplica').style.visibility = 'hidden';
+								document.getElementById('cancelar').style.visibility = 'hidden';
+								document.getElementById('transporte').style.visibility = 'hidden';
+							">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block" 
+							onclick="modificaMovimientos();" style="visibility:hidden">
+					</div>
+				</div>
+			</div>
+		</div>
+		<input type="hidden" id="id_transportistaXLSX" name="id_transportista" value="0">
+	</form>
+	
+	<div id='equipNoEnBodOrigen' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR EQUIPO NO ENVIADO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<table id="tablaListaEquipNoEnBodOrigen" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>GRUPO</TH>
+								<TH>CODIGO</TH>
+								<TH>NOMBRE</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listEquipNoEnBodOrigen){
+								<TR onClick="seleccionaEquipNoEnBodOrigen(this, @lista1.get(0),'@lista1.get(6)','@lista1.get(7)','@lista1.get(8)')" data-dismiss="modal">
+									<td  style="text-align:left;"><div id="grupoNo_@lista1.get(0)">@lista1.get(2)</div></td>
+									<td  style="text-align:left;"><div id="codigoNo_@lista1.get(0)">@lista1.get(4)</div></td>
+									<td  style="text-align:left;"><div id="equipoNo_@lista1.get(0)">@lista1.get(5)</div></td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalReparaciones'></div>
+	
+	<div id='modalTablaReparaciones' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>"+
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR REPARACIONES</h5>
+					<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+		        </div>
+		        <div class='modal-body'>
+		        	<div id='tablaReparaciones'></div>
+		        	<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+		        </div>
+	    	</div>
+		</div>
+	</div>
+	
+	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Carga masiva de equipos a mover</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        
+			<div class="row">
+				<div class="col-sm-12" style="text-align:center">
+					<form action="/routes2/movPlantilla/" method="POST"  onsubmit="return validarForm2();">
+					<input type="hidden" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
+						<button type="submit" id="btnSubmit2" class="btn btn-sm  btn-success" style="font-size: 10px;">DESCARGAR PLANTILLA</button>
+					</form>
+					<br>
+					<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+						<div>SUBIR ARCHIVO</div>
+						<input type="file" id="archivoXLSX"  value="" onchange="subirArchivo(this.form, this); $('#modalCargaMasiva').modal('hide');">
+					</span>
+					<br><br>
+					<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+			<br>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>@mapDiccionario.get("ORDEN_DE_TRABAJO")</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaOt'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	@modalListaTransportistas(mapDiccionario, mapPermiso, listaTransporte);
+	
+}
+
+
+<style>
+	#tablaPrincipal td:nth-child(2) { text-align: center; }
+	#tablaPrincipal td:nth-child(3) { text-align: center; }
+	#tablaPrincipal td:nth-child(4) { text-align: center; }
+	#tablaPrincipal td:nth-child(5) { text-align: left; }
+	#tablaPrincipal td:nth-child(7) { text-align: right; }
+	#tablaPrincipal td:nth-child(8) { text-align: right; }
+	#tablaPrincipal td:nth-child(9) { text-align: center; }
+	#tablaPrincipal td:nth-child(10) { text-align: right; }
+	#tablaPrincipal td:nth-child(11) { text-align: right; }
+	#tablaPrincipal td:nth-child(12) { text-align: center; }
+	#tablaPrincipal td:nth-child(13) { text-align: center; }
+	#tablaPrincipal td:nth-child(14) { text-align: right; }
+	#tablaPrincipal td:nth-child(15) { text-align: right; }
+	#tablaPrincipal td:nth-child(16) { text-align: right; }
+	@if(bodegaOrigen.esInterna!=1){
+		#tablaPrincipal td:nth-child(17) { vertical-align: middle; display:none; }
+		@for((est,index) <- listTipoEstado.zipWithIndex){
+			#tablaPrincipal td:nth-child(@(index+18)) { vertical-align: middle; }
+		}
+		
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+18)) { text-align: right; vertical-align: middle;}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+19)) { text-align: right; vertical-align: middle;}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+20)) { text-align: right; vertical-align: middle;}
+	}
+</style>
+
+<script type="text/javascript">
+
+		let auxId_guia = 0;
+		let auxId_transportista = 0;
+		
+		let esInterna = "@bodegaOrigen.esInterna";
+	
+		const selectTransporte = (id_guia) => {
+			auxId_guia = id_guia;
+			$('#modalListaTransporte').modal('show');
+		}
+		
+		const seleccionaTransportista = (id_transportista) => {
+			$('#modalListaTransporte').modal('hide');
+			$('#id_guiaXLSX').val(auxId_guia);
+			$('#id_transportistaXLSX').val(id_transportista);
+			auxId_transportista = id_transportista;
+			transportistaSeleccionado();
+		}
+		
+		const transportistaSeleccionado = () => {
+			var tableReg = document.getElementById("tablaListaTransporte");
+			for (var i = 1; i < tableReg.rows.length; i++){
+				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+				let idTransporte = cellsOfRow[0].innerHTML;
+				if(idTransporte == auxId_transportista){
+					tableReg.rows[i].style.backgroundColor = "yellow";
+					
+				}else{
+					tableReg.rows[i].style.backgroundColor = "";
+				}
+			}
+		}
+		
+
+	let tblPrincipal;
+	let listReparaNiv1;
+	
+	$(document).ready(function() {
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+		    	"order": [[ 4, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		 
+		  let repAux = ""
+		  @for(r <- listTipoReparacion){
+				repAux += "@r.getId():&&:@r.id_tipoEstado:&&:@r.getSigla():&&:@r.getNombre():&&:@r.getMoneda():&&:@r.getPrecio();&&;"
+		  }
+		  listReparaNiv1 = repAux.split(";&&;");
+		  
+		  $('#tablaListaBodegasDestino').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  
+		  $('#tablaListaEquipNoEnBodOrigen').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+		agregaComercialYcliente();
+		  
+		  document.getElementById('mostrarmostrar').style.display="block";
+
+		
+		if(esInterna != "1"){
+			let verifica = document.querySelectorAll(".verificaStock");
+			let sinNegativos = 0;
+			for (let i = 0; i < verifica.length; i++) {
+				let aux = verifica[i].textContent.replace(/,/g,'')
+				if(parseFloat(aux) < 0){
+					sinNegativos = 1;
+				}
+			}
+			if(sinNegativos>0){
+				alertify.alert('El estado de los stock de @mapDiccionario.get("BODEGA"): @bodegaOrigen.getNombre().- '
+					+'Presenta dificultades, favor contactar a soporte Inqsol indicando el nombre de @mapDiccionario.get("BODEGA") y que es un movimiento', function () {
+			     			location.href = "/home/";
+			     	});
+			}
+		}
+	});
+
+		const agregaComercialYcliente = () =>{
+			let formData = new FormData();
+			formData.append('id_bodegaOrigen','@bodegaOrigen.getId()');
+			formData.append('id_bodegaDestino','@bodegaDestino.getId()');
+
+			if("@comercial.getId()" == "-1"){
+				$.ajax({
+					url: "/nameComercialAjax/",
+					type: "POST",
+					method: "POST",
+					data: formData,
+					cache: false,
+					contentType: false,
+					processData: false,
+					success: function(respuesta){
+						$("#nameComercial").val(respuesta);
+					}
+				});
+			}
+
+			$.ajax({
+				url: "/nickNameClienteAjax/",
+				type: "POST",
+				method: "POST",
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function(respuesta){
+					$("#nickCliente").val(respuesta);
+				}
+			});
+
+		}
+	
+	const verificarNumeroGuia = (value) =>{
+		if(value.trim()==""){
+			$("#numeroGuia").val("@nuevoNumeroGuia");
+		}else{
+			let aux = '@nuevoNumeroGuia';
+			var formData = new FormData();
+		  	formData.append('numeroGuia',value);
+	        $.ajax({
+	            url: "/verificaNumeroGuiaAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="existe"){
+		     			alertify.alert('El número de movimiento ya existe, intente con otro', function () {
+		     				$("#numeroGuia").val("@nuevoNumeroGuia");
+		     			});
+		     		}
+		     		if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}
+		     	}
+	        });
+		}
+	}
+	
+	const validarForm = () =>{
+		$("#aplica").attr('disabled',true);
+		let flag = true;
+		if($("#id_bodegaDestino").val()==""){
+			flag = false;
+			alertify.alert('FALTA SELECCIONAR DESTINO DE @mapDiccionario.get("BODEGA")/PROYECTO<br>(CAMPO DESTINO)', function () {
+				document.getElementById('modifica').style.visibility = 'visible';
+				document.getElementById('aplica').style.visibility = 'visible';
+				document.getElementById('cancelar').style.visibility = 'visible';
+				$("#aplica").attr('disabled',false);
+				return(flag);
+     		});
+		}else{
+			$("#tablaPrincipal").dataTable().fnDestroy();
+			let tabla = document.getElementById("tablaPrincipal");
+			let validaCantidades = 0;
+			for(i=1; i<tabla.rows.length-1; i++){
+				let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+				let exceso = $(".exceso",tabla.rows[i].cells[13]).val();
+				cantidad = cantidad.replace(/,/g,'');
+				exceso = exceso.replace(/,/g,'');
+				validaCantidades += parseFloat(cantidad) + parseFloat(exceso);
+			}
+			if(validaCantidades > 0){
+				for(i=1; i<tabla.rows.length-1; i++){
+					let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+					let exceso = $(".exceso",tabla.rows[i].cells[13]).val();
+					cantidad = cantidad.replace(/,/g,'');
+					exceso = exceso.replace(/,/g,'');
+					let total = parseFloat(cantidad) + parseFloat(exceso);
+					if(total <= 0 ){
+						tabla.deleteRow(i);
+						i--;
+					}
+				}
+				document.getElementById('enCarga').style.display="block";
+				return(true);
+			}else{
+				flag = false;
+				alertify.alert('NO PUEDE GRABAR UN MOVIMIENTO SIN MOVER EQUIPOS', function () {
+					document.getElementById('modifica').style.visibility = 'visible';
+					document.getElementById('aplica').style.visibility = 'visible';
+					document.getElementById('cancelar').style.visibility = 'visible';
+					$("#aplica").attr('disabled',false);
+					return(flag);
+	     		});
+			}
+		}
+		return(flag);
+	}
+	
+	let cantAux = 0;
+	const verificaCantidad = (id_equipo, id_cotizacion, stock, cantidad, KG, M2, largo) =>{
+		let acum = 0;
+		let exce = $("#exceso_"+id_equipo+"_"+id_cotizacion).val();
+		exce = exce.replace(/,/g,'');
+		
+		if(auxBueno == 999){
+			for(let i=0; i<largo; i++){
+				if( ! (i == auxIndex && auxBueno == 999)){
+					let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+					auxAcum = auxAcum.replace(/,/g,'');
+					acum += parseFloat(auxAcum);
+				}
+			}
+		}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+			for(let i=0; i<largo; i++){
+				if( ! (i == auxIndex && (auxBueno == 2 || auxBueno == 3 ))){
+					let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+					auxAcum = auxAcum.replace(/,/g,'');
+					acum += parseFloat(auxAcum);
+				}
+			}
+		
+		}else{
+			for(let i=0; i<largo; i++){
+				acum += parseFloat($("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val());
+			}
+		}
+		
+		
+		
+		if(parseFloat(acum) > (parseFloat(cantidad))){
+			let auxCant1 = cantAux;
+			alertify.alert('La cantidad no puede ser menor a la suma de estados, modifique primero los estados', function () {
+				$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(auxCant1,2));
+     		});
+		}else{
+			stock = stock.replace(/,/g,'');
+			KG = KG.replace(/,/g,'');
+			M2 = M2.replace(/,/g,'');
+			let saldo = parseFloat(stock)-parseFloat(cantidad);
+			
+			if(saldo >= 0){
+				$("#stock_"+id_equipo+"_"+id_cotizacion).text(formatStandar(saldo,2));
+				$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(cantidad,2));
+				$("#exceso_"+id_equipo+"_"+id_cotizacion).val(formatStandar("0"));
+			}else{
+				if('@bodegaOrigen.getEsInterna()' == '1'){
+					let auxCant2 = cantAux;
+					alertify.alert('La cantidad no puede ser mayor que el stock disponible', function () {
+						$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(auxCant2,2));
+		     		});
+				}else{
+					$("#stock_"+id_equipo+"_"+id_cotizacion).text(formatStandar(0,2));
+					$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(stock,2));
+					$("#exceso_"+id_equipo+"_"+id_cotizacion).val(formatStandar(saldo*-1,2));
+					cantidad = stock;
+				}
+			}
+			
+			if(auxBueno == 999){
+				let difB = parseFloat(cantidad) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar, auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
+				
+			} else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+				let difB = parseFloat(cantidad) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar, auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
+			}
+			
+			let totKg = parseFloat(KG) * parseFloat(cantidad);
+			let totM2 = parseFloat(M2) * parseFloat(cantidad);
+			$("#KG_"+id_equipo+"_"+id_cotizacion).text(formatStandar(totKg,2));
+			$("#M2_"+id_equipo+"_"+id_cotizacion).text(formatStandar(totM2,2));
+			
+			if(esInterna != "1"){
+				@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+					actualizaCantCliente(id_equipo, id_cotizacion);
+				}
+			}
+		}
+	}
+	
+	const actualizaCantCliente = (id_equipo, id_cotizacion) =>{
+		let cantCliente = $("#cantCliente_"+id_equipo+"_"+id_cotizacion).val();
+		cantCliente = cantCliente.replace(/,/g,'');
+		
+		let cantidad = $("#cantidad_"+id_equipo+"_"+id_cotizacion).val();
+		cantidad = cantidad.replace(/,/g,'');
+		
+		let difCliente = parseFloat(cantidad) - parseFloat(cantCliente);
+		
+		$("#difCliente_"+id_equipo+"_"+id_cotizacion).text(formatStandar(difCliente,2));
+	}
+	
+	const seleccionaEquipNoEnBodOrigen = (nodo, id_equipo, KG, M2, UN) =>{
+		let grupo = 
+			"<input type='hidden' name='id_equipo[]' value='"+id_equipo+"'>"+
+			"<input type='hidden' name='id_cotizacion[]' value='0'>"+
+			$("#grupoNo_"+id_equipo).text();
+		let codigo = $("#codigoNo_"+id_equipo).text();
+		let equipo = $("#equipoNo_"+id_equipo).text();
+		let stock = "<div id=\"stock_"+id_equipo+"_0\">0.00</div>"
+		let cantidad = "<div align='center'><input type=\"text\" class=\"cantidad form-control height23px right width80px\" "+
+							" name=\"cantidad[]\" "+
+							" id=\"cantidad_"+id_equipo+"_0\" "+
+							" value=\"0.00\" "+
+							" onfocus=\"value=value.replace(/,/g,\'\'); cantAux = value;\" "+
+							" onkeypress=\"return ingresoDouble(event,value)\" "+
+							" autocomplete='off' "+
+							" onchange=\"if(value=='') value=0; verificaCantidad("+id_equipo+",'0','0',value,'"+KG+"','"+M2+"',@listTipoEstado.size());\"></div>";
+		let esVenta = "<input type='hidden' name='esVenta[]' id=\"esVenta_"+id_equipo+"_0\" value='0'>"+
+						"<input type='checkbox' onchange='if($(\"#esVenta_"+id_equipo+"_0\").val()==1) "+
+						"$(\"#esVenta_"+id_equipo+"_0\").val(0); else $(\"#esVenta_"+id_equipo+"_0\").val(1);'>";
+		let esNuevo = "<input type='hidden' name='esNuevo[]' id=\"esNuevo_"+id_equipo+"_0\" value='0'>";
+		let exceso = "<div align='center'><input type='text' class='exceso form-control height23px right width80px' "+
+							" name='exceso[]' "+
+							" id='exceso_"+id_equipo+"_0' "+
+							" value='0.00' "+
+							" readonly></div>";
+		let auxKG = "<div class='KG' id='KG_"+id_equipo+"_0'>0.00</div>";
+		let auxM2 = "<div class='M2' id='M2_"+id_equipo+"_0'>0.00</div>";
+		
+		
+		let row = $('#tablaPrincipal').dataTable().fnAddData( [
+			grupo,"--","","--",codigo,equipo,KG,M2,UN,stock,cantidad,esVenta,esNuevo,exceso,auxKG,auxM2,
+				@if(bodegaOrigen.esInterna!=1){
+					"<input type='hidden' name='estados[]'   id='estados_"+id_equipo+"_0'><input type='hidden' name='reparaciones[]'   id='reparaciones_"+id_equipo+"_0'>",
+					@for((est,index) <- listTipoEstado.zipWithIndex){
+							"<input type='text' class='form-control height23px right width60px' "+
+								" style='font-size:10px; vertical-align:middle' "+
+								" id='estado_"+id_equipo+"_0_@index' " +
+								" value='0.00' "+
+								" readonly> ",
+					}
+					@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+						"<div align='center'><input type=\"text\" class=\"cantCliente form-control height23px right width80px\" "+
+								" name=\"cantCliente[]\" "+
+								" id=\"cantCliente_"+id_equipo+"_0\" "+
+								" value=\"0.00\" "+
+								" onfocus=\"value=value.replace(/,/g,\'\');\" "+
+								" onkeypress=\"return ingresoDouble(event,value)\" "+
+								" autocomplete='off' "+
+								" onchange=\"if(value=='') value=0; actualizaCantCliente("+id_equipo+",'0');\"></div>",
+								
+						"<div class='difCliente' id='difCliente_"+id_equipo+"_0'>0.00</div>",
+					}
+				}
+		] );
+		
+		$("#tablaPrincipal").dataTable().fnDestroy();
+			var tableReg = document.getElementById("tablaPrincipal");
+			for (var i = 1; i < tableReg.rows.length; i++){
+				var cellsOfRow = tableReg.rows[i].getElementsByTagName('td');
+				if(cellsOfRow[4].innerHTML == codigo){
+					if("@sinVenta" == "1"){
+						cellsOfRow[11].style.display = 'none';
+						cellsOfRow[12].style.display = 'none';
+					}else{
+						cellsOfRow[12].style.display = 'none';
+					}
+					
+				}
+			}
+		tblPrincipal = $('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+	    	"order": [[ 4, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	  	} );
+		
+		
+		$('#tablaListaEquipNoEnBodOrigen').dataTable().fnDeleteRow(nodo);
+		$("#equipNoEnBodOrigen").modal("hide");
+	}
+	
+	
+	const verificaCantEstado = (index, largo, id_equipo, id_cotizacion, cantEstado, esReparable, id_tipoEstado) =>{
+		let acum = 0;
+		let cant = $("#cantidad_"+id_equipo+"_"+id_cotizacion).val();
+		let exce = $("#exceso_"+id_equipo+"_"+id_cotizacion).val();
+		cant = cant.replace(/,/g,'');
+		exce = exce.replace(/,/g,'');
+		
+		for(let i=0; i<largo; i++){
+			if( (! (i == auxIndex && auxBueno == 999)) && (! (i == auxIndex && (auxBueno == 2 || auxBueno == 3)))){
+				let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+				auxAcum = auxAcum.replace(/,/g,'');
+				acum += parseFloat(auxAcum);
+			}
+		}
+		
+		
+		if(parseFloat(acum) > (parseFloat(cant))){
+			alertify.alert('La suma de estados no puede ser mayor a campo cantidad', function () {
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+index).val("0.00");
+				
+				if(auxBueno == 999){
+					let newAcum = 0;
+					for(let i=0; i<largo; i++){
+						if( ! (i == auxIndex && auxBueno == 999)){
+							let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+							auxAcum = auxAcum.replace(/,/g,'');
+							newAcum += parseFloat(auxAcum);
+						}
+					}
+					let difB = parseFloat(cant) - parseFloat(newAcum);
+					$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+					
+					let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+					let niv1 = aux.split(";");
+					let flag = true;
+					let buscar = "";
+					for(i=0; i<niv1.length && flag; i++){
+						let niv2 = niv1[i].split(":");
+						if(niv2[0] == auxBueno){
+							buscar = auxBueno+":"+niv2[1]+";";
+							flag = false;
+						}
+					}
+					
+					if(flag){
+						aux += auxBueno+":"+parseFloat(difB)+";";
+						$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+					}else{
+						aux = aux.replace(buscar,auxBueno+":"+parseFloat(difB)+";");
+						$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+					}
+				}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+					let newAcum = 0;
+					for(let i=0; i<largo; i++){
+						if( ! (i == auxIndex && (auxBueno == 2 || auxBueno == 3))){
+							let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+							auxAcum = auxAcum.replace(/,/g,'');
+							newAcum += parseFloat(auxAcum);
+						}
+					}
+					let difB = parseFloat(cant) - parseFloat(newAcum);
+					$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+					
+					let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+					let niv1 = aux.split(";");
+					let flag = true;
+					let buscar = "";
+					for(i=0; i<niv1.length && flag; i++){
+						let niv2 = niv1[i].split(":");
+						if(niv2[0] == auxBueno){
+							buscar = auxBueno+":"+niv2[1]+";";
+							flag = false;
+						}
+					}
+					
+					if(flag){
+						aux += auxBueno+":"+parseFloat(difB)+";";
+						$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+					}else{
+						aux = aux.replace(buscar,auxBueno+":"+parseFloat(difB)+";");
+						$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+					}
+				}
+     		});
+		}else{
+			
+			if(auxBueno == 999){
+				let difB = parseFloat(cant) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar,auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
+				
+			}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+				let difB = parseFloat(cant) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar,auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
+			}
+			
+			let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+			let niv1 = aux.split(";");
+			let flag = true;
+			let buscar = "";
+			for(i=0; i<niv1.length && flag; i++){
+				let niv2 = niv1[i].split(":");
+				if(niv2[0]==id_tipoEstado){
+					buscar = id_tipoEstado+":"+niv2[1]+";";
+					flag = false;
+				}
+			}
+			if(flag){
+				aux += id_tipoEstado+":"+parseFloat(cantEstado)+";";
+				$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+			}else{
+				aux = aux.replace(buscar,id_tipoEstado+":"+parseFloat(cantEstado)+";");
+				$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+			}
+			if(esReparable==1 && cantEstado>0){
+				
+			    let modalReparaciones="<div id='reparaciones' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>"+
+			    		"<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'><div class='modal-content'><div class='modal-header'>"+
+						"<h5 class='modal-title'>SELECCIONAR REPARACIONES</h5><button type='button' class='close' data-dismiss='modal' aria-label='Close'>"+
+				        "<span aria-hidden='true'>&times;</span></button></div><div class='modal-body'>"+
+						"<table id='tablaListaReparaciones' class='table table-sm table-bordered table-condensed table-hover table-fluid'>"+
+						"<thead style='background-color: #eeeeee'><TR><TH>SIGLA</TH><TH>REPARACION</TH><TH>MONEDA</TH><TH>PRECIO</TH><TH>CANTIDAD</TH><TH>DEL</TH></TR></thead>"+
+						"<tbody><TR><td  colspan='6'><div class='row justify-content-md-left'><div class='col-xs-12 col-sm-6 col-md-6 col-lg-6'><div id='selListaReparaciones'>"+
+						"</div></div></div></TR></tbody></table><div class='row'><div class='col-sm-12' style='text-align:center'>"+
+						"<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Listo</button></div></div></div></div></div></div>";
+			    document.getElementById("modalReparaciones").innerHTML = modalReparaciones;
+			    
+			     let tablaReparaciones = "<table id='tblTablaReparaciones' class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"+
+							"<thead style=\"background-color: #eeeeee\"><th>SIGLA</th><th>NOMBRE</th><th>MONEDA</th><th>PRECIO</th></thead>"+
+							"<tbody>";
+				    for(i=0;i<listReparaNiv1.length;i++){
+				    	let listReparaNiv2 = listReparaNiv1[i].split(":&&:");
+				    	if(listReparaNiv2[1]==id_tipoEstado){
+				    		//  0=getId()   1=id_tipoEstado   2=getSigla() 3=getNombre()   4=getMoneda()   5=getPrecio()
+				    		tablaReparaciones += "<tr onclick=\"actualizaReparacion("+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+listReparaNiv2[0]+"); $('#modalTablaReparaciones').modal('hide');\">"+
+				    			"<td>"+listReparaNiv2[2]+"</td><td>"+listReparaNiv2[3]+"</td><td style='text-align: center'>"+listReparaNiv2[4]+"</td><td style='text-align: right'>"+listReparaNiv2[5]+"</td>"+
+				    			"</tr>";
+				    	}
+				    }
+				    tablaReparaciones += "</tbody></table>"
+			    
+			     
+			    document.getElementById("tablaReparaciones").innerHTML = tablaReparaciones;
+			    
+			     $('#tblTablaReparaciones').DataTable({
+				    	"fixedHeader": true,
+				    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				    	"order": [[ 2, "asc" ]],
+				    	"language": {
+				        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				        }
+				  } );
+											    
+			    
+			    document.getElementById("selListaReparaciones").innerHTML = "<input type=\"text\" class=\"form-control\" onclick = \"$('#modalTablaReparaciones').modal('show');\" readonly value=\"select\">";
+			    
+			    
+			    let repar = $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val();
+			    let reparNiv1 = repar.split(";");
+			    for(let i=0; i<reparNiv1.length; i++){
+			    	let reparNiv2 = reparNiv1[i].split(":");
+			    	if(reparNiv2[0]==id_tipoEstado){
+			    		repar = repar.replace(reparNiv1[i]+";","");
+			    	} 
+			    }
+			    
+			    $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val(repar);
+				$("#reparaciones").modal("show");
+			}
+			$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+index).val(formatStandar(cantEstado,2));
+		}
+	}
+	
+	const editaReparaciones = (index, largo, id_equipo, id_cotizacion, cantEstado, esReparable, id_tipoEstado) =>{
+		let modalReparaciones="<div id='reparaciones' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>"+
+			"<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'><div class='modal-content'><div class='modal-header'>"+
+			"<h5 class='modal-title'>SELECCIONAR REPARACIONES</h5><button type='button' class='close' data-dismiss='modal' aria-label='Close'>"+
+	        "<span aria-hidden='true'>&times;</span></button></div><div class='modal-body'>"+
+			"<table id='tablaListaReparaciones' class='table table-sm table-bordered table-condensed table-hover table-fluid'>"+
+			"<thead style='background-color: #eeeeee'><TR><TH>SIGLA</TH><TH>REPARACION</TH><TH>MONEDA</TH><TH>PRECIO</TH><TH>CANTIDAD</TH><TH>DEL</TH></TR></thead>"+
+			"<tbody>";
+			let repar = $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val();
+			let reparNiv1 = repar.split(";");
+			for(let j=0; j<reparNiv1.length; j++){
+				let reparNiv2 = reparNiv1[j].split(":");
+				if(reparNiv2.length>0 && reparNiv2[0]==id_tipoEstado){
+					for(i=0;i<listReparaNiv1.length;i++){
+				    	let listReparaNiv2 = listReparaNiv1[i].split(":&&:");
+				    	if(listReparaNiv2[1]==id_tipoEstado){
+				    		//  0=getId()   1=id_tipoEstado   2=getSigla() 3=getNombre()   4=getMoneda()   5=getPrecio()
+				    		if(listReparaNiv2[0]==reparNiv2[1]){
+				    			modalReparaciones += "<tr>"+
+				    				"<td style='text-align:left;'>"+listReparaNiv2[2]+"</td>"+
+				    				"<td style='text-align:left;'>"+listReparaNiv2[3]+"</td>"+
+				    				"<td style='text-align:center;'>"+listReparaNiv2[4]+"</td>"+
+				    				"<td style='text-align:right;'>"+listReparaNiv2[5]+"</td>"+
+				    				"<td class='width80px' style='text-align:center;'>"+
+					    				"<input type='text' class='form-control right width80px' "+
+										" value='"+formatStandar(reparNiv2[2],2)+"' "+ 
+										" onfocus=\"value=value.replace(/,/g,'')\"  "+
+										" onkeypress='return ingresoDouble(event,value)' "+
+										" autocomplete='off' "+
+										" onchange='modificaReparacion("+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+reparNiv2[1]+",value)'>"+
+				    				"</td>"+
+				    				"<td style='text-align:center;'>"+
+				    					"<a href='#' onclick= 'eliminaReparacion(this,"+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+reparNiv2[1]+")'><kbd style='background-color: red'>X</kbd></a>"+
+				    				"</td></tr>";
+				    		}
+				    	}
+				    }
+				}
+			}
+			modalReparaciones += "<TR><td  colspan='6'><div class='row justify-content-md-left'><div class='col-xs-12 col-sm-6 col-md-6 col-lg-6'><div id='selListaReparaciones'>"+
+				"</div></div></div></TR></tbody></table><div class='row'><div class='col-sm-12' style='text-align:center'>"+
+				"<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Listo</button></div></div></div></div></div></div>";
+			
+			let tablaReparaciones = "<table id='tblTablaReparaciones' class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"+
+						"<thead style=\"background-color: #eeeeee\"><th>SIGLA</th><th>NOMBRE</th><th>MONEDA</th><th>PRECIO</th></thead>"+
+						"<tbody>";
+			    for(i=0;i<listReparaNiv1.length;i++){
+			    	let listReparaNiv2 = listReparaNiv1[i].split(":&&:");
+			    	if(listReparaNiv2[1]==id_tipoEstado){
+			    		//  0=getId()   1=id_tipoEstado   2=getSigla() 3=getNombre()   4=getMoneda()   5=getPrecio()
+			    		tablaReparaciones += "<tr onclick=\"actualizaReparacion("+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+listReparaNiv2[0]+"); $('#modalTablaReparaciones').modal('hide');\">"+
+			    			"<td>"+listReparaNiv2[2]+"</td><td>"+listReparaNiv2[3]+"</td><td style='text-align: center'>"+listReparaNiv2[4]+"</td><td style='text-align: right'>"+listReparaNiv2[5]+"</td>"+
+			    			"</tr>";
+			    	}
+			    }
+			    tablaReparaciones += "</tbody></table>"
+		    
+		     
+		    document.getElementById("tablaReparaciones").innerHTML = tablaReparaciones;
+		    
+		    
+		//    document.getElementById("selListaReparaciones").innerHTML = lista;
+		    $("#reparaciones").modal("show");
+	}
+
+	const actualizaReparacion = (id_equipo, id_cotizacion, id_tipoEstado, id_reparacion) =>{
+		if(id_reparacion > 0){
+			for(i=0;i<listReparaNiv1.length;i++){
+		    	let listReparaNiv2 = listReparaNiv1[i].split(":&&:");
+		    	if(listReparaNiv2[0]==id_reparacion){
+		    		//  0=getId()   1=id_tipoEstado   2=getSigla() 3=getNombre()   4=getMoneda()   5=getPrecio()
+		    		let tabla = document.getElementById('tablaListaReparaciones');
+		    		let row = tabla.insertRow(tabla.rows.length-1);
+		    		let cell = row.insertCell(0);
+		    		cell.style.textAlign = "left";
+		    		cell.innerHTML = listReparaNiv2[2];
+		    		cell = row.insertCell(1);
+		    		cell.style.textAlign = "left";
+		    		cell.innerHTML = listReparaNiv2[3];
+		    		cell = row.insertCell(2);
+		    		cell.style.textAlign = "center";
+		    		cell.innerHTML = listReparaNiv2[4];
+		    		cell = row.insertCell(3);
+		    		cell.style.textAlign = "right";
+		    		cell.innerHTML = listReparaNiv2[5];
+		    		cell = row.insertCell(4);
+		    		cell.style.textAlign = "center";
+		    		cell.setAttribute("class", "width80px");
+		    		cell.innerHTML = "<input type='text' class='form-control right width80px' "+
+							" value='0.00' "+
+							" onfocus=\"value=value.replace(/,/g,'')\"  "+
+							" onkeypress='return ingresoDouble(event,value)' "+
+							" autocomplete='off' "+
+							" onchange='modificaReparacion("+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+id_reparacion+",value)'>";
+					cell = row.insertCell(5);
+		    		cell.style.textAlign = "center";
+		    		cell.innerHTML = "<a href='#' onclick= 'eliminaReparacion(this,"+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+id_reparacion+")'><kbd style='background-color: red'>X</kbd></a>";
+		    		
+		    		$('#selReparacion').val("0");
+		    		$("#selReparacion option[value='"+id_reparacion+"']").remove();
+		    		let aux = $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val();
+		    		aux += id_tipoEstado+":"+id_reparacion+":0;";
+					$("#reparaciones_"+id_equipo+"_"+id_cotizacion).val(aux);
+		    	}
+		    }
+		}
+	}
+	const modificaReparacion = (id_equipo, id_cotizacion, id_tipoEstado, id_reparacion, cantReparacion) =>{
+		let repar = $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val();
+		let reparNiv1 = repar.split(";");
+	    for(let i=0; i<reparNiv1.length; i++){
+	    	let reparNiv2 = reparNiv1[i].split(":");
+	    	if(reparNiv2[0]==id_tipoEstado && reparNiv2[1]==id_reparacion){
+	    		let nuevo = reparNiv2[0]+":"+reparNiv2[1]+":"+cantReparacion+";";
+	    		repar = repar.replace(reparNiv1[i]+";",nuevo);
+	    	} 
+	    }
+	    $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val(repar);
+	}
+	
+	const eliminaReparacion = (nodo, id_equipo, id_cotizacion, id_tipoEstado, id_reparacion) =>{
+		let nodoTd = nodo.parentNode.parentNode; 
+		$(nodoTd).remove();
+		let repar = $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val();
+		let reparNiv1 = repar.split(";");
+	    for(let i=0; i<reparNiv1.length; i++){
+	    	let reparNiv2 = reparNiv1[i].split(":");
+	    	if(reparNiv2[0]==id_tipoEstado && reparNiv2[1]==id_reparacion){
+	    		repar = repar.replace(reparNiv1[i]+";","");
+	    	} 
+	    }
+	    $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val(repar);
+	}
+	
+	const verificaMovimientos = () =>{
+		
+		if("@bodegaOrigen.esInterna" != "1"){
+			
+			if("@sinVenta" == "1"){
+				$('#tablaPrincipal').dataTable().fnAddData( [
+					"TOTALES","","","","","","","","","",
+					"<div id='totalCant'>1.00</div>","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+						@if(bodegaOrigen.esInterna!=1){
+							"",
+							@for((est,index) <- listTipoEstado.zipWithIndex){
+									"",
+							}
+							@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+								"<div id='totalCantCliente'>0.00</div>",
+								"<div id='totalDifCliente'>0.00</div>",
+							}
+						}
+						"","",
+				] );
+			}else{
+				$('#tablaPrincipal').dataTable().fnAddData( [
+					"TOTALES","","","","","","","","","",
+					"<div id='totalCant'>1.00</div>","","<div id='totalExce'>0.00</div>","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+						@if(bodegaOrigen.esInterna!=1){
+							"",
+							@for((est,index) <- listTipoEstado.zipWithIndex){
+									"",
+							}
+							@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+								"<div id='totalCantCliente'>0.00</div>",
+								"<div id='totalDifCliente'>0.00</div>",
+							}
+						}
+						"","",
+				] );
+			}
+			
+			
+		}else{
+			$('#tablaPrincipal').dataTable().fnAddData( [
+				"TOTALES","","","","","","","","","",
+				"<div id='totalCant'>1.00</div>","","","<div id='totalKg'>0.00</div>","<div id='totalM2'>0.00</div>",
+					@if(bodegaOrigen.esInterna!=1){
+						"",
+						@for((est,index) <- listTipoEstado.zipWithIndex){
+								"",
+						}
+						@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+							"<div id='totalCantCliente'>0.00</div>",
+							"<div id='totalDifCliente'>0.00</div>",
+						}
+					}
+					"","",
+			] );
+		}
+		
+		
+		
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let tabla = document.getElementById("tablaPrincipal");
+		let totCant = 0;
+		let totExce = 0;
+		let totKg = 0;
+		let totM2 = 0;
+		
+		let totCantCliente = 0;
+		let totDifCliente = 0;
+		
+		for(i=1; i<tabla.rows.length-1; i++){
+			let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+			let exceso = $(".exceso",tabla.rows[i].cells[13]).val();
+			let kg = $(".KG",tabla.rows[i].cells[14]).text();
+			let m2 = $(".M2",tabla.rows[i].cells[15]).text();
+			cantidad = cantidad.replace(/,/g,'');
+			exceso = exceso.replace(/,/g,'');
+			kg = kg.replace(/,/g,'');
+			m2 = m2.replace(/,/g,'');
+			let total = parseFloat(cantidad) + parseFloat(exceso);
+			totCant += parseFloat(cantidad);
+			totExce += parseFloat(exceso);
+			totKg += parseFloat(kg);
+			totM2 += parseFloat(m2);
+			
+			if(esInterna != "1"){
+				@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+					let cantCliente = $(".cantCliente",tabla.rows[i].cells[tabla.rows[i].cells.length-2]).val();
+					let difCliente = $(".difCliente",tabla.rows[i].cells[tabla.rows[i].cells.length-1]).text();
+					
+					cantCliente = cantCliente.replace(/,/g,'');
+					difCliente = difCliente.replace(/,/g,'');
+					
+					totCantCliente += parseFloat(cantCliente);
+					totDifCliente += parseFloat(difCliente);
+				}
+			}
+			
+			if(total <= 0 ){
+				tabla.rows[i].style.display = 'none';
+			}
+		}
+		$("#totalCant").text(formatStandar(totCant,2));
+		$("#totalExce").text(formatStandar(totExce,2));
+		$("#totalKg").text(formatStandar(totKg,2));
+		$("#totalM2").text(formatStandar(totM2,2));
+		
+		if(esInterna != "1"){
+			@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+				$("#totalCantCliente").text(formatStandar(totCantCliente,2));
+				$("#totalDifCliente").text(formatStandar(totDifCliente,2));
+			}
+		}
+		
+		document.getElementById('verifica').style.visibility = 'hidden';
+		document.getElementById('modifica').style.visibility = 'visible';
+		document.getElementById('aplica').style.visibility = 'visible';
+		if('@bodegaOrigen.esInterna'=='2') document.getElementById('agregarEquiposNoEnviados').style.visibility = 'hidden';
+		
+		
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[-1, 15, 50, 100, 200], ["ALL", 15, 50, 100, 200]],
+	    	"order": [[ 4, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	  	} );
+
+	}
+	
+	const modificaMovimientos = () =>{
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let tabla = document.getElementById("tablaPrincipal");
+		tabla.deleteRow(tabla.rows.length-1);
+		for(i=1; i<tabla.rows.length; i++){
+			tabla.rows[i].style.display = '';
+		}
+		tblPrincipal = $('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+	    	"order": [[ 4, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	  	} );
+		document.getElementById('verifica').style.visibility = 'visible';
+		document.getElementById('modifica').style.visibility = 'hidden';
+		document.getElementById('aplica').style.visibility = 'hidden';
+		if('@bodegaOrigen.esInterna'=='2') document.getElementById('agregarEquiposNoEnviados').style.visibility = 'visible';
+	}
+
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		
+		if (!file) return;
+		
+		const $inputArchivos = document.querySelector("#docAdjunto");
+		const archivosParaSubir = $inputArchivos.files;
+		let tamanio = 0;
+		let allowSubmit = false;
+		
+		for(let i=0; i<archivosParaSubir.length; i++){
+			tamanio += archivosParaSubir[i].size;
+			let nombre = archivosParaSubir[i].name;
+			let extencion = nombre.substring(nombre.lastIndexOf(".")).toLowerCase();
+			for (let j = 0; j < extArray.length; j++) {
+				if (extArray[j] == extencion) { 
+					allowSubmit = true;
+				}
+			}
+			if(allowSubmit && i < archivosParaSubir.length -1){
+				allowSubmit = false;
+			}
+		}
+		
+		if (allowSubmit) {
+			if(tamanio > 200000000){
+				alert("Se permite máximo subir 200 MB,"
+				+" lo que se intenta subir pesa: "+Math.round(tamanio/10000)/100+" MB");
+				form.docAdjunto.value="";
+			}else{
+				alert("Documento subido con éxito");
+				$("#txtBtn").text("Cambiar Documento");
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione solo archivos con extenciones permitidas "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+	
+	let extArray2 = new Array(".xls", ".xlsx");
+	function subirArchivo(form, nodo) {
+		allowSubmit = false;
+		if (!nodo.files[0]){
+			return;
+		}
+		
+		let nombre = nodo.files[0].name;
+		while (nombre.indexOf("\\") != -1){
+			nombre = nombre.slice(nombre.indexOf("\\") + 1);
+		}
+
+		ext = nombre.slice(nombre.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray2.length; i++) {
+			if (extArray2[i] == ext) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var formData = new FormData();
+			formData.append("file",nodo.files[0]);
+			formData.append("id_bodegaOrigen",'@bodegaOrigen.getId()');
+			$.ajax({
+				async: false,
+				url: "/routes2/movValySubePlantilla/",
+		        type: "POST",
+		        method: "POST",
+		        data: formData,
+		        cache: false,
+		        contentType: false,
+		     	processData: false,
+		     	success: function(rs){
+		     		if(rs["status"]){
+						$("#tablaPrincipal").dataTable().fnDestroy();
+						let codigos = document.querySelectorAll(".codigo");
+						let cantidades = document.querySelectorAll(".cantidad");
+						let esVenta0 = document.querySelectorAll(".esVenta0");
+						let esVenta1 = document.querySelectorAll(".esVenta1");
+						let verificaStock = document.querySelectorAll(".verificaStock");
+						let mensajes = "";
+						
+						
+						let kgs = document.querySelectorAll(".kgUnit");
+						let m2s = document.querySelectorAll(".m2Unit");
+						let KGs = document.querySelectorAll(".KG");
+						let M2s = document.querySelectorAll(".M2");
+						
+						const mapCodAux = new Map();
+						for (let i = 0; i < codigos.length; i++) {
+							mapCodAux.set(codigos[i].textContent.toUpperCase(),codigos[i].textContent.toUpperCase());
+						}
+						
+						
+						
+						
+						for (let i = 0; i < codigos.length; i++) {
+							let aux = rs["map"][codigos[i].textContent.toUpperCase()];
+							document.getElementById('btnCargaExcel').style.visibility = 'hidden';
+							if(aux != null){
+								let valores = aux;
+								let codigo = valores[0].toUpperCase();
+								let cant = valores[2].replace(/,/g,'');
+								let stock = verificaStock[i].textContent.replace(/,/g,'');
+								if(parseFloat(cant) > parseFloat(stock)){
+									cantidades[i].value = formatStandar(stock,2);
+									mensajes += "La cantidad en codigo "+codigo+" supera el stock, cantidad = "+formatStandar(cant,2)+" y stock = "+formatStandar(stock,2)+", se coloca el stock.<br>";
+								}else{
+									cantidades[i].value = formatStandar(cant,2);
+									let detStock = parseFloat(stock) - parseFloat(cant);
+									verificaStock[i].textContent = formatStandar(detStock,2);
+								}
+								esVenta0[i].value = valores[3];
+								if(esVenta0[i].value == "1"){
+									esVenta1[i].checked = true;
+								}
+								
+								let kg = kgs[i].textContent.replace(/,/g,'');
+								let m2 = m2s[i].textContent.replace(/,/g,'');
+								
+								KGs[i].textContent = formatStandar(parseFloat(cant)*parseFloat(kg),2);
+								M2s[i].textContent = formatStandar(parseFloat(cant)*parseFloat(m2),2);
+								
+							}
+						}
+						const mapCodReves = new Map(Object.entries(rs["map"]));
+						
+							let auxMsg = "";
+							for (let [key, value] of mapCodReves) {
+								aux = mapCodAux.get(`${key}`);
+								if(aux == null){
+									auxMsg += key+", ";
+								}
+							}
+							if(auxMsg.length>0){
+								mensajes += "<br>Los codigos: <br>"+auxMsg+"<br>no estan en el disponible, no se consideran.";
+							}
+							
+						verificaMovimientos();
+						if(mensajes.length > 5){
+							alertify.alert("ALERTA:<br> " + mensajes);
+						}
+		     		}else{
+						alertify.alert("ERROR EN ARCHIVO:<br> " + rs["msg"]);
+		     		}
+				}
+			 });
+		}else{
+			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
+			+ (extArray2.join("  ")) + "\nPor favor, seleccione un archivo valido "
+			+ "e intente de nuevo.");
+			form.archivoXLSX.value="";
+		}
+		
+	}
+	
+	const validarForm2 = () =>{
+		$("#btnSubmit2").attr('disabled',true);
+		return(true);
+	}
+	
+	const verOt = (id_ot) => {
+		var formData = new FormData();
+	  	formData.append('id_ot',id_ot);
+        $.ajax({
+            url: "/verOtAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaOt').innerHTML = respuesta;
+	     		$('#modalVerOt').modal('show');
+	     	}
+        });
+	}
+
+	
+</script>
+
+
+		
+		
+	

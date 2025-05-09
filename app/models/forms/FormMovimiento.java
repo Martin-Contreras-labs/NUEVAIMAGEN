@@ -117,7 +117,6 @@ public class FormMovimiento {
 	
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0");
 	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
 	
@@ -270,7 +269,7 @@ public class FormMovimiento {
 		}
 		return(listaIdMovIdTipEstCant);
 	}
-	
+	//BBBB
 	public static List<List<Double>> insertMovimientos(Connection con, String db, List<Movimiento> listMov, List<String> listEstad, List<String> listRepar, BodegaEmpresa bodegaOrigen, Guia guia) {
 		
 		
@@ -615,7 +614,7 @@ public class FormMovimiento {
 			}
 		}
 	}
-	
+	// AAAAAA
 	public static void moveSegunTipoEstado(Connection con, String db, List<List<Double>> listaIdMovIdTipEstCant, String id_userCrea, String id_userMoficica) {
 		List<TipoEstado> listTipoEstado = TipoEstado.all(con, db);
 		Long id_movimiento = listaIdMovIdTipEstCant.get(0).get(0).longValue();
@@ -629,9 +628,10 @@ public class FormMovimiento {
 		for(int i=0; i<listTipoEstado.size(); i++) {
 			boolean flag = true;
 			for(int j=0; j<listaIdMovIdTipEstCant.size(); j++) {
+
 				Long id_tipoEstado = listaIdMovIdTipEstCant.get(j).get(1).longValue();
 				
-				
+
 				if( (long)id_tipoEstado == (long)listTipoEstado.get(i).getId() 
 						&& (long)listTipoEstado.get(i).id_bodegaAsociada != (long)auxBodegaAsociada
 						&& (long)listTipoEstado.get(i).id_bodegaAsociada > 0) {
@@ -892,7 +892,7 @@ public class FormMovimiento {
 				if(mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 					allPorSucursal = TipoEstado.all(con, db);
 				}else {
-					allPorSucursal = TipoEstado.allPorSucursal(con, db, bodegaOrigen.getId_sucursal());
+					allPorSucursal = TipoEstado.allPorSucursal(con, db, bodegaDestino.getId_sucursal());
 				}
 				
 				

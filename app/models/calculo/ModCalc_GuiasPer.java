@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.tables.Guia;
 import models.utilities.Fechas;
 
 
@@ -396,8 +397,66 @@ public class ModCalc_GuiasPer {
 		}
 		return map;
 	}
-	
-	
+
+	public static Map<String,Guia> mapUltimaGuiaArrIngreso(Connection con, String db, Map<Long, Guia> allGuias){
+		Map<String, Guia> map = new HashMap<String,Guia>();
+		try {
+			PreparedStatement smt3 = con
+					.prepareStatement(" select" +
+							" movimiento.id_bodegaEmpresa," +
+							" equipo.codigo," +
+							" ifnull(cotizacion.numero,0)," +
+							" max(id_guia)" +
+							" from`"+db+"`.movimiento" +
+							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo" +
+							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion" +
+							" where id_tipoMovimiento=1 and id_guia > 0 and movimiento.id_bodegaEmpresa > 0" +
+							" group by movimiento.id_equipo, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion;");
+
+			ResultSet rs3 = smt3.executeQuery();
+			while(rs3.next()) {
+				Guia guia = allGuias.get(rs3.getLong(4));
+				if(guia!=null && guia.getNumero() > 0) {
+					map.put(rs3.getString(1)+"_"+rs3.getString(2)+"_"+rs3.getString(3), guia);
+				}
+			}
+			rs3.close();
+			smt3.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
+
+	public static Map<String,Guia> mapUltimaGuiaArrEgreso(Connection con, String db, Map<Long, Guia> allGuias){
+		Map<String, Guia> map = new HashMap<String,Guia>();
+		try {
+			PreparedStatement smt3 = con
+					.prepareStatement(" select" +
+							" movimiento.id_bodegaEmpresa," +
+							" equipo.codigo," +
+							" ifnull(cotizacion.numero,0)," +
+							" max(id_guia)" +
+							" from `"+db+"`.movimiento" +
+							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo" +
+							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion" +
+							" where id_tipoMovimiento=2 and id_guia > 0 and movimiento.id_bodegaEmpresa > 0" +
+							" group by movimiento.id_equipo, movimiento.id_bodegaEmpresa, movimiento.id_cotizacion;");
+
+			ResultSet rs3 = smt3.executeQuery();
+			while(rs3.next()) {
+				Guia guia = allGuias.get(rs3.getLong(4));
+				if(guia!=null && guia.getNumero() > 0) {
+					map.put(rs3.getString(1)+"_"+rs3.getString(2)+"_"+rs3.getString(3), guia);
+				}
+			}
+			rs3.close();
+			smt3.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return map;
+	}
 	
 	
 	

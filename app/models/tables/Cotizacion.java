@@ -2698,8 +2698,7 @@ public class Cotizacion {
 		return(listCotizacion);
 	}
 	
-	public static List<List<String>> listCotiFiltrado(Connection con, String db, String anioMes, Long id_cotizaEstado, 
-			Long id_sucursal, Long id_cliente, Long id_proyecto, Long id_comercial, Long id_cotizaSolucion){
+	public static List<List<String>> listCotiFiltrado(Connection con, String db, String anioMes, Long id_cotizaEstado, Long id_comercial){
 		List<List<String>> lista = new ArrayList<List<String>>();
 		String anio = anioMes.substring(0,4);
 		String mes = anioMes.substring(4);
@@ -2751,16 +2750,11 @@ public class Cotizacion {
 							+ " cotizacion.id_cotizaSolucion"
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0  and year(fecha)=? and month(fecha)=? and id_cotizaEstado=? "
-							+ " and id_sucursal=? and id_cliente=? and id_proyecto=? "
-							+ " and id_comercial=? and id_cotizaSolucion=?;");
+							+ " and id_comercial=?;");
 			smt.setString(1, anio);
 			smt.setString(2, mes);
 			smt.setLong(3, id_cotizaEstado);
-			smt.setLong(4, id_sucursal);
-			smt.setLong(5, id_cliente);
-			smt.setLong(6, id_proyecto);
-			smt.setLong(7, id_comercial);
-			smt.setLong(8, id_cotizaSolucion);
+			smt.setLong(4, id_comercial);
 
 			ResultSet rs = smt.executeQuery();
 			

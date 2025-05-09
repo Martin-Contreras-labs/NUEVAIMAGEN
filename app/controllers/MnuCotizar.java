@@ -2044,13 +2044,210 @@ public class MnuCotizar extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
 	}
+
+	//============================================================
+	// MNU cotizaReporte   Cotizar/Cotizar/Pipeline Resumido
+	//============================================================
+
+	public Result reportPipelineSelRes(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			try {
+				Connection con = db.getConnection();
+
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				if(mapeoPermiso.get("cotizaImprime")==null) {
+					con.close();
+					return ok(mensajes.render("/",msgSinPermiso));
+				}
+				Fechas hoy = Fechas.hoy();
+				hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+				String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+				String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+
+
+				Comercial comercial = new Comercial();
+				Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, s.id_usuario);
+
+				if(auxComercial==null) {
+					comercial.setId((long)0);
+					comercial.setNameUsuario("");
+					if(mapeoPermiso.get("cambiarComercial")!=null) {
+						comercial.setNameUsuario("-- TODOS --");
+					}
+				}else {
+					comercial = auxComercial;
+				}
+
+				List<Comercial> listComercial = new ArrayList<Comercial>();
+				if(mapeoPermiso.get("cambiarComercial")!=null) {
+					listComercial = Comercial.allPorIdSucursalVig(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				}
+
+				List<Sucursal> listSucursal = new ArrayList<Sucursal>();
+				if(mapeoPermiso.get("cambiarSucursal")!=null) {
+					listSucursal = Sucursal.all(con, s.baseDato);
+				}
+
+				Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
+
+				con.close();
+				return ok(reportPipelineSelRes.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, sucursal, listSucursal));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return ok(mensajes.render("/",msgError));
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result reportPipelineRptRes(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				String desdeAAMMDD = form.get("fechaDesde").trim();
+				String hastaAAMMDD = form.get("fechaHasta").trim();
+				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
+
+				try {
+					Connection con = db.getConnection();
+
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+					String nameSucursal = "TODAS";
+					String condSucursal = "";
+
+					if(id_sucursal != 0) {
+						condSucursal = " and cotizacion.id_sucursal = " + id_sucursal.toString();
+						Sucursal sucursal = Sucursal.find(con, s.baseDato, id_sucursal.toString());
+						nameSucursal = sucursal.getNombre();
+					}
+
+					String tituloSucursal = " (SUCURSAL: "+nameSucursal+") ";
+
+
+					List<List<String>> detalle = ReportCotizaciones.detallePipelineRes(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal);
+
+
+					String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
+					String fechaA = Fechas.DDMMAA(hastaAAMMDD);
+
+					con.close();
+					return ok(reportPipelineRptRes.render(mapeoDiccionario,mapeoPermiso,userMnu, detalle, fechaDe, fechaA, tituloSucursal, desdeAAMMDD, hastaAAMMDD, id_sucursal));
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok(mensajes.render("/",msgError));
+			}
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result reportPipelineRptResExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				String desdeAAMMDD = form.get("fechaDesde").trim();
+				String hastaAAMMDD = form.get("fechaHasta").trim();
+				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
+
+				try {
+					Connection con = db.getConnection();
+
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+					String nameSucursal = "TODAS";
+					String condSucursal = "";
+
+					if(id_sucursal != 0) {
+						condSucursal = " and cotizacion.id_sucursal = " + id_sucursal.toString();
+						Sucursal sucursal = Sucursal.find(con, s.baseDato, id_sucursal.toString());
+						nameSucursal = sucursal.getNombre();
+					}
+
+					String tituloSucursal = " (SUCURSAL: "+nameSucursal+") ";
+
+
+					List<List<String>> detalle = ReportCotizaciones.detallePipelineRes(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal);
+
+
+					String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
+					String fechaA = Fechas.DDMMAA(hastaAAMMDD);
+
+					File file = ReportCotizaciones.detallePipelineResExcel(s.baseDato, mapeoDiccionario, detalle, tituloSucursal, fechaDe, fechaA);
+
+					if(file!=null) {
+						con.close();
+						return ok(file,false,Optional.of("PipelineResumido.xlsx"));
+					}else {
+						con.close();
+						return ok("");
+					}
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
+				return ok("");
+			}
+		}else {
+			return ok("");
+		}
+	}
+
+	public Result reportPipelineDetalle(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok("error");
+			}else {
+				try {
+					String anioMes = form.get("anioMes");
+					Long id_cotizaEstado = Long.parseLong(form.get("id_cotizaEstado"));
+					Long id_comercial = Long.parseLong(form.get("id_comercial"));
+
+					Connection con = db.getConnection();
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					if(mapeoPermiso.get("cotizaImprime")==null) {
+						con.close();
+						return ok(mensajes.render("/",msgSinPermiso));
+					}
+					List<List<String>> listCotizacion = Cotizacion.listCotiFiltrado(con, s.baseDato, anioMes, id_cotizaEstado, id_comercial);
+					String json = Json.toJson(listCotizacion).toString();
+					con.close();
+					return ok(json).as("application/json");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			return ok("error");
+		}else {
+			return ok("error");
+		}
+	}
 	
 	
 	//============================================================
-    // MNU cotizaReporte   Cotizar/Cotizar/Pipeline
+    // MNU cotizaReporte   Cotizar/Cotizar/Pipeline Detallado
     //============================================================
 	
-	public Result reportPipelineSel(Http.Request request) {
+	public Result reportPipelineSelDet(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
@@ -2095,7 +2292,7 @@ public class MnuCotizar extends Controller {
     			Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
     			
     			con.close();
-    			return ok(reportPipelineSel.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, sucursal, comercial, listSucursal,listComercial));
+    			return ok(reportPipelineSelDet.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, sucursal, comercial, listSucursal,listComercial));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -2105,7 +2302,7 @@ public class MnuCotizar extends Controller {
     	}
 	}
 	
-	public Result reportPipelineRpt(Http.Request request) {
+	public Result reportPipelineRptDet(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
@@ -2140,18 +2337,12 @@ public class MnuCotizar extends Controller {
 	    				Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, id_comercial.toString());
 	    				nameComercial = auxComercial.getNameUsuario();
 	    			}
-	    			
 	    			String tituloSucursal = " (SUCURSAL: "+nameSucursal+" - COMERCIAL: "+nameComercial+") ";
-	    			
-	    			
-	    			List<List<String>> detalle = ReportCotizaciones.detallePipeline(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial);
-	    			
-	    			
+	    			List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial);
 	    			String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
 	    			String fechaA = Fechas.DDMMAA(hastaAAMMDD);
-	    			
 	    			con.close();
-	    			return ok(reportPipelineRpt.render(mapeoDiccionario,mapeoPermiso,userMnu, detalle, fechaDe, fechaA, tituloSucursal, desdeAAMMDD, hastaAAMMDD, id_sucursal, id_comercial));
+	    			return ok(reportPipelineRptDet.render(mapeoDiccionario,mapeoPermiso,userMnu, detalle, fechaDe, fechaA, tituloSucursal, desdeAAMMDD, hastaAAMMDD, id_sucursal, id_comercial));
 	    			
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
@@ -2163,7 +2354,7 @@ public class MnuCotizar extends Controller {
     	}
 	}
 	
-	public Result reportPipelineRptExcel(Http.Request request) {
+	public Result reportPipelineRptDetExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		
@@ -2199,19 +2390,15 @@ public class MnuCotizar extends Controller {
 	    			}
 	    			
 	    			String tituloSucursal = " (SUCURSAL: "+nameSucursal+" - COMERCIAL: "+nameComercial+") ";
-	    			
-	    			
-	    			List<List<String>> detalle = ReportCotizaciones.detallePipeline(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial);
-	    			
-	    			
+	    			List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial);
 	    			String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
 	    			String fechaA = Fechas.DDMMAA(hastaAAMMDD);
 	    			
-	    			File file = ReportCotizaciones.detallePipelineExcel(s.baseDato, mapeoDiccionario, detalle, tituloSucursal, fechaDe, fechaA);
+	    			File file = ReportCotizaciones.detallePipelineDetExcel(s.baseDato, mapeoDiccionario, detalle, tituloSucursal, fechaDe, fechaA);
 	    			
 	    			if(file!=null) {
 		       			con.close();
-		       			return ok(file,false,Optional.of("Pipeline.xlsx"));
+		       			return ok(file,false,Optional.of("PipelineDetallado.xlsx"));
 		       		}else {
 		       			con.close();
 		       			return ok("");
@@ -2227,41 +2414,7 @@ public class MnuCotizar extends Controller {
     		return ok("");
     	}
 	}
-	
-	public Result reportPipelineDetalle(Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok("error");
-	       	}else {
-	       		try {
-	       			String anioMes = form.get("anioMes");
-	       			Long id_cotizaEstado = Long.parseLong(form.get("id_cotizaEstado"));
-	       			Long id_sucursal = Long.parseLong(form.get("id_sucursal"));
-	       			Long id_cliente = Long.parseLong(form.get("id_cliente"));
-	       			Long id_proyecto = Long.parseLong(form.get("id_proyecto"));
-	       			Long id_comercial = Long.parseLong(form.get("id_comercial"));
-	       			Long id_cotizaSolucion = Long.parseLong(form.get("id_cotizaSolucion"));
-	    			Connection con = db.getConnection();
-	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			if(mapeoPermiso.get("cotizaImprime")==null) {
-	    				con.close();
-	    				return ok(mensajes.render("/",msgSinPermiso));
-	    			}
-	    			List<List<String>> listCotizacion = Cotizacion.listCotiFiltrado(con, s.baseDato, anioMes, id_cotizaEstado, id_sucursal, id_cliente, id_proyecto, id_comercial, id_cotizaSolucion);
-	    			String json = Json.toJson(listCotizacion).toString();
-	    			con.close();
-	    			return ok(json).as("application/json");
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       	}
-	   		return ok("error");
-    	}else {
-    		return ok("error");
-    	}
-    }
+
 	
     
     //============================================================

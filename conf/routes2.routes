@@ -222,10 +222,14 @@ GET		/cotizaListaModificaSelPeriodo/		controllers.MnuCotizarSelect.cotizaListaMo
 POST	/cotizaListaModificaSel/			controllers.MnuCotizarSelect.cotizaListaModificaSel(request: Request)
 POST	/cotizaModificaSel/					controllers.MnuCotizarSelect.cotizaModificaSel(request: Request)
 
-GET		/reportPipelineSel/					controllers.MnuCotizar.reportPipelineSel(request: Request)
-POST	/reportPipelineRpt/					controllers.MnuCotizar.reportPipelineRpt(request: Request)
+GET		/reportPipelineSelRes/				controllers.MnuCotizar.reportPipelineSelRes(request: Request)
+POST	/reportPipelineRptRes/				controllers.MnuCotizar.reportPipelineRptRes(request: Request)
 POST	/reportPipelineDetalle/				controllers.MnuCotizar.reportPipelineDetalle(request: Request)
-POST	/reportPipelineRptExcel/			controllers.MnuCotizar.reportPipelineRptExcel(request: Request)
+POST	/reportPipelineRptResExcel/			controllers.MnuCotizar.reportPipelineRptResExcel(request: Request)
+
+GET		/reportPipelineSelDet/				controllers.MnuCotizar.reportPipelineSelDet(request: Request)
+POST	/reportPipelineRptDet/				controllers.MnuCotizar.reportPipelineRptDet(request: Request)
+POST	/reportPipelineRptDetExcel/			controllers.MnuCotizar.reportPipelineRptDetExcel(request: Request)
 
 
 GET		/otListarDespachosPeriodo/			controllers.MnuCotizar.otListarDespachosPeriodo(request: Request)
