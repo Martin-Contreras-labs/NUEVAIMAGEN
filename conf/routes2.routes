@@ -164,6 +164,26 @@ GET 	/precioMantSelSucursal/			controllers.MnuTablas.precioMantSelSucursal(reque
 
 POST	/equipoMantencionExcel/			controllers.MnuTablas.equipoMantencionExcel(request: Request)
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Dibujantes TABLAS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/dibujanteMantencion/			            controllers.MnuTablas.dibujanteMantencion(request: Request)
+GET 	/dibujanteAgrega/			                controllers.MnuTablas.dibujanteAgrega(request: Request)
+POST 	/dibujanteGraba/			                controllers.MnuTablas.dibujanteGraba(request: Request)
+POST 	/dibujanteModifica/			                controllers.MnuTablas.dibujanteModifica(request: Request)
+POST 	/modificaDibujantePorCampoAjax/			    controllers.MnuTablas.modificaDibujantePorCampoAjax(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Dibujantes BODEGA EMPRESA
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/rubroMantencion/			            controllers.MnuBodegas.rubroMantencion(request: Request)
+GET 	/rubroAgrega/			                controllers.MnuBodegas.rubroAgrega(request: Request)
+POST 	/rubroGraba/			                controllers.MnuBodegas.rubroGraba(request: Request)
+POST 	/rubroModifica/			                controllers.MnuBodegas.rubroModifica(request: Request)
+POST 	/modificaRubroPorCampoAjax/			    controllers.MnuBodegas.modificaRubroPorCampoAjax(request: Request)
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # compras

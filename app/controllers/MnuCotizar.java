@@ -29,36 +29,7 @@ import models.forms.FormDespacho;
 import models.forms.FormMovimiento;
 import models.forms.FormOt;
 import models.reports.ReportCotizaciones;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Comercial;
-import models.tables.Comunas;
-import models.tables.CotiBiblioteca;
-import models.tables.CotizaDetalle;
-import models.tables.CotizaEstado;
-import models.tables.CotizaSolucion;
-import models.tables.Cotizacion;
-import models.tables.EmisorTributario;
-import models.tables.Equipo;
-import models.tables.Grupo;
-import models.tables.Guia;
-import models.tables.Moneda;
-import models.tables.Movimiento;
-import models.tables.Ot;
-import models.tables.OtDespachado;
-import models.tables.OtEstado;
-import models.tables.Precio;
-import models.tables.Proyecto;
-import models.tables.Regiones;
-import models.tables.Sucursal;
-import models.tables.TasasCambio;
-import models.tables.TipoEstado;
-import models.tables.TipoReparacion;
-import models.tables.Transportista;
-import models.tables.Unidad;
-import models.tables.UnidadTiempo;
-import models.tables.Usuario;
-import models.tables.UsuarioPermiso;
+import models.tables.*;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
@@ -244,11 +215,13 @@ public class MnuCotizar extends Controller {
 	        			}
 	        		}
     	        }
-    			
-   		     
+    			List<Dibujante> listDibujantes = Dibujante.allVigentes(con, s.baseDato);
+				List<PlazoProbable> listPlazoProbable = PlazoProbable.all(con, s.baseDato);
+
     			con.close();
     			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,numDecParaTot,listRegiones, jsonListUnTiempo, 
-    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, tasaIva, jsonListMoneda));
+    					sucursal, comercial, listSucursal,listComercial,importDesdeExcel, jsonDetalle, listSoluciones, tasaIva, jsonListMoneda,
+						listDibujantes,listPlazoProbable));
     			
         	} catch (SQLException e) {
     			e.printStackTrace();
@@ -768,11 +741,12 @@ public class MnuCotizar extends Controller {
 		        			}
 		        		}
 	    	        }
-	    			
+
+					List<Dibujante> listDibujantes = Dibujante.allVigentes(con, s.baseDato);
 	    			
 	    			con.close();
 	    			return ok(cotizaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos, numDecParaTot, listRegiones, jsonListUnTiempo, 
-	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, tasaIva, jsonListMoneda));
+	    					listSucursal, listComercial,jsonDetalle, listSoluciones, cotizacion, tasaIva, jsonListMoneda, listDibujantes));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -6340,11 +6314,14 @@ public class MnuCotizar extends Controller {
 		    	    			String jsonListMoneda = Json.toJson(listMoneda).toString();
 		    	    			
 		    	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-		    	    			
+
+								List<Dibujante> listDibujantes = Dibujante.allVigentes(con, s.baseDato);
+								List<PlazoProbable> listPlazoProbable = PlazoProbable.all(con, s.baseDato);
+
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
-		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100,jsonListMoneda));
+		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100,jsonListMoneda,listDibujantes,listPlazoProbable));
 		    	    			
 		    					
 					} catch (SQLException e) {
@@ -6622,11 +6599,14 @@ public class MnuCotizar extends Controller {
 		    	    			String jsonListMoneda = Json.toJson(listMoneda).toString();
 		    	    			
 		    	    			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+
+								List<Dibujante> listDibujantes = Dibujante.allVigentes(con, s.baseDato);
+								List<PlazoProbable> listPlazoProbable = PlazoProbable.all(con, s.baseDato);
 		    	    			
 		    	    			con.close();
 		    	    			return ok(cotizaIngreso2.render(mapeoDiccionario,mapeoPermiso,userMnu,formCotiza,listClientes,listProyectos,
 		    	    					numDecParaTot,listRegiones, jsonListUnTiempo, sucursal, comercial, listSucursal,listComercial, importDesdeExcel,
-		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100,jsonListMoneda));
+		    	    					jsonDetalle, listSoluciones, emisor.tasaIva/100,jsonListMoneda, listDibujantes, listPlazoProbable));
 		    	    			
 		    				}else {
 		    					con.close();

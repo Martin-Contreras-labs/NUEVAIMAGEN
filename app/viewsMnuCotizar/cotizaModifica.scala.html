@@ -3,8 +3,8 @@
 formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], numDecParaTot: String, listRegiones: List[tables.Regiones],
 jsonListUnTiempo: String,
 listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial], 
-jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion, iva: Double, jsonListMoneda: String)
-
+jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion, iva: Double, jsonListMoneda: String,
+listDibujantes: List[tables.Dibujante])
 
 
 @main("") {
@@ -236,12 +236,12 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 								
 								
 								
-								<td colspan="20" rowspan="4">
+								<td colspan="20" rowspan="6">
 									<div class="input-group">
 								  		<div class="input-group-prepend">
 								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
 								  		</div>
-	  									<textarea class="form-control" rows="4"
+	  									<textarea class="form-control" rows="9"
 	  										name="observaciones" 
 	  										autocomplete="off">@formCotiza.observaciones</textarea>
 									</div>
@@ -276,21 +276,52 @@ jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: ta
 									
 									
 							</tr>
-							
-							<td align="center"  colspan="2">
-								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Tipo de Solucion</span>
-							  		</div>
-									<select id="selSolucion" class="custom-select"  style="width: 80px;" name="id_cotizaSolucion">
-										<option value="@cotizacion.getId_cotizaSolucion()">@cotizacion.getNameCotizaSolucion()</option>
-										@for(lista <- listSoluciones){
-											<option value="@lista.getId()">@lista.getSolucion()</option>
-										}
-									</select>
-								</div>
-							</td>
-								
+							<tr>
+								<td align="center"  colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Tipo de Solucion</span>
+										</div>
+										<select id="selSolucion" class="custom-select"  style="width: 80px;" name="id_cotizaSolucion">
+											<option value="@cotizacion.getId_cotizaSolucion()">@cotizacion.getNameCotizaSolucion()</option>
+											@for(lista <- listSoluciones){
+												<option value="@lista.getId()">@lista.getSolucion()</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center" colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Probable</span>
+										</div>
+										<input type="date" class="form-control center"
+											   name="fechaProbable"
+											   id="fechaProbable"
+											   onblur="if(!limitaFecha(value,720,720)) value='@cotizacion.getFechaProbable()';"
+											   value="@cotizacion.getFechaProbable()"
+											   required>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center"  colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Dibujante/Proyectista</span>
+										</div>
+										<input type="hidden" id="id_dibujante" name="id_dibujante" value="0">
+										<select id="selSolucion" class="custom-select"  style="width: 80px;" onchange="$('#id_dibujante').val(value)">
+											<option value="@cotizacion.getId_dibujante()">@cotizacion.getNombreDibujante()</option>
+											@for(lista <- listDibujantes){
+												<option value="@lista.getId()">@lista.getNombre()</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>
 							<tr>
 								<input type="hidden" id="id_bodegaEmpresa" name="id_bodegaEmpresa" value="@formCotiza.id_bodegaEmpresa">
 								@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {

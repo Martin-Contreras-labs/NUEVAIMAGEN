@@ -1,0 +1,91 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+dibujante: tables.Dibujante)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR DIBUJANTE/PROYECTISTA", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td style="text-align:left;">NOMBRE (fullName): </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="nombre"
+								autocomplete="off"
+								onkeypress="return sinReservados(event)"
+								value="@dibujante.getNombre()"
+								maxlength="100"
+							    required
+								onchange="value = value.trim(); modificarDibujante(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">OBSERVACIONES: </td>
+						<td style="text-align:left;">
+							<textarea class='form-control form-control-sm' rows='3'
+								id="observaciones"
+								onchange="value = value.trim(); modificarDibujante(id)"
+								autocomplete="off">@dibujante.getObservaciones()</textarea>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes2/dibujanteMantencion/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+	let id_dibujante = "@dibujante.getId()";
+
+	$(document).ready(function() {
+		 document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarDibujante = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_dibujante',id_dibujante);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/routes2/modificaDibujantePorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El dibujante/proyectista ya existe, intente con otro', function () {
+	     				$("#nombre").val("@dibujante.getNombre()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+
+
+
+</script>
+
+		
+	

@@ -82,6 +82,10 @@ public class Cotizacion {
 	
 	public String notaCotizaEstado;
 
+	public Long id_dibujante;
+	public String nombreDibujante;
+	public String fechaProbable;
+
 	public Cotizacion(Date dateCreate, Long id, Long id_bodegaEmpresa, Long id_cliente, Long id_proyecto, Long numero,
 			String fecha, String cotizacionPDF, Double dctoArriendo, Double dctoVenta, Long esModificable,
 			String fechaConfirmada, Long confirmada, String contratoPDF, String ocClientePDF, String numeroOC,
@@ -91,7 +95,7 @@ public class Cotizacion {
 			String listadoPlanos, String fechaPlanos, String nomRepresEmpresa, String rutRepresEmpresa,
 			String direccionObra, Long id_userCrea, Long id_userModifica, String fechaUserModifica, Long id_sucursal,
 			Long id_comercial, String nameSucursal, String nameComercial, Long id_cotizaSolucion, String nameCotizaSolucion,
-			String notaCotizaEstado) {
+			String notaCotizaEstado, Long id_dibujante, String nombreDibujante, String fechaProbable) {
 		super();
 		this.dateCreate = dateCreate;
 		this.id = id;
@@ -139,6 +143,9 @@ public class Cotizacion {
 		this.id_cotizaSolucion = id_cotizaSolucion;
 		this.nameCotizaSolucion = nameCotizaSolucion;
 		this.notaCotizaEstado = notaCotizaEstado;
+		this.id_dibujante = id_dibujante;
+		this.nombreDibujante = nombreDibujante;
+		this.fechaProbable = fechaProbable;
 		
 	}
 
@@ -156,6 +163,8 @@ public class Cotizacion {
 		this.id_sucursal = form.id_sucursal;
 		this.id_comercial = form.id_comercial;
 		this.id_cotizaSolucion = form.id_cotizaSolucion;
+		this.id_dibujante = form.id_dibujante;
+		this.fechaProbable = form.fechaProbable;
 	}
 	
 	public Cotizacion() {
@@ -546,6 +555,30 @@ public class Cotizacion {
 		this.notaCotizaEstado = notaCotizaEstado;
 	}
 
+	public Long getId_dibujante() {
+		return id_dibujante;
+	}
+
+	public void setId_dibujante(Long id_dibujante) {
+		this.id_dibujante = id_dibujante;
+	}
+
+	public String getNombreDibujante() {
+		return nombreDibujante;
+	}
+
+	public void setNombreDibujante(String nombreDibujante) {
+		this.nombreDibujante = nombreDibujante;
+	}
+
+	public String getFechaProbable() {
+		return fechaProbable;
+	}
+
+	public void setFechaProbable(String fechaProbable) {
+		this.fechaProbable = fechaProbable;
+	}
+
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
@@ -674,13 +707,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion  where id>0;");
 	
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -704,13 +738,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
-				  
+
+				  String nombreDibujante = "";
+				  Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				  if(dibujante!=null) {
+					  nombreDibujante = dibujante.getNombre();
+				  }
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
+
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -728,13 +771,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion  where id>0 order by id desc limit ?;");
 			smt.setInt(1, limit);
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -758,13 +802,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -808,7 +861,7 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion  where id>0 "
 							+ " and (cotizacion.fecha between ? and ?);");
 					smt.setString(1, desde);
@@ -817,6 +870,7 @@ public class Cotizacion {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -840,13 +894,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -864,12 +927,13 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion  where id>0 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1) order by fecha desc, numero desc;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -893,13 +957,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -917,13 +990,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and esModificable=1 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1);");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -947,13 +1021,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
-				  
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
+
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -971,7 +1054,7 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and esModificable=1 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1) "
 							+ " and (cotizacion.fecha between ? and ?);");
@@ -981,6 +1064,7 @@ public class Cotizacion {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1004,13 +1088,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1028,13 +1121,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and esModificable=1 and id_cotizaEstado > 0;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1058,13 +1152,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
-				  
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
+
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1082,7 +1185,7 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and esModificable=1 and id_cotizaEstado > 0 "
 							+ " and (cotizacion.fecha between ? and ?);");
@@ -1092,6 +1195,7 @@ public class Cotizacion {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1115,13 +1219,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1139,13 +1252,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and esModificable=0 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1) and id_ot=0;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1169,13 +1283,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
-				  
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
+
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1193,13 +1316,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1) and id_ot=0;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1223,13 +1347,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1247,13 +1380,14 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where id>0 and esModificable=0;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1277,13 +1411,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
-				  
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
+
 				lista.add(new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 					rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 					rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 					rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 					rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1338,7 +1481,9 @@ public class Cotizacion {
 							+ " cotizacion.id_sucursal,"
 							+ " cotizacion.id_comercial,"
 							+ " cotizacion.id_cotizaSolucion,"
-							+ " cotizacion.notaCotizaEstado "
+							+ " cotizacion.notaCotizaEstado,"
+							+ " cotizacion.id_dibujante,"
+							+ " cotizacion.fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " left join `"+db+"`.ot on ot.id = cotizacion.id_ot "
 							+ " where cotizacion.id>0 and cotizacion.esModificable=0"
@@ -1352,6 +1497,7 @@ public class Cotizacion {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1375,16 +1521,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
-				  
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
+
 				lista.add(new Cotizacion(
 						dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),rs.getDouble(8),rs.getDouble(9), // 10
 					rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19), //20
-					
 					rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), //30
-					
 					rs.getLong(30),rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),rs.getLong(40), //40
-					
-					rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43)));
+					rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -1432,7 +1584,7 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where cotizacion.id=?;" );
 			smt.setLong(1, id_cotizacion);
@@ -1440,6 +1592,7 @@ public class Cotizacion {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			if (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1463,13 +1616,21 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				aux = new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 						rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 						rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 						rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 						rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-						rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43));
+						rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable);
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -1488,7 +1649,7 @@ public class Cotizacion {
 							+ " numeroContrato, ifnull(usadosEn,''), ifnull(garantiaDoc,''), ifnull(garantiaDet,''), ifnull(garantiaVenc,''), "
 							+ " ifnull(garantiaEquiv,''), ifnull(observaciones,''), ifnull(notasAlContrato,''), id_cotizaEstado, pdfArriendo, pdfVenta, dateCreate, id_ot, pdfArrVta, "
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
-							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado "
+							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
 							+ " where cotizacion.numero=?;" );
 			smt.setLong(1, numero);
@@ -1496,6 +1657,7 @@ public class Cotizacion {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,CotizaSolucion> mapCotizaSolucion = CotizaSolucion.mapAll(con, db);
+			Map<Long, Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 			if (rs.next()) {
 				String nameSucursal = "Sin Sucursal";
 				String nameComercial = "Sin Comercial";
@@ -1519,13 +1681,22 @@ public class Cotizacion {
 				  }catch(Exception e){
 					  dateCreacion = rs.getDate(29);
 				  }
+
+				String nombreDibujante = "";
+				Dibujante dibujante = mapDibujante.get(rs.getLong(44));
+				if(dibujante!=null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
+				String fechaProbable = rs.getString(45);
+				if(fechaProbable==null) {fechaProbable = "";}
 				  
 				aux = new Cotizacion(dateCreacion, rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),rs.getLong(5),rs.getString(6),rs.getString(7),
 						rs.getDouble(8),rs.getDouble(9),rs.getLong(10),rs.getString(11),rs.getLong(12),rs.getString(13), rs.getString(14),rs.getString(15),
 						rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),
 						rs.getString(24),rs.getString(25),rs.getLong(26),rs.getString(27),rs.getString(28), rs.getString(31), rs.getLong(30),
 						rs.getString(32),rs.getString(33),rs.getString(34),rs.getString(35),rs.getString(36),rs.getLong(37),rs.getLong(38),rs.getString(39),
-						rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43));
+						rs.getLong(40), rs.getLong(41), nameSucursal, nameComercial, rs.getLong(42), nameSolucion, rs.getString(43), rs.getLong(44), nombreDibujante, fechaProbable);
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -1576,14 +1747,20 @@ public class Cotizacion {
 			"</tr>"+
 			"<tr>"+
 				"<td colspan='2'>Sucursal: "+sucursal.nombre+"</td>"+
-				"<td colspan='3' rowspan='2' style='text-align:left; vertical-align:top'>Observaciones: <br>"+cotizacion.observaciones+"</td>"+
+				"<td colspan='3' rowspan='4' style='text-align:left; vertical-align:top'>Observaciones: <br>"+cotizacion.observaciones+"</td>"+
 			"</tr>"+
 			"<tr>"+
 				"<td colspan='2'>Comercial: "+comercial.nameUsuario+"</td>"+
 			"</tr>"+
 			"<tr>"+
-				"<td colspan='2'>Tipo de Solucion: "+cotizacion.getNameCotizaSolucion()+"</td>"+
-				"<td > Nro OC: "+cotizacion.getNumeroOC()+"</td>"+
+				"<td>Tipo de Solucion: "+cotizacion.getNameCotizaSolucion()+"</td>"+
+				"<td> Nro OC: "+cotizacion.getNumeroOC()+"</td>"+
+				"<td><td>"+
+			"</tr>"+
+			"<tr>"+
+				"<td>Fecha Probable: "+Fechas.DDMMAA(cotizacion.getFechaProbable())+"</td>"+
+				"<td>Dibujante/Proyectista: "+cotizacion.getNombreDibujante()+"</td>"+
+				"<td><td>"+
 			"</tr>"+
 		"</table>"+
 		"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
@@ -1959,8 +2136,13 @@ public class Cotizacion {
 		try {
 			PreparedStatement smt = con
 				.prepareStatement("insert into `"+db+"`.cotizacion (id_bodegaEmpresa,id_cliente,id_proyecto," +
-								"numero,fecha, observaciones, dctoArriendo, dctoVenta, id_userCrea, id_comercial, id_sucursal, id_cotizaSolucion) " +
-								" values (?,?,?,?,?,?,?,?,?,?,?,?);");
+								"numero,fecha, observaciones, dctoArriendo, dctoVenta, id_userCrea, id_comercial, id_sucursal, id_cotizaSolucion," +
+								"id_dibujante, fechaProbable) " +
+								" values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+			String fechaProbable = cotizacion.getFechaProbable();
+			if(fechaProbable==null || fechaProbable.trim().length()<=0) {
+				fechaProbable = "";
+			}
 			smt.setLong(1, cotizacion.getId_bodegaEmpresa());
 			smt.setLong(2, cotizacion.getId_cliente());
 			smt.setLong(3, cotizacion.getId_proyecto());
@@ -1973,6 +2155,8 @@ public class Cotizacion {
 			smt.setLong(10, cotizacion.getId_comercial());
 			smt.setLong(11, cotizacion.getId_sucursal());
 			smt.setLong(12, cotizacion.getId_cotizaSolucion());
+			smt.setLong(13, cotizacion.getId_dibujante());
+			smt.setString(14, fechaProbable);
 			smt.executeUpdate();
 			smt.close();
 			
@@ -1995,7 +2179,8 @@ public class Cotizacion {
 		try {
 			PreparedStatement smt = con
 				.prepareStatement("update `"+db+"`.cotizacion set id_bodegaEmpresa=?, id_cliente=?, id_proyecto=?," +
-								"numero=?,fecha=?, observaciones=?, dctoArriendo=?, dctoVenta=? , id_userModifica=?, fechaUserModifica=?, id_comercial=?, id_sucursal=?, id_cotizaSolucion=? where id=?;");
+						" numero=?,fecha=?, observaciones=?, dctoArriendo=?, dctoVenta=? , id_userModifica=?, fechaUserModifica=?, id_comercial=?, " +
+						" id_sucursal=?, id_cotizaSolucion=?, id_dibujante, fechaProbable where id=?;");
 			smt.setLong(1, cotizacion.getId_bodegaEmpresa());
 			smt.setLong(2, cotizacion.getId_cliente());
 			smt.setLong(3, cotizacion.getId_proyecto());
@@ -2009,7 +2194,9 @@ public class Cotizacion {
 			smt.setLong(11, cotizacion.getId_comercial());
 			smt.setLong(12, cotizacion.getId_sucursal());
 			smt.setLong(13, cotizacion.getId_cotizaSolucion());
-			smt.setLong(14, cotizacion.getId());
+			smt.setLong(13, cotizacion.getId_dibujante());
+			smt.setString(14, cotizacion.getFechaProbable());
+			smt.setLong(15, cotizacion.getId());
 			smt.executeUpdate();
 			smt.close();
 			flag = true;
@@ -3087,7 +3274,7 @@ public class Cotizacion {
 				aux.add(rs.getString(21));	// 22 id_moneda
 				aux.add(nameCotizaSolucion);	// 23 solucion
 				aux.add(rs.getString(1));	// 24 id_sucursal
-				
+
 				lista.add(aux);
 			}
 		} catch (SQLException e) {

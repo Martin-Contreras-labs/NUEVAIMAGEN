@@ -1,0 +1,91 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+rubro: tables.Rubro)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR RUBRO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td style="text-align:left;">NOMBRE (fullName): </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="nombre"
+								autocomplete="off"
+								onkeypress="return sinReservados(event)"
+								value="@rubro.getNombre()"
+								maxlength="100"
+							    required
+								onchange="value = value.trim(); modificarRubro(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">OBSERVACIONES: </td>
+						<td style="text-align:left;">
+							<textarea class='form-control form-control-sm' rows='3'
+								id="observaciones"
+								onchange="value = value.trim(); modificarRubro(id)"
+								autocomplete="off">@rubro.getObservaciones()</textarea>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes2/rubroMantencion/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+	let id_rubro = "@rubro.getId()";
+
+	$(document).ready(function() {
+		 document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarRubro = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_rubro',id_rubro);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/routes2/modificaRubroPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El rubro/proyectista ya existe, intente con otro', function () {
+	     				$("#nombre").val("@rubro.getNombre()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+
+
+
+</script>
+
+		
+	

@@ -328,7 +328,7 @@ public class ApiNuboxDocDoc {
 					det.folio = proforma.getId().toString(); 			// id proforma
 					det.secuencia = idGrupo.toString(); 				// id grupo
 					det.fecha = Fechas.AAMMDD(proforma.fecha);
-					det.codigoItem = idGrupo.toString(); 				// id del grupo en reemplazo del codigo
+					det.codigoItem = idGrupo.toString(); 				// id del grupo en reem del codigo
 					det.producto = datos.get(i).get(3); 	// nombre del equipo
 					det.cantidad = "1";
 					det.precio = "0";

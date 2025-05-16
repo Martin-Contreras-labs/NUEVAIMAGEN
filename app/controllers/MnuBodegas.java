@@ -10,23 +10,7 @@ import java.util.Optional;
 import controllers.HomeController.Sessiones;
 import models.forms.FormBodegaGraba;
 import models.forms.FormContactoBodegaGraba;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Comercial;
-import models.tables.ContactoBodegaEmpresa;
-import models.tables.DctoEquipo;
-import models.tables.DctoGrupo;
-import models.tables.Equipo;
-import models.tables.Grupo;
-import models.tables.ListaPrecio;
-import models.tables.Moneda;
-import models.tables.Proyecto;
-import models.tables.Regiones;
-import models.tables.Sucursal;
-import models.tables.TasaEquipo;
-import models.tables.TasaGrupo;
-import models.tables.TipoBodega;
-import models.tables.UnidadTiempo;
+import models.tables.*;
 import models.utilities.Registro;
 import models.utilities.UserMnu;
 import play.data.DynamicForm;
@@ -95,8 +79,10 @@ public class MnuBodegas extends Controller {
     			List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
     			Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
     			List<Moneda> listMon = Moneda.allSinMonPrincipal(con, s.baseDato);
+				List<Rubro> listRubro = Rubro.all(con, s.baseDato);
     			con.close();
-    			return ok(bodegaCrear.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listTipoBodega,listRegiones,listSucursal,sucursal, s.aplicaPorSucursal, listMon));
+    			return ok(bodegaCrear.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listTipoBodega,listRegiones,
+						listSucursal,sucursal, s.aplicaPorSucursal, listMon, listRubro));
         	} catch (SQLException e) {
     			e.printStackTrace();
     		}
@@ -214,9 +200,10 @@ public class MnuBodegas extends Controller {
 	    			List<Moneda> listMon = Moneda.allSinMonPrincipal(con, s.baseDato);
 	    			List<List<String>> fijaTasas = BodegaEmpresa.listaFijaTasas(con, s.baseDato, id_bodegaEmpresa);
 	    			List<Sucursal> listSucursal = Sucursal.all(con, s.baseDato);
+					List<Rubro> listRubro = Rubro.all(con, s.baseDato);
 	    			con.close();
 	    			return ok(bodegaModificar.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,tipoBodega,bodegaEmpresa,listRegiones,listComercial, 
-	    					listMon, fijaTasas, listSucursal, s.aplicaPorSucursal));
+	    					listMon, fijaTasas, listSucursal, s.aplicaPorSucursal, listRubro));
 	        	} catch (SQLException e) {
 	    			e.printStackTrace();
 	    		}
@@ -1431,6 +1418,143 @@ public class MnuBodegas extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
     }
+
+
+	public Result rubroMantencion(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			try {
+				Connection con = db.getConnection();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				if(mapeoPermiso.get("bodegaAdministrar")==null) {
+					con.close();
+					return ok(mensajes.render("/",msgSinPermiso));
+				}
+				List<Rubro> listRubro = Rubro.all(con, s.baseDato);
+				con.close();
+				return ok(rubroMantencion.render(mapeoDiccionario,mapeoPermiso,userMnu,listRubro));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return ok(mensajes.render("/",msgError));
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result rubroAgrega(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			try {
+				Connection con = db.getConnection();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				if(mapeoPermiso.get("bodegaAdministrar")==null) {
+					con.close();
+					return ok(mensajes.render("/",msgSinPermiso));
+				}
+				con.close();
+				return ok(rubroAgrega.render(mapeoDiccionario,mapeoPermiso,userMnu));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return ok(mensajes.render("/",msgError));
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result rubroGraba(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			Rubro form = formFactory.form(Rubro.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+			if (form.getNombre() == null) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				try {
+					Connection con = db.getConnection();
+					if(Rubro.create(con, s.baseDato, form)) {
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "rubro", (long)0, "create", "crea nuevo rubro");
+						con.close();
+						return redirect("/routes2/rubroMantencion/");
+					}else {
+						con.close();
+						return ok(mensajes.render("/routes2/rubroMantencion/","El rubro ya existe"));
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return ok(mensajes.render("/",msgError));
+				}
+			}
+		}
+		return ok(mensajes.render("/",msgError));
+	}
+
+	public Result rubroModifica(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok("error");
+			}else {
+				Long id_rubro = Long.parseLong(form.get("id_rubro").trim());
+				try {
+					Connection con = db.getConnection();
+
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+					Rubro rubro = Rubro.find(con, s.baseDato, id_rubro);
+					con.close();
+					return ok(rubroModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,rubro));
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok(mensajes.render("/",msgError));
+			}
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result modificaRubroPorCampoAjax(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok("error");
+			}else {
+				String campo = form.get("campo").trim();
+				Long id_rubro = Long.parseLong(form.get("id_rubro").trim());
+				String valor = form.get("valor").trim();
+				try {
+					Connection con = db.getConnection();
+					if(campo.equals("nombre")) {
+						if(Rubro.existe(con, s.baseDato, valor)) {
+							con.close();
+							return ok("existe");
+						}
+					}
+					if(!Rubro.modificaPorCampo(con, s.baseDato, campo, id_rubro, valor)){
+						con.close();
+						return ok("error");
+					}else {
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "rubro", id_rubro, "update", "cambia el valor de: "+campo);
+						con.close();
+						return ok("");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok("error");
+			}
+		}else {
+			return ok("error");
+		}
+	}
 	
 
 }

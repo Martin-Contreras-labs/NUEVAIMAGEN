@@ -25,33 +25,7 @@ import models.forms.FormTipoEstadoGraba;
 import models.forms.FormTipoReparacionGraba;
 import models.forms.FormUsuarioGraba;
 import models.reports.ReportInventarios;
-import models.tables.Atributo;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Comercial;
-import models.tables.Compra;
-import models.tables.Comunas;
-import models.tables.ContactoCliente;
-import models.tables.ContactoFabrica;
-import models.tables.ContactoProveedor;
-import models.tables.ContactoProyecto;
-import models.tables.Equipo;
-import models.tables.Fabrica;
-import models.tables.Grupo;
-import models.tables.Moneda;
-import models.tables.Precio;
-import models.tables.Proveedor;
-import models.tables.Proyecto;
-import models.tables.Regiones;
-import models.tables.Sucursal;
-import models.tables.TipoEstado;
-import models.tables.TipoReparacion;
-import models.tables.Transportista;
-import models.tables.Unidad;
-import models.tables.UnidadTiempo;
-import models.tables.Usuario;
-import models.tables.UsuarioPermiso;
-import models.tables.UsuarioTipo;
+import models.tables.*;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 import models.utilities.Registro;
@@ -3866,7 +3840,142 @@ public class MnuTablas extends Controller {
     		return ok(mensajes.render("/",msgError));
     	}
     }
-    
+
+	public Result dibujanteMantencion(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			try {
+				Connection con = db.getConnection();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				if(mapeoPermiso.get("usuarioMantencion")==null) {
+					con.close();
+					return ok(mensajes.render("/",msgSinPermiso));
+				}
+				List<Dibujante> listDibujante = Dibujante.all(con, s.baseDato);
+				con.close();
+				return ok(dibujanteMantencion.render(mapeoDiccionario,mapeoPermiso,userMnu,listDibujante));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return ok(mensajes.render("/",msgError));
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result dibujanteAgrega(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			try {
+				Connection con = db.getConnection();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				if(mapeoPermiso.get("usuarioMantencion")==null) {
+					con.close();
+					return ok(mensajes.render("/",msgSinPermiso));
+				}
+				con.close();
+				return ok(dibujanteAgrega.render(mapeoDiccionario,mapeoPermiso,userMnu));
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return ok(mensajes.render("/",msgError));
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result dibujanteGraba(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			Dibujante form = formFactory.form(Dibujante.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+			if (form.getNombre() == null) {
+				return ok(mensajes.render("/",msgErrorFormulario));
+			}else {
+				try {
+					Connection con = db.getConnection();
+					if(Dibujante.create(con, s.baseDato, form)) {
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "dibujante", (long)0, "create", "crea nuevo dibujante");
+						con.close();
+						return redirect("/routes2/dibujanteMantencion/");
+					}else {
+						con.close();
+						return ok(mensajes.render("/routes2/dibujanteMantencion/","El dibujante/proyectista ya existe"));
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return ok(mensajes.render("/",msgError));
+				}
+			}
+		}
+		return ok(mensajes.render("/",msgError));
+	}
+
+	public Result dibujanteModifica(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok("error");
+			}else {
+				Long id_dibujante = Long.parseLong(form.get("id_dibujante").trim());
+				try {
+					Connection con = db.getConnection();
+
+					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+					Dibujante dibujante = Dibujante.find(con, s.baseDato, id_dibujante);
+					con.close();
+					return ok(dibujanteModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,dibujante));
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok(mensajes.render("/",msgError));
+			}
+		}else {
+			return ok(mensajes.render("/",msgError));
+		}
+	}
+
+	public Result modificaDibujantePorCampoAjax(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
+			DynamicForm form = formFactory.form().bindFromRequest(request);
+			if (form.hasErrors()) {
+				return ok("error");
+			}else {
+				String campo = form.get("campo").trim();
+				Long id_dibujante = Long.parseLong(form.get("id_dibujante").trim());
+				String valor = form.get("valor").trim();
+				try {
+					Connection con = db.getConnection();
+					if(campo.equals("nombre")) {
+						if(Dibujante.existe(con, s.baseDato, valor)) {
+							con.close();
+							return ok("existe");
+						}
+					}
+					if(!Dibujante.modificaPorCampo(con, s.baseDato, campo, id_dibujante, valor)){
+						con.close();
+						return ok("error");
+					}else {
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "dibujante", id_dibujante, "update", "cambia el valor de: "+campo);
+						con.close();
+						return ok("");
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				return ok("error");
+			}
+		}else {
+			return ok("error");
+		}
+	}
     
     public Result precioMantSelSucursal(Http.Request request) {
     	Sessiones s = new Sessiones(request);

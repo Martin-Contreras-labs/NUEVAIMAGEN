@@ -4225,6 +4225,7 @@ public class MnuReportes extends Controller {
 						+ "			<TR> \n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>\n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>\n"
+						+ "				<TH style= \"text-align: center;vertical-align: top;\">RUBRO</TH>\n"
 						+ "				<TH width=\"5%\" >DETALLE<BR></TH>\n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">" + mapeoDiccionario.get("BODEGA") + "/PROYECTO</TH>\n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>\n"
@@ -4263,6 +4264,7 @@ public class MnuReportes extends Controller {
 							tabla += ""
 									+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(14) + "</td>\n"
 									+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(10) + "</td>\n"
+									+ "<td style=\"text-align:center;vertical-align:middle;\">" + lista1.get(15) + "</td>\n"
 									+ "<td style=\"text-align:center;vertical-align:middle;\">\n"
 									+ "	<form id=\"form0_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
 									+ "		<input type=\"hidden\" class=\"idBodega\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">\n"
@@ -4310,6 +4312,7 @@ public class MnuReportes extends Controller {
 						+ "<tfoot>\n"
 						+ "	<TR>\n"
 						+ "		<td style=\"background-color: #eeeeee\">TOTALES</td>\n"
+						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
@@ -4436,6 +4439,7 @@ public class MnuReportes extends Controller {
 						+ "			<TR> \n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>\n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>\n"
+						+ "				<TH style= \"text-align: center;vertical-align: top;\">RUBRO</TH>\n"
 						+ "				<TH width=\"5%\" >DETALLE<BR></TH>\n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">" + mapeoDiccionario.get("BODEGA") + "/PROYECTO</TH>\n"
 						+ "				<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>\n"
@@ -4474,6 +4478,7 @@ public class MnuReportes extends Controller {
 							tabla += ""
 									+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(14) + "</td>\n"
 									+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(10) + "</td>\n"
+									+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(15) + "</td>\n"
 									+ "<td style=\"text-align:center;vertical-align:middle;\">\n"
 									+ "	<form id=\"form0_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalle/\">\n"
 									+ "		<input type=\"hidden\" class=\"idBodega\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">\n"
@@ -4521,6 +4526,7 @@ public class MnuReportes extends Controller {
 						+ "<tfoot>\n"
 						+ "	<TR>\n"
 						+ "		<td style=\"background-color: #eeeeee\">TOTALES</td>\n"
+						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
 						+ "		<td style=\"background-color: #eeeeee\"></td>\n"
@@ -10045,7 +10051,7 @@ public class MnuReportes extends Controller {
 							api.dire_cliente = "LEGAL";
 							api.cod_vendedor = bodega.getComercial();
 							api.lista_precio = "2";
-							api.plazo_pago = "0";
+							api._pago = "0";
 							api.cod_moneda = "CLP";
 							api.afecto = neto.toString();
 							api.tipo_desc_global = "M";

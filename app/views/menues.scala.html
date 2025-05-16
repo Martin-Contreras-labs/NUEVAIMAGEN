@@ -737,6 +737,7 @@
 		        		@if(mapPermiso.get("bodegaAdministrar")!=null){
 		        			<a class="dropdown-item" href="/bodegaAdministrar/">Administrar @mapDiccionario.get("Bodegas")</a>
 							<a class="dropdown-item" href="/routes2/sucursalAdministrar/">Administrar Sucursales</a>
+							<a class="dropdown-item" href="/routes2/rubroMantencion/">Administrar Rubros</a>
 							<div class="dropdown-divider" style="border-color:black"></div>
 						}
 						@if(mapDiccionario.get("nEmpresa").equals("GLOBALRENT") && mapPermiso.get("bodegaAsignaDctos")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS")!=null && mapPermiso.get("parametro.mnuMOVIMIENTOS").equals("1")){
@@ -822,6 +823,7 @@
 		        			<div class="dropdown-divider" style="border-color:black"></div>
 							<a class="dropdown-item" href="/usuarioMantencion/">Usuarios/Perfiles</a>
 							<a class="dropdown-item" href="/routes2/comercialMantencion/">Comerciales</a>
+							<a class="dropdown-item" href="/routes2/dibujanteMantencion/">Dibujantes</a>
 						}
 						
 						@if(mapPermiso.get("historialCambios")!=null){

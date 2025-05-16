@@ -588,7 +588,9 @@ public class ReportCotizaciones {
 							+ " ifnull(ot.id,0),"  					// 17
 							+ " cotizacion.numero,"  		// 18
 							+ " ifnull(ot.numero,''),"  				// 19
-							+ " ifnull(ot.confirmada,'')"  				// 20
+							+ " ifnull(ot.confirmada,''),"  				// 20
+							+ " ifnull(cotizacion.id_dibujante,'0'),"  				// 21
+							+ " ifnull(cotizacion.fechaProbable,'')"  				// 22
 									+ " from `"+db+"`.cotizaDetalle"
 							+ " left join `"+db+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
 							+ " left join `"+db+"`.ot on ot.id_cotizacion = cotizacion.id"
@@ -632,8 +634,10 @@ public class ReportCotizaciones {
 				String id_cotizaEstado = rs.getString(7);
 				String id_cotizacion = rs.getString(16);
 				String nroCoti = rs.getString(18);
+				String id_dibujante = rs.getString(21);
+				String fechaProbable = rs.getString(22);
 
-				String key = fechaCoti +"_"+id_sucursal+"_"+id_comercial+"_"+id_cotizaSolucion+"_"+id_cliente+"_"+id_proyecto+"_"+id_cotizaEstado+"_"+fechaOt+"_"+id_cotizacion+"_"+nroCoti;
+				String key = fechaCoti +"_"+id_sucursal+"_"+id_comercial+"_"+id_cotizaSolucion+"_"+id_cliente+"_"+id_proyecto+"_"+id_cotizaEstado+"_"+fechaOt+"_"+id_cotizacion+"_"+nroCoti+"_"+id_dibujante+"_"+fechaProbable;
 
 				Double cantidad = rs.getDouble(8);
 				Long esVenta = rs.getLong(9);
@@ -701,11 +705,12 @@ public class ReportCotizaciones {
 			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
 			Map<Long,CotizaEstado> mapEstado = CotizaEstado.mapAll(con, db);
 			Map<Long,Ot> mapOt = Ot.mapAll_idCoti_vs_Ot(con, db);
+			Map<Long,Dibujante> mapDibujante = Dibujante.mapAll(con, db);
 
 			for (Map.Entry<String, List<Double>> entry : mapDatosAux.entrySet()) {
 				String[] key = entry.getKey().split("_");
 				List<Double> value = entry.getValue();
-				//String key = fechaCoti +"_"+id_sucursal+"_"+id_comercial+"_"+id_cotizaSolucion+"_"+id_cliente+"_"+id_proyecto+"_"+id_cotizaEstado+"_"+fechaOt+"_"+id_cotizacion+"_"+nroCoti;
+				//String key = fechaCoti +"_"+id_sucursal+"_"+id_comercial+"_"+id_cotizaSolucion+"_"+id_cliente+"_"+id_proyecto+"_"+id_cotizaEstado+"_"+fechaOt+"_"+id_cotizacion+"_"+nroCoti+"_"+id_dibujante+"_"+fechaProbable;
 				String idCotizacion = key[8];
 				String fechaCoti = key[0];
 				String fechaOt = key[7];
@@ -716,6 +721,11 @@ public class ReportCotizaciones {
 				String nameProyecto = "";
 				String nameEstado = "";
 				String nroCoti = key[9];
+				String id_dibujante = key[10];
+				String fechaProbable = "";
+				if( key.length > 11) {
+					fechaProbable = key[11];
+				}
 
 				Sucursal sucursal = mapSucursal.get(Long.parseLong(key[1]));
 				if(sucursal != null) {
@@ -761,6 +771,12 @@ public class ReportCotizaciones {
 					}
 				}
 
+				Dibujante dibujante = mapDibujante.get(Long.parseLong(id_dibujante));
+				String nombreDibujante = "";
+				if(dibujante != null) {
+					nombreDibujante = dibujante.getNombre();
+				}
+
 				List<String> aux = new ArrayList<String>();
 				aux.add(fechaCoti); //0 fecha Coti
 				aux.add(nameSucursal); //1 sucursal.nombre
@@ -783,6 +799,10 @@ public class ReportCotizaciones {
 				aux.add(nroOt); //17 nro Ot
 				aux.add(idCotizacion); //18 id_cotizacion
 				aux.add(idOt); //19 id_ot
+
+				aux.add(Fechas.DDMMAA(fechaProbable)); //20 fechaProbable
+				aux.add(nombreDibujante); //21 nombreDibujante
+
 				detalle.add(aux);
 			}
 
@@ -991,6 +1011,18 @@ public class ReportCotizaciones {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PESO KG");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA PROBABLE");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("DIBUJANTE/PROYECTISTA");
 				
 	        
 			for(int i=0;i<lista1.size();i++){
@@ -1079,6 +1111,21 @@ public class ReportCotizaciones {
 			            aux = Double.parseDouble(lista1.get(i).get(14).replaceAll(",", ""));
 						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(aux);
+
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						if( ! lista1.get(i).get(20).equals("")) {
+							fechax = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(lista1.get(i).get(20)));
+							cell.setCellValue(fechax.fechaUtil);
+							cell.setCellStyle(fecha);
+						}
+
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(lista1.get(i).get(21));
 			}
 			
 			posRow = posRow + 5;

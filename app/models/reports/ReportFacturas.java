@@ -5852,6 +5852,12 @@ public class ReportFacturas {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("RUBRO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
@@ -5953,6 +5959,12 @@ public class ReportFacturas {
 						cell.setCellStyle(detalle);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(proyectos.get(i).get(10));
+
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(proyectos.get(i).get(15));
 						
 						
 						posCell++;
@@ -6048,6 +6060,12 @@ public class ReportFacturas {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL");
 			
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);

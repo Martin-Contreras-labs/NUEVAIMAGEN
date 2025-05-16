@@ -51,14 +51,15 @@ public class BodegaEmpresa {
 	
 	public Long vigente;
 	public Long clienteVigente;
-	
-	
+
+	public Long id_rubro;
+	public String nameRubro;
 	
 	public BodegaEmpresa(Long id, Long esInterna, String nombre, Long id_cliente, Long id_proyecto, Double tasaDescto,
 			Double tasaArriendo, Double tasaCfi, Long cobraDiaDespacho, Long nDiaGraciaEnvio, Long nDiaGraciaRegreso,
 			Double factorM2Viga, Long baseCalculo, Long tratoDevoluciones, String nombreTipoBodega, String nickCliente,
 			String nickProyecto,String comercial, String rutCliente, String pep, Double ivaBodega, Long id_sucursal, 
-			String nameSucursal, Long id_comercial, String nameComercial, Long vigente, Long clienteVigente) {
+			String nameSucursal, Long id_comercial, String nameComercial, Long vigente, Long clienteVigente, Long id_rubro, String nameRubro) {
 		super();
 		this.id = id;
 		this.esInterna = esInterna;
@@ -87,6 +88,8 @@ public class BodegaEmpresa {
 		this.nameComercial = nameComercial;
 		this.vigente = vigente;
 		this.clienteVigente = clienteVigente;
+		this.id_rubro = id_rubro;
+		this.nameRubro = nameRubro;
 		
 		if(id_comercial.toString().equals("0")) {
 			this.nameComercial = comercial;
@@ -189,7 +192,21 @@ public class BodegaEmpresa {
 		this.clienteVigente = clienteVigente;
 	}
 
+	public Long getId_rubro() {
+		return id_rubro;
+	}
 
+	public void setId_rubro(Long id_rubro) {
+		this.id_rubro = id_rubro;
+	}
+
+	public String getNameRubro() {
+		return nameRubro;
+	}
+
+	public void setNameRubro(String nameRubro) {
+		this.nameRubro = nameRubro;
+	}
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
@@ -299,7 +316,8 @@ public class BodegaEmpresa {
 								" bodegaEmpresa.id_sucursal, "+
 								" bodegaEmpresa.id_comercial, "+
 								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1) "+
+								" ifnull(cliente.vigente,1), "+
+								" id_rubro "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -307,6 +325,7 @@ public class BodegaEmpresa {
 				ResultSet rs = smt.executeQuery();
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				while (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -320,6 +339,11 @@ public class BodegaEmpresa {
 					}else {
 						nameComercial = rs.getString(18);
 					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -327,7 +351,8 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25)));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro));
 				}
 				rs.close();
 				smt.close();
@@ -366,7 +391,8 @@ public class BodegaEmpresa {
 								" bodegaEmpresa.id_sucursal, "+
 								" bodegaEmpresa.id_comercial, "+
 								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1) "+
+								" ifnull(cliente.vigente,1), "+
+								" id_rubro "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -375,6 +401,7 @@ public class BodegaEmpresa {
 				ResultSet rs = smt.executeQuery();
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				while (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -388,6 +415,11 @@ public class BodegaEmpresa {
 					}else {
 						nameComercial = rs.getString(18);
 					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -395,7 +427,8 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25)));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro));
 				}
 				rs.close();
 				smt.close();
@@ -434,7 +467,8 @@ public class BodegaEmpresa {
 								" bodegaEmpresa.id_sucursal, "+
 								" bodegaEmpresa.id_comercial, "+
 								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1) "+
+								" ifnull(cliente.vigente,1), "+
+								" id_rubro "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -443,6 +477,7 @@ public class BodegaEmpresa {
 				ResultSet rs = smt.executeQuery();
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				while (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -456,6 +491,11 @@ public class BodegaEmpresa {
 					}else {
 						nameComercial = rs.getString(18);
 					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -463,7 +503,8 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25)));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro));
 				}
 				rs.close();
 				smt.close();
@@ -502,7 +543,8 @@ public class BodegaEmpresa {
 								" bodegaEmpresa.id_sucursal, "+
 								" bodegaEmpresa.id_comercial, "+
 								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1) "+
+								" ifnull(cliente.vigente,1), "+
+								" id_rubro "+
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -511,6 +553,7 @@ public class BodegaEmpresa {
 				ResultSet rs = smt.executeQuery();
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				while (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -524,6 +567,11 @@ public class BodegaEmpresa {
 					}else {
 						nameComercial = rs.getString(18);
 					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -531,7 +579,8 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25)));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro));
 				}
 				rs.close();
 				smt.close();
@@ -572,7 +621,8 @@ public class BodegaEmpresa {
 									" bodegaEmpresa.id_sucursal, "+
 									" bodegaEmpresa.id_comercial, "+
 									" bodegaEmpresa.vigente, "+
-									" ifnull(cliente.vigente,1) "+
+									" ifnull(cliente.vigente,1), "+
+									" id_rubro "+
 									" from `"+db+"`.bodegaEmpresa " +
 									" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 									" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -581,6 +631,7 @@ public class BodegaEmpresa {
 					ResultSet rs = smt.executeQuery();
 					Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 					Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+					Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 					while (rs.next()) {
 						String nameSucursal = "";
 						Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -594,6 +645,11 @@ public class BodegaEmpresa {
 						}else {
 							nameComercial = rs.getString(18);
 						}
+						String nameRubro = "";
+						Rubro rubro = mapRubro.get(rs.getLong(26));
+						if(rubro!=null) {
+							nameRubro = rubro.nombre;
+						}
 						lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 								rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 								rs.getDouble(8),rs.getLong(9),
@@ -601,7 +657,8 @@ public class BodegaEmpresa {
 								rs.getLong(14),rs.getLong(15),rs.getString(12),
 								rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 								rs.getString(20),rs.getDouble(21),
-								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25)));
+								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+								rs.getLong(26),nameRubro));
 					}
 					rs.close();
 					smt.close();
@@ -643,7 +700,8 @@ public class BodegaEmpresa {
 									" bodegaEmpresa.id_sucursal, "+
 									" bodegaEmpresa.id_comercial, "+
 									" bodegaEmpresa.vigente, "+
-									" ifnull(cliente.vigente,1) "+
+									" ifnull(cliente.vigente,1), "+
+									" id_rubro "+
 									" from `"+db+"`.bodegaEmpresa " +
 									" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 									" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -652,6 +710,7 @@ public class BodegaEmpresa {
 					ResultSet rs = smt.executeQuery();
 					Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 					Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+					Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 					while (rs.next()) {
 						String nameSucursal = "";
 						Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -665,6 +724,11 @@ public class BodegaEmpresa {
 						}else {
 							nameComercial = rs.getString(18);
 						}
+						String nameRubro = "";
+						Rubro rubro = mapRubro.get(rs.getLong(26));
+						if(rubro!=null) {
+							nameRubro = rubro.nombre;
+						}
 						lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 								rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 								rs.getDouble(8),rs.getLong(9),
@@ -672,7 +736,8 @@ public class BodegaEmpresa {
 								rs.getLong(14),rs.getLong(15),rs.getString(12),
 								rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 								rs.getString(20),rs.getDouble(21),
-								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25)));
+								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+								rs.getLong(26),nameRubro));
 					}
 					rs.close();
 					smt.close();
@@ -734,7 +799,8 @@ public class BodegaEmpresa {
 								" bodegaEmpresa.id_sucursal, "+
 								" bodegaEmpresa.id_comercial, "+
 								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1) "+
+								" ifnull(cliente.vigente,1), "+
+								" id_rubro " +
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -744,6 +810,7 @@ public class BodegaEmpresa {
 				ResultSet rs = smt.executeQuery();
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				if (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -757,6 +824,11 @@ public class BodegaEmpresa {
 					}else {
 						nameComercial = rs.getString(18);
 					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
 					aux = new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -764,7 +836,8 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro);
 				}
 				rs.close();
 				smt.close();
@@ -803,7 +876,8 @@ public class BodegaEmpresa {
 								" bodegaEmpresa.id_sucursal, "+
 								" bodegaEmpresa.id_comercial, "+
 								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1) "+
+								" ifnull(cliente.vigente,1), "+
+								" id_rubro " +
 								" from `"+db+"`.bodegaEmpresa " +
 								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -813,6 +887,7 @@ public class BodegaEmpresa {
 				ResultSet rs = smt.executeQuery();
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				if (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
@@ -826,6 +901,11 @@ public class BodegaEmpresa {
 					}else {
 						nameComercial = rs.getString(18);
 					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
 					aux = new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -833,7 +913,8 @@ public class BodegaEmpresa {
 							rs.getLong(14),rs.getLong(15),rs.getString(12),
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25));
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro);
 				}
 				rs.close();
 				smt.close();
@@ -960,7 +1041,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" ifnull(bodegaEmpresa.comercial,''), "+
 							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial " +
+							" bodegaEmpresa.id_comercial, " +
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -971,6 +1053,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
@@ -983,6 +1066,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(14);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(17));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); // 0 es cliente interno
@@ -1000,6 +1088,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(13));  //12 ivaBodega
 				aux.add(nameSucursal);  //13 nameSucursal
 				aux.add(nameComercial);  //14 nameComercial
+				aux.add(nameRubro);		//15 nameRubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -1032,7 +1121,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial " +
+							" bodegaEmpresa.id_comercial, " +
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa " +
 							" where bodegaEmpresa.vigente = 1  " + condSucursal +
 							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
@@ -1043,6 +1133,7 @@ public class BodegaEmpresa {
 			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
 			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
 			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(11));
@@ -1075,7 +1166,11 @@ public class BodegaEmpresa {
 					nombreProyecto = proyecto.getNickName();
 					comunaProyecto = proyecto.getComuna();
 				}
-				
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(13));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
+				}
 				
 				
 				List<String> aux = new ArrayList<String>();
@@ -1101,6 +1196,7 @@ public class BodegaEmpresa {
 				aux.add((rs.getDouble(10)*100)+"%");  				// 15 ivaBodega en %
 				aux.add(nameSucursal);  							// 16 nombre sucursal
 				aux.add(rs.getString(11));  						// 17 id sucursal
+				aux.add(nameRubro);  // 18 nombre rubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -1133,7 +1229,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial " +
+							" bodegaEmpresa.id_comercial, " +
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa " +
 							" where bodegaEmpresa.vigente = 1  " + condSucursal +
 							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
@@ -1145,6 +1242,7 @@ public class BodegaEmpresa {
 			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
 			
 			Map<Long,Long> mapBodConInventario = Inventarios.mapBodegasVigConStock(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			
 			
 			while (rs.next()) {
@@ -1171,6 +1269,11 @@ public class BodegaEmpresa {
 				if(proyecto!=null) {
 					nombreProyecto = proyecto.getNickName();
 					comunaProyecto = proyecto.getComuna();
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(13));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				
 				String rutCliente = "";
@@ -1204,6 +1307,7 @@ public class BodegaEmpresa {
 						aux.add((rs.getDouble(10)*100)+"%");  				// 15 ivaBodega en %
 						aux.add(nameSucursal);  							// 16 nombre sucursal
 						aux.add(rs.getString(11));  						// 17 id sucursal
+						aux.add(nameRubro); // 18 nombre rubro
 						lista.add(aux);
 					}
 				}else if(cliente == null){
@@ -1232,6 +1336,7 @@ public class BodegaEmpresa {
 						aux.add((rs.getDouble(10)*100)+"%");  				// 15 ivaBodega en %
 						aux.add(nameSucursal);  							// 16 nombre sucursal
 						aux.add(rs.getString(11));  						// 17 id sucursal
+						aux.add(nameRubro);  // 18 nombre rubro
 						lista.add(aux);
 					}
 				}
@@ -1277,7 +1382,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
@@ -1288,6 +1394,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
@@ -1300,6 +1407,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(18));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -1324,6 +1436,7 @@ public class BodegaEmpresa {
 				aux.add((rs.getDouble(15)*100)+"%");  				// 15 ivaBodega en %
 				aux.add(nameSucursal);  							// 16 nombre sucursal
 				aux.add(rs.getString(16));  						// 17 id sucursal
+				aux.add(nameRubro); // 18 nombre rubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -1361,7 +1474,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1372,6 +1486,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
@@ -1384,6 +1499,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(18));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -1408,6 +1528,7 @@ public class BodegaEmpresa {
 				aux.add((rs.getDouble(15)*100)+"%");  				// 15 ivaBodega en %
 				aux.add(nameSucursal);  							// 16 nombre sucursal
 				aux.add(rs.getString(16));  						// 17 id sucursal
+				aux.add(nameRubro); // 18 nombre rubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -1446,7 +1567,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, " +
 							" bodegaEmpresa.id_comercial, "+
-							" ifnull(cliente.vigente,1) " +
+							" ifnull(cliente.vigente,1), " +
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1457,6 +1579,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
@@ -1469,6 +1592,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(19));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -1493,6 +1621,7 @@ public class BodegaEmpresa {
 				aux.add((rs.getDouble(15)*100)+"%");  				// 15 ivaBodega en %
 				aux.add(nameSucursal);  							// 16 nombre sucursal
 				aux.add(rs.getString(16));  						// 17 id sucursal
+				aux.add(nameRubro); // 18 nombre rubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -1545,7 +1674,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal,   " +
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1557,6 +1687,7 @@ public class BodegaEmpresa {
 
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
@@ -1569,6 +1700,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(18));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -1591,6 +1727,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(14));  						// 13 pep
 				aux.add(rs.getString(15));  						// 14 ivaBodega
 				aux.add(nameSucursal);  						// 15 nameSucursal
+				aux.add(nameRubro); // 16 nombre rubro
 
 				lista.add(aux);
 			}
@@ -1631,7 +1768,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal,   " +
 							" bodegaEmpresa.id_comercial, "+
-							" ifnull(cliente.vigente,1) "+
+							" ifnull(cliente.vigente,1), "+
+							" bodegaEmpresa.id_rubro " +
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1643,6 +1781,7 @@ public class BodegaEmpresa {
 
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
@@ -1655,6 +1794,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(19));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -1677,6 +1821,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(14));  						// 13 pep
 				aux.add(rs.getString(15));  						// 14 ivaBodega
 				aux.add(nameSucursal);  						// 15 nameSucursal
+				aux.add(nameRubro); // 16 nombre rubro
 
 				lista.add(aux);
 			}
@@ -1711,11 +1856,13 @@ public class BodegaEmpresa {
 		try {
 			if(form.id_tipoBodega == (long) 1) {
 				PreparedStatement smt1 = con
-						.prepareStatement("insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_sucursal) values (?,?,?,?);");
+						.prepareStatement("insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_sucursal, id_rubro) " +
+								" values (?,?,?,?,?);");
 				smt1.setString(1, form.nombre.trim());
 				smt1.setLong(2, form.id_tipoBodega);
 				smt1.setLong(3, form.id_propietario);
 				smt1.setLong(4, form.id_sucursal);
+				smt1.setLong(5, form.id_rubro);
 				smt1.executeUpdate();
 				smt1.close();
 				flag = true;
@@ -1736,8 +1883,8 @@ public class BodegaEmpresa {
 				
 				PreparedStatement smt1 = con
 						.prepareStatement("insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_proyecto," +
-								" tasaCfi,cobraDiaDespacho,nDiaGraciaEnvio,nDiaGraciaRegreso,baseCalculo,tratoDevoluciones,pep,ivaBodega,id_sucursal,id_comercial) "
-								+ " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
+								" tasaCfi,cobraDiaDespacho,nDiaGraciaEnvio,nDiaGraciaRegreso,baseCalculo,tratoDevoluciones,pep,ivaBodega,id_sucursal,id_comercial, id_rubro) "
+								+ " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
 				smt1.setString(1, form.nombre.trim());
 				smt1.setLong(2, form.id_tipoBodega);
 				smt1.setLong(3, form.id_cliente);
@@ -1754,6 +1901,7 @@ public class BodegaEmpresa {
 				smt1.setDouble(12, ivaBodega);
 				smt1.setLong(13, form.id_sucursal);
 				smt1.setLong(14, form.id_comercial);
+				smt1.setLong(15, form.id_rubro);
 				smt1.executeUpdate();
 				
 				ResultSet rs1 = smt1.getGeneratedKeys();
@@ -1806,11 +1954,12 @@ public class BodegaEmpresa {
 		try {
 			if(form.id_tipoBodega == (long) 1) {
 				PreparedStatement smt1 = con
-						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_sucursal=? where id = ?;");
+						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_sucursal=?, id_rubro=? where id = ?;");
 				smt1.setString(1, form.nombre.trim());
 				smt1.setLong(2, form.id_propietario);
 				smt1.setDouble(3, form.id_sucursal);
-				smt1.setLong(4, form.id_bodegaEmpresa);
+				smt1.setLong(4, form.id_rubro);
+				smt1.setLong(5, form.id_bodegaEmpresa);
 				smt1.executeUpdate();
 				smt1.close();
 				flag = true;
@@ -1831,7 +1980,7 @@ public class BodegaEmpresa {
 				PreparedStatement smt1 = con
 						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_proyecto = ?, " +
 								" tasaCfi = ?, cobraDiaDespacho = ?, nDiaGraciaEnvio = ?, nDiaGraciaRegreso = ?, baseCalculo=?, tratoDevoluciones=?, " +
-								" id_comercial=?, pep=?, ivaBodega=?, id_sucursal=? where id = ?;");
+								" id_comercial=?, pep=?, ivaBodega=?, id_sucursal=?, id_rubro=? where id = ?;");
 				smt1.setString(1, form.nombre.trim());
 				smt1.setLong(2, form.id_cliente);
 				smt1.setLong(3, form.id_proyecto);
@@ -1847,7 +1996,8 @@ public class BodegaEmpresa {
 				smt1.setString(11, pep);
 				smt1.setDouble(12, ivaBodega);
 				smt1.setDouble(13, form.id_sucursal);
-				smt1.setLong(14, form.id_bodegaEmpresa);
+				smt1.setLong(14, form.id_rubro);
+				smt1.setLong(15, form.id_bodegaEmpresa);
 				smt1.executeUpdate();
 				smt1.close();
 				
@@ -2013,6 +2163,7 @@ public class BodegaEmpresa {
 			aux.add(lista.get(i).get(12));  // 12 pep
 			aux.add(lista.get(i).get(13));  // 13 ivaBodega
 			aux.add(lista.get(i).get(15));  // 14 nameSucursal
+			aux.add(lista.get(i).get(16));  // 15 nameRubro
 			map.put(Long.parseLong(lista.get(i).get(1)), aux);
 		}
 		return (map);
@@ -2044,7 +2195,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro "+
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -2055,6 +2207,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
@@ -2067,6 +2220,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(17));
+				if(rubro!=null) {
+					nameRubro = rubro.getNombre();
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 			// 0 es cliente interno
@@ -2089,6 +2247,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(14));  		// 13 ivaBodega
 				aux.add(rs.getString(15));  		// 14 id sucursal
 				aux.add(nameSucursal);  		// 15 nameSucursal
+				aux.add(nameRubro); // 16 nameRubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -2139,6 +2298,7 @@ public class BodegaEmpresa {
 			aux.add(lista.get(i).get(12));  // 12 pep
 			aux.add(lista.get(i).get(13));  // 13 ivaBodega
 			aux.add(lista.get(i).get(15));  // 14 namesucursal
+			aux.add(lista.get(i).get(16));  // 15 nameRubro
 			map.put(Long.parseLong(lista.get(i).get(1)), aux);
 		}
 		return (map);
@@ -2171,7 +2331,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro "+
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -2182,6 +2343,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
@@ -2194,6 +2356,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(17));
+				if(rubro!=null) {
+					nameRubro = rubro.getNombre();
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 			// 0 es cliente interno
@@ -2216,6 +2383,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(14));  		// 13 ivaBodega
 				aux.add(rs.getString(15));  		// 14 id sucursal
 				aux.add(nameSucursal);  		// 15 nameSucursal
+				aux.add(nameRubro); // 16 nameRubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -2269,7 +2437,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro "+
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -2280,6 +2449,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
@@ -2292,6 +2462,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(17));
+				if(rubro!=null) {
+					nameRubro = rubro.getNombre();
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -2314,6 +2489,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(14));  		// 13 ivaBodega
 				aux.add(rs.getString(15));  		// 14 id sucursal
 				aux.add(nameSucursal);  		// 15 nameSucursal
+				aux.add(nameRubro); // 16 nameRubro
 				lista.add(aux);
 			}
 			rs.close();
@@ -2365,7 +2541,8 @@ public class BodegaEmpresa {
 							" ifnull(bodegaEmpresa.pep,''), "+
 							" ifnull(bodegaEmpresa.ivaBodega,0), "+
 							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial "+
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro "+
 							" from `"+db+"`.bodegaEmpresa    " +
 							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -2376,6 +2553,7 @@ public class BodegaEmpresa {
 			ResultSet rs = smt.executeQuery();
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
@@ -2388,6 +2566,11 @@ public class BodegaEmpresa {
 					nameComercial = comercial.getNameUsuario();
 				}else {
 					nameComercial = rs.getString(12);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(17));
+				if(rubro!=null) {
+					nameRubro = rubro.getNombre();
 				}
 				List<String> aux = new ArrayList<String>();
 				aux.add(rs.getString(1)); 		// 0 es cliente interno
@@ -2409,6 +2592,7 @@ public class BodegaEmpresa {
 				aux.add(rs.getString(13));  		// 12 pep
 				aux.add(rs.getString(14));  		// 13 ivaBodega
 				aux.add(nameSucursal);  		// 14 nameSucursal
+				aux.add(nameRubro); // 15 nameRubro
 				lista.add(aux);
 			}
 			rs.close();

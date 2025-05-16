@@ -2,7 +2,8 @@
 formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto],  
 numDecParaTot: String, listRegiones: List[tables.Regiones], jsonListUnTiempo: String, 
 sucursal: tables.Sucursal, comercial: tables.Comercial, listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial],
-importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], iva: Double, jsonListMoneda: String)
+importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], iva: Double, jsonListMoneda: String,
+listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProbable])
 
 @main("") {
 
@@ -88,7 +89,7 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 								  		<input type="date" class="form-control center"
 								  			name="fechaCoti" 
 								  			id="fechaCoti"
-								  			onblur="if(!limitaFecha(value,720,10)) value='@formCotiza.fechaCoti';"
+								  			onblur="if(!limitaFecha(value,720,10)) value='@formCotiza.fechaCoti'; calcFechaProbable();"
 								  			value="@formCotiza.fechaCoti"
 						        			required>
 									</div>
@@ -216,15 +217,15 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 										}
 									</div>
 								</td>
+
 								
 								
-								
-								<td colspan="20" rowspan="4">
+								<td colspan="20" rowspan="6">
 									<div class="input-group">
 								  		<div class="input-group-prepend">
 								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
 								  		</div>
-	  									<textarea class="form-control" rows="4"
+	  									<textarea class="form-control" rows="9"
 											id="observaciones"
 	  										name="observaciones" 
 	  										autocomplete="off">@formCotiza.observaciones</textarea>
@@ -267,6 +268,50 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 										<select id="selSolucion" class="custom-select"  style="width: 80px;" onchange="$('#id_cotizaSolucion').val(value)">
 											@for(lista <- listSoluciones){
 												<option value="@lista.getId()">@lista.getSolucion()</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Plazo Probable</span>
+										</div>
+										<select id="diasProbable" class="custom-select"  style="width: 80px;" onchange="calcFechaProbable()">
+											<option value="0">0 dias</option>
+											@for(lista <- listPlazoProbable){
+											<option value="@lista.getId()">@lista.getPlazo()</option>
+											}
+										</select>
+									</div>
+								</td>
+								<td align="center">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Probable</span>
+										</div>
+										<input type="date" class="form-control center"
+											   name="fechaProbable"
+											   id="fechaProbable"
+											   onblur="if(!limitaFecha(value,720,720)) value='@formCotiza.fechaCoti';"
+											   value="@formCotiza.fechaCoti"
+											   required>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center"  colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Dibujante/Proyectista</span>
+										</div>
+										<input type="hidden" id="id_dibujante" name="id_dibujante" value="0">
+										<select id="selSolucion" class="custom-select"  style="width: 80px;" onchange="$('#id_dibujante').val(value)">
+											<option value="0"></option>
+											@for(lista <- listDibujantes){
+											<option value="@lista.getId()">@lista.getNombre()</option>
 											}
 										</select>
 									</div>
@@ -1796,6 +1841,15 @@ importDesdeExcel: String, jsonDetalle: String, listSoluciones: List[tables.Cotiz
 	const validarForm2 = () =>{
 		$("#btnSubmit2").attr('disabled',true);
 		return(true);
+	}
+
+	const calcFechaProbable = () =>{
+		let fecha = $("#fechaCoti").val();
+		let dias = $("#diasProbable").val();
+		let fechaObj = new Date(fecha);
+		fechaObj.setDate(fechaObj.getDate() + parseInt(dias));
+		const fechaFormateada = fechaObj.toISOString().split('T')[0];
+		$("#fechaProbable").val(fechaFormateada);
 	}
 
 	

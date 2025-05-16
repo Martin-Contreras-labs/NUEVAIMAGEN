@@ -42,7 +42,7 @@ public class ApiManagerDocDoc {
 	public String cod_comisionista;
 	public String probabilidad;
 	public String lista_precio;
-	public String plazo_pago;
+	public String _pago;
 	public String cod_moneda;
 	public String tasa_cambio;
 	public String afecto;
@@ -74,7 +74,7 @@ public class ApiManagerDocDoc {
 
 	public ApiManagerDocDoc(String rut_empresa, String tipodocumento, String num_doc, String fecha_doc, String fecha_ref,
 			String fecha_vcto, String cod_unidnegocio, String rut_cliente, String dire_cliente, String rut_facturador,
-			String cod_vendedor, String cod_comisionista, String probabilidad, String lista_precio, String plazo_pago,
+			String cod_vendedor, String cod_comisionista, String probabilidad, String lista_precio, String _pago,
 			String cod_moneda, String tasa_cambio, String afecto, String exento, String iva, String imp_esp,
 			String iva_ret, String imp_ret, String tipo_desc_global, String monto_desc_global, String total,
 			String deuda_pendiente, String comentario1, String comentario2, String comentario3, String comentario4,
@@ -94,7 +94,7 @@ public class ApiManagerDocDoc {
 		this.cod_comisionista = cod_comisionista;
 		this.probabilidad = probabilidad;
 		this.lista_precio = lista_precio;
-		this.plazo_pago = plazo_pago;
+		this._pago = _pago;
 		this.cod_moneda = cod_moneda;
 		this.tasa_cambio = tasa_cambio;
 		this.afecto = afecto;
@@ -138,7 +138,7 @@ public class ApiManagerDocDoc {
 		this.cod_comisionista = "";
 		this.probabilidad = "";
 		this.lista_precio = "2";
-		this.plazo_pago = "0";
+		this._pago = "0";
 		this.cod_moneda = "";
 		this.tasa_cambio = "1";
 		this.afecto = "0";
@@ -351,7 +351,7 @@ public class ApiManagerDocDoc {
 		// api.cod_comisionista = "";
 		// api.probabilidad = "";
 		api.lista_precio = "2";  // ESTE CODIGO 582 CAMBIARA CUANDO ESTE DEFINITIVO - definitivo es 2
-		api.plazo_pago = "0"; // 0 PARA GUIA Y "30" PARA FACTURA
+		api._pago = "0"; // 0 PARA GUIA Y "30" PARA FACTURA
 		api.cod_moneda = "CLP";
 		// api.tasa_cambio = "0";
 		api.afecto = strNeto;
@@ -488,7 +488,7 @@ public class ApiManagerDocDoc {
 				api.dire_cliente = "LEGAL"; //cliente.direccion; CORRESPONDE AL CODIGO DE DIRECCION DE DESTINO
 				api.cod_vendedor = bodegaEmpresa.comercial; //"apimada"; // ESTA ASOCIADO AL USERNAME
 				api.lista_precio = "2";  // ESTE CODIGO 582 CAMBIARA CUANDO ESTE DEFINITIVO - definitivo es 2
-				api.plazo_pago = "0"; // 0 PARA GUIA Y "30" PARA FACTURA
+				api._pago = "0"; // 0 PARA GUIA Y "30" PARA FACTURA
 				api.cod_moneda = "CLP";
 			//	api.afecto = netoSinAjustes.toString(); //neto.toString();
 				api.afecto = neto.toString(); //neto.toString();
@@ -580,7 +580,7 @@ public class ApiManagerDocDoc {
 				api.dire_cliente = "LEGAL"; //cliente.direccion; CORRESPONDE AL CODIGO DE DIRECCION DE DESTINO
 				api.cod_vendedor = bodegaEmpresa.comercial; //"apimada"; // ESTA ASOCIADO AL USERNAME
 				api.lista_precio = "2";  // ESTE CODIGO 582 CAMBIARA CUANDO ESTE DEFINITIVO - definitivo es 2
-				api.plazo_pago = "0"; // 0 PARA GUIA Y "30" PARA FACTURA
+				api._pago = "0"; // 0 PARA GUIA Y "30" PARA FACTURA
 				api.cod_moneda = "CLP";
 				api.afecto = neto.toString();
 				

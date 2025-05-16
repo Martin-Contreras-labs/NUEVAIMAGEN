@@ -55,10 +55,13 @@ import models.tables.Usuario;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 
 public class FormCotiza {
+	private static final Logger log = LoggerFactory.getLogger(FormCotiza.class);
 	public Long id_cotizacion;
 	public Long numeroCoti;
 	public String fechaCoti;
@@ -93,6 +96,9 @@ public class FormCotiza {
 	public Long id_comercial;
 	
 	public Long id_cotizaSolucion;
+
+	public Long id_dibujante;
+	public String fechaProbable;
 	
 
 	public FormCotiza(Long id_cotizacion, Long numeroCoti, String fechaCoti, Long id_cliente, Long id_proyecto,
@@ -100,7 +106,8 @@ public class FormCotiza {
 			String observaciones, List<Long> id_equipo, List<Long> id_moneda, List<Long> id_unidadTiempo,
 			List<Long> esVenta, List<String> cantidad, List<String> puVentaRepos, List<String> puArriendo,
 			List<String> permanencia, String dctoArriendo, String dctoVenta, String cotizacionPDF,
-			String estadoCotizacion, String fechaConfirmada, Long id_sucursal, Long id_comercial, Long id_cotizaSolucion) {
+			String estadoCotizacion, String fechaConfirmada, Long id_sucursal, Long id_comercial, Long id_cotizaSolucion,
+			Long id_dibujante, String fechaProbable) {
 		super();
 		this.id_cotizacion = id_cotizacion;
 		this.numeroCoti = numeroCoti;
@@ -129,6 +136,8 @@ public class FormCotiza {
 		this.id_sucursal = id_sucursal;
 		this.id_comercial = id_comercial;
 		this.id_cotizaSolucion = id_cotizaSolucion;
+		this.id_dibujante = id_dibujante;
+		this.fechaProbable = fechaProbable;
 	}
 
 	public FormCotiza(Long numeroCoti, String fecha) {
@@ -2075,13 +2084,10 @@ public class FormCotiza {
 
 				totalReposicion += Double.parseDouble(totRepos.replaceAll(",", "").trim());
 
-				subtotalPrecioArr += Double.parseDouble(totalArriendo.replaceAll(",", "").trim());
-				subtotalPrecioVta += Double.parseDouble(totalVenta.replaceAll(",", "").trim());
-				subsumKG += Double.parseDouble(totalKg.replaceAll(",", "").trim());
-				subsumM2 += Double.parseDouble(totalM2.replaceAll(",", "").trim());
-				subsumCant += Double.parseDouble(cantidad.replaceAll(",", "").trim());
+
 				
 				if(!resumen.get(i).get(21).equals(id_coti)) {
+
 					table.createRow();
 					id_coti = resumen.get(i).get(21);
 					listNumerosCoti += resumen.get(i).get(2)+", ";
@@ -2125,7 +2131,13 @@ public class FormCotiza {
 					cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079","",false);
 					table.createRow();
 				}
-					
+
+				subtotalPrecioArr += Double.parseDouble(totalArriendo.replaceAll(",", "").trim());
+				subtotalPrecioVta += Double.parseDouble(totalVenta.replaceAll(",", "").trim());
+				subsumKG += Double.parseDouble(totalKg.replaceAll(",", "").trim());
+				subsumM2 += Double.parseDouble(totalM2.replaceAll(",", "").trim());
+				subsumCant += Double.parseDouble(cantidad.replaceAll(",", "").trim());
+
 				contFilasTabla++;
 
 				idMoneda = Long.parseLong(resumen.get(i).get(22));
@@ -2151,6 +2163,26 @@ public class FormCotiza {
 					cell=row.getCell(12);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
 				}
 				table.createRow();
+
+				if(i == resumen.size()-1){
+					contFilasTabla++;
+					row = table.getRow(contFilasTabla);
+					cell=row.getCell(1);setCelda(cell,"Arial",8,1,"0E5222","SUBTOTAL Coti: "+resumen.get(i).get(2),true);
+					cell=row.getCell(3);setCelda(cell,"Arial",8,3,"0E5222",myformatdouble.format(subsumCant),true);
+					cell=row.getCell(9);setCelda(cell,"Arial",8,3,"0E5222",myformatdouble.format(subtotalPrecioVta),true);
+					cell=row.getCell(10);setCelda(cell,"Arial",8,3,"0E5222",myformatdouble.format(subtotalPrecioArr),true);
+					cell=row.getCell(11);setCelda(cell,"Arial",8,3,"0E5222",myformatdouble.format(subsumKG),true);
+					if( !(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
+						cell=row.getCell(12);setCelda(cell,"Arial",8,3,"0E5222",myformatdouble.format(subsumM2),true);
+					}
+					table.createRow();
+
+					subtotalPrecioArr = (double)0;
+					subtotalPrecioVta = (double)0;
+					subsumKG=(double)0;
+					subsumM2=(double)0;
+					subsumCant=(double)0;
+				}
 			}
 			
 			listNumerosCoti = listNumerosCoti.substring(0,listNumerosCoti.length()-2);

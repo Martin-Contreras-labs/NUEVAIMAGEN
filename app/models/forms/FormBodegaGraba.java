@@ -20,15 +20,18 @@ public class FormBodegaGraba {
 	public String ivaBodega;	// 0 no aplica distinto aplica a facturas y cotizaciones por bodega
 	public Long id_sucursal;
 	public Long id_comercial;
+
 	
 	
 	public List<Long> idsMoneda;
 	public List<Double> tasaCambio;
 
+	public Long id_rubro;
+
 	public FormBodegaGraba(Long id_bodegaEmpresa, String nombre, Long id_tipoBodega, Long id_propietario,
 			Long id_cliente, Long id_proyecto, String comercial, String cfi, Long cobraDiaDespacho, Long baseCalculo,
 			Long tratoDevoluciones, Long nDiasEnvio, Long nDiasRegreso, String pep, String ivaBodega, Long id_sucursal,
-			Long id_comercial, List<Long> idsMoneda, List<Double> tasaCambio) {
+			Long id_comercial, List<Long> idsMoneda, List<Double> tasaCambio, Long id_rubro) {
 		super();
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
 		this.nombre = nombre;
@@ -49,6 +52,7 @@ public class FormBodegaGraba {
 		this.id_comercial = id_comercial;
 		this.idsMoneda = idsMoneda;
 		this.tasaCambio = tasaCambio;
+		this.id_rubro = id_rubro;
 	}
 
 
