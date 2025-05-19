@@ -39,7 +39,7 @@ import com.typesafe.sbt.packager.docker.DockerChmodType
 dockerChmodType := DockerChmodType.UserGroupWriteExecute
 dockerExposedPorts ++= Seq(9000)
 dockerExposedVolumes := Seq("/opt/docker/run")
-dockerBaseImage := "489478819445.dkr.ecr.us-west-2.amazonaws.com/amazoncorretto:11"
+dockerBaseImage := "489478819445.dkr.ecr.us-west-2.amazonaws.com/amazoncorretto:24"
 dockerEntrypoint := Seq("/opt/docker/bin/mada_aws", "-Dpidfile.path=/opt/docker/run/RUNNING_PID", "-Dconfig.file=/opt/docker/conf/application.conf")
 Docker / daemonUserUid := None
 Docker / daemonUser := "nobody"
