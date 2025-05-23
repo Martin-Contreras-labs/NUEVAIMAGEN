@@ -2031,8 +2031,8 @@ public class MantTransacReport {
 				smt.setString(21, form.descTrabajoP);
 				smt.setString(22, form.estadoFinalP);
 				smt.setString(23, form.observaciones_mecP);
-				smt.setString(24, form.firmaAprobador);
-				smt.setString(25, form.firmaEjecutor);
+				smt.setString(24, form.firmaEjecutor);
+				smt.setString(25, form.firmaAprobador);
 				
 				smt.setLong(26, form.id_tipoPlan_mecP); // corresponde al id_tipoPlan en modulo planes
 				smt.setLong(27, form.id_mantItemIntervenidoP);
@@ -2078,7 +2078,7 @@ public class MantTransacReport {
 
 				for(PlanMantencion x: allPorEquipo) {
 					if((long) x.getId_unidadMantencion() == (long) planMantencion.getId_unidadMantencion()) {
-						PlanMantencion.actualizaPorCampo(con, db, x.id_tipoPlan, form.id_equipo_oper, "estadoActual", myformat.format(lecturaFin));
+						PlanMantencion.actualizaPorCampo(con, db, x.id_tipoPlan, form.id_equipo_mecP, "estadoActual", myformat.format(lecturaFin));
 					}
 				}
 
@@ -2092,8 +2092,8 @@ public class MantTransacReport {
 
 					for(PlanMantencion x: allPorEquipo) {
 						if((long) x.getId_unidadMantencion() == (long) planMantencion.getId_unidadMantencion()) {
-							PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_oper, "proximaMantencion", myformat.format(proximaMant));
-							PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_oper, "fechaReset", form.fecha);
+							PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_mecP, "proximaMantencion", myformat.format(proximaMant));
+							PlanMantencion.actualizaPorCampo(con, db, form.id_tipoPlan_mecP, form.id_equipo_mecP, "fechaReset", form.fecha);
 						}
 					}
 				}else {
@@ -2182,8 +2182,8 @@ public class MantTransacReport {
 				smt.setString(21, form.descTrabajo);
 				smt.setString(22, form.estadoFinal);
 				smt.setString(23, form.observaciones_mec);
-				smt.setString(24, form.firmaAprobador);
-				smt.setString(25, form.firmaEjecutor);
+				smt.setString(24, form.firmaEjecutor);
+				smt.setString(25, form.firmaAprobador);
 
 				smt.setLong(26, form.id_mantItemIntervenido);
 

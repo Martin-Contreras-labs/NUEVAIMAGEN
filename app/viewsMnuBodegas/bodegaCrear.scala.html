@@ -142,7 +142,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 							<td style="text-align:left;">RUBRO: </td>
 							<td style="text-align:left;">
 								<select class="custom-select" id="id_rubro" name="id_rubro" required>"
-									<option value=""></option>
+									<option value="0"></option>
 									@for(lista <- listRubro) {
 									<option value="@lista.getId()">@lista.getNombre()</option>
 									}

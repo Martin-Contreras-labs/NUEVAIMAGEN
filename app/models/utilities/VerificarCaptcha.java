@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -23,7 +24,7 @@ public class VerificarCaptcha {
         	String url = "https://www.google.com/recaptcha/api/siteverify";
         	String USER_AGENT = "Mozilla/5.0";
         	String secreto = HomeController.config.getString("secretKeyCapcha");
-            URL obj = new URL(url);
+            URL obj = URI.create(url).toURL();
             HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("User-Agent", USER_AGENT);

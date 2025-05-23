@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -246,7 +247,7 @@ public class QrEquipo{
 		return(lista);
 	}
 	
-	public static File reporteEnWord(Connection con, String db, List<List<List<String>>> lista) {
+	public static File reporteEnWord(Connection con, String db, List<List<List<String>>> lista, Map<String,String> mapDiccionario) {
 		File tmp = TempFile.createTempFile("tmp","null");
 		try {
 			String path = "formatos/listadoQR.docx";
@@ -257,9 +258,7 @@ public class QrEquipo{
 			for (int i=0; i<lista.size(); i++) {
 				for (int j=0; j<lista.get(i).size(); j++) {
 					cell=table.getRow(i).getCell(j);
-					
-					
-					String rutaLogo = db+"/"+"InqSol.png"; //mapDiccionario.get("logoEmpresa");
+					String rutaLogo = db+"/"+mapDiccionario.get("logoEmpresa");
 					InputStream inputStreamLogo = Archivos.leerArchivo(rutaLogo);
 					byte[] logo = IOUtils.toByteArray(inputStreamLogo);
 					BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(logo));

@@ -1033,7 +1033,14 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 
-
+GET     /*path        controllers.HomeController.onUrlNotFind(request: Request, path: String)
+# curl -i http://localhost:9002/.well-known/traffic-advice
+# curl -i http://localhost:9002/.env
+# curl -i http://localhost:9002/.git/config
+# curl -i http://localhost:9002/HNAP1
+# curl -i http://localhost:9002/nmaplowercheck1748007906
+# curl -i http://localhost:9002/favicon.ico
+# curl -i http://localhost:9002/robots.txt
 
 
 

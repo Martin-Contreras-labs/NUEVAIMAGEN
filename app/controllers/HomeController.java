@@ -6,12 +6,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,7 +85,17 @@ import viewsMnuOdoAppWeb.html.odoAutorizaListarVentasWeb;
  */
 
 public class HomeController extends Controller {
-	
+
+
+
+	// **************************************************
+	// CAPTURA DE LLAMADAS NO VALIDAS
+	// **************************************************
+	public Result  onUrlNotFind(Http.RequestHeader request, String path) {
+		return forbidden("Access Denied");
+	}
+
+
 	
 	public Result ping() {
     	boolean flag = false;
@@ -391,23 +406,29 @@ public class HomeController extends Controller {
 			return ok("");
 		}
    	}
-    
-    public static InputStream getInputStreamFromUrl(String urlString) throws Exception {
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setDoInput(true);
-        connection.setConnectTimeout(10000); // Tiempo de espera para la conexión (10s)
-        connection.setReadTimeout(10000);    // Tiempo de espera para la lectura (10s)
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            return connection.getInputStream();
-        } else {
-            return null;
-        }
-    }
-    
-    public Result tasasDeFechaAjax(Http.Request request) {
+
+	public static InputStream getInputStreamFromUrl(String urlString) throws Exception {
+		HttpClient client = HttpClient.newBuilder()
+				.connectTimeout(Duration.ofSeconds(10))
+				.build();
+
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(urlString))
+				.timeout(Duration.ofSeconds(10))
+				.GET()
+				.build();
+
+		HttpResponse<InputStream> response = client.send(request,
+				HttpResponse.BodyHandlers.ofInputStream());
+
+		if (response.statusCode() == 200) {
+			return response.body();
+		}
+		return null;
+	}
+
+
+	public Result tasasDeFechaAjax(Http.Request request) {
     	Sessiones s = new Sessiones(request);
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);

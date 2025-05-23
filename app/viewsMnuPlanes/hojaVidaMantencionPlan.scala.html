@@ -105,7 +105,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 							
 							<td style="text-align:center">
 								<input type="hidden" class="id_unidadMantencion" value="@lista.id_unidadMantencion">
-								@lista.unidadMantencion
+								@lista.unidadMantencion @mapPermiso.get("parametro.planes_calculaProximaMant")
 							</td>
 							<!-- Estado Actual -->
 							<td style="text-align:right">
@@ -115,7 +115,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 									onfocus="value = value.replace(/,/g,''); auxiliar = value;" 
 									onkeypress="return ingresoDouble(event,value)"
 									autocomplete="off"
-									onchange="if(value=='') value=0; 
+									onchange="if(value=='') value=0;
 										actualizaAll('@index', '@lista.id_equipo', 'estadoActual', value);">
 							</td> 
 							
@@ -274,29 +274,47 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 	};
 
 
-	
-	function determinaProxima(lectActual, frecuencia) {
-		if (frecuencia <= 0) {
-			alert("la rotacion debe ser mayor a 0")
-			return 0;
-		}
-		if (lectActual % frecuencia === 0) {
-			// Caso múltiplo exacto
-			return lectActual + frecuencia;
-	   	} else {
-	        // Redondear al siguiente múltiplo
-	        const resto = lectActual % frecuencia;
-	        return lectActual - resto + frecuencia;
-	    }
+
+	let calculoAutomatico = "1";
+	@if(mapPermiso.get("parametro.planes_calculaProximaMant") != null && mapPermiso.get("parametro.planes_calculaProximaMant").equals("0")) {
+		calculoAutomatico = "0";
 	}
 
-    
+	function determinaProxima(lectActual, frecuencia) {
+		if(calculoAutomatico == 1){
+			if (frecuencia <= 0) {
+				alert("la rotacion debe ser mayor a 0")
+				return 0;
+			}
+			if (lectActual % frecuencia === 0) {
+				// Caso múltiplo exacto
+				return lectActual + frecuencia;
+			} else {
+				// Redondear al siguiente múltiplo
+				const resto = lectActual % frecuencia;
+				return lectActual - resto + frecuencia;
+			}
+		}else{
+			if (frecuencia < 0){
+				alert("la rotacion debe ser mayor a 0");
+			}else {
+				return lectActual + frecuencia;
+			}
+		}
+
+	}
 
 	function validaHoras(frecuencia, siguienteMantencion, mantencionAnterior, origen) {
-	    if (!frecuencia || !siguienteMantencion) {
-	        return false;
-	    }
-	    return siguienteMantencion % frecuencia === 0;
+		if (!frecuencia || !siguienteMantencion) {
+			return false;
+		}
+		if(calculoAutomatico == 1){
+			const isValid = siguienteMantencion % frecuencia === 0;
+			return isValid;
+		}else{
+			return true;
+		}
+
 	}
 
 	let auxiliar = 0;

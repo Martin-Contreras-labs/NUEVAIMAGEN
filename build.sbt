@@ -12,11 +12,16 @@ javaOptions += "--illegal-access=permit"
 libraryDependencies += "org.dom4j" % "dom4j" % "2.1.4"
 
 
-libraryDependencies += guice
+libraryDependencies ++= Seq(
+ guice,
+ play.sbt.PlayImport.filters
+)
 
 libraryDependencies ++= Seq(javaJdbc)
 libraryDependencies ++= Seq("mysql" % "mysql-connector-java" % "8.0.32")
 libraryDependencies ++= Seq(javaWs)
+javacOptions ++= Seq("-Xlint:deprecation", "-Xlint:unchecked")
+
 
 libraryDependencies += "org.apache.poi" % "poi" % "3.8"
 libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.8"
@@ -34,6 +39,18 @@ libraryDependencies += "com.google.zxing" % "core" % "2.0"
 libraryDependencies += "software.amazon.awssdk" % "s3" % "2.13.29"
 
 
+// Agregar configuraciones Java para manejar las advertencias
+javacOptions ++= Seq(
+ "--add-exports=java.base/sun.security.x509=ALL-UNNAMED",
+ "--add-exports=java.base/sun.security.util=ALL-UNNAMED",
+ "--add-opens=java.base/java.lang=ALL-UNNAMED",
+ "--add-opens=java.base/java.util=ALL-UNNAMED"
+)
+
+// Agregar configuraciones para el runtime de Java
+javaOptions ++= Seq(
+ "-Dio.netty.tryReflectionSetAccessible=true"
+)
 
 import com.typesafe.sbt.packager.docker.DockerChmodType
 dockerChmodType := DockerChmodType.UserGroupWriteExecute

@@ -2180,7 +2180,7 @@ public class Cotizacion {
 			PreparedStatement smt = con
 				.prepareStatement("update `"+db+"`.cotizacion set id_bodegaEmpresa=?, id_cliente=?, id_proyecto=?," +
 						" numero=?,fecha=?, observaciones=?, dctoArriendo=?, dctoVenta=? , id_userModifica=?, fechaUserModifica=?, id_comercial=?, " +
-						" id_sucursal=?, id_cotizaSolucion=?, id_dibujante, fechaProbable where id=?;");
+						" id_sucursal=?, id_cotizaSolucion=?, id_dibujante=?, fechaProbable=? where id=?;");
 			smt.setLong(1, cotizacion.getId_bodegaEmpresa());
 			smt.setLong(2, cotizacion.getId_cliente());
 			smt.setLong(3, cotizacion.getId_proyecto());
@@ -2194,9 +2194,9 @@ public class Cotizacion {
 			smt.setLong(11, cotizacion.getId_comercial());
 			smt.setLong(12, cotizacion.getId_sucursal());
 			smt.setLong(13, cotizacion.getId_cotizaSolucion());
-			smt.setLong(13, cotizacion.getId_dibujante());
-			smt.setString(14, cotizacion.getFechaProbable());
-			smt.setLong(15, cotizacion.getId());
+			smt.setLong(14, cotizacion.getId_dibujante());
+			smt.setString(15, cotizacion.getFechaProbable());
+			smt.setLong(16, cotizacion.getId());
 			smt.executeUpdate();
 			smt.close();
 			flag = true;

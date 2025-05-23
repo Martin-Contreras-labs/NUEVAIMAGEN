@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import controllers.HomeController;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -49,6 +50,9 @@ import models.tables.UnidadTiempo;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import views.html.mensajes;
 
 
 public class ReportMovimientos {
@@ -60,37 +64,21 @@ public class ReportMovimientos {
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	
 	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 		
 	
 	
 	public static List<List<String>> movimientoGuiasAgrupado(Connection con, String db, Long id_bodegaEmpresa, String esVenta, String fechaDesde, String fechaHasta) {
+
+		String className = ReportMovimientos.class.getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
 		List<List<String>> lista = new ArrayList<List<String>>();
 		esVenta = esVenta.trim();
 		Double granTotalArriendo = (double)0;
 		Map<String,Double> excedentes = ReportExcedentes.totalExcedentesPorCodyBod(con, db, id_bodegaEmpresa);
 		
 		try {
-			
-			PreparedStatement smt1 = con
-					.prepareStatement(" select  distinct " +
-							" guia.numero, " +
-							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
-							" tipoMovimiento.nombre, " +
-							" guia.fecha, " +
-							" ifnull(guia.numGuiaCliente,'') "+
-							" from `"+db+"`.movimiento " +
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
-							" where id_bodegaEmpresa =  ? and numero is not null " +
-							" and movimiento.esVenta= ?  "
-							+ " and (guia.fecha between ? and ?) order by guia.fecha,guia.numero;");
-			smt1.setLong(1, id_bodegaEmpresa);
-			smt1.setString(2, esVenta);
-			smt1.setString(3, fechaDesde);
-			smt1.setString(4, fechaHasta);
-			
-
-			ResultSet rs1 = smt1.executeQuery();
 			
 			List<String> numGuia = new ArrayList<String>();
 			List<String> fechGuia = new ArrayList<String>();
@@ -140,19 +128,41 @@ public class ReportMovimientos {
 			guiaClie.add("");
 			tipGuia.add(" ");
 			blanco.add(" ");
-			
-			while (rs1.next()) {
-				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(4));
-				if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
-					numGuia.add(rs1.getString(1));
-					fechGuia.add(rs1.getString(2));
-					guiaClie.add(rs1.getString(5));
-					tipGuia.add(rs1.getString(3));
-					blanco.add(" ");
-				}
+
+			try (PreparedStatement smt1 = con
+					.prepareStatement(" select  distinct " +
+							" guia.numero, " +
+							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +
+							" tipoMovimiento.nombre, " +
+							" guia.fecha, " +
+							" ifnull(guia.numGuiaCliente,'') "+
+							" from `"+db+"`.movimiento " +
+							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
+							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
+							" where id_bodegaEmpresa =  ? and numero is not null " +
+							" and movimiento.esVenta= ?  "
+							+ " and (guia.fecha between ? and ?) order by guia.fecha,guia.numero;")){
+					smt1.setLong(1, id_bodegaEmpresa);
+					smt1.setString(2, esVenta);
+					smt1.setString(3, fechaDesde);
+					smt1.setString(4, fechaHasta);
+
+
+					ResultSet rs1 = smt1.executeQuery();
+
+					while (rs1.next()) {
+						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(4));
+						if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
+							numGuia.add(rs1.getString(1));
+							fechGuia.add(rs1.getString(2));
+							guiaClie.add(rs1.getString(5));
+							tipGuia.add(rs1.getString(3));
+							blanco.add(" ");
+						}
+					}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
-			rs1.close();
-			smt1.close();
 			
 			numGuia.add("STOCK FINAL");
 				String aux3[] = fechaHasta.split("-");
@@ -165,28 +175,33 @@ public class ReportMovimientos {
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("");
-				
-			PreparedStatement smt2 = con
+
+			List<List<String>> listaGuias = new ArrayList<List<String>>();
+
+			try (PreparedStatement smt2 = con
 					.prepareStatement(" select distinct  guia.numero,guia.fecha " +
 							" from `"+db+"`.guia " +
 							" left join `"+db+"`.movimiento on movimiento.id_guia = guia.id " +
 							" where movimiento.esVenta= ?  and id_bodegaEmpresa = ? "+
-							" order by guia.fecha,guia.numero; ");
-			smt2.setString(1, esVenta);
-			smt2.setLong(2, id_bodegaEmpresa);
-			
-			ResultSet rs2 = smt2.executeQuery();
-			List<List<String>> listaGuias = new ArrayList<List<String>>();
-			while (rs2.next()) {
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs2.getString(1));
-				aux.add(rs2.getString(2));
-				listaGuias.add(aux);
+							" order by guia.fecha,guia.numero; ")){
+					smt2.setString(1, esVenta);
+					smt2.setLong(2, id_bodegaEmpresa);
+
+					ResultSet rs2 = smt2.executeQuery();
+
+					while (rs2.next()) {
+						List<String> aux = new ArrayList<String>();
+						aux.add(rs2.getString(1));
+						aux.add(rs2.getString(2));
+						listaGuias.add(aux);
+					}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
-			rs2.close();
-			smt2.close();
-				
-			PreparedStatement smt3 = con
+
+			List<List<String>> listaCodigos = new ArrayList<List<String>>();
+
+			try (PreparedStatement smt3 = con
 					.prepareStatement(" select distinct " +
 							" grupo.nombre, " +
 							" equipo.codigo, " +
@@ -219,50 +234,52 @@ public class ReportMovimientos {
 							" where " + 
 							" movimiento.id_bodegaEmpresa=? "+ 
 							" and equipo.nombre is not null and movimiento.esVenta= ? "+
-							" order by grupo.nombre,equipo.nombre;");
+							" order by grupo.nombre,equipo.nombre;")){
 			
-			smt3.setLong(1, id_bodegaEmpresa);
-			smt3.setString(2, esVenta);
-			
-			ResultSet rs3 = smt3.executeQuery();
-			List<List<String>> listaCodigos = new ArrayList<List<String>>();
-			
-			Map<Long,Double> mapUnidadTiempo = UnidadTiempo.equivalencia(con, db);
-			
-			while (rs3.next()) {
-				List<String> aux = new ArrayList<String>();
-				Double factor = mapUnidadTiempo.get(rs3.getLong(8));
-				if(factor == null){
-					factor = (double)1;
-				}
-				aux.add(rs3.getString(1)); //grupo
-				aux.add(rs3.getString(2));  //codigo
-				aux.add(rs3.getString(3));  //equipo
-				aux.add(rs3.getString(4));  //moneda
-				aux.add(myformatdouble2.format(rs3.getDouble(5))); //precioventa
-				Double tasa=(double)0;
-				Double tasaDcto = 1-((1-rs3.getDouble(9))*(1-rs3.getDouble(10))*(1-rs3.getDouble(11)));
-				if(rs3.getDouble(7)>0&&rs3.getDouble(5)>0) tasa=((rs3.getDouble(7)*30/factor*(1-tasaDcto))/rs3.getDouble(5))*100;
-				if(esVenta.equals("1")) {
-					aux.add("0 %"); //tasaArriendo
-					aux.add("0"); // arriendo mes
-					aux.add("0");  //arriendo dia
-				}else {
-					aux.add(myformatdouble2.format(tasa)+" %"); //tasaArriendo
-					aux.add(myformatdouble2.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // arriendo mes
-					aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
-				}
-				aux.add(rs3.getString(12)); //  8 id cotizacion
-				aux.add(rs3.getString(13)); //  9 numero coti
-				aux.add(rs3.getString(14)); //  10 idEquipo
-				aux.add(rs3.getString(15)); //  11 kg
-				aux.add(rs3.getString(16)); //  12 m2
-				listaCodigos.add(aux);
+					smt3.setLong(1, id_bodegaEmpresa);
+					smt3.setString(2, esVenta);
+
+					ResultSet rs3 = smt3.executeQuery();
+
+					Map<Long,Double> mapUnidadTiempo = UnidadTiempo.equivalencia(con, db);
+
+					while (rs3.next()) {
+						List<String> aux = new ArrayList<String>();
+						Double factor = mapUnidadTiempo.get(rs3.getLong(8));
+						if(factor == null){
+							factor = (double)1;
+						}
+						aux.add(rs3.getString(1)); //grupo
+						aux.add(rs3.getString(2));  //codigo
+						aux.add(rs3.getString(3));  //equipo
+						aux.add(rs3.getString(4));  //moneda
+						aux.add(myformatdouble2.format(rs3.getDouble(5))); //precioventa
+						Double tasa=(double)0;
+						Double tasaDcto = 1-((1-rs3.getDouble(9))*(1-rs3.getDouble(10))*(1-rs3.getDouble(11)));
+						if(rs3.getDouble(7)>0&&rs3.getDouble(5)>0) tasa=((rs3.getDouble(7)*30/factor*(1-tasaDcto))/rs3.getDouble(5))*100;
+						if(esVenta.equals("1")) {
+							aux.add("0 %"); //tasaArriendo
+							aux.add("0"); // arriendo mes
+							aux.add("0");  //arriendo dia
+						}else {
+							aux.add(myformatdouble2.format(tasa)+" %"); //tasaArriendo
+							aux.add(myformatdouble2.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // arriendo mes
+							aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+						}
+						aux.add(rs3.getString(12)); //  8 id cotizacion
+						aux.add(rs3.getString(13)); //  9 numero coti
+						aux.add(rs3.getString(14)); //  10 idEquipo
+						aux.add(rs3.getString(15)); //  11 kg
+						aux.add(rs3.getString(16)); //  12 m2
+						listaCodigos.add(aux);
+					}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
-			rs3.close();
-			smt3.close();
-				
-			PreparedStatement smt4 = con
+
+			Map<String,String> codGuiaCant = new HashMap<String,String>();
+
+			try (PreparedStatement smt4 = con
 					.prepareStatement(" select " +
 							" equipo.codigo,    " +
 							" guia.numero, " +
@@ -274,17 +291,18 @@ public class ReportMovimientos {
 							" where movimiento.id_bodegaEmpresa =  ? "+  
 							" and guia.fecha is not null  and movimiento.esVenta= ?  " +
 							" group by equipo.codigo, guia.numero  " + 
-							" order by guia.fecha,guia.numero,equipo.codigo;");
-			smt4.setLong(1, id_bodegaEmpresa);
-			smt4.setString(2, esVenta);
-			
-			ResultSet rs4 = smt4.executeQuery();
-			Map<String,String> codGuiaCant = new HashMap<String,String>();
-			while (rs4.next()) {
-				codGuiaCant.put(rs4.getString(1).trim()+"_"+rs4.getString(2).trim(), rs4.getString(3));
+							" order by guia.fecha,guia.numero,equipo.codigo;")){
+					smt4.setLong(1, id_bodegaEmpresa);
+					smt4.setString(2, esVenta);
+
+					ResultSet rs4 = smt4.executeQuery();
+
+					while (rs4.next()) {
+						codGuiaCant.put(rs4.getString(1).trim()+"_"+rs4.getString(2).trim(), rs4.getString(3));
+					}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
-			rs4.close();
-			smt4.close();
 			
 			lista.add(numGuia);
 			lista.add(fechGuia);
@@ -306,22 +324,22 @@ public class ReportMovimientos {
 			Map<Long, List<Inventarios>> mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
 			
 			for(int i=0;i<listaCodigos.size();i++){
-				
+
 				if(!auxiliarDeReparacion.equals(listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2))) {
-					
+
 					auxiliarDeReparacion=listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2);
-				
+
 					List<String> aux = new ArrayList<String>();
 					aux.add(listaCodigos.get(i).get(0)); //grupo
 					aux.add(listaCodigos.get(i).get(1)); //codigo
 					aux.add(listaCodigos.get(i).get(2)); //equipo
-					
+
 					// kg por unidad
 					Double kg = Double.parseDouble(listaCodigos.get(i).get(11).trim());
 					if(kg > 0) {
 						aux.add(myformatdouble2.format(kg));
 					}else {
-						aux.add(""); 
+						aux.add("");
 					}
 					// m2 por unidad
 					Double m2 =  Double.parseDouble(listaCodigos.get(i).get(12).trim());
@@ -330,37 +348,37 @@ public class ReportMovimientos {
 					}else {
 						aux.add("");
 					}
-						
+
 					Double cantStockIni = (double) 0;
 					Double cantStockFin=(double)0;
 					Double arriendo = (double) 0;
 					Long totalDias = (long)0;
 					Long dias = (long)0;
-						
+
 					dias = Math.round( (double) (hasta.fechaCal.getTimeInMillis() - desde.fechaCal.getTimeInMillis())  /  (24 * 60 * 60 * 1000)  ) + 1;
-					
+
 					BodegaEmpresa bodega = mapBodegaEmpresa.get(id_bodegaEmpresa);
 					Long baseCalculo = bodega.baseCalculo;
 					if(baseCalculo == null) {
 						baseCalculo = (long) 1;
 					}
-						
+
 					if((long)baseCalculo == (long)2) {
 						String[] mes = fechaDesde.split("-");
-						
+
 						if(!mes[1].equals("02") && (long)dias == (long)31) {
 							dias=(long)30;
 						}
 						if(mes[1].equals("02") && ((long)dias == (long)28 || (long)dias == (long)29)) {
 							dias=(long)30;
 						}
-						
+
 						if((long)dias > (long)31) {
 							Long diasDePaso=(long)0;
 							Double factorMeses=(double) dias/30;
 							Long iPart = factorMeses.longValue();
 							Double fPart = factorMeses - iPart;
-							
+
 							dias=(long)0;
 							Long auxMes= Long.parseLong(mes[1].trim());
 							for(int j=0;j<iPart;j++) {
@@ -369,11 +387,11 @@ public class ReportMovimientos {
 								if(auxMes==4||auxMes==6||auxMes==9||auxMes==11)  diasDePaso=(long)30;
 								dias=dias+diasDePaso;
 							}
-							fPart=fPart*30; 
+							fPart=fPart*30;
 							dias=dias+fPart.longValue();
 						}
 					}
-						
+
 					for(int k=0;k<listaGuias.size();k++){
 						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
 						if(fechaGuia.fechaCal.before(desde.fechaCal)){
@@ -390,38 +408,38 @@ public class ReportMovimientos {
 							}
 						}
 					}
-					
+
 					aux.add(myformatdouble2.format(cantStockIni));
-					
+
 					String auxNum = listaCodigos.get(i).get(4).trim();
 	 	   			if(auxNum == null || auxNum.trim().length() <= 0) {
 	 	   				auxNum = "0";
 	 	   			}
-	 	   			
+
 					Double precioVenta=(double)0;
 					try {
 						precioVenta  = myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {};
-					
+
 					auxNum = listaCodigos.get(i).get(7).trim();
 	 	   			if(auxNum == null || auxNum.trim().length()<=0) {
 	 	   				auxNum = "0";
 	 	   			}
-	 	   			
+
 					Double precioDia=(double)0;
 					try {
 						precioDia  = myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {};
-					
+
 					if(esVenta.equals("0")) {
-						
+
 						// AJUSTES POR SALDOS DIAS DE GRACIA
 						Long nDiaGraciaEnvio = bodega.getnDiaGraciaEnvio();
 							Double ajustePorGracia = (double)0;
 							if(nDiaGraciaEnvio > 0) {
-								
+
 								List<Inventarios> guiasPer = mapGuiasPer.get(bodega.getId());
-								
+
 								for(int k=0; guiasPer!=null && k<guiasPer.size(); k++) {
 									String idEquipo = listaCodigos.get(i).get(10);
 									String idCotizacion = listaCodigos.get(i).get(8);
@@ -441,28 +459,28 @@ public class ReportMovimientos {
 								}
 							}
 						// FIN AJUSTES
-							
+
 							arriendo = cantStockIni * dias * precioDia + ajustePorGracia;
-						
+
 					}else {
 						arriendo = (double)0;
 					}
-					
+
 					totalDias=totalDias+dias;
 					Double cantDeDespachos=(double)0;
-						
+
 					for(int k=0;k<listaGuias.size();k++){
 						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
 						if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
 							String keyAux=listaCodigos.get(i).get(1).trim()+"_"+listaGuias.get(k).get(0).trim();
 							String cantidad = codGuiaCant.get(keyAux);
-							
+
 							if(cantidad==null){
 								aux.add(" ");
 							}else{
 								aux.add(cantidad);
 								Long diasPeriodo = (long)0;
-								BodegaEmpresa bodegaEmpresa = mapBodegaEmpresa.get(id_bodegaEmpresa); 
+								BodegaEmpresa bodegaEmpresa = mapBodegaEmpresa.get(id_bodegaEmpresa);
 								Long nDiaGraciaRegreso = bodegaEmpresa.getnDiaGraciaRegreso();
 								Long nDiaGraciaEnvio = bodegaEmpresa.getnDiaGraciaEnvio();
 								Long tratoDevoluciones = bodegaEmpresa.getTratoDevoluciones();
@@ -494,7 +512,7 @@ public class ReportMovimientos {
 										diasPeriodo=(long)0;
 									}
 								}
-								
+
 								if((long)baseCalculo == (long)2) {
 									String[] mes = fechaDesde.split("-");
 									if(!mes[1].equals("02")&&diasPeriodo==31) diasPeriodo=(long)30;
@@ -503,7 +521,7 @@ public class ReportMovimientos {
 										Double factorMeses=(double) diasPeriodo/30;
 										Long iPart = factorMeses.longValue();
 										Double fPart = factorMeses - iPart;
-										
+
 										diasPeriodo=(long)0;
 										Long auxMes= Long.parseLong(mes[1].trim());
 										for(int j=0;j<iPart;j++) {
@@ -512,7 +530,7 @@ public class ReportMovimientos {
 											if(auxMes==4||auxMes==6||auxMes==9||auxMes==11)  diasDePaso=(long)30;
 											diasPeriodo=diasPeriodo+diasDePaso;
 										}
-										fPart=fPart*30; 
+										fPart=fPart*30;
 										diasPeriodo=diasPeriodo+fPart.longValue();
 									}
 									if(Double.parseDouble(cantidad.trim())<0 && (mes[1].equals("01")||mes[1].equals("03")||mes[1].equals("05")||mes[1].equals("07")||mes[1].equals("08")||mes[1].equals("10")||mes[1].equals("12"))) {
@@ -522,25 +540,25 @@ public class ReportMovimientos {
 										Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
 										int diasMes = fecha.getFechaCal().getActualMaximum(Calendar.DAY_OF_MONTH);
 										if(diasMes==28) { diasPeriodo=diasPeriodo+2; }else { diasPeriodo=diasPeriodo+1; }
-										
+
 									}
-									
+
 								}
 								if(esVenta.equals("0")) {
 									arriendo = arriendo + Double.parseDouble(cantidad.trim()) *diasPeriodo * precioDia;
 								}else {
 									arriendo = arriendo + Double.parseDouble(cantidad.trim()) * precioVenta;
 								}
-								
+
 							}
-							
+
 						}
 					}
-						
-					
-					
+
+
+
 					aux.add(myformatdouble2.format(cantStockFin));
-					
+
 					Double pventa = (double)0;
 					auxNum = listaCodigos.get(i).get(4).trim();
 	 	   			if(auxNum==null || auxNum.trim().length()<=0) {
@@ -549,9 +567,9 @@ public class ReportMovimientos {
 					try {
 						pventa=myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {}
-					
+
 					Double cfi = (double)0;
-					
+
 					auxNum = bodega.tasaCfi.toString().trim();
 	 	   			if(auxNum==null || auxNum.trim().length()<=0) {
 	 	   				auxNum = "0";
@@ -564,27 +582,28 @@ public class ReportMovimientos {
 						totalCfi=(double)0;
 					}
 					granTotalArriendo=granTotalArriendo+arriendo+totalCfi;
-						
-					Double auxExcedente = excedentes.get(aux.get(1)); 
+
+					Double auxExcedente = excedentes.get(aux.get(1));
 					if(auxExcedente==null) {
 						auxExcedente = (double)0;
 						aux.add("");
 					}else {
 						aux.add(myformatdouble.format(auxExcedente));
 					}
-					
+
 					if(auxExcedente!=0 || cantStockFin!=0 || cantStockIni!=0 || cantDeDespachos!=0) {
 						lista.add(aux);
 					}
-					
-						
+
+
 				}
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 				e.printStackTrace();
 		}
 		return (lista);
 	}
+
 	
 	public static File movimientosExcelAgrupado(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto, String fechaDesde, String fechaHasta) {
 

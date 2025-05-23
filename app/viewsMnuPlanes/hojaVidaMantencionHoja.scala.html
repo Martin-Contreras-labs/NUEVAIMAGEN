@@ -477,29 +477,48 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 
 	
 	
-		
+
+
+	let calculoAutomatico = "1";
+	@if(mapPermiso.get("parametro.planes_calculaProximaMant") != null && mapPermiso.get("parametro.planes_calculaProximaMant").equals("0")) {
+		calculoAutomatico = "0";
+	}
+
 	function determinaProxima(lectActual, frecuencia) {
-	    if (frecuencia <= 0) {
-	        alert("La rotacion debe ser mayor a 0");
-	        return 0;
-	    }
-	
-	    if (lectActual % frecuencia === 0) {
-	        return lectActual + frecuencia;
-	    } else {
-	        const resto = lectActual % frecuencia;
-	        const proxima = lectActual - resto + frecuencia;
-	        return proxima;
-	    }
+		if(calculoAutomatico == 1){
+			if (frecuencia <= 0) {
+				alert("la rotacion debe ser mayor a 0")
+				return 0;
+			}
+			if (lectActual % frecuencia === 0) {
+				// Caso múltiplo exacto
+				return lectActual + frecuencia;
+			} else {
+				// Redondear al siguiente múltiplo
+				const resto = lectActual % frecuencia;
+				return lectActual - resto + frecuencia;
+			}
+		}else{
+			if (frecuencia < 0){
+				alert("la rotacion debe ser mayor a 0");
+			}else {
+				return lectActual + frecuencia;
+			}
+		}
+
 	}
 
 	function validaHoras(frecuencia, siguienteMantencion, mantencionAnterior, origen) {
 	    if (!frecuencia || !siguienteMantencion) {
 	        return false;
 	    }
-	
-	    const isValid = siguienteMantencion % frecuencia === 0;
-	    return isValid;
+		if(calculoAutomatico == 1){
+			const isValid = siguienteMantencion % frecuencia === 0;
+			return isValid;
+		}else{
+			return true;
+		}
+
 	}
 
 

@@ -616,12 +616,13 @@ public class MnuQr extends Controller {
     		try {
     			Connection con = db.getConnection();
     			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
     			if(mapeoPermiso.get("qrAdminEquipos")==null) {
     				con.close();
     				return ok(mensajes.render("/",msgSinPermiso));
     			}
     			List<List<List<String>>> lista = QrEquipo.listaDeQrEquipos(con, s.baseDato);
-    			File file = QrEquipo.reporteEnWord(con, s.baseDato, lista);
+    			File file = QrEquipo.reporteEnWord(con, s.baseDato, lista, mapeoDiccionario);
     			if(file!=null) {
 	       			con.close();
 	       			return ok(file,false,Optional.of("Listado_de_QR.docx"));
@@ -686,7 +687,11 @@ public class MnuQr extends Controller {
 				List<QrTransacEquipo> listTransacEquipo = QrTransacEquipo.allPorIdEquipo(con, base, Long.parseLong(id_equipo));
 				Long conBtnMantencion = 0L;
 				if(Parametros.validaParametro(con, base,"mnuMANTENCION")){
-					conBtnMantencion = 1L;
+					Map<Long,PlanMantencion> mapAllEquiposVigentes = PlanMantencion.mapAllEquiposVigentes(con, base);
+					PlanMantencion plan = mapAllEquiposVigentes.get(equipo.getId());
+					if(plan != null) {
+						conBtnMantencion = 1L;
+					}
 				}
 				con.close();
 				return ok(inicioQr.render(nEmpresa.toUpperCase(), base, equipo, stock, ubicacion, (long) listTransacEquipo.size(), conBtnMantencion))

@@ -889,13 +889,13 @@ public class Precio {
             	if(cell != null) {
             		Long nroFilasExcel = (long) 0;
             		Map<Long,Long> mapValidaRepetido = new HashMap<Long,Long>();
-            		while (row != null && cell != null ) {
+            		while (row != null && cell != null && ! row.getCell(2).getStringCellValue().isEmpty()) {
             			row = hoja1.getRow(fila);
-            			if(row != null) {
-            				
+            			if(row != null && ! row.getCell(2).getStringCellValue().isEmpty()) {
+
             				//valido codigos
             				cell = row.getCell(2);
-            				if(cell != null) {
+            				if(cell != null && ! cell.getStringCellValue().isEmpty()) {
             					boolean noEsBlanco = true;
     	                    	try {
     	                    		String dato = cell.getStringCellValue().trim();

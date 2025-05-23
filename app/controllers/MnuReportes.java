@@ -3739,9 +3739,25 @@ public class MnuReportes extends Controller {
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				HashMap<String, Object> map = ReportKilos.reportKgArrPorGrupoPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-				List<String> cabecera1 = (List<String>) map.get("cabecera1");
-				List<String> cabecera2 = (List<String>) map.get("cabecera2");
-				List<List<String>> datos = (List<List<String>>) map.get("datos");
+				// Conversiones seguras con verificación de tipo
+				@SuppressWarnings("unchecked")
+				List<String> cabecera1 = Optional.ofNullable(map.get("cabecera1"))
+						.filter(obj -> obj instanceof List<?>)
+						.map(obj -> (List<String>) obj)
+						.orElse(new ArrayList<>());
+
+				@SuppressWarnings("unchecked")
+				List<String> cabecera2 = Optional.ofNullable(map.get("cabecera2"))
+						.filter(obj -> obj instanceof List<?>)
+						.map(obj -> (List<String>) obj)
+						.orElse(new ArrayList<>());
+
+				@SuppressWarnings("unchecked")
+				List<List<String>> datos = Optional.ofNullable(map.get("datos"))
+						.filter(obj -> obj instanceof List<?>)
+						.map(obj -> (List<List<String>>) obj)
+						.orElse(new ArrayList<>());
+
 				return ok(reportGerenKGPorPeriodo1.render(mapeoDiccionario,mapeoPermiso,userMnu,cabecera1,cabecera2,datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -3771,9 +3787,24 @@ public class MnuReportes extends Controller {
 				String desdeAAMMDD = form.get("desde").trim();
 				String hastaAAMMDD = form.get("hasta").trim();
 				HashMap<String, Object> map = ReportKilos.reportKgArrPorGrupoPorPeriodo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-				List<String> cabecera1 = (List<String>) map.get("cabecera1");
-				List<String> cabecera2 = (List<String>) map.get("cabecera2");
-				List<List<String>> datos = (List<List<String>>) map.get("datos");
+				// Conversiones seguras con verificación de tipo
+				@SuppressWarnings("unchecked")
+				List<String> cabecera1 = Optional.ofNullable(map.get("cabecera1"))
+						.filter(obj -> obj instanceof List<?>)
+						.map(obj -> (List<String>) obj)
+						.orElse(new ArrayList<>());
+
+				@SuppressWarnings("unchecked")
+				List<String> cabecera2 = Optional.ofNullable(map.get("cabecera2"))
+						.filter(obj -> obj instanceof List<?>)
+						.map(obj -> (List<String>) obj)
+						.orElse(new ArrayList<>());
+
+				@SuppressWarnings("unchecked")
+				List<List<String>> datos = Optional.ofNullable(map.get("datos"))
+						.filter(obj -> obj instanceof List<?>)
+						.map(obj -> (List<List<String>>) obj)
+						.orElse(new ArrayList<>());
 				File file = ReportKilos.reportGerenKGPorPeriodo1Excel(s.baseDato, mapeoDiccionario, cabecera1, cabecera2, datos, desdeAAMMDD, hastaAAMMDD);
 				return ok(file,false,Optional.of("ReporteToneladasMovidas.xlsx"));
 			} catch (SQLException e) {
@@ -10051,7 +10082,7 @@ public class MnuReportes extends Controller {
 							api.dire_cliente = "LEGAL";
 							api.cod_vendedor = bodega.getComercial();
 							api.lista_precio = "2";
-							api._pago = "0";
+							api.plazo_pago = "0";
 							api.cod_moneda = "CLP";
 							api.afecto = neto.toString();
 							api.tipo_desc_global = "M";

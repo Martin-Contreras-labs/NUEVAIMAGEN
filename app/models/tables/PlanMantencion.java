@@ -229,6 +229,15 @@ public class PlanMantencion {
 		return(map);
 	}
 
+	public static Map<Long,PlanMantencion> mapAllEquiposVigentes (Connection con, String db){
+		Map<Long,PlanMantencion> map = new HashMap<Long,PlanMantencion>();
+		List<PlanMantencion> aux = PlanMantencion.allEquiposVigentes(con, db);
+		for(PlanMantencion x: aux) {
+			map.put(x.getId_equipo(),x);
+		}
+		return(map);
+	}
+
 	public static List<PlanMantencion> all(Connection con, String db) {
 		List<PlanMantencion> lista = new ArrayList<PlanMantencion>();
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(db);

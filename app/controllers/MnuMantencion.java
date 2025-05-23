@@ -231,6 +231,7 @@ public class MnuMantencion extends Controller {
 	}
 
 	public Result mantWebInicio1get(Http.Request request, Long id_operMec, Long id_equipo) {
+
 		Sessiones s = new Sessiones(request);
 		if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -398,8 +399,18 @@ public class MnuMantencion extends Controller {
 					}
 					con.close();
 					if(user != null) {
+						Long id_equipo = form.id_equipo_oper;
+						if(id_equipo == null || id_equipo == (long)0) {
+							id_equipo = form.id_equipo_mec;
+							if(id_equipo == null || id_equipo == 0){
+								id_equipo = form.id_equipo_mecP;
+							}
+						}
+
+
+
 						String msg = "Report grabado con exito";
-						return ok(mensajes.render("/routes3/mantWebInicio1get/"+user.id,msg));
+						return ok(mensajes.render("/routes3/mantWebInicio1get/"+user.id+","+id_equipo,msg));
 					}
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -2817,7 +2828,7 @@ public class MnuMantencion extends Controller {
 	    		try {
 	    			Connection con = dbWrite.getConnection();
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			if(mapeoPermiso.get("mantEliminaReportAdam")==null) {
+	    			if(mapeoPermiso.get("mantEliminaReportMada")==null) {
 	    				con.close();
 	    				return ok(mensajes.render("/",msgSinPermiso));
 	    			}

@@ -41,7 +41,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 							<TH>ANEXO</TH>
 							<TH>FIRMA<br>OPER/MEC</TH>
 							<TH>FIRMA<br>SUPERVISOR</TH>
-							@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
+							@if(mapPermiso.get("mantEliminaReportMada")!=null) {
 								<TH>DEL</TH>
 							}
 							
@@ -112,7 +112,7 @@ listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String, mapDelete
 									<img src="data:image/jpeg;base64, @lista1.get(11)" height="10px" />
 								</td>
 								
-								@if(mapPermiso.get("mantEliminaReportAdam")!=null) {
+								@if(mapPermiso.get("mantEliminaReportMada")!=null) {
 									<td  style="text-align:center;">
 										@if(mapDelete.get(lista1.get(0))!=null) {
 											<a href="#" onclick= "eliminarMantReport('@lista1.get(0)')">
