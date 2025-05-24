@@ -19,8 +19,11 @@ public class Comercial {
 	public String nameSucursal;
 	public String nameUsuario;
 	public Long id_sucursal;
+
+	public String email;
+	public String fono;
 	
-	public Comercial(Long id, String observaciones, Long vigente, String nameSucursal, String nameUsuario, Long id_sucursal) {
+	public Comercial(Long id, String observaciones, Long vigente, String nameSucursal, String nameUsuario, Long id_sucursal, String email, String fono) {
 		super();
 		this.id = id;
 		this.observaciones = observaciones;
@@ -28,6 +31,8 @@ public class Comercial {
 		this.nameSucursal = nameSucursal;
 		this.nameUsuario = nameUsuario;
 		this.id_sucursal = id_sucursal;
+		this.email = email;
+		this.fono = fono;
 	}
 
 	public Comercial() {
@@ -82,6 +87,22 @@ public class Comercial {
 		this.id_sucursal = id_sucursal;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getFono() {
+		return fono;
+	}
+
+	public void setFono(String fono) {
+		this.fono = fono;
+	}
+
 	public static Map<Long,Comercial> mapAllComerciales(Connection con, String db){
 		Map<Long,Comercial> map = new HashMap<Long,Comercial>();
 		List<Comercial> allComerciales = Comercial.all(con, db);
@@ -97,18 +118,21 @@ public class Comercial {
 			PreparedStatement smt = con
 					.prepareStatement("select " + 
 							" comercial.id, " + 
-							" comercial.observaciones, " + 
+							" ifnull(comercial.observaciones,''), " +
 							" comercial.vigente, " + 
-							" sucursal.nombre, " + 
-							" usuario.nombre, " + 
-							" usuario.id_sucursal " +
+							" ifnull(sucursal.nombre,''), " +
+							" ifnull(usuario.nombre,''), " +
+							" ifnull(usuario.id_sucursal,''), " +
+							" ifnull(usuario.email,''), " +
+							" ifnull(usuario.fono,'') " +
 							" from `"+db+"`.comercial " +
 							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
 							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
 							" order by sucursal.nombre, usuario.nombre;");
+
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {		
-				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6)));
+				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6),rs.getString(7),rs.getString(8)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -128,12 +152,14 @@ public class Comercial {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("select " + 
-							" comercial.id, " + 
-							" comercial.observaciones, " + 
-							" comercial.vigente, " + 
-							" sucursal.nombre, " + 
-							" usuario.nombre, " + 
-							" usuario.id_sucursal " +
+							" comercial.id, " +
+							" ifnull(comercial.observaciones,''), " +
+							" comercial.vigente, " +
+							" ifnull(sucursal.nombre,''), " +
+							" ifnull(usuario.nombre,''), " +
+							" ifnull(usuario.id_sucursal,''), " +
+							" ifnull(usuario.email,''), " +
+							" ifnull(usuario.fono,'') " +
 							" from `"+db+"`.comercial " +
 							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
 							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
@@ -142,7 +168,7 @@ public class Comercial {
 			ResultSet rs = smt.executeQuery();
 			
 			while (rs.next()) {		
-				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6)));
+				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6),rs.getString(7),rs.getString(8)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -162,12 +188,14 @@ public class Comercial {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("select " + 
-							" comercial.id, " + 
-							" comercial.observaciones, " + 
-							" comercial.vigente, " + 
-							" sucursal.nombre, " + 
-							" usuario.nombre, " + 
-							" usuario.id_sucursal " +
+							" comercial.id, " +
+							" ifnull(comercial.observaciones,''), " +
+							" comercial.vigente, " +
+							" ifnull(sucursal.nombre,''), " +
+							" ifnull(usuario.nombre,''), " +
+							" ifnull(usuario.id_sucursal,''), " +
+							" ifnull(usuario.email,''), " +
+							" ifnull(usuario.fono,'') " +
 							" from `"+db+"`.comercial " +
 							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
 							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
@@ -176,7 +204,7 @@ public class Comercial {
 			ResultSet rs = smt.executeQuery();
 			
 			while (rs.next()) {		
-				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6)));
+				lista.add(new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6),rs.getString(7),rs.getString(8)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -190,12 +218,14 @@ public class Comercial {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("select " + 
-							" comercial.id, " + 
-							" comercial.observaciones, " + 
-							" comercial.vigente, " + 
-							" sucursal.nombre, " + 
-							" usuario.nombre, " + 
-							" usuario.id_sucursal " +
+							" comercial.id, " +
+							" ifnull(comercial.observaciones,''), " +
+							" comercial.vigente, " +
+							" ifnull(sucursal.nombre,''), " +
+							" ifnull(usuario.nombre,''), " +
+							" ifnull(usuario.id_sucursal,''), " +
+							" ifnull(usuario.email,''), " +
+							" ifnull(usuario.fono,'') " +
 							" from `"+db+"`.comercial " +
 							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
 							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
@@ -203,7 +233,7 @@ public class Comercial {
 			smt.setString(1, id_comercial);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {		
-				aux = new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6));
+				aux = new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6),rs.getString(7),rs.getString(8));
 			}else {
 				aux = null;
 			}
@@ -219,12 +249,14 @@ public class Comercial {
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("select " + 
-							" comercial.id, " + 
-							" comercial.observaciones, " + 
-							" comercial.vigente, " + 
-							" sucursal.nombre, " + 
-							" usuario.nombre, " + 
-							" usuario.id_sucursal " +
+							" comercial.id, " +
+							" ifnull(comercial.observaciones,''), " +
+							" comercial.vigente, " +
+							" ifnull(sucursal.nombre,''), " +
+							" ifnull(usuario.nombre,''), " +
+							" ifnull(usuario.id_sucursal,''), " +
+							" ifnull(usuario.email,''), " +
+							" ifnull(usuario.fono,'') " +
 							" from `"+db+"`.comercial " +
 							" left join `"+db+"`.usuario on usuario.id = comercial.id "+
 							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal "+
@@ -232,7 +264,7 @@ public class Comercial {
 			smt.setString(1, id_usuario);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {		
-				aux = new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6));
+				aux = new Comercial(rs.getLong(1),rs.getString(2),rs.getLong(3),rs.getString(4),rs.getString(5),rs.getLong(6),rs.getString(7),rs.getString(8));
 			}else {
 				aux = null;
 			}

@@ -3213,6 +3213,8 @@ public class Cotizacion {
 				}
 				
 				String nameComercial = "";
+				String emailComercial = "";
+				String fonoComercial = "";
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(1));
 				if(sucursal!=null) {
@@ -3221,6 +3223,8 @@ public class Cotizacion {
 				Comercial comercial = mapComercial.get(rs.getLong(2));
 				if(comercial!=null) {
 					nameComercial = comercial.getNameUsuario();
+					emailComercial = comercial.getEmail();
+					fonoComercial = comercial.getFono();
 				}
 				
 				String cantidad = myformatdouble2.format(rs.getDouble(9));
@@ -3249,39 +3253,39 @@ public class Cotizacion {
 				}
 				
 				List<String> aux = new ArrayList<String>();
-				aux.add(nameSucursal);		// 0 nameSucursal
-				aux.add(nameComercial);		// 1 nameComercial
-				aux.add(rs.getString(3));	// 2 numero
+				aux.add(nameSucursal);									// 0 nameSucursal
+				aux.add(nameComercial);									// 1 nameComercial
+				aux.add(rs.getString(3));					// 2 numero
 				aux.add(Fechas.DDMMAA(rs.getString(4)));	// 3 fecha
 				aux.add(rs.getString(5));	// 4 observaciones
 				aux.add(rs.getString(6));	// 5 codigo
 				aux.add(rs.getString(7));	// 6 equipo
 				aux.add(rs.getString(8));	// 7 unidad
-				aux.add(cantidad);			// 8 cantidad
-				aux.add(esVenta);			// 9 esVenta
+				aux.add(cantidad);						// 8 cantidad
+				aux.add(esVenta);						// 9 esVenta
 				aux.add(rs.getString(11));	// 10 moneda
-				aux.add(puVenta);			// 11 puVenta
+				aux.add(puVenta);						// 11 puVenta
 				aux.add(rs.getString(13));	// 12 unidadTiempo
-				aux.add(puArriendo);		// 13 puArriendo
-				aux.add(permanencia);		// 14 permanencia
-				aux.add(reposicion);		// 15 reposicion
-				aux.add(arriendo);			// 16 arriendo
-				aux.add(venta);				// 17 venta
-				aux.add(totalKg);			// 18 KG
-				aux.add(totalM2);			// 19 M2
-				aux.add(numDec.toString());	// 20 numDec
+				aux.add(puArriendo);					// 13 puArriendo
+				aux.add(permanencia);					// 14 permanencia
+				aux.add(reposicion);					// 15 reposicion
+				aux.add(arriendo);						// 16 arriendo
+				aux.add(venta);							// 17 venta
+				aux.add(totalKg);						// 18 KG
+				aux.add(totalM2);						// 19 M2
+				aux.add(numDec.toString());				// 20 numDec
 				aux.add(rs.getString(20));	// 21 id_cotizacion
 				aux.add(rs.getString(21));	// 22 id_moneda
-				aux.add(nameCotizaSolucion);	// 23 solucion
+				aux.add(nameCotizaSolucion);			// 23 solucion
 				aux.add(rs.getString(1));	// 24 id_sucursal
-
+				aux.add(emailComercial);				// 25 emailComercial
+				aux.add(fonoComercial);					// 26 fonoComercial
 				lista.add(aux);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		return(lista);
 	}
 	

@@ -2039,7 +2039,9 @@ public class FormCotiza {
 			Double subsumM2=(double)0;
 			Double subsumCant=(double)0;
 
-
+			String nombreComercial = "";
+			String correoComercial = "";
+			String telefonosComercial = "";
 
 			for(int i=0; i<resumen.size(); i++) {
 
@@ -2058,6 +2060,10 @@ public class FormCotiza {
 				String totalKg = resumen.get(i).get(18);
 				String totalM2 = resumen.get(i).get(19);
 				String totRepos = resumen.get(i).get(15);
+
+				nombreComercial = resumen.get(i).get(1);
+				correoComercial = resumen.get(i).get(25);
+				telefonosComercial = resumen.get(i).get(26);
 
 				if(totalArriendo == null || totalArriendo.trim().length()<=0) {
 					totalArriendo = "0";
@@ -2281,10 +2287,6 @@ public class FormCotiza {
 			}
 
 
-			//Usuario comercial = Usuario.findXIdUser(con, db, cotizacion.getId_comercial());
-			String nombreComercial = usuario.getNombre();
-			String telefonosComercial = usuario.getFono();
-			String correoComercial = usuario.getEmail();
 			String valorTotalReposicion = myformatdouble.format(totalReposicion);
 			String nameSucursal = "";
 			String formaDePago = cliente.getFormaDePago();
@@ -2373,6 +2375,8 @@ public class FormCotiza {
 		
 		
 		Map<String,List<Double>> mapSinDetalle = new HashMap<String,List<Double>>();
+		Map<String,List<String>> mapComercial = new HashMap<String,List<String>>();
+
 		for(List<String> l: resumen) {
 			String key = l.get(2)+"_&&_"+l.get(4)+"_&&_"+l.get(10)+"_&&_"+l.get(20)+"_&&_"+l.get(22);
 			
@@ -2394,10 +2398,19 @@ public class FormCotiza {
 				aux.add(x.get(4) + Double.parseDouble(l.get(15).replaceAll(",", "")));	// 4 reposicion
 				mapSinDetalle.put(key, aux);
 			}
+
+			List<String> aux1 = new ArrayList<String>();
+			aux1.add(l.get(1));		// 0 nombre comercial
+			aux1.add(l.get(25));	// 1 email
+			aux1.add(l.get(26));	// 2 fono
+			mapComercial.put(key, aux1);
 		}
 		
 		List<List<String>> listSinDet = new ArrayList<List<String>>();
-		mapSinDetalle.forEach((k,v)->{
+
+		for(Map.Entry<String,List<Double>> entry : mapSinDetalle.entrySet()) {
+			String k = entry.getKey();
+			List<Double> v = entry.getValue();
 			String x[] = k.split("_&&_");
 			List<String> aux = new ArrayList<String>();
 			aux.add(x[0]);														// 0 Nro coti
@@ -2410,8 +2423,13 @@ public class FormCotiza {
 			aux.add(x[3]);														// 7 nro decimales
 			aux.add(x[4]);														// 8 id_moneda
 			aux.add(DecimalFormato.formato(v.get(4), Long.parseLong(x[3])));	// 9 total reposicion
+
+			List<String> comercial = mapComercial.get(k);
+			aux.add(comercial.get(0));		// 10 nombre comercial
+			aux.add(comercial.get(1));		// 11 email
+			aux.add(comercial.get(2));		// 12 fono
 			listSinDet.add(aux);
-		});
+		}
 		
 		String nickCliente = "";
 		String nombreCliente = "";
@@ -2491,6 +2509,11 @@ public class FormCotiza {
 				cell=table.getRow(0).getCell(6);
 				setCelda(cell,"Arial",8,3,"2b5079","",false);
 			}
+
+			String nombreComercial = "";
+			String correoComercial = "";
+			String telefonosComercial = "";
+
 			for(int i=0; i<listSinDet.size(); i++) {
 				
 					contFilasTabla++;
@@ -2507,7 +2530,11 @@ public class FormCotiza {
 					
 					String totalKg = listSinDet.get(i).get(5);
 					String totalM2 = listSinDet.get(i).get(6);
-					
+
+					nombreComercial = listSinDet.get(i).get(10);
+					correoComercial = listSinDet.get(i).get(11);
+					telefonosComercial = listSinDet.get(i).get(12);
+
 	    			
 	   				totalPrecioArr += Double.parseDouble(totalArriendo.replaceAll(",", "").trim());
 	   				totalPrecioVta += Double.parseDouble(totalVenta.replaceAll(",", "").trim());
@@ -2528,7 +2555,7 @@ public class FormCotiza {
 						cell=row.getCell(6);setCelda(cell,"Arial",8,3,"2b5079",totalM2,false);
 					}
 					table.createRow();
-				}
+			}
 			
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
@@ -2633,15 +2660,15 @@ public class FormCotiza {
 				cell=table.getRow(0).getCell(1);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalNetoVta+totalNetoArr),false);
 			}
 			
-			
+
 			//Usuario comercial = Usuario.findXIdUser(con, db, cotizacion.getId_comercial());
-    		String nombreComercial = usuario.getNombre();
-    		String telefonosComercial = usuario.getFono();
-    		String correoComercial = usuario.getEmail();
+//    		String nombreComercial = usuario.getNombre();
+//    		String telefonosComercial = usuario.getFono();
+//    		String correoComercial = usuario.getEmail();
     		String valorTotalReposicion = myformatdouble.format(totalReposicion);
     		String nameSucursal = "";
     		String formaDePago = cliente.getFormaDePago();
-    		
+    		System.out.println("nombreComercial: "+nombreComercial);
     		for (XWPFParagraph p : doc.getParagraphs()) {
 	             for (XWPFRun r : p.getRuns()) {
 	                 String text = r.getText(0);
