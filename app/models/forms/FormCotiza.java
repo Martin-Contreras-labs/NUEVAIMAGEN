@@ -1089,6 +1089,15 @@ public class FormCotiza {
     		String valorTotalReposicion = myformatdouble.format(totalReposicion);
     		String nameSucursal = cotizacion.getNameSucursal(); 
     		String formaDePago = cliente.getFormaDePago();
+
+			table = doc.getTables().get(1);
+			row=table.getRow(3);
+			if(row!=null) {
+				cell=row.getCell(3);
+				if(cell!=null) {
+					setCelda(cell,"Arial",10,1,"2b5079",nombreComercial,false);
+				}
+			}
 			
 			for (XWPFParagraph p : doc.getParagraphs()) {
 	             for (XWPFRun r : p.getRuns()) {
@@ -1485,6 +1494,15 @@ public class FormCotiza {
     		String correoComercial = comercial.getEmail();
     		String nameSucursal = cotizacion.getNameSucursal();
     		String formaDePago = cliente.getFormaDePago();
+
+			table = doc.getTables().get(1);
+			row=table.getRow(3);
+			if(row!=null) {
+				cell=row.getCell(3);
+				if(cell!=null) {
+					setCelda(cell,"Arial",10,1,"2b5079",nombreComercial,false);
+				}
+			}
     		
     		for (XWPFParagraph p : doc.getParagraphs()) {
 	             for (XWPFRun r : p.getRuns()) {
@@ -1872,6 +1890,15 @@ public class FormCotiza {
     		String valorTotalReposicion = myformatdouble.format(totalReposicion);
     		String nameSucursal = cotizacion.getNameSucursal();
     		String formaDePago = cliente.getFormaDePago();
+
+			table = doc.getTables().get(1);
+			row=table.getRow(3);
+			if(row!=null) {
+				cell=row.getCell(3);
+				if(cell!=null) {
+					setCelda(cell,"Arial",10,1,"2b5079",nombreComercial,false);
+				}
+			}
     		
     		for (XWPFParagraph p : doc.getParagraphs()) {
 	             for (XWPFRun r : p.getRuns()) {
@@ -2004,7 +2031,7 @@ public class FormCotiza {
 				
 				cell=table.getRow(3).getCell(1);
 				setCelda(cell,"Arial",10,1,"2b5079",cliente.direccion,false);
-				
+
 				cell=table.getRow(4).getCell(1);
 				setCelda(cell,"Arial",10,1,"2b5079",cliente.contactoFactura + "   TELEFONO: " + cliente.fonoContacto + "   EMAIL: " + cliente.mailFactura,false);
 			}
@@ -2290,6 +2317,15 @@ public class FormCotiza {
 			String valorTotalReposicion = myformatdouble.format(totalReposicion);
 			String nameSucursal = "";
 			String formaDePago = cliente.getFormaDePago();
+
+			table = doc.getTables().get(1);
+			row=table.getRow(3);
+			if(row!=null) {
+				cell=row.getCell(3);
+				if(cell!=null) {
+					setCelda(cell,"Arial",10,1,"2b5079",nombreComercial,false);
+				}
+			}
     		
 			for (XWPFParagraph p : doc.getParagraphs()) {
 				 for (XWPFRun r : p.getRuns()) {
@@ -2463,10 +2499,12 @@ public class FormCotiza {
 			
 			table = doc.getTables().get(0);
 			
-			row=table.getRow(1);cell=row.getCell(2);
+			row=table.getRow(1);
+			cell=row.getCell(2);
 			setCelda(cell,"Arial",10,2,"2b5079","Fecha: "+Fechas.hoy().getFechaStrDDMMAA(),false);
 			
-			row=table.getRow(2);cell=row.getCell(2);
+			row=table.getRow(2);
+			cell=row.getCell(2);
 			setCelda(cell,"Arial",10,2,"2b5079","Numeros: "+listadoIdCoti,false);
 			
 			table= doc.getTables().get(1);
@@ -2479,6 +2517,8 @@ public class FormCotiza {
 			
 			cell=table.getRow(1).getCell(3);
 			setCelda(cell,"Arial",10,1,"2b5079",proyecto.getNickName(),false);
+
+
 			
 			if(table.getNumberOfRows()<5) {
 				cell=table.getRow(2).getCell(0);
@@ -2492,6 +2532,7 @@ public class FormCotiza {
 				
 				cell=table.getRow(4).getCell(1);
 				setCelda(cell,"Arial",10,1,"2b5079",cliente.contactoFactura + "   TELEFONO: " + cliente.fonoContacto + "   EMAIL: " + cliente.mailFactura,false);
+
 			}
 			
 			Double totalPrecioArr = (double)0;
@@ -2659,16 +2700,20 @@ public class FormCotiza {
 			}else {
 				cell=table.getRow(0).getCell(1);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalNetoVta+totalNetoArr),false);
 			}
-			
 
-			//Usuario comercial = Usuario.findXIdUser(con, db, cotizacion.getId_comercial());
-//    		String nombreComercial = usuario.getNombre();
-//    		String telefonosComercial = usuario.getFono();
-//    		String correoComercial = usuario.getEmail();
+
+			table = doc.getTables().get(1);
+			row=table.getRow(3);
+			if(row!=null) {
+				cell=row.getCell(3);
+				if(cell!=null) {
+					setCelda(cell,"Arial",10,1,"2b5079",nombreComercial,false);
+				}
+			}
+
     		String valorTotalReposicion = myformatdouble.format(totalReposicion);
     		String nameSucursal = "";
     		String formaDePago = cliente.getFormaDePago();
-    		System.out.println("nombreComercial: "+nombreComercial);
     		for (XWPFParagraph p : doc.getParagraphs()) {
 	             for (XWPFRun r : p.getRuns()) {
 	                 String text = r.getText(0);

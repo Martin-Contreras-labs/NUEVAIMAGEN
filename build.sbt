@@ -7,10 +7,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
  scalaVersion := "2.13.12"
 
-// esto estoy agregando
 javaOptions += "--illegal-access=permit"
 libraryDependencies += "org.dom4j" % "dom4j" % "2.1.4"
-
 
 libraryDependencies ++= Seq(
  guice,

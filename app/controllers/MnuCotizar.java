@@ -38,6 +38,8 @@ import models.utilities.UserMnu;
 import models.xlsx.CotizacionEnExcel;
 import models.xlsx.OtEnExcel;
 import models.xlsx.OtListaRevisarEnExcel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.db.Database;
@@ -52,12 +54,14 @@ import views.html.mensajes;
 import viewsMnuCotizar.html.*;
 
 public class MnuCotizar extends Controller {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	public static Database db = HomeController.dbWrite;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
+	private static final String msgReport = HomeController.msgReport;
 	
 	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
@@ -1714,6 +1718,8 @@ public class MnuCotizar extends Controller {
     
     public Result cotizaListaResumen3(Http.Request request) {
 		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
     	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
 	   		if (form.hasErrors()) {
@@ -1722,8 +1728,7 @@ public class MnuCotizar extends Controller {
 	       		String listadoIdCoti = form.get("listadoIdCoti").trim();
 	       		String id_cliente = form.get("id_cliente").trim();
 	       		String id_proyecto = form.get("id_proyecto").trim();
-				try {
-	    			Connection con = db.getConnection();
+				try (Connection con = db.getConnection()) {
 	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 	    			List<List<String>> resumen = Cotizacion.listCotiDetallePorCotiSelect(con, s.baseDato, mapeoDiccionario, listadoIdCoti);
@@ -1754,12 +1759,11 @@ public class MnuCotizar extends Controller {
 						}
 	    			}
 	    			Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotiBiblioteca", id_cotiBiblioteca, "create", "agrega nuevo resumen a biblioteca id: "+id_cotiBiblioteca);
-	    			con.close();
 	    			return redirect("/routes2/cotizaListaBiblioteca/");
 				} catch (SQLException e) {
-	    			e.printStackTrace();
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
 	    		}
-				return ok("error");
 	       	}
     	}else {
     		return ok("error");

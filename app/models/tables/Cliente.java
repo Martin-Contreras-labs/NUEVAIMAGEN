@@ -421,7 +421,8 @@ public class Cliente {
 			}else{
 				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","",(long) 1);
 			}
-			rs.close();smt.close();
+			rs.close();
+			smt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
