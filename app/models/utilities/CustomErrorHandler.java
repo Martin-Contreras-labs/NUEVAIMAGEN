@@ -18,7 +18,7 @@ public class CustomErrorHandler implements HttpErrorHandler {
 
     @Override
     public CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message) {
-        if(statusCode == 404){
+        if(statusCode == 404 || statusCode == 400){
             return CompletableFuture.completedFuture(Results.notFound());
         }
         logger.warn("[ClientError] {} {} - {}", statusCode, message, request.path());

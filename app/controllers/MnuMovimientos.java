@@ -74,7 +74,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
-	public static Database db = HomeController.dbWrite;
+
 	private static final Database dbWrite = HomeController.dbWrite;
 	private static final DatabaseRead dbRead = HomeController.dbRead;
 	public static FormFactory formFactory = HomeController.formFactory;
@@ -113,11 +113,15 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		if(mapeoPermiso.get("movimientoSelectBodegaOrigen")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
 			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigInterExterConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(viewsMnuMovimientos.html.movimientoSelectBodegaOrigen.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		} catch (Exception e) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -293,7 +297,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				Map<Long,Double> mapAux = new HashMap<Long,Double>();
 				if(listEquipBodOrigen.size()==0) {
 					String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos para trasladar (no hay existencia)";
-					con.close();
 					return ok(mensajes.render("/movimientoSelectBodegaOrigen/",mensaje));
 				}else{
 					for(List<String> l: listEquipBodOrigen){
@@ -395,7 +398,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 						map.put(x.get(0), x);
 					});
 					String mapeo = Json.toJson(map).toString();
-					con.close();
 					return ok("{\"status\":true,\"map\":"+mapeo+"}").as("application/json");
 				}else {
 					String msg = "";
@@ -1251,7 +1253,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
-			return ok(mensajes.render("/",msgError));
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			String desdeAAMMDD = form.get("fechaDesde").trim();
 			String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -1261,7 +1264,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/",msgSinPermiso));
 			}
-			try (Connection con = db.getConnection()){
+			try (Connection con = dbRead.getConnection()){
 				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 				if(permisoPorBodega.trim().length() > 5) {
 					permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
@@ -1647,7 +1650,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				String rs = ApiManagerDocDoc.genera(con, s.baseDato, jsonApi, ws, id_proforma);
 				Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, jsonApi);
 				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "guia", id_guia, "update", "hace envio de guia API MANAGER nro: "+guiaFinal.getNumero());
-				con.close();
 				return ok(mensajes.render("/movimientoListarPeriodo/",rs));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -2290,7 +2292,6 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01",
 					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
 			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
-			con.close();
 			return ok(viewsMnuMovimientos.html.hojaChequeoSelectBodegaAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -2445,212 +2446,193 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			}
 		}
    	}
-
-
-
-
-
-	  // aqui voy zzzzzzzzzzzzzzzzzzz
-
-
-
-
-
-
 	
 	public Result hojaChequeoSelectBodega(Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		try {
-    			Connection con = db.getConnection();
-    			
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01", 
-    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
-    			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
-    			
-    			con.close();
-    			return ok(viewsMnuMovimientos.html.hojaChequeoSelectBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01",
+					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
+			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
+			return ok(viewsMnuMovimientos.html.hojaChequeoSelectBodega.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
     }
 	
 	public Result hojaChequeoDetalle(Long id_bodegaEmpresa, Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		try {
-    			Connection con = db.getConnection();
-    			
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-    			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
-    			Long soloArriendo = (long) 1;
-    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-    				soloArriendo = (long) 0;
-    			}
-    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
-    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
-    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-    			mapStock.forEach((k,v)->{
-    				if(v.getCantidad()>0) {
-    					Equipo equipo = mapEquipo.get(v.getId_equipo());
-    					if(equipo!=null) {
-    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-            				Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
-            				Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
-            				Double kg = equipo.getKg();
-            				Double m2 = equipo.getM2();
-            				List<String> aux = new ArrayList<String>();
-            				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
-            				aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
-            				aux.add(grupo.getNombre()); 						// 2 nombre de grupo
-            				aux.add(numCoti.toString()); 						// 3 numero cotizacion
-            				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
-            				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-            				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
-            				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
-            				aux.add(equipo.getUnidad());						// 8 unidad
-            				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
-            				listEquipBodOrigen.add(aux);
-    					}
-    				}
-    			});
-    			if(listEquipBodOrigen.size()==0) {
-    				String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia)";
-    				con.close();
-    				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
-    			}
-    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
-    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
-    			String contactos = "CONTACTOS: ";
-           	   	if(listContactos.size() == 0) {
-           		   contactos="";
-           	   	}
-           	   	for(ContactoBodegaEmpresa c: listContactos) {
-           		 String nombre = c.getNombre();
-           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
-           	   	}
-           	   	
-           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
-        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
-        	   	
-    			con.close();
-    			return ok(viewsMnuMovimientos.html.hojaChequeoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos, direccion));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+			Long soloArriendo = (long) 1;
+			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+				soloArriendo = (long) 0;
+			}
+			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
+			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
+			mapStock.forEach((k,v)->{
+				if(v.getCantidad()>0) {
+					Equipo equipo = mapEquipo.get(v.getId_equipo());
+					if(equipo!=null) {
+						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
+						Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
+						Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
+						Double kg = equipo.getKg();
+						Double m2 = equipo.getM2();
+						List<String> aux = new ArrayList<String>();
+						aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+						aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
+						aux.add(grupo.getNombre()); 						// 2 nombre de grupo
+						aux.add(numCoti.toString()); 						// 3 numero cotizacion
+						aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
+						aux.add(equipo.getNombre()); 						// 5 nombre de equipo
+						aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
+						aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
+						aux.add(equipo.getUnidad());						// 8 unidad
+						aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
+						listEquipBodOrigen.add(aux);
+					}
+				}
+			});
+			if(listEquipBodOrigen.size()==0) {
+				String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia)";
+				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
+			}
+			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+			String contactos = "CONTACTOS: ";
+			if(listContactos.size() == 0) {
+			   contactos="";
+			}
+			for(ContactoBodegaEmpresa c: listContactos) {
+			 String nombre = c.getNombre();
+			   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+			}
+			Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+			String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+			return ok(viewsMnuMovimientos.html.hojaChequeoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado,contactos, direccion));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
     }
 	
 	public Result hojaChequeoExcel(Http.Request request){
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		
-			DynamicForm form = formFactory.form().bindFromRequest(request);
-	   		if (form.hasErrors()) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
-	       		try {
-		       		Connection con = db.getConnection();
-		       		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-		       		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-		       		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
-	    			Long soloArriendo = (long) 1;
-	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-	    				soloArriendo = (long) 0;
-	    			}
-	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
-	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-	    			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
-	    			mapStock.forEach((k,v)->{
-	    				if(v.getCantidad()>0) {
-	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
-	    					if(equipo!=null) {
-	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-		        				Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
-		        				Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
-		        				Double kg = equipo.getKg();
-	            				Double m2 = equipo.getM2();
-		        				List<String> aux = new ArrayList<String>();
-		        				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
-		        				aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
-		        				aux.add(grupo.getNombre()); 						// 2 nombre de grupo
-		        				aux.add(numCoti.toString()); 						// 3 numero cotizacion
-		        				aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
-		        				aux.add(equipo.getNombre()); 						// 5 nombre de equipo
-		        				aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
-		        				aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
-		        				aux.add(equipo.getUnidad());						// 8 unidad
-		        				aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
-		        				listEquipBodOrigen.add(aux);
-	    					}
-	    				}
-	    			});
-	    			if(listEquipBodOrigen.size()==0) {
-	    				String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia)";
-	    				con.close();
-	    				return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
-	    			}
-	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
-	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
-	    			String contactos = "CONTACTOS: ";
-	           	   	if(listContactos.size() == 0) {
-	           		   contactos="";
-	           	   	}
-	           	   	for(ContactoBodegaEmpresa c: listContactos) {
-	           		 String nombre = c.getNombre();
-	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
-	           	   	}
-	           	   	
-	           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
-	        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
-	        	   	
-	        	   	
-	           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
-	           	   	if(sinCant == null) {
-	           	   		sinCant = "0";
-	           	   	}
-	    			File file = MovimHojaChequeo.hojaChequeoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, direccion, sinCant);
-		       		if(file!=null) {
-		       			con.close();
-		       			return ok(file,false,Optional.of("HojaChequeoPorCodigoYCoti.xlsx"));
-		       		}else {
-		       			con.close();
-		       			return ok("");
-		       		}
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok("");
-	       	}
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+			try (Connection con = dbRead.getConnection()){
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+				Long soloArriendo = (long) 1;
+				if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+					soloArriendo = (long) 0;
+				}
+				Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+				Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
+				Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
+				Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
+				mapStock.forEach((k,v)->{
+					if(v.getCantidad()>0) {
+						Equipo equipo = mapEquipo.get(v.getId_equipo());
+						if(equipo!=null) {
+							Grupo grupo = mapGrupo.get(equipo.getId_grupo());
+							Cotizacion coti = mapCotizacion.get(v.getId_cotizacion());
+							Long numCoti = (long) 0; if(coti!=null){numCoti = coti.getNumero();};
+							Double kg = equipo.getKg();
+							Double m2 = equipo.getM2();
+							List<String> aux = new ArrayList<String>();
+							aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+							aux.add(v.getId_cotizacion().toString()); 			// 1 id_cotizacion
+							aux.add(grupo.getNombre()); 						// 2 nombre de grupo
+							aux.add(numCoti.toString()); 						// 3 numero cotizacion
+							aux.add(equipo.getCodigo()); 						// 4 codigo de equipo
+							aux.add(equipo.getNombre()); 						// 5 nombre de equipo
+							aux.add(myformatdouble2.format(kg)); 				// 6 KG por equipo
+							aux.add(myformatdouble2.format(m2)); 				// 7 M2 por equipo
+							aux.add(equipo.getUnidad());						// 8 unidad
+							aux.add(myformatdouble2.format(v.getCantidad()));	// 9 stock disponible
+							listEquipBodOrigen.add(aux);
+						}
+					}
+				});
+				if(listEquipBodOrigen.size()==0) {
+					String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia)";
+					return ok(mensajes.render("/hojaChequeoSelectBodega/",mensaje));
+				}
+				List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+				List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+				String contactos = "CONTACTOS: ";
+				if(listContactos.size() == 0) {
+				   contactos="";
+				}
+				for(ContactoBodegaEmpresa c: listContactos) {
+				 String nombre = c.getNombre();
+				   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+				}
+				Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+				String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+				String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
+				if(sinCant == null) {
+					sinCant = "0";
+				}
+				File file = MovimHojaChequeo.hojaChequeoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado, contactos, direccion, sinCant);
+				return ok(file,false,Optional.of("HojaChequeoPorCodigoYCoti.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
    	}
 	
@@ -2660,215 +2642,210 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	
 	
 	public Result hojaChequeoSelectPorGrupo(Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		try {
-    			Connection con = db.getConnection();
-    			
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-    			if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
-    				con.close();
-    				return ok(mensajes.render("/",msgSinPermiso));
-    			}
-    			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-    			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01", 
-    					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
-    			
-    			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
-    			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
-    			con.close();
-    			return ok(viewsMnuMovimientos.html.hojaChequeoSelectPorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas,listGrupos));
-        	} catch (SQLException e) {
-    			e.printStackTrace();
-    		}
-    		return ok(mensajes.render("/",msgError));
-    	}else {
-    		return ok(mensajes.render("/",msgError));
-    	}
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			List<List<String>> listBodegasConStock = Inventarios.listaBodegasConStock(con, s.baseDato, "3000-01-01",
+					permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario.get("ARRIENDO"));
+			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasConStock(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal,listBodegasConStock);
+			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
+			return ok(viewsMnuMovimientos.html.hojaChequeoSelectPorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas,listGrupos));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
     }
 	
 	public Result hojaChequeoDetallePorGrupo(Http.Request request) {
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
-    		FormMovimiento form = formFactory.form(FormMovimiento.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-    		if (form.id_bodegaEmpresa==null) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = form.id_bodegaEmpresa;
-	       		List<Long> idGrupos = form.idGrupos;
-	       		Map<Long,Long> mapIdGrupos = new HashMap<Long,Long>();
-	       		for(Long x: idGrupos) {
-	       			mapIdGrupos.put(x, x);
-	       		}
-	    		try {
-	    			Connection con = db.getConnection();
-	    			
-	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
-	    				con.close();
-	    				return ok(mensajes.render("/",msgSinPermiso));
-	    			}
-	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
-	    			Long soloArriendo = (long) 1;
-	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-	    				soloArriendo = (long) 0;
-	    			}
-	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
-	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-	    			
-	    			mapStock.forEach((k,v)->{
-	    				if(v.getCantidad()>0) {
-	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
-	    					if(equipo!=null) {
-	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-	    						Double kg = equipo.getKg();
-	            				Double m2 = equipo.getM2();
-		        				Long id_grupo = mapIdGrupos.get(grupo.id);
-		        				
-		        				if(id_grupo != null && id_grupo > 0) {
-		        					List<String> aux = new ArrayList<String>();
-			        				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
-			        				aux.add(grupo.getNombre()); 						// nombre de grupo
-			        				aux.add(equipo.getCodigo()); 						// codigo de equipo
-			        				aux.add(equipo.getNombre()); 						// nombre de equipo
-			        				aux.add(myformatdouble2.format(kg)); 				// KG por equipo
-			        				aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
-			        				aux.add(equipo.getUnidad());						// unidad
-			        				aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
-			        				listEquipBodOrigen.add(aux);
-		        				}
-	    					}
-	    				}
-	    			});
-	    			if(listEquipBodOrigen.size()==0) {
-	    				String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia) con el o los grupos seleccionados";
-	    				con.close();
-	    				return ok(mensajes.render("/hojaChequeoSelectPorGrupo/",mensaje));
-	    			}
-	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
-	    			List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
-	    			String contactos = "CONTACTOS: ";
-	           	   	if(listContactos.size() == 0) {
-	           		   contactos="";
-	           	   	}
-	           	   	for(ContactoBodegaEmpresa c: listContactos) {
-	           		 String nombre = c.getNombre();
-	           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
-	           	   	}
-	           	   	
-	           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
-	        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
-	        	   	
-	    			con.close();
-	    			return ok(viewsMnuMovimientos.html.hojaChequeoDetallePorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado, idGrupos, contactos, direccion));
-	        	} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       	}
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		FormMovimiento form = formFactory.form(FormMovimiento.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.id_bodegaEmpresa==null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			Long id_bodegaEmpresa = form.id_bodegaEmpresa;
+			List<Long> idGrupos = form.idGrupos;
+			Map<Long,Long> mapIdGrupos = new HashMap<Long,Long>();
+			for(Long x: idGrupos) {
+				mapIdGrupos.put(x, x);
+			}
+			try (Connection con = dbRead.getConnection()){
+				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+				Long soloArriendo = (long) 1;
+				if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+					soloArriendo = (long) 0;
+				}
+				Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+				Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
+				Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
+				mapStock.forEach((k,v)->{
+					if(v.getCantidad()>0) {
+						Equipo equipo = mapEquipo.get(v.getId_equipo());
+						if(equipo!=null) {
+							Grupo grupo = mapGrupo.get(equipo.getId_grupo());
+							Double kg = equipo.getKg();
+							Double m2 = equipo.getM2();
+							Long id_grupo = mapIdGrupos.get(grupo.id);
+							if(id_grupo != null && id_grupo > 0) {
+								List<String> aux = new ArrayList<String>();
+								aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+								aux.add(grupo.getNombre()); 						// nombre de grupo
+								aux.add(equipo.getCodigo()); 						// codigo de equipo
+								aux.add(equipo.getNombre()); 						// nombre de equipo
+								aux.add(myformatdouble2.format(kg)); 				// KG por equipo
+								aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
+								aux.add(equipo.getUnidad());						// unidad
+								aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
+								listEquipBodOrigen.add(aux);
+							}
+						}
+					}
+				});
+				if(listEquipBodOrigen.size()==0) {
+					String mensaje = mapeoDiccionario.get("Bodega")+"/Proyecto: "+bodegaOrigen.nombre+" no posee equipos (no hay existencia) con el o los grupos seleccionados";
+					return ok(mensajes.render("/hojaChequeoSelectPorGrupo/",mensaje));
+				}
+				List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+				List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+				String contactos = "CONTACTOS: ";
+				if(listContactos.size() == 0) {
+				   contactos="";
+				}
+				for(ContactoBodegaEmpresa c: listContactos) {
+				 String nombre = c.getNombre();
+				   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+				}
+				Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+				String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+				return ok(viewsMnuMovimientos.html.hojaChequeoDetallePorGrupo.render(mapeoDiccionario,mapeoPermiso,userMnu,bodegaOrigen,listEquipBodOrigen,listTipoEstado, idGrupos, contactos, direccion));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
     	}
-    	return ok(mensajes.render("/",msgError));
     }
 
 	public Result hojaChequeoDetallePorGrupoExcel(Http.Request request){
-    	Sessiones s = new Sessiones(request);
-    	if(s.userName!=null && s.id_usuario!=null && s.id_tipoUsuario!=null && s.baseDato!=null && s.id_sucursal!=null && s.porProyecto!=null) {
-    		
-    		FormMovimiento form = formFactory.form(FormMovimiento.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-    		if (form.id_bodegaEmpresa==null) {
-	   			return ok(mensajes.render("/",msgErrorFormulario));
-	       	}else {
-	       		Long id_bodegaEmpresa = form.id_bodegaEmpresa;
-	       		List<Long> idGrupos = form.idGrupos;
-	       		Map<Long,Long> mapIdGrupos = new HashMap<Long,Long>();
-	       		for(Long x: idGrupos) {
-	       			mapIdGrupos.put(x, x);
-	       		}
-	    		try {
-	    			Connection con = db.getConnection();
-	    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-	    			if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
-	    				con.close();
-	    				return ok(mensajes.render("/",msgSinPermiso));
-	    			}
-	    			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-	    			List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
-	    			Long soloArriendo = (long) 1;
-	    			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-	    				soloArriendo = (long) 0;
-	    			}
-	    			Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
-	    			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
-	    			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
-	    			mapStock.forEach((k,v)->{
-	    				if(v.getCantidad()>0) {
-	    					Equipo equipo = mapEquipo.get(v.getId_equipo());
-	    					if(equipo!=null) {
-	    						Grupo grupo = mapGrupo.get(equipo.getId_grupo());
-	    						Double kg = equipo.getKg();
-	            				Double m2 = equipo.getM2();
-		        				
-		        				Long id_grupo = mapIdGrupos.get(grupo.id);
-		        				if(id_grupo != null && id_grupo > 0) {
-		        					List<String> aux = new ArrayList<String>();
-			        				aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
-			        				aux.add(grupo.getNombre()); 						// nombre de grupo
-			        				aux.add(equipo.getCodigo()); 						// codigo de equipo
-			        				aux.add(equipo.getNombre()); 						// nombre de equipo
-			        				aux.add(myformatdouble2.format(kg)); 				// KG por equipo
-			        				aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
-			        				aux.add(equipo.getUnidad());						// unidad
-			        				aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
-			        				listEquipBodOrigen.add(aux);
-		        				}
-	    					}
-	    				}
-	    			});
-	    			List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
-	    			
-	    			File file = null;
-	    			if(mapeoDiccionario.get("nEmpresa").equals("HOHE")) {
-	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsxSoloHOHE(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado);
-	    			}else {
-	    				List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
-		    			String contactos = "CONTACTOS: ";
-		           	   	if(listContactos.size() == 0) {
-		           		   contactos="";
-		           	   	}
-		           	   	for(ContactoBodegaEmpresa c: listContactos) {
-		           		 String nombre = c.getNombre();
-		           		   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
-		           	   	}
-		           	   	
-		           	   	Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
-		        	   	String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
-		        	   	
-		           	   	String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
-		           	   	if(sinCant == null) {
-		           	   		sinCant = "0";
-		           	   	}
-	    				file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado,contactos,direccion,sinCant);
-	    			}
-		       		if(file!=null) {
-		       			con.close();
-		       			return ok(file,false,Optional.of("HojaChequeoPorGrupo.xlsx"));
-		       		}else {
-		       			con.close();
-		       			return ok("");
-		       		}
-	       		} catch (SQLException e) {
-	    			e.printStackTrace();
-	    		}
-	       		return ok("");
-	       	}
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("hojaChequeoSelectBodega")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		FormMovimiento form = formFactory.form(FormMovimiento.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.id_bodegaEmpresa==null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			return ok("");
+			Long id_bodegaEmpresa = form.id_bodegaEmpresa;
+			List<Long> idGrupos = form.idGrupos;
+			Map<Long,Long> mapIdGrupos = new HashMap<Long,Long>();
+			for(Long x: idGrupos) {
+				mapIdGrupos.put(x, x);
+			}
+			try (Connection con = dbRead.getConnection()){
+				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
+				Long soloArriendo = (long) 1;
+				if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+					soloArriendo = (long) 0;
+				}
+				Map<String,Movimiento> mapStock = Inventarios.invPorIdBodegaAgrupado(con, s.baseDato, id_bodegaEmpresa, soloArriendo);
+				Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
+				Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
+				mapStock.forEach((k,v)->{
+					if(v.getCantidad()>0) {
+						Equipo equipo = mapEquipo.get(v.getId_equipo());
+						if(equipo!=null) {
+							Grupo grupo = mapGrupo.get(equipo.getId_grupo());
+							Double kg = equipo.getKg();
+							Double m2 = equipo.getM2();
+							Long id_grupo = mapIdGrupos.get(grupo.id);
+							if(id_grupo != null && id_grupo > 0) {
+								List<String> aux = new ArrayList<String>();
+								aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
+								aux.add(grupo.getNombre()); 						// nombre de grupo
+								aux.add(equipo.getCodigo()); 						// codigo de equipo
+								aux.add(equipo.getNombre()); 						// nombre de equipo
+								aux.add(myformatdouble2.format(kg)); 				// KG por equipo
+								aux.add(myformatdouble2.format(m2)); 				// M2 por equipo
+								aux.add(equipo.getUnidad());						// unidad
+								aux.add(myformatdouble2.format(v.getCantidad()));	// stock disponible
+								listEquipBodOrigen.add(aux);
+							}
+						}
+					}
+				});
+				List<TipoEstado> listTipoEstado = TipoEstado.allPorSucursal(con, s.baseDato, bodegaOrigen.getId_sucursal());
+				File file = null;
+				if(mapeoDiccionario.get("nEmpresa").equals("HOHE")) {
+					file = MovimHojaChequeo.hojaChequeoAgrupadoXlsxSoloHOHE(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado);
+				}else {
+					List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, s.baseDato, bodegaOrigen.getId());
+					String contactos = "CONTACTOS: ";
+					if(listContactos.size() == 0) {
+					   contactos="";
+					}
+					for(ContactoBodegaEmpresa c: listContactos) {
+					 String nombre = c.getNombre();
+					   contactos += "\n-"+nombre+", Tel:"+c.getMovil().toLowerCase()+", "+c.getMail().toLowerCase();
+					}
+					Proyecto proyecto = Proyecto.find(con, s.baseDato, bodegaOrigen.getId_proyecto());
+					String direccion = proyecto.getDireccion()+", "+proyecto.getComuna()+", "+proyecto.getRegion();
+					String sinCant = mapeoPermiso.get("parametro.ocultar-cant-hoja-chequeo");
+					if(sinCant == null) {
+						sinCant = "0";
+					}
+					file = MovimHojaChequeo.hojaChequeoAgrupadoXlsx(s.baseDato, mapeoDiccionario, bodegaOrigen, listEquipBodOrigen, listTipoEstado,contactos,direccion,sinCant);
+				}
+				return ok(file,false,Optional.of("HojaChequeoPorGrupo.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 		}
    	}
 	
