@@ -558,12 +558,12 @@ public class MnuCotizarSelect extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				List<List<String>> listCotizacion = Cotizacion.listCotiAll(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
@@ -596,10 +596,10 @@ public class MnuCotizarSelect extends Controller {
 				return ok(vistaHtml);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}

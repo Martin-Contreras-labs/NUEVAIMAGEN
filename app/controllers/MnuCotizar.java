@@ -223,12 +223,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
@@ -238,10 +238,10 @@ public class MnuCotizar extends Controller {
 				return ok(vistaHTML);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -252,12 +252,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long numeroCoti = Long.parseLong(form.get("numeroCoti").trim());
@@ -268,10 +268,10 @@ public class MnuCotizar extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -282,12 +282,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()) {
 				String id_sucursal = form.get("id_sucursal").trim();
@@ -306,10 +306,10 @@ public class MnuCotizar extends Controller {
 				return ok(vistaHtml);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
 		}
 	}
@@ -320,12 +320,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				String id_sucursal = form.get("id_sucursal").trim();
@@ -340,10 +340,10 @@ public class MnuCotizar extends Controller {
 				return ok(vistaHtml);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -354,12 +354,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				String id_sucursal = form.get("id_sucursal").trim();
@@ -381,10 +381,10 @@ public class MnuCotizar extends Controller {
 				return ok(rsJson.toString()).as("application/json");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -395,12 +395,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				List<List<String>> listCotizacion = Cotizacion.listCotiAllLimt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, 6000);
@@ -435,10 +435,10 @@ public class MnuCotizar extends Controller {
 				return ok(vistaHtml);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -858,12 +858,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
@@ -873,10 +873,10 @@ public class MnuCotizar extends Controller {
 				return ok("OK");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -887,12 +887,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
@@ -901,10 +901,10 @@ public class MnuCotizar extends Controller {
 				return ok("OK");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -915,12 +915,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long numero = Long.parseLong(form.get("numero").trim());
@@ -931,10 +931,10 @@ public class MnuCotizar extends Controller {
 				return ok("error");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -1052,12 +1052,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				String campo = form.get("campo").trim();
@@ -1075,10 +1075,10 @@ public class MnuCotizar extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
     }
@@ -1251,12 +1251,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				String campo = form.get("campo").trim();
@@ -1274,10 +1274,10 @@ public class MnuCotizar extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
     }
@@ -2579,12 +2579,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
@@ -2593,10 +2593,10 @@ public class MnuCotizar extends Controller {
 				return ok(vista);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -2607,12 +2607,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
@@ -2632,13 +2632,13 @@ public class MnuCotizar extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgReport));
+			return ok("error");
     	}
 	}
     
@@ -2759,12 +2759,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
@@ -2774,10 +2774,10 @@ public class MnuCotizar extends Controller {
 				return ok("OK");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -2788,12 +2788,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
@@ -2802,10 +2802,10 @@ public class MnuCotizar extends Controller {
 				return ok("OK");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -2925,12 +2925,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				String campo = form.get("campo").trim();
@@ -2948,10 +2948,10 @@ public class MnuCotizar extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
     }
@@ -3151,12 +3151,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
@@ -3165,10 +3165,10 @@ public class MnuCotizar extends Controller {
 				return ok(tabla);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -3589,12 +3589,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodegaOrigen = Long.parseLong(form.get("id_bodegaOrigen").trim());
@@ -3629,10 +3629,10 @@ public class MnuCotizar extends Controller {
 				return ok(vistaHTML);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -4407,12 +4407,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodegaOrigen = Long.parseLong(form.get("id_bodegaOrigen").trim());
@@ -4428,10 +4428,10 @@ public class MnuCotizar extends Controller {
 				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
 	}
@@ -5442,12 +5442,12 @@ public class MnuCotizar extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
@@ -5458,10 +5458,10 @@ public class MnuCotizar extends Controller {
 				return ok("");
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
     	}
     }

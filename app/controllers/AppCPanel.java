@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import models.cpanel.CPanel;
+import models.utilities.DatabaseRead;
 import models.utilities.UserMnu;
 import models.utilities.VerificarCaptcha;
 import play.data.DynamicForm;
@@ -26,7 +27,8 @@ import viewsCPanel.html.*;
 
 
 public class AppCPanel extends Controller {
-	public static Database db = HomeController.dbWrite;
+	public static Database dbWrite = HomeController.dbWrite;
+	public static DatabaseRead dbRead = HomeController.dbRead;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
@@ -48,8 +50,7 @@ public class AppCPanel extends Controller {
     	if(idUserCpanel==null) {
     		return ok(mensajes.render("/cpanel",msgErrorFormulario));
     	}else {
-    		try {
-				Connection con = db.getConnection();
+    		try (Connection con = dbRead.getConnection()){
 	    		CPanel usuario = CPanel.findIdUserCpanel(con, idUserCpanel);
 	    		Map<String,String> map = new HashMap<String,String>();
 				map.put("pais", "sinPais");
@@ -58,7 +59,6 @@ public class AppCPanel extends Controller {
 				List<String> graficoPRvsPL = CPanel.graficoPRvsPLporPais(con, listEmpresas, map);
 				List<String> graficoOcupacion = CPanel.graficoOcupacionPorPais(con, listEmpresas);
 				List<List<String>> ventas = CPanel.totalVentas(con, listEmpresas);
-				con.close();
 				return ok(inicioCPanel.render(datos, graficoOcupacion, graficoPRvsPL,ventas))
 						.addingToSession(request, "idUserCpanel", usuario.id_user.toString())
 						.addingToSession(request, "userNameAdmin", "1")
@@ -98,16 +98,13 @@ public class AppCPanel extends Controller {
         			return ok(mensajes.render("/",mensaje));
                 }
        		}
-       		
-            
-       		try {
-				Connection con = db.getConnection();
+
+
+			try (Connection con = dbRead.getConnection()){
 				CPanel usuario = CPanel.findUsuario(con, userName, empresa, userKey);
 				if(usuario.id_user==null) {
-					con.close();
 					String msg = "Los datos ingresados de usuario, empresa o clave, no corresponden, vuelva a ingresarlos. En caso de continuar " +
 							"este problema, por favor contactar con soporte pbarros@inqsol.com";
-					con.close();
 					return ok(mensajes.render("/cpanel",msg));
 				}else {
 					Map<String,String> map = new HashMap<String,String>();
@@ -117,7 +114,6 @@ public class AppCPanel extends Controller {
 					List<String> graficoPRvsPL = CPanel.graficoPRvsPLporPais(con, listEmpresas, map);
 					List<String> graficoOcupacion = CPanel.graficoOcupacionPorPais(con, listEmpresas);
 					List<List<String>> ventas = CPanel.totalVentas(con, listEmpresas);
-					con.close();
 					return ok(inicioCPanel.render(datos, graficoOcupacion, graficoPRvsPL,ventas))
 							.addingToSession(request, "idUserCpanel", usuario.id_user.toString())
 							.addingToSession(request, "userNameAdmin", "1")
@@ -140,11 +136,9 @@ public class AppCPanel extends Controller {
    			return ok("");
        	}else {
        		Long id_cPanel = Long.parseLong(form.get("id_cPanel"));
-       		try {
-				Connection con = db.getConnection();
+			try (Connection con = dbRead.getConnection()){
 				CPanel empresa = CPanel.findEmpresa(con, id_cPanel);
 				String modal = CPanel.modalItemsControlados(con, empresa);
-				con.close();
 				return ok(modal);
        		} catch (SQLException e) {
 				e.printStackTrace();
@@ -159,11 +153,9 @@ public class AppCPanel extends Controller {
    			return ok("");
        	}else {
        		Long id_cPanel = Long.parseLong(form.get("id_cPanel"));
-       		try {
-				Connection con = db.getConnection();
+			try (Connection con = dbRead.getConnection()){
 				CPanel empresa = CPanel.findEmpresa(con, id_cPanel);
 				String modal = CPanel.modalVigentes(con, empresa);
-				con.close();
 				return ok(modal);
        		} catch (SQLException e) {
 				e.printStackTrace();
@@ -178,11 +170,9 @@ public class AppCPanel extends Controller {
    			return ok("");
        	}else {
        		Long id_cPanel = Long.parseLong(form.get("id_cPanel"));
-       		try {
-				Connection con = db.getConnection();
+			try (Connection con = dbRead.getConnection()){
 				CPanel empresa = CPanel.findEmpresa(con, id_cPanel);
 				String modal = CPanel.modalNoVigentes(con, empresa);
-				con.close();
 				return ok(modal);
        		} catch (SQLException e) {
 				e.printStackTrace();
@@ -197,11 +187,9 @@ public class AppCPanel extends Controller {
    			return ok(mensajes.render("/cpanel",msgErrorFormulario));
        	}else {
        		Long id_cPanel = Long.parseLong(form.get("id_cPanel"));
-       		try {
-				Connection con = db.getConnection();
+			try (Connection con = dbRead.getConnection()){
 				CPanel empresa = CPanel.findEmpresa(con, id_cPanel);
 				if(request.session().get("userNameAdmin").get()==null || empresa.id_cPanel==null) {
-					con.close();
 					return ok(mensajes.render("/cpanel",msgError));
 				}
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(empresa.baseDato);
@@ -220,8 +208,7 @@ public class AppCPanel extends Controller {
 					rs2.close();
 					smt2.close();
 				} catch (SQLException e) {}
-				
-				con.close();
+
 				return ok(vistaPrincipal.render(
 						mapeoDiccionario,
 						mapeoPermiso,

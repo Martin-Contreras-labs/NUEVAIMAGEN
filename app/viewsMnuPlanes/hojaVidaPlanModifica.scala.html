@@ -387,6 +387,9 @@ function actualizarProximaMantencion(index, id_tipoPlan, id_equipo, origen) {
 
     if (frecuencia > 0) {
         const proximaMantencion = determinaProxima(lectActual, frecuencia);
+		@if(mapDiccionario.get("nEmpresa").equals("CIHLA")){
+			return("no aplica");
+		}
         let mantencionAnterior = parseFloat($("#proximaMantencion_" + index).val()?.replace(/,/g, "") || 0);
 
         const isValid = validaHoras(frecuencia, proximaMantencion, mantencionAnterior, origen);

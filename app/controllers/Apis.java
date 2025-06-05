@@ -52,24 +52,11 @@ public class Apis extends Controller {
 	
 	public static Database dbWrite = HomeController.dbWrite;
 	public static DatabaseRead dbRead = HomeController.dbRead;
-	//public static DatabaseExecutionContext executionContext;
-	
-//    @SuppressWarnings("static-access")
-//	@Inject
-//    public Apis(Database db, DatabaseExecutionContext executionContext) {
-//	    this.db = db;
-//	    this.executionContext = executionContext;
-//	}
-    
-    static DecimalFormat sinFormato = new DecimalFormat("0.00");
-	
 	
     public static Map<String,String> mapeoDicc(String baseDato){
     	Map<String,String> map = new HashMap<String,String>();
-    	try {
-    		Connection con = dbRead.getConnection();
+    	try (Connection con = dbRead.getConnection()){
 			map = Diccionario.mapDiccionario(con, baseDato);
-			con.close();
 			return(map);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -101,25 +88,19 @@ public class Apis extends Controller {
 	}
 	
 	private String validaToken(Http.Request request) {
-		
 		Optional<String> rsToken = request.headers().get("Authorization");
    		if(!rsToken.isPresent()) {
    			return ("error");
    		}
-   		
 		String bearer[] = rsToken.get().split(" ");
 		if(bearer.length !=2 || !bearer[0].equals("Bearer")) {
 			return ("error");
 		}
 		String token = bearer[1];
-		
 		String baseDato = "0";
-		try {
-   			Connection con = dbWrite.getConnection();
-   			
+		try (Connection con = dbWrite.getConnection()){
    			Calendar fechaToken = Calendar.getInstance();
    			java.sql.Timestamp auxFecha = null;
-   			
    			PreparedStatement smt = con.
 					prepareStatement("select dateCreate, baseDato from token where BINARY token = BINARY ?;");
    			smt.setString(1, token);
@@ -135,15 +116,11 @@ public class Apis extends Controller {
 			}
 			smt.close();
 			rs.close();
-			
 			long timestampLong = auxFecha.getTime();
-			
 			fechaToken.setTimeInMillis(timestampLong);
    			Calendar fechaActual = Calendar.getInstance();
-   			
    			Long diffHoras = Math.abs(fechaActual.getTimeInMillis() - fechaToken.getTimeInMillis());
    			diffHoras = diffHoras/(1000*60*60);
-   			
    			if((long)diffHoras > (long)4) {
    				PreparedStatement smt1 = con.
    						prepareStatement("delete from token where BINARY token = BINARY ?;");
@@ -152,31 +129,25 @@ public class Apis extends Controller {
    				smt1.close();
    				baseDato = "0";
    			}
-   			
-   			con.close();
    		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 		return (baseDato);
 	}
 
 
 	public Result authenticar(Http.Request request) {
-		
 		//LEER HEADER:
 		Optional<String> rsAuth = request.headers().get("Authorization");
    		if(!rsAuth.isPresent()) {
    			String error = "{\"invalid_request\": \"the syntax is not correct\"}";
 			return ok(error).as("application/json");
    		}
-   		
 		String basic[] = rsAuth.get().split(" ");
 		if(basic.length !=2 || !basic[0].equals("Basic")) {
 			String error = "{\"invalid_request\": \"the syntax is not correct\"}";
 			return ok(error).as("application/json");
 		}
-		
 		String decodedString = "";
 		try {
 			byte[] decodedBytes = Base64.getDecoder().decode(basic[1]);
@@ -185,15 +156,11 @@ public class Apis extends Controller {
 			String error = "{\"error\":\"invalid_request\",\"invalid_client\": \"the credentials supplied were invalid\"}";
 			return ok(error).as("application/json");
 		}
-		
 		String[] aux = decodedString.split(":");
 		String apiUser = aux[0];
 		String apiKey = aux[1];
-	   		
    		if(apiUser!=null && apiKey!=null) {
-   			try {
-   				Connection con = dbWrite.getConnection();
-	   			
+   			try (Connection con = dbWrite.getConnection()){
 	   			// VALIDA CREDENCIAL:
 	   			String baseDato = null;
 	   			PreparedStatement smt = con.
@@ -211,7 +178,6 @@ public class Apis extends Controller {
 	   				String error = "{\"error\":\"invalid_request\",\"unauthorized_client\": \"this apiUser is not authorized to request an access token or apiKey does not match\"}";
 	   				return ok(error).as("application/json");
 	   			}
-	   			
 				//VERIFICA EMPRESA ESTE VIGENTE:
 				Long estaVigente = (long)1;
 				PreparedStatement smt1 = con.
@@ -228,7 +194,6 @@ public class Apis extends Controller {
 					con.close();
 	   				return ok(error).as("application/json");
 	   			}
-				
 				//GENERA TOKEN Y LO INSERTA:
 	   			String token = generarToken();
 	   			PreparedStatement smt2 = con.
@@ -237,10 +202,7 @@ public class Apis extends Controller {
 	   			smt2.setString(2, baseDato);
 				smt2.executeUpdate();
 	   			smt2.close();
-	   			
 	   			String response = "{\"access_token\": \""+token+"\",\"token_type\": \"Bearer\",\"expires_in\": 14400,\"example_parameter\": \"\"}";
-	   			
-	   			con.close();
 	   			return ok(response).as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -276,17 +238,14 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			List<BodegaEmpresa> lista = BodegaEmpresa.all(con, baseDato);
 	   			JsonNode rsJson =  Json.toJson(lista);
-	   			con.close();
 	   			return ok("{\"listaBodegas\":"+rsJson.toString()+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
 				return ok("{\"ERROR\":\"contactar a INQSOL\"}").as("application/json");
 			}
-			
    		}else {
    			return ok("{\"ERROR\":\"token no validado o tiempo cumplido\"}").as("application/json");
    		}
@@ -304,11 +263,9 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			Map<String,String> mapeoDiccionario = mapeoDicc(baseDato);
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			List<MovimientosEntreFechas> lista = MovimientosEntreFechas.movimientosEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
-	   			con.close();
 	   			return ok("{\"movimientosEntreFechas\":"+rsJson.toString()+",\"desde\":\""+desdeAAMMDD+"\",\"hasta\":\""+hastaAAMMDD+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -328,11 +285,9 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			BodegaEmpresa aux = BodegaEmpresa.findXIdBodega(con, baseDato, id_bodegaEmpresa);
 	   			JsonNode rsJson =  Json.toJson(aux);
-	   			con.close();
 	   			return ok("{\"findBodega\":"+rsJson.toString()+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -352,11 +307,9 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			Cliente aux = Cliente.find(con, baseDato, id_cliente);
 	   			JsonNode rsJson =  Json.toJson(aux);
-	   			con.close();
 	   			return ok("{\"findCliente\":"+rsJson.toString()+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -376,11 +329,9 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			Proyecto aux = Proyecto.find(con, baseDato, id_proyecto);
 	   			JsonNode rsJson =  Json.toJson(aux);
-	   			con.close();
 	   			return ok("{\"findProyecto\":"+rsJson.toString()+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -401,11 +352,9 @@ public class Apis extends Controller {
 		}
 		if(!baseDato.equals("0")) {
 			Map<String,String> mapeoDiccionario = mapeoDicc(baseDato);
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			List<InventariosFechaCorte> lista = InventariosFechaCorte.inventariosFechaCorte(con, baseDato, fechaCorte, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
-	   			con.close();
 	   			return ok("{\"inventarios\":"+rsJson.toString()+",\"desde\":\""+fechaCorte+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -426,11 +375,9 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			ResumenDetallePorPeriodo resumen = ResumenDetallePorPeriodo.inventariosFechaCorte(con, baseDato, desdeAAMMDD, hastaAAMMDD, uf, usd, eur,"0","1");
 	   			JsonNode rsJson =  Json.toJson(resumen);
-	   			con.close();
 	   			return ok("{\"estadosDePago\":"+rsJson.toString()+",\"desde\":\""+desdeAAMMDD+"\",\"hasta\":\""+hastaAAMMDD+"\",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
@@ -456,9 +403,7 @@ public class Apis extends Controller {
     		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
     		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
     		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-			try {
-	   			Connection con = dbRead.getConnection();
-    			
+			try (Connection con = dbRead.getConnection()){
 	    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	    			String permisoPorBodega = "";
 	    			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
@@ -466,7 +411,7 @@ public class Apis extends Controller {
 	    			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, baseDato, listIdBodegaEmpresa);
 	    			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, baseDato);
 	    			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, baseDato);
-	    			
+
 	    			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, baseDato, desdeAAMMDD);
 	    			List<Inventarios> inventario = Inventarios.inventario(con, baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 	    			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, baseDato, desdeAAMMDD, hastaAAMMDD);
@@ -474,9 +419,9 @@ public class Apis extends Controller {
 	    			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD);
 	    			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, baseDato, "0", "0");
 	    			Map<Long,Long> dec = Moneda.numeroDecimal(con, baseDato);
-	    			
+
 	    			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
-				
+
 				con.close();
 			
 			Sessiones s = new Sessiones(request);
@@ -556,8 +501,7 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			// KEY = id_bodega _ id_equipo _ id_cotizacion _ tipo:
 	   			Map<String,List<String>> mapArr = ReportHohe.listaMatrizEquiposHOHE2Coti(con, baseDato, "ARRIENDO", fechaCorte);
 	   			Map<String,List<String>> mapVta = ReportHohe.listaMatrizEquiposHOHE2Coti(con, baseDato, "VENTA", fechaCorte);
@@ -684,8 +628,7 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			String permisoPorBodega = "";
 	   			Fechas finMesFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
@@ -769,8 +712,7 @@ public class Apis extends Controller {
 				return ok(error).as("application/json");
 			}
 			if(!baseDato.equals("0")) {
-				try {
-					Connection con = dbRead.getConnection();
+				try (Connection con = dbRead.getConnection()){
 		   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 		   			String permisoPorBodega = "";
 		   			Fechas finMesFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
@@ -854,8 +796,7 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			String permisoPorBodega = "";
     			List<AjustesEP> lista = AjustesEP.allPorPeriodos(con, baseDato, desdeAAMMDD, hastaAAMMDD, permisoPorBodega,  "0", "0");
@@ -909,8 +850,7 @@ public class Apis extends Controller {
 			return ok(error).as("application/json");
 		}
 		if(!baseDato.equals("0")) {
-			try {
-				Connection con = dbRead.getConnection();
+			try (Connection con = dbRead.getConnection()){
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
 	   			List<List<String>> datos = ReportBodegas.estadoBodegas(con, baseDato);
 	   			List<List<String>> rs = new ArrayList<List<String>>();
@@ -962,12 +902,10 @@ public class Apis extends Controller {
 				return ok(error).as("application/json");
 			}
 			if(!baseDato.equals("0")) {
-				try {
-					Connection con = dbRead.getConnection();
+				try (Connection con = dbRead.getConnection()){
 		   			List<List<String>> lista = ReportHohe.datosResumen(con, baseDato, desdeAAMMDD, hastaAAMMDD);
 		   			List<List<String>> l = ReportHohe.reporteHoheResumenJson(desdeAAMMDD, hastaAAMMDD, lista);
 	       			JsonNode rsJson =  Json.toJson(l);
-		   			con.close();
 		   			return ok("{\"datos\":"+rsJson.toString()+",\"desde\":\""+desdeAAMMDD+"\",\"hasta\":\""+hastaAAMMDD+"\",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 		   		} catch (SQLException e) {
 					e.printStackTrace();

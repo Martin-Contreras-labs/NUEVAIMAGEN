@@ -325,6 +325,9 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 	
 	
 	    if (frecuencia > 0) {
+			@if(mapDiccionario.get("nEmpresa").equals("CIHLA")){
+				return("no aplica");
+			}
 	        const proximaMantencion = determinaProxima(lectActual, frecuencia);
 	        let mantencionAnterior = parseFloat($("#proximaMantencion_" + index).val()?.replace(/,/g, "") || 0);
 	

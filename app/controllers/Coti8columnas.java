@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import models.utilities.DatabaseRead;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -32,7 +33,7 @@ import play.db.Database;
 import play.mvc.Controller;
 
 public class Coti8columnas extends Controller {
-		public static Database db = HomeController.dbWrite;
+
 		public static FormFactory formFactory = HomeController.formFactory;
 		public static String msgError = HomeController.msgError;
 		public static String msgErrorFormulario = HomeController.msgErrorFormulario;

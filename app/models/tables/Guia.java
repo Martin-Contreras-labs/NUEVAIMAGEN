@@ -2083,8 +2083,8 @@ public class Guia {
 			for(int i=1; i<13; i++) {
 				hoja1.setColumnWidth(i, 5*1000);
 			}
-			hoja1.setColumnWidth(8, 10*1000);
-			hoja1.setColumnWidth(10, 10*1000);
+			hoja1.setColumnWidth(9, 10*1000);
+			hoja1.setColumnWidth(11, 10*1000);
             
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -2114,6 +2114,12 @@ public class Guia {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TIPO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("COMERCIAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
@@ -2194,6 +2200,12 @@ public class Guia {
 					cell.setCellStyle(detalle);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getTipoGuia());
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(listaGuias.get(i).getNameComercial());
 					
 					posCell++;
 					cell = row.createCell(posCell);

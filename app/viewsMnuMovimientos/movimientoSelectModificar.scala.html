@@ -125,6 +125,7 @@
 				let jsonGuias = rs.jsonGuias;
 				let tabla="<table id=\"tablaPrincipal\"class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"+"<thead style=\"background-color:#eeeeee\">"
 				+"<TR>"+"<TH>TIPO</TH>"
+				+"<TH>COMERCIAL</TH>"
 				+"<TH>Nro<br>"+'@mapDiccionario.get("OT")'+"</TH>"
 				+"<TH>Nro<br>COTI</TH>"
 				+"<TH>Nro<br>MOV</TH>"
@@ -146,7 +147,7 @@
 					tabla = tabla +
 					"<TR>"+
 						"<td style=\"text-align:left;\">"+jsonGuias[i]["tipoGuia"]+"</td>"+
-						
+						"<td style=\"text-align:left;\">"+jsonGuias[i]["nameComercial"]+"</td>"+
 						
 						"<td style=\"text-align:center;\">";
 							if(jsonGuias[i]["numeroCotizacion"]!="0"){

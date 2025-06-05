@@ -264,33 +264,36 @@ public class Proforma {
 			permisoPorBodega = permisoPorBodega.replaceAll("movimiento", "proforma");
 			PreparedStatement smt = con
 					.prepareStatement(" select "
-							+ " id,"
-							+ " fecha,"
-							+ " desde,"
-							+ " hasta,"
-							+ " id_cliente,"
-							+ " id_bodegaEmpresa,"
-							+ " id_proyecto,"
-							+ " docRef,"
-							+ " epExcelMov,"
-							+ " epExcelEp,"
-							+ " proformaPdf,"
-							+ " docAnexo,"
-							+ " descuento,"
-							+ " neto, "
-							+ " iva,"
-							+ " total,"
-							+ " esEliminable,"
-							+ " tipo,"
-							+ " proformaXml,"
-							+ " xmlEnviado,"
-							+ " jsonGenerado, "
-							+ " ifnull(response,0), "
-							+ " ifnull(nroFiscal,0),"
-							+ " ifnull(comentarios,0)"
+							+ " proforma.id,"
+							+ " proforma.fecha,"
+							+ " proforma.desde,"
+							+ " proforma.hasta,"
+							+ " proforma.id_cliente,"
+							+ " proforma.id_bodegaEmpresa,"
+							+ " proforma.id_proyecto,"
+							+ " proforma.docRef,"
+							+ " proforma.epExcelMov,"
+							+ " proforma.epExcelEp,"
+							+ " proforma.proformaPdf,"
+							+ " proforma.docAnexo,"
+							+ " proforma.descuento,"
+							+ " proforma.neto, "
+							+ " proforma.iva,"
+							+ " proforma.total,"
+							+ " proforma.esEliminable,"
+							+ " proforma.tipo,"
+							+ " proforma.proformaXml,"
+							+ " proforma.xmlEnviado,"
+							+ " proforma.jsonGenerado, "
+							+ " ifnull(proforma.response,0), "
+							+ " ifnull(proforma.nroFiscal,0),"
+							+ " ifnull(proforma.comentarios,0),"
+							+ " ifnull(rubro.nombre,'')"
 							+ " from `"+db+"`.proforma"
-							+ " where desde >= ? and hasta <=? " +permisoPorBodega
-							+ " order by fecha desc,id desc");
+							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = proforma.id_bodegaEmpresa"
+							+ " left join `"+db+"`.rubro on rubro.id = bodegaEmpresa.id_rubro"
+							+ " where proforma.desde >= ? and proforma.hasta <=? " +permisoPorBodega
+							+ " order by proforma.fecha desc,proforma.id desc");
 			smt.setString(1, desde);
 			smt.setString(2, hasta);
 
@@ -371,6 +374,7 @@ public class Proforma {
 	   			 aux.add(nameSucursal);			//22 nameSucursal
 	   			 aux.add(nameComercial);		//23 nameComercial
 	   			 aux.add(rs.getString(24));		//24 comentarios
+				 aux.add(rs.getString(25));		//25 rubro
 	   			 
 	   			 if(esPorSucursal.equals("1")) {
 	   				 if(auxIdSucursal.equals(id_sucursal)) {
@@ -652,10 +656,11 @@ public class Proforma {
 				hoja1.setColumnWidth(i, 4*1000);
 			}
 			
-			hoja1.setColumnWidth(7, 8*1000);
-			hoja1.setColumnWidth(8, 8*1000);
-			hoja1.setColumnWidth(9, 8*1000);
-			hoja1.setColumnWidth(10, 10*1000);
+			hoja1.setColumnWidth(7, 7*1000);
+			hoja1.setColumnWidth(8, 7*1000);
+			hoja1.setColumnWidth(9, 7*1000);
+			hoja1.setColumnWidth(10, 7*1000);
+			hoja1.setColumnWidth(11, 10*1000);
 			
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -744,6 +749,12 @@ public class Proforma {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("RUBRO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
@@ -832,6 +843,12 @@ public class Proforma {
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(23));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(25));
 				
 				posCell++;
 				cell = row.createCell(posCell);

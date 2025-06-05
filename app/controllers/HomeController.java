@@ -442,12 +442,12 @@ public class HomeController extends Controller {
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
-			return ok(mensajes.render("/", msgError));
+			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
+			return ok("error");
 		}else {
 			String fecha = form.get("fecha");
 			try (Connection con = dbRead.getConnection()) {
@@ -456,10 +456,10 @@ public class HomeController extends Controller {
 				return ok("" + tasas.getClpUf() + ";" + tasas.getClpUsd() + ";" + tasas.getClpEur());
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+				return ok("error");
 			}
 		}
     }

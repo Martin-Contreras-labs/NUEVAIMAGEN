@@ -44,12 +44,8 @@ public class ReportTrazabilidades {
 	
 	public static List<List<String>> trazaEquipo(Connection con, String db, Long idEquipo, Map<String,String> mapDiccionario, String esPorSucursal, String id_sucursal){
 			List<List<String>> lista = new ArrayList<List<String>>();
-			
-			
-			
 			Map<Long,List<String>> bodega = new HashMap<Long,List<String>>();
 			try {
-				
 				PreparedStatement smt2 = con
 						.prepareStatement(" select bodegaEmpresa.id,tipoBodega.nombre,bodegaEmpresa.nombre, bodegaEmpresa.id_sucursal " +
 								" from `"+db+"`.bodegaEmpresa " +
@@ -71,8 +67,6 @@ public class ReportTrazabilidades {
 				}
 				rs2.close();
 				smt2.close();
-				
-				
 				PreparedStatement smt1 = con
 						.prepareStatement(" select  " +
 								" movimiento.id_bodegaEmpresa,  " +
@@ -91,7 +85,8 @@ public class ReportTrazabilidades {
 								" tipoBodega.nombre,   " +
 								" movimiento.esVenta, "+
 								" ifnull(guia.numGuiaCliente,''), " +
-								" bodegaEmpresa.id_sucursal " +
+								" bodegaEmpresa.id_sucursal, " +
+								" ifnull(cotizacion.numero,0) " +
 								" from `"+db+"`.movimiento   " +
 								" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo   " +
 								" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo   " +
@@ -103,6 +98,7 @@ public class ReportTrazabilidades {
 								" left join `"+db+"`.factura on factura.id = compra.id_factura   " +
 								" left join `"+db+"`.baja on baja.id = movimiento.id_baja   " +
 								" left join `"+db+"`.actaBaja on actaBaja.id = baja.id_actaBaja   " +
+								" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
 								" where (bodegaEmpresa.vigente = 1 or bodegaEmpresa.vigente = 0)   " +
 								" and (guia.fecha is null or guia.fecha<='2200-04-06')   " +
 								" and (factura.fecha is null or factura.fecha<='2200-04-06')   " +
@@ -115,11 +111,7 @@ public class ReportTrazabilidades {
 				smt1.setLong(1, idEquipo);
 				ResultSet rs1 = smt1.executeQuery();
 				
-				
-				
 				while (rs1.next()) {
-					
-					
 					List<String> aux = new ArrayList<String>();
 					if(rs1.getDate(8)==null) {
 						aux.add("");
@@ -154,6 +146,8 @@ public class ReportTrazabilidades {
 						aux.add(bodega.get(rs1.getLong(2)).get(2)); // name sucursal desde
 					}
 					aux.add(bodega.get(rs1.getLong(1)).get(2)); // name sucursal hasta
+
+					aux.add(rs1.getString(18)); // numero de cotizacion
 					
 					if(esPorSucursal.equals("1")) {
 						if((long)rs1.getLong(2)==(long)0 && bodega.get(rs1.getLong(1)).get(3).equals(id_sucursal)) {
@@ -275,6 +269,13 @@ public class ReportTrazabilidades {
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue("NRO COTI");
+
+						posCell++; posColl++;
+						hoja1.setColumnWidth(posColl, 4*1000);
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado2);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("NRO MOV");
 						
 						posCell++; posColl++;
@@ -374,6 +375,12 @@ public class ReportTrazabilidades {
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(datos.get(i).get(11));
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(6));
 							

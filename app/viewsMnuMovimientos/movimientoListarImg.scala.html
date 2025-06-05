@@ -18,6 +18,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista])
 					<thead style="background-color: #eeeeee">
 						<TR>
 							<TH>TIPO</TH>
+							<TH>COMERCIAL</TH>
 							<TH>Nro<br>COTI</TH>
 							<TH>Nro<br>MOV</TH>
 							<TH>Nro<br>REF</TH>
@@ -37,6 +38,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista])
 						@for(lista1 <- listaGuias){
 							<TR>
 								<td  style="text-align:left;">@lista1.getTipoGuia()</td>
+								<td  style="text-align:left;">@lista1.getNameComercial()</td>
 								<td  style="text-align:center;">
 									@if(lista1.getNumeroCotizacion()!=0){
 										<a href="#" onclick="verCotizacion('@lista1.getId_cotizacion()')">

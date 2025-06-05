@@ -52,6 +52,7 @@ lista: List[List[String]], id_equipo: Long)
 		        <thead style="background-color: #eeeeee">
 			        <TR> 
 						<TH style= "text-align: center;vertical-align: top;">FECHA</TH>
+						<TH style= "text-align: center;vertical-align: top;">NRO. COTI</TH>
 				        <TH style= "text-align: center;vertical-align: top;">NRO. MOV</TH>
 				        <TH style= "text-align: center;vertical-align: top;">NRO. REF</TH>
 				        <TH style= "text-align: center;vertical-align: top;">TIPO</TH>
@@ -71,6 +72,7 @@ lista: List[List[String]], id_equipo: Long)
 								<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(0))</div>
 								@lista1.get(0)
 							</td>
+							<td style= "text-align: center;">@lista1.get(11)</td>
 							<td style= "text-align: center;">@lista1.get(6)</td>
 							<td style= "text-align: center;">@lista1.get(8)</td>
 							<td style= "text-align: center;">@lista1.get(7)</td>
