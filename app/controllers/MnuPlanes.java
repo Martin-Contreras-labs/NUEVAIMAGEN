@@ -51,7 +51,6 @@ public class MnuPlanes extends Controller {
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	private static final Database dbWrite = HomeController.dbWrite;
 	private static final DatabaseRead dbRead = HomeController.dbRead;
-	public static Database db = HomeController.dbWrite;
 	public static FormFactory formFactory = HomeController.formFactory;
 	public static String msgError = HomeController.msgError;
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
@@ -74,6 +73,7 @@ public class MnuPlanes extends Controller {
     // -- INI SUSPENDIDO -- EXTRAE DESDE APIS ICONSTRUYE PLANES
 	
 	public class tarea extends Thread {
+		public Connection con;
 		public EmisorTributario emisor;
 		public String token;
 		public String desde;
@@ -83,7 +83,8 @@ public class MnuPlanes extends Controller {
 		public String username;
 		public String baseDato;
 		public String sendToEmail;
-		public tarea(EmisorTributario emisor, String token, String desde, String hasta, List<List<String>> listIdOrgc, String empresa, String username, String baseDato, String sendToEmail) {
+		public tarea(Connection con, EmisorTributario emisor, String token, String desde, String hasta, List<List<String>> listIdOrgc, String empresa, String username, String baseDato, String sendToEmail) {
+			this.con = con;
 			this.emisor = emisor;
 			this.token = token;
 			this.desde = desde;
@@ -102,7 +103,6 @@ public class MnuPlanes extends Controller {
 			List<TipoMantencion> listTipoMantencion = new ArrayList<TipoMantencion>();
 			List<Equipo> listEquipo = new ArrayList<Equipo>();
 			try {
-				Connection con = db.getConnection();
 				mapIConstruye = IConstruye.mapNumOcVsIdDoc(con, baseDato);
 				listTipoTrabajo = TipoTrabajo.all(con, baseDato);
 				listTipoPlan = TipoPlan.all(con, baseDato);
@@ -161,7 +161,7 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			try (Connection con = db.getConnection()){
+			try (Connection con = dbRead.getConnection()){
 				String desde = form.get("fechaDesde").trim();
 				String hasta = form.get("fechaHasta").trim();
 				String sendToEmail = form.get("sendToEmail").trim();
@@ -169,7 +169,7 @@ public class MnuPlanes extends Controller {
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 				String token = ApiIConstruyeOC.obtieneToken(emisor, ws);
 				List<List<String>> listIdOrgc = ApiIConstruyeOC.obtieneCtrosGestion(emisor, ws, token, mapeoDiccionario.get("nEmpresa"));
-				tarea x = new tarea(emisor,  token,  desde,  hasta, listIdOrgc, mapeoDiccionario.get("nEmpresa"), s.userName, s.baseDato, sendToEmail);
+				tarea x = new tarea(con, emisor,  token,  desde,  hasta, listIdOrgc, mapeoDiccionario.get("nEmpresa"), s.userName, s.baseDato, sendToEmail);
 				x.start();
 				return ok(mensajes.render("/hojaVidaMantencionLista/0","El proceso comenzo, en pocos minutos sera enviado archivo excel a eMail: "+sendToEmail+", mientras puede continuar operando mada."));
 			} catch (SQLException e) {

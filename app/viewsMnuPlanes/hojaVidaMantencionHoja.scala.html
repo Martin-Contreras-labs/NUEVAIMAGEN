@@ -585,7 +585,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 	        const frecuencia = parseFloat($(".cadaNEstimado")[index]?.value.replace(/,/g, "") || 0);
 	
 	        if (frecuencia > 0) {
-				@if(mapDiccionario.get("nEmpresa").equals("CIHLA")){
+				@if(mapDiccionario.get("nEmpresa").equals("GYL")){
 					return("no aplica");
 				}
 	            const proximaMantencion = determinaProxima(lectActual, frecuencia);

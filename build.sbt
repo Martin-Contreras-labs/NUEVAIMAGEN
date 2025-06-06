@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(javaJdbc)
-libraryDependencies ++= Seq("mysql" % "mysql-connector-java" % "8.0.32")
+libraryDependencies ++= Seq("mysql" % "mysql-connector-java" % "8.0.33")
 libraryDependencies ++= Seq(javaWs)
 javacOptions ++= Seq("-Xlint:deprecation", "-Xlint:unchecked")
 
