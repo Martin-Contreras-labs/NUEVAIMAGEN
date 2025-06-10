@@ -89,8 +89,6 @@ public class ActaBaja {
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 
 	public static boolean modifyXCampo(Connection con, String db, String campo, String valor, Long id_actaBaja) {
 		boolean flag = false;

@@ -15,19 +15,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import controllers.HomeController;
+import models.tables.*;
 import org.apache.poi.util.TempFile;
 
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Comunas;
-import models.tables.EmisorTributario;
-import models.tables.Guia;
-import models.tables.Proforma;
-import models.tables.Proyecto;
-import models.tables.TasasCambio;
-import models.tables.Transportista;
 import models.utilities.Fechas;
 import models.xml.XmlFacturaReferencias;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 
@@ -47,6 +42,8 @@ public class WebMaximise {
 	public WebMaximise() {
 		super();
 	}
+
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	
 //**************************************************************
@@ -54,27 +51,23 @@ public class WebMaximise {
 //**************************************************************
 	
 	public static String generaGuia(Connection con, String db, String xml, WSClient ws, EmisorTributario emisorTributario, Long id_guia) {
-		
-		String webUser = emisorTributario.getApiUser();
-		String webClave = emisorTributario.getApiKey();
-		String webUrl = "http://asp2.maximise.cl/wsv/WayBill.asmx";
-		
-		String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-				+ "		<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
-				+ "			<soap:Body>\n"
-				+ "		    	<SaveDocument xmlns=\"MaximiseWS\">\n"
-				+ "		      		<AliasName>"+webUser+"</AliasName>\n"
-				+ "		      		<UserName>webservice</UserName>\n"
-				+ "		      		<Password>"+webClave+"</Password>\n"
-				+ "		      		<Data>\n"
-				+						xml
-				+ "					</Data>\n"
-				+ "    			</SaveDocument>\n"
-				+ "			</soap:Body>\n"
-				+ "		</soap:Envelope>";
-		
 		try {
-			
+			String webUser = emisorTributario.getApiUser();
+			String webClave = emisorTributario.getApiKey();
+			String webUrl = "http://asp2.maximise.cl/wsv/WayBill.asmx";
+			String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+					+ "		<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+					+ "			<soap:Body>\n"
+					+ "		    	<SaveDocument xmlns=\"MaximiseWS\">\n"
+					+ "		      		<AliasName>"+webUser+"</AliasName>\n"
+					+ "		      		<UserName>webservice</UserName>\n"
+					+ "		      		<Password>"+webClave+"</Password>\n"
+					+ "		      		<Data>\n"
+					+						xml
+					+ "					</Data>\n"
+					+ "    			</SaveDocument>\n"
+					+ "			</soap:Body>\n"
+					+ "		</soap:Envelope>";
 			String rs = ws.url(webUrl)
 					.addHeader("Content-Type","text/xml; charset=utf-8")
 					.addHeader("SOAPAction","MaximiseWS/SaveDocument")
@@ -100,38 +93,35 @@ public class WebMaximise {
 				       	  return rsBody;
 			           }
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
-			
 			Guia.modificaPorCampo(con, db, "response", id_guia, rs);
 			return(rs);
-				
-			
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA: SE PRESENTARON ERRORES";
 		}
 	}
 	
 	public static File downGuiaMaximise(Connection con, String db, String nroIntGuia, WSClient ws, EmisorTributario emisorTributario) {
 		
-		String webUser = emisorTributario.getApiUser();
-		String webClave = emisorTributario.getApiKey();
-		String webUrl = "http://asp2.maximise.cl/wsv/WayBill.asmx";
-		
-		String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-				+ "		<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
-				+ "			<soap:Body>\n"
-				+ "		    	<DownloadPdf xmlns=\"MaximiseWS\">\n"
-				+ "		      		<AliasName>"+webUser+"</AliasName>\n"
-				+ "		      		<UserName>webservice</UserName>\n"
-				+ "		      		<Password>"+webClave+"</Password>\n"
-				+ "		      		<Company>01</Company>\n"
-				+ "					<DocumentNumber>"+nroIntGuia+"</DocumentNumber>\n"
-				+ "    			</DownloadPdf>\n"
-				+ "			</soap:Body>\n"
-				+ "		</soap:Envelope>";
-		
+
 		try {
-			
+			String webUser = emisorTributario.getApiUser();
+			String webClave = emisorTributario.getApiKey();
+			String webUrl = "http://asp2.maximise.cl/wsv/WayBill.asmx";
+			String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+					+ "		<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+					+ "			<soap:Body>\n"
+					+ "		    	<DownloadPdf xmlns=\"MaximiseWS\">\n"
+					+ "		      		<AliasName>"+webUser+"</AliasName>\n"
+					+ "		      		<UserName>webservice</UserName>\n"
+					+ "		      		<Password>"+webClave+"</Password>\n"
+					+ "		      		<Company>01</Company>\n"
+					+ "					<DocumentNumber>"+nroIntGuia+"</DocumentNumber>\n"
+					+ "    			</DownloadPdf>\n"
+					+ "			</soap:Body>\n"
+					+ "		</soap:Envelope>";
 			File rs = ws.url(webUrl)
 					.addHeader("Content-Type","text/xml; charset=utf-8")
 					.addHeader("SOAPAction","MaximiseWS/DownloadPdf")
@@ -163,10 +153,10 @@ public class WebMaximise {
 			           }
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
-				
-			
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
 		}
 	}
@@ -175,27 +165,21 @@ public class WebMaximise {
 	
 	
 	public static String generaGuiaSalida (Connection con, String db, Guia guia, Transportista transportista, Map<String,String> mapDiccionario, EmisorTributario emisorTributario, String sucurMaximise) {
-		
-		//******************************
-		// OBTIENE DATOS A LLENAR
-		//******************************
-			
+		try{
+			//******************************
+			// OBTIENE DATOS A LLENAR
+			//******************************
 			Long id_bodegaDestino = guia.getId_bodegaDestino();
 			BodegaEmpresa bodegaDestino = BodegaEmpresa.findXIdBodega(con, db,id_bodegaDestino);
 			Cliente cliente = Cliente.find(con, db, bodegaDestino.getId_cliente());
-			
-			
 			List<List<String>> detalleGuia = new ArrayList<List<String>>();
 			String direccionDestino="", comunaDestino="", ciudadDestino="", rutCliente="", nickCliente="", patTransp="", rutTransp="", nomTransp="";
-			
-			
 			if(cliente != null) {
 				rutCliente = cliente.getRut().replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 				rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 				rutCliente = rutCliente.trim();
 				nickCliente = cliente.getNickName();
 			}
-			
 			if ((long) bodegaDestino.getEsInterna() == (long) 1) {
 				Cliente aux = Cliente.find(con, db, bodegaDestino.getId_cliente());
 				if(aux!=null) {
@@ -221,11 +205,9 @@ public class WebMaximise {
 				}
 				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaDestino(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
 			}
-			
 			if(direccionDestino.length()>30) {
 				direccionDestino = direccionDestino.substring(0,30);
 			}
-			
 			if(transportista != null) {
 				patTransp = transportista.getPatente();
 				rutTransp = transportista.getRutConductor().replace(".", "").replace(".", "").replace(".", "").replace(".", "");
@@ -233,32 +215,24 @@ public class WebMaximise {
 				rutTransp = rutTransp.trim();
 				nomTransp = transportista.getConductor();
 			}
-			
 			Fechas auxFecha = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(guia.fecha));
 			Map<Long,Double> tasaCambio = TasasCambio.mapTasasPorFecha(con, db, auxFecha.getFechaStrAAMMDD(), mapDiccionario.get("pais"));
-			
-			
-		//******************************
-		// FINAL DE OBTIENE DATOS A LLENAR
-		//******************************
-		
-		DecimalFormat myformat = new DecimalFormat("0");
-		//******************************
-		// LLENA XML para MAXIMISE
-		//******************************
-		
-		String[] auxFechGuia = Fechas.AAMMDD(guia.getFecha()).split("-");
-		Long auxMesGuia = Long.parseLong(auxFechGuia[1]);
-		
-		String bodega = "BSTGO";
-		if(sucurMaximise.equals("2")) {
-			bodega = "BANTO";
-		}
-		
+			//******************************
+			// FINAL DE OBTIENE DATOS A LLENAR
+			//******************************
+			DecimalFormat myformat = new DecimalFormat("0");
+			//******************************
+			// LLENA XML para MAXIMISE
+			//******************************
+			String[] auxFechGuia = Fechas.AAMMDD(guia.getFecha()).split("-");
+			Long auxMesGuia = Long.parseLong(auxFechGuia[1]);
+			String bodega = "BSTGO";
+			if(sucurMaximise.equals("2")) {
+				bodega = "BANTO";
+			}
 			String xmlDetalle = "";
 			Long totalNeto = (long)0;
 			Long totalIva = (long)0;
-			
 			for(int i=0;i<detalleGuia.size();i++) {
 				//obtiene datos
 					String auxPrecio = detalleGuia.get(i).get(9); 				// precio de venta en moneda de origen
@@ -277,22 +251,16 @@ public class WebMaximise {
 						tasa = (double)1;
 					}
 					precioUnitario = Math.round(auxPU * tasa);		// precio de venta en moneda principal CLP
-					
 					Long cantidad = Math.round(Double.parseDouble(auxCantidad.replaceAll(",", "")));
 					Long auxPTotal = Math.round(auxPU * tasa * cantidad);
-					
 					Long auxIvaTotal =  Math.round(auxPTotal * (emisorTributario.getTasaIva()/100));
 					Long auxIvaPU =  Math.round(precioUnitario * (emisorTributario.getTasaIva()/100));
 				//fin obtiene datos
-					
 				// llena json
-					
 					String producto = detalleGuia.get(i).get(6);
 					if(producto.length()>35) {
 						producto = producto.substring(0,35);
 					}
-					
-					
 					xmlDetalle +=
 						  "		&lt;DETAIL&gt;\n"
 						+ "			&lt;CMPY_CODE&gt;01&lt;/CMPY_CODE&gt;\n"
@@ -316,15 +284,11 @@ public class WebMaximise {
 						+ "			&lt;UOM_QTY&gt;"+myformat.format(cantidad)+"&lt;/UOM_QTY&gt;\n"
 						+ "			&lt;UNIT_IFRSCOST_AMT&gt;0&lt;/UNIT_IFRSCOST_AMT&gt;\n"
 						+ "		&lt;/DETAIL&gt;\n";
-							
 					totalNeto += auxPTotal;
 					totalIva += auxIvaTotal;
-					
 			}
 			xmlDetalle += 
 				"&lt;/WAYBILL&gt;";
-			
-			
 			String xmlHead = 
 					"&lt;WAYBILL&gt;\n"
 					+ "		&lt;HEAD&gt;\n"
@@ -371,13 +335,14 @@ public class WebMaximise {
 					+ "			&lt;DISC_AMT&gt;0&lt;/DISC_AMT&gt;\n"
 					+ "			&lt;IMPORT_PER&gt;1&lt;/IMPORT_PER&gt;\n"
 					+ "		&lt;/HEAD&gt;\n";
-			
-			
-			
 			String xml = xmlHead+xmlDetalle;
-			
-		return(xml);
-		
+			return(xml);
+		}catch(Exception e){
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			return null;
+		}
 	}
 	
 	
@@ -386,11 +351,11 @@ public class WebMaximise {
 	//**************************************************************
 	
 	public static String generaFactura(Connection con, String db, String xmlEncode, WSClient ws, EmisorTributario emisorTributario, Long id_proforma) {
-		String webUser = emisorTributario.getApiUser();
-		String webClave = emisorTributario.getApiKey();
-		String webUrl = "http://asp2.maximise.cl/wsv/SalesOrder.asmx/SaveOrder";
-		String data = "AliasName="+webUser+"&UserName=webservice&Password="+webClave+"&Data="+xmlEncode;
 		try {
+			String webUser = emisorTributario.getApiUser();
+			String webClave = emisorTributario.getApiKey();
+			String webUrl = "http://asp2.maximise.cl/wsv/SalesOrder.asmx/SaveOrder";
+			String data = "AliasName="+webUser+"&UserName=webservice&Password="+webClave+"&Data="+xmlEncode;
 			String rs = ws.url(webUrl)
 					.addHeader("Content-Type","application/x-www-form-urlencoded")
 					.post(data)
@@ -411,7 +376,9 @@ public class WebMaximise {
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA: SE PRESENTARON ERRORES";
 		}
 	}
@@ -421,85 +388,67 @@ public class WebMaximise {
 	
 	public static String encodeXmlArriendo(Connection con, String db, String nEmpresa, List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, Map<String,String> mapPermiso, 
 			List<List<String>> detalleAjuste, XmlFacturaReferencias referencias) {
-		
-		EmisorTributario emisorTributario = EmisorTributario.find(con, db);
-				
-		String order_date = proforma.fecha;
-		
-		String bodega = "";
-		String periodoDesde = proforma.desde;
-		String periodoHasta = proforma.hasta;
-		
-		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.getId_bodegaEmpresa());
-		if(bodegaEmpresa!=null) {
-			bodega = bodegaEmpresa.getNombre();
-		}
-		
-		Long neto = Math.round(proforma.getNeto());
-		Long iva = Math.round(proforma.getIva());
-		Long total = neto+iva;
-		String rutCliente = "";
-		String nameCliente = "";
-		String direccionCliente = "";
-		String comunaCliente = "";
-		String ciudadCliente = "";
-		if(cliente != null) {
-			rutCliente = cliente.getRut().replace(".", "").replace(".", "").replace(".", "").replace(".", "");
-			rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
-			rutCliente = rutCliente.trim();
-			nameCliente = cliente.getNombre();
-			direccionCliente = cliente.getDireccion();
-			comunaCliente = cliente.getCod_comuna();
-			Comunas comuna = Comunas.findPorNombre(con, db, cliente.getComuna());
-			if(comuna != null) {
-				Long cod_ciudad = Long.parseLong(comuna.codigo); //se elimina el 0 antepuesto en comuna
-				ciudadCliente = cod_ciudad.toString();
+		try{
+			EmisorTributario emisorTributario = EmisorTributario.find(con, db);
+			String order_date = proforma.fecha;
+			String bodega = "";
+			String periodoDesde = proforma.desde;
+			String periodoHasta = proforma.hasta;
+			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.getId_bodegaEmpresa());
+			if(bodegaEmpresa!=null) {
+				bodega = bodegaEmpresa.getNombre();
 			}
-			if(direccionCliente.length()>30) {
-				direccionCliente = direccionCliente.substring(0,30);
-			}
-		}
-		
-		
-		String fechaOC = "";
-		String nroOC = "";
-		
-		String fechaHES = "";
-		String nroHES = "";
-		
-		String agregaReferencias = "";
-		
-		int cantRef=0;
-		try {
-			cantRef=referencias.tpoDocRef.size();
-		}catch(Exception e) {}
-		
-		for (int i = 0; i < cantRef; i++) {
-			
-			if(!referencias.tpoDocRef.get(i).equals("0")) {
-				
-				if(referencias.tpoDocRef.get(i).equals("801")) {
-					fechaOC = referencias.fchRef.get(i);
-					nroOC = referencias.folioRef.get(i);
-					agregaReferencias += "<ORD_TEXT>"+nroOC+"</ORD_TEXT>" + "<ORD_DATE>"+fechaOC+"</ORD_DATE>";
+			Long neto = Math.round(proforma.getNeto());
+			Long iva = Math.round(proforma.getIva());
+			Long total = neto+iva;
+			String rutCliente = "";
+			String nameCliente = "";
+			String direccionCliente = "";
+			String comunaCliente = "";
+			String ciudadCliente = "";
+			if(cliente != null) {
+				rutCliente = cliente.getRut().replace(".", "").replace(".", "").replace(".", "").replace(".", "");
+				rutCliente = rutCliente.replace(",", "").replace(",", "").replace(",", "").replace(",", "");
+				rutCliente = rutCliente.trim();
+				nameCliente = cliente.getNombre();
+				direccionCliente = cliente.getDireccion();
+				comunaCliente = cliente.getCod_comuna();
+				Comunas comuna = Comunas.findPorNombre(con, db, cliente.getComuna());
+				if(comuna != null) {
+					Long cod_ciudad = Long.parseLong(comuna.codigo); //se elimina el 0 antepuesto en comuna
+					ciudadCliente = cod_ciudad.toString();
 				}
-				
-				if(referencias.tpoDocRef.get(i).equals("HES")) {
-					fechaHES = referencias.fchRef.get(i);
-					nroHES = referencias.folioRef.get(i);
-					agregaReferencias += "<ORD_TEXT1>"+nroHES+"</ORD_TEXT1>" + "<ORD_DATE1>"+fechaHES+"</ORD_DATE1>";
+				if(direccionCliente.length()>30) {
+					direccionCliente = direccionCliente.substring(0,30);
 				}
-				
 			}
-			
-		}
-		
-			
-		DecimalFormat myformat = new DecimalFormat("0");
- 
-		//******************************
-		// LLENA XML para MAXIMISE
-		//******************************
+			String fechaOC = "";
+			String nroOC = "";
+			String fechaHES = "";
+			String nroHES = "";
+			String agregaReferencias = "";
+			int cantRef=0;
+			try {
+				cantRef=referencias.tpoDocRef.size();
+			}catch(Exception e) {}
+			for (int i = 0; i < cantRef; i++) {
+				if(!referencias.tpoDocRef.get(i).equals("0")) {
+					if(referencias.tpoDocRef.get(i).equals("801")) {
+						fechaOC = referencias.fchRef.get(i);
+						nroOC = referencias.folioRef.get(i);
+						agregaReferencias += "<ORD_TEXT>"+nroOC+"</ORD_TEXT>" + "<ORD_DATE>"+fechaOC+"</ORD_DATE>";
+					}
+					if(referencias.tpoDocRef.get(i).equals("HES")) {
+						fechaHES = referencias.fchRef.get(i);
+						nroHES = referencias.folioRef.get(i);
+						agregaReferencias += "<ORD_TEXT1>"+nroHES+"</ORD_TEXT1>" + "<ORD_DATE1>"+fechaHES+"</ORD_DATE1>";
+					}
+				}
+			}
+			DecimalFormat myformat = new DecimalFormat("0");
+			//******************************
+			// LLENA XML para MAXIMISE
+			//******************************
 			String xml = 
 					"<Documento>"
 					+ "		<head>"
@@ -609,10 +558,17 @@ public class WebMaximise {
 			try {
 				xmlEncode = URLEncoder.encode(xml, StandardCharsets.UTF_8.toString());
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				String className = ActaBaja.class.getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
-					
-	  return(xmlEncode);
+	  		return(xmlEncode);
+		}catch(Exception e){
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			return null;
+		}
 	}
 	
 	
@@ -621,22 +577,19 @@ public class WebMaximise {
 	
 	public static String generaFactVenta(Connection con, String db, List<List<String>> guiasPer, Cliente cliente, Proforma proforma, Map<String,List<List<String>>> mapReportPorGuia10, EmisorTributario emisorTributario) {
 		String datos = "";
-		
 		//******************************************************
      	//************       FALTA PROGRAMAR        ************
      	//******************************************************
-		
-		
 		return(datos);
 	}
 	
 	
 	public static File downFacturaMaximise(Connection con, String db, String nroIntFactura, WSClient ws, EmisorTributario emisorTributario) {
-		String webUser = emisorTributario.getApiUser();
-		String webClave = emisorTributario.getApiKey();
-		String webUrl = "http://asp2.maximise.cl/wsv/Invoice.asmx/DownloadPdf";
-		String data = "AliasName="+webUser+"&UserName=webservice&Password="+webClave+"&Company=01&DocumentNumber="+nroIntFactura;
 		try {
+			String webUser = emisorTributario.getApiUser();
+			String webClave = emisorTributario.getApiKey();
+			String webUrl = "http://asp2.maximise.cl/wsv/Invoice.asmx/DownloadPdf";
+			String data = "AliasName="+webUser+"&UserName=webservice&Password="+webClave+"&Company=01&DocumentNumber="+nroIntFactura;
 			File rs = ws.url(webUrl)
 					.addHeader("Content-Type","application/x-www-form-urlencoded")
 					.addHeader("SOAPAction","MaximiseWS/DownloadPdf")
@@ -669,55 +622,52 @@ public class WebMaximise {
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
 		}
 	}
 	
 	public static String downOrderMaximise(Connection con, String db, WSClient ws, EmisorTributario emisorTributario, Long nroIntOrden) {
-			
+		try {
 			String webUser = emisorTributario.getApiUser();
 			String webClave = emisorTributario.getApiKey();
 			String webUrl = "http://asp2.maximise.cl/wsv/SalesOrder.asmx/OrderListWmsNotReady";
 			String data = "AliasName="+webUser+"&UserName=webservice&Password="+webClave+"&Company=01";
-			try {
-				String rs = ws.url(webUrl)
-						.addHeader("Content-Type","application/x-www-form-urlencoded")
-						.post(data)
-						.thenApply(
-				          (WSResponse response) -> {
-				        	  String rsBody = "response.getBody() = \n"+response.getBody();
-				        	  int ini = rsBody.indexOf("&lt;ORDER_NUM&gt;"+nroIntOrden+"&lt;/ORDER_NUM&gt;");
-				        	  if(ini>0) {
-				        		  	rsBody = rsBody.substring(ini);
-						       		int fin = rsBody.indexOf("&lt;ENTRY_CODE&gt;");
-						       		rsBody = rsBody.substring(0,fin);
-						       		if(rsBody.indexOf("&lt;LAST_INV_NUM&gt;")>0) {
-						       			ini = rsBody.indexOf("&lt;LAST_INV_NUM&gt;");
-						       			fin = rsBody.indexOf("&lt;/LAST_INV_NUM&gt;");
-						       			rsBody = rsBody.substring(ini+20,fin);
-						       		}else {
-						       			rsBody = "DTE aun no emitido";
-						       		}
-				        	  }else {
-				        		  rsBody = "Orden no existente";
-				        	  }
-				        	  rsBody = rsBody.replaceAll("(\\n|\\r)", "");
-					       	  return rsBody;
-				           }
-				         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
-				return(rs);
-			} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-				e.printStackTrace();
-				return "FALLA: SE PRESENTARON ERRORES";
-			}
+			String rs = ws.url(webUrl)
+					.addHeader("Content-Type","application/x-www-form-urlencoded")
+					.post(data)
+					.thenApply(
+					  (WSResponse response) -> {
+						  String rsBody = "response.getBody() = \n"+response.getBody();
+						  int ini = rsBody.indexOf("&lt;ORDER_NUM&gt;"+nroIntOrden+"&lt;/ORDER_NUM&gt;");
+						  if(ini>0) {
+								rsBody = rsBody.substring(ini);
+								int fin = rsBody.indexOf("&lt;ENTRY_CODE&gt;");
+								rsBody = rsBody.substring(0,fin);
+								if(rsBody.indexOf("&lt;LAST_INV_NUM&gt;")>0) {
+									ini = rsBody.indexOf("&lt;LAST_INV_NUM&gt;");
+									fin = rsBody.indexOf("&lt;/LAST_INV_NUM&gt;");
+									rsBody = rsBody.substring(ini+20,fin);
+								}else {
+									rsBody = "DTE aun no emitido";
+								}
+						  }else {
+							  rsBody = "Orden no existente";
+						  }
+						  rsBody = rsBody.replaceAll("(\\n|\\r)", "");
+						  return rsBody;
+					   }
+					 ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
+			return(rs);
+		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			return "FALLA: SE PRESENTARON ERRORES";
+		}
 	}
-	
-	
-	
-	
-	
-	
 	
 	
 	
