@@ -2,12 +2,14 @@ package models.apiRest;
 
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import controllers.HomeController;
 import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_BodegaEmpresa;
 import models.calculo.Calc_Precio;
@@ -16,14 +18,9 @@ import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
 import models.reports.ReportFacturas;
-import models.tables.AjustesEP;
-import models.tables.BodegaEmpresa;
-import models.tables.Guia;
-import models.tables.Moneda;
-
-
-
-
+import models.tables.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ResumenDetallePorPeriodo {
@@ -117,23 +114,22 @@ public class ResumenDetallePorPeriodo {
 	}
 	
 	static DecimalFormat sinFormato = new DecimalFormat("0");
+
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	public static ResumenDetallePorPeriodo inventariosFechaCorte(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Double uf, Double usd, Double eur, String esPorSucursal, String id_sucursal) {
-		
 		ResumenDetallePorPeriodo datos = new ResumenDetallePorPeriodo();
-		
-   		Map<Long,Double> tasas = new HashMap<Long,Double>();
-		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-		
+		try{
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+			tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+			tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+			tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
 			List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");
 			Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 			Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
 			Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
 			Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
-			
 			List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
 			List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
@@ -141,39 +137,22 @@ public class ResumenDetallePorPeriodo {
 			List<Calc_AjustesEP> listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD);
 			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, db, "0", "0");
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			
 			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
-		
-		
-	
-			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
 			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-			
-			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
+			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
-			
 			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-			
 			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
-			
 			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
-			
-			
-			
 			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con, db, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO
 			Map<String, List<List<String>>> mapGuiasPer = ReportFacturas.mapGuiasPer(con, db, guiasPeriodo);  									// RESUMEN POR ESTADOS DE PAGO
-			
 			Map<Long,Guia> mapGuias = Guia.mapAll(con, db);
-			
 			for(int i=0;i<proyectos.size();i++){
-				
 				String id_bodegaCliente = proyectos.get(i).get(1).trim();
-				
 				for(int j=0;j<resumenTotales.size();j++){
-					
 					if(id_bodegaCliente.equals(resumenTotales.get(j).get(0))){
-						
 						//RESUMEN
 						Resumen resumen = new Resumen();
 						resumen.id_bodegaCliente = id_bodegaCliente;
@@ -187,8 +166,6 @@ public class ResumenDetallePorPeriodo {
 						resumen.ajustes_venta = resumenTotales.get(j).get(6).replaceAll(",", "");
 						resumen.total = resumenTotales.get(j).get(4).replaceAll(",", "");
 						datos.resumen.add(resumen);
-						
-						
 						//INV INICIAL
 						List<List<String>> inicioPer = mapInicioPer.get(resumenTotales.get(j).get(0));
 						if(inicioPer==null) {
@@ -210,47 +187,42 @@ public class ResumenDetallePorPeriodo {
 							inventario.cfi = inicioPer.get(k).get(23).replaceAll(",", "");
 							inventario.arriendo = inicioPer.get(k).get(18).replaceAll(",", "");
 							inventario.venta = inicioPer.get(k).get(19).replaceAll(",", "");
-		    				datos.inventarioInicial.add(inventario);
+							datos.inventarioInicial.add(inventario);
 						}
-						
-						
 						//DETALLE
 						List<List<String>> guiasPer = mapGuiasPer.get(id_bodegaCliente);
 						if(guiasPer==null) {
 							guiasPer = new ArrayList<List<String>>();
 						}
 						for(int k=0; k<guiasPer.size(); k++){
-							
+
 							Long id_guia = Long.parseLong(guiasPer.get(k).get(3));
 							Guia guia = mapGuias.get(id_guia);
-							
+
 							if(guia!=null) {
 								DetalleMovimientos detalle = new DetalleMovimientos();
 								detalle.nro_movimiento = sinFormato.format(guia.numero);
 								detalle.id_bodegaCliente = id_bodegaCliente;
-			    				detalle.fecha = guia.fecha;
-			    				detalle.nro_coti = guiasPer.get(k).get(8);
-			    				detalle.codigo = guiasPer.get(k).get(9);
-			    				detalle.equipo = guiasPer.get(k).get(10);
-			    				detalle.un = guiasPer.get(k).get(11);
-			    				detalle.cantidad = guiasPer.get(k).get(12).replaceAll(",", "");
-			    				detalle.moneda = guiasPer.get(k).get(13);
-			    				detalle.p_venta = guiasPer.get(k).get(14).replaceAll(",", "");
-			    				detalle.arrXdia = guiasPer.get(k).get(15).replaceAll(",", "");
-			    				detalle.dias = guiasPer.get(k).get(16).replaceAll(",", "");
-			    				detalle.tasa_cambio = guiasPer.get(k).get(17).replaceAll(",", "");
-			    				detalle.cfi = guiasPer.get(k).get(23).replaceAll(",", "");
-			    				detalle.arriendo = guiasPer.get(k).get(18).replaceAll(",", "");
-			    				detalle.venta = guiasPer.get(k).get(19).replaceAll(",", "");
-			    				datos.detalleMovimientos.add(detalle);
+								detalle.fecha = guia.fecha;
+								detalle.nro_coti = guiasPer.get(k).get(8);
+								detalle.codigo = guiasPer.get(k).get(9);
+								detalle.equipo = guiasPer.get(k).get(10);
+								detalle.un = guiasPer.get(k).get(11);
+								detalle.cantidad = guiasPer.get(k).get(12).replaceAll(",", "");
+								detalle.moneda = guiasPer.get(k).get(13);
+								detalle.p_venta = guiasPer.get(k).get(14).replaceAll(",", "");
+								detalle.arrXdia = guiasPer.get(k).get(15).replaceAll(",", "");
+								detalle.dias = guiasPer.get(k).get(16).replaceAll(",", "");
+								detalle.tasa_cambio = guiasPer.get(k).get(17).replaceAll(",", "");
+								detalle.cfi = guiasPer.get(k).get(23).replaceAll(",", "");
+								detalle.arriendo = guiasPer.get(k).get(18).replaceAll(",", "");
+								detalle.venta = guiasPer.get(k).get(19).replaceAll(",", "");
+								datos.detalleMovimientos.add(detalle);
 							}
-							
 						}
-						
 						//AJUSTES
 						List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, db, Long.parseLong(id_bodegaCliente), desdeAAMMDD, hastaAAMMDD);
 						for(List<String> lista: detalleAjuste ) {
-							
 							Ajustes ajustes = new Ajustes();
 							ajustes.id_bodegaCliente = id_bodegaCliente;
 							ajustes.concepto = lista.get(0);
@@ -261,8 +233,11 @@ public class ResumenDetallePorPeriodo {
 					}
 				}
 			}
-			
-		
+		} catch (Exception e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
 		return (datos);
 	}
 	

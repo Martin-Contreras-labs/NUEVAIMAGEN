@@ -60,6 +60,10 @@ public class ReportFacturas {
 		this.resumenInvInicial = resumenInvInicial;
 	}
 
+	public ReportFacturas() {
+		super();
+	}
+
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatint = new DecimalFormat("#,##0");
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
