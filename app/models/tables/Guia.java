@@ -1062,7 +1062,8 @@ public class Guia {
 		return (aux);
 	}
 	
-	public static List<Guia> allDesdeHastaSinNumNegClientesVig(Connection con, String db, String permisoPorBodega, String desde, String hasta, String esPorSucursal, String id_sucursal, boolean paraModificar) {
+	public static List<Guia> allDesdeHastaSinNumNegClientesVig(Connection con, String db, String permisoPorBodega, String desde, String hasta, String esPorSucursal, String id_sucursal, boolean paraModificar,
+						   Map<Long,BodegaEmpresa> bodegas, Map<Long,Ot> ots, Map<Long,Comercial> mapComercial, Map<Long,List<Long>> mapIdvsNumCotiSucur, Map<Long,List<String>> mapIdvsFechActEnvio) {
 		List<Guia> aux = new ArrayList<Guia>();
 		try {
 			PreparedStatement smt = con
@@ -1097,12 +1098,7 @@ public class Guia {
 			smt.setString(2, hasta);
 
 			ResultSet rs = smt.executeQuery();
-			Map<Long,BodegaEmpresa> bodegas = BodegaEmpresa.mapAll(con, db);
-			Map<Long,Ot> ots = Ot.mapAll(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			
-			Map<Long,List<Long>> mapIdvsNumCotiSucur = Cotizacion.mapIdvsNumCotiSucur(con, db);
-			Map<Long,List<String>> mapIdvsFechActEnvio = Ot.mapIdvsFechActEnvio(con, db);
+
 			
 			while (rs.next()) {
 
@@ -1211,155 +1207,6 @@ public class Guia {
 		}
 		return (aux);
 	}
-	
-	public static List<Guia> allLimit3000SinNumNeg(Connection con, String db, String esPorSucursal, String id_sucursal, boolean paraModificar, int limit) {
-		List<Guia> aux = new ArrayList<Guia>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  "
-							+ "guia.id, "
-							+ "guia.numero, "
-							+ "guia.fecha, "
-							+ "guia.docAnexo, "
-					/*5*/	+ "guia.guiaPDF, "
-							+ "guia.guiaXml, "
-							+ "guia.observaciones, "
-							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
-							+ "guia.id_cotizacion, "
-							+ "guia.id_ot, "
-							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
-							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, " 
-							+ "guia.totalM2 "
-							+ " from `"+db+"`.guia " +
-							" where guia.numero > 0 "+
-							" order by guia.fecha desc, guia.id desc limit "+limit+";" );
-			
-			ResultSet rs = smt.executeQuery();
-			Map<Long,BodegaEmpresa> bodegas = BodegaEmpresa.mapAll(con, db);
-			Map<Long,Ot> ots = Ot.mapAll(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			
-			Map<Long,List<Long>> mapIdvsNumCotiSucur = Cotizacion.mapIdvsNumCotiSucur(con, db);
-			Map<Long,List<String>> mapIdvsFechActEnvio = Ot.mapIdvsFechActEnvio(con, db);
-			
-			
-			
-			
-			
-			while (rs.next()) {
-
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
-				
-				String nameSucursalOrigen = "Sin Sucursal";
-				Long id_sucursalOrigen = (long)0;
-				String nombreBodegaOrigen = ""; 
-				String tipoGuia = "";
-				if(bodegaOrigen!=null) { 
-					nombreBodegaOrigen = bodegaOrigen.getNombre();
-					nameSucursalOrigen = bodegaOrigen.getNameSucursal(); 
-					id_sucursalOrigen = bodegaOrigen.getId_sucursal();
-					tipoGuia = Guia.tipoGuia(db, bodegaOrigen, bodegaDestino);
-				}
-				
-				String nameSucursalDestino = "Sin Sucursal";
-				Long id_sucursalDestino = (long)0;
-				String nombreBodegaDestino = "";
-				if(bodegaDestino!=null) { 
-					nombreBodegaDestino = bodegaDestino.getNombre();
-					nameSucursalDestino = bodegaDestino.getNameSucursal();
-					id_sucursalDestino = bodegaDestino.getId_sucursal();
-				}
-				
-				Ot ot = ots.get(rs.getLong(13));
-				Long numeroOt = (long)0; 
-				if(ot!=null) { 
-					numeroOt = ot.numero; 
-				}
-				
-				String nameComercial = "";
-    			if(bodegaOrigen!=null && (long)bodegaOrigen.getEsInterna() == (long)2) {
-    				if(bodegaOrigen.getId_comercial().toString().equals("0")) {
-    					nameComercial = "Sin Comercial";
-    				}else {
-    					Comercial comercial = mapComercial.get(bodegaOrigen.getId_comercial());
-    					if(comercial!=null) {
-    						nameComercial = comercial.nameUsuario;
-	    				}
-    				}
-    			}else if(bodegaDestino!=null && (long)bodegaDestino.getEsInterna() == (long)2){
-    				if(bodegaDestino.getId_comercial().toString().equals("0")) {
-    					nameComercial = "Sin Comercial";
-    				}else {
-    					Comercial comercial = mapComercial.get(bodegaDestino.getId_comercial());
-	    				if(comercial!=null) {
-	    					nameComercial = comercial.nameUsuario;
-	    				}
-    				}
-    			}else {
-    				nameComercial = "";
-    			}
-    			
-    			String fechaActualizacion = "";
-    			String fechaEnvio = "";
-    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
-    			if(auxFecha!=null) {
-    				fechaActualizacion = auxFecha.get(0);
-    				fechaEnvio = auxFecha.get(1);
-    			}
-    			
-    			Long numCoti = (long)0;
-    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
-    			if(auxNumCotiSucur!=null) {
-    				numCoti = auxNumCotiSucur.get(0);
-    			}
-    			
-    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
-				
-				if(bodegaOrigen!=null && bodegaDestino!=null && esPorSucursal.equals("1")) {
-					if(paraModificar) {
-						if(bodegaOrigen.getId_sucursal().toString().equals(id_sucursal) && bodegaDestino.getId_sucursal().toString().equals(id_sucursal)) {
-							aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-									rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-									numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2));
-						}
-					}else {
-						if(bodegaOrigen.getId_sucursal().toString().equals(id_sucursal) || bodegaDestino.getId_sucursal().toString().equals(id_sucursal)) {
-							aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-									rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-									numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2));
-						}
-					}
-					
-				}else {
-					aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-							rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-							numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-							id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2));
-				}
-				
-			}
-			rs.close();
-			smt.close();
-		} catch (SQLException e) {
-				e.printStackTrace();
-		}
-		return (aux);
-	}
-	
 	
 	
 	public static List<Guia> all(Connection con, String db) {

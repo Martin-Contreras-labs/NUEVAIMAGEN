@@ -708,16 +708,48 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/",msgSinPermiso));
 			}
+			String desdeAAMMDD = null;
+			String hastaAAMMDD = null;
+			String permisoPorBodega = null;
 			try (Connection con = dbRead.getConnection()){
-				String desdeAAMMDD = form.get("fechaDesde").trim();
-				String hastaAAMMDD = form.get("fechaHasta").trim();
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				desdeAAMMDD = form.get("fechaDesde").trim();
+				hastaAAMMDD = form.get("fechaHasta").trim();
+				permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 				if(permisoPorBodega.trim().length() > 5) {
 					permisoPorBodega = permisoPorBodega.replaceAll("`movimiento`.`id_bodegaEmpresa`", "`guia`.`id_bodegaDestino`");
 					permisoPorBodega = permisoPorBodega.replaceAll("and ", " ");
 					permisoPorBodega = " and (" + permisoPorBodega + " or " + permisoPorBodega.replaceAll("`guia`.`id_bodegaDestino`", "`guia`.`id_bodegaOrigen`") + ") ";
 				}
-				List<Guia> listaGuias = Guia.allDesdeHastaSinNumNegClientesVig(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			Map<Long,BodegaEmpresa> bodegas = null;
+			Map<Long,Ot> ots = null;
+			Map<Long,Comercial> mapComercial = null;
+			try (Connection con = dbRead.getConnection()){
+				bodegas = BodegaEmpresa.mapAll(con, s.baseDato);
+				ots = Ot.mapAll(con, s.baseDato);
+				mapComercial = Comercial.mapAllComerciales(con, s.baseDato);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			Map<Long,List<Long>> mapIdvsNumCotiSucur = null;
+			Map<Long,List<String>> mapIdvsFechActEnvio = null;
+			try (Connection con = dbRead.getConnection()){
+				mapIdvsNumCotiSucur = Cotizacion.mapIdvsNumCotiSucur(con, s.baseDato);
+				mapIdvsFechActEnvio = Ot.mapIdvsFechActEnvio(con, s.baseDato);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			try (Connection con = dbRead.getConnection()){
+				List<Guia> listaGuias = Guia.allDesdeHastaSinNumNegClientesVig(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal, false,
+						bodegas, ots, mapComercial, mapIdvsNumCotiSucur, mapIdvsFechActEnvio);
 				String jsonGuias = Json.toJson(listaGuias).toString();
 				return ok("{\"jsonGuias\":"+jsonGuias+"}").as("application/json");
 			} catch (SQLException e) {
