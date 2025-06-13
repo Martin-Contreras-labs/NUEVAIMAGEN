@@ -21,8 +21,6 @@ public class FormBodegaGraba {
 	public Long id_sucursal;
 	public Long id_comercial;
 
-	
-	
 	public List<Long> idsMoneda;
 	public List<Double> tasaCambio;
 

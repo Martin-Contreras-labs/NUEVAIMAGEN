@@ -75,6 +75,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -236,7 +237,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -358,7 +359,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		FormMantencion form = formFactory.form(FormMantencion.class).withDirectFieldAccess(true).bindFromRequest(request).get();
@@ -434,7 +435,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -444,6 +445,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report",msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -467,10 +469,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -514,7 +517,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -552,10 +555,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -591,10 +595,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -629,13 +634,14 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Archivos archivos = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (archivos != null) {
 			if(archivos.docAdjunto != null) {
 				DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 					logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -674,7 +680,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -706,10 +712,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -750,7 +757,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -781,10 +788,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		if( ! (s.id_tipoUsuario.equals("0") || mapeoPermiso.get("id_sucursal").equals("0"))) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -855,7 +863,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -934,7 +942,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		FormMantencion form = formFactory.form(FormMantencion.class).withDirectFieldAccess(true).bindFromRequest(request).get();
@@ -999,7 +1007,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1026,7 +1034,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1044,10 +1052,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1080,7 +1089,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1091,6 +1100,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report",msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1114,10 +1124,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -1151,10 +1162,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1196,7 +1208,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1223,7 +1235,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1241,10 +1253,11 @@ public class MnuMantencion extends Controller {
 		  String className = this.getClass().getSimpleName();
 		  String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		  if (!s.isValid()) {
-			  logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			  // logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			  return ok(mensajes.render("/report", msgError));
 		  }
 		  DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		  if (form.hasErrors()) {
 				logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1278,7 +1291,7 @@ public class MnuMantencion extends Controller {
 			String className = this.getClass().getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			if (!s.isValid()) {
-			  logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			  // logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			  return ok(mensajes.render("/report", msgError));
 			}
 			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1289,6 +1302,7 @@ public class MnuMantencion extends Controller {
 				  return ok(mensajes.render("/report",msgSinPermiso));
 			  }
 			DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 			if (form.hasErrors()) {
 				logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1312,10 +1326,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-		  logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+		  // logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1349,10 +1364,11 @@ public class MnuMantencion extends Controller {
 			String className = this.getClass().getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			if (!s.isValid()) {
-			  logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			  // logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			  return ok(mensajes.render("/report", msgError));
 			}
       		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
   	   		if (form.hasErrors()) {
 				logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1393,7 +1409,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1420,7 +1436,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1438,10 +1454,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1475,7 +1492,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1486,6 +1503,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1509,10 +1527,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -1546,10 +1565,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1591,7 +1611,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1618,7 +1638,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1636,10 +1656,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1673,7 +1694,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1684,6 +1705,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1707,10 +1729,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok("error");
@@ -1744,10 +1767,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1789,7 +1813,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1816,7 +1840,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1834,10 +1858,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1871,7 +1896,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1882,6 +1907,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1905,10 +1931,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok("error");
@@ -1942,10 +1969,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -1987,7 +2015,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2014,7 +2042,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2032,10 +2060,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2069,7 +2098,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2080,6 +2109,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2103,10 +2133,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok("error");
@@ -2140,10 +2171,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2185,7 +2217,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2212,7 +2244,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2230,10 +2262,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2267,11 +2300,12 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2303,10 +2337,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok("error");
@@ -2340,10 +2375,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2386,7 +2422,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2413,7 +2449,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2441,7 +2477,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		MantOperadorMecanico form = formFactory.form(MantOperadorMecanico.class).withDirectFieldAccess(true).bindFromRequest(request).get();
@@ -2472,11 +2508,12 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2503,10 +2540,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2540,10 +2578,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2576,10 +2615,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2610,7 +2650,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2636,7 +2676,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2647,6 +2687,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2682,7 +2723,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2720,10 +2761,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2758,11 +2800,12 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal); 
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2793,13 +2836,14 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		Archivos archivos = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 		if (archivos != null) {
 			if(archivos.docAdjunto != null) {
 				DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 				if (form.hasErrors()) {
 					logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2832,7 +2876,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2865,10 +2909,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2903,7 +2948,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -2935,10 +2980,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2973,10 +3019,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3013,7 +3060,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -3079,7 +3126,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -3090,6 +3137,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3121,10 +3169,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3168,7 +3217,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -3198,10 +3247,11 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3238,7 +3288,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -3264,11 +3314,12 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3338,11 +3389,12 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3413,7 +3465,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -3439,11 +3491,12 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -3474,7 +3527,7 @@ public class MnuMantencion extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/report", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -3485,6 +3538,7 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));

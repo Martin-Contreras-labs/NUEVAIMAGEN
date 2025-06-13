@@ -72,6 +72,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -130,6 +131,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -169,6 +171,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -197,6 +200,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -318,6 +322,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -368,6 +373,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -414,6 +420,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -451,6 +458,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -517,6 +525,7 @@ public class MnuTablas extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -568,6 +577,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -641,6 +651,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -679,6 +690,7 @@ public class MnuTablas extends Controller {
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("{ \"status\": false}").as("application/json");
 		}else {
@@ -824,6 +836,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -862,6 +875,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -896,6 +910,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -934,6 +949,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1015,6 +1031,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1044,6 +1061,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1070,6 +1088,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1132,6 +1151,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1190,6 +1210,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1217,6 +1238,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1245,6 +1267,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1397,6 +1420,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1426,6 +1450,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1562,6 +1587,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1591,6 +1617,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1617,6 +1644,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1670,6 +1698,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1698,6 +1727,7 @@ public class MnuTablas extends Controller {
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("{ \"status\": false}").as("application/json");
 		}else {
@@ -1728,6 +1758,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1792,6 +1823,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1830,6 +1862,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1970,6 +2003,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -1999,6 +2033,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -2132,6 +2167,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2161,6 +2197,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2187,6 +2224,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2277,6 +2315,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2315,6 +2354,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2454,6 +2494,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2483,6 +2524,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -2584,6 +2626,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2707,6 +2750,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2746,6 +2790,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2886,6 +2931,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -2915,6 +2961,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3050,6 +3097,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3140,6 +3188,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3235,6 +3284,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3296,6 +3346,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3339,6 +3390,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3377,6 +3429,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3478,6 +3531,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3538,6 +3592,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3602,6 +3657,7 @@ public class MnuTablas extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3640,6 +3696,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3677,6 +3734,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3743,6 +3801,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -3809,6 +3868,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3851,6 +3911,7 @@ public class MnuTablas extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3898,6 +3959,7 @@ public class MnuTablas extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -3943,6 +4005,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -4007,6 +4070,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
@@ -4043,6 +4107,7 @@ public class MnuTablas extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -4155,6 +4220,7 @@ public class MnuTablas extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -4184,6 +4250,7 @@ public class MnuTablas extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {

@@ -123,6 +123,7 @@ public class MnuCompras extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -165,6 +166,7 @@ public class MnuCompras extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -348,6 +350,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -415,6 +418,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -529,6 +533,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -565,6 +570,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -646,6 +652,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -672,6 +679,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -708,6 +716,7 @@ public class MnuCompras extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -963,6 +972,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1125,6 +1135,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -1159,6 +1170,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -1192,6 +1204,7 @@ public class MnuCompras extends Controller {
 			return ok("error");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
@@ -1254,6 +1267,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1315,6 +1329,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1372,6 +1387,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1465,6 +1481,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1547,6 +1564,7 @@ public class MnuCompras extends Controller {
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -1582,6 +1600,7 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));

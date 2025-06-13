@@ -75,6 +75,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/odo", msgErrorFormulario));
@@ -207,7 +208,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -260,7 +261,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		VentaServicio form = formFactory.form(VentaServicio.class).withDirectFieldAccess(true).bindFromRequest(request).get();
@@ -323,7 +324,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		Archivos archivos = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
@@ -332,6 +333,7 @@ public class MnuOdoAppWeb extends Controller {
 		if (archivos != null) {
 			if(archivos.docAdjunto != null) {
 				DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 				if (form.hasErrors()) {
 					logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 					return ok(mensajes.render("/odo", msgErrorFormulario));
@@ -383,7 +385,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -425,7 +427,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -452,7 +454,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -479,10 +481,11 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/odo", msgErrorFormulario));
@@ -514,7 +517,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -541,10 +544,11 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/odo", msgErrorFormulario));
@@ -576,10 +580,11 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/odo", msgErrorFormulario));
@@ -604,7 +609,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -631,7 +636,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -658,7 +663,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -685,10 +690,11 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/odo", msgErrorFormulario));
@@ -1059,7 +1065,7 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -1085,11 +1091,12 @@ public class MnuOdoAppWeb extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/odo", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/odo", msgErrorFormulario));

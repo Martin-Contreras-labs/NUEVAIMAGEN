@@ -76,6 +76,7 @@ public class AppCPanel extends Controller {
     
     public Result inicioCPanel(Http.Request request) {
     	DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     	
    		if (form.hasErrors()) {
    			return ok(mensajes.render("/cpanel",msgErrorFormulario));
@@ -132,6 +133,7 @@ public class AppCPanel extends Controller {
     
     public Result cPanelModalItemsControlados(Http.Request request) {
     	DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
    		if (form.hasErrors()) { 
    			return ok("");
        	}else {
@@ -149,6 +151,7 @@ public class AppCPanel extends Controller {
     
     public Result cPanelModalVigentes(Http.Request request) {
     	DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
    		if (form.hasErrors()) { 
    			return ok("");
        	}else {
@@ -166,6 +169,7 @@ public class AppCPanel extends Controller {
     
     public Result cPanelModalNoVigentes(Http.Request request) {
     	DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
    		if (form.hasErrors()) { 
    			return ok("");
        	}else {
@@ -183,6 +187,7 @@ public class AppCPanel extends Controller {
     
     public Result inicioCPanel2(Http.Request request) {
     	DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
    		if (form.hasErrors()) {
    			return ok(mensajes.render("/cpanel",msgErrorFormulario));
        	}else {

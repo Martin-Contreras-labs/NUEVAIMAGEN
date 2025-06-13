@@ -4,12 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import models.tables.Cliente;
-import models.tables.Comunas;
-import models.tables.Cotizacion;
-import models.tables.Regiones;
+import controllers.HomeController;
+import models.tables.*;
 import models.utilities.Fechas;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class FormContrato {
@@ -90,71 +89,74 @@ public class FormContrato {
 		super();
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+
 	public static FormContrato find(Connection con, String db, Long idCotizacion) {
-		Cotizacion cotizacion = Cotizacion.find(con, db, idCotizacion);
-		Cliente cliente = Cliente.find(con, db, cotizacion.id_cliente);
 		FormContrato contrato = new FormContrato();
-		String numeroContrato = cotizacion.numeroContrato.trim();
-		if(numeroContrato.length()<=0) {
-			Fechas hoy = Fechas.hoy();
-			numeroContrato = hoy.getFechaStrAAMMDD().replaceAll("-", "") + "_" + cotizacion.numero.toString();
+		try {
+			Cotizacion cotizacion = Cotizacion.find(con, db, idCotizacion);
+			Cliente cliente = Cliente.find(con, db, cotizacion.id_cliente);
+			String numeroContrato = cotizacion.numeroContrato.trim();
+			if(numeroContrato.length()<=0) {
+				Fechas hoy = Fechas.hoy();
+				numeroContrato = hoy.getFechaStrAAMMDD().replaceAll("-", "") + "_" + cotizacion.numero.toString();
+			}
+			contrato.id_cotizacion=cotizacion.id;
+			contrato.id_cliente=cotizacion.id_cliente;
+			contrato.clienteNombre = cliente.nombre;
+			contrato.clienteRut = cliente.rut;
+			contrato.clienteRepresentante1 = cliente.nombreRepresentante1;
+			contrato.clienteRutRepresentante1 = cliente.rutRepresentante1;
+			contrato.clienteDireccion = cliente.direccion;
+			contrato.clienteRegion = cliente.region;
+			contrato.clienteComuna = cliente.comuna;
+			contrato.clienteOC = cotizacion.numeroOC;
+			contrato.clienteFechaOC = cotizacion.fechaOC;
+			contrato.clienteContacto = cliente.contactoFactura;
+			contrato.clienteCargoContacto = cliente.cargoContactoFactura;
+			contrato.fechaContrato = cotizacion.fechaContrato;
+			contrato.clienteCargoRepresentante1 = cliente.cargoRepresentante1;
+			contrato.numeroContrato = numeroContrato;
+			contrato.usadosEn = cotizacion.usadosEn;
+			contrato.garantiaDoc = cotizacion.garantiaDoc;
+			contrato.garantiaDet = cotizacion.garantiaDet;
+			contrato.garantiaVenc = cotizacion.garantiaVenc;
+			contrato.garantiaEquiv = cotizacion.garantiaEquiv;
+			contrato.clienteEMail = cliente.mailFactura;
+			contrato.clienteFono = cliente.fonoContacto;
+			contrato.clienteGiro = cliente.giro;
+			contrato.notasAlContrato = cotizacion.notasAlContrato;
+			contrato.listadoPlanos = cotizacion.listadoPlanos;
+			contrato.fechaPlanos = cotizacion.fechaPlanos;
+			contrato.nomRepresEmpresa = cotizacion.nomRepresEmpresa;
+			contrato.rutRepresEmpresa = cotizacion.rutRepresEmpresa;
+			contrato.direccionObra = cotizacion.direccionObra;
+		} catch (Exception e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		contrato.id_cotizacion=cotizacion.id;
-		contrato.id_cliente=cotizacion.id_cliente;
-		contrato.clienteNombre = cliente.nombre;
-		contrato.clienteRut = cliente.rut;
-		contrato.clienteRepresentante1 = cliente.nombreRepresentante1;
-		contrato.clienteRutRepresentante1 = cliente.rutRepresentante1;
-		contrato.clienteDireccion = cliente.direccion;
-		contrato.clienteRegion = cliente.region;
-		contrato.clienteComuna = cliente.comuna;
-		contrato.clienteOC = cotizacion.numeroOC;
-		contrato.clienteFechaOC = cotizacion.fechaOC;
-		contrato.clienteContacto = cliente.contactoFactura;
-		contrato.clienteCargoContacto = cliente.cargoContactoFactura;
-		contrato.fechaContrato = cotizacion.fechaContrato;
-		contrato.clienteCargoRepresentante1 = cliente.cargoRepresentante1;
-		contrato.numeroContrato = numeroContrato;
-		contrato.usadosEn = cotizacion.usadosEn;
-		contrato.garantiaDoc = cotizacion.garantiaDoc;
-		contrato.garantiaDet = cotizacion.garantiaDet;
-		contrato.garantiaVenc = cotizacion.garantiaVenc;
-		contrato.garantiaEquiv = cotizacion.garantiaEquiv;
-		contrato.clienteEMail = cliente.mailFactura;
-		contrato.clienteFono = cliente.fonoContacto;
-		contrato.clienteGiro = cliente.giro;
-		contrato.notasAlContrato = cotizacion.notasAlContrato;
-		
-		contrato.listadoPlanos = cotizacion.listadoPlanos;
-		contrato.fechaPlanos = cotizacion.fechaPlanos;
-		contrato.nomRepresEmpresa = cotizacion.nomRepresEmpresa;
-		contrato.rutRepresEmpresa = cotizacion.rutRepresEmpresa;
-		contrato.direccionObra = cotizacion.direccionObra;
-		
-		
 		return (contrato);
 	}
 	
 	public static boolean update(Connection con, String db, FormContrato contrato) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.cliente set "
-							+ " rut = ?,"
-							+ " nombre = ?,"
-							+ " direccion = ?,"
-							+ " cod_region = ?,"
-							+ " cod_comuna = ?,"
-							+ " contactoFactura=?,"
-							+ " rutRepresentante1=?,"
-							+ " nombreRepresentante1=?,"
-							+ " cargoContactoFactura=?,"
-							+ " cargoRepresentante1=?, "
-							+ " mailFactura=?, "
-							+ " fonoContacto=?, "
-							+ " giro=? "
-							+ " WHERE id = ?");
-			
+		String query = String.format("update `%s`.cliente set "
+				+ " rut = ?,"
+				+ " nombre = ?,"
+				+ " direccion = ?,"
+				+ " cod_region = ?,"
+				+ " cod_comuna = ?,"
+				+ " contactoFactura=?,"
+				+ " rutRepresentante1=?,"
+				+ " nombreRepresentante1=?,"
+				+ " cargoContactoFactura=?,"
+				+ " cargoRepresentante1=?, "
+				+ " mailFactura=?, "
+				+ " fonoContacto=?, "
+				+ " giro=? "
+				+ " WHERE id = ?",db);
+		try (PreparedStatement smt = con.prepareStatement(query)) {
 			Regiones region= Regiones.findPorNombre(con, db, contrato.clienteRegion);
 			String codRegion="--";
 			if(region!=null) {
@@ -163,7 +165,6 @@ public class FormContrato {
 					codRegion="--";
 				}
 			}
-			
 			Comunas comuna= Comunas.findPorNombre(con, db, contrato.clienteComuna);
 			String codComuna = "--";
 			if(comuna!=null) {
@@ -172,7 +173,6 @@ public class FormContrato {
 					codComuna = "--";
 				}
 			}
-			
 			smt.setString(1, contrato.clienteRut.trim());
 			smt.setString(2, contrato.clienteNombre.trim());
 			smt.setString(3, contrato.clienteDireccion.trim());
@@ -188,13 +188,9 @@ public class FormContrato {
 			smt.setString(13, contrato.clienteGiro.trim());
 			smt.setLong(14, contrato.id_cliente);
 			smt.executeUpdate();
-			smt.close();
-			
-			
 			String fechaOC = contrato.clienteFechaOC;
 			String fechaContrato = contrato.fechaContrato;
 			String garantiaVenc = contrato.garantiaVenc;
-			
 			if(!fechaOC.equals("")){
 				fechaOC = "fechaOC = '"+fechaOC+"',";
 			}
@@ -204,9 +200,7 @@ public class FormContrato {
 			if(!garantiaVenc.equals("")){
 				garantiaVenc = "garantiaVenc = '"+garantiaVenc+"',";
 			}
-			
-			PreparedStatement smt2 = con
-					.prepareStatement("update `"+db+"`.cotizacion set "
+			query = String.format("update `%s`.cotizacion set "
 							+ " numeroOC = ?,"
 							+ fechaOC
 							+ fechaContrato
@@ -217,36 +211,33 @@ public class FormContrato {
 							+ " garantiaDet=?, "
 							+ " garantiaEquiv=?, "
 							+ " notasAlContrato=?, "
-							
 							+ " nomRepresEmpresa=?, "
 							+ " rutRepresEmpresa=?, "
 							+ " listadoPlanos=?, "
 							+ " fechaPlanos=?, "
 							+ " direccionObra=? "
-							+ " WHERE id = ?");
-			
-			smt2.setString(1, contrato.clienteOC.trim());
-			smt2.setString(2, contrato.numeroContrato.trim());
-			smt2.setString(3, contrato.usadosEn.trim());
-			smt2.setString(4, contrato.garantiaDoc.trim());
-			smt2.setString(5, contrato.garantiaDet.trim());
-			smt2.setString(6, contrato.garantiaEquiv.trim());
-			smt2.setString(7, contrato.notasAlContrato.trim());
-			
-			smt2.setString(8, contrato.nomRepresEmpresa.trim());
-			smt2.setString(9, contrato.rutRepresEmpresa.trim());
-			smt2.setString(10, contrato.listadoPlanos.trim());
-			smt2.setString(11, contrato.fechaPlanos.trim());
-			smt2.setString(12, contrato.direccionObra.trim());
-			
-			smt2.setLong(13, contrato.id_cotizacion);
-			
-			
-			smt2.executeUpdate();
-			smt2.close();
-			flag = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
+							+ " WHERE id = ?",db);
+			try (PreparedStatement smt2 = con.prepareStatement(query)) {
+				smt2.setString(1, contrato.clienteOC.trim());
+				smt2.setString(2, contrato.numeroContrato.trim());
+				smt2.setString(3, contrato.usadosEn.trim());
+				smt2.setString(4, contrato.garantiaDoc.trim());
+				smt2.setString(5, contrato.garantiaDet.trim());
+				smt2.setString(6, contrato.garantiaEquiv.trim());
+				smt2.setString(7, contrato.notasAlContrato.trim());
+				smt2.setString(8, contrato.nomRepresEmpresa.trim());
+				smt2.setString(9, contrato.rutRepresEmpresa.trim());
+				smt2.setString(10, contrato.listadoPlanos.trim());
+				smt2.setString(11, contrato.fechaPlanos.trim());
+				smt2.setString(12, contrato.direccionObra.trim());
+				smt2.setLong(13, contrato.id_cotizacion);
+				smt2.executeUpdate();
+				flag = true;
+			}
+		} catch (Exception e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}

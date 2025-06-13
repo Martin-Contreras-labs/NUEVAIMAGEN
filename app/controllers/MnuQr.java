@@ -63,7 +63,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -90,7 +90,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -117,10 +117,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -152,10 +153,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -181,11 +183,12 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -238,10 +241,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -269,10 +273,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -300,11 +305,12 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -332,10 +338,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -363,10 +370,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -395,10 +403,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -426,10 +435,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok("{ \"status\": false}").as("application/json");
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
@@ -464,7 +474,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -491,7 +501,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -520,10 +530,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return redirect("/qrListaAtributoEquipos/");
 		}else {
@@ -548,7 +559,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		try (Connection con = dbWrite.getConnection()){
@@ -571,7 +582,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -598,10 +609,11 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
 		if (form.hasErrors()) {
 			return redirect("/qrListaAtributoEquipos/");
 		}else {
@@ -629,7 +641,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
@@ -656,7 +668,7 @@ public class MnuQr extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
@@ -764,6 +776,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
     			return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existe imagen a mostrar"));
     	    } else {
@@ -799,6 +812,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
     			return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existen atributos a mostrar"));
     	    } else {
@@ -837,6 +851,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
 				return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existe ubicación a mostrar"));
 		    } else {
@@ -905,6 +920,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
     			return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existe ubicación a mostrar"));
 		    } else {
@@ -938,6 +954,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
     			return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existe ubicación a mostrar"));
 		    } else {
@@ -971,6 +988,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
     			return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existe ubicación a mostrar"));
 		    } else {
@@ -1003,6 +1021,7 @@ public class MnuQr extends Controller {
 		Sessiones s = new Sessiones(request, "soloQr");
     	if(s.strEncoded!=null) {
     		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
     		if (form.hasErrors()) {
     			return ok(mensajesQr.render("leeUnQr/"+s.strEncoded,"No existe imagen a mostrar"));
 		    } else {

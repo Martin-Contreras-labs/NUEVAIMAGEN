@@ -18,7 +18,6 @@ public class FormClienteGraba {
 	public String nombreRepresentante2;
 	public String formaDePago;
 	public String especialidad;
-	
 
 	public FormClienteGraba(String rut, String nombre, String nickName, String direccion, String cod_region,
 			String cod_comuna, String ciudad, String giro, String mailFactura, String fonoContacto,
