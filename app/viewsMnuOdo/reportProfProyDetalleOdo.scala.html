@@ -285,7 +285,7 @@ listReferencias: List[tables.TipoReferencia], agrupadoPorServicio: List[List[Str
 						<td style="background-color: #9FF781" colspan="7">TOTALES NETO (sin ajustes)</td>
 						<td style="background-color: #9FF781"><div align="right" id="resumenTot1"></div></td>
 						<td style="background-color: #9FF781"><div align="right" id="resumenTot2"></div></td>
-						
+
 						<td style="background-color: #9FF781"><div align="right" id="resumenTot21"></div></td>
 						<td style="background-color: #9FF781"><div align="right" id="resumenTot22"></div></td>
 						<td style="background-color: #9FF781"><div align="right" id="resumenTot23"></div></td>
@@ -396,28 +396,32 @@ listReferencias: List[tables.TipoReferencia], agrupadoPorServicio: List[List[Str
 					let subtotal = 0;
 					$(".resumenTot1").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTot1").text(formatStandar(subtotal,'2'));
 					
 					subtotal = 0;
 					$(".resumenTot2").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTot2").text(formatStandar(subtotal,'@cantDec'));
 					
 					subtotal = 0;
 					$(".total7").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#total7").text(formatStandar(subtotal,'@cantDec'));
 					
 					subtotal = 0;
 					$(".resumenTotal1").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTotal1").text(formatStandar(subtotal,'@cantDec'));
 					
@@ -425,28 +429,32 @@ listReferencias: List[tables.TipoReferencia], agrupadoPorServicio: List[List[Str
 					subtotal = 0;
 					$(".resumenTot21").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTot21").text(formatStandar(subtotal,'2'));
 					
 					subtotal = 0;
 					$(".resumenTot22").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTot22").text(formatStandar(subtotal,'@cantDec'));
 					
 					subtotal = 0;
 					$(".resumenTot23").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTot23").text(formatStandar(subtotal,'@cantDec'));
 					
 					subtotal = 0;
 					$(".resumenTot24").each(function() {
 						let val = $(this).text().replace(/,/g,'');
-						subtotal += parseFloat(val);
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
 					});
 					$("#resumenTot24").text(formatStandar(subtotal,'@cantDec'));
 					

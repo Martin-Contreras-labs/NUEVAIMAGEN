@@ -16,6 +16,7 @@ listSucursales: List[tables.Sucursal])
 							@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 								<TH>IVA</TH>
 							}
+							<TH>CCOST</TH>
 							<TH>EDIT</TH>
 							<TH>DEL</TH>
 						</TR>
@@ -32,6 +33,7 @@ listSucursales: List[tables.Sucursal])
 									}
 									
 								}
+								<td  style="text-align:left;">@lista1.getCcost()</td>
 								<td  style="text-align:center;">
 									<form id="form_@lista1.getId()" method="post" action="/routes2/sucursalModifica/">
 										<input type="hidden" name="id_sucursal" value="@lista1.getId()">

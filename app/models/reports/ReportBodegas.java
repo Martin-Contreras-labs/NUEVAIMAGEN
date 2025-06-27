@@ -57,7 +57,8 @@ public class ReportBodegas {
 		List<List<String>> datos = new ArrayList<List<String>>();
 		try {
 			List<List<String>> lista = new ArrayList<List<String>>();
-			PreparedStatement smt = con.prepareStatement("select id_sucursal, id_cliente, id_proyecto, id_comercial, id_bodegaEmpresa, vigente, nombre, sum(if(id_tipoMovimiento=1,1,-1)*cantidad)"
+			PreparedStatement smt = con.prepareStatement("select id_sucursal, id_cliente, id_proyecto, id_comercial, id_bodegaEmpresa," +
+					" vigente, nombre, sum(if(id_tipoMovimiento=1,1,-1)*cantidad)"
 					+ " from `"+db+"`.movimiento"
 					+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
 					+ " where esVenta=0 and esInterna=2"
@@ -161,7 +162,7 @@ public class ReportBodegas {
 			
 			lista.forEach(x->{
 				String vigente = "Vigente";
-				if(x.get(4).equals("0")) {
+				if(x.get(5).equals("0")) {
 					vigente = "NO Vigente";
 				}
 				String nomSucursal = "";

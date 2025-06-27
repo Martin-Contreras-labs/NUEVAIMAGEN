@@ -1323,7 +1323,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 		        }
 			} );
-			alertify.alert('NO PUEDE VERIFICAR UNA COTIZACION SIN CANTIDADES', function () { });
+			alertify.alert('NO PUEDE VERIFICAR UNA COTIZACION SIN UN VALOR O PRECIO IGUAL A CERO (al menos uno de los items con cantidades a cotizar debe estar valorizado)', function () { });
 		}
 	}
 	

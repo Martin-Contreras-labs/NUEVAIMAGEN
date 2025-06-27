@@ -20,6 +20,9 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import com.google.protobuf.MapEntry;
+import models.calculo.*;
+import models.reports.*;
 import models.tables.*;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -47,28 +50,8 @@ import models.api.ApiSapConconcreto;
 import models.api.ApiSapSchwager;
 import models.api.WebIConstruye;
 import models.api.WebMaximise;
-import models.calculo.Calc_AjustesEP;
-import models.calculo.Calc_BodegaEmpresa;
-import models.calculo.Calc_Precio;
-import models.calculo.Inventarios;
-import models.calculo.ModCalc_GuiasPer;
-import models.calculo.ModCalc_InvInicial;
-import models.calculo.ModeloCalculo;
 import models.forms.FormFactura;
 import models.forms.FormGrafico;
-import models.reports.ReportBodegas;
-import models.reports.ReportEjecutivos;
-import models.reports.ReportExcedentes;
-import models.reports.ReportFacturaConsolidado;
-import models.reports.ReportFacturas;
-import models.reports.ReportGerenciales;
-import models.reports.ReportGraficos;
-import models.reports.ReportHohe;
-import models.reports.ReportInventarios;
-import models.reports.ReportKilos;
-import models.reports.ReportMovimientos;
-import models.reports.ReportTrazabilidades;
-import models.reports.ReportVentas;
 import models.utilities.Archivos;
 import models.utilities.DatabaseRead;
 import models.utilities.DecimalFormato;
@@ -89,6 +72,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.mensajes;
+import viewsMnuOdo.html.reportProfProyDetalleOdo;
 import viewsMnuReportes.html.*;
 
 import org.slf4j.Logger;
@@ -2246,18 +2230,18 @@ public class MnuReportes extends Controller {
 									+ "</form>"
 									+ "</td>"
 									+ "<td style=\"text-align:center;vertical-align:middle;\">"
-									+ "<form id=\"form1_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosDetalle/\">"
-									+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
-									+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
-									+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
-									+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
-									+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
-									+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
-									+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
-									+ "<a href=\"#\" onclick=\"document.getElementById('form1_" + lista1.get(1) + "').submit()\">"
-									+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
-									+ "</a>"
-									+ "</form>"
+										+ "<form id=\"form1_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reporteMovimientosDetalle/\">"
+											+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
+											+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+											+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+											+ "<input type=\"hidden\" name=\"esVenta\" value=\"1\">"
+											+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+											+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+											+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+											+ "<a href=\"#\" onclick=\"document.getElementById('form1_" + lista1.get(1) + "').submit()\">"
+												+ "<kbd style=\"background-color: #73C6B6\">Ventas</kbd>"
+											+ "</a>"
+										+ "</form>"
 									+ "</td>";
 						}
 					}
@@ -5661,6 +5645,7 @@ public class MnuReportes extends Controller {
 			Double uf = null;
 			Double usd = null;
 			Double eur = null;
+			Map<Long,Long> mapDec = null;
 			try (Connection con = dbRead.getConnection()) {
 				desdeAAMMDD = form.get("fechaDesde").trim();
 				hastaAAMMDD = form.get("fechaHasta").trim();
@@ -5690,6 +5675,7 @@ public class MnuReportes extends Controller {
 				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				dec = Moneda.numeroDecimal(con, s.baseDato);
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+				mapDec = Moneda.numeroDecimal(con, s.baseDato);
 
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -5726,8 +5712,6 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
-				mapFijaTasas = null;
-				tasas = null;
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -5756,6 +5740,30 @@ public class MnuReportes extends Controller {
 					}
 					proyectos = aux;
 				}
+
+				Map<String,List<String>> mapServicios = new HashMap<String,List<String>>();
+				try (Connection con = dbRead.getConnection()) {
+					Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+					Long id_grupo = (long)0;
+					Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
+
+					Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
+					Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
+					List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
+					List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+					for(List<String> x: resumenTotalesPorProyecto){
+						mapServicios.put(x.get(0),x);
+					}
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+
+
+
 				String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
 						+ "<thead style=\"background-color: #eeeeee\">"
 						+ "<TR> "
@@ -5766,28 +5774,48 @@ public class MnuReportes extends Controller {
 						+ "<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>"
 						+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en " + mapeoDiccionario.get("PESOS") + ")</TH>"
 						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>" + mapeoDiccionario.get("ARRIENDO") + "</TH>"
-//						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
+				+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
+				+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>SERVICIO</TH>"
 						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(" + mapeoDiccionario.get("ARRIENDO") + ")</TH>"
-//						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
+				+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
+				+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(SERVICIO)</TH>"
 						+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en " + mapeoDiccionario.get("PESOS") + ")</TH>"
 						+ "<TH width=\"5%\" >" + mapeoDiccionario.get("ARRIENDO") + "<BR></TH>"
-//						+ "<TH width=\"5%\" >VENTA<BR></TH>"
+				+ "<TH width=\"5%\" >VENTA<BR></TH>"
+				+ "<TH width=\"5%\" >SERVICIO<BR></TH>"
+				+ "<TH width=\"5%\" >TODO<BR></TH>"
 						+ "</TR>"
 						+ "</thead>"
 						+ "<tbody>";
 
+				Map<String,String> mapAuxParaRevisaServ = new HashMap<String,String>();
 				for (List<String> lista1 : proyectos) {
-
 					for (List<String> total : resumenTotales) {
 						if (lista1.get(1).equals(total.get(0))) {
-							Double vta = 0.0;
-							Double ajVta = 0.0;
-							Double auxTotal = 0.0;
-							try{vta=Double.parseDouble(total.get(2).replaceAll(",",""));}catch(Exception e){vta=0.0;}
-							try{ajVta=Double.parseDouble(total.get(6).replaceAll(",",""));}catch(Exception e){ajVta=0.0;}
-							try{auxTotal=Double.parseDouble(total.get(4).replaceAll(",",""));}catch(Exception e){auxTotal=0.0;}
-							auxTotal = auxTotal - vta - ajVta;
+							Double auxTotal = (double)0;
+							try{
+								auxTotal=Double.parseDouble(total.get(4).replaceAll(",",""));
+							}catch(Exception e){}
+							List<String> servicios = mapServicios.get(total.get(0));
+							String servVta = DecimalFormato.formato(0.0,mapDec.get(1L));
+							String servAjuste =  DecimalFormato.formato(0.0,mapDec.get(1L));
+
+							if(servicios!=null){
+								Double auxServVta=0.0;
+								Double auxServAjuste=0.0;
+								try{
+									auxServVta = Double.parseDouble(servicios.get(5).replaceAll(",",""));
+									servVta = servicios.get(5);
+								}catch(Exception e){}
+								try{
+									auxServAjuste = Double.parseDouble(servicios.get(6).replaceAll(",",""));
+									servAjuste = servicios.get(6);
+								}catch(Exception e){}
+								auxTotal += auxServVta + auxServAjuste;
+							}
 							if( auxTotal > 0) {
+								mapAuxParaRevisaServ.put(lista1.get(1),lista1.get(1));
+								String totales = DecimalFormato.formato(auxTotal,mapDec.get(1L));
 								tabla += "<TR>";
 								tabla += "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(14) + "</td>"
 										+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoBodega('" + lista1.get(1) + "');\">" + lista1.get(5) + "</a></td>"
@@ -5796,13 +5824,15 @@ public class MnuReportes extends Controller {
 										+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(10) + "</td>"
 										+ "<td style= \"text-align:right;\" class=\"cfi\">" + total.get(3) + "</td>"
 										+ "<td style= \"text-align:right;\" class=\"arr\">" + total.get(1) + "</td>"
-//									+ "<td style= \"text-align:right;\" class=\"vta\">" + total.get(2) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"vta\">" + total.get(2) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"serv\">"+servVta+"</td>"
 										+ "<td style= \"text-align:right;\" class=\"ajustArr\">" + total.get(5) + "</td>"
-//									+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + total.get(6) + "</td>"
-										+ "<td style= \"text-align:right;\" class=\"granTotal\">" + DecimalFormato.formato(auxTotal, (long) nroDec) + "</td>"
-										+ "											"
-										+ "<td style=\"text-align:center;vertical-align:middle;\">"
-										+ "<form id=\"form0_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleH/\">"
+							+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + total.get(6) + "</td>"
+							+ "<td style= \"text-align:right;\" class=\"ajustServ\">"+servAjuste+"</td>"
+										+ "<td style= \"text-align:right;\" class=\"granTotal\">" + totales + "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+									+ "<form id=\"form0_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleH/\">"
 										+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
 										+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
 										+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
@@ -5811,7 +5841,52 @@ public class MnuReportes extends Controller {
 										+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
 										+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
 										+ "<a href=\"#\" onclick=\"document.getElementById('form0_" + lista1.get(1) + "').submit()\">"
-										+ "<kbd style=\"background-color: #73C6B6\">" + mapeoDiccionario.get("Arriendos") + "</kbd>"
+										+ "<kbd style=\"background-color: #73C6B6\">" + mapeoDiccionario.get("Arriendo") + "</kbd>"
+										+ "</a>"
+									+ "</form>"
+								+ "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+										+ "<form id=\"form0Vta_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleHVta/\">"
+										+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
+										+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+										+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+										+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+										+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+										+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+										+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+										+ "<a href=\"#\" onclick=\"document.getElementById('form0Vta_" + lista1.get(1) + "').submit()\">"
+										+ "<kbd style=\"background-color: #73C6B6\">Venta</kbd>"
+										+ "</a>"
+										+ "</form>"
+										+ "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+										+ "<form id=\"form0Serv_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleHServ/\">"
+										+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
+										+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+										+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+										+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+										+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+										+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+										+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+										+ "<a href=\"#\" onclick=\"document.getElementById('form0Serv_" + lista1.get(1) + "').submit()\">"
+										+ "<kbd style=\"background-color: #73C6B6\">Servicio</kbd>"
+										+ "</a>"
+										+ "</form>"
+										+ "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+										+ "<form id=\"form0All_" + lista1.get(1) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleHALL/\">"
+										+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + lista1.get(1) + "\">"
+										+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+										+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+										+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+										+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+										+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+										+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+										+ "<a href=\"#\" onclick=\"document.getElementById('form0All_" + lista1.get(1) + "').submit()\">"
+										+ "<kbd style=\"background-color: #73C6B6\">Todo</kbd>"
 										+ "</a>"
 										+ "</form>"
 										+ "</td>";
@@ -5819,8 +5894,110 @@ public class MnuReportes extends Controller {
 							}
 						}
 					}
-
 				}
+
+				for (Map.Entry<String, List<String>> entry : mapServicios.entrySet()) {
+					String key = entry.getKey();
+					List<String> servicios = entry.getValue();
+					String valida = mapAuxParaRevisaServ.get(key);
+					if(valida == null) {
+						String cliente = "clente";
+						String proyecto = "proyecto";
+						String comercial = "comercial";
+						Double auxTotal = 0.0;
+						Double auxServVta=0.0;
+						Double auxServAjuste=0.0;
+						String servVta = DecimalFormato.formato(0.0,mapDec.get(1L));
+						String servAjuste =  DecimalFormato.formato(0.0,mapDec.get(1L));
+						try{
+							auxServVta = Double.parseDouble(servicios.get(5).replaceAll(",",""));
+							servVta = servicios.get(5);
+						}catch(Exception e){}
+						try{
+							auxServAjuste = Double.parseDouble(servicios.get(6).replaceAll(",",""));
+							servAjuste = servicios.get(6);
+						}catch(Exception e){}
+						auxTotal += auxServVta + auxServAjuste;
+						tabla += "<TR>";
+						tabla += "<td style=\"text-align:left;vertical-align:middle;\">" + "" + "</td>"
+								+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoBodega('" + servicios.get(0) + "');\">" + servicios.get(2) + "</a></td>"
+								+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoCliente('" + cliente + "');\">" + cliente + "</a></td>"
+								+ "<td style=\"text-align:left;vertical-align:middle;\"><a href=\"#\" onclick=\"modalContactoProyecto('" + proyecto + "');\">" + proyecto + "</a></td>"
+								+ "<td style=\"text-align:left;vertical-align:middle;\">" + comercial + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"cfi\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"arr\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"vta\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"serv\">"+servVta+"</td>"
+								+ "<td style= \"text-align:right;\" class=\"ajustArr\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"ajustServ\">"+servAjuste+"</td>"
+								+ "<td style= \"text-align:right;\" class=\"granTotal\">" + auxTotal + "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<form id=\"form0_" + servicios.get(0) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleH/\">"
+								+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + servicios.get(0) + "\">"
+								+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+								+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+								+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+								+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+								+ "<a href=\"#\" onclick=\"document.getElementById('form0_" + servicios.get(0) + "').submit()\">"
+								+ "<kbd style=\"background-color: #73C6B6\">" + mapeoDiccionario.get("Arriendo") + "</kbd>"
+								+ "</a>"
+								+ "</form>"
+								+ "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<form id=\"form0Vta_" + servicios.get(0) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleHVta/\">"
+								+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + servicios.get(0) + "\">"
+								+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+								+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+								+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+								+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+								+ "<a href=\"#\" onclick=\"document.getElementById('form0Vta_" + servicios.get(0) + "').submit()\">"
+								+ "<kbd style=\"background-color: #73C6B6\">Venta</kbd>"
+								+ "</a>"
+								+ "</form>"
+								+ "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<form id=\"form0All_" + servicios.get(0) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleHServ/\">"
+								+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + servicios.get(0) + "\">"
+								+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+								+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+								+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+								+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+								+ "<a href=\"#\" onclick=\"document.getElementById('form0All_" + servicios.get(0) + "').submit()\">"
+								+ "<kbd style=\"background-color: #73C6B6\">Servicio</kbd>"
+								+ "</a>"
+								+ "</form>"
+								+ "</td>"
+
+								+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<form id=\"form0Serv_" + servicios.get(0) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleHALL/\">"
+								+ "<input type=\"hidden\" name=\"id_bodega\" value=\"" + servicios.get(0) + "\">"
+								+ "<input type=\"hidden\" name=\"fechaDesde\" value=\"" + desdeAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"fechaHasta\" value=\"" + hastaAAMMDD + "\">"
+								+ "<input type=\"hidden\" name=\"esVenta\" value=\"0\">"
+								+ "<input type=\"hidden\" name=\"uf\" value=\"" + uf + "\">"
+								+ "<input type=\"hidden\" name=\"usd\" value=\"" + usd + "\">"
+								+ "<input type=\"hidden\" name=\"eur\" value=\"" + eur + "\">"
+								+ "<a href=\"#\" onclick=\"document.getElementById('form0Serv_" + servicios.get(0) + "').submit()\">"
+								+ "<kbd style=\"background-color: #73C6B6\">Todo</kbd>"
+								+ "</a>"
+								+ "</form>"
+								+ "</td>";
+						tabla += "</TR>";
+					}
+				}
+
+
+
 				tabla += "</tbody>"
 						+ "<tfoot>"
 						+ "<TR>"
@@ -5831,17 +6008,21 @@ public class MnuReportes extends Controller {
 						+ "<td style=\"background-color: #eeeeee\"></td>"
 						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></td>"
 						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></td>"
-//						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></td>"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"serv\"></td>"
 						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></td>"
-//						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></td>"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustServ\"></td>"
 						+ "<td style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></td>"
 						+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
-//						+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
+				+ "<td style=\"background-color: #eeeeee;text-align:right;\">"
 						+ "</TR>"
 						+ "</tfoot>"
 						+ "</table>";
 				return ok(reportFacturaProyectoH.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
-						uf, usd, eur, desdeAAMMDD, hastaAAMMDD));
+						uf, usd, eur, desdeAAMMDD, hastaAAMMDD, mapDec.get(1L)));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -5878,32 +6059,23 @@ public class MnuReportes extends Controller {
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-				String id_proyecto = form.get("id_proyecto");
-				if (id_proyecto == null) {
-					id_proyecto = "0";
-				}
-				id_proyecto = id_proyecto.trim();
 				String concepto = mapeoDiccionario.get("ARRIENDO");
 				if ("1".equals(esVenta)) {
 					concepto = "VENTA";
 				}
 				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-
 				List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 				Map<String, Double> mapSubtotales = new HashMap<String,Double>();
 				Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
 				Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
 				Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
-
 				for(int i=0; i<datos.size(); i++) {
-
 					List<String> aux = new ArrayList<String>();
 					aux.add(datos.get(i).get(0));
 					aux.add(datos.get(i).get(1));
 					aux.add(datos.get(i).get(2));
 					aux.add(datos.get(i).get(3));
-					aux.add(datos.get(i).get(4));
 					aux.add(datos.get(i).get(6));
 					aux.add(datos.get(i).get(7));
 					aux.add(datos.get(i).get(9));
@@ -5912,7 +6084,6 @@ public class MnuReportes extends Controller {
 					}else{
 						aux.add(datos.get(i).get(10));
 					}
-
 					if(i==0 || i==1){
 						aux.add("");
 					}else if(i==4){
@@ -5930,10 +6101,8 @@ public class MnuReportes extends Controller {
 					}else{
 						aux.add("");
 					}
-
 					aux.add(datos.get(i).get(datos.get(i).size() - 6));
 					aux.add(datos.get(i).get(datos.get(i).size() - 5));
-
 					if( ! (i==2 || i==3 || i==datos.size()-2 || i==datos.size()-3) ){
 						if(i > 4 && i < datos.size()-3) {
 							try {
@@ -5946,77 +6115,70 @@ public class MnuReportes extends Controller {
 								}
 							}catch(Exception e){}
 						}
-
-						if( ! datos.get(i).get(0).equals("")){
-							Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
-							if(guia != null) {
-								aux.add(guia.getNumero().toString());
-								aux.add(Fechas.DDMMAA(guia.getFecha()));
-							}else{
-								if (i == 0) {
-									aux.add("Guia");
-									aux.add("Guia");
-								} else if (i == 1) {
-									aux.add("Ultimo");
-									aux.add("Fecha");
-								} else if (i == 4) {
-									aux.add("Ingreso");
-									aux.add("Ingreso");
-								} else {
-									aux.add("");
-									aux.add("");
-								}
+						Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+						if(guia != null) {
+							aux.add(guia.getNumero().toString());
+							aux.add(Fechas.DDMMAA(guia.getFecha()));
+						}else{
+							if (i == 0) {
+								aux.add("Guia");
+								aux.add("Guia");
+							} else if (i == 1) {
+								aux.add("Ultimo");
+								aux.add("Fecha");
+							} else if (i == 4) {
+								aux.add("Ingreso");
+								aux.add("Ingreso");
+							} else {
+								aux.add("");
+								aux.add("");
 							}
-							guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
-							if(guia != null) {
-								aux.add(guia.getNumero().toString());
-								aux.add(Fechas.DDMMAA(guia.getFecha()));
-							}else{
-								if (i == 0) {
-									aux.add("Guia");
-									aux.add("Guia");
-								} else if (i == 1) {
-									aux.add("Ultima");
-									aux.add("Fecha");
-								} else if (i == 4) {
-									aux.add("Salida");
-									aux.add("Salida");
-								} else {
-									aux.add("");
-									aux.add("");
-								}
-							}
-							datosSeleccionados.add(aux);
 						}
-
-
+						guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+						if(guia != null) {
+							aux.add(guia.getNumero().toString());
+							aux.add(Fechas.DDMMAA(guia.getFecha()));
+						}else{
+							if (i == 0) {
+								aux.add("Guia");
+								aux.add("Guia");
+							} else if (i == 1) {
+								aux.add("Ultima");
+								aux.add("Fecha");
+							} else if (i == 4) {
+								aux.add("Salida");
+								aux.add("Salida");
+							} else {
+								aux.add("");
+								aux.add("");
+							}
+						}
+						datosSeleccionados.add(aux);
 					}
-
 				}
-				datosSeleccionados.get(datosSeleccionados.size()-1).set(0,"TOTAL NETO SIN AJUSTES");
-
-				int nroDecimal = Moneda.numeroDecimalxId(con, s.baseDato, "1");
-				List<List<String>> resumenSubtotales = new ArrayList<List<String>>();
-				for(Map.Entry<String, Double> entry : mapSubtotales.entrySet()) {
-					List<String> aux2 = new ArrayList<String>();
-					aux2.add(entry.getKey());
-					aux2.add(DecimalFormato.formato(entry.getValue(), (long) nroDecimal));
-					resumenSubtotales.add(aux2);
-				}
-
+				datosSeleccionados.get(datosSeleccionados.size()-1).set(0,"TOTAL NETO");
 				String idTipoUsuario = s.id_tipoUsuario;
 				Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
 				Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-				List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
 				String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
 
-				List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
-				List<CotizaSolucion> listSol = CotizaSolucion.all(con, s.baseDato);
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				Double tasaIva = emisor.getTasaIva()/100;
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+					if(bodega.getIvaBodega() > 0) {
+						tasaIva = bodega.getIvaBodega();
+					}else {
+						Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+						if(sucursal.getIvaSucursal() > 0) {
+							tasaIva = sucursal.getIvaSucursal();
+						}
+					}
+				}
+				Long cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
 
 				return ok(reportFacturaProyectoDetalleH.render(mapeoDiccionario, mapeoPermiso, userMnu, idTipoUsuario,
-						datosSeleccionados, bodega, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf, id_proyecto,
-						cliente, proyecto, detalleAjuste, oc, resumenSubtotales, (long) nroDecimal,
-						listSol, listReferencias));
+						datosSeleccionados, bodega, esVenta, fechaDesde, fechaHasta, usd, eur, uf, cliente, proyecto, oc,
+						tasaIva, cantDec));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -6026,7 +6188,6 @@ public class MnuReportes extends Controller {
 			}
 		}
 	}
-
 
 	public Result reportFacturaProyectoDetalleHExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
@@ -6057,7 +6218,6 @@ public class MnuReportes extends Controller {
 				}else {
 					return ok("");
 				}
-
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -6065,59 +6225,996 @@ public class MnuReportes extends Controller {
 		}
 	}
 
+	public Result reportFacturaProyectoDetalleHProforma(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHVtaExcel(s,form);
+			Long id_bodegaEmpresa = (long) 0;
+			BodegaEmpresa bodega = null;
+			try (Connection con = dbRead.getConnection()) {
+				String auxIdBodega = form.get("id_bodega");
+				id_bodegaEmpresa = (long) 0;
+				if (auxIdBodega != null) {
+					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+				}
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			String tipo = form.get("tipo").trim();
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String neto = form.get("neto").trim();
+			String iva = form.get("iva").trim();
+			String total = form.get("total").trim();
+
+			Long id = (long)0;
+			String sql = "INSERT INTO `"+s.baseDato+"`.proformaSimple (" +
+					"tipo, fecha, desde, hasta, id_bodegaEmpresa, neto, iva, total " +
+					") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+			try (Connection con = dbWrite.getConnection();
+				 PreparedStatement smt = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+				Fechas hoy = Fechas.hoy();
+				smt.setString(1, tipo);
+				smt.setString(2, hoy.getFechaStrAAMMDD());
+				smt.setString(3, fechaDesde);
+				smt.setString(4, fechaHasta);
+				smt.setLong(5, id_bodegaEmpresa);
+				smt.setString(6, neto);
+				smt.setString(7, iva);
+				smt.setString(8, total);
+				smt.executeUpdate();
+				ResultSet rs = smt.getGeneratedKeys();
+				if (rs.next()) {
+					id = rs.getLong(1);
+				}
+				rs.close();
+				if(file != null){
+					String nameFile = "EP_Prof_Simple_"+id+".xlsx";
+					Archivos.grabarArchivo(file, s.baseDato+"/"+nameFile);
+					PreparedStatement smt1 = con.prepareStatement("update `"+s.baseDato+"`.proformaSimple set epExcel='"+nameFile+"' where id=?;");
+					smt1.setLong(1, id);
+					smt1.executeUpdate();
+					smt1.close();
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+
+			return  redirect("/reportFacturaPeriodoH/");
+		}
+	}
+
 	public File detalleHExcel(Sessiones s, DynamicForm form) {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		try (Connection con = dbRead.getConnection()) {
+			String auxIdBodega = form.get("id_bodega");
+			Long id_bodegaEmpresa = (long) 0;
+			if (auxIdBodega != null) {
+				id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+			}
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String esVenta = form.get("esVenta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			String concepto = mapeoDiccionario.get("ARRIENDO");
+			if ("1".equals(esVenta)) {
+				concepto = "VENTA";
+			}
+			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
+			Map<String, Double> mapSubtotales = new HashMap<String,Double>();
+			Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
+			Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
+			Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
+			for(int i=0; i<datos.size(); i++) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(datos.get(i).get(0));
+				aux.add(datos.get(i).get(1));
+				aux.add(datos.get(i).get(2));
+				aux.add(datos.get(i).get(3));
+				aux.add(datos.get(i).get(6));
+				aux.add(datos.get(i).get(7));
+				aux.add(datos.get(i).get(9));
+				if(i==0 || i==2){
+					aux.add("");
+				}else{
+					aux.add(datos.get(i).get(10));
+				}
+				if(i==0 || i==1){
+					aux.add("");
+				}else if(i==4){
+					aux.add("Cant Dias");
+				}else if(i > 4 && i < datos.size()-3){
+					Long cantDia = (long) 0;
+					try{
+						Double totArr = Double.parseDouble(datos.get(i).get(datos.get(i).size() - 6).replaceAll(",", "").trim());
+						Double pArrDia = Double.parseDouble(datos.get(i).get(10).replaceAll(",", "").trim());
+						if(totArr > 0) {
+							cantDia = Math.round(totArr / pArrDia);
+						}
+					}catch(Exception e){}
+					aux.add(cantDia.toString());
+				}else{
+					aux.add("");
+				}
+				aux.add(datos.get(i).get(datos.get(i).size() - 6));
+				aux.add(datos.get(i).get(datos.get(i).size() - 5));
+				if( ! (i==2 || i==3 || i==datos.size()-2 || i==datos.size()-3) ){
+					if(i > 4 && i < datos.size()-3) {
+						try {
+							Double dblAux = Double.parseDouble(datos.get(i).get(datos.get(i).size() - 5).replaceAll(",", "").trim());
+							Double aux1 = mapSubtotales.get(datos.get(i).get(0));
+							if (aux1 == null) {
+								mapSubtotales.put(datos.get(i).get(0), dblAux);
+							} else {
+								mapSubtotales.put(datos.get(i).get(0), dblAux + aux1);
+							}
+						}catch(Exception e){}
+					}
+					Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+					if(guia != null) {
+						aux.add(guia.getNumero().toString());
+						aux.add(Fechas.DDMMAA(guia.getFecha()));
+					}else{
+						if (i == 0) {
+							aux.add("Guia");
+							aux.add("Guia");
+						} else if (i == 1) {
+							aux.add("Ultimo");
+							aux.add("Fecha");
+						} else if (i == 4) {
+							aux.add("Ingreso");
+							aux.add("Ingreso");
+						} else {
+							aux.add("");
+							aux.add("");
+						}
+					}
+					guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+					if(guia != null) {
+						aux.add(guia.getNumero().toString());
+						aux.add(Fechas.DDMMAA(guia.getFecha()));
+					}else{
+						if (i == 0) {
+							aux.add("Guia");
+							aux.add("Guia");
+						} else if (i == 1) {
+							aux.add("Ultima");
+							aux.add("Fecha");
+						} else if (i == 4) {
+							aux.add("Salida");
+							aux.add("Salida");
+						} else {
+							aux.add("");
+							aux.add("");
+						}
+					}
+					datosSeleccionados.add(aux);
+				}
+			}
+			datosSeleccionados.get(datosSeleccionados.size()-1).set(0,"TOTAL NETO");
+			String idTipoUsuario = s.id_tipoUsuario;
+			Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+			Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+			String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+
+			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+			Double tasaIva = emisor.getTasaIva()/100;
+			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+				if(bodega.getIvaBodega() > 0) {
+					tasaIva = bodega.getIvaBodega();
+				}else {
+					Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+					if(sucursal.getIvaSucursal() > 0) {
+						tasaIva = sucursal.getIvaSucursal();
+					}
+				}
+			}
+
+			File file = ReportFacturas.reportFacturaProyectoDetHExcel(s.baseDato,mapeoDiccionario,mapeoPermiso, idTipoUsuario,
+					datosSeleccionados, bodega, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf,
+					cliente, proyecto, oc, tasaIva);
+
+			return(file);
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return(null);
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHVta(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		} else {
 			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String esVenta = form.get("esVenta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+			tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+			tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+			tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long,Calc_Precio> mapMaestroPrecios = null;
+			Map<Long, Cotizacion> mapCotiAllConfirmadas = null;
+			Map<Long,String> mapMoneda = null;
+			Map<Long, Equipo> mapAllEquipos = null;
+			Map<Long,Long> dec = null;
+			BodegaEmpresa bodega = null;
+			Proyecto proyecto = null;
+			String idTipoUsuario = null;
+			Cliente cliente = null;
+			Map<String,List<List<String>>> mapReportPorGuia10 = null;
+			List<List<String>> detalleAjuste = null;
+			String oc = null;
+			try (Connection con = dbRead.getConnection()) {
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, fechaDesde, fechaHasta);
+				List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+				mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+				cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+				detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+				oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+				idTipoUsuario = s.id_tipoUsuario;
+
+				Map<Long,List<String>> mapGuias = new HashMap<Long,List<String>>();
+				for(Inventarios inv : guiasPer) {
+					List<String> aux = new ArrayList<String>();
+					aux.add(inv.numeroGuia.toString());
+					aux.add(inv.fechaGuia);
+					mapGuias.put(inv.id_guia, aux);
+				}
+				mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+						guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
+				Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+				List<List<String>> datos = new ArrayList<List<String>>();
+				for(Map.Entry<String,List<List<String>>> entry : mapReportPorGuia10.entrySet()) {
+					for(List<String> list : entry.getValue()) {
+						if(list.get(21).equals("1")) {
+							Long id_guia = Long.parseLong(list.get(4));
+							List<String> guia = mapGuias.get(id_guia);
+							Double cant = Double.parseDouble(list.get(13).replaceAll(",", "").trim());
+							Double totMonOrigen = Double.parseDouble(list.get(15).replaceAll(",", "").trim());
+							String totalMonOrigen = DecimalFormato.formato(cant * totMonOrigen, mapDec.get(list.get(14)));
+							if(guia != null) {
+								List<String> aux = new ArrayList<String>();
+								aux.add(list.get(4)); // 0 id guia
+								aux.add(list.get(8)); // 1 nombre de grupo
+								aux.add(list.get(9)); // 2 numero cotizacion
+								aux.add(list.get(10)); // 3 codigo equipo
+								aux.add(list.get(11)); // 4 nombre equipo
+								aux.add(list.get(14)); // 5 moneda
+								aux.add(list.get(15)); // 6 precio de venta en moneda original
+								aux.add(list.get(12)); // 7 unidad
+								aux.add(list.get(13)); // 8 cantidad
+								aux.add(totalMonOrigen); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+								aux.add(list.get(20)); // 10 total venta en pesos
+								aux.add(guia.get(0)); // 11 numero guia
+								aux.add(guia.get(1)); // 12 fecha guia
+								datos.add(aux);
+							}
+						}
+					}
+				}
+				for(List<String> ajustes: detalleAjuste){
+					Double valor = Double.parseDouble(ajustes.get(2).replaceAll(",", "").trim());
+					if(valor < (double)0 || valor > (double)100){
+						List<String> aux = new ArrayList<String>();
+						aux.add(""); // 0 id guia
+						aux.add(""); // 1 nombre de grupo
+						aux.add(""); // 2 numero cotizacion
+						aux.add(""); // 3 codigo equipo
+						aux.add(ajustes.get(0)); // 4 nombre equipo
+						aux.add(""); // 5 moneda
+						aux.add(""); // 6 precio de venta en moneda original
+						aux.add(""); // 7 unidad
+						aux.add(""); // 8 cantidad
+						aux.add(""); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+						aux.add(ajustes.get(2)); // 10 total venta en pesos
+						aux.add(""); // 11 numero guia
+						aux.add(""); // 12 fecha guia
+						datos.add(aux);
+					};
+				}
+				Moneda moneda = Moneda.find(con, s.baseDato, (long)1);
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				Double tasaIva = emisor.getTasaIva()/100;
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+					if(bodega.getIvaBodega() > 0) {
+						tasaIva = bodega.getIvaBodega();
+					}else {
+						Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+						if(sucursal.getIvaSucursal() > 0) {
+							tasaIva = sucursal.getIvaSucursal();
+						}
+					}
+				}
+
+				return ok(reportFacturaProyectoDetalleHVta.render(mapeoDiccionario, mapeoPermiso, userMnu, idTipoUsuario,
+						datos, bodega, esVenta, fechaDesde, fechaHasta, usd, eur, uf,
+						cliente, proyecto, oc, moneda.getNumeroDecimales(), moneda.getNickName(), tasaIva));
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHVtaExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHVtaExcel(s,form);
 			try (Connection con = dbRead.getConnection()) {
 				String auxIdBodega = form.get("id_bodega");
 				Long id_bodegaEmpresa = (long) 0;
 				if (auxIdBodega != null) {
 					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
 				}
-				String fechaDesde = form.get("fechaDesde").trim();
-				String fechaHasta = form.get("fechaHasta").trim();
-				String esVenta = form.get("esVenta").trim();
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				if(file != null){
+					return ok(file,false,Optional.of("EP_Proforma_Simple_"+bodega.nombre+".xlsx"));
+				}else {
+					return ok("");
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHVtaProforma(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHVtaExcel(s,form);
+			Long id_bodegaEmpresa = (long) 0;
+			BodegaEmpresa bodega = null;
+			try (Connection con = dbRead.getConnection()) {
+				String auxIdBodega = form.get("id_bodega");
+				id_bodegaEmpresa = (long) 0;
+				if (auxIdBodega != null) {
+					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+				}
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			String tipo = form.get("tipo").trim();
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String neto = form.get("neto").trim();
+			String iva = form.get("iva").trim();
+			String total = form.get("total").trim();
+
+			Long id = (long)0;
+			String sql = "INSERT INTO `"+s.baseDato+"`.proformaSimple (" +
+					"tipo, fecha, desde, hasta, id_bodegaEmpresa, neto, iva, total " +
+					") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+			try (Connection con = dbWrite.getConnection();
+				 PreparedStatement smt = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+				Fechas hoy = Fechas.hoy();
+				smt.setString(1, tipo);
+				smt.setString(2, hoy.getFechaStrAAMMDD());
+				smt.setString(3, fechaDesde);
+				smt.setString(4, fechaHasta);
+				smt.setLong(5, id_bodegaEmpresa);
+				smt.setString(6, neto);
+				smt.setString(7, iva);
+				smt.setString(8, total);
+				smt.executeUpdate();
+				ResultSet rs = smt.getGeneratedKeys();
+				if (rs.next()) {
+					id = rs.getLong(1);
+				}
+				rs.close();
+				if(file != null){
+					String nameFile = "EP_Prof_Simple_"+id+".xlsx";
+					Archivos.grabarArchivo(file, s.baseDato+"/"+nameFile);
+					PreparedStatement smt1 = con.prepareStatement("update `"+s.baseDato+"`.proformaSimple set epExcel='"+nameFile+"' where id=?;");
+					smt1.setLong(1, id);
+					smt1.executeUpdate();
+					smt1.close();
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+
+			return  redirect("/reportFacturaPeriodoH/");
+		}
+	}
+
+	public File detalleHVtaExcel(Sessiones s, DynamicForm form) {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		String fechaDesde = form.get("fechaDesde").trim();
+		String fechaHasta = form.get("fechaHasta").trim();
+		String esVenta = form.get("esVenta").trim();
+		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+		Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+		Map<Long,Double> tasas = new HashMap<Long,Double>();
+		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+		Map<String, Double> mapFijaTasas = null;
+		List<Long> listIdBodegaEmpresa = null;
+		Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+		Map<String, Calc_Precio> mapPrecios = null;
+		Map<Long,Calc_Precio> mapMaestroPrecios = null;
+		Map<Long, Cotizacion> mapCotiAllConfirmadas = null;
+		Map<Long,String> mapMoneda = null;
+		Map<Long, Equipo> mapAllEquipos = null;
+		Map<Long,Long> dec = null;
+		BodegaEmpresa bodega = null;
+		Proyecto proyecto = null;
+		String idTipoUsuario = null;
+		Cliente cliente = null;
+		Map<String,List<List<String>>> mapReportPorGuia10 = null;
+		List<List<String>> detalleAjuste = null;
+		List<TipoReferencia> listReferencias = null;
+		List<CotizaSolucion> listSol = null;
+		String oc = null;
+		try (Connection con = dbRead.getConnection()) {
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+			mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+			mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+			mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+			mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, fechaDesde, fechaHasta);
+			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+			dec = Moneda.numeroDecimal(con, s.baseDato);
+			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+			mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+			mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+			mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+			cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+			detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+			listReferencias = TipoReferencia.all(con, s.baseDato);
+			oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+			idTipoUsuario = s.id_tipoUsuario;
+
+			Map<Long,List<String>> mapGuias = new HashMap<Long,List<String>>();
+			for(Inventarios inv : guiasPer) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(inv.numeroGuia.toString());
+				aux.add(inv.fechaGuia);
+				mapGuias.put(inv.id_guia, aux);
+			}
+			mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta, mapFijaTasas, tasas,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
+			Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+			List<List<String>> datos = new ArrayList<List<String>>();
+			for(Map.Entry<String,List<List<String>>> entry : mapReportPorGuia10.entrySet()) {
+				for(List<String> list : entry.getValue()) {
+					if(list.get(21).equals("1")) {
+						Long id_guia = Long.parseLong(list.get(4));
+						List<String> guia = mapGuias.get(id_guia);
+						Double cant = Double.parseDouble(list.get(13).replaceAll(",", "").trim());
+						Double totMonOrigen = Double.parseDouble(list.get(15).replaceAll(",", "").trim());
+						String totalMonOrigen = DecimalFormato.formato(cant * totMonOrigen, mapDec.get(list.get(14)));
+						if(guia != null) {
+							List<String> aux = new ArrayList<String>();
+							aux.add(list.get(4)); // 0 id guia
+							aux.add(list.get(8)); // 1 nombre de grupo
+							aux.add(list.get(9)); // 2 numero cotizacion
+							aux.add(list.get(10)); // 3 codigo equipo
+							aux.add(list.get(11)); // 4 nombre equipo
+							aux.add(list.get(14)); // 5 moneda
+							aux.add(list.get(15)); // 6 precio de venta en moneda original
+							aux.add(list.get(12)); // 7 unidad
+							aux.add(list.get(13)); // 8 cantidad
+							aux.add(totalMonOrigen); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+							aux.add(list.get(20)); // 10 total venta en pesos
+							aux.add(guia.get(0)); // 11 numero guia
+							aux.add(guia.get(1)); // 12 fecha guia
+							datos.add(aux);
+						}
+					}
+				}
+			}
+			for(List<String> ajustes: detalleAjuste){
+				Double valor = Double.parseDouble(ajustes.get(2).replaceAll(",", "").trim());
+				if(valor < (double)0 || valor > (double)100){
+					List<String> aux = new ArrayList<String>();
+					aux.add(""); // 0 id guia
+					aux.add(""); // 1 nombre de grupo
+					aux.add(""); // 2 numero cotizacion
+					aux.add(""); // 3 codigo equipo
+					aux.add(ajustes.get(0)); // 4 nombre equipo
+					aux.add(""); // 5 moneda
+					aux.add(""); // 6 precio de venta en moneda original
+					aux.add(""); // 7 unidad
+					aux.add(""); // 8 cantidad
+					aux.add(""); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+					aux.add(ajustes.get(2)); // 10 total venta en pesos
+					aux.add(""); // 11 numero guia
+					aux.add(""); // 12 fecha guia
+					datos.add(aux);
+				};
+			}
+			listSol = CotizaSolucion.all(con, s.baseDato);
+			Moneda moneda = Moneda.find(con, s.baseDato, (long)1);
+
+			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+			Double tasaIva = emisor.getTasaIva()/100;
+			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+				if(bodega.getIvaBodega() > 0) {
+					tasaIva = bodega.getIvaBodega();
+				}else {
+					Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+					if(sucursal.getIvaSucursal() > 0) {
+						tasaIva = sucursal.getIvaSucursal();
+					}
+				}
+			}
+
+			File file = ReportFacturas.reportFacturaProyectoDetHVtaExcel(s.baseDato,mapeoDiccionario,
+					datos, bodega, esVenta, fechaDesde, fechaHasta, cliente, proyecto, moneda, oc, tasaIva);
+
+			return(file);
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return(null);
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHServ(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String desdeAAMMDD = form.get("fechaDesde").trim();
+				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
 				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
 				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
-				String id_proyecto = form.get("id_proyecto");
-				if (id_proyecto == null) {
-					id_proyecto = "0";
-				}
-				id_proyecto = id_proyecto.trim();
-				String concepto = mapeoDiccionario.get("ARRIENDO");
-				if ("1".equals(esVenta)) {
-					concepto = "VENTA";
-				}
-				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+				Map<Long,Double> tasas = new HashMap<Long,Double>();
+				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
+				List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDec);
+				List<String> fechas = new ArrayList<String>();
+				fechas.add(desdeAAMMDD);
+				fechas.add(hastaAAMMDD);
+				fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				List<Double> tasaCambio = new ArrayList<Double>();
+				tasaCambio.add(uf);
+				tasaCambio.add(usd);
+				tasaCambio.add(eur);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+				Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+				Long cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
+				List<List<String>> groupPorClaseServicioEquipo = ReportOdo.proformaGroupPorClaseServicioEquipo(detalleProformaPorServicio, mapDec);
+				List<List<String>> listaAjustes = Calc_AjustesEpOdo.listaEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+				for(List<String> a: listaAjustes){
+					List<String> aux = new ArrayList<String>();
+					aux.add("");						//0 familia
+					aux.add("");						//1 getNomClaseServicio
+					aux.add(a.get(5)+": "+a.get(6));	//2 getCodServicio
+					aux.add("");						//3 getNomServicio
+					aux.add("");						//4 getFecha
+					aux.add("");						//5 getDetalle
+					aux.add("");						//6 cantidad
+					aux.add("");						//7 total
+					aux.add("");				//8 cantidad minima
+					aux.add("");			//9 precio total minimo
+					aux.add("");		//10 precio total adicional
+					aux.add(a.get(4));			//11 precio total final
+					aux.add("");					//12 getNroCotiOdo
+					groupPorClaseServicioEquipo.add(aux);
+				}
 
-				List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
+				Moneda moneda = Moneda.find(con, s.baseDato, (long)1);
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				Double tasaIva = emisor.getTasaIva()/100;
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+					if(bodega.getIvaBodega() > 0) {
+						tasaIva = bodega.getIvaBodega();
+					}else {
+						Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+						if(sucursal.getIvaSucursal() > 0) {
+							tasaIva = sucursal.getIvaSucursal();
+						}
+					}
+				}
+
+				return ok(reportFacturaProyectoDetalleHServ.render(mapeoDiccionario,mapeoPermiso,userMnu,
+						fechas, tasaCambio, bodega, proyecto, cliente, cantDec, groupPorClaseServicioEquipo, tasaIva));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHServExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHServExcel(s,form);
+			try (Connection con = dbRead.getConnection()) {
+				String auxIdBodega = form.get("id_bodega");
+				Long id_bodegaEmpresa = (long) 0;
+				if (auxIdBodega != null) {
+					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+				}
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				if(file != null){
+					return ok(file,false,Optional.of("EP_Proforma_Simple_"+bodega.nombre+".xlsx"));
+				}else {
+					return ok("");
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHServProforma(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHServExcel(s,form);
+			Long id_bodegaEmpresa = (long) 0;
+			BodegaEmpresa bodega = null;
+			try (Connection con = dbRead.getConnection()) {
+				String auxIdBodega = form.get("id_bodega");
+				id_bodegaEmpresa = (long) 0;
+				if (auxIdBodega != null) {
+					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+				}
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			String tipo = form.get("tipo").trim();
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String neto = form.get("neto").trim();
+			String iva = form.get("iva").trim();
+			String total = form.get("total").trim();
+
+			Long id = (long)0;
+			String sql = "INSERT INTO `"+s.baseDato+"`.proformaSimple (" +
+					"tipo, fecha, desde, hasta, id_bodegaEmpresa, neto, iva, total " +
+					") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+			try (Connection con = dbWrite.getConnection();
+				 PreparedStatement smt = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+				Fechas hoy = Fechas.hoy();
+				smt.setString(1, tipo);
+				smt.setString(2, hoy.getFechaStrAAMMDD());
+				smt.setString(3, fechaDesde);
+				smt.setString(4, fechaHasta);
+				smt.setLong(5, id_bodegaEmpresa);
+				smt.setString(6, neto);
+				smt.setString(7, iva);
+				smt.setString(8, total);
+				smt.executeUpdate();
+				ResultSet rs = smt.getGeneratedKeys();
+				if (rs.next()) {
+					id = rs.getLong(1);
+				}
+				rs.close();
+				if(file != null){
+					String nameFile = "EP_Prof_Simple_"+id+".xlsx";
+					Archivos.grabarArchivo(file, s.baseDato+"/"+nameFile);
+					PreparedStatement smt1 = con.prepareStatement("update `"+s.baseDato+"`.proformaSimple set epExcel='"+nameFile+"' where id=?;");
+					smt1.setLong(1, id);
+					smt1.executeUpdate();
+					smt1.close();
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+
+			return  redirect("/reportFacturaPeriodoH/");
+		}
+	}
+
+	public File detalleHServExcel(Sessiones s, DynamicForm form) {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		try (Connection con = dbRead.getConnection()){
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+			tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+			tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+			tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+			Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
+			List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDec);
+			List<String> fechas = new ArrayList<String>();
+			fechas.add(desdeAAMMDD);
+			fechas.add(hastaAAMMDD);
+			fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+			List<Double> tasaCambio = new ArrayList<Double>();
+			tasaCambio.add(uf);
+			tasaCambio.add(usd);
+			tasaCambio.add(eur);
+			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+			Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+			Long cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+			List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
+			List<List<String>> groupPorClaseServicioEquipo = ReportOdo.proformaGroupPorClaseServicioEquipo(detalleProformaPorServicio, mapDec);
+			List<List<String>> listaAjustes = Calc_AjustesEpOdo.listaEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+			for(List<String> a: listaAjustes){
+				List<String> aux = new ArrayList<String>();
+				aux.add("");						//0 familia
+				aux.add("");						//1 getNomClaseServicio
+				aux.add(a.get(5)+": "+a.get(6));	//2 getCodServicio
+				aux.add("");						//3 getNomServicio
+				aux.add("");						//4 getFecha
+				aux.add("");						//5 getDetalle
+				aux.add("");						//6 cantidad
+				aux.add("");						//7 total
+				aux.add("");				//8 cantidad minima
+				aux.add("");			//9 precio total minimo
+				aux.add("");		//10 precio total adicional
+				aux.add(a.get(4));			//11 precio total final
+				aux.add("");					//12 getNroCotiOdo
+				groupPorClaseServicioEquipo.add(aux);
+			}
+
+			Moneda moneda = Moneda.find(con, s.baseDato, (long)1);
+			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+			Double tasaIva = emisor.getTasaIva()/100;
+			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+				if(bodega.getIvaBodega() > 0) {
+					tasaIva = bodega.getIvaBodega();
+				}else {
+					Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+					if(sucursal.getIvaSucursal() > 0) {
+						tasaIva = sucursal.getIvaSucursal();
+					}
+				}
+			}
+
+			File file = ReportFacturas.reportFacturaProyectoDetHServExcel(s.baseDato,mapeoDiccionario,
+					groupPorClaseServicioEquipo, bodega, desdeAAMMDD, hastaAAMMDD, cliente, proyecto, tasaIva);
+			return(file);
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return(null);
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return(null);
+		}
+	}
+
+	public Result reportFacturaProyectoDetalleHALL(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		} else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String auxIdBodega = form.get("id_bodega");
+			Long id_bodegaEmpresa = (long) 0;
+			if (auxIdBodega != null) {
+				id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+			}
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String esVenta = form.get("esVenta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			String concepto = mapeoDiccionario.get("ARRIENDO");
+			if ("1".equals(esVenta)) {
+				concepto = "VENTA";
+			}
+			String oc = null;
+			String idTipoUsuario = null;
+			Cliente cliente = null;
+			Proyecto proyecto = null;
+			BodegaEmpresa bodega = null;
+
+			List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
+			try (Connection con = dbRead.getConnection()) {
+				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				Map<String, Double> mapSubtotales = new HashMap<String,Double>();
 				Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
 				Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
 				Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
-
 				for(int i=0; i<datos.size(); i++) {
-
 					List<String> aux = new ArrayList<String>();
 					aux.add(datos.get(i).get(0));
 					aux.add(datos.get(i).get(1));
 					aux.add(datos.get(i).get(2));
 					aux.add(datos.get(i).get(3));
-					aux.add(datos.get(i).get(4));
 					aux.add(datos.get(i).get(6));
 					aux.add(datos.get(i).get(7));
 					aux.add(datos.get(i).get(9));
-
 					if(i==0 || i==2){
 						aux.add("");
 					}else{
 						aux.add(datos.get(i).get(10));
 					}
-
 					if(i==0 || i==1){
 						aux.add("");
 					}else if(i==4){
@@ -6135,11 +7232,8 @@ public class MnuReportes extends Controller {
 					}else{
 						aux.add("");
 					}
-
-
 					aux.add(datos.get(i).get(datos.get(i).size() - 6));
 					aux.add(datos.get(i).get(datos.get(i).size() - 5));
-
 					if( ! (i==2 || i==3 || i==datos.size()-2 || i==datos.size()-3) ){
 						if(i > 4 && i < datos.size()-3) {
 							try {
@@ -6152,80 +7246,245 @@ public class MnuReportes extends Controller {
 								}
 							}catch(Exception e){}
 						}
+						Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+						if(guia != null) {
+							aux.add(guia.getNumero().toString());
+							aux.add(Fechas.DDMMAA(guia.getFecha()));
+						}else{
+							if (i == 0) {
+								aux.add("Guia");
+								aux.add("Guia");
+							} else if (i == 1) {
+								aux.add("Ultimo");
+								aux.add("Fecha");
+							} else if (i == 4) {
+								aux.add("Ingreso");
+								aux.add("Ingreso");
+							} else {
+								aux.add("");
+								aux.add("");
+							}
+						}
+						guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+						if(guia != null) {
+							aux.add(guia.getNumero().toString());
+							aux.add(Fechas.DDMMAA(guia.getFecha()));
+						}else{
+							if (i == 0) {
+								aux.add("Guia");
+								aux.add("Guia");
+							} else if (i == 1) {
+								aux.add("Ultima");
+								aux.add("Fecha");
+							} else if (i == 4) {
+								aux.add("Salida");
+								aux.add("Salida");
+							} else {
+								aux.add("");
+								aux.add("");
+							}
+						}
+						datosSeleccionados.add(aux);
+					}
+				}
+				datosSeleccionados.get(datosSeleccionados.size()-1).set(0,"TOTAL NETO");
+				idTipoUsuario = s.id_tipoUsuario;
+				cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+				proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+				oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
 
-						if( ! datos.get(i).get(0).equals("")){
-							Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
-							if(guia != null) {
-								aux.add(guia.getNumero().toString());
-								aux.add(Fechas.DDMMAA(guia.getFecha()));
-							}else{
-								if (i == 0) {
-									aux.add("Guia");
-									aux.add("Guia");
-								} else if (i == 1) {
-									aux.add("Ultimo");
-									aux.add("Fecha");
-								} else if (i == 4) {
-									aux.add("Ingreso");
-									aux.add("Ingreso");
-								} else {
-									aux.add("");
-									aux.add("");
-								}
-							}
-							guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
-							if(guia != null) {
-								aux.add(guia.getNumero().toString());
-								aux.add(Fechas.DDMMAA(guia.getFecha()));
-							}else{
-								if (i == 0) {
-									aux.add("Guia");
-									aux.add("Guia");
-								} else if (i == 1) {
-									aux.add("Ultima");
-									aux.add("Fecha");
-								} else if (i == 4) {
-									aux.add("Salida");
-									aux.add("Salida");
-								} else {
-									aux.add("");
-									aux.add("");
-								}
-							}
-							datosSeleccionados.add(aux);
+			// venta:
+			if (!s.isValid()) {
+				// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+				return ok(mensajes.render("/", msgError));
+			}
+			Map<Long,Double> tasas = new HashMap<Long,Double>();
+			tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+			tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+			tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+			tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long,Calc_Precio> mapMaestroPrecios = null;
+			Map<Long, Cotizacion> mapCotiAllConfirmadas = null;
+			Map<Long,String> mapMoneda = null;
+			Map<Long, Equipo> mapAllEquipos = null;
+			Map<Long,Long> dec = null;
+			Map<String,List<List<String>>> mapReportPorGuia10 = null;
+			List<List<String>> detalleAjuste = null;
+			Map<Long,List<String>> mapGuiasVta = null;
+			Moneda moneda = null;
+			Map<String,Long> mapDec = null;
+			try (Connection con = dbRead.getConnection()) {
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, fechaDesde, fechaHasta);
+				List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+				mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+				mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+				detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+				oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+				mapGuiasVta = new HashMap<Long,List<String>>();
+				for(Inventarios inv : guiasPer) {
+					List<String> aux = new ArrayList<String>();
+					aux.add(inv.numeroGuia.toString());
+					aux.add(inv.fechaGuia);
+					mapGuiasVta.put(inv.id_guia, aux);
+				}
+				mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+						guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
+				mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+				moneda = Moneda.find(con, s.baseDato, (long)1);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			List<List<String>> datos = new ArrayList<List<String>>();
+			for(Map.Entry<String,List<List<String>>> entry : mapReportPorGuia10.entrySet()) {
+				for(List<String> list : entry.getValue()) {
+					if(list.get(21).equals("1")) {
+						Long id_guia = Long.parseLong(list.get(4));
+						List<String> guia = mapGuiasVta.get(id_guia);
+						Double cant = Double.parseDouble(list.get(13).replaceAll(",", "").trim());
+						Double totMonOrigen = Double.parseDouble(list.get(15).replaceAll(",", "").trim());
+						String totalMonOrigen = DecimalFormato.formato(cant * totMonOrigen, mapDec.get(list.get(14)));
+						if(guia != null) {
+							List<String> aux = new ArrayList<String>();
+							aux.add(list.get(4)); // 0 id guia
+							aux.add(list.get(8)); // 1 nombre de grupo
+							aux.add(list.get(9)); // 2 numero cotizacion
+							aux.add(list.get(10)); // 3 codigo equipo
+							aux.add(list.get(11)); // 4 nombre equipo
+							aux.add(list.get(14)); // 5 moneda
+							aux.add(list.get(15)); // 6 precio de venta en moneda original
+							aux.add(list.get(12)); // 7 unidad
+							aux.add(list.get(13)); // 8 cantidad
+							aux.add(totalMonOrigen); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+							aux.add(list.get(20)); // 10 total venta en pesos
+							aux.add(guia.get(0)); // 11 numero guia
+							aux.add(guia.get(1)); // 12 fecha guia
+							datos.add(aux);
+						}
+					}
+				}
+			}
+			for(List<String> ajustes: detalleAjuste){
+				Double valor = Double.parseDouble(ajustes.get(2).replaceAll(",", "").trim());
+				if(valor < (double)0 || valor > (double)100){
+					List<String> aux = new ArrayList<String>();
+					aux.add(""); // 0 id guia
+					aux.add(""); // 1 nombre de grupo
+					aux.add(""); // 2 numero cotizacion
+					aux.add(""); // 3 codigo equipo
+					aux.add(ajustes.get(0)); // 4 nombre equipo
+					aux.add(""); // 5 moneda
+					aux.add(""); // 6 precio de venta en moneda original
+					aux.add(""); // 7 unidad
+					aux.add(""); // 8 cantidad
+					aux.add(""); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+					aux.add(ajustes.get(2)); // 10 total venta en pesos
+					aux.add(""); // 11 numero guia
+					aux.add(""); // 12 fecha guia
+					datos.add(aux);
+				};
+			}
+
+			// servicio
+			if (!s.isValid()) {
+				// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+				return ok(mensajes.render("/", msgError));
+			}
+			List<String> fechas = null;
+			List<Double> tasaCambio = new ArrayList<Double>();
+			Long cantDec = null;
+			List<List<String>> groupPorClaseServicioEquipo = null;
+			Double tasaIva = null;
+			try (Connection con = dbRead.getConnection()){
+				String desdeAAMMDD = form.get("fechaDesde").trim();
+				String hastaAAMMDD = form.get("fechaHasta").trim();
+				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+				Map<Long,Long> mapDecServ = Moneda.numeroDecimal(con, s.baseDato);
+				List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDecServ);
+				fechas = new ArrayList<String>();
+				fechas.add(desdeAAMMDD);
+				fechas.add(hastaAAMMDD);
+				fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+				tasaCambio.add(uf);
+				tasaCambio.add(usd);
+				tasaCambio.add(eur);
+				cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
+				groupPorClaseServicioEquipo = ReportOdo.proformaGroupPorClaseServicioEquipo(detalleProformaPorServicio, mapDecServ);
+				List<List<String>> listaAjustes = Calc_AjustesEpOdo.listaEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+				for(List<String> a: listaAjustes){
+					List<String> aux = new ArrayList<String>();
+					aux.add("");						//0 familia
+					aux.add("");						//1 getNomClaseServicio
+					aux.add(a.get(5)+": "+a.get(6));	//2 getCodServicio
+					aux.add("");						//3 getNomServicio
+					aux.add("");						//4 getFecha
+					aux.add("");						//5 getDetalle
+					aux.add("");						//6 cantidad
+					aux.add("");						//7 total
+					aux.add("");				//8 cantidad minima
+					aux.add("");			//9 precio total minimo
+					aux.add("");		//10 precio total adicional
+					aux.add(a.get(4));			//11 precio total final
+					aux.add("");					//12 getNroCotiOdo
+					groupPorClaseServicioEquipo.add(aux);
+				}
+
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				tasaIva = emisor.getTasaIva()/100;
+				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+					if(bodega.getIvaBodega() > 0) {
+						tasaIva = bodega.getIvaBodega();
+					}else {
+						Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+						if(sucursal.getIvaSucursal() > 0) {
+							tasaIva = sucursal.getIvaSucursal();
 						}
 					}
 				}
 
-				datosSeleccionados.get(datosSeleccionados.size()-1).set(0,"TOTAL NETO SIN AJUSTES");
-
-				int nroDecimal = Moneda.numeroDecimalxId(con, s.baseDato, "1");
-				List<List<String>> resumenSubtotales = new ArrayList<List<String>>();
-				for(Map.Entry<String, Double> entry : mapSubtotales.entrySet()) {
-					List<String> aux2 = new ArrayList<String>();
-					aux2.add(entry.getKey());
-					aux2.add(DecimalFormato.formato(entry.getValue(), (long) nroDecimal));
-					resumenSubtotales.add(aux2);
-				}
-
-				String idTipoUsuario = s.id_tipoUsuario;
-				Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-				Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-				List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
-				String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-
-				File file = ReportFacturas.reportFacturaProyectoDetHExcel(s.baseDato,mapeoDiccionario,mapeoPermiso, idTipoUsuario,
-						datosSeleccionados, bodega, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf, id_proyecto,
-						cliente, proyecto, detalleAjuste, oc, resumenSubtotales, (long) nroDecimal);
-
-				return(file);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return(null);
+				return ok(mensajes.render("/home/", msgReport));
 			}
+
+			return ok(reportFacturaProyectoDetalleHALL.render(mapeoDiccionario,mapeoPermiso,userMnu, idTipoUsuario,
+					datosSeleccionados, bodega, esVenta, fechaDesde, fechaHasta, usd, eur, uf, cliente, proyecto, oc,
+					datos, moneda.getNumeroDecimales(), moneda.getNickName(),
+					cantDec, groupPorClaseServicioEquipo, tasaIva));
+		}
 	}
 
-	public Result generarProformaPdfXlsxXmlJsonH(Http.Request request) {
+	public Result reportFacturaProyectoDetalleHAllExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -6233,189 +7492,425 @@ public class MnuReportes extends Controller {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
-		DynamicForm formDynamic = formFactory.form().bindFromRequest(request);
-		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
-		if (formDynamic.hasErrors() || form.idBodega==null) {
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/",msgErrorFormulario));
 		}else {
-			try {
-				String desdeAAMMDD = form.fechaDesde;
-				String hastaAAMMDD = form.fechaHasta;
-				Double uf = Double.parseDouble(form.uf.replaceAll(",", "").trim());
-				Double usd = Double.parseDouble(form.usd.replaceAll(",", "").trim());
-				Double eur = Double.parseDouble(form.eur.replaceAll(",", "").trim());
-				Long id_bodegaEmpresa = Long.parseLong(form.idBodega.trim());
-				String esVenta = formDynamic.get("esVenta").trim();
-				Map<Long,Double> tasas = new HashMap<Long,Double>();
-				tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
-				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
-				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
-				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				List<Long> listIdBodegaEmpresa = null;
-				Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = null;
-				Map<String,Calc_Precio> mapPrecios = null;
-				Map<Long,Calc_Precio> mapMaestroPrecios = null;
-				Map<String, Double> mapFijaTasas = null;
-				List<Long> listIdGuia_fechaCorte = null;
-				List<Inventarios> inventario = null;
-				List<Long> listIdGuia_entreFechas = null;
-				Map<Long,Long> dec = null;
-				Map<String,String> mapPermanencias = null;
-				Map<String,String> mapFecha_primera_guia = null;
-				Map<Long,Cotizacion> mapCotiAllConfirmadas = null;
-				Map<Long,String> mapMoneda = null;
-				Map<Long,Equipo> mapAllEquipos = null;
-				List<List<String>> listGuiasPer = null;
-				BodegaEmpresa bodega = null;
-				Proyecto proyecto = null;
-				Cliente cliente = null;
-				List<List<String>> detalleAjuste = null;
-				String oc = null;
-				Fechas hoy = null;
-				Proforma proforma = null;
-				Long cantDec = null;
-				List<List<String>> inicioPer = null;
-				Map<String,List<List<String>>> mapReportPorGuia10 = null;
-				List<List<String>> resumenSubtotales = null;
-				java.sql.Date masUnDia = null;
-				try (Connection con = dbWrite.getConnection()) {
-					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
-					mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
-					mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
-					mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
-					mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
-					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
-					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-					listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
-					List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
-					dec = Moneda.numeroDecimal(con, s.baseDato);
-					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-					mapFecha_primera_guia = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
-					mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
-					mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
-					mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
-					listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
-					proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
-					cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
-					detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
-					oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-					hoy = Fechas.hoy();
-					proforma = Proforma.createSinNada(con, s.baseDato, hoy.getFechaStrAAMMDD());
-					cantDec = dec.get((long)1);
-					inicioPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
-							mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-					mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
-							mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
-							guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
-					resumenSubtotales = ReportFacturas.reportEstadoResumen10(s.baseDato, inicioPer, listGuiasPer, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
-							listIdBodegaEmpresa, mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
-							listIdGuia_entreFechas, mapPermanencias, dec, mapCotiAllConfirmadas, mapAllEquipos, mapMoneda, guiasPer);
-					guiasPer = null;
-					Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
-					Calendar hastaMas1 = hasta.getFechaCal();
-					hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
-					masUnDia = new java.sql.Date(hastaMas1.getTimeInMillis());
-					listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, masUnDia.toString());
-					inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
-				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-					return ok(mensajes.render("/home/", msgReport));
-				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-					return ok(mensajes.render("/home/", msgReport));
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHAllExcel(s,form);
+			try (Connection con = dbRead.getConnection()) {
+				String auxIdBodega = form.get("id_bodega");
+				Long id_bodegaEmpresa = (long) 0;
+				if (auxIdBodega != null) {
+					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
 				}
-				List<List<String>> finalPer = ReportFacturas.reportEstadoInicial10(s.baseDato, id_bodegaEmpresa, masUnDia.toString(), hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
-						mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario, mapFecha_primera_guia, mapCotiAllConfirmadas, mapMoneda, mapAllEquipos, dec);
-				mapBodegaEmpresa = null;
-				mapPrecios = null;
-				mapMaestroPrecios = null;
-				inventario = null;
-				mapCotiAllConfirmadas = null;
-				mapAllEquipos = null;
-				List<String> fechas = new ArrayList<String>();
-				fechas.add(desdeAAMMDD);
-				fechas.add(hastaAAMMDD);
-				fechas.add(Fechas.DDMMAA(desdeAAMMDD));
-				fechas.add(Fechas.DDMMAA(hastaAAMMDD));
-				List<Double> tasaCambio = new ArrayList<Double>();
-				tasaCambio.add(uf);
-				tasaCambio.add(usd);
-				tasaCambio.add(eur);
-				proforma.setFecha(hoy.getFechaStrAAMMDD());
-				proforma.setDesde(desdeAAMMDD);
-				proforma.setHasta(hastaAAMMDD);
-				proforma.setId_cliente(cliente.id);
-				proforma.setId_bodegaEmpresa(bodega.id);
-				proforma.setId_proyecto(proyecto.id);
-				proforma.setDocRef("--");
-				proforma.setEpExcelMov("PRmov_" + proforma.id + "_proformaArriendo.xlsx");
-				proforma.setEpExcelEp("PRep_" + proforma.id + "_proformaArriendo.xlsx");
-				proforma.setProformaPdf("PRpdf" + proforma.id + "_proformaArriendo.pdf");
-				proforma.setProformaXml("PRxml" + proforma.id + "_proformaArriendo.xml");
-				proforma.setDocAnexo("0");
-				proforma.setDescuento((double)0);
-				proforma.setNeto((double)0);
-				proforma.setIva((double)0);
-				proforma.setTotal((double)0);
-				proforma.setTipo(mapeoDiccionario.get("Arriendo"));
-
-				File file = detalleHExcel(s,formDynamic);
-				String fileOutNameDetalle = s.baseDato+"/"+proforma.getEpExcelEp();
-				Archivos.grabarArchivo(file, fileOutNameDetalle);
-				String concepto = mapeoDiccionario.get("ARRIENDO");
-				if("1".equals(esVenta)) {
-					concepto = "VENTA";
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				if(file != null){
+					return ok(file,false,Optional.of("EP_Proforma_Simple_"+bodega.nombre+".xlsx"));
+				}else {
+					return ok("");
 				}
-
-
-				String archivoPDF = "0";
-				try (Connection con2 = dbWrite.getConnection()) {
-					List<List<String>> datos = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDD, hastaAAMMDD, usd, eur, uf, concepto);
-					String fileOutNameMovimientos = proforma.getEpExcelMov();
-					file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, desdeAAMMDD, hastaAAMMDD);
-					Archivos.grabarArchivo(file, s.baseDato+"/"+fileOutNameMovimientos);
-					XmlFacturaReferencias referencias = new XmlFacturaReferencias();
-					if(form.tpoDocRef!=null) {
-						referencias.tpoDocRef = form.tpoDocRef;
-						referencias.folioRef = form.folioRef;
-						referencias.fchRef = form.fchRef;
-						referencias.razonRef = form.razonRef;
-						referencias.obs = "";
-					}
-					String comentarios = form.comentarios;
-					EmisorTributario emisorTributario = EmisorTributario.find(con2, s.baseDato);
-					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con2, s.baseDato, proforma.id_bodegaEmpresa);
-					if(esVenta.equals("0")) {
-						// genera PDF de arriendo, XML, JSON y guarda json en proforma
-						proforma.setTipo(mapeoDiccionario.get("Arriendo"));
-						String conDetalle = mapeoPermiso.get("parametro.proformaInvConCompra");
-						archivoPDF = FormFactura.generaProformaArriendoH(con2, s.baseDato, ws, mapeoDiccionario, mapeoPermiso,
-								resumenSubtotales,cliente,proforma,referencias,detalleAjuste, uf, usd, eur, oc,
-								dec, emisorTributario, bodegaEmpresa, comentarios, form);
-					}else {
-						// genera PDF de venta, XML, JSON y guarda json en proforma
-					}
-				} catch (SQLException e) {
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-					return ok(mensajes.render("/home/", msgReport));
-				} catch (Exception e) {
-					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-					return ok(mensajes.render("/home/", msgReport));
-				}
-				String titulo = "NOTA DE VENTA";
-				String url = "%2FreportFacturaProyectoGet%2F0&"+desdeAAMMDD+"&"+hastaAAMMDD+"&"+uf+"&"+usd+"&"+eur;
-				return redirect("/routes2/redirShowPDF/"+archivoPDF+","+titulo+","+url);
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
 	}
+
+	public Result reportFacturaProyectoDetalleHAllProforma(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			File file = detalleHAllExcel(s,form);
+			Long id_bodegaEmpresa = (long) 0;
+			BodegaEmpresa bodega = null;
+			try (Connection con = dbRead.getConnection()) {
+				String auxIdBodega = form.get("id_bodega");
+				id_bodegaEmpresa = (long) 0;
+				if (auxIdBodega != null) {
+					id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+				}
+				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			String tipo = form.get("tipo").trim();
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String neto = form.get("neto").trim();
+			String iva = form.get("iva").trim();
+			String total = form.get("total").trim();
+
+			Long id = (long)0;
+			String sql = "INSERT INTO `"+s.baseDato+"`.proformaSimple (" +
+					"tipo, fecha, desde, hasta, id_bodegaEmpresa, neto, iva, total " +
+					") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+			try (Connection con = dbWrite.getConnection();
+				 PreparedStatement smt = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+				Fechas hoy = Fechas.hoy();
+				smt.setString(1, tipo);
+				smt.setString(2, hoy.getFechaStrAAMMDD());
+				smt.setString(3, fechaDesde);
+				smt.setString(4, fechaHasta);
+				smt.setLong(5, id_bodegaEmpresa);
+				smt.setString(6, neto);
+				smt.setString(7, iva);
+				smt.setString(8, total);
+				smt.executeUpdate();
+				ResultSet rs = smt.getGeneratedKeys();
+				if (rs.next()) {
+					id = rs.getLong(1);
+				}
+				rs.close();
+				if(file != null){
+					String nameFile = "EP_Prof_Simple_"+id+".xlsx";
+					Archivos.grabarArchivo(file, s.baseDato+"/"+nameFile);
+					PreparedStatement smt1 = con.prepareStatement("update `"+s.baseDato+"`.proformaSimple set epExcel='"+nameFile+"' where id=?;");
+					smt1.setLong(1, id);
+					smt1.executeUpdate();
+					smt1.close();
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+
+			return  redirect("/reportFacturaPeriodoH/");
+		}
+	}
+
+
+	public File detalleHAllExcel(Sessiones s, DynamicForm form) {
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		String auxIdBodega = form.get("id_bodega");
+		Long id_bodegaEmpresa = (long) 0;
+		if (auxIdBodega != null) {
+			id_bodegaEmpresa = Long.parseLong(auxIdBodega.trim());
+		}
+		String fechaDesde = form.get("fechaDesde").trim();
+		String fechaHasta = form.get("fechaHasta").trim();
+		String esVenta = form.get("esVenta").trim();
+		Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+		Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+		Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+		String concepto = mapeoDiccionario.get("ARRIENDO");
+		if ("1".equals(esVenta)) {
+			concepto = "VENTA";
+		}
+		String oc = null;
+		String idTipoUsuario = null;
+		Cliente cliente = null;
+		Proyecto proyecto = null;
+		BodegaEmpresa bodega = null;
+
+		List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
+		try (Connection con = dbRead.getConnection()) {
+			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+			Map<String, Double> mapSubtotales = new HashMap<String,Double>();
+			Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
+			Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
+			Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
+			for(int i=0; i<datos.size(); i++) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(datos.get(i).get(0));
+				aux.add(datos.get(i).get(1));
+				aux.add(datos.get(i).get(2));
+				aux.add(datos.get(i).get(3));
+				aux.add(datos.get(i).get(6));
+				aux.add(datos.get(i).get(7));
+				aux.add(datos.get(i).get(9));
+				if(i==0 || i==2){
+					aux.add("");
+				}else{
+					aux.add(datos.get(i).get(10));
+				}
+				if(i==0 || i==1){
+					aux.add("");
+				}else if(i==4){
+					aux.add("Cant Dias");
+				}else if(i > 4 && i < datos.size()-3){
+					Long cantDia = (long) 0;
+					try{
+						Double totArr = Double.parseDouble(datos.get(i).get(datos.get(i).size() - 6).replaceAll(",", "").trim());
+						Double pArrDia = Double.parseDouble(datos.get(i).get(10).replaceAll(",", "").trim());
+						if(totArr > 0) {
+							cantDia = Math.round(totArr / pArrDia);
+						}
+					}catch(Exception e){}
+					aux.add(cantDia.toString());
+				}else{
+					aux.add("");
+				}
+				aux.add(datos.get(i).get(datos.get(i).size() - 6));
+				aux.add(datos.get(i).get(datos.get(i).size() - 5));
+				if( ! (i==2 || i==3 || i==datos.size()-2 || i==datos.size()-3) ){
+					if(i > 4 && i < datos.size()-3) {
+						try {
+							Double dblAux = Double.parseDouble(datos.get(i).get(datos.get(i).size() - 5).replaceAll(",", "").trim());
+							Double aux1 = mapSubtotales.get(datos.get(i).get(0));
+							if (aux1 == null) {
+								mapSubtotales.put(datos.get(i).get(0), dblAux);
+							} else {
+								mapSubtotales.put(datos.get(i).get(0), dblAux + aux1);
+							}
+						}catch(Exception e){}
+					}
+					Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+					if(guia != null) {
+						aux.add(guia.getNumero().toString());
+						aux.add(Fechas.DDMMAA(guia.getFecha()));
+					}else{
+						if (i == 0) {
+							aux.add("Guia");
+							aux.add("Guia");
+						} else if (i == 1) {
+							aux.add("Ultimo");
+							aux.add("Fecha");
+						} else if (i == 4) {
+							aux.add("Ingreso");
+							aux.add("Ingreso");
+						} else {
+							aux.add("");
+							aux.add("");
+						}
+					}
+					guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
+					if(guia != null) {
+						aux.add(guia.getNumero().toString());
+						aux.add(Fechas.DDMMAA(guia.getFecha()));
+					}else{
+						if (i == 0) {
+							aux.add("Guia");
+							aux.add("Guia");
+						} else if (i == 1) {
+							aux.add("Ultima");
+							aux.add("Fecha");
+						} else if (i == 4) {
+							aux.add("Salida");
+							aux.add("Salida");
+						} else {
+							aux.add("");
+							aux.add("");
+						}
+					}
+					datosSeleccionados.add(aux);
+				}
+			}
+			datosSeleccionados.get(datosSeleccionados.size()-1).set(0,"TOTAL NETO");
+			idTipoUsuario = s.id_tipoUsuario;
+			cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
+			proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
+			oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return null;
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return null;
+		}
+
+		Map<Long,Double> tasas = new HashMap<Long,Double>();
+		tasas.put((long)1, (double) 1); 	// 'Peso Chileno', 'CLP', '0'
+		tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
+		tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
+		tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
+		Map<String, Double> mapFijaTasas = null;
+		List<Long> listIdBodegaEmpresa = null;
+		Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+		Map<String, Calc_Precio> mapPrecios = null;
+		Map<Long,Calc_Precio> mapMaestroPrecios = null;
+		Map<Long, Cotizacion> mapCotiAllConfirmadas = null;
+		Map<Long,String> mapMoneda = null;
+		Map<Long, Equipo> mapAllEquipos = null;
+		Map<Long,Long> dec = null;
+		Map<String,List<List<String>>> mapReportPorGuia10 = null;
+		List<List<String>> detalleAjuste = null;
+		Map<Long,List<String>> mapGuiasVta = null;
+		Moneda moneda = null;
+		Map<String,Long> mapDec = null;
+		try (Connection con = dbRead.getConnection()) {
+			String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+			listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+			mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+			mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+			mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+			mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, fechaDesde, fechaHasta);
+			List<Inventarios> guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+			dec = Moneda.numeroDecimal(con, s.baseDato);
+			Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+			mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
+			mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
+			mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+			detalleAjuste = AjustesEP.detalleAjuste(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
+			oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
+			mapGuiasVta = new HashMap<Long,List<String>>();
+			for(Inventarios inv : guiasPer) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(inv.numeroGuia.toString());
+				aux.add(inv.fechaGuia);
+				mapGuiasVta.put(inv.id_guia, aux);
+			}
+			mapReportPorGuia10 = ReportFacturas.mapReportPorGuia10(s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta, mapFijaTasas, tasas,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios,
+					guiasPer, mapPermanencias, dec,  mapCotiAllConfirmadas, mapAllEquipos, mapMoneda);
+			mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+			moneda = Moneda.find(con, s.baseDato, (long)1);
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return null;
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return null;
+		}
+		List<List<String>> datos = new ArrayList<List<String>>();
+		for(Map.Entry<String,List<List<String>>> entry : mapReportPorGuia10.entrySet()) {
+			for(List<String> list : entry.getValue()) {
+				if(list.get(21).equals("1")) {
+					Long id_guia = Long.parseLong(list.get(4));
+					List<String> guia = mapGuiasVta.get(id_guia);
+					Double cant = Double.parseDouble(list.get(13).replaceAll(",", "").trim());
+					Double totMonOrigen = Double.parseDouble(list.get(15).replaceAll(",", "").trim());
+					String totalMonOrigen = DecimalFormato.formato(cant * totMonOrigen, mapDec.get(list.get(14)));
+					if(guia != null) {
+						List<String> aux = new ArrayList<String>();
+						aux.add(list.get(4)); // 0 id guia
+						aux.add(list.get(8)); // 1 nombre de grupo
+						aux.add(list.get(9)); // 2 numero cotizacion
+						aux.add(list.get(10)); // 3 codigo equipo
+						aux.add(list.get(11)); // 4 nombre equipo
+						aux.add(list.get(14)); // 5 moneda
+						aux.add(list.get(15)); // 6 precio de venta en moneda original
+						aux.add(list.get(12)); // 7 unidad
+						aux.add(list.get(13)); // 8 cantidad
+						aux.add(totalMonOrigen); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+						aux.add(list.get(20)); // 10 total venta en pesos
+						aux.add(guia.get(0)); // 11 numero guia
+						aux.add(guia.get(1)); // 12 fecha guia
+						datos.add(aux);
+					}
+				}
+			}
+		}
+		for(List<String> ajustes: detalleAjuste){
+			Double valor = Double.parseDouble(ajustes.get(2).replaceAll(",", "").trim());
+			if(valor < (double)0 || valor > (double)100){
+				List<String> aux = new ArrayList<String>();
+				aux.add(""); // 0 id guia
+				aux.add(""); // 1 nombre de grupo
+				aux.add(""); // 2 numero cotizacion
+				aux.add(""); // 3 codigo equipo
+				aux.add(ajustes.get(0)); // 4 nombre equipo
+				aux.add(""); // 5 moneda
+				aux.add(""); // 6 precio de venta en moneda original
+				aux.add(""); // 7 unidad
+				aux.add(""); // 8 cantidad
+				aux.add(""); // 9 total en moneda origen calcular cantidad * precio de venta en moneda original
+				aux.add(ajustes.get(2)); // 10 total venta en pesos
+				aux.add(""); // 11 numero guia
+				aux.add(""); // 12 fecha guia
+				datos.add(aux);
+			};
+		}
+
+		// servicio
+		List<String> fechas = null;
+		List<Double> tasaCambio = new ArrayList<Double>();
+		Long cantDec = null;
+		List<List<String>> groupPorClaseServicioEquipo = null;
+		Double tasaIva = null;
+		try (Connection con = dbRead.getConnection()){
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+			Map<Long,Long> mapDecServ = Moneda.numeroDecimal(con, s.baseDato);
+			List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDecServ);
+			fechas = new ArrayList<String>();
+			fechas.add(desdeAAMMDD);
+			fechas.add(hastaAAMMDD);
+			fechas.add(Fechas.DDMMAA(desdeAAMMDD));
+			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+			fechas.add(Fechas.DDMMAA(hastaAAMMDD));
+			tasaCambio.add(uf);
+			tasaCambio.add(usd);
+			tasaCambio.add(eur);
+			cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+			List<TipoReferencia> listReferencias = TipoReferencia.all(con, s.baseDato);
+			groupPorClaseServicioEquipo = ReportOdo.proformaGroupPorClaseServicioEquipo(detalleProformaPorServicio, mapDecServ);
+			List<List<String>> listaAjustes = Calc_AjustesEpOdo.listaEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
+			for(List<String> a: listaAjustes){
+				List<String> aux = new ArrayList<String>();
+				aux.add("");						//0 familia
+				aux.add("");						//1 getNomClaseServicio
+				aux.add(a.get(5)+": "+a.get(6));	//2 getCodServicio
+				aux.add("");						//3 getNomServicio
+				aux.add("");						//4 getFecha
+				aux.add("");						//5 getDetalle
+				aux.add("");						//6 cantidad
+				aux.add("");						//7 total
+				aux.add("");				//8 cantidad minima
+				aux.add("");			//9 precio total minimo
+				aux.add("");		//10 precio total adicional
+				aux.add(a.get(4));			//11 precio total final
+				aux.add("");					//12 getNroCotiOdo
+				groupPorClaseServicioEquipo.add(aux);
+			}
+
+			EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+			tasaIva = emisor.getTasaIva()/100;
+			if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
+				if(bodega.getIvaBodega() > 0) {
+					tasaIva = bodega.getIvaBodega();
+				}else {
+					Sucursal sucursal = Sucursal.find(con, s.baseDato, bodega.getId_sucursal().toString());
+					if(sucursal.getIvaSucursal() > 0) {
+						tasaIva = sucursal.getIvaSucursal();
+					}
+				}
+			}
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return null;
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return null;
+		}
+
+		File file = ReportFacturas.reportFacturaProyectoDetHAllExcel(s.baseDato,mapeoDiccionario,
+				datosSeleccionados, bodega, esVenta, fechaDesde, fechaHasta, usd, eur, uf, cliente, proyecto, oc,
+				datos, moneda.getNumeroDecimales(), moneda.getNickName(),
+				cantDec, groupPorClaseServicioEquipo, tasaIva);
+		return(file);
+	}
+
+
+
 
 	//====================================================================================
 	// MNU proformaResumen   Reportes/Proforma/Resumen y Detalle (por mes)

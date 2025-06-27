@@ -459,6 +459,7 @@ public class MnuBodegas extends Controller {
 		}else {
 			String nombreSucursal = form.get("nombreSucursal").trim();
 			String strIvaSucursal = form.get("ivaSucursal").trim();
+			String ccost = form.get("ccost").trim();
 			try (Connection con = dbWrite.getConnection()){
 				Double ivaSucursal = Double.parseDouble(strIvaSucursal.replaceAll(",", "").replaceAll("%", "").trim());
 				ivaSucursal = ivaSucursal/100;
@@ -466,7 +467,7 @@ public class MnuBodegas extends Controller {
 					String msg = "No es posible crear esta sucursal, el nombre de sucursal ya existe.";
 					return ok(mensajes.render("/routes2/sucursalAdministrar/",msg));
 				}else {
-					if(Sucursal.create(con, s.baseDato, nombreSucursal, ivaSucursal)) {
+					if(Sucursal.create(con, s.baseDato, nombreSucursal, ivaSucursal, ccost)) {
 						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "sucursal", (long)0, "create", "agrega nuevo sucursal: "+nombreSucursal);
 						Sucursal sucursal = Sucursal.find(con, s.baseDato, "1");
 						String msg = "Sucursal creada con exito, recuerde actualizar los precios en el maestro, por ahora se heredaron "

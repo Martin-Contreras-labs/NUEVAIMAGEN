@@ -88,10 +88,11 @@ contactos: String, direccion: String)
 							<TH>GRUPO</TH>
 							<TH>CODIGO</TH>
 							<TH>EQUIPO</TH>
-							<TH>KG</TH>
-					        <TH>M2</TH>
+							<TH>KG UNIT</TH>
+					        <TH>M2 UNIT</TH>
 					        <TH>UN</TH>
 							<TH>CANTIDAD</TH>
+							<TH>TOTAL KG</TH>
 							@if(bodegaOrigen.esInterna!=1){
 								@for(titEstado <- listTipoEstado){
 									<TH style="font-size:10px; vertical-align:middle">
@@ -113,8 +114,10 @@ contactos: String, direccion: String)
 								<td  style="text-align:center;">@lista1.get(6)</td>
 								@if(mapPermiso.get("parametro.ocultar-cant-hoja-chequeo")!=null && mapPermiso.get("parametro.ocultar-cant-hoja-chequeo").equals("1")){
 									<td class="cant" style="text-align:right;"></td>
+									<td class="totKg" style="text-align:right;"></td>
 								}else{
 									<td class="cant" style="text-align:right;">@lista1.get(7)</td>
+									<td class="totKg" style="text-align:right;"></td>
 								}
 								@if(bodegaOrigen.esInterna!=1){
 									@for((est,index) <- listTipoEstado.zipWithIndex){
@@ -133,6 +136,7 @@ contactos: String, direccion: String)
 					        <TH id="totM2" style="text-align:right;"></TH>
 					        <TH></TH>
 							<TH id="totCant" style="text-align:right;"></TH>
+							<TH id="totTotKg" style="text-align:right;"></TH>
 							@if(bodegaOrigen.esInterna!=1){
 								@for(titEstado <- listTipoEstado){
 									<TH style="font-size:10px; vertical-align:middle">
@@ -191,7 +195,9 @@ contactos: String, direccion: String)
 		const kgs = document.querySelectorAll('td.kg');
 		const m2s = document.querySelectorAll('td.m2');
 		const cants = document.querySelectorAll('td.cant');
+		const subKg = document.querySelectorAll('td.totKg');
 		let totKg = 0;
+		let totTotKg = 0;
 		let totM2 = 0;
 		let totCant = 0;
 		for (let i = 0; i < kgs.length; i++) {
@@ -199,19 +205,24 @@ contactos: String, direccion: String)
 		  const m2 = m2s[i].textContent.replace(/,/g,'');
 		  let cant = cants[i].textContent.replace(/,/g,'');
 			if(cant == ""){
-				cant = "0";
+				cant = 0;
+			}else{
+				subKg[i].textContent = formatStandar(parseFloat(kg)*parseFloat(cant),2);
 			}
 		  totKg += parseFloat(kg);
+			totTotKg += parseFloat(kg)*parseFloat(cant);
 		  totM2 += parseFloat(m2);
 		  totCant += parseFloat(cant);
 		}
-		$("#totKg").text(formatStandar(totKg));
-		$("#totM2").text(formatStandar(totM2));
-		
+		$("#totKg").text(formatStandar(totKg,2));
+		$("#totM2").text(formatStandar(totM2,2));
+
 		if(totCant == 0){
+			$("#totCant").text("");
 			$("#totCant").text("");
 		}else{
 			$("#totCant").text(formatStandar(totCant,2));
+			$("#totTotKg").text(formatStandar(totTotKg,2));
 		}
 		
 

@@ -239,6 +239,11 @@ public class ApiManagerDocDoc {
 				}
 			}
 			String IvaTasa = tasaIvaArrAuxiliar.toString();
+			Sucursal sucursal = Sucursal.find(con, db, bodegaDestino.getId_sucursal().toString());
+			String ccost = sucursal.getCcost().trim();
+			if(ccost == null || ccost.trim().length() <= 0){
+				ccost = "";
+			}
 			for (int i = 0; i < detalleGuia.size(); i++) {
 				String auxPrecio = detalleGuia.get(i).get(9).trim();                        // precio unitario de venta en moneda de origen
 				// ***************************
@@ -287,7 +292,7 @@ public class ApiManagerDocDoc {
 			api.fecha_doc = Fechas.DDMMAA(guia.fecha);
 			// api.fecha_ref = "";
 			// api.fecha_vcto = "";
-			// api.cod_unidnegocio = "";
+			api.cod_unidnegocio = ccost;
 			cliente.rut = cliente.rut.trim();
 			cliente.rut = cliente.rut.replace(".", "").replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 			cliente.rut = cliente.rut.replace(",", "").replace(",", "").replace(",", "").replace(",", "").replace(",", "");
@@ -412,10 +417,16 @@ public class ApiManagerDocDoc {
 			emisorTributario.rut = emisorTributario.rut.replace(".", "").replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 			emisorTributario.rut = emisorTributario.rut.replace(",", "").replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 			emisorTributario.rut = emisorTributario.rut.replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "");
+			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+			String ccost = sucursal.getCcost().trim();
+			if(ccost == null || ccost.trim().length() <= 0){
+				ccost = "";
+			}
 			api.rut_empresa = emisorTributario.rut;
 			api.tipodocumento = "NV"; //se debe parametrizar GDVE ES GUIA Y NV ES NOTA VENTA PARA FACTURA
 			api.num_doc = proforma.id.toString();
 			api.fecha_doc = Fechas.DDMMAA(valPeriodoHasta); //Fechas.DDMMAA(proforma.fecha);
+			api.cod_unidnegocio = ccost;
 			api.fecha_ref = Fechas.DDMMAA(valPeriodoHasta);
 			cliente.rut = cliente.rut.trim();
 			cliente.rut = cliente.rut.replace(".", "").replace(".", "").replace(".", "").replace(".", "").replace(".", "");
@@ -495,10 +506,16 @@ public class ApiManagerDocDoc {
 			emisorTributario.rut = emisorTributario.rut.replace(".", "").replace(".", "").replace(".", "").replace(".", "").replace(".", "");
 			emisorTributario.rut = emisorTributario.rut.replace(",", "").replace(",", "").replace(",", "").replace(",", "").replace(",", "");
 			emisorTributario.rut = emisorTributario.rut.replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "");
+			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
+			String ccost = sucursal.getCcost().trim();
+			if(ccost == null || ccost.trim().length() <= 0){
+				ccost = "";
+			}
 			api.rut_empresa = emisorTributario.rut;
 			api.tipodocumento = "NV"; //se debe parametrizar GDVE ES GUIA Y NV ES NOTA VENTA PARA FACTURA
 			api.num_doc = proforma.id.toString();
 			api.fecha_doc = Fechas.DDMMAA(valPeriodoHasta); //Fechas.DDMMAA(proforma.fecha);
+			api.cod_unidnegocio = ccost;
 			api.fecha_ref = Fechas.DDMMAA(valPeriodoHasta);
 			cliente.rut = cliente.rut.trim();
 			cliente.rut = cliente.rut.replace(".", "").replace(".", "").replace(".", "").replace(".", "").replace(".", "");

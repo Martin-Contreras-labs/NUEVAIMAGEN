@@ -852,7 +852,8 @@ public class MnuCotizar extends Controller {
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				List<List<String>> listCotizacion = Cotizacion.listCotiallParaCambiarEstado(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, desdeAAMMDD, hastaAAMMDD);
 				List<CotizaEstado> listEstados = CotizaEstado.all(con, s.baseDato);
-				return ok(cotizaListaCambiaEstado.render(mapeoDiccionario, mapeoPermiso, userMnu, listCotizacion, listEstados));
+				List<Dibujante> listDibujantes = Dibujante.allVigentes(con, s.baseDato);
+				return ok(cotizaListaCambiaEstado.render(mapeoDiccionario, mapeoPermiso, userMnu, listCotizacion, listEstados, listDibujantes));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -891,6 +892,66 @@ public class MnuCotizar extends Controller {
 				return ok("error");
 			}
     	}
+	}
+
+	public Result cambiarCotizaFechaProbableAjax(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok("error");
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok("error");
+		}else {
+			try (Connection con = dbWrite.getConnection()){
+				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
+				String fechaProbable = form.get("fechaProbable").trim();
+				Cotizacion.modifyXCampo(con, s.baseDato, "fechaProbable", fechaProbable, id_cotizacion);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotizacion", id_cotizacion, "update", "cambia fecha probable de cotizacion id: "+id_cotizacion.toString());
+				return ok("OK");
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			}
+		}
+	}
+
+	public Result cambiarCotizaDibujanteAjax(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok("error");
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok("error");
+		}else {
+			try (Connection con = dbWrite.getConnection()){
+				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
+				String id_dibujante = form.get("id_cotizaDibujante").trim();
+				Cotizacion.modifyXCampo(con, s.baseDato, "id_dibujante", id_dibujante, id_cotizacion);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "cotizacion", id_cotizacion, "update", "cambia dibujante proyectista de cotizacion id: "+id_cotizacion.toString());
+				return ok("OK");
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			}
+		}
 	}
     
     public Result cambiarCotizaNotaAjax(Http.Request request) {

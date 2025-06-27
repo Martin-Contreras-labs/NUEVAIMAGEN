@@ -1,10 +1,9 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, idTipoUsuario: String,
-		lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, fechaDesde: String, fechaHasta: String,
+		datos: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, fechaDesde: String, fechaHasta: String,
 		usd: Double, eur: Double, uf: Double,
 		cliente: tables.Cliente, proyecto: tables.Proyecto, oc: String,
-		tasaIva: Double, cantDec: Long)
-
-
+		nroDecimales: Long, mon: String, tasaIva: Double)
+    	
 @main("") {
 
 	@menues(mapDiccionario, mapPermiso, userMnu, " ")
@@ -53,9 +52,8 @@
 								}else{
 									alertify.alert('No hay valor de alquiler a emitir', function () {});
 								}">
-									ALQUILERES
+									VENTAS
 								</button>
-							</td>
 							</td>
 						</tr>
 					</table>
@@ -118,49 +116,63 @@
 				<div class="table-responsive">
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #dddddd">
-					        @for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 < 3){
-									<TR>
-										@for(nivel2 <- nivel1) {
-											<td style="text-align: center">@nivel2</td>
-										}
-									</TR>
-								}
-							}
+							<TR>
+								<th>GRUPO</th>
+								<th>COTI</th>
+								<th>CODIGO</th>
+								<th>EQUIPO</th>
+								<th>MON</th>
+								<th>PRECIO<br>UNITARIO</th>
+								<th>UN</th>
+								<th>CANT</th>
+								<th>TOTAL MON<br>ORIGEN</th>
+								<th>TOTAL EN<br>@mon</th>
+								<th>Nro GUIA</th>
+								<th>FECHA</th>
+							</TR>
 						</thead>
 						<tbody>
-							@for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 > 2){
-									<TR>
-										@for((nivel2,index2) <- nivel1.zipWithIndex) {
-											@if(index2 == 1){
-												@if(nivel2.equals("0") || nivel2.equals("")){
-													<td style="text-align: center;">--</td>
-												}else{
-													<td style="text-align: center;">@nivel2</td>
-												}
-											}else if(index2 < 4) {
-												@if(index2 == 2 || index2 ==3){
-													<td>@nivel2</td>
-												}else{
-													<td>@nivel2</td>
-												}
-											}else{
-												<td style="text-align: right;">@nivel2</td>
-											}
+							@for((nivel1,index1) <- datos.zipWithIndex) {
+								<TR>
+									@for((nivel2,index2) <- nivel1.drop(1).zipWithIndex) {
+										@if(index2<4){
+											<td style="text-align: left;">@nivel2</td>
+										}else if(index2==4 || index2==6 || index2==10 || index2==11){
+											<td style="text-align: center;">@nivel2</td>
+										}else if(index2==7){
+											<td class="cantidades" style="text-align: right;">@nivel2</td>
+										}else if(index2==9 ){
+											<td class="totales" style="text-align: right;">@nivel2</td>
+										}else{
+											<td style="text-align: right;">@nivel2</td>
 										}
-									</TR>
-								}
+									}
+								</TR>
 							 }
 						</tbody>
-						
+						<tfoot>
+							<TR>
+								<th style="background-color: #eeeeee">TOTALES</th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="text-align: right;background-color: #eeeeee""><div id="cant"></div></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="text-align: right;background-color: #eeeeee""><div id="tot"></div></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+							</TR>
+						</tfoot>
 
 					</table>
 				</div>
 			</div>
 
 	
-	<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoDetalleHExcel/">
+	<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoDetalleHVtaExcel/">
 		<input type="hidden" name="id_bodega" value="@bodega.getId()">
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
@@ -170,7 +182,7 @@
 		<input type="hidden" name="eur" value="@eur">
 	</form>
 
-	<form id="formProforma" class="formulario" method="post" action="/reportFacturaProyectoDetalleHServProforma/">
+	<form id="formProforma" class="formulario" method="post" action="/reportFacturaProyectoDetalleHVtaProforma/">
 		<input type="hidden" name="id_bodega" value="@bodega.getId()">
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
@@ -178,7 +190,7 @@
 		<input type="hidden" name="uf" value="@uf">
 		<input type="hidden" name="usd" value="@usd">
 		<input type="hidden" name="eur" value="@eur">
-		<input type="hidden" name="tipo" value="ALQUILERES">
+		<input type="hidden" name="tipo" value="VENTAS">
 		<input type="hidden" id="profneto" name="neto">
 		<input type="hidden" id="profiva" name="iva">
 		<input type="hidden" id="proftotal" name="total">
@@ -191,35 +203,39 @@
 <script type="text/javascript">
 		let neto = 0;
 	$(document).ready(function() {
-		
-		var tabla = document.getElementById("tablaPrincipal");
-			for(var k=0;k<tabla.rows[0].cells.length;k++){
-				tabla.rows[tabla.rows.length-1].cells[k].style.backgroundColor="#dddddd";
+		let suma = 0;
+		document.querySelectorAll('td.cantidades').forEach(td => {
+			const valor = parseFloat(td.textContent.replace(/,/g, ''));
+			if (!isNaN(valor)) {
+				suma += valor;
 			}
-			let totArr = 0;
-			@if(lista.size()>0){
-				let val = "@lista.get(lista.size()-1).get(10)";
-				val = val.replace(/,/g,'');
-				totArr = val;
+		});
+		$("#cant").text(formatStandar(suma,2));
+
+		suma = 0;
+		document.querySelectorAll('td.totales').forEach(td => {
+			const valor = parseFloat(td.textContent.replace(/,/g, ''));
+			if (!isNaN(valor)) {
+				suma += valor;
 			}
+		});
+		$("#tot").text(formatStandar(suma,"@nroDecimales"));
 
-			neto = totArr;
-			let iva = neto * parseFloat("@tasaIva");
-			let total = parseFloat(neto) + parseFloat(iva);
-			$("#NETO").text(formatStandar(neto,"@cantDec"));
-			$("#IVA").text(formatStandar(iva,"@cantDec"));
-			$("#TOTAL").text(formatStandar(total,"@cantDec"));
+		neto = suma;
+		let iva = neto * parseFloat("@tasaIva");
+		let total = parseFloat(neto) + parseFloat(iva);
+		$("#NETO").text(formatStandar(neto,"@nroDecimales"));
+		$("#IVA").text(formatStandar(iva,"@nroDecimales"));
+		$("#TOTAL").text(formatStandar(total,"@nroDecimales"));
 
-		$("#profneto").val(formatStandar(neto,"@cantDec"));
-		$("#profiva").val(formatStandar(iva,"@cantDec"));
-		$("#proftotal").val(formatStandar(total,"@cantDec"));
+		$("#profneto").val(formatStandar(neto,"@nroDecimales"));
+		$("#profiva").val(formatStandar(iva,"@nroDecimales"));
+		$("#proftotal").val(formatStandar(total,"@nroDecimales"));
 
-			document.getElementById('mostrarmostrar').style.display="block";
+		document.getElementById('mostrarmostrar').style.display="block";
 	});
 
 
-
-	
 </script>
 
 

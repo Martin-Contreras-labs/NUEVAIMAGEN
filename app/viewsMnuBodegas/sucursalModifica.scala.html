@@ -43,6 +43,20 @@ sucursal: tables.Sucursal)
 									</div>
 								</div>
 							}
+							<div class="row">
+								<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+									<b><font color="#008000">CCOST:</font></b>
+								</div>
+								<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+									<input type="hidden" name="ccost" value="@sucursal.getId()">
+									<input type="text" class="form-control"
+									id="ccost"
+									maxlength="50"
+									value="@sucursal.getCcost()"
+									onkeypress="return sinReservados(event)"
+									onchange="value = value.trim(); modificarCcost(id)">
+								</div>
+							</div>
 						</td>
 					</tr>
 				</table>
@@ -93,6 +107,35 @@ sucursal: tables.Sucursal)
 	     		}
 	     	}
         });
+	}
+
+	const modificarCcost = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+		formData.append('campo',campo);
+		formData.append('id_sucursal','@sucursal.getId()');
+		formData.append('valor',valor);
+
+		$.ajax({
+			url: "/routes2/modificaSucursalPorCampoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="existe"){
+					alertify.alert('El nombre de sucursal ya existe, intente con otro', function () {
+						$("#nombre").val("@sucursal.getNombre()");
+					});
+				}else if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
 	}
 	
 </script>

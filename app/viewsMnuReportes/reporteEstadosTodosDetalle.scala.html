@@ -95,15 +95,17 @@ listTipoEstados: List[tables.TipoEstado], mapDatos: Map[Long,List[List[String]]]
 				tabla.rows[1].cells[i].style.backgroundColor="#F8E6E0" ;
 				tabla.rows[2].cells[i].style.backgroundColor="#F8E6E0" ;
 				tabla.rows[3].cells[i].style.backgroundColor="#F8E6E0" ;
+				tabla.rows[4].cells[i].style.backgroundColor="#F8E6E0" ;
 				
 				if(i>7){
 					tabla.rows[0].cells[i].style.textAlign="center" ;
 					tabla.rows[1].cells[i].style.textAlign="center" ;
 					tabla.rows[2].cells[i].style.textAlign="center" ;
 					tabla.rows[3].cells[i].style.textAlign="center" ;
+					tabla.rows[4].cells[i].style.textAlign="center" ;
 				}	
 			}
-			for (var i = 4; i < tabla.rows.length; i++) { 	
+			for (var i = 5; i < tabla.rows.length; i++) {
 				for (var j = 4; j < tabla.rows[i].cells.length; j++) {
 					if(j==4 || j>7){
 						tabla.rows[i].cells[j].style.textAlign="center" ;

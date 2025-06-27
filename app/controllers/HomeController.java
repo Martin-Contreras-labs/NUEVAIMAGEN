@@ -735,12 +735,7 @@ public class HomeController extends Controller {
        		String userKey = form.get("userKey");
        		String pais = form.get("pais");
        		String gRecaptchaResponse = form.get("gRecaptchaResponse");
-       		//if(!empresa.equals("DEMO")) {
-//			String publicIp = new BufferedReader(new InputStreamReader(
-//					new URL("https://checkip.amazonaws.com").openStream()
-//			)).readLine();
-//			System.out.println("IP pública de salida ECS: " + publicIp);
-			if(empresa.equals("DEMO")) {
+			if( ! empresa.equals("DEMO") && ! empresa.equals("MONTAX")) {
        			boolean verificado = false;
                 try {
         			verificado = VerificarCaptcha.verificar(gRecaptchaResponse);

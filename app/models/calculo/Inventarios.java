@@ -28,9 +28,13 @@ public class Inventarios {
 	public Long id_guia;
 	public String fechaGuia;
 	public Long id_tipoMovimiento;
+
+	public Long numeroGuia;
+	public String numGuiaCliente;
 	
 	
-	public Inventarios(Long id_bodegaEmpresa, Long id_grupo, Long id_equipo, Long id_cotizacion, Long esVenta, Double cantidad, Long id_guia, String fechaGuia, Long id_tipoMovimiento) {
+	public Inventarios(Long id_bodegaEmpresa, Long id_grupo, Long id_equipo, Long id_cotizacion, Long esVenta, Double cantidad, Long id_guia, String fechaGuia, Long id_tipoMovimiento,
+					   Long numeroGuia, String numGuiaCliente) {
 		super();
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
 		this.id_equipo = id_equipo;
@@ -41,6 +45,8 @@ public class Inventarios {
 		this.id_guia = id_guia;
 		this.fechaGuia = fechaGuia;
 		this.id_tipoMovimiento = id_tipoMovimiento;
+		this.numeroGuia = numeroGuia;
+		this.numGuiaCliente = numGuiaCliente;
 	}
 
 	public Inventarios() {
@@ -268,7 +274,9 @@ public class Inventarios {
 						+ " movimiento.esVenta, "
 						+ " guia.fecha, "
 						+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad), "
-						+ " movimiento.id_tipoMovimiento "
+						+ " movimiento.id_tipoMovimiento, "
+						+ " guia.numero, "
+						+ " guia.numGuiaCliente "
 						+ " from `%s`.movimiento "
 						+ " left join `%s`.guia on guia.id = movimiento.id_guia "
 						+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
@@ -290,6 +298,8 @@ public class Inventarios {
 							aux.fechaGuia = rs.getString(7);
 							aux.cantidad = rs.getDouble(8);
 							aux.id_tipoMovimiento = rs.getLong(9);
+							aux.numeroGuia = rs.getLong(10);
+							aux.numGuiaCliente = rs.getString(11);
 							lista.add(aux);
 						}
 					}
@@ -320,7 +330,9 @@ public class Inventarios {
 					+ " movimiento.esVenta, "
 					+ " guia.fecha, "
 					+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad), "
-					+ " movimiento.id_tipoMovimiento "
+					+ " movimiento.id_tipoMovimiento, "
+					+ " guia.numero, "
+					+ " guia.numGuiaCliente "
 					+ " from `%s`.movimiento "
 					+ " left join `%s`.guia on guia.id = movimiento.id_guia "
 					+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
@@ -343,6 +355,8 @@ public class Inventarios {
 							aux.fechaGuia = rs.getString(7);
 							aux.cantidad = rs.getDouble(8);
 							aux.id_tipoMovimiento = rs.getLong(9);
+							aux.numeroGuia = rs.getLong(10);
+							aux.numGuiaCliente = rs.getString(11);
 							List<Inventarios> lista = map.get(rs.getLong(2));
 							if (lista == null) {
 								List<Inventarios> auxLista = new ArrayList<Inventarios>();

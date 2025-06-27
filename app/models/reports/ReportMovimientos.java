@@ -1493,7 +1493,8 @@ public class ReportMovimientos {
 					.prepareStatement(" select  distinct " +
 							" guia.numero, " +
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
-							" tipoMovimiento.nombre " +
+							" tipoMovimiento.nombre, " +
+							" guia.numGuiaCliente " +
 							" from `"+db+"`.estadoEquipo " +
 							" left join `"+db+"`.movimiento on movimiento.id=estadoEquipo.id_movimiento " +
 							" left Join `"+db+"`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado " +
@@ -1508,50 +1509,72 @@ public class ReportMovimientos {
 			ResultSet rs1 = smt1.executeQuery();
 			
 			List<String> numGuia = new ArrayList<String>();
+			List<String> ref = new ArrayList<String>();
 			List<String> fechGuia = new ArrayList<String>();
 			List<String> tipGuia = new ArrayList<String>();
 			List<String> blanco = new ArrayList<String>();
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Grupo");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Nro Coti");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Código");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Equipo");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Moneda");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("P.Reposicion");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Tasa Arriendo");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Arriendo Mes");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Arriendo Dia");
+
 			numGuia.add(" ");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add("KG");
 			numGuia.add("Nro.Mov:");
+			ref.add("Ref.Clie:");
 			fechGuia.add("Fecha:");
 			tipGuia.add("Tipo.Mov: ");
 			blanco.add("M2");
@@ -1559,12 +1582,14 @@ public class ReportMovimientos {
 			List<String> listaGuias = new ArrayList<String>();
 			while (rs1.next()) {
 				numGuia.add(rs1.getString(1));
+				ref.add(rs1.getString(4));
 				fechGuia.add(rs1.getString(2));
 				tipGuia.add(rs1.getString(3));
 				blanco.add(" ");
 				listaGuias.add(rs1.getString(1));
 			}
 			numGuia.add("TOTALES");
+			ref.add(" ");
 			fechGuia.add(" ");
 			tipGuia.add(" ");
 			blanco.add(" ");
@@ -1676,6 +1701,7 @@ public class ReportMovimientos {
 			
 			// ARMAR MATRIZ
 			lista.add(numGuia);
+			lista.add(ref);
 			lista.add(fechGuia);
 			lista.add(tipGuia);
 			lista.add(blanco);
@@ -1843,14 +1869,14 @@ public class ReportMovimientos {
 					posCell = 0;
 					for(int j=0;j<datos.get(k).size();j++){
 						String dato = datos.get(k).get(j);
-						if(k<4){
+						if(k<5){
 							posCell++; 
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(encabezado);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(dato);
 						}else{
-							if(j<5){
+							if(j<6){
 								posCell++; 
 					            cell = row.createCell(posCell);
 					            cell.setCellStyle(detalle);
@@ -2598,12 +2624,12 @@ public class ReportMovimientos {
 					aux2.add(""); 
 					aux2.add(""); 
 					aux2.add(""); 
-					aux2.add(""); 
+					aux2.add("");
 					aux2.add("");
 					aux2.add("");
 					aux2.add("");
 					for(int cell=11; cell<lista.get(0).size(); cell++) {
-						if(cell==lista.get(0).size()-2) {
+						if(cell==lista.get(0).size()-5) {
 							totArr+=auxTot;
 							aux2.add(myformatMoneda.format(auxTot));
 						}else {
@@ -2779,7 +2805,7 @@ public class ReportMovimientos {
 							String auxNum = lista.get(coll).get(cell).trim();
 							if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 							try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
-							totPorColl=totPorColl+auxTot;
+							totPorColl = totPorColl + auxTot;
 						}else{
 							Double auxTot = (double)0;
 							String auxNum = lista.get(coll).get(cell).trim();
@@ -3236,7 +3262,8 @@ public class ReportMovimientos {
 				aux.add(numCotizacion);											// 14Numero cotizacion
 				
 				aux.add(bodega.getNameSucursal());								// 15 namesucursal
-				
+				aux.add(d.get(8));												// 16 nro ref cliente
+
 				lista.add(aux);
 			}
 		}
@@ -3405,7 +3432,13 @@ public class ReportMovimientos {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("GUIA");
+			cell.setCellValue("NRO.MOV");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("REF.CLIE");
 			
 			posCell++; 
             cell = row.createCell(posCell);
@@ -3535,6 +3568,12 @@ public class ReportMovimientos {
 		            cell.setCellStyle(detalle);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listado.get(i).get(11));
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(listado.get(i).get(16));
 					
 					posCell++; 
 		            cell = row.createCell(posCell);

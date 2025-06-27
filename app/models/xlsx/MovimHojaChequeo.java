@@ -163,14 +163,14 @@ public class MovimHojaChequeo {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("KG");
+			cell.setCellValue("KG UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("M2");
+			cell.setCellValue("M2 UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
@@ -178,14 +178,20 @@ public class MovimHojaChequeo {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
-			
-			
+
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 3*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL KG");
 			
 			
 			
@@ -245,9 +251,9 @@ public class MovimHojaChequeo {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(4).replaceAll(",", ""));
+	            Double kg = Double.parseDouble(listEquipBodOrigen.get(i).get(4).replaceAll(",", ""));
 				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				cell.setCellValue(aux);
+				cell.setCellValue(kg);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -269,10 +275,23 @@ public class MovimHojaChequeo {
 		            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
 					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
+
+					posCell++; posColl++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux*kg);
+
 				}else {
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+
+					posCell++; posColl++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
 					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				}
 				
@@ -447,14 +466,14 @@ public class MovimHojaChequeo {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("KG");
+			cell.setCellValue("KG UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("M2");
+			cell.setCellValue("M2 UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
@@ -469,6 +488,13 @@ public class MovimHojaChequeo {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 3*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL KG");
 			
 			if(bodegaOrigen.esInterna != (long)1){
 				for(int i=0; i<listTipoEstado.size(); i++) {
@@ -532,9 +558,9 @@ public class MovimHojaChequeo {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(6).replaceAll(",", ""));
+	            Double kg = Double.parseDouble(listEquipBodOrigen.get(i).get(6).replaceAll(",", ""));
 				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				cell.setCellValue(aux);
+				cell.setCellValue(kg);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -548,7 +574,7 @@ public class MovimHojaChequeo {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(8));
-				
+
 				if(sinCant.equals("0")) {
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
@@ -556,10 +582,21 @@ public class MovimHojaChequeo {
 		            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(9).replaceAll(",", ""));
 					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
+
+					posCell++; posColl++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux*kg);
 				}else {
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+
+					posCell++; posColl++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
 					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				}
 				

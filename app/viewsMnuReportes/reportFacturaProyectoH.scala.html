@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 tabla: String, desdeDDMMAA: String, hastaDDMMAA: String, id_proyecto: String,
-uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String)
+uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String, nroDec: Long)
     	
 @main("") {
 
@@ -68,42 +68,56 @@ uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String)
 			let val = $(this).text().replace(/,/g,'');
 			cfi += parseFloat(val);
 		});
-		$("#cfi").text(formatStandar(cfi,0));
+		$("#cfi").text(formatStandar(cfi,"@nroDec"));
 		
 		let arr = 0;
 		$(".arr").each(function() {
 			let val = $(this).text().replace(/,/g,'');
 			arr += parseFloat(val);
 		});
-		$("#arr").text(formatStandar(arr,0));
+		$("#arr").text(formatStandar(arr,"@nroDec"));
 		
-		// let vta = 0;
-		// $(".vta").each(function() {
-		// 	let val = $(this).text().replace(/,/g,'');
-		// 	vta += parseFloat(val);
-		// });
-		// $("#vta").text(formatStandar(vta,0));
+		let vta = 0;
+		$(".vta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			vta += parseFloat(val);
+		});
+		$("#vta").text(formatStandar(vta,"@nroDec"));
+
+		let serv = 0;
+		$(".serv").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			serv += parseFloat(val);
+		});
+		$("#serv").text(formatStandar(serv,"@nroDec"));
 		
 		let ajustArr = 0;
 		$(".ajustArr").each(function() {
 			let val = $(this).text().replace(/,/g,'');
 			ajustArr += parseFloat(val);
 		});
-		$("#ajustArr").text(formatStandar(ajustArr,0));
+		$("#ajustArr").text(formatStandar(ajustArr,"@nroDec"));
 		
-		// let ajustVta = 0;
-		// $(".ajustVta").each(function() {
-		// 	let val = $(this).text().replace(/,/g,'');
-		// 	ajustVta += parseFloat(val);
-		// });
-		// $("#ajustVta").text(formatStandar(ajustVta,0));
+		let ajustVta = 0;
+		$(".ajustVta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajustVta += parseFloat(val);
+		});
+		$("#ajustVta").text(formatStandar(ajustVta,"@nroDec"));
+
+		let ajustServ = 0;
+		$(".ajustServ").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajustServ += parseFloat(val);
+		});
+		$("#ajustServ").text(formatStandar(ajustServ,"@nroDec"));
 		
 		let granTotal = 0;
 		$(".granTotal").each(function() {
 			let val = $(this).text().replace(/,/g,'');
 			granTotal += parseFloat(val);
 		});
-		$("#granTotal").text(formatStandar(granTotal,0));
+		$("#granTotal").text(formatStandar(granTotal,"@nroDec"));
 
 			document.getElementById('mostrarmostrar').style.display="block";
 	});

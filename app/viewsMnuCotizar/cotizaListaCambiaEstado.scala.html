@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado])
+listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado], listDibujantes: List[tables.Dibujante])
 
     	
 @main("") {
@@ -12,7 +12,7 @@ listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado])
 	<div id="mostrarmostrar" style="display:none;">
 		@barraTitulo(mapDiccionario, "CAMBIAR EL ESTADO DE COTIZACIONES","(solo cotizaciones pendientes de confirmar)")
 		<div class="row  justify-content-md-center">
-			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">
 						<TR>
@@ -25,6 +25,8 @@ listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado])
 							<TH>PROYECTO</TH>
 							<TH>OBSERVACIONES</TH>
 							<TH>DOC</TH>
+							<TH>FECHA<br>PROBABLE</TH>
+							<TH>DIBUJANTE<br>PROYECTISTA</TH>
 							<TH>ESTADO</TH>
 							<TH>NOTAS</TH>
 						</TR>
@@ -57,6 +59,22 @@ listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado])
 											<kbd style="background-color: #7F8C8D">doc</kbd>
 										</a>
 									}
+								</td>
+								<td style="text-align:left;">
+									<input type="date" class="form-control center"
+									name="fechaProbable"
+									id="fechaProbable"
+									onblur="if( ! limitaFecha(value,720,720)){value='@lista1.get(13)';}else{cambiarFechaProbable('@lista1.get(0)', value);}"
+									value="@lista1.get(13)"
+									required>
+								</td>
+								<td style="text-align:left;">
+									<select class="custom-select height23px font10px" onchange="cambiarDibujante('@lista1.get(0)', value)">
+										<option value="@lista1.get(15)">@lista1.get(14)</option>
+										@for(lista2 <- listDibujantes){
+											<option value="@lista2.getId()">@lista2.getNombre()</option>
+										}
+									</select>
 								</td>
 								<td  style="text-align:center;">
 									<select class="custom-select height23px font10px" onchange="cambiarEstado('@lista1.get(0)', value)">
@@ -169,6 +187,38 @@ listCotizaciones: List[List[String]], listEstados: List[tables.CotizaEstado])
 	     	processData: false,
 	     	success: function(respuesta){}
         });
+	}
+
+	const cambiarFechaProbable = (id_cotizacion, fechaProbable) => {
+		var formData = new FormData();
+		formData.append('id_cotizacion',id_cotizacion);
+		formData.append('fechaProbable',fechaProbable);
+		$.ajax({
+			url: "/cambiarCotizaFechaProbableAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){}
+		});
+	}
+
+	const cambiarDibujante = (id_cotizacion, id_dibujante) => {
+		var formData = new FormData();
+		formData.append('id_cotizacion',id_cotizacion);
+		formData.append('id_cotizaDibujante',id_dibujante);
+		$.ajax({
+			url: "/cambiarCotizaDibujanteAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){}
+		});
 	}
 	
 	const cambiarNota = (id_cotizacion, nota) => {

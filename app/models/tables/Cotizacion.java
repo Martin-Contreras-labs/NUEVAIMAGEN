@@ -2498,6 +2498,9 @@ public class Cotizacion {
 					aux.add(x.nameComercial);					// 10 comercial
 					aux.add(x.nameCotizaSolucion);				// 11 solucion
 					aux.add(x.getNotaCotizaEstado());			// 12 NotaCotizaEstado
+					aux.add(x.getFechaProbable());				// 13 fecha probable
+					aux.add(x.getNombreDibujante());			// 14 nombre dibujante
+					aux.add(x.getId_dibujante().toString());	// 15 id dibujante
 					listCotizacion.add(aux);
 				}
 			});
@@ -2532,6 +2535,9 @@ public class Cotizacion {
 				aux.add(x.nameComercial);					// 10 comercial
 				aux.add(x.nameCotizaSolucion);				// 11 solucion
 				aux.add(x.getNotaCotizaEstado());			// 12 NotaCotizaEstado
+				aux.add(x.getFechaProbable());				// 13 fecha probable
+				aux.add(x.getNombreDibujante());			// 14 nombre dibujante
+				aux.add(x.getId_dibujante().toString());	// 15 id dibujante
 				listCotizacion.add(aux);
 			});
 		}

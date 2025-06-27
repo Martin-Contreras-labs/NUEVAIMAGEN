@@ -4493,7 +4493,8 @@ public class ReportInventarios {
 							+ " movimiento.id_equipo, "
 							+ " estadoEquipo.cantidad, "
 							+ " movimiento.id_cotizacion, "
-							+ " bodegaEmpresa.id_sucursal "
+							+ " bodegaEmpresa.id_sucursal, "
+							+ " guia.numGuiaCliente "
 							+ " from `"+db+"`.estadoEquipo "
 							+ " left join `"+db+"`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
 							+ " left Join `"+db+"`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
@@ -4521,7 +4522,8 @@ public class ReportInventarios {
 				aux.add(rs5.getString(5));  // 4 id_equipo
 				aux.add(rs5.getString(6));  // 5 cantidad
 				aux.add(rs5.getString(7));  // 6 id_cotizacion
-				aux.add(nameSucursal);  // 7 nameSucursal
+				aux.add(nameSucursal);  			   // 7 nameSucursal
+				aux.add(rs5.getString(9));  // 8 referencia cliente
 				if(rs5.getDouble(6) > 0) {
 					lista.add(aux);
 				}
@@ -4610,7 +4612,8 @@ public class ReportInventarios {
 							+ " ifnull(tipoReparacion.precio,''), "
 							+ " equipo.id, "
 							+ " equipo.kg, "
-							+ " equipo.m2 "
+							+ " equipo.m2, "
+							+ " guia.numGuiaCliente "
 							+ " from `"+db+"`.estadoEquipo "
 							+ " left join `"+db+"`.guia on guia.id = estadoEquipo.id_guia "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
@@ -4689,6 +4692,8 @@ public class ReportInventarios {
 				
 				aux.add(kgStr);							// 15 kg unitario
 				aux.add(m2Str);							// 16 m2 unitario
+
+				aux.add(rs5.getString(19));  										// 17 nro ref cliente
 				
 				lista.add(aux);
 			}
@@ -4800,7 +4805,14 @@ public class ReportInventarios {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("Nro Guia");
+			cell.setCellValue("Nro Mov");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 4*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ref Clie");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 4*1000);
@@ -4941,6 +4953,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(datos.get(i).get(1));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(datos.get(i).get(17));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -5107,7 +5125,8 @@ public class ReportInventarios {
 							+ " ifnull(tipoReparacion.precio,''), "
 							+ " equipo.id, "
 							+ " equipo.kg, "
-							+ " equipo.m2 "
+							+ " equipo.m2, "
+							+ " guia.numGuiaCliente "
 							+ " from `"+db+"`.estadoEquipo "
 							+ " left join `"+db+"`.guia on guia.id = estadoEquipo.id_guia "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
@@ -5183,8 +5202,10 @@ public class ReportInventarios {
 				aux.add(monRepar);  												// 13 reparacionEquipo.id_moneda
 				aux.add(pretreparacionEquipo);  									// 14 reparacionEquipo.precio
 				
-				aux.add(kgStr);							// 15 kg unitario
-				aux.add(m2Str);							// 16 m2 unitario
+				aux.add(kgStr);										// 15 kg unitario
+				aux.add(m2Str);										// 16 m2 unitario
+
+				aux.add(rs5.getString(19)); 							// 17 nro ref cliente
 				
 				if(rs5.getDouble(10) > 0) {
 					lista.add(aux);
@@ -5299,7 +5320,14 @@ public class ReportInventarios {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("Nro Guia");
+			cell.setCellValue("Nro Mov");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 4*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ref Clie");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 4*1000);
@@ -5440,6 +5468,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(datos.get(i).get(1));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(datos.get(i).get(17));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
