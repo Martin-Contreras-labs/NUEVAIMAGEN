@@ -53,7 +53,7 @@ groupPorClaseServicioEquipo: List[List[String]], tasaIva: Double)
 							if(parseFloat(neto) > 0){
 								document.getElementById('formProforma').submit();
 							}else{
-								alertify.alert('No hay valor de alquiler a emitir', function () {});
+								alertify.alert('No hay valor de servicio a emitir', function () {});
 							}">
 								SERVICIOS
 							</button>
@@ -82,6 +82,11 @@ groupPorClaseServicioEquipo: List[List[String]], tasaIva: Double)
 				<input type="hidden" id="profneto" name="neto">
 				<input type="hidden" id="profiva" name="iva">
 				<input type="hidden" id="proftotal" name="total">
+
+				<input type="hidden" id="profAlq" name="alq" value="0">
+				<input type="hidden" id="profVta" name="vta" value="0">
+				<input type="hidden" id="profServ" name="serv">
+
 			</form>
 		
 
@@ -263,6 +268,8 @@ groupPorClaseServicioEquipo: List[List[String]], tasaIva: Double)
 				  $("#profneto").val(formatStandar(neto,"@cantDec"));
 				  $("#profiva").val(formatStandar(iva,"@cantDec"));
 				  $("#proftotal").val(formatStandar(total,"@cantDec"));
+
+				  $("#profServ").val(formatStandar(neto,"@cantDec"));
 
 				    document.getElementById('mostrarmostrar').style.display="block"; 
 						

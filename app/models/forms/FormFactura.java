@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
+import models.tables.*;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
@@ -30,20 +31,12 @@ import models.api.ApiSapSchwager;
 import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.reports.ReportMovimientos;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.EmisorTributario;
-import models.tables.Moneda;
-import models.tables.Proforma;
-import models.tables.ProformaOdo;
-import models.tables.Proyecto;
-import models.tables.Sucursal;
-import models.tables.TipoReferencia;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 import models.xml.XMLFacturaArriendo;
 import models.xml.XmlFacturaReferencias;
 import models.xml.XmlFacturaVenta;
+import play.data.DynamicForm;
 import play.libs.ws.WSClient;
 
 
@@ -933,23 +926,13 @@ public class FormFactura {
 
 
 
-	public static String generaProformaArriendoH(Connection con, String db, WSClient ws, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
-												List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias,
-												List<List<String>> detalleAjuste,
-												Double uf, Double usd, Double eur, String oc,
-												Map<Long,Long> dec, EmisorTributario emisorTributario, BodegaEmpresa bodegaEmpresa, String comentarios, FormFactura form) {
-
-
-
+	public static String generaProformaH(String db, Proyecto proyecto, ProformaSimple proforma, Cliente cliente, BodegaEmpresa bodegaEmpresa, DynamicForm form) {
 		File tmp = TempFile.createTempFile("tmp","null");
-
 		try {
-
 			String path = db + "/formatos/proformaArriendo.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
 			formato.close();
-
 
 			XWPFTable table = null;
 			XWPFTableRow row = null;
@@ -959,12 +942,10 @@ public class FormFactura {
 			row=table.getRow(1);cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079",Fechas.DDMMAA(proforma.fecha),false);
 			row=table.getRow(2);cell=row.getCell(2);setCelda(cell,"Arial",12,2,"2b5079",proforma.id.toString(),false);
 
-			Proyecto proyecto = Proyecto.find(con, db, bodegaEmpresa.id_proyecto);
 			String dirProyecto = "";
 			if(proyecto.id > 0) {
 				dirProyecto = proyecto.getDireccion() + ", "+ proyecto.getComuna() + ", " + proyecto.getCiudad();
 			}
-
 
 			table= doc.getTables().get(1);
 			cell=table.getRow(0).getCell(1);setCelda(cell,"Arial",10,1,"2b5079",cliente.nombre,false);
@@ -982,187 +963,48 @@ public class FormFactura {
 			cell=table.getRow(5).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",dirProyecto,false);
 
 
-
-
-			switch(dec.get((long) 1).toString()) {
-				case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-				default:  break;
-			}
-
-			Double totalPrecio=(double)0;
-
 			table = doc.getTables().get(2);
 			int auxLinea = 1;
-			for(int i=0;i<resumenSubtotales.size();i++) {
-
-				String auxPrecioArr = resumenSubtotales.get(i).get(1);
-				if(auxPrecioArr.equals("")||auxPrecioArr.equals(" ")) {
-					auxPrecioArr = "0";
-				}
-
-				String auxNum = auxPrecioArr.trim();
-				if(auxNum==null){
-					auxNum = "0";
-				}else if(auxNum.trim().length()<=0) {
-					auxNum = "0";
-				}
-				Double precioArr = Double.parseDouble(auxNum.replaceAll(",", "").trim());
-				totalPrecio += precioArr;
-
-				auxNum = resumenSubtotales.get(i).get(3);
-				if(auxNum.equals("")||auxNum.equals(" ")) {
-					auxNum = "0";
-				}
-				Double precioCfi = Double.parseDouble(auxNum.replaceAll(",", "").trim());
-				totalPrecio += precioCfi;
-
-				Double totalLinea = precioArr + precioCfi;
-				if( totalLinea > (double)0) {
-					row = table.getRow(auxLinea);
-					cell=row.getCell(1);setCelda(cell,"Arial",10,1,"2b5079",resumenSubtotales.get(i).get(0),false);
-					cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079","GL",false);
-					cell=row.getCell(3);setCelda(cell,"Arial",10,2,"2b5079","1",false);
-					cell=row.getCell(4);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalLinea),false);
-					cell=row.getCell(5);setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalLinea),false);
-					table.createRow();
-					auxLinea = auxLinea+1;
-				}
-			}
-
-
-			proforma.setNeto(totalPrecio);
-
-			proforma.setIva(proforma.neto * emisorTributario.tasaIva/100);
-
-			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
-				if(bodegaEmpresa!=null) {
-					if(bodegaEmpresa.getIvaBodega() > 0) {
-						proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
-					}else {
-						Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
-						if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
-							proforma.setIva(proforma.neto * sucursal.getIvaSucursal());
-						}
-					}
-
-				}
-			}
-
-
-			proforma.setTotal(proforma.neto+proforma.iva);
-
+			row = table.getRow(auxLinea);
+			cell=row.getCell(1);setCelda(cell,"Arial",10,1,"2b5079","ALQUILERES",false);
+			cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079","GL",false);
+			cell=row.getCell(3);setCelda(cell,"Arial",10,2,"2b5079","1",false);
+			cell=row.getCell(4);setCelda(cell,"Arial",10,3,"2b5079",form.get("alq"),false);
+			cell=row.getCell(5);setCelda(cell,"Arial",10,3,"2b5079",form.get("alq"),false);
+			table.createRow();
 			auxLinea = auxLinea+1;
 			row = table.getRow(auxLinea);
-			cell=row.getCell(1);
-			setCelda(cell,"Arial",10,1,"2b5079","SUBTOTALES",false);
-			cell=row.getCell(2);
-			setCelda(cell,"Arial",10,2,"2b5079","",false);
-			cell=row.getCell(3);
-			setCelda(cell,"Arial",10,2,"2b5079","",false);
-			cell=row.getCell(4);
-			setCelda(cell,"Arial",10,3,"2b5079","",false);
-			cell=row.getCell(5);
-			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalPrecio),false);
+			cell=row.getCell(1);setCelda(cell,"Arial",10,1,"2b5079","VENTAS",false);
+			cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079","GL",false);
+			cell=row.getCell(3);setCelda(cell,"Arial",10,2,"2b5079","1",false);
+			cell=row.getCell(4);setCelda(cell,"Arial",10,3,"2b5079",form.get("vta"),false);
+			cell=row.getCell(5);setCelda(cell,"Arial",10,3,"2b5079",form.get("vta"),false);
+			table.createRow();
+			auxLinea = auxLinea+1;
+			row = table.getRow(auxLinea);
+			cell=row.getCell(1);setCelda(cell,"Arial",10,1,"2b5079","SERVICIOS",false);
+			cell=row.getCell(2);setCelda(cell,"Arial",10,2,"2b5079","GL",false);
+			cell=row.getCell(3);setCelda(cell,"Arial",10,2,"2b5079","1",false);
+			cell=row.getCell(4);setCelda(cell,"Arial",10,3,"2b5079",form.get("serv"),false);
+			cell=row.getCell(5);setCelda(cell,"Arial",10,3,"2b5079",form.get("serv"),false);
 			table.createRow();
 
-			Double totalAjuste = (double)0;
-			auxLinea = auxLinea+1;
-			for(List<String>ajuste: detalleAjuste){
-				Double totAjuste = Double.parseDouble(ajuste.get(1).replaceAll(",", ""));
-				if(totAjuste>0 || totAjuste<0) {
-					row = table.getRow(auxLinea++);
-					cell=row.getCell(1);
-					setCelda(cell,"Arial",10,1,"2b5079",ajuste.get(0),false);
-					cell=row.getCell(2);
-					setCelda(cell,"Arial",10,2,"2b5079","",false);
-					cell=row.getCell(3);
-					setCelda(cell,"Arial",10,2,"2b5079","",false);
-					cell=row.getCell(4);
-					setCelda(cell,"Arial",10,3,"2b5079","",false);
-					cell=row.getCell(5);
-					setCelda(cell,"Arial",10,3,"2b5079",ajuste.get(1),false);
-					table.createRow();
-					totalAjuste += totAjuste;
-				}
-			}
-
-			proforma.setNeto(totalPrecio+totalAjuste);
-
-			proforma.setIva(proforma.neto * emisorTributario.tasaIva/100);
-
-			if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
-				if(bodegaEmpresa!=null) {
-					if(bodegaEmpresa.getIvaBodega() > 0) {
-						proforma.setIva(proforma.neto * bodegaEmpresa.getIvaBodega());
-					}else {
-						Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
-						if(sucursal!=null && sucursal.getIvaSucursal() > 0) {
-							proforma.setIva(proforma.neto * sucursal.getIvaSucursal());
-						}
-					}
-
-				}
-			}
-
-			proforma.setTotal(proforma.neto+proforma.iva);
-
-			proforma.setNetoSinAjustes(totalPrecio);
-			proforma.setNetoSoloAjustes(totalAjuste);
-
 			table = doc.getTables().get(3);
-
-
-			int cantRef=0;
-			try {cantRef=referencias.tpoDocRef.size();}catch(Exception e) {}
-			String strReferencia = "";
-			if(cantRef>0) {
-				strReferencia="REFERENCIAS:\n";
-			}
-			for (int i = 0; i < cantRef; i++) {
-				if(!referencias.tpoDocRef.get(i).equals("0")) {
-
-					String docRef = TipoReferencia.find(con, db, referencias.tpoDocRef.get(i)).concepto;
-
-					strReferencia = strReferencia +
-							docRef+": "+referencias.folioRef.get(i)+" - "+referencias.fchRef.get(i)+" - "+referencias.razonRef.get(i)+"\n";
-				}
-
-			}
-
-			if(oc!=null && oc.length()>0) {
-				strReferencia += "\n" + oc;
-			}else {
-				oc = "";
-			}
-
-			if(comentarios!=null && comentarios.length()>1) {
-				strReferencia += "\n COMENTARIOS: " + comentarios.trim();
-			}else {
-				comentarios = "";
-			}
-
-			cell=table.getRow(0).getCell(0);
-			setCelda(cell,"Arial",10,1,"2b5079",strReferencia,false);
 
 
 
 
 			cell=table.getRow(0).getCell(2);
-			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(proforma.neto),false);
+			setCelda(cell,"Arial",10,3,"2b5079",form.get("neto"),false);
 
 			cell=table.getRow(1).getCell(1);
 			setCelda(cell,"Arial",10,3,"2b5079","",false);
 			cell=table.getRow(2).getCell(2);
-			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(proforma.neto),false);
+			setCelda(cell,"Arial",10,3,"2b5079",form.get("neto"),false);
 			cell=table.getRow(3).getCell(2);
-			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(proforma.iva),false);
+			setCelda(cell,"Arial",10,3,"2b5079",form.get("iva"),false);
 			cell=table.getRow(4).getCell(2);
-			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(proforma.total),false);
-
-
+			setCelda(cell,"Arial",10,3,"2b5079",form.get("total"),false);
 
 
 			// Write the output to a file word
@@ -1181,64 +1023,9 @@ public class FormFactura {
 			PdfConverter.getInstance().convert(document, out, options);
 			out.close();
 
-			String archivoPdf = proforma.getProformaPdf();
+			String archivoPdf = "EP_Prof_Simple_"+proforma.getId()+".pdf";
 			path = db+"/"+archivoPdf;
 			Archivos.grabarArchivo(tmp, path);
-
-			proforma.setComentarios(comentarios.trim());
-
-			Proforma.modify(con, db, proforma);
-
-
-
-
-			//XML Y API:
-
-
-
-			if(mapPermiso.get("parametro.proformaLista-descargarXLM")!=null && mapPermiso.get("parametro.proformaLista-descargarXLM").equals("1")){
-				String archivoXml = XMLFacturaArriendo.generaXmlArriendo(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente, proforma, mapPermiso, detalleAjuste);
-				XmlFacturaReferencias.grabarReferencias(con, mapPermiso, db, archivoXml, referencias, proforma.getId());
-			}
-
-			if(mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1")){
-				String jsonApi = ApiManagerDocDoc.generaFactArriendo(con, db, cliente, proforma);
-				Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
-			}
-
-			if(mapPermiso.get("parametro.proformaListar-llenarApiNubox")!=null && mapPermiso.get("parametro.proformaListar-llenarApiNubox").equals("1")){
-				String esVenta = "0";
-				String concepto = mapDiccionario.get("ARRIENDO");
-				if("1".equals(esVenta)) {
-					concepto = "VENTA";
-				}
-				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, db, mapDiccionario, bodegaEmpresa.getId(), esVenta, proforma.desde, proforma.hasta, usd, eur, uf, concepto);
-				String jsonApi = ApiNuboxDocDoc.generaFactArriendo(con, db, resumenSubtotales, cliente, proforma, mapDiccionario, emisorTributario, detalleAjuste, datos);
-				Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
-			}
-
-			if(mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto").equals("1")){
-				String jsonApi = ApiSapConconcreto.generaFactArriendo(con, db, resumenSubtotales, cliente, proforma, mapDiccionario, emisorTributario, detalleAjuste, bodegaEmpresa, referencias);
-				Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
-			}
-
-			//generaProformaWebIConstruye
-			if(mapPermiso.get("parametro.proformaListar-llenarWebIConstruye")!=null && mapPermiso.get("parametro.proformaListar-llenarWebIConstruye").equals("1")){
-				String archivoXml = WebIConstruye.generaXMLFacturasArr(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente,
-						proforma, mapPermiso, detalleAjuste, referencias, comentarios);
-				Proforma.updateJsonApi(con, db, proforma.id, archivoXml);
-			}
-
-			if(mapPermiso.get("parametro.proformaListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.proformaListar-llenarWebMaximise").equals("1")){
-				String xmlEncode = WebMaximise.encodeXmlArriendo(con, db, mapDiccionario.get("nEmpresa"), resumenSubtotales, cliente, proforma, mapPermiso, detalleAjuste, referencias);
-				Proforma.updateJsonApi(con, db, proforma.id, xmlEncode);
-			}
-
-			if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1")){
-				String jsonApi = ApiRelBase.generaJsonFactARRVTA(con, db, ws, mapDiccionario,
-						referencias, cliente, proforma, form);
-				Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
-			}
 
 			return(archivoPdf);
 

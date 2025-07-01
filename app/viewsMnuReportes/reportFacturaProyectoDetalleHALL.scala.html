@@ -51,7 +51,7 @@
 										if(parseFloat(neto) > 0){
 											document.getElementById('formProforma').submit();
 										}else{
-											alertify.alert('No hay valor de alquiler a emitir', function () {});
+											alertify.alert('No hay valores a emitir', function () {});
 										}">
 									TODO
 								</button>
@@ -311,6 +311,11 @@
 		<input type="hidden" id="profneto" name="neto">
 		<input type="hidden" id="profiva" name="iva">
 		<input type="hidden" id="proftotal" name="total">
+
+		<input type="hidden" id="profAlq" name="alq">
+		<input type="hidden" id="profVta" name="vta">
+		<input type="hidden" id="profServ" name="serv">
+
 	</form>
 
 
@@ -417,7 +422,8 @@
 		$("#ALQUILERES").text(formatStandar(totArr,"@cantDec"));
 		$("#VENTAS").text(formatStandar(totVta,"@cantDec"));
 		$("#SERVICIOS").text(formatStandar(totServ,"@cantDec"));
-		neto = totArr + totVta + totServ;
+		neto = parseFloat(totArr) + parseFloat(totVta) + parseFloat(totServ);
+		
 		let iva = neto * parseFloat("@tasaIva");
 		let total = parseFloat(neto) + parseFloat(iva);
 		$("#NETO").text(formatStandar(neto,"@cantDec"));
@@ -427,6 +433,10 @@
 		$("#profneto").val(formatStandar(neto,"@cantDec"));
 		$("#profiva").val(formatStandar(iva,"@cantDec"));
 		$("#proftotal").val(formatStandar(total,"@cantDec"));
+
+		$("#profAlq").val(formatStandar(totArr,"@cantDec"));
+		$("#profVta").val(formatStandar(totVta,"@cantDec"));
+		$("#profServ").val(formatStandar(totServ,"@cantDec"));
 
 		document.getElementById('mostrarmostrar').style.display="block";
 	});

@@ -170,7 +170,7 @@
 		<input type="hidden" name="eur" value="@eur">
 	</form>
 
-	<form id="formProforma" class="formulario" method="post" action="/reportFacturaProyectoDetalleHServProforma/">
+	<form id="formProforma" class="formulario" method="post" action="/reportFacturaProyectoDetalleHProforma/">
 		<input type="hidden" name="id_bodega" value="@bodega.getId()">
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
@@ -182,6 +182,10 @@
 		<input type="hidden" id="profneto" name="neto">
 		<input type="hidden" id="profiva" name="iva">
 		<input type="hidden" id="proftotal" name="total">
+
+		<input type="hidden" id="profAlq" name="alq">
+		<input type="hidden" id="profVta" name="vta" value="0">
+		<input type="hidden" id="profServ" name="serv" value="0">
 	</form>
 
 
@@ -213,6 +217,8 @@
 		$("#profneto").val(formatStandar(neto,"@cantDec"));
 		$("#profiva").val(formatStandar(iva,"@cantDec"));
 		$("#proftotal").val(formatStandar(total,"@cantDec"));
+
+		$("#profAlq").val(formatStandar(neto,"@cantDec"));
 
 			document.getElementById('mostrarmostrar').style.display="block";
 	});

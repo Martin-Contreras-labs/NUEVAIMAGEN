@@ -50,7 +50,7 @@
 								if(parseFloat(neto) > 0){
 									document.getElementById('formProforma').submit();
 								}else{
-									alertify.alert('No hay valor de alquiler a emitir', function () {});
+									alertify.alert('No hay valor de venta a emitir', function () {});
 								}">
 									VENTAS
 								</button>
@@ -194,6 +194,11 @@
 		<input type="hidden" id="profneto" name="neto">
 		<input type="hidden" id="profiva" name="iva">
 		<input type="hidden" id="proftotal" name="total">
+
+		<input type="hidden" id="profAlq" name="alq" value="0">
+		<input type="hidden" id="profVta" name="vta">
+		<input type="hidden" id="profServ" name="serv" value="0">
+
 	</form>
 
 
@@ -231,6 +236,8 @@
 		$("#profneto").val(formatStandar(neto,"@nroDecimales"));
 		$("#profiva").val(formatStandar(iva,"@nroDecimales"));
 		$("#proftotal").val(formatStandar(total,"@nroDecimales"));
+
+		$("#profVta").val(formatStandar(neto,"@nroDecimales"));
 
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
