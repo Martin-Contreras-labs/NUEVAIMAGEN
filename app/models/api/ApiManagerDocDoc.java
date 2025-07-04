@@ -241,9 +241,9 @@ public class ApiManagerDocDoc {
 			String IvaTasa = tasaIvaArrAuxiliar.toString();
 			Sucursal sucursal = Sucursal.find(con, db, bodegaDestino.getId_sucursal().toString());
 			String ccost = sucursal.getCcost().trim();
-			if(ccost == null || ccost.trim().length() <= 0){
-				ccost = "";
-			}
+			String cen_hohe = sucursal.getCen_hohe().trim();
+			String bod_hohe = sucursal.getBod_hohe().trim();
+			String ubi_hohe = sucursal.getUbi_hohe().trim();
 			for (int i = 0; i < detalleGuia.size(); i++) {
 				String auxPrecio = detalleGuia.get(i).get(9).trim();                        // precio unitario de venta en moneda de origen
 				// ***************************
@@ -372,11 +372,11 @@ public class ApiManagerDocDoc {
 				// det.nro_serie = "";
 				// det.num_lote = "0";
 				// det.fecha_vec = "";
-				det.cen_cos = "1";
+				det.cen_cos = cen_hohe;
 				det.tipo_desc = "M";
 				// det.descuento = "0";
-				det.ubicacion = "U1";
-				det.bodega = "B1";
+				det.ubicacion = ubi_hohe;
+				det.bodega = bod_hohe;
 				// det.concepto1 = "";
 				// det.concepto2 = "";
 				// det.concepto3 = "";
@@ -419,9 +419,9 @@ public class ApiManagerDocDoc {
 			emisorTributario.rut = emisorTributario.rut.replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "");
 			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
 			String ccost = sucursal.getCcost().trim();
-			if(ccost == null || ccost.trim().length() <= 0){
-				ccost = "";
-			}
+			String cen_hohe = sucursal.getCen_hohe().trim();
+			String bod_hohe = sucursal.getBod_hohe().trim();
+			String ubi_hohe = sucursal.getUbi_hohe().trim();
 			api.rut_empresa = emisorTributario.rut;
 			api.tipodocumento = "NV"; //se debe parametrizar GDVE ES GUIA Y NV ES NOTA VENTA PARA FACTURA
 			api.num_doc = proforma.id.toString();
@@ -470,10 +470,10 @@ public class ApiManagerDocDoc {
 			det.unidad = "UNS"; //UNIDAD SOLO PARA ACTIVO EN EXISTENCIA ES "U"
 			det.precio_unit = netoSinAjustes.toString();
 			det.moneda_det = "CLP";
-			det.cen_cos = "1";
+			det.cen_cos = cen_hohe;
 			det.tipo_desc = "M";
-			det.ubicacion = "";
-			det.bodega = "";
+			det.ubicacion = ubi_hohe;
+			det.bodega =  bod_hohe;
 			det.descrip = "ARRIENDO";
 			det.stock = "R";  // 1 EN GUIAS "R" EN FACTURAS
 			det.desc_adic = "Obra: " + bodegaEmpresa.nombre + " - Periodo desde " + Fechas.DDMMAA(valPeriodoDesde) + " hasta " + Fechas.DDMMAA(valPeriodoHasta);
@@ -508,9 +508,9 @@ public class ApiManagerDocDoc {
 			emisorTributario.rut = emisorTributario.rut.replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "").replace(" ", "");
 			Sucursal sucursal = Sucursal.find(con, db, bodegaEmpresa.getId_sucursal().toString());
 			String ccost = sucursal.getCcost().trim();
-			if(ccost == null || ccost.trim().length() <= 0){
-				ccost = "";
-			}
+			String cen_hohe = sucursal.getCen_hohe().trim();
+			String bod_hohe = sucursal.getBod_hohe().trim();
+			String ubi_hohe = sucursal.getUbi_hohe().trim();
 			api.rut_empresa = emisorTributario.rut;
 			api.tipodocumento = "NV"; //se debe parametrizar GDVE ES GUIA Y NV ES NOTA VENTA PARA FACTURA
 			api.num_doc = proforma.id.toString();
@@ -596,10 +596,10 @@ public class ApiManagerDocDoc {
 								det.unidad = detalleAux.get(j).get(12);  // la unidad de equipo en caso de factura arriendo es fija UNS
 								det.precio_unit = precioUnita;
 								det.moneda_det = "CLP";
-								det.cen_cos = "1";
+								det.cen_cos = cen_hohe;
 								det.tipo_desc = "M";
-								det.ubicacion = "";
-								det.bodega = "";
+								det.ubicacion = ubi_hohe;
+								det.bodega = bod_hohe;
 								det.descrip = descripcion;
 								det.stock = "R";  // 1 EN GUIAS "R" EN FACTURAS
 								det.desc_adic = ""; // se deja en blanco "Obra: "+bodegaEmpresa.nombre+" - Periodo desde "+Fechas.DDMMAA(valPeriodoDesde)+ " hasta "+Fechas.DDMMAA(valPeriodoHasta);

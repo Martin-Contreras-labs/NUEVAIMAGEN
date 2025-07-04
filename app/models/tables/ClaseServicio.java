@@ -1,5 +1,8 @@
 package models.tables;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,221 +31,222 @@ public class ClaseServicio {
 	public String getNombre() {return nombre;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
 
-	public static Map<Long,ClaseServicio> mapAll(Connection con, String db) {
-		Map<Long,ClaseServicio> map = new HashMap<Long,ClaseServicio>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id,nombre from `"+db+"`.claseServicio");
-			ResultSet rs = smt.executeQuery();
+	static final Logger logger = LoggerFactory.getLogger(BodegaRedimensionar.class);
+
+	public static Map<Long, ClaseServicio> mapAll(Connection con, String db) {
+		Map<Long, ClaseServicio> map = new HashMap<>();
+		try (PreparedStatement smt = con.prepareStatement("select id,nombre from `" + db + "`.claseServicio");
+			 ResultSet rs = smt.executeQuery()) {
 			while (rs.next()) {
-				map.put(rs.getLong(1), new ClaseServicio(rs.getLong(1),rs.getString(2)));
+				map.put(rs.getLong(1), new ClaseServicio(rs.getLong(1), rs.getString(2)));
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (map);
+		return map;
 	}
-	
+
+
 	public static List<ClaseServicio> all(Connection con, String db) {
-		List<ClaseServicio> lista = new ArrayList<ClaseServicio>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id,nombre from `"+db+"`.claseServicio order by nombre");
-			ResultSet resultado = smt.executeQuery();
+		List<ClaseServicio> lista = new ArrayList<>();
+		try (PreparedStatement smt = con.prepareStatement("select id,nombre from `" + db + "`.claseServicio order by nombre");
+			 ResultSet resultado = smt.executeQuery()) {
 			while (resultado.next()) {
-				lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
+				lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 			}
-			resultado.close();
-			smt.close();
 		} catch (SQLException e) {
-    		e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (lista);
+		return lista;
 	}
-	
+
+
 	public static List<ClaseServicio> allFiltroPorNombre(Connection con, String db, String filtroPorNombreClase) {
-		List<ClaseServicio> lista = new ArrayList<ClaseServicio>();
-		if(filtroPorNombreClase.length()>0) {
-			filtroPorNombreClase = " where nombre in ("+filtroPorNombreClase+") ";
-			try {
-				PreparedStatement smt = con
-						.prepareStatement("select id,nombre from `"+db+"`.claseServicio "+filtroPorNombreClase+" order by nombre");
-				ResultSet resultado = smt.executeQuery();
+		List<ClaseServicio> lista = new ArrayList<>();
+		if (filtroPorNombreClase.length() > 0) {
+			String filtro = " where nombre in (" + filtroPorNombreClase + ") ";
+			String sql = "select id,nombre from `" + db + "`.claseServicio " + filtro + " order by nombre";
+			try (PreparedStatement smt = con.prepareStatement(sql);
+				 ResultSet resultado = smt.executeQuery()) {
 				while (resultado.next()) {
-					lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
+					lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 				}
-				resultado.close();
-				smt.close();
 			} catch (SQLException e) {
-	    		e.printStackTrace();
+				String className = AjustesEP.class.getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		}
-		return (lista);
+		return lista;
 	}
-	
+
+
 	public static List<ClaseServicio> allFiltroPorId(Connection con, String db, String filtroPorIdClase) {
-		List<ClaseServicio> lista = new ArrayList<ClaseServicio>();
-		if(filtroPorIdClase.length()>0) {
-			filtroPorIdClase = " where id in ("+filtroPorIdClase+") ";
-			try {
-				PreparedStatement smt = con
-						.prepareStatement("select id,nombre from `"+db+"`.claseServicio "+filtroPorIdClase+" order by nombre");
-				ResultSet resultado = smt.executeQuery();
+		List<ClaseServicio> lista = new ArrayList<>();
+		if (filtroPorIdClase.length() > 0) {
+			String filtro = " where id in (" + filtroPorIdClase + ") ";
+			String sql = "select id,nombre from `" + db + "`.claseServicio " + filtro + " order by nombre";
+			try (PreparedStatement smt = con.prepareStatement(sql);
+				 ResultSet resultado = smt.executeQuery()) {
 				while (resultado.next()) {
-					lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
+					lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 				}
-				resultado.close();
-				smt.close();
 			} catch (SQLException e) {
-	    		e.printStackTrace();
+				String className = AjustesEP.class.getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		}
-		return (lista);
+		return lista;
 	}
-	
-	
+
+
+
 	public static boolean estaEnUso(Connection con, String db, Long id_clase) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("Select * from `"+db+"`.servicio WHERE id_claseServicio = ?");
+		String sql = "Select * from `" + db + "`.servicio WHERE id_claseServicio = ?";
+		try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 			smt1.setLong(1, id_clase);
-			ResultSet rs1 = smt1.executeQuery();
-			if (rs1.next()) {
-				flag = true;
+			try (ResultSet rs1 = smt1.executeQuery()) {
+				if (rs1.next()) {
+					flag = true;
+				}
 			}
-			rs1.close();
-			smt1.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
+
 	public static boolean delete(Connection con, String db, Long id_clase) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("delete from `"+db+"`.claseServicio WHERE id = ?");
+		String sql = "delete from `" + db + "`.claseServicio WHERE id = ?";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
 			smt.setLong(1, id_clase);
 			smt.executeUpdate();
-			smt.close();
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
+
 	public static ClaseServicio find(Connection con, String db, Long id_clase) {
 		ClaseServicio aux = new ClaseServicio();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id,nombre from `"+db+"`.claseServicio WHERE id = ?" );
+		String sql = "select id,nombre from `" + db + "`.claseServicio WHERE id = ?";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
 			smt.setLong(1, id_clase);
-			ResultSet resultado = smt.executeQuery();
-			if (resultado.next()) {
-				aux = new ClaseServicio(resultado.getLong(1),resultado.getString(2));
+			try (ResultSet resultado = smt.executeQuery()) {
+				if (resultado.next()) {
+					aux = new ClaseServicio(resultado.getLong(1), resultado.getString(2));
+				}
 			}
-			resultado.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (aux);
+		return aux;
 	}
-	
+
+
 	public static boolean existeClase(Connection con, String db, String nombre_clase) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id,nombre from `"+db+"`.claseServicio WHERE upper(nombre) = ?" );
+		String sql = "select id,nombre from `" + db + "`.claseServicio WHERE upper(nombre) = ?";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
 			smt.setString(1, nombre_clase.toUpperCase());
-			ResultSet resultado = smt.executeQuery();
-			if (resultado.next()) {
-				flag = true;
+			try (ResultSet resultado = smt.executeQuery()) {
+				if (resultado.next()) {
+					flag = true;
+				}
 			}
-			resultado.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
-	public static boolean create(Connection con,String db, String nombre_clase) {	
+
+	public static boolean create(Connection con, String db, String nombre_clase) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.claseServicio (nombre) values (?)");		
+		String sql = "insert into `" + db + "`.claseServicio (nombre) values (?)";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
 			smt.setString(1, nombre_clase.trim());
 			smt.executeUpdate();
-			smt.close();
 			flag = true;
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
-	public static boolean modificaPorCampo(Connection con,String db, String campo, Long id_clase, String valor) {
+
+	public static boolean modificaPorCampo(Connection con, String db, String campo, Long id_clase, String valor) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.claseServicio set `"+campo+"` = ? WHERE id = ?");
+		String sql = "update `" + db + "`.claseServicio set `" + campo + "` = ? WHERE id = ?";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_clase);
 			smt.executeUpdate();
-			smt.close();
-			flag=true;
+			flag = true;
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
-	public static List<ClaseServicio> allConServicios(Connection con, String db) {
-		List<ClaseServicio> lista = new ArrayList<ClaseServicio>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select distinct servicio.id_claseServicio, claseServicio.nombre " +
-							" from `"+db+"`.servicio " +
-							" left join `"+db+"`.claseServicio on claseServicio.id = servicio.id_claseServicio " +
-							" order by claseServicio.nombre;");
-			ResultSet resultado = smt.executeQuery();
-			while (resultado.next()) {
-				lista.add(new ClaseServicio(resultado.getLong(1),resultado.getString(2)));
-			}
-			resultado.close();
-			smt.close();
 
-		} catch (SQLException e) {
-    			e.printStackTrace();
-		}
-		return (lista);
-	}
-	
-	public static Long findIdXnombre(Connection con,String db, String nombre) {
-		Long aux = (long)0;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id from `"+db+"`.claseServicio where (upper(nombre))=(upper(?))" );
-			smt.setString(1, nombre);
-			ResultSet resultado = smt.executeQuery();
-			if (resultado.next()) {
-				aux = resultado.getLong(1);
+
+	public static List<ClaseServicio> allConServicios(Connection con, String db) {
+		List<ClaseServicio> lista = new ArrayList<>();
+		String sql = "select distinct servicio.id_claseServicio, claseServicio.nombre " +
+				"from `" + db + "`.servicio " +
+				"left join `" + db + "`.claseServicio on claseServicio.id = servicio.id_claseServicio " +
+				"order by claseServicio.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet resultado = smt.executeQuery()) {
+			while (resultado.next()) {
+				lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 			}
-			resultado.close();
-			smt.close();
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (aux);
+		return lista;
 	}
-	
-	
+
+	public static Long findIdXnombre(Connection con, String db, String nombre) {
+		Long aux = 0L;
+		String sql = "select id from `" + db + "`.claseServicio where upper(nombre) = upper(?)";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			smt.setString(1, nombre);
+			try (ResultSet resultado = smt.executeQuery()) {
+				if (resultado.next()) {
+					aux = resultado.getLong(1);
+				}
+			}
+		} catch (SQLException e) {
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return aux;
+	}
+
 
 
 }

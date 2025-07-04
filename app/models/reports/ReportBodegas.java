@@ -228,7 +228,7 @@ public class ReportBodegas {
 				aux.add(nroRefUltimoDesp);
 				aux.add(fechUltimoDespacho);
 				aux.add(cantidad);
-				
+
 				datos.add(aux);
 				
 			});
@@ -518,8 +518,14 @@ public class ReportBodegas {
 				posCell++;
 				cell = row.createCell(posCell);
 				Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(9));
-				cell.setCellValue(fechax.fechaUtil);
-				cell.setCellStyle(fecha);
+				if(lista.get(9).trim().isEmpty()) {
+					cell.setCellValue("");
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+				}else{
+					fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(12));
+					cell.setCellValue(fechax.fechaUtil);
+					cell.setCellStyle(fecha);
+				}
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
@@ -541,9 +547,15 @@ public class ReportBodegas {
 				
 				posCell++;
 				cell = row.createCell(posCell);
-				fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(12));
-				cell.setCellValue(fechax.fechaUtil);
-				cell.setCellStyle(fecha);
+				if(lista.get(12).trim().isEmpty()) {
+					cell.setCellValue("");
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+				}else{
+					fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(12));
+					cell.setCellValue(fechax.fechaUtil);
+					cell.setCellStyle(fecha);
+				}
+
 				
 				posCell++; 
 	            cell = row.createCell(posCell);

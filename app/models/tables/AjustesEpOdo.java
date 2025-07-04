@@ -149,21 +149,16 @@ public class AjustesEpOdo {
 	//OBTIENE LA LISTA DETALLE DE AJUSTES POR UNA BODEGAEMPRESA EN UN DETERMINADO PERIODO
 	public static List<List<String>> detalleAjuste(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		final String query = String.format(
-				"select " +
-				" if(id_tipoAjuste=1,'Menos ', 'Mas ')," +
-				" concepto, if(id_tipoAjuste=1,-1,1)*totalAjuste" +
-				" from `$s`.ajustesEpOdo " +
-				" where id_bodegaEmpresa=? and (fechaAjuste between ? and ?)", db);
-		try (PreparedStatement smt = con.prepareStatement(query)) {
-			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-			switch(dec.get((long)1).toString()) {
-				case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
-				default:  break;
-			}
+		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+		switch(dec.get((long)1).toString()) {
+			case "0": myformatdouble = new DecimalFormat("#,##0"); break;
+			case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
+			case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
+			case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			default:  break;
+		}
+		try (PreparedStatement smt = con.prepareStatement("select if(id_tipoAjuste=1,'Menos ', 'Mas '), concepto, if(id_tipoAjuste=1,-1,1)*totalAjuste from `"+db+"`.ajustesEpOdo " +
+				" where id_bodegaEmpresa=? and (fechaAjuste between ? and ?); ")) {
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setString(2, desdeAAMMDD);
 			smt.setString(3, hastaAAMMDD);
@@ -176,10 +171,6 @@ public class AjustesEpOdo {
 				}
 			}
 		} catch (SQLException e) {
-			String className  = AjustesEpOdo.class.getSimpleName();
-			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
-		} catch (Exception e) {
 			String className  = AjustesEpOdo.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);

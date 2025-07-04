@@ -1693,13 +1693,6 @@ public class MnuTablas extends Controller {
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
-		Map<String, String[]> bodyParams = request.body().asFormUrlEncoded();
-		if (bodyParams == null) {
-			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
-			return ok(mensajes.render("/home/", msgErrorFormulario));
-		}
-
 		if (!s.isValid()) {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));

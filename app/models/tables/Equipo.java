@@ -881,7 +881,12 @@ public class Equipo {
 							cell = row.createCell(posCell);
 							cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(ubicacion.get(1));
+							if(stock > 1) {
+								cell.setCellValue("varias");
+							}else{
+								cell.setCellValue(ubicacion.get(1));
+							}
+
 							
 						}else {
 							posCell++;

@@ -23,8 +23,12 @@ public class Sucursal {
 	public String direccion;
 	public Double ivaSucursal;
 	public String ccost;
+	public String cen_hohe;
+	public String bod_hohe;
+	public String ubi_hohe;
 	
-	public Sucursal(Long id, String nombre, String observaciones, String direccion, Double ivaSucursal, String ccost) {
+	public Sucursal(Long id, String nombre, String observaciones, String direccion, Double ivaSucursal, String ccost,
+			String cen_hohe, String bod_hohe, String ubi_hohe) {
 		super();
 		this.id = id;
 		this.nombre = nombre;
@@ -32,6 +36,9 @@ public class Sucursal {
 		this.direccion = direccion;
 		this.ivaSucursal = ivaSucursal;
 		this.ccost = ccost;
+		this.cen_hohe = cen_hohe;
+		this.bod_hohe = bod_hohe;
+		this.ubi_hohe = ubi_hohe;
 	}
 
 	public Sucursal() {
@@ -86,6 +93,30 @@ public class Sucursal {
 		this.ccost = ccost;
 	}
 
+	public String getCen_hohe() {
+		return cen_hohe;
+	}
+
+	public void setCen_hohe(String cen_hohe) {
+		this.cen_hohe = cen_hohe;
+	}
+
+	public String getBod_hohe() {
+		return bod_hohe;
+	}
+
+	public void setBod_hohe(String bod_hohe) {
+		this.bod_hohe = bod_hohe;
+	}
+
+	public String getUbi_hohe() {
+		return ubi_hohe;
+	}
+
+	public void setUbi_hohe(String ubi_hohe) {
+		this.ubi_hohe = ubi_hohe;
+	}
+
 	public static Map<Long,Sucursal> mapAllSucursales(Connection con, String db){
 		Map<Long,Sucursal> map = new HashMap<Long,Sucursal>();
 		List<Sucursal> listSucursal = Sucursal.all(con, db);
@@ -105,12 +136,16 @@ public class Sucursal {
 							" sucursal.observaciones, " +
 							" sucursal.direccion, " +
 							" sucursal.ivaSucursal, " +
-							" sucursal.ccost " +
+							" sucursal.ccost, " +
+							" sucursal.cen_hohe, " +
+							" sucursal.bod_hohe, " +
+							" sucursal.ubi_hohe " +
 							" from `"+db+"`.sucursal " +
 							" order by sucursal.nombre;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {		
-				lista.add(new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5),rs.getString(6)));
+				lista.add(new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5),rs.getString(6),
+						rs.getString(7),rs.getString(8),rs.getString(9)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -129,13 +164,17 @@ public class Sucursal {
 							" sucursal.observaciones, " +
 							" sucursal.direccion, " +
 							" sucursal.ivaSucursal, " +
-							" sucursal.ccost " +
+							" sucursal.ccost, " +
+							" sucursal.cen_hohe, " +
+							" sucursal.bod_hohe, " +
+							" sucursal.ubi_hohe " +
 							" from `"+db+"`.sucursal " +
 							" where sucursal.id=?;");
 			smt.setString(1, id_sucursal);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {		
-				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5),rs.getString(6));
+				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5),rs.getString(6),
+						rs.getString(7),rs.getString(8),rs.getString(9));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -154,13 +193,17 @@ public class Sucursal {
 							" sucursal.observaciones, " +
 							" sucursal.direccion, " +
 							" sucursal.ivaSucursal, " +
-							" sucursal.ccost " +
+							" sucursal.ccost, " +
+							" sucursal.cen_hohe, " +
+							" sucursal.bod_hohe, " +
+							" sucursal.ubi_hohe " +
 							" from `"+db+"`.sucursal " +
 							" where upper(sucursal.nombre) = ?;");
 			smt.setString(1, nameSucursal.toUpperCase());
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {		
-				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5),rs.getString(6));
+				aux = new Sucursal(rs.getLong(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getDouble(5),rs.getString(6),
+						rs.getString(7),rs.getString(8),rs.getString(9));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -177,8 +220,6 @@ public class Sucursal {
 		if(mapeoPermiso.get("parametro.aplicaRestriccionesPorSucursal")==null || mapeoPermiso.get("parametro.aplicaRestriccionesPorSucursal").equals("0")) {
 			esPorSucursal = false;
 		}
-		
-		
 		return(esPorSucursal);
 	}
 	
@@ -262,16 +303,18 @@ public class Sucursal {
 		return (flag);
 	}
 	
-	public static boolean create(Connection con,String db, String nombreSucursal, Double ivaSucursal, String ccost) {
+	public static boolean create(Connection con,String db, String nombreSucursal, Double ivaSucursal, String ccost, String cen_hohe, String bod_hohe, String ubi_hohe) {
 		boolean flag = false;
 		try {
 			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.sucursal (nombre,ivaSucursal,ccost) values (?,?,?);", Statement.RETURN_GENERATED_KEYS);
+					.prepareStatement("insert into `"+db+"`.sucursal (nombre,ivaSucursal,ccost,cen_hohe,bod_hohe,ubi_hohe) values (?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
 			smt.setString(1, nombreSucursal.trim().toUpperCase());
 			smt.setDouble(2, ivaSucursal);
 			smt.setString(3, ccost);
+			smt.setString(4, cen_hohe);
+			smt.setString(5, bod_hohe);
+			smt.setString(6, ubi_hohe);
 			smt.executeUpdate();
-			
 			Long id_sucursal = (long)0;
 			ResultSet rs1 = smt.getGeneratedKeys();
             if (rs1.next()) {

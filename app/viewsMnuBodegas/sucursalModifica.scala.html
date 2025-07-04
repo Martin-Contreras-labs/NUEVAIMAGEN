@@ -43,20 +43,67 @@ sucursal: tables.Sucursal)
 									</div>
 								</div>
 							}
-							<div class="row">
-								<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
-									<b><font color="#008000">CCOST:</font></b>
+							@if(mapDiccionario.get("nEmpresa").equals("HOHE")) {
+								<div class="row">
+									<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+										<b><font color="#008000">COD_UNIDNEGOCIO:</font></b>
+									</div>
+									<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+										<input type="hidden" name="ccost" value="@sucursal.getId()">
+										<input type="text" class="form-control"
+										id="ccost"
+										maxlength="50"
+										value="@sucursal.getCcost()"
+										onkeypress="return sinReservados(event)"
+										onchange="value = value.trim(); modificarHohe(id)">
+									</div>
 								</div>
-								<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
-									<input type="hidden" name="ccost" value="@sucursal.getId()">
-									<input type="text" class="form-control"
-									id="ccost"
-									maxlength="50"
-									value="@sucursal.getCcost()"
-									onkeypress="return sinReservados(event)"
-									onchange="value = value.trim(); modificarCcost(id)">
+								<div class="row">
+									<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+										<b><font color="#008000">CEN_COS:</font></b>
+									</div>
+									<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+										<input type="hidden" name="cen_hohe" value="@sucursal.getId()">
+										<input type="text" class="form-control"
+										id="cen_hohe"
+										maxlength="50"
+										value="@sucursal.getCen_hohe()"
+										onkeypress="return sinReservados(event)"
+										onchange="value = value.trim(); modificarHohe(id)">
+									</div>
 								</div>
-							</div>
+								<div class="row">
+									<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+										<b><font color="#008000">BODEGA:</font></b>
+									</div>
+									<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+										<input type="hidden" name="bod_hohe" value="@sucursal.getId()">
+										<input type="text" class="form-control"
+										id="bod_hohe"
+										maxlength="50"
+										value="@sucursal.getBod_hohe()"
+										onkeypress="return sinReservados(event)"
+										onchange="value = value.trim(); modificarHohe(id)">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+										<b><font color="#008000">UBICACION:</font></b>
+									</div>
+									<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+										<input type="hidden" name="ubi_hohe" value="@sucursal.getId()">
+										<input type="text" class="form-control"
+										id="ubi_hohe"
+										maxlength="50"
+										value="@sucursal.getUbi_hohe()"
+										onkeypress="return sinReservados(event)"
+										onchange="value = value.trim(); modificarHohe(id)">
+									</div>
+								</div>
+								"cen_cos"
+								"bodega"
+								"ubicacion"
+							}
 						</td>
 					</tr>
 				</table>
@@ -109,7 +156,7 @@ sucursal: tables.Sucursal)
         });
 	}
 
-	const modificarCcost = (campo) => {
+	const modificarHohe = (campo) => {
 		let valor = $("#"+campo).val();
 		var formData = new FormData();
 		formData.append('campo',campo);

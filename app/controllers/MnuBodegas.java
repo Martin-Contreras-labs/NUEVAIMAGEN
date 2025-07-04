@@ -459,7 +459,30 @@ public class MnuBodegas extends Controller {
 		}else {
 			String nombreSucursal = form.get("nombreSucursal").trim();
 			String strIvaSucursal = form.get("ivaSucursal").trim();
-			String ccost = form.get("ccost").trim();
+			String ccost = form.get("ccost");
+			if(ccost == null || ccost.trim().isEmpty()) {
+				ccost = "";
+			} else {
+				ccost = ccost.trim();
+			}
+			String cen_hohe = form.get("cen_hohe");
+			if(cen_hohe == null || cen_hohe.trim().isEmpty()) {
+				cen_hohe = "";
+			} else {
+				cen_hohe = cen_hohe.trim();
+			}
+			String bod_hohe = form.get("bod_hohe");
+			if(bod_hohe == null || bod_hohe.trim().isEmpty()) {
+				bod_hohe = "";
+			} else {
+				cen_hohe = cen_hohe.trim();
+			}
+			String ubi_hohe = form.get("cen_hohe");
+			if(ubi_hohe == null || ubi_hohe.trim().isEmpty()) {
+				ubi_hohe = "";
+			} else {
+				ubi_hohe = ubi_hohe.trim();
+			}
 			try (Connection con = dbWrite.getConnection()){
 				Double ivaSucursal = Double.parseDouble(strIvaSucursal.replaceAll(",", "").replaceAll("%", "").trim());
 				ivaSucursal = ivaSucursal/100;
@@ -467,7 +490,7 @@ public class MnuBodegas extends Controller {
 					String msg = "No es posible crear esta sucursal, el nombre de sucursal ya existe.";
 					return ok(mensajes.render("/routes2/sucursalAdministrar/",msg));
 				}else {
-					if(Sucursal.create(con, s.baseDato, nombreSucursal, ivaSucursal, ccost)) {
+					if(Sucursal.create(con, s.baseDato, nombreSucursal, ivaSucursal, ccost, cen_hohe, bod_hohe, ubi_hohe)) {
 						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "sucursal", (long)0, "create", "agrega nuevo sucursal: "+nombreSucursal);
 						Sucursal sucursal = Sucursal.find(con, s.baseDato, "1");
 						String msg = "Sucursal creada con exito, recuerde actualizar los precios en el maestro, por ahora se heredaron "

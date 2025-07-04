@@ -136,8 +136,12 @@
 							@for((nivel1, index1) <- lista.zipWithIndex) {
 								@if(index1 < 3) {
 									<TR>
-									@for(nivel2 <- nivel1) {
-										<td style="text-align: center">@nivel2</td>
+									@for((nivel2,index2) <- nivel1.zipWithIndex) {
+										@if(index2==12 || index2==14){
+											<td style="text-align: center; min-width: 80px">@nivel2</td>
+										}else{
+											<td style="text-align: center">@nivel2</td>
+										}
 									}
 									</TR>
 								}
@@ -189,7 +193,7 @@
 									<th>TOTAL MON<br>ORIGEN</th>
 									<th>TOTAL EN<br>@mon</th>
 									<th>Nro GUIA</th>
-									<th>FECHA</th>
+									<th style="min-width: 80px">FECHA</th>
 								</TR>
 							</thead>
 							<tbody>
@@ -423,7 +427,7 @@
 		$("#VENTAS").text(formatStandar(totVta,"@cantDec"));
 		$("#SERVICIOS").text(formatStandar(totServ,"@cantDec"));
 		neto = parseFloat(totArr) + parseFloat(totVta) + parseFloat(totServ);
-		
+
 		let iva = neto * parseFloat("@tasaIva");
 		let total = parseFloat(neto) + parseFloat(iva);
 		$("#NETO").text(formatStandar(neto,"@cantDec"));

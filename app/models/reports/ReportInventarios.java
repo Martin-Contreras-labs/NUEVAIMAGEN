@@ -617,9 +617,7 @@ public class ReportInventarios {
 	}
 	
 	public static Map<Long,List<String>> mapIdEqVsEnCantBodegas(Connection con, String db) {
-		
 		 Map<Long,List<String>> map = new  HashMap<Long,List<String>>();
-		
 		try {
 			PreparedStatement smt6 = con
 					.prepareStatement("select"
@@ -632,16 +630,12 @@ public class ReportInventarios {
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa "
 							+ " group by id_bodegaEmpresa,id_equipo "
 							+ " having sum(if(id_tipoMovimiento=1,1,-1)*cantidad)>0;");
-
 			ResultSet rs6 = smt6.executeQuery();
-			
 			while (rs6.next()) {
-					
 					String ubicacion = "varias";
-					if(rs6.getLong(1) == (long)1) {
+					if((long) rs6.getLong(5) == (long)1) {
 						ubicacion = rs6.getString(4);
 					}
-
 					List<String> aux = new ArrayList<String>();
 					aux.add(rs6.getString(1));  							//  0 conteo de bodega con stock
 					aux.add(ubicacion);			   							//  1 bodegaEmpresa.nombre	si conteo =0 sino ubicacion varias				
@@ -653,7 +647,6 @@ public class ReportInventarios {
 		} catch (SQLException e) {
 				e.printStackTrace();
 		}
-		
 		return (map);
 	}
 	

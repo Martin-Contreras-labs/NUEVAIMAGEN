@@ -30,7 +30,8 @@ import org.apache.poi.util.TempFile;
 import models.forms.FormClienteGraba;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Cliente {
@@ -215,6 +216,9 @@ public class Cliente {
 	}
 
 
+	static final Logger logger = LoggerFactory.getLogger(Cliente.class);
+
+
 	public static Map<Long,Cliente> mapAllClientes(Connection con, String db){
 		Map<Long,Cliente> map = new HashMap<Long,Cliente>();
 		List<Cliente> listClientes = Cliente.all(con, db);
@@ -223,7 +227,7 @@ public class Cliente {
 		});
 		return(map);
 	}
-	
+
 	public static Map<String,Cliente> mapAllClientesPorRut(Connection con, String db){
 		Map<String,Cliente> map = new HashMap<String,Cliente>();
 		List<Cliente> listClientes = Cliente.all(con, db);
@@ -232,349 +236,359 @@ public class Cliente {
 		});
 		return(map);
 	}
-	
+
 	public static List<Cliente> all(Connection con, String db) {
-		List<Cliente> lista = new ArrayList<Cliente>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cliente.id, " + 
-							" cliente.rut, " + 
-							" cliente.nombre, " + 
-							" cliente.nickName, " + 
-							" cliente.direccion, " + 
-							" cliente.cod_region, " + 
-							" cliente.cod_comuna, " + 
-							" cliente.giro,  " + 
-							" cliente.ciudad, " + 
-							" cliente.contactoFactura, " + 
-							" cliente.mailFactura," + 
-							" cliente.cod_medioPago, " + 
-							" cliente.cod_tipoCuenta, " + 
-							" cliente.ctaPago, " + 
-							" cliente.bcoPago, " + 
-							" cliente.diasVencPago," + 
-							" cliente.cod_termPago, " + 
-							" cliente.glosaPago, " + 
-							" ifnull(regiones.nombre,'--'), " + 
-							" ifnull(comunas.nombre,'--'), " + 
-							" ifnull(medioPago.nombre,'--'), " + 
-							" ifnull(tipoCuenta.nombre,'--'), " + 
-							" ifnull(termPago.nombre,'--'), " + 
-							" cliente.fonoContacto, " +
-							" cliente.rutRepresentante1, " +
-							" cliente.nombreRepresentante1, " +
-							" cliente.rutRepresentante2, " +
-							" cliente.nombreRepresentante2, " +
-							" cliente.cargoContactoFactura, " +
-							" cliente.cargoRepresentante1, " +
-							" cliente.cargoRepresentante2, " +
-							" cliente.formaDePago, " +
-							" cliente.especialidad, " +
-							" cliente.vigente " +
-							" from `"+db+"`.cliente " + 
-							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
-							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
-							" left join `"+db+"`.medioPago on medioPago.codigo = cliente.cod_medioPago " + 
-							" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " + 
-							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
-							" order by nickName;");
-			ResultSet rs = smt.executeQuery();
-			while (rs.next()) {		
-				lista.add(new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
-						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
-						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
-						rs.getString(22),rs.getString(23),rs.getString(24),
-						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
-						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34)));
+		List<Cliente> lista = new ArrayList<>();
+		try (PreparedStatement smt = con.prepareStatement(
+				"select " +
+						" cliente.id, " +
+						" cliente.rut, " +
+						" cliente.nombre, " +
+						" cliente.nickName, " +
+						" cliente.direccion, " +
+						" cliente.cod_region, " +
+						" cliente.cod_comuna, " +
+						" cliente.giro,  " +
+						" cliente.ciudad, " +
+						" cliente.contactoFactura, " +
+						" cliente.mailFactura," +
+						" cliente.cod_medioPago, " +
+						" cliente.cod_tipoCuenta, " +
+						" cliente.ctaPago, " +
+						" cliente.bcoPago, " +
+						" cliente.diasVencPago," +
+						" cliente.cod_termPago, " +
+						" cliente.glosaPago, " +
+						" ifnull(regiones.nombre,'--'), " +
+						" ifnull(comunas.nombre,'--'), " +
+						" ifnull(medioPago.nombre,'--'), " +
+						" ifnull(tipoCuenta.nombre,'--'), " +
+						" ifnull(termPago.nombre,'--'), " +
+						" cliente.fonoContacto, " +
+						" cliente.rutRepresentante1, " +
+						" cliente.nombreRepresentante1, " +
+						" cliente.rutRepresentante2, " +
+						" cliente.nombreRepresentante2, " +
+						" cliente.cargoContactoFactura, " +
+						" cliente.cargoRepresentante1, " +
+						" cliente.cargoRepresentante2, " +
+						" cliente.formaDePago, " +
+						" cliente.especialidad, " +
+						" cliente.vigente " +
+						" from `"+db+"`.cliente " +
+						" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " +
+						" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " +
+						" left join `"+db+"`.medioPago on medioPago.codigo = cliente.cod_medioPago " +
+						" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " +
+						" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
+						" order by nickName;")) {
+
+			try (ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					lista.add(new Cliente(rs.getLong(1), rs.getString(2), rs.getString(3),
+							rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
+							rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15),
+							rs.getInt(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
+							rs.getString(22), rs.getString(23), rs.getString(24),
+							rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
+							rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33), rs.getLong(34)));
+				}
 			}
-			rs.close();smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (lista);
+		return lista;
 	}
-	
+
 	public static List<Cliente> allsoloVigentes(Connection con, String db) {
-		List<Cliente> lista = new ArrayList<Cliente>();
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cliente.id, " + 
-							" cliente.rut, " + 
-							" cliente.nombre, " + 
-							" cliente.nickName, " + 
-							" cliente.direccion, " + 
-							" cliente.cod_region, " + 
-							" cliente.cod_comuna, " + 
-							" cliente.giro,  " + 
-							" cliente.ciudad, " + 
-							" cliente.contactoFactura, " + 
-							" cliente.mailFactura," + 
-							" cliente.cod_medioPago, " + 
-							" cliente.cod_tipoCuenta, " + 
-							" cliente.ctaPago, " + 
-							" cliente.bcoPago, " + 
-							" cliente.diasVencPago," + 
-							" cliente.cod_termPago, " + 
-							" cliente.glosaPago, " + 
-							" ifnull(regiones.nombre,'--'), " + 
-							" ifnull(comunas.nombre,'--'), " + 
-							" ifnull(medioPago.nombre,'--'), " + 
-							" ifnull(tipoCuenta.nombre,'--'), " + 
-							" ifnull(termPago.nombre,'--'), " + 
-							" cliente.fonoContacto, " +
-							" cliente.rutRepresentante1, " +
-							" cliente.nombreRepresentante1, " +
-							" cliente.rutRepresentante2, " +
-							" cliente.nombreRepresentante2, " +
-							" cliente.cargoContactoFactura, " +
-							" cliente.cargoRepresentante1, " +
-							" cliente.cargoRepresentante2, " +
-							" cliente.formaDePago, " +
-							" cliente.especialidad, " +
-							" cliente.vigente " +
-							" from `"+db+"`.cliente " + 
-							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
-							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
-							" left join `"+db+"`.medioPago on medioPago.codigo = cliente.cod_medioPago " + 
-							" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " + 
-							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
-							" where cliente.vigente=1 " +
-							" order by nickName;");
-			ResultSet rs = smt.executeQuery();
-			while (rs.next()) {		
-				lista.add(new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
-						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
-						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
-						rs.getString(22),rs.getString(23),rs.getString(24),
-						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
-						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34)));
+		List<Cliente> lista = new ArrayList<>();
+		try (PreparedStatement smt = con.prepareStatement(
+				"select " +
+						" cliente.id, " +
+						" cliente.rut, " +
+						" cliente.nombre, " +
+						" cliente.nickName, " +
+						" cliente.direccion, " +
+						" cliente.cod_region, " +
+						" cliente.cod_comuna, " +
+						" cliente.giro,  " +
+						" cliente.ciudad, " +
+						" cliente.contactoFactura, " +
+						" cliente.mailFactura," +
+						" cliente.cod_medioPago, " +
+						" cliente.cod_tipoCuenta, " +
+						" cliente.ctaPago, " +
+						" cliente.bcoPago, " +
+						" cliente.diasVencPago," +
+						" cliente.cod_termPago, " +
+						" cliente.glosaPago, " +
+						" ifnull(regiones.nombre,'--'), " +
+						" ifnull(comunas.nombre,'--'), " +
+						" ifnull(medioPago.nombre,'--'), " +
+						" ifnull(tipoCuenta.nombre,'--'), " +
+						" ifnull(termPago.nombre,'--'), " +
+						" cliente.fonoContacto, " +
+						" cliente.rutRepresentante1, " +
+						" cliente.nombreRepresentante1, " +
+						" cliente.rutRepresentante2, " +
+						" cliente.nombreRepresentante2, " +
+						" cliente.cargoContactoFactura, " +
+						" cliente.cargoRepresentante1, " +
+						" cliente.cargoRepresentante2, " +
+						" cliente.formaDePago, " +
+						" cliente.especialidad, " +
+						" cliente.vigente " +
+						" from `" + db + "`.cliente " +
+						" left join `" + db + "`.regiones on regiones.codigo = cliente.cod_region " +
+						" left join `" + db + "`.comunas on comunas.codigo = cliente.cod_comuna " +
+						" left join `" + db + "`.medioPago on medioPago.codigo = cliente.cod_medioPago " +
+						" left join `" + db + "`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " +
+						" left join `" + db + "`.termPago on termPago.codigo = cliente.cod_termPago  " +
+						" where cliente.vigente=1 " +
+						" order by nickName;")) {
+
+			try (ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					lista.add(new Cliente(rs.getLong(1), rs.getString(2), rs.getString(3),
+							rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
+							rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15),
+							rs.getInt(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
+							rs.getString(22), rs.getString(23), rs.getString(24),
+							rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
+							rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33), rs.getLong(34)));
+				}
 			}
-			rs.close();smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (lista);
+		return lista;
 	}
-	
-	
-	
+
 	public static Cliente find(Connection con, String db, Long id_cliente) {
 		Cliente aux = null;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cliente.id, " + 
-							" cliente.rut, " + 
-							" cliente.nombre, " + 
-							" cliente.nickName, " + 
-							" cliente.direccion, " + 
-							" cliente.cod_region, " + 
-							" cliente.cod_comuna, " + 
-							" cliente.giro,  " + 
-							" cliente.ciudad, " + 
-							" cliente.contactoFactura, " + 
-							" cliente.mailFactura," + 
-							" cliente.cod_medioPago, " + 
-							" cliente.cod_tipoCuenta, " + 
-							" cliente.ctaPago, " + 
-							" cliente.bcoPago, " + 
-							" cliente.diasVencPago," + 
-							" cliente.cod_termPago, " + 
-							" cliente.glosaPago, " + 
-							" ifnull(regiones.nombre,''), " + 
-							" ifnull(comunas.nombre,''), " + 
-							" ifnull(medioPago.nombre,''), " + 
-							" ifnull(tipoCuenta.nombre,''), " + 
-							" ifnull(termPago.nombre,''), " + 
-							" cliente.fonoContacto, " +
-							" cliente.rutRepresentante1, " +
-							" cliente.nombreRepresentante1, " +
-							" cliente.rutRepresentante2, " +
-							" cliente.nombreRepresentante2, " +
-							" cliente.cargoContactoFactura, " +
-							" cliente.cargoRepresentante1, " +
-							" cliente.cargoRepresentante2, " +
-							" cliente.formaDePago, " +
-							" cliente.especialidad, " +
-							" cliente.vigente " +
-							" from `"+db+"`.cliente " + 
-							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
-							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
-							" left join `"+db+"`.medioPago on medioPago.codigo = cliente.cod_medioPago " + 
-							" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " + 
-							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
-							" where cliente.id = ?;" );
+		try (PreparedStatement smt = con.prepareStatement(
+				"select " +
+						" cliente.id, " +
+						" cliente.rut, " +
+						" cliente.nombre, " +
+						" cliente.nickName, " +
+						" cliente.direccion, " +
+						" cliente.cod_region, " +
+						" cliente.cod_comuna, " +
+						" cliente.giro,  " +
+						" cliente.ciudad, " +
+						" cliente.contactoFactura, " +
+						" cliente.mailFactura," +
+						" cliente.cod_medioPago, " +
+						" cliente.cod_tipoCuenta, " +
+						" cliente.ctaPago, " +
+						" cliente.bcoPago, " +
+						" cliente.diasVencPago," +
+						" cliente.cod_termPago, " +
+						" cliente.glosaPago, " +
+						" ifnull(regiones.nombre,''), " +
+						" ifnull(comunas.nombre,''), " +
+						" ifnull(medioPago.nombre,''), " +
+						" ifnull(tipoCuenta.nombre,''), " +
+						" ifnull(termPago.nombre,''), " +
+						" cliente.fonoContacto, " +
+						" cliente.rutRepresentante1, " +
+						" cliente.nombreRepresentante1, " +
+						" cliente.rutRepresentante2, " +
+						" cliente.nombreRepresentante2, " +
+						" cliente.cargoContactoFactura, " +
+						" cliente.cargoRepresentante1, " +
+						" cliente.cargoRepresentante2, " +
+						" cliente.formaDePago, " +
+						" cliente.especialidad, " +
+						" cliente.vigente " +
+						" from `" + db + "`.cliente " +
+						" left join `" + db + "`.regiones on regiones.codigo = cliente.cod_region " +
+						" left join `" + db + "`.comunas on comunas.codigo = cliente.cod_comuna " +
+						" left join `" + db + "`.medioPago on medioPago.codigo = cliente.cod_medioPago " +
+						" left join `" + db + "`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " +
+						" left join `" + db + "`.termPago on termPago.codigo = cliente.cod_termPago  " +
+						" where cliente.id = ?;")) {
+
 			smt.setLong(1, id_cliente);
-			ResultSet rs = smt.executeQuery();
-			if (rs.next()) {				
-				aux = new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
-						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
-						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
-						rs.getString(22),rs.getString(23),rs.getString(24),
-						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
-						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34));
-			}else{
-				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","",(long) 1);
+			try (ResultSet rs = smt.executeQuery()) {
+				if (rs.next()) {
+					aux = new Cliente(rs.getLong(1), rs.getString(2), rs.getString(3),
+							rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
+							rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15),
+							rs.getInt(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
+							rs.getString(22), rs.getString(23), rs.getString(24),
+							rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
+							rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33), rs.getLong(34));
+				} else {
+					aux = new Cliente((long) 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", (long) 1);
+				}
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (aux);
+		return aux;
 	}
-	
+
 	public static Cliente findPorNickName(Connection con, String db, String nickName) {
 		Cliente aux = null;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select " + 
-							" cliente.id, " + 
-							" cliente.rut, " + 
-							" cliente.nombre, " + 
-							" cliente.nickName, " + 
-							" cliente.direccion, " + 
-							" cliente.cod_region, " + 
-							" cliente.cod_comuna, " + 
-							" cliente.giro,  " + 
-							" cliente.ciudad, " + 
-							" cliente.contactoFactura, " + 
-							" cliente.mailFactura," + 
-							" cliente.cod_medioPago, " + 
-							" cliente.cod_tipoCuenta, " + 
-							" cliente.ctaPago, " + 
-							" cliente.bcoPago, " + 
-							" cliente.diasVencPago," + 
-							" cliente.cod_termPago, " + 
-							" cliente.glosaPago, " + 
-							" ifnull(regiones.nombre,'--'), " + 
-							" ifnull(comunas.nombre,'--'), " + 
-							" ifnull(medioPago.nombre,'--'), " + 
-							" ifnull(tipoCuenta.nombre,'--'), " + 
-							" ifnull(termPago.nombre,'--'), " + 
-							" cliente.fonoContacto, " +
-							" cliente.rutRepresentante1, " +
-							" cliente.nombreRepresentante1, " +
-							" cliente.rutRepresentante2, " +
-							" cliente.nombreRepresentante2, " +
-							" cliente.cargoContactoFactura, " +
-							" cliente.cargoRepresentante1, " +
-							" cliente.cargoRepresentante2, " +
-							" cliente.formaDePago, " +
-							" cliente.especialidad, " +
-							" cliente.vigente " +
-							" from `"+db+"`.cliente " + 
-							" left join `"+db+"`.regiones on regiones.codigo = cliente.cod_region " + 
-							" left join `"+db+"`.comunas on comunas.codigo = cliente.cod_comuna " + 
-							" left join `"+db+"`.medioPago on medioPago.codigo = cliente.cod_medioPago " + 
-							" left join `"+db+"`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " + 
-							" left join `"+db+"`.termPago on termPago.codigo = cliente.cod_termPago  " +
-							" where cliente.nickName = ?;" );
+		try (PreparedStatement smt = con.prepareStatement(
+				"select " +
+						" cliente.id, " +
+						" cliente.rut, " +
+						" cliente.nombre, " +
+						" cliente.nickName, " +
+						" cliente.direccion, " +
+						" cliente.cod_region, " +
+						" cliente.cod_comuna, " +
+						" cliente.giro,  " +
+						" cliente.ciudad, " +
+						" cliente.contactoFactura, " +
+						" cliente.mailFactura," +
+						" cliente.cod_medioPago, " +
+						" cliente.cod_tipoCuenta, " +
+						" cliente.ctaPago, " +
+						" cliente.bcoPago, " +
+						" cliente.diasVencPago," +
+						" cliente.cod_termPago, " +
+						" cliente.glosaPago, " +
+						" ifnull(regiones.nombre,'--'), " +
+						" ifnull(comunas.nombre,'--'), " +
+						" ifnull(medioPago.nombre,'--'), " +
+						" ifnull(tipoCuenta.nombre,'--'), " +
+						" ifnull(termPago.nombre,'--'), " +
+						" cliente.fonoContacto, " +
+						" cliente.rutRepresentante1, " +
+						" cliente.nombreRepresentante1, " +
+						" cliente.rutRepresentante2, " +
+						" cliente.nombreRepresentante2, " +
+						" cliente.cargoContactoFactura, " +
+						" cliente.cargoRepresentante1, " +
+						" cliente.cargoRepresentante2, " +
+						" cliente.formaDePago, " +
+						" cliente.especialidad, " +
+						" cliente.vigente " +
+						" from `" + db + "`.cliente " +
+						" left join `" + db + "`.regiones on regiones.codigo = cliente.cod_region " +
+						" left join `" + db + "`.comunas on comunas.codigo = cliente.cod_comuna " +
+						" left join `" + db + "`.medioPago on medioPago.codigo = cliente.cod_medioPago " +
+						" left join `" + db + "`.tipoCuenta on tipoCuenta.codigo = cliente.cod_tipoCuenta " +
+						" left join `" + db + "`.termPago on termPago.codigo = cliente.cod_termPago  " +
+						" where cliente.nickName = ?;")) {
+
 			smt.setString(1, nickName);
-			ResultSet rs = smt.executeQuery();
-			if (rs.next()) {				
-				aux = new Cliente(rs.getLong(1),rs.getString(2),rs.getString(3),
-						rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),
-						rs.getInt(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),
-						rs.getString(22),rs.getString(23),rs.getString(24),
-						rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),
-						rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(32),rs.getString(33),rs.getLong(34));
-			}else{
-				aux = new Cliente((long) 0,"","","","","","","","","","","","","","",0,"","","","","","","","","","","","","","","","","",(long) 1);
+			try (ResultSet rs = smt.executeQuery()) {
+				if (rs.next()) {
+					aux = new Cliente(rs.getLong(1), rs.getString(2), rs.getString(3),
+							rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9),
+							rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15),
+							rs.getInt(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21),
+							rs.getString(22), rs.getString(23), rs.getString(24),
+							rs.getString(25), rs.getString(26), rs.getString(27), rs.getString(28),
+							rs.getString(29), rs.getString(30), rs.getString(31), rs.getString(32), rs.getString(33), rs.getLong(34));
+				} else {
+					aux = new Cliente((long) 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", 0, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", (long) 1);
+				}
 			}
-			rs.close();smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (aux);
+		return aux;
 	}
-	
+
 	public static boolean existeNickName(Connection con, String db, String nickName) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("select id from `"+db+"`.cliente where upper(nickName)=?");
+		try (PreparedStatement smt = con.prepareStatement(
+				"select id from `" + db + "`.cliente where upper(nickName) = ?")) {
 			smt.setString(1, nickName.toUpperCase());
-			ResultSet rs = smt.executeQuery();
-			if(rs.next()) {
-				flag = true;
+			try (ResultSet rs = smt.executeQuery()) {
+				if (rs.next()) {
+					flag = true;
+				}
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
 	public static boolean modificaPorCampo(Connection con, String db, String campo, Long id_cliente, String valor) {
 		boolean flag = false;
-		if(campo.equals("rut")) campo = campo.replaceAll("[\\,\\.]","").trim();
-		try {
-			PreparedStatement smt = con.prepareStatement("update `"+db+"`.cliente set `"+campo+"` = ? WHERE id = ?;");	
+		// Si el campo es 'rut', limpia de comas y puntos
+		if(campo.equals("rut")) {
+			valor = valor.replaceAll("[\\,\\.]", "").trim();
+		}
+		try (PreparedStatement smt = con.prepareStatement(
+				"update `" + db + "`.cliente set `" + campo + "` = ? WHERE id = ?;")) {
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_cliente);
 			smt.executeUpdate();
-			smt.close();
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
 	public static boolean estaEnUso(Connection con, String db, Long id_cliente) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt2 = con
-					.prepareStatement("select * from `"+db+"`.bodegaEmpresa WHERE id_cliente = ?");
+		try (PreparedStatement smt2 = con.prepareStatement(
+				"select * from `" + db + "`.bodegaEmpresa WHERE id_cliente = ?")) {
 			smt2.setLong(1, id_cliente);
-			ResultSet resultado2 = smt2.executeQuery();
-			if (resultado2.next()) {
-				flag = true;
+			try (ResultSet resultado2 = smt2.executeQuery()) {
+				if (resultado2.next()) {
+					flag = true;
+				}
 			}
-			resultado2.close();
-			smt2.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
 	public static boolean delete(Connection con, String db, Long idCliente) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt3 = con
-					.prepareStatement("delete from `"+db+"`.contactoCliente WHERE id_cliente = ?");
+		try (
+				PreparedStatement smt3 = con.prepareStatement("delete from `" + db + "`.contactoCliente WHERE id_cliente = ?");
+				PreparedStatement smt4 = con.prepareStatement("delete from `" + db + "`.cliente WHERE id = ?")
+		) {
 			smt3.setLong(1, idCliente);
 			smt3.executeUpdate();
-			smt3.close();
-			PreparedStatement smt4 = con
-					.prepareStatement("delete from `"+db+"`.cliente WHERE id = ?");
+
 			smt4.setLong(1, idCliente);
 			smt4.executeUpdate();
-			smt4.close();
+
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
 	public static boolean create(Connection con, String db, FormClienteGraba aux) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.cliente (rut,nombre,nickName,direccion,cod_region,cod_comuna,ciudad," + 
-							"giro,mailFactura,fonoContacto,rutRepresentante1,nombreRepresentante1,rutRepresentante2,nombreRepresentante2,contactoFactura,formaDePago,especialidad) " +
-							" values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-			String rut = aux.rut.trim().replaceAll("[\\,\\.]","").trim();
+		try (PreparedStatement smt = con.prepareStatement(
+				"insert into `" + db + "`.cliente (rut,nombre,nickName,direccion,cod_region,cod_comuna,ciudad," +
+						"giro,mailFactura,fonoContacto,rutRepresentante1,nombreRepresentante1,rutRepresentante2,nombreRepresentante2,contactoFactura,formaDePago,especialidad) " +
+						" values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+
+			String rut = aux.rut.trim().replaceAll("[\\,\\.]", "").trim();
 			smt.setString(1, rut);
 			smt.setString(2, aux.nombre.trim());
 			smt.setString(3, aux.nickName.trim());
@@ -592,273 +606,246 @@ public class Cliente {
 			smt.setString(15, aux.contactoFactura);
 			smt.setString(16, aux.formaDePago);
 			smt.setString(17, aux.especialidad);
+
 			smt.executeUpdate();
-			smt.close();
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
-	
+
 	public static File allExcel(String db, Map<String,String> mapDiccionario, List<Cliente> listClientes) {
 		File tmp = TempFile.createTempFile("tmp","null");
-				
-				try {
-					String path = "formatos/excel.xlsx";
-					InputStream formato = Archivos.leerArchivo(path);
-		            Workbook libro = WorkbookFactory.create(formato);
-		            formato.close();
-		            
-		            // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
-		            CellStyle titulo = libro.createCellStyle();
-		            Font font = libro.createFont();
-		            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-		            font.setColor((short)4);
-		            font.setFontHeight((short)(14*20));
-		            titulo.setFont(font);
-		            
-		            CellStyle subtitulo = libro.createCellStyle();
-		            Font font2 = libro.createFont();
-		            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
-		            font2.setColor((short)0);
-		            font2.setFontHeight((short)(12*20));
-		            subtitulo.setFont(font2);
-		            
-		            CellStyle encabezado = libro.createCellStyle();
-		            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-		            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-		            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-		            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-		            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
-		            encabezado.setFillForegroundColor((short)19);
-		            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
-		            
-		            CellStyle detalle = libro.createCellStyle();
-		            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-		            detalle.setBorderTop(CellStyle.BORDER_THIN);
-		            detalle.setBorderRight(CellStyle.BORDER_THIN);
-		            detalle.setBorderLeft(CellStyle.BORDER_THIN);
-		            
-		            
-		            
-		            //titulos del archivo
-		            
-		            libro.setSheetName(0, "CLIENTES");
-		            Sheet hoja1 = libro.getSheetAt(0);
-		            
-		            Row row = null;
-		            Cell cell = null;
-		            
-		            row = hoja1.createRow(1);
-		            cell = row.createCell(1);
-		            cell.setCellStyle(titulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("LISTADO DE CLIENTES");
-					
-					row = hoja1.createRow(2);
-		            cell = row.createCell(1);
-		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
-					
-					row = hoja1.createRow(3);
-		            cell = row.createCell(1);
-		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
-					
-					
-					
-					//anchos de columnas
-					for(int i=1; i<17; i++) {
-						hoja1.setColumnWidth(i, 6*1000);
-					}
-					//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
-					InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
-		            byte[] bytes = IOUtils.toByteArray(x);
-		            x.close();
-		            int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
-					Drawing draw = hoja1.createDrawingPatriarch();
-					CreationHelper helper = libro.getCreationHelper();
-					ClientAnchor anchor = helper.createClientAnchor();
-			        //set top-left corner for the image
-			        anchor.setCol1(9);
-			        anchor.setRow1(1);
-					Picture img = draw.createPicture(anchor, pngIndex);
-					img.resize(0.4);
-					hoja1.createFreezePane(0, 0, 0,0);
-					
-					
-					// encabezado de la tabla
-					
-					int posRow = 8;
-					
-					row = hoja1.createRow(posRow);
-					int posCell = 0;
-					
-					posCell++;
-		            cell = row.createCell(posCell);
-		            cell.setCellStyle(titulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("LISTADO:");
-					
-					posRow += 2;
-					posCell = 0;
-					
-					row = hoja1.createRow(posRow);
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue(mapDiccionario.get("RUT"));
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("RAZON SOCIAL");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("NOMBRE CORTO");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("GIRO");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("DIRECCION");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("COMUNA");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("CIUDAD");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("CONTACTO");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("E-MAIL");
-					
-					posCell++;
-					cell = row.createCell(posCell);
-		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("TELEFONO");
-					
-			        
-					for(int i=0;i<listClientes.size();i++){
-									
-						posRow++;
-						posCell = 0;
-				        row = hoja1.createRow(posRow);
-								
-				        posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).rut);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).nombre);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).nickName);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).giro);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).direccion);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).comuna);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).ciudad);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).contactoFactura);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).mailFactura);
-						
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
-						cell.setCellValue(listClientes.get(i).fonoContacto);
-					}
-					
-					posRow = posRow + 5;
-					row = hoja1.createRow(posRow);
-					cell = row.createCell(1);
-					Hyperlink hiper = helper.createHyperlink(0);
-					hiper.setAddress("https://www.inqsol.cl");
-					cell.setHyperlink(hiper);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
-					cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
-					// Write the output to a file tmp
-					FileOutputStream fileOut = new FileOutputStream(tmp);
-					libro.write(fileOut);
-					fileOut.close();
-					
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-		        }
-				
-				return tmp;
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+			Workbook libro = WorkbookFactory.create(formato);
+			formato.close();
+
+			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+			CellStyle titulo = libro.createCellStyle();
+			Font font = libro.createFont();
+			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setColor((short)4);
+			font.setFontHeight((short)(14*20));
+			titulo.setFont(font);
+
+			CellStyle subtitulo = libro.createCellStyle();
+			Font font2 = libro.createFont();
+			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setColor((short)0);
+			font2.setFontHeight((short)(12*20));
+			subtitulo.setFont(font2);
+
+			CellStyle encabezado = libro.createCellStyle();
+			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+			encabezado.setBorderTop(CellStyle.BORDER_THIN);
+			encabezado.setBorderRight(CellStyle.BORDER_THIN);
+			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setFillForegroundColor((short)19);
+			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+
+			CellStyle detalle = libro.createCellStyle();
+			detalle.setBorderBottom(CellStyle.BORDER_THIN);
+			detalle.setBorderTop(CellStyle.BORDER_THIN);
+			detalle.setBorderRight(CellStyle.BORDER_THIN);
+			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+
+
+			//titulos del archivo
+
+			libro.setSheetName(0, "CLIENTES");
+			Sheet hoja1 = libro.getSheetAt(0);
+
+			Row row = null;
+			Cell cell = null;
+
+			row = hoja1.createRow(1);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellValue("LISTADO DE CLIENTES");
+
+			row = hoja1.createRow(2);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+
+			row = hoja1.createRow(3);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+
+
+			//anchos de columnas
+			for(int i=1; i<17; i++) {
+				hoja1.setColumnWidth(i, 6*1000);
 			}
-	
-	
-	
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+			byte[] bytes = IOUtils.toByteArray(x);
+			x.close();
+			int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+			//set top-left corner for the image
+			anchor.setCol1(9);
+			anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+
+
+			// encabezado de la tabla
+
+			int posRow = 8;
+
+			row = hoja1.createRow(posRow);
+			int posCell = 0;
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(titulo);
+			cell.setCellValue("LISTADO:");
+
+			posRow += 2;
+			posCell = 0;
+
+			row = hoja1.createRow(posRow);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue(mapDiccionario.get("RUT"));
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("RAZON SOCIAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("NOMBRE CORTO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("GIRO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("DIRECCION");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("COMUNA");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("CIUDAD");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("CONTACTO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("E-MAIL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellValue("TELEFONO");
+
+
+			for(int i=0;i<listClientes.size();i++){
+
+				posRow++;
+				posCell = 0;
+				row = hoja1.createRow(posRow);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).rut);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).nombre);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).nickName);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).giro);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).direccion);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).comuna);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).ciudad);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).contactoFactura);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).mailFactura);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellValue(listClientes.get(i).fonoContacto);
+			}
+
+			posRow = posRow + 5;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+			Hyperlink hiper = helper.createHyperlink(Hyperlink.LINK_URL);
+			hiper.setAddress("https://www.inqsol.cl");
+			cell.setHyperlink(hiper);
+			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+
+			// Write the output to a file tmp
+			try (FileOutputStream fileOut = new FileOutputStream(tmp)) {
+				libro.write(fileOut);
+			}
+
+		} catch (Exception e) {
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+
+		return tmp;
+	}
 	
 }

@@ -1,5 +1,8 @@
 package models.tables;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,43 +24,41 @@ public class BodegaRedimensionar{
 
 	public Long getId_bodegaEmpresa() {return id_bodegaEmpresa;}
 	public void setId_bodegaEmpresa(Long id_bodegaEmpresa) {this.id_bodegaEmpresa = id_bodegaEmpresa;}
+	static final Logger logger = LoggerFactory.getLogger(BodegaRedimensionar.class);
 
 
-	
 	public static Long find(Connection con, String db) {
 		Long aux = null;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("Select id_bodegaEmpresa from `"+db+"`.bodegaRedimensionar;");
-			ResultSet rs = smt.executeQuery();
+		String sql = "Select id_bodegaEmpresa from `" + db + "`.bodegaRedimensionar;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
 			if (rs.next()) {
 				aux = rs.getLong(1);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (aux);
+		return aux;
 	}
-	
-	public static boolean change(Connection con, String db, Long id_bodegaEmpresa) {	
+
+	public static boolean change(Connection con, String db, Long id_bodegaEmpresa) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt2 = con
-					.prepareStatement("truncate `"+db+"`.bodegaRedimensionar;");
-			smt2.executeUpdate();
-			smt2.close();
-			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.bodegaRedimensionar (id_bodegaEmpresa) values (?);");		
-			smt.setLong(1, id_bodegaEmpresa);
-			smt.executeUpdate();
-			smt.close();
+		String sqlTruncate = "truncate `" + db + "`.bodegaRedimensionar;";
+		String sqlInsert = "insert into `" + db + "`.bodegaRedimensionar (id_bodegaEmpresa) values (?);";
+		try (PreparedStatement smtTruncate = con.prepareStatement(sqlTruncate);
+			 PreparedStatement smtInsert = con.prepareStatement(sqlInsert)) {
+			smtTruncate.executeUpdate();
+			smtInsert.setLong(1, id_bodegaEmpresa);
+			smtInsert.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		return (flag);
+		return flag;
 	}
 	
 

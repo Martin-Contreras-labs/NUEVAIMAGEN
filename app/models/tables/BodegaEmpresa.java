@@ -14,6 +14,8 @@ import java.sql.*;
 
 import models.calculo.Inventarios;
 import models.forms.FormBodegaGraba;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class BodegaEmpresa {
@@ -210,7 +212,8 @@ public class BodegaEmpresa {
 
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(BodegaEmpresa.class);
 	
 	public static Map<Long,BodegaEmpresa> mapAll(Connection con, String db) {
 		Map<Long,BodegaEmpresa> map = new HashMap<Long,BodegaEmpresa>();
@@ -285,58 +288,60 @@ public class BodegaEmpresa {
 		});
 		return (map);
 	}
-	
-	
+
+
 	public static List<BodegaEmpresa> all(Connection con, String db) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
 		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id," +
-								" esInterna," +
-								" bodegaEmpresa.nombre," +
-								" id_cliente," +
-								" id_proyecto," +
-								" tasaDescto, " +
-								" tasaArriendo," +
-								" tasaCfi," +
-								" cobraDiaDespacho," +
-								" nDiaGraciaEnvio," +
-								" nDiaGraciaRegreso," +
-								" tipoBodega.nombre," +
-								" factorM2Viga," +
-								" baseCalculo," +
-								" tratoDevoluciones," +
-								" ifnull(cliente.nickName,''), " +
-								" ifnull(proyecto.nickName,''), " +
-								" ifnull(bodegaEmpresa.comercial,''), "+
-								" ifnull(cliente.rut,''), "+
-								" ifnull(bodegaEmpresa.pep,''), "+
-								" ifnull(bodegaEmpresa.ivaBodega,0), "+
-								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial, "+
-								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1), "+
-								" id_rubro "+
-								" from `"+db+"`.bodegaEmpresa " +
-								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto;");
-				ResultSet rs = smt.executeQuery();
-				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+			String sql = "select " +
+					" bodegaEmpresa.id," +
+					" esInterna," +
+					" bodegaEmpresa.nombre," +
+					" id_cliente," +
+					" id_proyecto," +
+					" tasaDescto, " +
+					" tasaArriendo," +
+					" tasaCfi," +
+					" cobraDiaDespacho," +
+					" nDiaGraciaEnvio," +
+					" nDiaGraciaRegreso," +
+					" tipoBodega.nombre," +
+					" factorM2Viga," +
+					" baseCalculo," +
+					" tratoDevoluciones," +
+					" ifnull(cliente.nickName,''), " +
+					" ifnull(proyecto.nickName,''), " +
+					" ifnull(bodegaEmpresa.comercial,''), "+
+					" ifnull(cliente.rut,''), "+
+					" ifnull(bodegaEmpresa.pep,''), "+
+					" ifnull(bodegaEmpresa.ivaBodega,0), "+
+					" bodegaEmpresa.id_sucursal, "+
+					" bodegaEmpresa.id_comercial, "+
+					" bodegaEmpresa.vigente, "+
+					" ifnull(cliente.vigente,1), "+
+					" id_rubro "+
+					" from `"+db+"`.bodegaEmpresa " +
+					" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
+					" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+					" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto;";
+
+			try (PreparedStatement smt = con.prepareStatement(sql);
+				 ResultSet rs = smt.executeQuery()) {
 				while (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-					if(sucursal!=null) {
+					if (sucursal != null) {
 						nameSucursal = sucursal.nombre;
 					}
+
 					String nameComercial = "";
 					Comercial comercial = mapComercial.get(rs.getLong(23));
-					if(comercial!=null) {
+					if (comercial != null) {
 						nameComercial = comercial.getNameUsuario();
-					}else {
+					} else {
 						nameComercial = rs.getString(18);
 					}
 					String nameRubro = "";
@@ -354,217 +359,293 @@ public class BodegaEmpresa {
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
 							rs.getLong(26),nameRubro));
 				}
-				rs.close();
-				smt.close();
+			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<BodegaEmpresa> allVigentes(Connection con, String db) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id," +
-								" esInterna," +
-								" bodegaEmpresa.nombre," +
-								" id_cliente," +
-								" id_proyecto," +
-								" tasaDescto, " +
-								" tasaArriendo," +
-								" tasaCfi," +
-								" cobraDiaDespacho," +
-								" nDiaGraciaEnvio," +
-								" nDiaGraciaRegreso," +
-								" tipoBodega.nombre," +
-								" factorM2Viga," +
-								" baseCalculo," +
-								" tratoDevoluciones," +
-								" ifnull(cliente.nickName,''), " +
-								" ifnull(proyecto.nickName,''), " +
-								" ifnull(bodegaEmpresa.comercial,''), "+
-								" ifnull(cliente.rut,''), "+
-								" ifnull(bodegaEmpresa.pep,''), "+
-								" ifnull(bodegaEmpresa.ivaBodega,0), "+
-								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial, "+
-								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1), "+
-								" id_rubro "+
-								" from `"+db+"`.bodegaEmpresa " +
-								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-								" where bodegaEmpresa.vigente = 1;");
-				ResultSet rs = smt.executeQuery();
-				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-				while (rs.next()) {
-					String nameSucursal = "";
-					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-					if(sucursal!=null) {
-						nameSucursal = sucursal.nombre;
-					}
-					String nameComercial = "";
-					Comercial comercial = mapComercial.get(rs.getLong(23));
-					if(comercial!=null) {
-						nameComercial = comercial.getNameUsuario();
-					}else {
-						nameComercial = rs.getString(18);
-					}
-					String nameRubro = "";
-					Rubro rubro = mapRubro.get(rs.getLong(26));
-					if(rubro!=null) {
-						nameRubro = rubro.nombre;
-					}
-					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
-							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
-							rs.getDouble(8),rs.getLong(9),
-							rs.getLong(10),rs.getLong(11),rs.getDouble(13),
-							rs.getLong(14),rs.getLong(15),rs.getString(12),
-							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
-							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro));
+		String sql = "select " +
+				" bodegaEmpresa.id," +
+				" esInterna," +
+				" bodegaEmpresa.nombre," +
+				" id_cliente," +
+				" id_proyecto," +
+				" tasaDescto, " +
+				" tasaArriendo," +
+				" tasaCfi," +
+				" cobraDiaDespacho," +
+				" nDiaGraciaEnvio," +
+				" nDiaGraciaRegreso," +
+				" tipoBodega.nombre," +
+				" factorM2Viga," +
+				" baseCalculo," +
+				" tratoDevoluciones," +
+				" ifnull(cliente.nickName,''), " +
+				" ifnull(proyecto.nickName,''), " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(cliente.rut,''), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, "+
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.vigente, "+
+				" ifnull(cliente.vigente,1), "+
+				" id_rubro "+
+				" from `"+db+"`.bodegaEmpresa " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+				" where bodegaEmpresa.vigente = 1;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
+			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+			while (rs.next()) {
+				String nameSucursal = "";
+				Sucursal sucursal = mapSucursal.get(rs.getLong(22));
+				if (sucursal != null) {
+					nameSucursal = sucursal.nombre;
 				}
-				rs.close();
-				smt.close();
+				String nameComercial = "";
+				Comercial comercial = mapComercial.get(rs.getLong(23));
+				if (comercial != null) {
+					nameComercial = comercial.getNameUsuario();
+				} else {
+					nameComercial = rs.getString(18);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(26));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
+				}
+				lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
+						rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
+						rs.getDouble(8),rs.getLong(9),
+						rs.getLong(10),rs.getLong(11),rs.getDouble(13),
+						rs.getLong(14),rs.getLong(15),rs.getString(12),
+						rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
+						rs.getString(20),rs.getDouble(21),
+						rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+						rs.getLong(26),nameRubro));
+			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<BodegaEmpresa> allInternas(Connection con, String db) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id," +
-								" esInterna," +
-								" bodegaEmpresa.nombre," +
-								" id_cliente," +
-								" id_proyecto," +
-								" tasaDescto, " +
-								" tasaArriendo," +
-								" tasaCfi," +
-								" cobraDiaDespacho," +
-								" nDiaGraciaEnvio," +
-								" nDiaGraciaRegreso," +
-								" tipoBodega.nombre," +
-								" factorM2Viga," +
-								" baseCalculo," +
-								" tratoDevoluciones," +
-								" ifnull(cliente.nickName,''), " +
-								" ifnull(proyecto.nickName,''), " +
-								" ifnull(bodegaEmpresa.comercial,''), "+
-								" ifnull(cliente.rut,''), "+
-								" ifnull(bodegaEmpresa.pep,''), "+
-								" ifnull(bodegaEmpresa.ivaBodega,0), "+
-								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial, "+
-								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1), "+
-								" id_rubro "+
-								" from `"+db+"`.bodegaEmpresa " +
-								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-								" where esInterna = 1;" );
-				ResultSet rs = smt.executeQuery();
-				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-				while (rs.next()) {
-					String nameSucursal = "";
-					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-					if(sucursal!=null) {
-						nameSucursal = sucursal.nombre;
-					}
-					String nameComercial = "";
-					Comercial comercial = mapComercial.get(rs.getLong(23));
-					if(comercial!=null) {
-						nameComercial = comercial.getNameUsuario();
-					}else {
-						nameComercial = rs.getString(18);
-					}
-					String nameRubro = "";
-					Rubro rubro = mapRubro.get(rs.getLong(26));
-					if(rubro!=null) {
-						nameRubro = rubro.nombre;
-					}
-					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
-							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
-							rs.getDouble(8),rs.getLong(9),
-							rs.getLong(10),rs.getLong(11),rs.getDouble(13),
-							rs.getLong(14),rs.getLong(15),rs.getString(12),
-							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
-							rs.getString(20),rs.getDouble(21),
-							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro));
+		String sql = "select " +
+				" bodegaEmpresa.id," +
+				" esInterna," +
+				" bodegaEmpresa.nombre," +
+				" id_cliente," +
+				" id_proyecto," +
+				" tasaDescto, " +
+				" tasaArriendo," +
+				" tasaCfi," +
+				" cobraDiaDespacho," +
+				" nDiaGraciaEnvio," +
+				" nDiaGraciaRegreso," +
+				" tipoBodega.nombre," +
+				" factorM2Viga," +
+				" baseCalculo," +
+				" tratoDevoluciones," +
+				" ifnull(cliente.nickName,''), " +
+				" ifnull(proyecto.nickName,''), " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(cliente.rut,''), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, "+
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.vigente, "+
+				" ifnull(cliente.vigente,1), "+
+				" id_rubro "+
+				" from `"+db+"`.bodegaEmpresa " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+				" where esInterna = 1;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
+			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+			while (rs.next()) {
+				String nameSucursal = "";
+				Sucursal sucursal = mapSucursal.get(rs.getLong(22));
+				if (sucursal != null) {
+					nameSucursal = sucursal.nombre;
 				}
-				rs.close();
-				smt.close();
+				String nameComercial = "";
+				Comercial comercial = mapComercial.get(rs.getLong(23));
+				if (comercial != null) {
+					nameComercial = comercial.getNameUsuario();
+				} else {
+					nameComercial = rs.getString(18);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(26));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
+				}
+				lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
+						rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
+						rs.getDouble(8),rs.getLong(9),
+						rs.getLong(10),rs.getLong(11),rs.getDouble(13),
+						rs.getLong(14),rs.getLong(15),rs.getString(12),
+						rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
+						rs.getString(20),rs.getDouble(21),
+						rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+						rs.getLong(26),nameRubro));
+			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<BodegaEmpresa> allExternas(Connection con, String db) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id," +
-								" esInterna," +
-								" bodegaEmpresa.nombre," +
-								" id_cliente," +
-								" id_proyecto," +
-								" tasaDescto, " +
-								" tasaArriendo," +
-								" tasaCfi," +
-								" cobraDiaDespacho," +
-								" nDiaGraciaEnvio," +
-								" nDiaGraciaRegreso," +
-								" tipoBodega.nombre," +
-								" factorM2Viga," +
-								" baseCalculo," +
-								" tratoDevoluciones," +
-								" ifnull(cliente.nickName,''), " +
-								" ifnull(proyecto.nickName,''), " +
-								" ifnull(bodegaEmpresa.comercial,''), "+
-								" ifnull(cliente.rut,''), "+
-								" ifnull(bodegaEmpresa.pep,''), "+
-								" ifnull(bodegaEmpresa.ivaBodega,0), "+
-								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial, "+
-								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1), "+
-								" id_rubro "+
-								" from `"+db+"`.bodegaEmpresa " +
-								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-								" where esInterna <> 1;" );
-				ResultSet rs = smt.executeQuery();
-				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+		String sql = "select " +
+				" bodegaEmpresa.id," +
+				" esInterna," +
+				" bodegaEmpresa.nombre," +
+				" id_cliente," +
+				" id_proyecto," +
+				" tasaDescto, " +
+				" tasaArriendo," +
+				" tasaCfi," +
+				" cobraDiaDespacho," +
+				" nDiaGraciaEnvio," +
+				" nDiaGraciaRegreso," +
+				" tipoBodega.nombre," +
+				" factorM2Viga," +
+				" baseCalculo," +
+				" tratoDevoluciones," +
+				" ifnull(cliente.nickName,''), " +
+				" ifnull(proyecto.nickName,''), " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(cliente.rut,''), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, "+
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.vigente, "+
+				" ifnull(cliente.vigente,1), "+
+				" id_rubro "+
+				" from `"+db+"`.bodegaEmpresa " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+				" where esInterna <> 1;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
+			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+			while (rs.next()) {
+				String nameSucursal = "";
+				Sucursal sucursal = mapSucursal.get(rs.getLong(22));
+				if (sucursal != null) {
+					nameSucursal = sucursal.nombre;
+				}
+				String nameComercial = "";
+				Comercial comercial = mapComercial.get(rs.getLong(23));
+				if (comercial != null) {
+					nameComercial = comercial.getNameUsuario();
+				} else {
+					nameComercial = rs.getString(18);
+				}
+				String nameRubro = "";
+				Rubro rubro = mapRubro.get(rs.getLong(26));
+				if(rubro!=null) {
+					nameRubro = rubro.nombre;
+				}
+				lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
+						rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
+						rs.getDouble(8),rs.getLong(9),
+						rs.getLong(10),rs.getLong(11),rs.getDouble(13),
+						rs.getLong(14),rs.getLong(15),rs.getString(12),
+						rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
+						rs.getString(20),rs.getDouble(21),
+						rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+						rs.getLong(26),nameRubro));
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (lista);
+	}
+	
+	public static List<BodegaEmpresa> allFiltroPorNombre(Connection con, String db, String filtroPorNombreBodega) {
+		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
+		if (filtroPorNombreBodega.length() > 0) {
+			String whereClause = " where bodegaEmpresa.nombre in (" + filtroPorNombreBodega + ") ";
+			String sql = "select " +
+					" bodegaEmpresa.id," +
+					" esInterna," +
+					" bodegaEmpresa.nombre," +
+					" id_cliente," +
+					" id_proyecto," +
+					" tasaDescto, " +
+					" tasaArriendo," +
+					" tasaCfi," +
+					" cobraDiaDespacho," +
+					" nDiaGraciaEnvio," +
+					" nDiaGraciaRegreso," +
+					" tipoBodega.nombre," +
+					" factorM2Viga," +
+					" baseCalculo," +
+					" tratoDevoluciones," +
+					" ifnull(cliente.nickName,''), " +
+					" ifnull(proyecto.nickName,''), " +
+					" ifnull(bodegaEmpresa.comercial,''), "+
+					" ifnull(cliente.rut,''), "+
+					" ifnull(bodegaEmpresa.pep,''), "+
+					" ifnull(bodegaEmpresa.ivaBodega,0), "+
+					" bodegaEmpresa.id_sucursal, "+
+					" bodegaEmpresa.id_comercial, "+
+					" bodegaEmpresa.vigente, "+
+					" ifnull(cliente.vigente,1), "+
+					" id_rubro "+
+					" from `" + db + "`.bodegaEmpresa " +
+					" left join `" + db + "`.tipoBodega on tipoBodega.id = esInterna " +
+					" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+					" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+					whereClause +
+					" order by bodegaEmpresa.nombre;";
+			try (PreparedStatement smt = con.prepareStatement(sql);
+				 ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				while (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-					if(sucursal!=null) {
+					if (sucursal != null) {
 						nameSucursal = sucursal.nombre;
 					}
 					String nameComercial = "";
 					Comercial comercial = mapComercial.get(rs.getLong(23));
-					if(comercial!=null) {
+					if (comercial != null) {
 						nameComercial = comercial.getNameUsuario();
-					}else {
+					} else {
 						nameComercial = rs.getString(18);
 					}
 					String nameRubro = "";
@@ -582,88 +663,10 @@ public class BodegaEmpresa {
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
 							rs.getLong(26),nameRubro));
 				}
-				rs.close();
-				smt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return (lista);
-	}
-	
-	public static List<BodegaEmpresa> allFiltroPorNombre(Connection con, String db, String filtroPorNombreBodega) {
-		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
-		if(filtroPorNombreBodega.length()>0) {
-			filtroPorNombreBodega = " where bodegaEmpresa.nombre in ("+filtroPorNombreBodega+") ";
-			try {
-				PreparedStatement smt = con
-							.prepareStatement("select " +
-									" bodegaEmpresa.id," +
-									" esInterna," +
-									" bodegaEmpresa.nombre," +
-									" id_cliente," +
-									" id_proyecto," +
-									" tasaDescto, " +
-									" tasaArriendo," +
-									" tasaCfi," +
-									" cobraDiaDespacho," +
-									" nDiaGraciaEnvio," +
-									" nDiaGraciaRegreso," +
-									" tipoBodega.nombre," +
-									" factorM2Viga," +
-									" baseCalculo," +
-									" tratoDevoluciones," +
-									" ifnull(cliente.nickName,''), " +
-									" ifnull(proyecto.nickName,''), " +
-									" ifnull(bodegaEmpresa.comercial,''), "+
-									" ifnull(cliente.rut,''), "+
-									" ifnull(bodegaEmpresa.pep,''), "+
-									" ifnull(bodegaEmpresa.ivaBodega,0), "+
-									" bodegaEmpresa.id_sucursal, "+
-									" bodegaEmpresa.id_comercial, "+
-									" bodegaEmpresa.vigente, "+
-									" ifnull(cliente.vigente,1), "+
-									" id_rubro "+
-									" from `"+db+"`.bodegaEmpresa " +
-									" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-									" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-									" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " + filtroPorNombreBodega +
-									" order by bodegaEmpresa.nombre;" );
-					ResultSet rs = smt.executeQuery();
-					Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-					Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-					Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-					while (rs.next()) {
-						String nameSucursal = "";
-						Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-						if(sucursal!=null) {
-							nameSucursal = sucursal.nombre;
-						}
-						String nameComercial = "";
-						Comercial comercial = mapComercial.get(rs.getLong(23));
-						if(comercial!=null) {
-							nameComercial = comercial.getNameUsuario();
-						}else {
-							nameComercial = rs.getString(18);
-						}
-						String nameRubro = "";
-						Rubro rubro = mapRubro.get(rs.getLong(26));
-						if(rubro!=null) {
-							nameRubro = rubro.nombre;
-						}
-						lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
-								rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
-								rs.getDouble(8),rs.getLong(9),
-								rs.getLong(10),rs.getLong(11),rs.getDouble(13),
-								rs.getLong(14),rs.getLong(15),rs.getString(12),
-								rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
-								rs.getString(20),rs.getDouble(21),
-								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-								rs.getLong(26),nameRubro));
-					}
-					rs.close();
-					smt.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				String className = ActaBaja.class.getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		}
 		return (lista);
@@ -671,78 +674,78 @@ public class BodegaEmpresa {
 	
 	public static List<BodegaEmpresa> allFiltroPorId(Connection con, String db, String filtroPorIdBodega) {
 		List<BodegaEmpresa> lista = new ArrayList<BodegaEmpresa>();
-		if(filtroPorIdBodega.length()>0) {
-			filtroPorIdBodega = " where bodegaEmpresa.id in ("+filtroPorIdBodega+") ";
-			try {
-				PreparedStatement smt = con
-							.prepareStatement("select " +
-									" bodegaEmpresa.id," +
-									" esInterna," +
-									" bodegaEmpresa.nombre," +
-									" id_cliente," +
-									" id_proyecto," +
-									" tasaDescto, " +
-									" tasaArriendo," +
-									" tasaCfi," +
-									" cobraDiaDespacho," +
-									" nDiaGraciaEnvio," +
-									" nDiaGraciaRegreso," +
-									" tipoBodega.nombre," +
-									" factorM2Viga," +
-									" baseCalculo," +
-									" tratoDevoluciones," +
-									" ifnull(cliente.nickName,''), " +
-									" ifnull(proyecto.nickName,''), " +
-									" ifnull(bodegaEmpresa.comercial,''), "+
-									" ifnull(cliente.rut,''), "+
-									" ifnull(bodegaEmpresa.pep,''), "+
-									" ifnull(bodegaEmpresa.ivaBodega,0), "+
-									" bodegaEmpresa.id_sucursal, "+
-									" bodegaEmpresa.id_comercial, "+
-									" bodegaEmpresa.vigente, "+
-									" ifnull(cliente.vigente,1), "+
-									" id_rubro "+
-									" from `"+db+"`.bodegaEmpresa " +
-									" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-									" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-									" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " + filtroPorIdBodega +
-									" order by bodegaEmpresa.nombre;" );
-					ResultSet rs = smt.executeQuery();
-					Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-					Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-					Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-					while (rs.next()) {
-						String nameSucursal = "";
-						Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-						if(sucursal!=null) {
-							nameSucursal = sucursal.nombre;
-						}
-						String nameComercial = "";
-						Comercial comercial = mapComercial.get(rs.getLong(23));
-						if(comercial!=null) {
-							nameComercial = comercial.getNameUsuario();
-						}else {
-							nameComercial = rs.getString(18);
-						}
-						String nameRubro = "";
-						Rubro rubro = mapRubro.get(rs.getLong(26));
-						if(rubro!=null) {
-							nameRubro = rubro.nombre;
-						}
-						lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
-								rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
-								rs.getDouble(8),rs.getLong(9),
-								rs.getLong(10),rs.getLong(11),rs.getDouble(13),
-								rs.getLong(14),rs.getLong(15),rs.getString(12),
-								rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
-								rs.getString(20),rs.getDouble(21),
-								rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-								rs.getLong(26),nameRubro));
+		if (filtroPorIdBodega.length() > 0) {
+			String whereClause = " where bodegaEmpresa.id in (" + filtroPorIdBodega + ") ";
+			String sql = "select " +
+					" bodegaEmpresa.id," +
+					" esInterna," +
+					" bodegaEmpresa.nombre," +
+					" id_cliente," +
+					" id_proyecto," +
+					" tasaDescto, " +
+					" tasaArriendo," +
+					" tasaCfi," +
+					" cobraDiaDespacho," +
+					" nDiaGraciaEnvio," +
+					" nDiaGraciaRegreso," +
+					" tipoBodega.nombre," +
+					" factorM2Viga," +
+					" baseCalculo," +
+					" tratoDevoluciones," +
+					" ifnull(cliente.nickName,''), " +
+					" ifnull(proyecto.nickName,''), " +
+					" ifnull(bodegaEmpresa.comercial,''), "+
+					" ifnull(cliente.rut,''), "+
+					" ifnull(bodegaEmpresa.pep,''), "+
+					" ifnull(bodegaEmpresa.ivaBodega,0), "+
+					" bodegaEmpresa.id_sucursal, "+
+					" bodegaEmpresa.id_comercial, "+
+					" bodegaEmpresa.vigente, "+
+					" ifnull(cliente.vigente,1), "+
+					" id_rubro "+
+					" from `" + db + "`.bodegaEmpresa " +
+					" left join `" + db + "`.tipoBodega on tipoBodega.id = esInterna " +
+					" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+					" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+					whereClause +
+					" order by bodegaEmpresa.nombre;";
+			try (PreparedStatement smt = con.prepareStatement(sql);
+				 ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
+					if (sucursal != null) {
+						nameSucursal = sucursal.nombre;
 					}
-					rs.close();
-					smt.close();
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(23));
+					if (comercial != null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(18);
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(26));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
+					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
+							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
+							rs.getDouble(8),rs.getLong(9),
+							rs.getLong(10),rs.getLong(11),rs.getDouble(13),
+							rs.getLong(14),rs.getLong(15),rs.getString(12),
+							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
+							rs.getString(20),rs.getDouble(21),
+							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
+							rs.getLong(26),nameRubro));
+				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				String className = ActaBaja.class.getSimpleName();
+				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		}
 		return (lista);
@@ -750,78 +753,77 @@ public class BodegaEmpresa {
 	
 	public static List<Long> allIdBodPorIdProy(Connection con, String db, String id_proyecto) {
 		List<Long> lista = new ArrayList<Long>();
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id " +
-								" from `"+db+"`.bodegaEmpresa " +
-								" where bodegaEmpresa.id_proyecto = ?" +
-								" order by bodegaEmpresa.nombre;" );
+		String sql = "select bodegaEmpresa.id " +
+				" from `" + db + "`.bodegaEmpresa " +
+				" where bodegaEmpresa.id_proyecto = ? " +
+				" order by bodegaEmpresa.nombre;";
+
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
 			smt.setString(1, id_proyecto);
-			ResultSet rs = smt.executeQuery();
-			while (rs.next()) {
-				lista.add(rs.getLong(1));
+			try (ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					lista.add(rs.getLong(1));
+				}
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static BodegaEmpresa findXIdBodega(Connection con, String db, Long id_bodegaEmpresa) {
 		BodegaEmpresa aux = null;
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id," +
-								" esInterna," +
-								" bodegaEmpresa.nombre," +
-								" id_cliente," +
-								" id_proyecto," +
-								" tasaDescto, " +
-								" tasaArriendo," +
-								" tasaCfi," +
-								" cobraDiaDespacho," +
-								" nDiaGraciaEnvio," +
-								" nDiaGraciaRegreso," +
-								" tipoBodega.nombre," +
-								" factorM2Viga," +
-								" baseCalculo," +
-								" tratoDevoluciones," +
-								" ifnull(cliente.nickName,''), " +
-								" ifnull(proyecto.nickName,''), " +
-								" ifnull(bodegaEmpresa.comercial,''), "+
-								" ifnull(cliente.rut,''), "+
-								" ifnull(bodegaEmpresa.pep,''), "+
-								" ifnull(bodegaEmpresa.ivaBodega,0), "+
-								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial, "+
-								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1), "+
-								" id_rubro " +
-								" from `"+db+"`.bodegaEmpresa " +
-								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-								" where bodegaEmpresa.id = ?;" );
-				smt.setLong(1, id_bodegaEmpresa);
-				ResultSet rs = smt.executeQuery();
-				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+		String sql = "select " +
+				" bodegaEmpresa.id," +
+				" esInterna," +
+				" bodegaEmpresa.nombre," +
+				" id_cliente," +
+				" id_proyecto," +
+				" tasaDescto, " +
+				" tasaArriendo," +
+				" tasaCfi," +
+				" cobraDiaDespacho," +
+				" nDiaGraciaEnvio," +
+				" nDiaGraciaRegreso," +
+				" tipoBodega.nombre," +
+				" factorM2Viga," +
+				" baseCalculo," +
+				" tratoDevoluciones," +
+				" ifnull(cliente.nickName,''), " +
+				" ifnull(proyecto.nickName,''), " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(cliente.rut,''), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, "+
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.vigente, "+
+				" ifnull(cliente.vigente,1), "+
+				" id_rubro " +
+				" from `"+db+"`.bodegaEmpresa " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+				" where bodegaEmpresa.id = ?;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			smt.setLong(1, id_bodegaEmpresa);
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				if (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-					if(sucursal!=null) {
+					if (sucursal != null) {
 						nameSucursal = sucursal.nombre;
 					}
 					String nameComercial = "";
 					Comercial comercial = mapComercial.get(rs.getLong(23));
-					if(comercial!=null) {
+					if (comercial != null) {
 						nameComercial = comercial.getNameUsuario();
-					}else {
+					} else {
 						nameComercial = rs.getString(18);
 					}
 					String nameRubro = "";
@@ -839,66 +841,66 @@ public class BodegaEmpresa {
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
 							rs.getLong(26),nameRubro);
 				}
-				rs.close();
-				smt.close();
+			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (aux);
 	}
 	
 	public static BodegaEmpresa findXNombreBodega(Connection con, String db, String nombreBodega) {
 		BodegaEmpresa aux = null;
-		try {
-			PreparedStatement smt = con
-						.prepareStatement("select " +
-								" bodegaEmpresa.id," +
-								" esInterna," +
-								" bodegaEmpresa.nombre," +
-								" id_cliente," +
-								" id_proyecto," +
-								" tasaDescto, " +
-								" tasaArriendo," +
-								" tasaCfi," +
-								" cobraDiaDespacho," +
-								" nDiaGraciaEnvio," +
-								" nDiaGraciaRegreso," +
-								" tipoBodega.nombre," +
-								" factorM2Viga," +
-								" baseCalculo," +
-								" tratoDevoluciones," +
-								" ifnull(cliente.nickName,''), " +
-								" ifnull(proyecto.nickName,''), " +
-								" ifnull(bodegaEmpresa.comercial,''), "+
-								" ifnull(cliente.rut,''), "+
-								" ifnull(bodegaEmpresa.pep,''), "+
-								" ifnull(bodegaEmpresa.ivaBodega,0), "+
-								" bodegaEmpresa.id_sucursal, "+
-								" bodegaEmpresa.id_comercial, "+
-								" bodegaEmpresa.vigente, "+
-								" ifnull(cliente.vigente,1), "+
-								" id_rubro " +
-								" from `"+db+"`.bodegaEmpresa " +
-								" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
-								" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-								" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-								" where bodegaEmpresa.nombre = ?;" );
-				smt.setString(1, nombreBodega);
-				ResultSet rs = smt.executeQuery();
-				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+		String sql = "select " +
+				" bodegaEmpresa.id," +
+				" esInterna," +
+				" bodegaEmpresa.nombre," +
+				" id_cliente," +
+				" id_proyecto," +
+				" tasaDescto, " +
+				" tasaArriendo," +
+				" tasaCfi," +
+				" cobraDiaDespacho," +
+				" nDiaGraciaEnvio," +
+				" nDiaGraciaRegreso," +
+				" tipoBodega.nombre," +
+				" factorM2Viga," +
+				" baseCalculo," +
+				" tratoDevoluciones," +
+				" ifnull(cliente.nickName,''), " +
+				" ifnull(proyecto.nickName,''), " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(cliente.rut,''), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, "+
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.vigente, "+
+				" ifnull(cliente.vigente,1), "+
+				" id_rubro " +
+				" from `" + db + "`.bodegaEmpresa " +
+				" left join `" + db + "`.tipoBodega on tipoBodega.id = esInterna " +
+				" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+				" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+				" where bodegaEmpresa.nombre = ?;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			smt.setString(1, nombreBodega);
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 				if (rs.next()) {
 					String nameSucursal = "";
 					Sucursal sucursal = mapSucursal.get(rs.getLong(22));
-					if(sucursal!=null) {
+					if (sucursal != null) {
 						nameSucursal = sucursal.nombre;
 					}
 					String nameComercial = "";
 					Comercial comercial = mapComercial.get(rs.getLong(23));
-					if(comercial!=null) {
+					if (comercial != null) {
 						nameComercial = comercial.getNameUsuario();
-					}else {
+					} else {
 						nameComercial = rs.getString(18);
 					}
 					String nameRubro = "";
@@ -916,155 +918,152 @@ public class BodegaEmpresa {
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
 							rs.getLong(26),nameRubro);
 				}
-				rs.close();
-				smt.close();
+			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (aux);
 	}
 	
 	public static boolean estaEnUso(Connection con, String db, Long id_bodegaEmpresa) {
 		boolean flag = false;
+		String sql1 = "select id from `" + db + "`.movimiento WHERE id_bodegaEmpresa = ?;";
+		String sql2 = "select id from `" + db + "`.tipoEstado WHERE id_bodegaAsociada = ?;";
+		String sql3 = "select id from `" + db + "`.cotizacion WHERE id_bodegaEmpresa = ?;";
+		String sql4 = "select id from `" + db + "`.ventaServicio WHERE id_bodegaEmpresa = ?;";
 		try {
-			
-			PreparedStatement smt = con
-					.prepareStatement("select id from `"+db+"`.movimiento WHERE id_bodegaEmpresa = ?;" );
-			smt.setLong(1, id_bodegaEmpresa);
-			ResultSet resultado = smt.executeQuery();
-			if (resultado.next()) {
-				flag = true;
+			try (PreparedStatement smt = con.prepareStatement(sql1)) {
+				smt.setLong(1, id_bodegaEmpresa);
+				try (ResultSet resultado = smt.executeQuery()) {
+					if (resultado.next()) {
+						flag = true;
+					}
+				}
 			}
-			resultado.close();
-			smt.close();
-			
-			PreparedStatement smt3 = con
-					.prepareStatement("select id from `"+db+"`.tipoEstado WHERE id_bodegaAsociada = ?");
-			smt3.setLong(1, id_bodegaEmpresa);
-			ResultSet rs3 = smt3.executeQuery();
-			if (rs3.next()) {
-				flag = true;
+			try (PreparedStatement smt3 = con.prepareStatement(sql2)) {
+				smt3.setLong(1, id_bodegaEmpresa);
+				try (ResultSet rs3 = smt3.executeQuery()) {
+					if (rs3.next()) {
+						flag = true;
+					}
+				}
 			}
-			rs3.close();
-			smt3.close();
-			
-			PreparedStatement smt4 = con
-					.prepareStatement("select id from `"+db+"`.cotizacion WHERE id_bodegaEmpresa = ?");
-			smt4.setLong(1, id_bodegaEmpresa);
-			ResultSet rs4 = smt4.executeQuery();
-			if (rs4.next()) {
-				flag = true;
+			try (PreparedStatement smt4 = con.prepareStatement(sql3)) {
+				smt4.setLong(1, id_bodegaEmpresa);
+				try (ResultSet rs4 = smt4.executeQuery()) {
+					if (rs4.next()) {
+						flag = true;
+					}
+				}
 			}
-			
-			PreparedStatement smt5 = con
-					.prepareStatement("select id from `"+db+"`.ventaServicio WHERE id_bodegaEmpresa = ?");
-			smt5.setLong(1, id_bodegaEmpresa);
-			ResultSet rs5 = smt5.executeQuery();
-			if (rs5.next()) {
-				flag = true;
+			try (PreparedStatement smt5 = con.prepareStatement(sql4)) {
+				smt5.setLong(1, id_bodegaEmpresa);
+				try (ResultSet rs5 = smt5.executeQuery()) {
+					if (rs5.next()) {
+						flag = true;
+					}
+				}
 			}
-			
-			rs5.close();
-			smt5.close();
-			
+
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}
 	
 	public static boolean delete(Connection con, String db, Long id_bodegaEmpresa) {
 		boolean flag = false;
+		String sql1 = "delete from `" + db + "`.bodegaEmpresa where id = ?;";
+		String sql2 = "delete from `" + db + "`.dctoGrupo where id_bodegaEmpresa = ?;";
+		String sql3 = "delete from `" + db + "`.dctoEquipo where id_bodegaEmpresa = ?;";
+		String sql4 = "delete from `" + db + "`.listaPrecio where id_bodegaEmpresa = ?;";
+		String sql5 = "delete from `" + db + "`.ppto where id_bodegaEmpresa = ?;";
+		String sql6 = "delete from `" + db + "`.fijaTasasCambio where id_bodegaEmpresa = ?;";
 		try {
-			
-			PreparedStatement smt4 = con.prepareStatement("delete from `"+db+"`.bodegaEmpresa where id = ?;");
-			smt4.setLong(1, id_bodegaEmpresa);
-			smt4.executeUpdate();
-			smt4.close();
-			
-			PreparedStatement smt5 = con.prepareStatement("delete from `"+db+"`.dctoGrupo where id_bodegaEmpresa = ?;");
-			smt5.setLong(1, id_bodegaEmpresa);
-			smt5.executeUpdate();
-			smt5.close();
-			
-			PreparedStatement smt6 = con.prepareStatement("delete from `"+db+"`.dctoEquipo where id_bodegaEmpresa = ?;");
-			smt6.setLong(1, id_bodegaEmpresa);
-			smt6.executeUpdate();
-			smt6.close();
-			
-			PreparedStatement smt7 = con.prepareStatement("delete from `"+db+"`.listaPrecio where id_bodegaEmpresa = ?;");
-			smt7.setLong(1, id_bodegaEmpresa);
-			smt7.executeUpdate();
-			smt7.close();
-			
-			PreparedStatement smt8 = con.prepareStatement("delete from `"+db+"`.ppto where id_bodegaEmpresa = ?;");
-			smt8.setLong(1, id_bodegaEmpresa);
-			smt8.executeUpdate();
-			smt8.close();
-			
-			PreparedStatement smt9 = con.prepareStatement("delete from `"+db+"`.fijaTasasCambio where id_bodegaEmpresa = ?;");
-			smt9.setLong(1, id_bodegaEmpresa);
-			smt9.executeUpdate();
-			smt9.close();
-			
+			try (PreparedStatement smt4 = con.prepareStatement(sql1)) {
+				smt4.setLong(1, id_bodegaEmpresa);
+				smt4.executeUpdate();
+			}
+			try (PreparedStatement smt5 = con.prepareStatement(sql2)) {
+				smt5.setLong(1, id_bodegaEmpresa);
+				smt5.executeUpdate();
+			}
+			try (PreparedStatement smt6 = con.prepareStatement(sql3)) {
+				smt6.setLong(1, id_bodegaEmpresa);
+				smt6.executeUpdate();
+			}
+			try (PreparedStatement smt7 = con.prepareStatement(sql4)) {
+				smt7.setLong(1, id_bodegaEmpresa);
+				smt7.executeUpdate();
+			}
+			try (PreparedStatement smt8 = con.prepareStatement(sql5)) {
+				smt8.setLong(1, id_bodegaEmpresa);
+				smt8.executeUpdate();
+			}
+			try (PreparedStatement smt9 = con.prepareStatement(sql6)) {
+				smt9.setLong(1, id_bodegaEmpresa);
+				smt9.executeUpdate();
+			}
 			flag = true;
-			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}
 	
 	public static List<List<String>> listaAllBodegasVigentesNoVigentes(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
-		if(esPorSucursal.equals("1")) {
+		if ("1".equals(esPorSucursal)) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre,   " +
-							" bodegaEmpresa.vigente, " +
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" ifnull(bodegaEmpresa.comercial,''), "+
-							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial, " +
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.id != 1 and bodegaEmpresa.id != 2 and (bodegaEmpresa.vigente=1 or bodegaEmpresa.vigente=0) " + condSucursal +
-							" order by bodegaEmpresa.vigente desc,bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre,   " +
+				" bodegaEmpresa.vigente, " +
+				" ifnull(bodegaEmpresa.pep,''), " +
+				" ifnull(bodegaEmpresa.ivaBodega,0), " +
+				" ifnull(bodegaEmpresa.comercial,''), " +
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, " +
+				" bodegaEmpresa.id_rubro " +
+				" from `" + db + "`.bodegaEmpresa    " +
+				" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `" + db + "`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `" + db + "`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.id != 1 and bodegaEmpresa.id != 2 and (bodegaEmpresa.vigente=1 or bodegaEmpresa.vigente=0) " + condSucursal +
+				" order by bodegaEmpresa.vigente desc, bodegaEmpresa.esInterna, bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
+			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+			Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
-				if(sucursal!=null) {
+				if (sucursal != null) {
 					nameSucursal = sucursal.getNombre();
 				}
 				String nameComercial = "";
 				Comercial comercial = mapComercial.get(rs.getLong(16));
-				if(comercial!=null) {
+				if (comercial != null) {
 					nameComercial = comercial.getNameUsuario();
-				}else {
+				} else {
 					nameComercial = rs.getString(14);
 				}
 				String nameRubro = "";
@@ -1072,137 +1071,132 @@ public class BodegaEmpresa {
 				if(rubro!=null) {
 					nameRubro = rubro.nombre;
 				}
-				List<String> aux = new ArrayList<String>();
+				List<String> aux = new ArrayList<>();
 				aux.add(rs.getString(1)); // 0 es cliente interno
-				aux.add(rs.getString(2));  // 1 idbodega empresa
-				aux.add(rs.getString(3));  // 2 id de cliente
-				aux.add(rs.getString(4));  // 3 id del proyecto
-				aux.add(rs.getString(10));  //4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  // 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  // 6 rut del cliente
-				aux.add(rs.getString(7));  // 7 nombre del cliente
-				aux.add(rs.getString(8));  // 8 nombre del proyecto
-				aux.add(rs.getString(9));  // 9 comuna
-				aux.add(rs.getString(11));  //10 vigente
-				aux.add(rs.getString(12));  //11 pep
-				aux.add(rs.getString(13));  //12 ivaBodega
-				aux.add(nameSucursal);  //13 nameSucursal
-				aux.add(nameComercial);  //14 nameComercial
+				aux.add(rs.getString(2)); // 1 idbodega empresa
+				aux.add(rs.getString(3)); // 2 id de cliente
+				aux.add(rs.getString(4)); // 3 id del proyecto
+				aux.add(rs.getString(10)); // 4 tipo de cliente interno o externo
+				aux.add(rs.getString(5)); // 5 nombre bodega o empresa
+				aux.add(rs.getString(6)); // 6 rut del cliente
+				aux.add(rs.getString(7)); // 7 nombre del cliente
+				aux.add(rs.getString(8)); // 8 nombre del proyecto
+				aux.add(rs.getString(9)); // 9 comuna
+				aux.add(rs.getString(11)); // 10 vigente
+				aux.add(rs.getString(12)); // 11 pep
+				aux.add(rs.getString(13)); // 12 ivaBodega
+				aux.add(nameSucursal);    // 13 nameSucursal
+				aux.add(nameComercial);   // 14 nameComercial
 				aux.add(nameRubro);		//15 nameRubro
 				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<List<String>> listaAllBodegasVigentesInternasExternas(Connection con, String db, Map<String,String> mapeoPermiso, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" bodegaEmpresa.id_cliente,   " +
-							" bodegaEmpresa.id_proyecto,   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'),  " +
-							" ifnull(bodegaEmpresa.comercial,''), "+ 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial, " +
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa " +
-							" where bodegaEmpresa.vigente = 1  " + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
-			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
-			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(11));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" bodegaEmpresa.id_cliente,   " +
+				" bodegaEmpresa.id_proyecto,   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'),  " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, " +
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa " +
+				" where bodegaEmpresa.vigente = 1  " + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
+				Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
+				Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(11));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(12));
+					if(comercial!=null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(7);
+					}
+					String nameTipoBodega = "";
+					TipoBodega tipoBodega = mapTipoBodega.get(rs.getLong(1));
+					if(tipoBodega!=null) {
+						nameTipoBodega = tipoBodega.getNombre();
+					}
+					String rutCliente = "";
+					String nombreCliente = "";
+					Cliente cliente = mapCliente.get(rs.getLong(3));
+					if(cliente!=null) {
+						rutCliente = cliente.getRut();
+						nombreCliente = cliente.getNickName();
+					}
+					String nombreProyecto = "";
+					String comunaProyecto = "";
+					Proyecto proyecto = mapProyecto.get(rs.getLong(4));
+					if(proyecto!=null) {
+						nombreProyecto = proyecto.getNickName();
+						comunaProyecto = proyecto.getComuna();
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(13));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs.getString(1));            // 0 es cliente interno
+					aux.add(rs.getString(2));            // 1 idbodega empresa
+					aux.add(rs.getString(3));            // 2 id de cliente
+					aux.add(rs.getString(4));            // 3 id del proyecto
+					aux.add(nameTipoBodega);             // 4 tipo de cliente interno o externo
+					aux.add(rs.getString(5));            // 5 nombre bodega o empresa
+					aux.add(rutCliente);                 // 6 rut del cliente
+					aux.add(nombreCliente);              // 7 nombre del cliente
+					aux.add(nombreProyecto);             // 8 nombre del proyecto
+					aux.add(comunaProyecto);             // 9 comuna
+					String tasa = rs.getString(6);
+					if(!tasa.equals("0.00 %")){
+						tasa = myformatdouble2.format(rs.getDouble(6)*100) + " %";
+					}
+					aux.add(tasa);                        // 10 tasa de descuento global
+					aux.add(nameComercial);               // 11 comercial
+					aux.add(myformatdouble4.format(rs.getDouble(8))); // 12 factorM2Viga
+					aux.add(rs.getString(9));             // 13 pep
+					aux.add(rs.getString(10));            // 14 ivaBodega
+					aux.add((rs.getDouble(10)*100)+"%"); // 15 ivaBodega en %
+					aux.add(nameSucursal);                // 16 nombre sucursal
+					aux.add(rs.getString(11));            // 17 id sucursal
+					aux.add(nameRubro);  // 18 nombre rubro
+					lista.add(aux);
 				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(12));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(7);
-				}
-				String nameTipoBodega = "";
-				TipoBodega tipoBodega = mapTipoBodega.get(rs.getLong(1));
-				if(tipoBodega!=null) {
-					nameTipoBodega = tipoBodega.getNombre();
-				}
-				String rutCliente = "";
-				String nombreCliente = "";
-				Cliente cliente = mapCliente.get(rs.getLong(3));
-				if(cliente!=null) {
-					rutCliente = cliente.getRut();
-					nombreCliente = cliente.getNickName();
-				}
-				String nombreProyecto = "";
-				String comunaProyecto = "";
-				Proyecto proyecto = mapProyecto.get(rs.getLong(4));
-				if(proyecto!=null) {
-					nombreProyecto = proyecto.getNickName();
-					comunaProyecto = proyecto.getComuna();
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(13));
-				if(rubro!=null) {
-					nameRubro = rubro.nombre;
-				}
-				
-				
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 			// 0 es cliente interno
-				aux.add(rs.getString(2));  			// 1 idbodega empresa
-				aux.add(rs.getString(3));  			// 2 id de cliente
-				aux.add(rs.getString(4));  			// 3 id del proyecto
-				aux.add(nameTipoBodega);  			// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  			// 5 nombre bodega o empresa
-				aux.add(rutCliente);  			// 6 rut del cliente
-				aux.add(nombreCliente);  			// 7 nombre del cliente
-				aux.add(nombreProyecto);  			// 8 nombre del proyecto
-				aux.add(comunaProyecto);  			// 9 comuna
-				String tasa = rs.getString(6);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(6)*100) + " %";
-				}
-				aux.add(tasa);  									// 10 tasa de descuento global
-				aux.add(nameComercial);							// 11 comercial
-				aux.add(myformatdouble4.format(rs.getDouble(8)));	// 12 factorM2Viga
-				aux.add(rs.getString(9));  						// 13 pep
-				aux.add(rs.getString(10));  						// 14 ivaBodega
-				aux.add((rs.getDouble(10)*100)+"%");  				// 15 ivaBodega en %
-				aux.add(nameSucursal);  							// 16 nombre sucursal
-				aux.add(rs.getString(11));  						// 17 id sucursal
-				aux.add(nameRubro);  // 18 nombre rubro
-				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -1214,276 +1208,262 @@ public class BodegaEmpresa {
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" bodegaEmpresa.id_cliente,   " +
-							" bodegaEmpresa.id_proyecto,   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'),  " +
-							" ifnull(bodegaEmpresa.comercial,''), "+ 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial, " +
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa " +
-							" where bodegaEmpresa.vigente = 1  " + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Cliente> mapCliente = Cliente.mapAllClientes(con, db);
-			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
-			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
-			
-			Map<Long,Long> mapBodConInventario = Inventarios.mapBodegasVigConStock(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-			
-			
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(11));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
-				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(12));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(7);
-				}
-				String nameTipoBodega = "";
-				TipoBodega tipoBodega = mapTipoBodega.get(rs.getLong(1));
-				if(tipoBodega!=null) {
-					nameTipoBodega = tipoBodega.getNombre();
-				}
-				String nombreProyecto = "";
-				String comunaProyecto = "";
-				Proyecto proyecto = mapProyecto.get(rs.getLong(4));
-				if(proyecto!=null) {
-					nombreProyecto = proyecto.getNickName();
-					comunaProyecto = proyecto.getComuna();
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(13));
-				if(rubro!=null) {
-					nameRubro = rubro.nombre;
-				}
-				
-				String rutCliente = "";
-				String nombreCliente = "";
-				Cliente cliente = mapCliente.get(rs.getLong(3));
-				if(cliente!=null && cliente.getVigente() == (long)1) {
-					rutCliente = cliente.getRut();
-					nombreCliente = cliente.getNickName();
-					Long auxConStock = mapBodConInventario.get(rs.getLong(2));
-					if(auxConStock != null) {
-						List<String> aux = new ArrayList<String>();
-						aux.add(rs.getString(1)); 			// 0 es cliente interno
-						aux.add(rs.getString(2));  			// 1 idbodega empresa
-						aux.add(rs.getString(3));  			// 2 id de cliente
-						aux.add(rs.getString(4));  			// 3 id del proyecto
-						aux.add(nameTipoBodega);  			// 4 tipo de cliente interno o externo
-						aux.add(rs.getString(5));  			// 5 nombre bodega o empresa
-						aux.add(rutCliente);  			// 6 rut del cliente
-						aux.add(nombreCliente);  			// 7 nombre del cliente
-						aux.add(nombreProyecto);  			// 8 nombre del proyecto
-						aux.add(comunaProyecto);  			// 9 comuna
-						String tasa = rs.getString(6);
-						if(!tasa.equals("0.00 %")){
-							tasa = myformatdouble2.format(rs.getDouble(6)*100) + " %";
-						}
-						aux.add(tasa);  									// 10 tasa de descuento global
-						aux.add(nameComercial);							// 11 comercial
-						aux.add(myformatdouble4.format(rs.getDouble(8)));	// 12 factorM2Viga
-						aux.add(rs.getString(9));  						// 13 pep
-						aux.add(rs.getString(10));  						// 14 ivaBodega
-						aux.add((rs.getDouble(10)*100)+"%");  				// 15 ivaBodega en %
-						aux.add(nameSucursal);  							// 16 nombre sucursal
-						aux.add(rs.getString(11));  						// 17 id sucursal
-						aux.add(nameRubro); // 18 nombre rubro
-						lista.add(aux);
+
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" bodegaEmpresa.id_cliente,   " +
+				" bodegaEmpresa.id_proyecto,   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'),  " +
+				" ifnull(bodegaEmpresa.comercial,''), "+
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, " +
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa " +
+				" where bodegaEmpresa.vigente = 1  " + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long, Cliente> mapCliente = Cliente.mapAllClientes(con, db);
+				Map<Long, Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
+				Map<Long, TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
+				Map<Long, Long> mapBodConInventario = Inventarios.mapBodegasVigConStock(con, db);
+				Map<Long, Rubro> mapRubro = Rubro.mapAll(con, db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(11));
+					if (sucursal != null) {
+						nameSucursal = sucursal.getNombre();
 					}
-				}else if(cliente == null){
-					Long auxConStock = mapBodConInventario.get(rs.getLong(2));
-					if(auxConStock != null) {
-						List<String> aux = new ArrayList<String>();
-						aux.add(rs.getString(1)); 			// 0 es cliente interno
-						aux.add(rs.getString(2));  			// 1 idbodega empresa
-						aux.add(rs.getString(3));  			// 2 id de cliente
-						aux.add(rs.getString(4));  			// 3 id del proyecto
-						aux.add(nameTipoBodega);  			// 4 tipo de cliente interno o externo
-						aux.add(rs.getString(5));  			// 5 nombre bodega o empresa
-						aux.add(rutCliente);  			// 6 rut del cliente
-						aux.add(nombreCliente);  			// 7 nombre del cliente
-						aux.add(nombreProyecto);  			// 8 nombre del proyecto
-						aux.add(comunaProyecto);  			// 9 comuna
-						String tasa = rs.getString(6);
-						if(!tasa.equals("0.00 %")){
-							tasa = myformatdouble2.format(rs.getDouble(6)*100) + " %";
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(12));
+					if (comercial != null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(7);
+					}
+					String nameTipoBodega = "";
+					TipoBodega tipoBodega = mapTipoBodega.get(rs.getLong(1));
+					if (tipoBodega != null) {
+						nameTipoBodega = tipoBodega.getNombre();
+					}
+					String nombreProyecto = "";
+					String comunaProyecto = "";
+					Proyecto proyecto = mapProyecto.get(rs.getLong(4));
+					if (proyecto != null) {
+						nombreProyecto = proyecto.getNickName();
+						comunaProyecto = proyecto.getComuna();
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(13));
+					if (rubro != null) {
+						nameRubro = rubro.nombre;
+					}
+					String rutCliente = "";
+					String nombreCliente = "";
+					Cliente cliente = mapCliente.get(rs.getLong(3));
+					if (cliente != null && cliente.getVigente() == (long) 1) {
+						rutCliente = cliente.getRut();
+						nombreCliente = cliente.getNickName();
+						Long auxConStock = mapBodConInventario.get(rs.getLong(2));
+						if (auxConStock != null) {
+							List<String> aux = new ArrayList<String>();
+							aux.add(rs.getString(1));            // 0 es cliente interno
+							aux.add(rs.getString(2));            // 1 idbodega empresa
+							aux.add(rs.getString(3));            // 2 id de cliente
+							aux.add(rs.getString(4));            // 3 id del proyecto
+							aux.add(nameTipoBodega);            // 4 tipo de cliente interno o externo
+							aux.add(rs.getString(5));            // 5 nombre bodega o empresa
+							aux.add(rutCliente);            // 6 rut del cliente
+							aux.add(nombreCliente);            // 7 nombre del cliente
+							aux.add(nombreProyecto);            // 8 nombre del proyecto
+							aux.add(comunaProyecto);            // 9 comuna
+							String tasa = rs.getString(6);
+							if (!tasa.equals("0.00 %")) {
+								tasa = myformatdouble2.format(rs.getDouble(6) * 100) + " %";
+							}
+							aux.add(tasa);                                    // 10 tasa de descuento global
+							aux.add(nameComercial);                            // 11 comercial
+							aux.add(myformatdouble4.format(rs.getDouble(8)));    // 12 factorM2Viga
+							aux.add(rs.getString(9));                        // 13 pep
+							aux.add(rs.getString(10));                        // 14 ivaBodega
+							aux.add((rs.getDouble(10) * 100) + "%");                // 15 ivaBodega en %
+							aux.add(nameSucursal);                            // 16 nombre sucursal
+							aux.add(rs.getString(11));                        // 17 id sucursal
+							aux.add(nameRubro); // 18 nombre rubro
+							lista.add(aux);
 						}
-						aux.add(tasa);  									// 10 tasa de descuento global
-						aux.add(nameComercial);							// 11 comercial
-						aux.add(myformatdouble4.format(rs.getDouble(8)));	// 12 factorM2Viga
-						aux.add(rs.getString(9));  						// 13 pep
-						aux.add(rs.getString(10));  						// 14 ivaBodega
-						aux.add((rs.getDouble(10)*100)+"%");  				// 15 ivaBodega en %
-						aux.add(nameSucursal);  							// 16 nombre sucursal
-						aux.add(rs.getString(11));  						// 17 id sucursal
-						aux.add(nameRubro);  // 18 nombre rubro
-						lista.add(aux);
+					} else if (cliente == null) {
+						Long auxConStock = mapBodConInventario.get(rs.getLong(2));
+						if (auxConStock != null) {
+							List<String> aux = new ArrayList<String>();
+							aux.add(rs.getString(1));            // 0 es cliente interno
+							aux.add(rs.getString(2));            // 1 idbodega empresa
+							aux.add(rs.getString(3));            // 2 id de cliente
+							aux.add(rs.getString(4));            // 3 id del proyecto
+							aux.add(nameTipoBodega);            // 4 tipo de cliente interno o externo
+							aux.add(rs.getString(5));            // 5 nombre bodega o empresa
+							aux.add(rutCliente);            // 6 rut del cliente
+							aux.add(nombreCliente);            // 7 nombre del cliente
+							aux.add(nombreProyecto);            // 8 nombre del proyecto
+							aux.add(comunaProyecto);            // 9 comuna
+							String tasa = rs.getString(6);
+							if (!tasa.equals("0.00 %")) {
+								tasa = myformatdouble2.format(rs.getDouble(6) * 100) + " %";
+							}
+							aux.add(tasa);                                    // 10 tasa de descuento global
+							aux.add(nameComercial);                            // 11 comercial
+							aux.add(myformatdouble4.format(rs.getDouble(8)));    // 12 factorM2Viga
+							aux.add(rs.getString(9));                        // 13 pep
+							aux.add(rs.getString(10));                        // 14 ivaBodega
+							aux.add((rs.getDouble(10) * 100) + "%");                // 15 ivaBodega en %
+							aux.add(nameSucursal);                            // 16 nombre sucursal
+							aux.add(rs.getString(11));                        // 17 id sucursal
+							aux.add(nameRubro);  // 18 nombre rubro
+							lista.add(aux);
+						}
 					}
 				}
-				
-				
-				
-				
-				
-				
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<List<String>> listaAllBodegasVigentesInternas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna, " +
-							" bodegaEmpresa.id, " +
-							" ifnull(cliente.id,0), " +
-							" ifnull(proyecto.id,0), " +
-							" bodegaEmpresa.nombre, " +
-							" ifnull(cliente.rut,''), " +
-							" ifnull(cliente.nickName,''), " +
-							" ifnull(proyecto.nickName,''), " +
-							" ifnull(comunas.nombre,''), " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'), " + 
-							" ifnull(comercial,''), " + 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 1 " + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna, " +
+				" bodegaEmpresa.id, " +
+				" ifnull(cliente.id,0), " +
+				" ifnull(proyecto.id,0), " +
+				" bodegaEmpresa.nombre, " +
+				" ifnull(cliente.rut,''), " +
+				" ifnull(cliente.nickName,''), " +
+				" ifnull(proyecto.nickName,''), " +
+				" ifnull(comunas.nombre,''), " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'), " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+				" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 1 " + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(16));
+					if(sucursal != null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(17));
+					if(comercial != null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(12);
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(18));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs.getString(1));        // 0 es cliente interno
+					aux.add(rs.getString(2));        // 1 idbodega empresa
+					aux.add(rs.getString(3));        // 2 id de cliente
+					aux.add(rs.getString(4));        // 3 id del proyecto
+					aux.add(rs.getString(10));       // 4 tipo de cliente interno o externo
+					aux.add(rs.getString(5));        // 5 nombre bodega o empresa
+					aux.add(rs.getString(6));        // 6 rut del cliente
+					aux.add(rs.getString(7));        // 7 nombre del cliente
+					aux.add(rs.getString(8));        // 8 nombre del proyecto
+					aux.add(rs.getString(9));        // 9 comuna
+					String tasa = rs.getString(11);
+					if(!tasa.equals("0.00 %")){
+						tasa = myformatdouble2.format(rs.getDouble(11) * 100) + " %";
+					}
+					aux.add(tasa);                   // 10 tasa de descuento global
+					aux.add(nameComercial);          // 11 comercial
+					aux.add(myformatdouble4.format(rs.getDouble(13))); // 12 factorM2Viga
+					aux.add(rs.getString(14));       // 13 pep
+					aux.add(rs.getString(15));       // 14 ivaBodega
+					aux.add((rs.getDouble(15) * 100) + "%"); // 15 ivaBodega en %
+					aux.add(nameSucursal);           // 16 nombre sucursal
+					aux.add(rs.getString(16));       // 17 id sucursal
+					aux.add(nameRubro); // 18 nombre rubro
+					lista.add(aux);
 				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(17));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(12);
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(18));
-				if(rubro!=null) {
-					nameRubro = rubro.nombre;
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10));  	// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
-				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
-				}
-				aux.add(tasa);  									// 10 tasa de descuento global
-				aux.add(nameComercial);							// 11 comercial
-				aux.add(myformatdouble4.format(rs.getDouble(13)));	// 12 factorM2Viga
-				aux.add(rs.getString(14));  						// 13 pep
-				aux.add(rs.getString(15));  						// 14 ivaBodega
-				aux.add((rs.getDouble(15)*100)+"%");  				// 15 ivaBodega en %
-				aux.add(nameSucursal);  							// 16 nombre sucursal
-				aux.add(rs.getString(16));  						// 17 id sucursal
-				aux.add(nameRubro); // 18 nombre rubro
-				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<List<String>> listaAllBodegasVigentesExternas(Connection con, String db, Map<String,String> mapeoPermiso, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'), " + 
-							" ifnull(comercial,''), " + 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1   " + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;");
-			ResultSet rs = smt.executeQuery();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'), " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa    " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1   " + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
@@ -1497,7 +1477,7 @@ public class BodegaEmpresa {
 				Comercial comercial = mapComercial.get(rs.getLong(17));
 				if(comercial!=null) {
 					nameComercial = comercial.getNameUsuario();
-				}else {
+				} else {
 					nameComercial = rs.getString(12);
 				}
 				String nameRubro = "";
@@ -1506,77 +1486,74 @@ public class BodegaEmpresa {
 					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10)); 		// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
+				aux.add(rs.getString(1));        // 0 es cliente interno
+				aux.add(rs.getString(2));        // 1 idbodega empresa
+				aux.add(rs.getString(3));        // 2 id de cliente
+				aux.add(rs.getString(4));        // 3 id del proyecto
+				aux.add(rs.getString(10));       // 4 tipo de cliente interno o externo
+				aux.add(rs.getString(5));        // 5 nombre bodega o empresa
+				aux.add(rs.getString(6));        // 6 rut del cliente
+				aux.add(rs.getString(7));        // 7 nombre del cliente
+				aux.add(rs.getString(8));        // 8 nombre del proyecto
+				aux.add(rs.getString(9));        // 9 comuna
 				String tasa = rs.getString(11);
 				if(!tasa.equals("0.00 %")){
 					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
 				}
-				aux.add(tasa);  									// 10 tasa de descuento global
-				aux.add(nameComercial);							// 11 comercial
-				aux.add(myformatdouble4.format(rs.getDouble(13)));	// 12 factorM2Viga
-				aux.add(rs.getString(14));  						// 13 pep
-				aux.add(rs.getString(15));  						// 14 ivaBodega
-				aux.add((rs.getDouble(15)*100)+"%");  				// 15 ivaBodega en %
-				aux.add(nameSucursal);  							// 16 nombre sucursal
-				aux.add(rs.getString(16));  						// 17 id sucursal
+				aux.add(tasa);                    // 10 tasa de descuento global
+				aux.add(nameComercial);           // 11 comercial
+				aux.add(myformatdouble4.format(rs.getDouble(13))); // 12 factorM2Viga
+				aux.add(rs.getString(14));        // 13 pep
+				aux.add(rs.getString(15));        // 14 ivaBodega
+				aux.add((rs.getDouble(15)*100)+"%"); // 15 ivaBodega en %
+				aux.add(nameSucursal);            // 16 nombre sucursal
+				aux.add(rs.getString(16));        // 17 id sucursal
 				aux.add(nameRubro); // 18 nombre rubro
 				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<List<String>> listaAllBodVigExternasClientesVig(Connection con, String db, Map<String,String> mapeoPermiso, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'), " + 
-							" ifnull(comercial,''), " + 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, " +
-							" bodegaEmpresa.id_comercial, "+
-							" ifnull(cliente.vigente,1), " +
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1  and ifnull(cliente.vigente,1) = 1 " + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;");
-			ResultSet rs = smt.executeQuery();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'), " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, "+
+				" ifnull(cliente.vigente,1), " +
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa    " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1  and ifnull(cliente.vigente,1) = 1 " + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
@@ -1590,7 +1567,7 @@ public class BodegaEmpresa {
 				Comercial comercial = mapComercial.get(rs.getLong(17));
 				if(comercial!=null) {
 					nameComercial = comercial.getNameUsuario();
-				}else {
+				} else {
 					nameComercial = rs.getString(12);
 				}
 				String nameRubro = "";
@@ -1599,35 +1576,35 @@ public class BodegaEmpresa {
 					nameRubro = rubro.nombre;
 				}
 				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10)); 		// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
+				aux.add(rs.getString(1));        // 0 es cliente interno
+				aux.add(rs.getString(2));        // 1 idbodega empresa
+				aux.add(rs.getString(3));        // 2 id de cliente
+				aux.add(rs.getString(4));        // 3 id del proyecto
+				aux.add(rs.getString(10));       // 4 tipo de cliente interno o externo
+				aux.add(rs.getString(5));        // 5 nombre bodega o empresa
+				aux.add(rs.getString(6));        // 6 rut del cliente
+				aux.add(rs.getString(7));        // 7 nombre del cliente
+				aux.add(rs.getString(8));        // 8 nombre del proyecto
+				aux.add(rs.getString(9));        // 9 comuna
 				String tasa = rs.getString(11);
 				if(!tasa.equals("0.00 %")){
 					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
 				}
-				aux.add(tasa);  									// 10 tasa de descuento global
-				aux.add(nameComercial);							// 11 comercial
-				aux.add(myformatdouble4.format(rs.getDouble(13)));	// 12 factorM2Viga
-				aux.add(rs.getString(14));  						// 13 pep
-				aux.add(rs.getString(15));  						// 14 ivaBodega
-				aux.add((rs.getDouble(15)*100)+"%");  				// 15 ivaBodega en %
-				aux.add(nameSucursal);  							// 16 nombre sucursal
-				aux.add(rs.getString(16));  						// 17 id sucursal
+				aux.add(tasa);                   // 10 tasa de descuento global
+				aux.add(nameComercial);          // 11 comercial
+				aux.add(myformatdouble4.format(rs.getDouble(13))); // 12 factorM2Viga
+				aux.add(rs.getString(14));       // 13 pep
+				aux.add(rs.getString(15));       // 14 ivaBodega
+				aux.add((rs.getDouble(15)*100)+"%"); // 15 ivaBodega en %
+				aux.add(nameSucursal);           // 16 nombre sucursal
+				aux.add(rs.getString(16));       // 17 id sucursal
 				aux.add(nameRubro); // 18 nombre rubro
 				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -1648,303 +1625,287 @@ public class BodegaEmpresa {
 	
 	public static List<List<String>> listaAllBodegasVigentesExternasFiltradas(Connection con, String db, String permisoPorBodega, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'), " + 
-							" ifnull(comercial,''), " + 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal,   " +
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1   " + permisoPorBodega + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-
-			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'), " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal,   " +
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa    " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1   " + permisoPorBodega + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(16));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(17));
+					if(comercial!=null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(12);
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(18));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs.getString(1));        // 0 es cliente interno
+					aux.add(rs.getString(2));        // 1 idbodega empresa
+					aux.add(rs.getString(3));        // 2 id de cliente
+					aux.add(rs.getString(4));        // 3 id del proyecto
+					aux.add(rs.getString(10));       // 4 tipo de cliente interno o externo
+					aux.add(rs.getString(5));        // 5 nombre bodega o empresa
+					aux.add(rs.getString(6));        // 6 rut del cliente
+					aux.add(rs.getString(7));        // 7 nombre del cliente
+					aux.add(rs.getString(8));        // 8 nombre del proyecto
+					aux.add(rs.getString(9));        // 9 comuna
+					String tasa = rs.getString(11);
+					if(!tasa.equals("0.00 %")){
+						tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
+					}
+					aux.add(tasa);                    // 10 tasa de descuento global
+					aux.add(nameComercial);           // 11 comercial
+					aux.add(myformatdouble4.format(rs.getDouble(13)));    // 12 factorM2Viga
+					aux.add(rs.getString(14));        // 13 pep
+					aux.add(rs.getString(15));        // 14 ivaBodega
+					aux.add(nameSucursal);  		// 15 nameSucursal
+					aux.add(nameRubro); // 16 nombre rubro
+					lista.add(aux);
 				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(17));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(12);
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(18));
-				if(rubro!=null) {
-					nameRubro = rubro.nombre;
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10));  	// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
-				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
-				}
-				aux.add(tasa);  									// 10 tasa de descuento global
-				aux.add(nameComercial);							// 11 comercial
-				aux.add(myformatdouble4.format(rs.getDouble(13)));	// 12 factorM2Viga
-				aux.add(rs.getString(14));  						// 13 pep
-				aux.add(rs.getString(15));  						// 14 ivaBodega
-				aux.add(nameSucursal);  						// 15 nameSucursal
-				aux.add(nameRubro); // 16 nombre rubro
-
-				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static List<List<String>> listaAllBodVigExtFiltClientesVig(Connection con, String db, String permisoPorBodega, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0'), " + 
-							" ifnull(comercial,''), " + 
-							" ifnull(bodegaEmpresa.factorM2Viga,0), "+
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal,   " +
-							" bodegaEmpresa.id_comercial, "+
-							" ifnull(cliente.vigente,1), "+
-							" bodegaEmpresa.id_rubro " +
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1  and ifnull(cliente.vigente,1) = 1 " + permisoPorBodega + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-
-			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(16));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,'0'), " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.factorM2Viga,0), "+
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal,   " +
+				" bodegaEmpresa.id_comercial, "+
+				" ifnull(cliente.vigente,1), "+
+				" bodegaEmpresa.id_rubro " +
+				" from `"+db+"`.bodegaEmpresa    " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna <> 1  and ifnull(cliente.vigente,1) = 1 " + permisoPorBodega + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long,Rubro> mapRubro = Rubro.mapAll(con,db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(16));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(17));
+					if(comercial!=null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(12);
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(19));
+					if(rubro!=null) {
+						nameRubro = rubro.nombre;
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs.getString(1));        // 0 es cliente interno
+					aux.add(rs.getString(2));        // 1 idbodega empresa
+					aux.add(rs.getString(3));        // 2 id de cliente
+					aux.add(rs.getString(4));        // 3 id del proyecto
+					aux.add(rs.getString(10));       // 4 tipo de cliente interno o externo
+					aux.add(rs.getString(5));        // 5 nombre bodega o empresa
+					aux.add(rs.getString(6));        // 6 rut del cliente
+					aux.add(rs.getString(7));        // 7 nombre del cliente
+					aux.add(rs.getString(8));        // 8 nombre del proyecto
+					aux.add(rs.getString(9));        // 9 comuna
+					String tasa = rs.getString(11);
+					if(!tasa.equals("0.00 %")){
+						tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
+					}
+					aux.add(tasa);                    // 10 tasa de descuento global
+					aux.add(nameComercial);           // 11 comercial
+					aux.add(myformatdouble4.format(rs.getDouble(13)));    // 12 factorM2Viga
+					aux.add(rs.getString(14));        // 13 pep
+					aux.add(rs.getString(15));        // 14 ivaBodega
+					aux.add(nameSucursal);  						// 15 nameSucursal
+					aux.add(nameRubro); // 16 nombre rubro
+					lista.add(aux);
 				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(17));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(12);
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(19));
-				if(rubro!=null) {
-					nameRubro = rubro.nombre;
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10));  	// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
-				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
-				}
-				aux.add(tasa);  									// 10 tasa de descuento global
-				aux.add(nameComercial);							// 11 comercial
-				aux.add(myformatdouble4.format(rs.getDouble(13)));	// 12 factorM2Viga
-				aux.add(rs.getString(14));  						// 13 pep
-				aux.add(rs.getString(15));  						// 14 ivaBodega
-				aux.add(nameSucursal);  						// 15 nameSucursal
-				aux.add(nameRubro); // 16 nombre rubro
-
-				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static boolean existeBodega(Connection con, String db, String nombreBodega) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("select id from `"+db+"`.bodegaEmpresa WHERE UPPER(nombre) = ?;");
+		String sql = "select id from `" + db + "`.bodegaEmpresa WHERE UPPER(nombre) = ?;";
+		try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 			smt1.setString(1, nombreBodega.toUpperCase().trim());
-			ResultSet resultado = smt1.executeQuery();
-			if (resultado.next()) {
-				flag = true;
+			try (ResultSet resultado = smt1.executeQuery()) {
+				if (resultado.next()) {
+					flag = true;
+				}
 			}
-			resultado.close();
-			smt1.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}
 	
 	public static boolean create(Connection con, String db, FormBodegaGraba form) {
 		boolean flag = false;
+		String sql = "insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_sucursal,id_rubro) values (?,?,?,?,?);";
 		try {
 			if(form.id_tipoBodega == (long) 1) {
-				PreparedStatement smt1 = con
-						.prepareStatement("insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_sucursal, id_rubro) " +
-								" values (?,?,?,?,?);");
-				smt1.setString(1, form.nombre.trim());
-				smt1.setLong(2, form.id_tipoBodega);
-				smt1.setLong(3, form.id_propietario);
-				smt1.setLong(4, form.id_sucursal);
-				smt1.setLong(5, form.id_rubro);
-				smt1.executeUpdate();
-				smt1.close();
-				flag = true;
-			}else {
-				
+				try (PreparedStatement smt1 = con.prepareStatement(sql)) {
+					smt1.setString(1, form.nombre.trim());
+					smt1.setLong(2, form.id_tipoBodega);
+					smt1.setLong(3, form.id_propietario);
+					smt1.setLong(4, form.id_sucursal);
+					smt1.setLong(5, form.id_rubro);
+					smt1.executeUpdate();
+					flag = true;
+				}
+			} else {
 				String pep = "";
 				String ivaBodegaAux = "";
-				Double ivaBodega = (double)0;
-				if(form.pep!=null) {
+				Double ivaBodega = (double) 0;
+				if(form.pep != null) {
 					pep = form.pep.trim();
 					ivaBodegaAux = form.ivaBodega.replace("%", "").replaceAll(",", "").trim();
 					ivaBodega = Double.parseDouble(ivaBodegaAux.trim()) / 100;
-				}else {
+				} else {
 					EmisorTributario emisor = EmisorTributario.find(con, db);
-					ivaBodega = emisor.getTasaIva()/100;
+					ivaBodega = emisor.getTasaIva() / 100;
 				}
-				
-				
-				PreparedStatement smt1 = con
-						.prepareStatement("insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_proyecto," +
-								" tasaCfi,cobraDiaDespacho,nDiaGraciaEnvio,nDiaGraciaRegreso,baseCalculo,tratoDevoluciones,pep,ivaBodega,id_sucursal,id_comercial, id_rubro) "
-								+ " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", Statement.RETURN_GENERATED_KEYS);
-				smt1.setString(1, form.nombre.trim());
-				smt1.setLong(2, form.id_tipoBodega);
-				smt1.setLong(3, form.id_cliente);
-				smt1.setLong(4, form.id_proyecto);
-				String cfiAux = form.cfi.replace("%", "").replaceAll(",", "").trim();
-				Double cfi = Double.parseDouble(cfiAux.trim()) / 100;
-				smt1.setDouble(5, cfi);
-				smt1.setLong(6, form.cobraDiaDespacho);
-				smt1.setLong(7, form.nDiasEnvio);
-				smt1.setLong(8, form.nDiasRegreso);
-				smt1.setLong(9, form.baseCalculo);
-				smt1.setLong(10, form.tratoDevoluciones);
-				smt1.setString(11, pep);
-				smt1.setDouble(12, ivaBodega);
-				smt1.setLong(13, form.id_sucursal);
-				smt1.setLong(14, form.id_comercial);
-				smt1.setLong(15, form.id_rubro);
-				smt1.executeUpdate();
-				
-				ResultSet rs1 = smt1.getGeneratedKeys();
-				if(rs1.next()) {
-					
-					Long id_bodegaEmpresa = rs1.getLong(1);
-					
-					
-					List<Long> idsMoneda = form.idsMoneda;
-		    	  	List<Double> tasaCambio = form.tasaCambio;
-		    	  	Map<Long,Double> mapAux = new HashMap<Long,Double>();
-		    	  	for(int i=0; idsMoneda!=null && i<idsMoneda.size(); i++) {
-		    	  		if(tasaCambio.get(i) > 0) {
-		    	  			mapAux.put(idsMoneda.get(i), tasaCambio.get(i));
-		    	  		}
-		    	  	}
-		    	  	
-		    	  	if(mapAux.size() > 0) {
-		    	  		String insertar = "";
-			    	  	for (Map.Entry<Long, Double> entry : mapAux.entrySet()) {
-			    	  		Long k = entry.getKey();
-			                Double v = entry.getValue();
-			    	  		insertar += "("+id_bodegaEmpresa+","+k+","+v+"),";
-			    	  	}
-			    	  	if(insertar.length()>2) {
-			    	  		insertar = insertar.substring(0,insertar.length()-1);
-				    	  	PreparedStatement smt3 = con
-									.prepareStatement("insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";");
-				    		smt3.executeUpdate();
-				    	  	smt3.close();
-			    	  	}
-			    	  	
-		    	  	}
-		    	  	
-		    	  	
+				sql = "insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_proyecto, " +
+						"tasaCfi,cobraDiaDespacho,nDiaGraciaEnvio,nDiaGraciaRegreso,baseCalculo,tratoDevoluciones,pep,ivaBodega," +
+						"id_sucursal,id_comercial, id_rubro) " +
+						"values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+				try (PreparedStatement smt1 = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+					smt1.setString(1, form.nombre.trim());
+					smt1.setLong(2, form.id_tipoBodega);
+					smt1.setLong(3, form.id_cliente);
+					smt1.setLong(4, form.id_proyecto);
+					String cfiAux = form.cfi.replace("%", "").replaceAll(",", "").trim();
+					Double cfi = Double.parseDouble(cfiAux.trim()) / 100;
+					smt1.setDouble(5, cfi);
+					smt1.setLong(6, form.cobraDiaDespacho);
+					smt1.setLong(7, form.nDiasEnvio);
+					smt1.setLong(8, form.nDiasRegreso);
+					smt1.setLong(9, form.baseCalculo);
+					smt1.setLong(10, form.tratoDevoluciones);
+					smt1.setString(11, pep);
+					smt1.setDouble(12, ivaBodega);
+					smt1.setLong(13, form.id_sucursal);
+					smt1.setLong(14, form.id_comercial);
+					smt1.setLong(15, form.id_rubro);
+					smt1.executeUpdate();
+					try (ResultSet rs1 = smt1.getGeneratedKeys()) {
+						if(rs1.next()) {
+							Long id_bodegaEmpresa = rs1.getLong(1);
+
+							List<Long> idsMoneda = form.idsMoneda;
+							List<Double> tasaCambio = form.tasaCambio;
+							Map<Long, Double> mapAux = new HashMap<>();
+
+							for (int i = 0; idsMoneda != null && i < idsMoneda.size(); i++) {
+								if(tasaCambio.get(i) > 0) {
+									mapAux.put(idsMoneda.get(i), tasaCambio.get(i));
+								}
+							}
+							if(!mapAux.isEmpty()) {
+								String insertar = "";
+								for (Map.Entry<Long, Double> entry : mapAux.entrySet()) {
+									Long k = entry.getKey();
+									Double v = entry.getValue();
+									insertar += "("+id_bodegaEmpresa+","+k+","+v+"),";
+								}
+								if(insertar.length() > 2) {
+									insertar = insertar.substring(0,insertar.length()-1);
+									String sqlInsert = "insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "
+											+ insertar + ";";
+									try (PreparedStatement smt3 = con.prepareStatement(sqlInsert)) {
+										smt3.executeUpdate();
+									}
+								}
+							}
+						}
+					}
+					flag = true;
 				}
-				rs1.close();
-				smt1.close();
-				flag = true;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-			flag=false;
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			flag = false;
 		}
 		return(flag);
 	}
@@ -1953,17 +1914,17 @@ public class BodegaEmpresa {
 		boolean flag = false;
 		try {
 			if(form.id_tipoBodega == (long) 1) {
-				PreparedStatement smt1 = con
-						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_sucursal=?, id_rubro=? where id = ?;");
-				smt1.setString(1, form.nombre.trim());
-				smt1.setLong(2, form.id_propietario);
-				smt1.setDouble(3, form.id_sucursal);
-				smt1.setLong(4, form.id_rubro);
-				smt1.setLong(5, form.id_bodegaEmpresa);
-				smt1.executeUpdate();
-				smt1.close();
-				flag = true;
-			}else {
+				String sql = "update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_sucursal=?, id_rubro=? where id = ?;";
+				try (PreparedStatement smt1 = con.prepareStatement(sql)) {
+					smt1.setString(1, form.nombre.trim());
+					smt1.setLong(2, form.id_propietario);
+					smt1.setDouble(3, form.id_sucursal);
+					smt1.setLong(4, form.id_rubro);
+					smt1.setLong(5, form.id_bodegaEmpresa);
+					smt1.executeUpdate();
+					flag = true;
+				}
+			} else {
 				String pep = "";
 				String ivaBodegaAux = "";
 				Double ivaBodega = (double)0;
@@ -1971,129 +1932,124 @@ public class BodegaEmpresa {
 					pep = form.pep.trim();
 					ivaBodegaAux = form.ivaBodega.replace("%", "").replaceAll(",", "").trim();
 					ivaBodega = Double.parseDouble(ivaBodegaAux.trim()) / 100;
-				}else {
+				} else {
 					EmisorTributario emisor = EmisorTributario.find(con, db);
 					ivaBodega = emisor.getTasaIva()/100;
 				}
-				
-				
-				PreparedStatement smt1 = con
-						.prepareStatement("update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_proyecto = ?, " +
-								" tasaCfi = ?, cobraDiaDespacho = ?, nDiaGraciaEnvio = ?, nDiaGraciaRegreso = ?, baseCalculo=?, tratoDevoluciones=?, " +
-								" id_comercial=?, pep=?, ivaBodega=?, id_sucursal=?, id_rubro=? where id = ?;");
-				smt1.setString(1, form.nombre.trim());
-				smt1.setLong(2, form.id_cliente);
-				smt1.setLong(3, form.id_proyecto);
-				String cfiAux = form.cfi.replace("%", "").replaceAll(",", "").trim();
-				Double cfi = Double.parseDouble(cfiAux.trim()) / 100;
-				smt1.setDouble(4, cfi);
-				smt1.setLong(5, form.cobraDiaDespacho);
-				smt1.setLong(6, form.nDiasEnvio);
-				smt1.setLong(7, form.nDiasRegreso);
-				smt1.setLong(8, form.baseCalculo);
-				smt1.setLong(9, form.tratoDevoluciones);
-				smt1.setLong(10, form.id_comercial);
-				smt1.setString(11, pep);
-				smt1.setDouble(12, ivaBodega);
-				smt1.setDouble(13, form.id_sucursal);
-				smt1.setLong(14, form.id_rubro);
-				smt1.setLong(15, form.id_bodegaEmpresa);
-				smt1.executeUpdate();
-				smt1.close();
-				
+				String sql = "update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_proyecto = ?, " +
+						"tasaCfi = ?, cobraDiaDespacho = ?, nDiaGraciaEnvio = ?, nDiaGraciaRegreso = ?, baseCalculo=?, tratoDevoluciones=?, " +
+						"id_comercial=?, pep=?, ivaBodega=?, id_sucursal=?, id_rubro=? where id = ?;";
+				try (PreparedStatement smt1 = con.prepareStatement(sql)) {
+					smt1.setString(1, form.nombre.trim());
+					smt1.setLong(2, form.id_cliente);
+					smt1.setLong(3, form.id_proyecto);
+					String cfiAux = form.cfi.replace("%", "").replaceAll(",", "").trim();
+					Double cfi = Double.parseDouble(cfiAux.trim()) / 100;
+					smt1.setDouble(4, cfi);
+					smt1.setLong(5, form.cobraDiaDespacho);
+					smt1.setLong(6, form.nDiasEnvio);
+					smt1.setLong(7, form.nDiasRegreso);
+					smt1.setLong(8, form.baseCalculo);
+					smt1.setLong(9, form.tratoDevoluciones);
+					smt1.setLong(10, form.id_comercial);
+					smt1.setString(11, pep);
+					smt1.setDouble(12, ivaBodega);
+					smt1.setDouble(13, form.id_sucursal);
+					smt1.setLong(14, form.id_rubro);
+					smt1.setLong(15, form.id_bodegaEmpresa);
+					smt1.executeUpdate();
+				}
 				List<Long> idsMoneda = form.idsMoneda;
-	    	  	List<Double> tasaCambio = form.tasaCambio;
-	    	  	Map<Long,Double> mapAux = new HashMap<Long,Double>();
-	    	  	for(int i=0; idsMoneda!=null && i<idsMoneda.size(); i++) {
-	    	  		if(tasaCambio.get(i) > 0) {
-	    	  			mapAux.put(idsMoneda.get(i), tasaCambio.get(i));
-	    	  		}
-	    	  	}
-	    	  	
-	    	  	PreparedStatement smt2 = con
-						.prepareStatement("delete from `"+db+"`.fijaTasasCambio where id_bodegaEmpresa=?;");
-	    	  	smt2.setLong(1, form.id_bodegaEmpresa);
-	    	  	smt2.executeUpdate();
-	    	  	smt2.close();
-	    	  	
-	    	  	if(mapAux.size() > 0) {
-	    	  		String insertar = "";
-		    	  	for (Map.Entry<Long, Double> entry : mapAux.entrySet()) {
-		    	  		Long k = entry.getKey();
-		                Double v = entry.getValue();
-		    	  		insertar += "("+form.id_bodegaEmpresa+","+k+","+v+"),";
-		    	  	}
-		    	  	if(insertar.length()>2) {
-		    	  		insertar = insertar.substring(0,insertar.length()-1);
-			    	  	PreparedStatement smt3 = con
-								.prepareStatement("insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";");
-			    		smt3.executeUpdate();
-			    	  	smt3.close();
-		    	  	}
-		    	  	
-	    	  	}
+				List<Double> tasaCambio = form.tasaCambio;
+				Map<Long,Double> mapAux = new HashMap<Long,Double>();
+				for(int i=0; idsMoneda!=null && i<idsMoneda.size(); i++) {
+					if(tasaCambio.get(i) > 0) {
+						mapAux.put(idsMoneda.get(i), tasaCambio.get(i));
+					}
+				}
+				String deleteSql = "delete from `"+db+"`.fijaTasasCambio where id_bodegaEmpresa=?;";
+				try (PreparedStatement smt2 = con.prepareStatement(deleteSql)) {
+					smt2.setLong(1, form.id_bodegaEmpresa);
+					smt2.executeUpdate();
+				}
+				if(mapAux.size() > 0) {
+					String insertar = "";
+					for (Map.Entry<Long, Double> entry : mapAux.entrySet()) {
+						Long k = entry.getKey();
+						Double v = entry.getValue();
+						insertar += "("+form.id_bodegaEmpresa+","+k+","+v+"),";
+					}
+					if(insertar.length()>2) {
+						insertar = insertar.substring(0,insertar.length()-1);
+						String insertSql = "insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";";
+						try (PreparedStatement smt3 = con.prepareStatement(insertSql)) {
+							smt3.executeUpdate();
+						}
+					}
+				}
 				flag = true;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-			flag=false;
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			flag = false;
 		}
 		return(flag);
 	}
 	
 	public static List<List<String>> listaFijaTasas(Connection con, String db, Long id_bodegaEmpresa) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("select id_moneda, tasaCambio from `"+db+"`.fijaTasasCambio where id_bodegaEmpresa = ?;");
+		String sql = "select id_moneda, tasaCambio from `" + db + "`.fijaTasasCambio where id_bodegaEmpresa = ?;";
+		try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 			smt1.setLong(1, id_bodegaEmpresa);
-			ResultSet rs1 = smt1.executeQuery();
-			Map<Long,String> mapMoneda = Moneda.mapIdMonedaMoneda(con, db);
-			while(rs1.next()) {
-				String mon = mapMoneda.get(rs1.getLong(1));
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs1.getString(1)); // id_moneda
-				aux.add(rs1.getString(2)); // valor tasaCAmbo
-				aux.add(mon); // nick moneda
-				lista.add(aux);
+			try (ResultSet rs1 = smt1.executeQuery()) {
+				Map<Long, String> mapMoneda = Moneda.mapIdMonedaMoneda(con, db);
+				while (rs1.next()) {
+					String mon = mapMoneda.get(rs1.getLong(1));
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs1.getString(1)); // id_moneda
+					aux.add(rs1.getString(2)); // valor tasaCambio
+					aux.add(mon);              // nick moneda
+					lista.add(aux);
+				}
 			}
-			rs1.close();
-			smt1.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static Map<String,Double> mapFijaTasasAll(Connection con, String db) {
-		Map<String,Double> map = new HashMap<String,Double>();
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("select id_bodegaEmpresa, id_moneda, tasaCambio from `"+db+"`.fijaTasasCambio;");
-			ResultSet rs1 = smt1.executeQuery();
-			while(rs1.next()) {
-				map.put(rs1.getString(1)+"_"+rs1.getString(2), rs1.getDouble(3));
+		Map<String, Double> map = new HashMap<>();
+		String sql = "select id_bodegaEmpresa, id_moneda, tasaCambio from `" + db + "`.fijaTasasCambio;";
+		try (PreparedStatement smt1 = con.prepareStatement(sql);
+			 ResultSet rs1 = smt1.executeQuery()) {
+			while (rs1.next()) {
+				map.put(rs1.getString(1) + "_" + rs1.getString(2), rs1.getDouble(3));
 			}
-			rs1.close();
-			smt1.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (map);
 	}
 	
 	public static boolean modificarBodegaPorCampo(Connection con, String db, Long id_bodegaEmpresa, String campo, String valor) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("update `"+db+"`.bodegaEmpresa set `"+campo+"` = ? where id = ?;");
-			smt1.setString(1, valor.trim());
-			smt1.setLong(2, id_bodegaEmpresa);
-			smt1.executeUpdate();
-			smt1.close();
+		String sql = "update `" + db + "`.bodegaEmpresa set `" + campo + "` = ? where id = ?;";
+		try (PreparedStatement smt = con.prepareStatement(sql)) {
+			smt.setString(1, valor.trim());
+			smt.setLong(2, id_bodegaEmpresa);
+			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}
@@ -2101,44 +2057,37 @@ public class BodegaEmpresa {
 	public static boolean existeStockEnArriendo(Connection con, String db, Map<String,String> mapeoPermiso, Long id_bodegaEmpresa) {
 		boolean flag = false;
 		try {
-			
 			String aux = " and esVenta = 0 ";
 			BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
 			if((long) bodegaEmpresa.esInterna == (long) 1) {
 				aux = "";
 			}
-			
-			if(mapeoPermiso.get("parametro.permiteDevolverVentas")!=null && mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
-				PreparedStatement smt1 = con
-						.prepareStatement("select id_equipo, sum(cantidad*if(id_tipoMovimiento=1,1,-1)) "+
-								" from `"+db+"`.movimiento where id_bodegaEmpresa = ? "+aux+
-								" group by id_equipo "+
-								" having sum(cantidad*if(id_tipoMovimiento=1,1,-1)) > 0;");
-				smt1.setLong(1, id_bodegaEmpresa);
+			String sql = "";
+			if (mapeoPermiso.get("parametro.permiteDevolverVentas") != null
+					&& mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
+				sql = "select id_equipo, sum(cantidad * if(id_tipoMovimiento = 1, 1, -1)) " +
+						"from `" + db + "`.movimiento where id_bodegaEmpresa = ? " + aux +
+						" group by id_equipo " +
+						" having sum(cantidad * if(id_tipoMovimiento = 1, 1, -1)) > 0;";
+			} else {
+				sql = "select id_equipo, sum(cantidad * if(id_tipoMovimiento = 1, 1, -1)) " +
+						"from `" + db + "`.movimiento where id_bodegaEmpresa = ? " + aux +
+						" group by id_equipo " +
+						" having sum(cantidad * if(id_tipoMovimiento = 1, 1, -1)) <> 0;";
+			}
+			try (PreparedStatement smt = con.prepareStatement(sql)) {
+				smt.setLong(1, id_bodegaEmpresa);
 
-				ResultSet resultado = smt1.executeQuery();
-				if (resultado.next()) {
-					flag = true;
+				try (ResultSet resultado = smt.executeQuery()) {
+					if (resultado.next()) {
+						flag = true;
+					}
 				}
-				resultado.close();
-				smt1.close();
-			}else {
-				PreparedStatement smt1 = con
-						.prepareStatement("select id_equipo, sum(cantidad*if(id_tipoMovimiento=1,1,-1)) "+
-								" from `"+db+"`.movimiento where id_bodegaEmpresa = ? "+aux+
-								" group by id_equipo "+
-								" having sum(cantidad*if(id_tipoMovimiento=1,1,-1)) <> 0;");
-				smt1.setLong(1, id_bodegaEmpresa);
-				
-				ResultSet resultado = smt1.executeQuery();
-				if (resultado.next()) {
-					flag = true;
-				}
-				resultado.close();
-				smt1.close();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}
@@ -2171,54 +2120,51 @@ public class BodegaEmpresa {
 	
 	public static List<List<String>> listaAllBodegasSiyNoVigentesInternasExternas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " where bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'),  " +
-							" ifnull(comercial,''), " +
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro "+
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,0),  " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.pep,''), "+
+				" ifnull(bodegaEmpresa.ivaBodega,0), "+
+				" bodegaEmpresa.id_sucursal, "+
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.id_rubro "+
+				" from `"+db+"`.bodegaEmpresa    " +
+				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
-				if(sucursal!=null) {
+				if (sucursal != null) {
 					nameSucursal = sucursal.getNombre();
 				}
 				String nameComercial = "";
 				Comercial comercial = mapComercial.get(rs.getLong(16));
-				if(comercial!=null) {
+				if (comercial != null) {
 					nameComercial = comercial.getNameUsuario();
-				}else {
+				} else {
 					nameComercial = rs.getString(12);
 				}
 				String nameRubro = "";
@@ -2227,53 +2173,53 @@ public class BodegaEmpresa {
 					nameRubro = rubro.getNombre();
 				}
 				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 			// 0 es cliente interno
-				aux.add(rs.getString(2));  			// 1 idbodega empresa
-				aux.add(rs.getString(3));  			// 2 id de cliente
-				aux.add(rs.getString(4));  			// 3 id del proyecto
-				aux.add(rs.getString(10));  		// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  			// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  			// 6 rut del cliente
-				aux.add(rs.getString(7));  			// 7 nombre del cliente
-				aux.add(rs.getString(8));  			// 8 nombre del proyecto
-				aux.add(rs.getString(9));  			// 9 comuna
+				aux.add(rs.getString(1));      // 0 es cliente interno
+				aux.add(rs.getString(2));      // 1 idbodega empresa
+				aux.add(rs.getString(3));      // 2 id de cliente
+				aux.add(rs.getString(4));      // 3 id del proyecto
+				aux.add(rs.getString(10));     // 4 tipo de cliente interno o externo
+				aux.add(rs.getString(5));      // 5 nombre bodega o empresa
+				aux.add(rs.getString(6));      // 6 rut del cliente
+				aux.add(rs.getString(7));      // 7 nombre del cliente
+				aux.add(rs.getString(8));      // 8 nombre del proyecto
+				aux.add(rs.getString(9));      // 9 comuna
 				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
+				if (!tasa.equals("0.00 %")) {
+					tasa = myformatdouble2.format(rs.getDouble(11) * 100) + " %";
 				}
-				aux.add(tasa);  					// 10 tasa de descuento global
-				aux.add(nameComercial);			// 11 comercial
-				aux.add(rs.getString(13));  		// 12 pep
-				aux.add(rs.getString(14));  		// 13 ivaBodega
-				aux.add(rs.getString(15));  		// 14 id sucursal
-				aux.add(nameSucursal);  		// 15 nameSucursal
+				aux.add(tasa);                 // 10 tasa de descuento global
+				aux.add(nameComercial);        // 11 comercial
+				aux.add(rs.getString(13));     // 12 pep
+				aux.add(rs.getString(14));     // 13 ivaBodega
+				aux.add(rs.getString(15));     // 14 id sucursal
+				aux.add(nameSucursal);         // 15 nameSucursal
 				aux.add(nameRubro); // 16 nameRubro
 				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 	
 	public static boolean esInterna(Connection con, String db, Long id_bodegaEmpresa) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt1 = con
-					.prepareStatement("Select esInterna from `"+db+"`.bodegaEmpresa where id = ?;");
+		String sql = "Select esInterna from `" + db + "`.bodegaEmpresa where id = ?;";
+		try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 			smt1.setLong(1, id_bodegaEmpresa);
-			ResultSet rs = smt1.executeQuery();
-			if (rs.next()) {
-				if(rs.getLong(1) == (long)1) {
-					flag = true;
+			try (ResultSet rs = smt1.executeQuery()) {
+				if (rs.next()) {
+					if (rs.getLong(1) == 1L) {
+						flag = true;
+					}
 				}
 			}
-			rs.close();
-			smt1.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (flag);
 	}
@@ -2307,54 +2253,51 @@ public class BodegaEmpresa {
 	
 	public static List<List<String>> listaAllBodegasSiyNoVigentesExternas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
-		if(esPorSucursal.equals("1")) {
+		if (esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'),  " +
-							" ifnull(comercial,''), " +
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro "+
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.esInterna <> 1 " + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
+		String sql = " select  " +
+				" bodegaEmpresa.esInterna,   " +
+				" bodegaEmpresa.id,   " +
+				" ifnull(cliente.id,0),   " +
+				" ifnull(proyecto.id,0),   " +
+				" bodegaEmpresa.nombre,     " +
+				" ifnull(cliente.rut,''),   " +
+				" ifnull(cliente.nickName,''),   " +
+				" ifnull(proyecto.nickName,''),   " +
+				" ifnull(comunas.nombre,''),   " +
+				" tipoBodega.nombre," +
+				" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'),  " +
+				" ifnull(comercial,''), " +
+				" ifnull(bodegaEmpresa.pep,''), " +
+				" ifnull(bodegaEmpresa.ivaBodega,0), " +
+				" bodegaEmpresa.id_sucursal, " +
+				" bodegaEmpresa.id_comercial, "+
+				" bodegaEmpresa.id_rubro "+
+				" from `" + db + "`.bodegaEmpresa    " +
+				" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+				" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+				" left join `" + db + "`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+				" left join `" + db + "`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+				" where bodegaEmpresa.esInterna <> 1 " + condSucursal +
+				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+		try (PreparedStatement smt = con.prepareStatement(sql);
+			 ResultSet rs = smt.executeQuery()) {
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+			Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
 			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
 			while (rs.next()) {
 				String nameSucursal = "";
 				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
-				if(sucursal!=null) {
+				if (sucursal != null) {
 					nameSucursal = sucursal.getNombre();
 				}
 				String nameComercial = "";
 				Comercial comercial = mapComercial.get(rs.getLong(16));
-				if(comercial!=null) {
+				if (comercial != null) {
 					nameComercial = comercial.getNameUsuario();
-				}else {
+				} else {
 					nameComercial = rs.getString(12);
 				}
 				String nameRubro = "";
@@ -2363,139 +2306,137 @@ public class BodegaEmpresa {
 					nameRubro = rubro.getNombre();
 				}
 				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 			// 0 es cliente interno
-				aux.add(rs.getString(2));  			// 1 idbodega empresa
-				aux.add(rs.getString(3));  			// 2 id de cliente
-				aux.add(rs.getString(4));  			// 3 id del proyecto
-				aux.add(rs.getString(10));  		// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5)); 			// 5 nombre bodega o empresa
-				aux.add(rs.getString(6)); 			// 6 rut del cliente
-				aux.add(rs.getString(7)); 			// 7 nombre del cliente
-				aux.add(rs.getString(8)); 			// 8 nombre del proyecto
-				aux.add(rs.getString(9));  			// 9 comuna
+				aux.add(rs.getString(1));           // 0 es cliente interno
+				aux.add(rs.getString(2));           // 1 idbodega empresa
+				aux.add(rs.getString(3));           // 2 id de cliente
+				aux.add(rs.getString(4));           // 3 id del proyecto
+				aux.add(rs.getString(10));          // 4 tipo de cliente interno o externo
+				aux.add(rs.getString(5));           // 5 nombre bodega o empresa
+				aux.add(rs.getString(6));           // 6 rut del cliente
+				aux.add(rs.getString(7));           // 7 nombre del cliente
+				aux.add(rs.getString(8));           // 8 nombre del proyecto
+				aux.add(rs.getString(9));           // 9 comuna
 				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
+				if (!tasa.equals("0.00 %")) {
+					tasa = myformatdouble2.format(rs.getDouble(11) * 100) + " %";
 				}
-				aux.add(tasa);  					// 10 tasa de descuento global
-				aux.add(nameComercial);			// 11 comercial
-				aux.add(rs.getString(13));  		// 12 pep
-				aux.add(rs.getString(14));  		// 13 ivaBodega
-				aux.add(rs.getString(15));  		// 14 id sucursal
-				aux.add(nameSucursal);  		// 15 nameSucursal
+				aux.add(tasa);                      // 10 tasa de descuento global
+				aux.add(nameComercial);             // 11 comercial
+				aux.add(rs.getString(13));          // 12 pep
+				aux.add(rs.getString(14));          // 13 ivaBodega
+				aux.add(rs.getString(15));          // 14 id sucursal
+				aux.add(nameSucursal);              // 15 nameSucursal
 				aux.add(nameRubro); // 16 nameRubro
 				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
 
 	public static List<List<String>> listaAllBodegasVigentesExternasConAjustes(Connection con, String db, String permisoPorBodega, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
 		try {
-			
-			PreparedStatement smt100 = con
-					.prepareStatement("select distinct id_bodegaEmpresa from `"+db+"`.ajustesEP;");
-			ResultSet rs100 = smt100.executeQuery();
-			List<String> auxLista = new ArrayList<String>();
-			while (rs100.next()) {
-				auxLista.add(rs100.getString(1));
+			try (PreparedStatement smt100 = con.prepareStatement("select distinct id_bodegaEmpresa from `" + db + "`.ajustesEP;")) {
+				try (ResultSet rs100 = smt100.executeQuery()) {
+					List<String> auxLista = new ArrayList<String>();
+					while (rs100.next()) {
+						auxLista.add(rs100.getString(1));
+					}
+					String condicion = auxLista.toString();
+					condicion = condicion.replaceAll("\\[", "").replaceAll("]", "");
+					if(condicion.length() > 0) {
+						condicion = " and bodegaEmpresa.id in (" + condicion + ") ";
+					} else {
+						condicion = "";
+					}
+					try (PreparedStatement smt = con.prepareStatement(
+							" select " +
+									" bodegaEmpresa.esInterna, " +
+									" bodegaEmpresa.id, " +
+									" ifnull(cliente.id,0), " +
+									" ifnull(proyecto.id,0), " +
+									" bodegaEmpresa.nombre, " +
+									" ifnull(cliente.rut,''), " +
+									" ifnull(cliente.nickName,''), " +
+									" ifnull(proyecto.nickName,''), " +
+									" ifnull(comunas.nombre,''), " +
+									" tipoBodega.nombre, " +
+									" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'), " +
+									" ifnull(comercial,''), " +
+									" ifnull(bodegaEmpresa.pep,''), " +
+									" ifnull(bodegaEmpresa.ivaBodega,0), " +
+									" bodegaEmpresa.id_sucursal, " +
+									" bodegaEmpresa.id_comercial, "+
+									" bodegaEmpresa.id_rubro "+
+									" from `" + db + "`.bodegaEmpresa " +
+									" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+									" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+									" left join `" + db + "`.comunas on comunas.codigo = proyecto.cod_comuna " +
+									" left join `" + db + "`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+									" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 " + permisoPorBodega + condicion + condSucursal +
+									" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;")) {
+						try (ResultSet rs = smt.executeQuery()) {
+							Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+							Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+							Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
+							while (rs.next()) {
+								String nameSucursal = "";
+								Sucursal sucursal = mapSucursal.get(rs.getLong(15));
+								if (sucursal != null) {
+									nameSucursal = sucursal.getNombre();
+								}
+								String nameComercial = "";
+								Comercial comercial = mapComercial.get(rs.getLong(16));
+								if (comercial != null) {
+									nameComercial = comercial.getNameUsuario();
+								} else {
+									nameComercial = rs.getString(12);
+								}
+								String nameRubro = "";
+								Rubro rubro = mapRubro.get(rs.getLong(17));
+								if(rubro!=null) {
+									nameRubro = rubro.getNombre();
+								}
+								List<String> aux = new ArrayList<String>();
+								aux.add(rs.getString(1)); // 0 es cliente interno
+								aux.add(rs.getString(2)); // 1 idbodega empresa
+								aux.add(rs.getString(3)); // 2 id de cliente
+								aux.add(rs.getString(4)); // 3 id del proyecto
+								aux.add(rs.getString(10)); // 4 tipo de cliente interno o externo
+								aux.add(rs.getString(5)); // 5 nombre bodega o empresa
+								aux.add(rs.getString(6)); // 6 rut del cliente
+								aux.add(rs.getString(7)); // 7 nombre del cliente
+								aux.add(rs.getString(8)); // 8 nombre del proyecto
+								aux.add(rs.getString(9)); // 9 comuna
+								String tasa = rs.getString(11);
+								if (!tasa.equals("0.00 %")) {
+									tasa = myformatdouble2.format(rs.getDouble(11) * 100) + " %";
+								}
+								aux.add(tasa); // 10 tasa de descuento global
+								aux.add(nameComercial); // 11 comercial
+								aux.add(rs.getString(13)); // 12 pep
+								aux.add(rs.getString(14)); // 13 ivaBodega
+								aux.add(rs.getString(15)); // 14 id sucursal
+								aux.add(nameSucursal); // 15 nameSucursal
+								aux.add(nameRubro); // 16 nameRubro
+								lista.add(aux);
+							}
+						}
+					}
+				}
 			}
-			rs100.close();smt100.close();
-			String condicion = auxLista.toString();
-			condicion = condicion.replace("[", "").replace("]", "");
-			if(condicion.length()>0) {
-				condicion = " and bodegaEmpresa.id in ("+condicion+") ";
-			}else {
-				condicion="";
-			}
-			
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'),  " +
-							" ifnull(comercial,''), " +
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro "+
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2   " + permisoPorBodega + condicion + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
-				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(16));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(12);
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(17));
-				if(rubro!=null) {
-					nameRubro = rubro.getNombre();
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10));  	// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
-				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
-				}
-				aux.add(tasa);  					// 10 tasa de descuento global
-				aux.add(nameComercial);			// 11 comercial
-				aux.add(rs.getString(13));  		// 12 pep
-				aux.add(rs.getString(14));  		// 13 ivaBodega
-				aux.add(rs.getString(15));  		// 14 id sucursal
-				aux.add(nameSucursal);  		// 15 nameSucursal
-				aux.add(nameRubro); // 16 nameRubro
-				lista.add(aux);
-			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -2506,99 +2447,96 @@ public class BodegaEmpresa {
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = "+id_sucursal;
 		}
-		try {
-			
-			PreparedStatement smt100 = con
-					.prepareStatement("select distinct id_bodegaEmpresa from `"+db+"`.ajustesEpOdo;");
-			ResultSet rs100 = smt100.executeQuery();
+		try (PreparedStatement smt100 =
+					 con.prepareStatement("select distinct id_bodegaEmpresa from `" + db + "`.ajustesEpOdo;");
+			 		ResultSet rs100 = smt100.executeQuery();) {
 			List<String> auxLista = new ArrayList<String>();
 			while (rs100.next()) {
 				auxLista.add(rs100.getString(1));
 			}
-			rs100.close();smt100.close();
 			String condicion = auxLista.toString();
-			condicion = condicion.replace("[", "").replace("]", "");
+			condicion = condicion.replaceAll("\\[", "").replaceAll("]", "");
 			if(condicion.length()>0) {
 				condicion = " and bodegaEmpresa.id in ("+condicion+") ";
 			}else {
 				condicion="";
 			}
-			
-			PreparedStatement smt = con
-					.prepareStatement(" select  " +
-							" bodegaEmpresa.esInterna,   " +
-							" bodegaEmpresa.id,   " +
-							" ifnull(cliente.id,0),   " +
-							" ifnull(proyecto.id,0),   " +
-							" bodegaEmpresa.nombre,     " +
-							" ifnull(cliente.rut,''),   " +
-							" ifnull(cliente.nickName,''),   " +
-							" ifnull(proyecto.nickName,''),   " +
-							" ifnull(comunas.nombre,''),   " +
-							" tipoBodega.nombre," +
-							" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'),  " +
-							" ifnull(comercial,''), " +
-							" ifnull(bodegaEmpresa.pep,''), "+
-							" ifnull(bodegaEmpresa.ivaBodega,0), "+
-							" bodegaEmpresa.id_sucursal, "+
-							" bodegaEmpresa.id_comercial, "+
-							" bodegaEmpresa.id_rubro "+
-							" from `"+db+"`.bodegaEmpresa    " +
-							" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
-							" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
-							" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
-							" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2   " + condicion + condSucursal +
-							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;"); 
-			ResultSet rs = smt.executeQuery();
-			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
-			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
-			Map<Long,Rubro> mapRubro = Rubro.mapAll(con, db);
-			while (rs.next()) {
-				String nameSucursal = "";
-				Sucursal sucursal = mapSucursal.get(rs.getLong(15));
-				if(sucursal!=null) {
-					nameSucursal = sucursal.getNombre();
+			String sql = " select  " +
+					" bodegaEmpresa.esInterna,   " +
+					" bodegaEmpresa.id,   " +
+					" ifnull(cliente.id,0),   " +
+					" ifnull(proyecto.id,0),   " +
+					" bodegaEmpresa.nombre,     " +
+					" ifnull(cliente.rut,''),   " +
+					" ifnull(cliente.nickName,''),   " +
+					" ifnull(proyecto.nickName,''),   " +
+					" ifnull(comunas.nombre,''),   " +
+					" tipoBodega.nombre," +
+					" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'),  " +
+					" ifnull(comercial,''), " +
+					" ifnull(bodegaEmpresa.pep,''), "+
+					" ifnull(bodegaEmpresa.ivaBodega,0), "+
+					" bodegaEmpresa.id_sucursal, "+
+					" bodegaEmpresa.id_comercial, "+
+					" bodegaEmpresa.id_rubro "+
+					" from `"+db+"`.bodegaEmpresa    " +
+					" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
+					" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
+					" left join `"+db+"`.comunas on comunas.codigo = proyecto.cod_comuna   " +
+					" left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+					" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2   " + condicion + condSucursal +
+					" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+			try (PreparedStatement smt = con.prepareStatement(sql);
+				 	ResultSet rs = smt.executeQuery();) {
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+				Map<Long, Rubro> mapRubro = Rubro.mapAll(con, db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(15));
+					if (sucursal != null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					String nameComercial = "";
+					Comercial comercial = mapComercial.get(rs.getLong(16));
+					if (comercial != null) {
+						nameComercial = comercial.getNameUsuario();
+					} else {
+						nameComercial = rs.getString(12);
+					}
+					String nameRubro = "";
+					Rubro rubro = mapRubro.get(rs.getLong(17));
+					if (rubro != null) {
+						nameRubro = rubro.getNombre();
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs.getString(1));        // 0 es cliente interno
+					aux.add(rs.getString(2));        // 1 idbodega empresa
+					aux.add(rs.getString(3));        // 2 id de cliente
+					aux.add(rs.getString(4));        // 3 id del proyecto
+					aux.add(rs.getString(10));    // 4 tipo de cliente interno o externo
+					aux.add(rs.getString(5));        // 5 nombre bodega o empresa
+					aux.add(rs.getString(6));        // 6 rut del cliente
+					aux.add(rs.getString(7));        // 7 nombre del cliente
+					aux.add(rs.getString(8));        // 8 nombre del proyecto
+					aux.add(rs.getString(9));        // 9 comuna
+					String tasa = rs.getString(11);
+					if (!tasa.equals("0.00 %")) {
+						tasa = myformatdouble2.format(rs.getDouble(11) * 100) + " %";
+					}
+					aux.add(tasa);                    // 10 tasa de descuento global
+					aux.add(nameComercial);            // 11 comercial
+					aux.add(rs.getString(13));        // 12 pep
+					aux.add(rs.getString(14));        // 13 ivaBodega
+					aux.add(nameSucursal);        // 14 nameSucursal
+					aux.add(nameRubro); // 15 nameRubro
+					lista.add(aux);
 				}
-				String nameComercial = "";
-				Comercial comercial = mapComercial.get(rs.getLong(16));
-				if(comercial!=null) {
-					nameComercial = comercial.getNameUsuario();
-				}else {
-					nameComercial = rs.getString(12);
-				}
-				String nameRubro = "";
-				Rubro rubro = mapRubro.get(rs.getLong(17));
-				if(rubro!=null) {
-					nameRubro = rubro.getNombre();
-				}
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs.getString(1)); 		// 0 es cliente interno
-				aux.add(rs.getString(2));  		// 1 idbodega empresa
-				aux.add(rs.getString(3));  		// 2 id de cliente
-				aux.add(rs.getString(4));  		// 3 id del proyecto
-				aux.add(rs.getString(10));  	// 4 tipo de cliente interno o externo
-				aux.add(rs.getString(5));  		// 5 nombre bodega o empresa
-				aux.add(rs.getString(6));  		// 6 rut del cliente
-				aux.add(rs.getString(7));  		// 7 nombre del cliente
-				aux.add(rs.getString(8));  		// 8 nombre del proyecto
-				aux.add(rs.getString(9));  		// 9 comuna
-				String tasa = rs.getString(11);
-				if(!tasa.equals("0.00 %")){
-					tasa = myformatdouble2.format(rs.getDouble(11)*100) + " %";
-				}
-				aux.add(tasa);  					// 10 tasa de descuento global
-				aux.add(nameComercial);			// 11 comercial
-				aux.add(rs.getString(13));  		// 12 pep
-				aux.add(rs.getString(14));  		// 13 ivaBodega
-				aux.add(nameSucursal);  		// 14 nameSucursal
-				aux.add(nameRubro); // 15 nameRubro
-				lista.add(aux);
 			}
-			rs.close();
-			smt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}

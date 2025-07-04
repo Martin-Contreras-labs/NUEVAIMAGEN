@@ -76,15 +76,13 @@ public class AjustesEP {
 			case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
 			default:  break;
 		}
-
-		String query = String.format("select "
+		String query = "select "
 				+ " if(id_tipoAjuste=1,'Menos ', 'Mas '),"
 				+ " concepto,"
 				+ " if(id_tipoAjuste=1,-1,1)*totalAjuste,"
 				+ " id_tipoAjusteVenta"
 				+ " from `"+db+"`.ajustesEP "
-				+ " where id_bodegaEmpresa=? and (fechaAjuste between ? and ?); ", db);
-
+				+ " where id_bodegaEmpresa=? and (fechaAjuste between ? and ?); ";
 		try (PreparedStatement smt = con.prepareStatement(query)) {
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setString(2, desdeSql);
