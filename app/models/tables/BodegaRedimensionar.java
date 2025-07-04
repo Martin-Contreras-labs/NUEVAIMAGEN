@@ -36,7 +36,7 @@ public class BodegaRedimensionar{
 				aux = rs.getLong(1);
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = BodegaRedimensionar.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -54,7 +54,7 @@ public class BodegaRedimensionar{
 			smtInsert.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = BodegaRedimensionar.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

@@ -43,7 +43,7 @@ public class AuxHuella {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = AuxHuella.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, base, e);
 		}
@@ -59,7 +59,7 @@ public class AuxHuella {
 			smt.executeUpdate();
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = AuxHuella.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, base, e);
 		}
@@ -83,7 +83,7 @@ public class AuxHuella {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = AuxHuella.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, base, e);
 		}

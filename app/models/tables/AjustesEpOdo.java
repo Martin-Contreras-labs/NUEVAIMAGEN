@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 // 4 y 13
 public class AjustesEpOdo {
 
-	private static final Logger logger = LoggerFactory.getLogger(AjustesEP.class);
+	private static final Logger logger = LoggerFactory.getLogger(AjustesEpOdo.class);
 
 	public Long id;
 	public Long id_bodegaEmpresa;

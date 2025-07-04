@@ -171,8 +171,19 @@ POST	/equipoMantencionExcel/			controllers.MnuTablas.equipoMantencionExcel(reque
 GET 	/dibujanteMantencion/			            controllers.MnuTablas.dibujanteMantencion(request: Request)
 GET 	/dibujanteAgrega/			                controllers.MnuTablas.dibujanteAgrega(request: Request)
 POST 	/dibujanteGraba/			                controllers.MnuTablas.dibujanteGraba(request: Request)
+POST 	/propiedadElimina/			                controllers.MnuTablas.propiedadElimina(request: Request)
 POST 	/dibujanteModifica/			                controllers.MnuTablas.dibujanteModifica(request: Request)
 POST 	/modificaDibujantePorCampoAjax/			    controllers.MnuTablas.modificaDibujantePorCampoAjax(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# PROPIEDAD TABLAS (propios, alquilados)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/propiedadMantencion/			            controllers.MnuTablas.propiedadMantencion(request: Request)
+GET 	/propiedadAgrega/			                controllers.MnuTablas.propiedadAgrega(request: Request)
+POST 	/propiedadGraba/			                controllers.MnuTablas.propiedadGraba(request: Request)
+POST 	/propiedadModifica/			                controllers.MnuTablas.propiedadModifica(request: Request)
+POST 	/modificaPropiedadPorCampoAjax/			    controllers.MnuTablas.modificaPropiedadPorCampoAjax(request: Request)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Dibujantes BODEGA EMPRESA

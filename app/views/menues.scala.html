@@ -790,6 +790,9 @@
 						@if(mapPermiso.get("proyectoMantencion")!=null){
 		        			<a class="dropdown-item" href="/proyectoMantencion/">Proyectos</a>
 						}
+						@if(mapPermiso.get("propiedadMantencion")!=null){
+							<a class="dropdown-item" href="/routes2/propiedadMantencion/">Propiedad</a>
+						}
 						@if(mapPermiso.get("clienteMantencion")!=null){
 							<div class="dropdown-divider" style="border-color:black"></div>
 		        			<a class="dropdown-item" href="/clienteMantencion/">Clientes/Propietarios</a>

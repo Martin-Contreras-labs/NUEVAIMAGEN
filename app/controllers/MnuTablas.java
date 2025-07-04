@@ -335,7 +335,7 @@ public class MnuTablas extends Controller {
 			try (Connection con = dbWrite.getConnection()){
 				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
 				if(Grupo.estaEnUso(con, s.baseDato, id_grupo)) {
-					String msg = "No es posible eliminar este grupo, esta en uso con equipos vigentes ";
+					String msg = "No es posible eliminar este grupo, esta en uso con equipos ";
 					return ok(mensajes.render("/grupoMantencion/",msg));
 				}else {
 					Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
@@ -586,7 +586,7 @@ public class MnuTablas extends Controller {
 				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
 				Long id_atributo = Long.parseLong(form.get("id_atributo").trim());
 				if(Atributo.estaEnUso(con, s.baseDato, id_atributo)) {
-					String msg = "No es posible eliminar este atributo, esta en uso con equipos vigentes ";
+					String msg = "No es posible eliminar este atributo, esta en uso con equipos ";
 					return ok(mensajes.render("/home/",msg));
 				}else {
 					if(Atributo.delete(con, s.baseDato, id_atributo)) {
@@ -4267,6 +4267,194 @@ public class MnuTablas extends Controller {
 					return ok("error");
 				}else {
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "dibujante", id_dibujante, "update", "cambia el valor de: "+campo);
+					return ok("");
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			}
+		}
+	}
+
+	public Result propiedadMantencion(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("propiedadMantencion")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
+			return ok(propiedadMantencion.render(mapeoDiccionario,mapeoPermiso,userMnu,listPropiedad));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+	public Result propiedadAgrega(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("propiedadMantencion")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		return ok(propiedadAgrega.render(mapeoDiccionario,mapeoPermiso,userMnu));
+	}
+
+	public Result propiedadGraba(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		Propiedad form = formFactory.form(Propiedad.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.getNombre() == null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
+				if(Propiedad.create(con, s.baseDato, form.getNombre())) {
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "propiedad", (long)0, "create", "crea nueva propiedad");
+					return redirect("/routes2/propiedadMantencion/");
+				}else {
+					return ok(mensajes.render("/routes2/propiedadMantencion/","La propiedad ya existe"));
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result propiedadElimina(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			if(mapeoPermiso.get("propiedadMantencion")==null) {
+				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+			try (Connection con = dbWrite.getConnection()){
+				Long id_propiedad = Long.parseLong(form.get("id_propiedad").trim());
+				if(Propiedad.estaEnUso(con, s.baseDato, id_propiedad)) {
+					String msg = "No es posible eliminar la propiedad, esta en uso con equipos ";
+					return ok(mensajes.render("/routes2/propiedadMantencion/",msg));
+				}else {
+					Propiedad propiedad = Propiedad.find(con, s.baseDato, id_propiedad);
+					if(Propiedad.delete(con, s.baseDato, id_propiedad)) {
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "propiedad", id_propiedad, "delete", "elimina propiedad "+propiedad.nombre);
+						return redirect("/routes2/propiedadMantencion/");
+					}else {
+						logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+						return ok(mensajes.render("/home/", msgReport));
+					}
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result propiedadModifica(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				Long id_propiedad = Long.parseLong(form.get("id_propiedad").trim());
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Propiedad propiedad = Propiedad.find(con, s.baseDato, id_propiedad);
+				return ok(propiedadModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,propiedad));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result modificaPropiedadPorCampoAjax(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok("error");
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
+				String campo = form.get("campo").trim();
+				Long id_propiedad = Long.parseLong(form.get("id_propiedad").trim());
+				String valor = form.get("valor").trim();
+				if(campo.equals("nombre")) {
+					if(Propiedad.existe(con, s.baseDato, valor)) {
+						return ok("existe");
+					}
+				}
+				if(!Propiedad.modificaPorCampo(con, s.baseDato, campo, id_propiedad, valor)){
+					return ok("error");
+				}else {
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "propiedad", id_propiedad, "update", "cambia el valor de: "+campo);
 					return ok("");
 				}
 			} catch (SQLException e) {

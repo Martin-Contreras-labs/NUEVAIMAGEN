@@ -170,7 +170,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -189,7 +189,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -246,7 +246,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -262,7 +262,7 @@ public class Baja {
 			flag = true;
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -308,7 +308,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -354,7 +354,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -400,7 +400,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -420,7 +420,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -470,7 +470,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -502,7 +502,7 @@ public class Baja {
 			}
 
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -697,7 +697,7 @@ public class Baja {
 			fileOut.close();
 
 		} catch (Exception e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Baja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

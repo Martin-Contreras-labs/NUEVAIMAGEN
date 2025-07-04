@@ -295,7 +295,7 @@ public class Cliente {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -361,7 +361,7 @@ public class Cliente {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -429,7 +429,7 @@ public class Cliente {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -497,7 +497,7 @@ public class Cliente {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -515,7 +515,7 @@ public class Cliente {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -535,7 +535,7 @@ public class Cliente {
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -553,7 +553,7 @@ public class Cliente {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -574,7 +574,7 @@ public class Cliente {
 
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -610,7 +610,7 @@ public class Cliente {
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -840,7 +840,7 @@ public class Cliente {
 			}
 
 		} catch (Exception e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = Cliente.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

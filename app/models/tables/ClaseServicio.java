@@ -41,7 +41,7 @@ public class ClaseServicio {
 				map.put(rs.getLong(1), new ClaseServicio(rs.getLong(1), rs.getString(2)));
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -57,7 +57,7 @@ public class ClaseServicio {
 				lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -76,7 +76,7 @@ public class ClaseServicio {
 					lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 				}
 			} catch (SQLException e) {
-				String className = AjustesEP.class.getSimpleName();
+				String className = ClaseServicio.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
@@ -96,7 +96,7 @@ public class ClaseServicio {
 					lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 				}
 			} catch (SQLException e) {
-				String className = AjustesEP.class.getSimpleName();
+				String className = ClaseServicio.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
@@ -117,7 +117,7 @@ public class ClaseServicio {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -133,7 +133,7 @@ public class ClaseServicio {
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -152,7 +152,7 @@ public class ClaseServicio {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -171,7 +171,7 @@ public class ClaseServicio {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -186,7 +186,7 @@ public class ClaseServicio {
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -202,7 +202,7 @@ public class ClaseServicio {
 			smt.executeUpdate();
 			flag = true;
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -222,7 +222,7 @@ public class ClaseServicio {
 				lista.add(new ClaseServicio(resultado.getLong(1), resultado.getString(2)));
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -240,7 +240,7 @@ public class ClaseServicio {
 				}
 			}
 		} catch (SQLException e) {
-			String className = AjustesEP.class.getSimpleName();
+			String className = ClaseServicio.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
