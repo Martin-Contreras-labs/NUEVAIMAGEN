@@ -7,12 +7,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -82,8 +78,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	private final WSClient ws;
 	public final MailerClient mailerClient;

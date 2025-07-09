@@ -4,12 +4,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import controllers.HomeController.Sessiones;
 import models.calculo.Calc_AjustesEpOdo;
@@ -64,9 +60,10 @@ public class MnuOdo extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	//============================================================
@@ -3432,13 +3429,13 @@ public class MnuOdo extends Controller {
 					aux.add(x.get(18));	// 2 tasa
 					mapPuYtasas.put(x.get(2), aux);
 				}
-				DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
-				DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+				DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0",symbols);
+				DecimalFormat myformatMoneda = new DecimalFormat("#,##0",symbols);
 				switch(mapDec.get((long) 1).toString()) {
-				 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				Map<String,Long> mapDecXnick = Moneda.numeroDecimalxNombre(con, s.baseDato);
@@ -3481,10 +3478,10 @@ public class MnuOdo extends Controller {
 							dec = (long)1;
 						}
 						switch(dec.toString()) {
-						 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-						 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
 						Double dePaso = Double.parseDouble(pu.replaceAll(",", ""));
@@ -3552,13 +3549,13 @@ public class MnuOdo extends Controller {
 					aux.add(x.get(18));	// 2 tasa
 					mapPuYtasas.put(x.get(2), aux);
 				}
-				DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
-				DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+				DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0",symbols);
+				DecimalFormat myformatMoneda = new DecimalFormat("#,##0",symbols);
 				switch(mapDec.get((long) 1).toString()) {
-				 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				Map<String,Long> mapDecXnick = Moneda.numeroDecimalxNombre(con, s.baseDato);
@@ -3601,10 +3598,10 @@ public class MnuOdo extends Controller {
 							dec = (long)1;
 						}
 						switch(dec.toString()) {
-						 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-						 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
 						Double dePaso = Double.parseDouble(pu.replaceAll(",", ""));

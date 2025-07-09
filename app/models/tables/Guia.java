@@ -8,11 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -404,10 +402,9 @@ public class Guia {
 		this.totalM2 = totalM2;
 	}
 
-
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00", symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00", symbols);
 	
 	public static Long anioPrimeraGuia(Connection con, String db) {
 		Fechas hoy = Fechas.hoy();
@@ -1745,10 +1742,10 @@ public class Guia {
 					Long decimal = dec.get(id_moneda);
 					if(decimal == null) {decimal=(long)0;}
 					switch(decimal.toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0", symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00", symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000", symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000", symbols); break;
 					 default:  break;
 					}
 					

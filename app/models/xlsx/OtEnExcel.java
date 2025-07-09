@@ -36,10 +36,6 @@ import models.utilities.Fechas;
 
 
 public class OtEnExcel {
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static DecimalFormat myformatdouble6 = new DecimalFormat("#,##0.000000");
 	
 	
 	

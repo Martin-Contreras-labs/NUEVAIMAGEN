@@ -8,8 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import controllers.HomeController;
 import models.tables.*;
@@ -34,10 +36,8 @@ import org.slf4j.LoggerFactory;
 
 
 public class GeneraPDF_ContratoOdo {
-	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static DecimalFormat myformatdouble6 = new DecimalFormat("#,##0.000000");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 

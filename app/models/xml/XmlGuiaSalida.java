@@ -239,7 +239,6 @@ public class XmlGuiaSalida {
 						String IvaTasa = tasaIvaArrAuxiliar.toString();
 						
 						for(int i=0;i<detalleGuia.size();i++) {
-							DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 							
 							String auxPrecio = detalleGuia.get(i).get(9); //precio unitario de venta
     							if(auxPrecio.equals("")||auxPrecio.equals(" "))	auxPrecio = "0";
@@ -301,7 +300,6 @@ public class XmlGuiaSalida {
 	    						String auxCantidad = detalleGuia.get(i).get(8);
 		    					if(auxCantidad.equals("")||auxCantidad.equals(" "))	auxCantidad = "0";
 							
-							DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 		    					Double precioUnitario = (double)0;
 		    					String auxNum = auxPrecio.trim().replaceAll(",", "");
 				 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";

@@ -5,11 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,13 +30,9 @@ import models.utilities.Fechas;
 
 
 public class ReportOdoOperadores {
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	
-	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 		
 	
 	

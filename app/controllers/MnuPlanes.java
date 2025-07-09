@@ -4,11 +4,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -56,8 +53,9 @@ public class MnuPlanes extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	private final WSClient ws;
@@ -1502,15 +1500,15 @@ public class MnuPlanes extends Controller {
 						detalle.set(15, moneda.id.toString());
 						detalle.set(17, bodega.nombre);
 						numeroDecimales = moneda.numeroDecimales;
-						DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+						DecimalFormat decimalFormat = new DecimalFormat("#,##0.00",symbols);
 						if((long)numeroDecimales == (long) 0) {
-							decimalFormat = new DecimalFormat("#,##0");
+							decimalFormat = new DecimalFormat("#,##0",symbols);
 						} else if((long)numeroDecimales == (long) 2) {
-							decimalFormat = new DecimalFormat("#,##0.00");
+							decimalFormat = new DecimalFormat("#,##0.00",symbols);
 						} else if((long)numeroDecimales == (long) 4) {
-							decimalFormat = new DecimalFormat("#,##0.0000");
+							decimalFormat = new DecimalFormat("#,##0.0000",symbols);
 						}else {
-							decimalFormat = new DecimalFormat("#,##0.000000");
+							decimalFormat = new DecimalFormat("#,##0.000000",symbols);
 						}
 						detalle.set(16, decimalFormat.format(Double.parseDouble(detalle.get(16))));
 						String id_tipoPlan = "1";

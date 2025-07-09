@@ -3,7 +3,9 @@ package controllers;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import controllers.HomeController.Sessiones;
@@ -33,8 +35,9 @@ public class MnuToolsAdmin extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	//============================================================

@@ -5,10 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import java.sql.*;
 
@@ -210,8 +208,9 @@ public class BodegaEmpresa {
 		this.nameRubro = nameRubro;
 	}
 
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(BodegaEmpresa.class);
 	

@@ -10,8 +10,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -164,7 +166,8 @@ public class ApiSapConconcreto {
 	// FINAL DE CONSUME LOS SERVICIOS SAP CONCONCRETO
 	//**************************************************************
 
-	static DecimalFormat myformatapi = new DecimalFormat("#.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatapi = new DecimalFormat("#.00",symbols);
 
 	public static String generaFactArriendo(Connection con, String db, List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, Map<String,String> mapDiccionario, EmisorTributario emisorTributario, 
 			List<List<String>> detalleAjuste, BodegaEmpresa bodegaEmpresa, XmlFacturaReferencias referencias) {

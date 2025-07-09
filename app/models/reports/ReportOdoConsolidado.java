@@ -6,10 +6,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,7 +35,9 @@ import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 public class ReportOdoConsolidado {
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
 	
 	
 	

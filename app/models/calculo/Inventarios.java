@@ -549,7 +549,8 @@ public class Inventarios {
 									+ " equipo.id_grupo,"
 									+ " grupo.nombre, "
 									+ " equipo.kg, "
-									+ " equipo.m2 " +
+									+ " equipo.m2, "
+									+ " equipo.id_propiedad " +
 									" from `%s`.equipo left join `%s`.grupo on grupo.id=equipo.id_grupo " +
 									" where equipo.id in ("+listaCond+") " +
 									" order by equipo.nombre;",db,db);
@@ -557,13 +558,14 @@ public class Inventarios {
 						try (ResultSet rs2 = smt2.executeQuery()) {
 							while (rs2.next()) {
 								List<String> aux = new ArrayList<String>();
-								aux.add(rs2.getString(1)); // idEquipo
-								aux.add(rs2.getString(2)); // codigo
-								aux.add(rs2.getString(3)); // nombre equipo
-								aux.add(rs2.getString(4)); // idGrupo
-								aux.add(rs2.getString(5)); // nombre grupo o familia
-								aux.add(rs2.getString(6)); // kg
-								aux.add(rs2.getString(7)); // m2
+								aux.add(rs2.getString(1)); // 0 idEquipo
+								aux.add(rs2.getString(2)); // 1 codigo
+								aux.add(rs2.getString(3)); // 2 nombre equipo
+								aux.add(rs2.getString(4)); // 3 idGrupo
+								aux.add(rs2.getString(5)); // 4 nombre grupo o familia
+								aux.add(rs2.getString(6)); // 5 kg
+								aux.add(rs2.getString(7)); // 6 m2
+								aux.add(rs2.getString(8)); // 7 id_propiedad
 								listaEquipos.add(aux);
 							}
 						}

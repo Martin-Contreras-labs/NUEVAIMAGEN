@@ -12,10 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.TempFile;
@@ -337,8 +335,8 @@ public class VentaServicio {
 		this.nameSucursal = nameSucursal;
 	}
 
-
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	public static boolean existenVentaAsociado(Connection con, String db, Long id_cotiOdo) {

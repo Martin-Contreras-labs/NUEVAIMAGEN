@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import controllers.HomeController;
 import models.calculo.Inventarios;
@@ -50,10 +48,10 @@ public class FormBaja {
 	public FormBaja() {
 		super();
 	}
-	
 
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
@@ -94,8 +92,8 @@ public class FormBaja {
 						Long auxDecimal = decCompra.get(moneda);
 						if(auxDecimal==null) auxDecimal = (long)2;
 						switch(auxDecimal.toString()) {
-						 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-						 default : myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
+						 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+						 default : myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
 						}
 						List<String> aux = new ArrayList<String>();
 						aux.add(v.getId_equipo().toString()); 				// 0 id_equipo
@@ -217,8 +215,8 @@ public class FormBaja {
 					Long auxDecimal = decCompra.get(moneda);
 					if(auxDecimal==null) auxDecimal = (long)2;
 					switch(auxDecimal.toString()) {
-					 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-					 default : myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
+					 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+					 default : myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
 					}
 					String totalPcXcant = myformatdoubleCompra.format((double)0);
 					List<String> aux = new ArrayList<String>();
@@ -254,8 +252,8 @@ public class FormBaja {
 					Long auxDecimal = decCompra.get(moneda);
 					if(auxDecimal==null) auxDecimal = (long)2;
 					switch(auxDecimal.toString()) {
-					 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-					 default : myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
+					 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+					 default : myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
 					}
 					String totalPcXstock = myformatdoubleCompra.format(pcXstock);
 					String totalPcXcant = myformatdoubleCompra.format(pcXcant);
@@ -303,8 +301,8 @@ public class FormBaja {
 						Long auxDecimal = decCompra.get(mon);
 						if(auxDecimal==null) auxDecimal = (long)2;
 						switch(auxDecimal.toString()) {
-						 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-						 default : myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
+						 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+						 default : myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
 						}
 						String totalPcXstock = myformatdoubleCompra.format(total);
 						String totalPcXcant = myformatdoubleCompra.format(total);

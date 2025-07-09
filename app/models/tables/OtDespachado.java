@@ -5,11 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import models.calculo.Inventarios;
 
@@ -135,12 +133,11 @@ public class OtDespachado {
 	}
 
 	public OtDespachado() {super();}
-	
 
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00 %");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	public static List<List<String>> listSumaDespachadoPorIdOtCantDesp(Connection con, String db, Long idOt) {
 		List<List<String>> lista = new ArrayList<List<String>>();

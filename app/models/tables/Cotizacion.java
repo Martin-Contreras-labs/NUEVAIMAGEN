@@ -8,12 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -579,10 +576,11 @@ public class Cotizacion {
 		this.fechaProbable = fechaProbable;
 	}
 
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00 %");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00 %",symbols);
 	
 	public static Long anioPrimeraCotizacion(Connection con, String db) {
 		Fechas hoy = Fechas.hoy();
@@ -1887,7 +1885,7 @@ public class Cotizacion {
 			Double totalArriendoConDcto = totalArriendo*(1-cotizacion.getDctoArriendo());
 			Double totalVentaConDcto = totalVenta*(1-cotizacion.getDctoVenta());
 			
-			DecimalFormat formatDecimal = new DecimalFormat("#,##0.00");
+			DecimalFormat formatDecimal = new DecimalFormat("#,##0.00",symbols);
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			Long numDec = dec.get(idMoneda);
@@ -1895,10 +1893,10 @@ public class Cotizacion {
 				numDec = (long)0;
 			}
 			switch(numDec.toString()) {
-			 case "0": formatDecimal = new DecimalFormat("#,##0"); break;
-			 case "2": formatDecimal = new DecimalFormat("#,##0.00"); break;
-			 case "4": formatDecimal = new DecimalFormat("#,##0.0000"); break;
-			 case "6": formatDecimal = new DecimalFormat("#,##0.000000"); break;
+			 case "0": formatDecimal = new DecimalFormat("#,##0",symbols); break;
+			 case "2": formatDecimal = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": formatDecimal = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": formatDecimal = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -3195,7 +3193,7 @@ public class Cotizacion {
 			if(numDec == null) {
 				numDec = (long)0;
 			}
-			DecimalFormat formatDecimal = new DecimalFormat("#,##0");
+			DecimalFormat formatDecimal = new DecimalFormat("#,##0",symbols);
 			
 			while(rs.next()) {
 				
@@ -3211,10 +3209,10 @@ public class Cotizacion {
 				}
 				
 				switch(numDec.toString()) {
-				 case "0": formatDecimal = new DecimalFormat("#,##0"); break;
-				 case "2": formatDecimal = new DecimalFormat("#,##0.00"); break;
-				 case "4": formatDecimal = new DecimalFormat("#,##0.0000"); break;
-				 case "6": formatDecimal = new DecimalFormat("#,##0.000000"); break;
+				 case "0": formatDecimal = new DecimalFormat("#,##0",symbols); break;
+				 case "2": formatDecimal = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": formatDecimal = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": formatDecimal = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -3395,12 +3393,12 @@ public class Cotizacion {
 					totalM2 += aux;
 		 		}
 				
-				DecimalFormat formatDecimal = new DecimalFormat("#,##0");
+				DecimalFormat formatDecimal = new DecimalFormat("#,##0",symbols);
 				switch(numDec.toString()) {
-				 case "0": formatDecimal = new DecimalFormat("#,##0"); break;
-				 case "2": formatDecimal = new DecimalFormat("#,##0.00"); break;
-				 case "4": formatDecimal = new DecimalFormat("#,##0.0000"); break;
-				 case "6": formatDecimal = new DecimalFormat("#,##0.000000"); break;
+				 case "0": formatDecimal = new DecimalFormat("#,##0",symbols); break;
+				 case "2": formatDecimal = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": formatDecimal = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": formatDecimal = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 			

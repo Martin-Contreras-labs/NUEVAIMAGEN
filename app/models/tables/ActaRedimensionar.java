@@ -106,8 +106,6 @@ public class ActaRedimensionar {
 
 
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	public static Long create(Connection con, String db, ActaRedimensionar actaRedireccionar) {
 		Long id_acta = (long)0;

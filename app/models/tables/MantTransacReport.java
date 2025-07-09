@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
@@ -600,6 +601,9 @@ public class MantTransacReport {
 		this.nameUnidadMantencion = nameUnidadMantencion;
 	}
 
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+
 	public static Map<Long,Double> usoEquipo  (Connection con, String db){
 		Map<Long,Double> map = new HashMap<Long,Double>();
 		try {
@@ -644,7 +648,7 @@ public class MantTransacReport {
 						}
 					}
 					if(aux > 0) {
-						DecimalFormat myformat = new DecimalFormat("##0.0");
+						DecimalFormat myformat = new DecimalFormat("##0.0",symbols);
 						for(PlanMantencion p: allPlan) {
 							if(p.getId_unidadMantencion() == (long) aux) {
 								PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), mantTransacReport.getId_equipo(), "estadoActual", myformat.format(lectAnterior));
@@ -653,7 +657,7 @@ public class MantTransacReport {
 					}
 				}else{
 					Double lectAnterior = mantTransacReport.getLectAnterior();
-					DecimalFormat myformat = new DecimalFormat("##0.0");
+					DecimalFormat myformat = new DecimalFormat("##0.0",symbols);
 					Long id_tipoPlan = mantTransacReport.getId_tipoPlan();
 					PlanMantencion planMantencion = PlanMantencion.find(con, db, mantTransacReport.getId_equipo(), id_tipoPlan);
 					List<PlanMantencion> allPorEquipo = PlanMantencion.allTipoPlanPorId_equipo(con, db, mantTransacReport.getId_equipo());
@@ -1956,7 +1960,7 @@ public class MantTransacReport {
 			}
 
 			if(aux > 0) {
-				DecimalFormat myformat = new DecimalFormat("##0.0");
+				DecimalFormat myformat = new DecimalFormat("##0.0",symbols);
 				for(PlanMantencion p: allPlan) {
 					if(p.getId_unidadMantencion() == (long) aux) {
 						PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_oper, "estadoActual", myformat.format(lecturaFin));
@@ -2071,7 +2075,7 @@ public class MantTransacReport {
 				}
 				
 				
-				DecimalFormat myformat = new DecimalFormat("##0.0");
+				DecimalFormat myformat = new DecimalFormat("##0.0",symbols);
 				PlanMantencion planMantencion = PlanMantencion.find(con, db, form.id_equipo_mecP, form.id_tipoPlan_mecP);
 
 				List<PlanMantencion> allPorEquipo = PlanMantencion.allTipoPlanPorId_equipo(con, db, form.id_equipo_mecP);
@@ -2235,7 +2239,7 @@ public class MantTransacReport {
 				}
 
 				if(aux > 0) {
-					DecimalFormat myformat = new DecimalFormat("##0.0");
+					DecimalFormat myformat = new DecimalFormat("##0.0",symbols);
 					for(PlanMantencion p: allPlan) {
 						if(p.getId_unidadMantencion() == (long) aux) {
 							PlanMantencion.actualizaPorCampo(con, db, p.getId_tipoPlan(), form.id_equipo_mec, "estadoActual", myformat.format(lecturaFin));

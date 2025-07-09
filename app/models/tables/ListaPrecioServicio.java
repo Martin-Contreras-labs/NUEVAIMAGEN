@@ -5,10 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import models.utilities.Fechas;
 
@@ -218,9 +216,9 @@ public class ListaPrecioServicio {
 		this.numeroCotiOdo = numeroCotiOdo;
 	}
 
-
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	public static List<List<String>> listaBodegasConServicios(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
@@ -371,10 +369,10 @@ public class ListaPrecioServicio {
 			while (rs1.next()) {
 				Moneda moneda = mapMoneda.get(rs1.getLong(3));
 				switch(moneda.getNumeroDecimales().toString()) {
-				 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 	case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 	case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 	default:  break;
 				}
 				String nickMoneda = "";
@@ -462,10 +460,10 @@ public class ListaPrecioServicio {
 			while (rs1.next()) {
 				Moneda moneda = mapMoneda.get(rs1.getLong(3));
 				switch(moneda.getNumeroDecimales().toString()) {
-				 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 	case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 	case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 	default:  break;
 				}
 				String nickMoneda = "";
@@ -556,10 +554,10 @@ public class ListaPrecioServicio {
 			while (rs1.next()) {
 				Moneda moneda = mapMoneda.get(rs1.getLong(3));
 				switch(moneda.getNumeroDecimales().toString()) {
-				 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 	case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 	case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 	default:  break;
 				}
 				String nickMoneda = "";
@@ -648,10 +646,10 @@ public class ListaPrecioServicio {
 			while (rs1.next()) {
 				Moneda moneda = mapMoneda.get(rs1.getLong(3));
 				switch(moneda.getNumeroDecimales().toString()) {
-				 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 	case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 	case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 	default:  break;
 				}
 				String nickMoneda = "";
@@ -746,10 +744,10 @@ public class ListaPrecioServicio {
 			if (rs1.next()) {
 				Moneda moneda = mapMoneda.get(rs1.getLong(3));
 				switch(moneda.getNumeroDecimales().toString()) {
-				 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 	case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 	case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 	case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 	case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 	default:  break;
 				}
 				String nickMoneda = "";

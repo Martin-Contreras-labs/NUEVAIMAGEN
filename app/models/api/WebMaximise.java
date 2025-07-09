@@ -9,8 +9,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -220,7 +222,8 @@ public class WebMaximise {
 			//******************************
 			// FINAL DE OBTIENE DATOS A LLENAR
 			//******************************
-			DecimalFormat myformat = new DecimalFormat("0");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat myformat = new DecimalFormat("0",symbols);
 			//******************************
 			// LLENA XML para MAXIMISE
 			//******************************
@@ -445,7 +448,8 @@ public class WebMaximise {
 					}
 				}
 			}
-			DecimalFormat myformat = new DecimalFormat("0");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat myformat = new DecimalFormat("0",symbols);
 			//******************************
 			// LLENA XML para MAXIMISE
 			//******************************

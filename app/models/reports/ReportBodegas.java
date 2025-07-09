@@ -40,18 +40,7 @@ import models.utilities.Fechas;
 
 public class ReportBodegas {
 	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	
-	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
-	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
-	
-	
-	
-	
+
 	
 	public static List<List<String>> estadoBodegas(Connection con, String db) {
 		List<List<String>> datos = new ArrayList<List<String>>();
@@ -514,15 +503,15 @@ public class ReportBodegas {
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(8));
-				
+
 				posCell++;
 				cell = row.createCell(posCell);
-				Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(9));
+
 				if(lista.get(9).trim().isEmpty()) {
 					cell.setCellValue("");
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 				}else{
-					fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(12));
+					Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(9));
 					cell.setCellValue(fechax.fechaUtil);
 					cell.setCellStyle(fecha);
 				}
@@ -551,7 +540,7 @@ public class ReportBodegas {
 					cell.setCellValue("");
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 				}else{
-					fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(12));
+					Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(12));
 					cell.setCellValue(fechax.fechaUtil);
 					cell.setCellStyle(fecha);
 				}

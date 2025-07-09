@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import controllers.HomeController;
@@ -56,9 +58,10 @@ public class FormCompra {
 	public FormCompra() {
 		super();
 	}
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
@@ -158,7 +161,7 @@ public class FormCompra {
 	public static List<String> compraValidarPlantillaExcel (Connection con, String db, File file) {
 		List<String> mensaje = new ArrayList<String>();
         try {
-			DecimalFormat df = new DecimalFormat("#");
+			DecimalFormat df = new DecimalFormat("#",symbols);
 			df.setMaximumFractionDigits(8);
 			mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
             Workbook libro = WorkbookFactory.create(file);
@@ -301,7 +304,7 @@ public class FormCompra {
 	public static List<List<String>> llenaListaDesdeExcel (File file) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		try {
-			DecimalFormat df = new DecimalFormat("#");
+			DecimalFormat df = new DecimalFormat("#",symbols);
 			df.setMaximumFractionDigits(8);
             Workbook libro = WorkbookFactory.create(file);
             Sheet hoja1 = libro.getSheetAt(0);

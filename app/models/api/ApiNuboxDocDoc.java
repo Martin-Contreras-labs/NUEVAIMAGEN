@@ -4,10 +4,8 @@ package models.api;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -113,7 +111,8 @@ public class ApiNuboxDocDoc {
 	// FINAL DE CONSUME LOS SERVICIOS EN NUBOX:
 	//**************************************************************
 
-	static DecimalFormat myformatapi = new DecimalFormat("#.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatapi = new DecimalFormat("#.00",symbols);
 	
 	public static ApiNuboxDocDoc generaGuiaSalida (Connection con, String db, Guia guia, Transportista transportista, Map<String,String> mapDiccionario) {
 		try{

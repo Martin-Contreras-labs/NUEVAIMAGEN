@@ -6,12 +6,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,15 +34,12 @@ import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 public class ReportOdo {
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	
-	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
-	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0",symbols);
 	
 	
 	
@@ -56,10 +50,10 @@ public class ReportOdo {
 			Map<Long,BodegaEmpresa> mapBodegas, Map<String,ListaPrecioServicio> mapPrecios, Long id_grupo, Map<Long,Long> mapIdEquipoVsIdGrupo) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		switch(mapDec.get((long) 1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -217,10 +211,10 @@ public class ReportOdo {
 	public static List<List<String>> detalleProformaPorServicio(Connection con, String db, List<VentaServicio> listVentaServicio, Map<Long,Double> tasas, Map<Long,Long> mapDec ) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		switch(mapDec.get((long) 1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		Map<String,ListaPrecioServicio> mapPrecios = ListaPrecioServicio.mapAllListaPrecioServicio(con, db);
@@ -253,10 +247,10 @@ public class ReportOdo {
 			}
 			
 			switch(mapDec.get(id_moneda).toString()) {
-			 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-			 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -299,10 +293,10 @@ public class ReportOdo {
 	public static List<List<String>> proformaAgrupadoPorServicio(List<List<String>> groupPorClaseServicioEquipo, List<List<String>> detalleProformaPorServicio, Map<Long,Long> mapDec) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		switch(mapDec.get((long) 1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		Map<String,Double> map = new HashMap<String,Double>();
@@ -332,10 +326,10 @@ public class ReportOdo {
 	public static List<List<String>> proformaGroupPorClaseServicioEquipo(List<List<String>> detalleProformaPorServicio, Map<Long,Long> mapDec) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		switch(mapDec.get((long) 1).toString()) {
-		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		

@@ -8,9 +8,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -147,10 +149,10 @@ public class Factura {
 		this.nameSucursal = nameSucursal;
 	}
 
-
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	public static Boolean existeNumero(Connection con,String db, Long numeroFactura, Long id_proveedor) {
@@ -410,10 +412,10 @@ public class Factura {
 				List<String> aux = new ArrayList<String>();
 				i++;
 				switch(dec.get(rs.getLong(9)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				aux.add(i + ""); 									// 0 contador de linea

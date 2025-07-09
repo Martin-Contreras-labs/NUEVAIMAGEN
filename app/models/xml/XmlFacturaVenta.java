@@ -32,11 +32,7 @@ import models.utilities.Fechas;
 
  
 public class XmlFacturaVenta {
-	
-	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static DecimalFormat myformatdouble6 = new DecimalFormat("#,##0.000000");
+
 
 	public static String generaXmlVenta(Connection con, String db,String nEmpresa,
 			List<List<String>> guiasPer, Cliente cliente, Proforma proforma, Map<String, List<List<String>>> mapReportPorGuia10, Map<String,String> mapPermiso) {
@@ -339,9 +335,7 @@ public class XmlFacturaVenta {
 											String valNmbItem = detalleAux.get(j).get(11);
 											String valQtyItem = detalleAux.get(j).get(13);
 											String valUnmdItem = detalleAux.get(j).get(12);
-						    					
-						    					DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-						    					
+
 						    					String auxCantidad = detalleAux.get(j).get(13);
 						    					if(auxCantidad.equals("")||auxCantidad.equals(" "))	auxCantidad = "0";
 						    					Double cantidad = (double)0;

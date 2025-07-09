@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import models.utilities.Fechas;
@@ -61,9 +63,8 @@ public class TasasCambio {
 	}
 
 
-
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	public static TasasCambio allDeUnaFecha(Connection con, String db, String pais, String fechaAAMMDD) {
 		TasasCambio indices = new TasasCambio();

@@ -56,14 +56,15 @@ grupo: tables.Grupo, lista: List[List[String]], fechaCorte: String, tipo:String)
 		
 		<div>
 			ALTERNAR COLUMNAS: 
-				<a class="toggle-vis" href="#" data-column="0"><kbd id="kdb0" style="background-color: #73C6B6">COD</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="1"><kbd id="kdb1" style="background-color: #73C6B6">EQUIPO</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">MON</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">P.U. Compra</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">UN</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">CANT</kbd></a>
-				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">TOTAL COMPRA</kbd></a>
-				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">COMPRA (en @mapDiccionario.get("PESOS"))</kbd></a>
+				<a class="toggle-vis" href="#" data-column="0"><kbd id="kdb0" style="background-color: #73C6B6">PROPIEDAD</kbd></a>
+				<a class="toggle-vis" href="#" data-column="1"><kbd id="kdb1" style="background-color: #73C6B6">COD</kbd></a>
+				<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">EQUIPO</kbd></a>
+				<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">MON</kbd></a>
+				<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">P.U. Compra</kbd></a>
+				<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">UN</kbd></a>
+				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">CANT</kbd></a>
+				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">TOTAL COMPRA</kbd></a>
+				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">COMPRA (en @mapDiccionario.get("PESOS"))</kbd></a>
 		</div>
 		
 		<div class="table-responsive">
@@ -71,9 +72,10 @@ grupo: tables.Grupo, lista: List[List[String]], fechaCorte: String, tipo:String)
 		        <thead style="background-color: #eeeeee">
 					<TR> 
 					        <TH style= "text-align: right;vertical-align: top;color:blue;"></TH>
-							<TH style= "text-align: right;vertical-align: top;color:blue;">SUBTOTALES (resultado de buscar):&nbsp</TH>
-							<TH style= "text-align: center;vertical-align: top;color:blue;">cont</TH>
 							<TH style= "text-align: right;vertical-align: top;color:blue;"></TH>
+							<TH style= "text-align: right;vertical-align: top;color:blue;">SUBTOTALES (resultado de buscar):&nbsp</TH>
+							<TH style= "text-align: right;vertical-align: top;color:blue;"></TH>
+							<TH style= "text-align: left;vertical-align: top;color:blue;">elementos</TH>
 							<TH style= "text-align: right;vertical-align: top;color:blue;"></TH>
 							<TH style= "text-align: right;vertical-align: top;color:blue;">CANT</TH>
 							<TH style= "text-align: right;vertical-align: top;color:blue;">TOTAL<br>COMPRA</TH>
@@ -81,7 +83,8 @@ grupo: tables.Grupo, lista: List[List[String]], fechaCorte: String, tipo:String)
 							<TH style= "text-align: right;vertical-align: top;color:blue;"></TH>
 					</TR>
 					<TR> 
-					        <TH style= "text-align: center;vertical-align: top;">COD</TH>
+					        <TH style= "text-align: center;vertical-align: top;">PROPIEDAD</TH>
+							<TH style= "text-align: center;vertical-align: top;">COD</TH>
 							<TH style= "text-align: center;vertical-align: top;">EQUIPO</TH>
 							<TH style= "text-align: center;vertical-align: top;">MON</TH>
 							<TH style= "text-align: center;vertical-align: top;">P.U.<br>Compra</TH>
@@ -95,11 +98,16 @@ grupo: tables.Grupo, lista: List[List[String]], fechaCorte: String, tipo:String)
 				<tbody>
 				@for(lista1 <- lista){
 					<TR>
+						<td style="text-align:left;vertical-align:middle;">@lista1.get(10)</td>
 						<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(2)</a></td>
 						<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(3)</a></td>
-						@for(lista2 <- lista1.tail.tail.tail.tail){
-							<td style="text-align:right;vertical-align:middle;">@lista2</td>
-						}
+
+						<td style="text-align:right;vertical-align:middle;">@lista1.get(4)</td>
+						<td style="text-align:right;vertical-align:middle;">@lista1.get(5)</td>
+						<td style="text-align:right;vertical-align:middle;">@lista1.get(6)</td>
+						<td style="text-align:right;vertical-align:middle;">@lista1.get(7)</td>
+						<td style="text-align:right;vertical-align:middle;">@lista1.get(8)</td>
+						<td style="text-align:right;vertical-align:middle;">@lista1.get(9)</td>
 						<td title='SELECCIONAR' style="text-align:center;vertical-align:middle;">
 							<form id="form_@lista1.get(0)" class="formulario" method="post" action="/reportInventarioGeneralXEquipo/">
 								<input type="hidden" name="id_equipo" value="@lista1.get(0)">
@@ -187,16 +195,16 @@ grupo: tables.Grupo, lista: List[List[String]], fechaCorte: String, tipo:String)
 		for (var i = 2; i < tabla.rows.length; i++) { 
 			var aux = 0;
 			if(flag){
-				var aux = tabla.rows[i].cells[7].textContent;
+				var aux = tabla.rows[i].cells[8].textContent;
 				sumaGranTotalesC = parseFloat(sumaGranTotalesC) + parseFloat(numero.formatBack(aux));
 			}
 			if(tabla.rows[i].style.display != "none"){
 				cuentaItems++;
-				var aux = tabla.rows[i].cells[5].textContent;
+				var aux = tabla.rows[i].cells[6].textContent;
 				sumaCantidades = parseFloat(sumaCantidades) + parseFloat(numero.formatBack(aux));
-				aux = tabla.rows[i].cells[6].textContent;
-				sumaCompraMO = parseFloat(sumaCompraMO) + parseFloat(numero.formatBack(aux));
 				aux = tabla.rows[i].cells[7].textContent;
+				sumaCompraMO = parseFloat(sumaCompraMO) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[8].textContent;
 				sumaCompraMP = parseFloat(sumaCompraMP) + parseFloat(numero.formatBack(aux));
 			}
 		}
@@ -204,10 +212,10 @@ grupo: tables.Grupo, lista: List[List[String]], fechaCorte: String, tipo:String)
 		if(flag){
 			document.getElementById('totalPesos').value=formatStandar0(sumaGranTotalesC);
 		}
-		tabla.rows[0].cells[2].textContent = formatStandar0(cuentaItems);
-		tabla.rows[0].cells[5].textContent = formatStandar0(sumaCantidades);
-		tabla.rows[0].cells[6].textContent = formatStandar0(sumaCompraMO);
-		tabla.rows[0].cells[7].textContent = formatStandar0(sumaCompraMP);
+		tabla.rows[0].cells[3].textContent = formatStandar0(cuentaItems);
+		tabla.rows[0].cells[6].textContent = formatStandar0(sumaCantidades);
+		tabla.rows[0].cells[7].textContent = formatStandar0(sumaCompraMO);
+		tabla.rows[0].cells[8].textContent = formatStandar0(sumaCompraMP);
 		
 		
 	}

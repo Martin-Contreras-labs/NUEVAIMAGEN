@@ -6,11 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -19,24 +16,7 @@ import models.api.ApiIConstruyeOC;
 import models.forms.FormCompra;
 import models.forms.FormEquipoGraba;
 import models.reports.ReportMovCompras;
-import models.tables.Baja;
-import models.tables.BodegaEmpresa;
-import models.tables.Compra;
-import models.tables.EmisorTributario;
-import models.tables.Equipo;
-import models.tables.EquivalenciasMonedas;
-import models.tables.Fabrica;
-import models.tables.Factura;
-import models.tables.Grupo;
-import models.tables.IConstruye;
-import models.tables.Moneda;
-import models.tables.Movimiento;
-import models.tables.Precio;
-import models.tables.Proveedor;
-import models.tables.Regiones;
-import models.tables.Sucursal;
-import models.tables.Unidad;
-import models.tables.UnidadTiempo;
+import models.tables.*;
 import models.utilities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +49,7 @@ public class MnuCompras extends Controller {
 	private final WSClient ws;
 	public final MailerClient mailerClient;
 
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	
 	@Inject
 	  public MnuCompras(WSClient ws, MailerClient mailerClient) {
@@ -266,7 +247,7 @@ public class MnuCompras extends Controller {
 						detalle.set(15, moneda.id.toString());
 						detalle.set(17, bodega.nombre);
 						numeroDecimales = moneda.numeroDecimales;
-						DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+						DecimalFormat decimalFormat = new DecimalFormat("#,##0.00",symbols);
 						if((long)numeroDecimales == (long) 0) {
 							decimalFormat = new DecimalFormat("#,##0");
 						} else if((long)numeroDecimales == (long) 2) {
@@ -330,8 +311,9 @@ public class MnuCompras extends Controller {
 			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
 			List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 			List<Sucursal> listSucursales = Sucursal.all(con, s.baseDato);
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
 			return ok(compraIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listProveedor,listEquipo,listMoneda,listBodegas,listMon,listGrupos,listFabrica,listUnidades,
-					listRegiones, listSucursales));
+					listRegiones, listSucursales, listPropiedad));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -917,8 +899,9 @@ public class MnuCompras extends Controller {
 							lista.add(aux);
 						}
 					}
+					List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
 					return ok(compraIngreso2.render(mapeoDiccionario, mapeoPermiso, userMnu, listProveedor, listEquipo, listMoneda, listBodegas, listMon, listGrupos, listFabrica, listUnidades,
-							listRegiones, listSucursales, lista, proveedor));
+							listRegiones, listSucursales, lista, proveedor, listPropiedad));
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -1084,8 +1067,9 @@ public class MnuCompras extends Controller {
 			Factura factura = Factura.find(con, s.baseDato, id_factura);
 			List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, s.aplicaPorSucursal, s.id_sucursal);
 			List<Sucursal> listSucursales = Sucursal.all(con, s.baseDato);
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
 			return ok(compraModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,listProveedor,listEquipo,listMoneda,listBodegas,listMon,listGrupos,listFabrica,listUnidades,
-					factura, detalleFactura, listSucursales));
+					factura, detalleFactura, listSucursales, listPropiedad));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));

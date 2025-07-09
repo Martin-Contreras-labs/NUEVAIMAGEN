@@ -5,9 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
 
 
 public class PrecioVariableServicio {
@@ -81,15 +82,16 @@ public class PrecioVariableServicio {
 		this.id_cotiOdo = id_cotiOdo;
 	}
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	
 	public static List<PrecioVariableServicio> allXBodXServ(Connection con, String db, Long id_bodegaEmpresa, Long id_servicio, Long decMon, Long id_cotiOdo) {
 		List<PrecioVariableServicio> lista = new ArrayList<PrecioVariableServicio>();
 		switch(decMon.toString()) {
-		 	case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		 	case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		 	case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		 	case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		 	case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		 	case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		 	case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		 	case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		 	default:  break;
 		}
 		try {

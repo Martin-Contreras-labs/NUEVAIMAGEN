@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad], listAtributos: List[tables.Atributo], grupo: tables.Grupo)
+		listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad],
+		listAtributos: List[tables.Atributo], grupo: tables.Grupo, listPropiedad: List[tables.Propiedad])
 
     	
 @main("") {
@@ -21,6 +22,19 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 									required>
 									<option value="@grupo.getId">@grupo.getNombre</option>
 									@for(lista <- listGrupos){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</TR>
+						<TR>
+							<td  style="text-align:left;">PROPIEDAD</td>
+							<td style="text-align:left">
+								<select class="custom-select"
+								id="id_propiedad"
+								name="id_propiedad">
+									<option value="@listPropiedad.get(0).getId()">@listPropiedad.get(0).getNombre()</option>
+									@for(lista <- listPropiedad){
 										<option value="@lista.getId()">@lista.getNombre()</option>
 									}
 								</select>

@@ -6,13 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -59,10 +54,11 @@ public class MnuCotizar extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	private final WSClient ws;
@@ -376,7 +372,7 @@ public class MnuCotizar extends Controller {
 					Double pvta = Double.parseDouble(p.getPrecioVenta().replaceAll(",", ""));
 					Double prepos = Double.parseDouble(p.getPrecioReposicion().replaceAll(",", ""));
 					Double parr = Double.parseDouble(p.getPrecioArriendo().replaceAll(",", ""));
-					DecimalFormat formato = new DecimalFormat("#.########");
+					DecimalFormat formato = new DecimalFormat("#.########", symbols);
 					p.setPrecioCompra(formato.format(pcompra));
 					p.setPrecioVenta(formato.format(pvta));
 					p.setPrecioReposicion(formato.format(prepos));
@@ -2061,7 +2057,7 @@ public class MnuCotizar extends Controller {
 				Long id_comercial = Long.parseLong(form.get("id_comercial").trim());
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				DecimalFormat myformaNumber = new DecimalFormat("0");
+				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
 				if(id_sucursal != 0) {
@@ -3394,7 +3390,7 @@ public class MnuCotizar extends Controller {
 				Long id_comercial = Long.parseLong(form.get("id_comercial").trim());
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				DecimalFormat myformaNumber = new DecimalFormat("0");
+				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
 				if(id_sucursal != 0) {

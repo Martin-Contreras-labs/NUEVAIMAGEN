@@ -5930,8 +5930,8 @@ public class MnuReportes extends Controller {
 								+ "<td style= \"text-align:right;\" class=\"serv\">"+servVta+"</td>"
 								+ "<td style= \"text-align:right;\" class=\"ajustArr\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
 								+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + DecimalFormato.formato(0.0,mapDec.get(1L)) + "</td>"
-								+ "<td style= \"text-align:right;\" class=\"ajustServ\">"+servAjuste+"</td>"
-								+ "<td style= \"text-align:right;\" class=\"granTotal\">" + auxTotal + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"ajustServ\">" + servAjuste + "</td>"
+								+ "<td style= \"text-align:right;\" class=\"granTotal\">" + DecimalFormato.formato(auxTotal,mapDec.get(1L)) + "</td>"
 
 								+ "<td style=\"text-align:center;vertical-align:middle;\">"
 								+ "<form id=\"form0_" + servicios.get(0) + "\" class=\"formulario\" method=\"post\" action=\"/reportFacturaProyectoDetalleH/\">"
@@ -6436,6 +6436,177 @@ public class MnuReportes extends Controller {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
+	}
+
+	public Result reportFacturaProyectoHExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		} else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String desdeAAMMDD = null;
+			String hastaAAMMDD = null;
+			Map<Long, Double> tasas = null;
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long, Calc_Precio> mapMaestroPrecios = null;
+			List<Long> listIdGuia_fechaCorte = null;
+			List<Inventarios> inventario = null;
+			List<Long> listIdGuia_entreFechas = null;
+			List<Calc_AjustesEP> listaAjustes = null;
+			Map<Long, List<String>> mapBodega = null;
+			Map<Long, Long> dec = null;
+			Map<String, String> map = null;
+			String id_proyecto = null;
+			Double uf = null;
+			Double usd = null;
+			Double eur = null;
+			Map<Long,Long> mapDec = null;
+			try (Connection con = dbRead.getConnection()) {
+				desdeAAMMDD = form.get("fechaDesde").trim();
+				hastaAAMMDD = form.get("fechaHasta").trim();
+				uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				id_proyecto = form.get("id_proyecto");
+				if (id_proyecto == null) {
+					id_proyecto = "0";
+				}
+				id_proyecto = id_proyecto.trim();
+				tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+				mapDec = Moneda.numeroDecimal(con, s.baseDato);
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+			listIdGuia_fechaCorte = null;
+			inventario = null;
+			List<Inventarios> guiasPer = null;
+			Map<String, String> mapPermanencias = null;
+			int nroDec = 0;
+			try (Connection con = dbRead.getConnection()) {
+				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			try {
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapPermanencias = null;
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				inventarioInicial = null;
+				guiasPeriodo = null;
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+				listado = null;
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if (!map.isEmpty()) {
+					for (List<String> aux : proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if (idBodega != null) {
+							proyectos.add(aux);
+						}
+					}
+				} else {
+					proyectos = proyectosAux;
+				}
+				proyectosAux = null;
+				if (!id_proyecto.equals("0")) {
+					List<List<String>> aux = new ArrayList<List<String>>();
+					for (List<String> lista1 : proyectos) {
+						if (lista1.get(3).trim().equals(id_proyecto)) {
+							aux.add(lista1);
+						}
+					}
+					proyectos = aux;
+				}
+
+				Map<String,List<String>> mapServicios = new HashMap<String,List<String>>();
+				try (Connection con = dbRead.getConnection()) {
+					Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+					Long id_grupo = (long)0;
+					Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
+
+					Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
+					Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
+					List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
+					List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(s.baseDato, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
+					for(List<String> x: resumenTotalesPorProyecto){
+						mapServicios.put(x.get(0),x);
+					}
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+
+
+
+
+				File file = ReportFacturas.exportaProformaHExcelProyectos(s.baseDato, mapeoDiccionario,
+						proyectos, mapServicios, mapDec, desdeAAMMDD,hastaAAMMDD,uf,usd,eur,resumenTotales);
+
+//				return ok(reportFacturaProyectoH.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
+//						uf, usd, eur, desdeAAMMDD, hastaAAMMDD, mapDec.get(1L), archivoPDF));
+
+
+				return ok(file,false,Optional.of("EP_Proforma_Listado.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
 
 	public Result reportFacturaProyectoDetalleH(Http.Request request) {

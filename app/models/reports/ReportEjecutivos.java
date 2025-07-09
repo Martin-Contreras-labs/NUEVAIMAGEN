@@ -9,13 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -42,9 +38,9 @@ import models.utilities.Fechas;
 
 
 public class ReportEjecutivos {
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	
 	public static List<String> graficoDistribucionResumenValorizado(Map<String, String> mapeoDiccionario, List<List<String>> datos, String filtroGrupos,
 			Map<Long,TipoBodega> mapTipoBodega) {
@@ -112,7 +108,7 @@ public class ReportEjecutivos {
 				if(valor==null) {
 					series2 += "0,";
 				}else {
-					DecimalFormat dec = new DecimalFormat("0");
+					DecimalFormat dec = new DecimalFormat("0",symbols);
 					if((double)total != (double)0) {
 						series2 += "" +  dec.format(valor/total*100) + ",";
 					}else {
@@ -139,7 +135,7 @@ public class ReportEjecutivos {
 				if(valor==null) {
 					series2 += "0,";
 				}else {
-					DecimalFormat dec = new DecimalFormat("0");
+					DecimalFormat dec = new DecimalFormat("0",symbols);
 					if((double)total != (double)0) {
 						series2 += "" +  dec.format(valor/total*100) + ",";
 					}else {
@@ -156,7 +152,7 @@ public class ReportEjecutivos {
 
 		String inversion2 = "[";
 		for (Map.Entry<String, Double> entry : mapNombGruposVsCompra.entrySet()) {
-			DecimalFormat dec = new DecimalFormat("0");
+			DecimalFormat dec = new DecimalFormat("0",symbols);
 			inversion2 += "['"+entry.getKey()+"',"+dec.format(entry.getValue()/1000)+"],";
         }
 		
@@ -240,7 +236,7 @@ public class ReportEjecutivos {
 				if(valor==null) {
 					series2 += "0,";
 				}else {
-					DecimalFormat dec = new DecimalFormat("0");
+					DecimalFormat dec = new DecimalFormat("0",symbols);
 					if((double)total != (double)0) {
 						series2 += "" +  dec.format(valor/total*100) + ",";
 					}else {
@@ -268,7 +264,7 @@ public class ReportEjecutivos {
 				if(valor==null) {
 					series2 += "0,";
 				}else {
-					DecimalFormat dec = new DecimalFormat("0");
+					DecimalFormat dec = new DecimalFormat("0",symbols);
 					if((double)total != (double)0) {
 						series2 += "" +  dec.format(valor/total*100) + ",";
 					}else {
@@ -498,10 +494,10 @@ public class ReportEjecutivos {
 				if(tasaCompra==null) tasaCompra=(double)0;
 				
 				switch(dec.get(idMonedaCompra).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -545,7 +541,7 @@ public class ReportEjecutivos {
 					if(suma1>0) {
 						total = total/suma1;
 					}
-					DecimalFormat dec0 = new DecimalFormat("0");
+					DecimalFormat dec0 = new DecimalFormat("0",symbols);
 					List<String> aux= new ArrayList<String>();
 					aux.add(grupos.get(i));
 					aux.add(dec0.format(total*100));
@@ -596,10 +592,10 @@ public class ReportEjecutivos {
 				if(tasaCompra==null) tasaCompra=(double)0;
 					
 				switch(dec.get(idMonedaCompra).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -673,7 +669,7 @@ public class ReportEjecutivos {
 			}
 			
 			Double auxLista = mapLista.get(bodegaSinCeros.get(j)+"_"+bodegaSinCeros.get(j));
-			DecimalFormat decFormat = new DecimalFormat("0");
+			DecimalFormat decFormat = new DecimalFormat("0",symbols);
 			
 			List<String> auxceros = new ArrayList<>(ceros);
 			
@@ -748,10 +744,10 @@ public class ReportEjecutivos {
 				
 				precioArriendo=precioArriendo/factor;
 				switch(dec.get(idMonedaCompra).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -820,7 +816,7 @@ public class ReportEjecutivos {
 				if(auxLista!=null) {
 					total = total + auxLista;
 				}
-				DecimalFormat decFormat = new DecimalFormat("0");
+				DecimalFormat decFormat = new DecimalFormat("0",symbols);
 				series = series + decFormat.format(total/1000) + aux3;
 			}
 			series = series + "]}" + aux2;

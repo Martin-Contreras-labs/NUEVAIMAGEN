@@ -9,14 +9,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import models.tables.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -33,34 +31,20 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
 import models.calculo.Inventarios;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Compra;
-import models.tables.Cotizacion;
-import models.tables.Equipo;
-import models.tables.Grupo;
-import models.tables.ListaPrecio;
-import models.tables.Moneda;
-import models.tables.Movimiento;
-import models.tables.Precio;
-import models.tables.Proyecto;
-import models.tables.Sucursal;
-import models.tables.TasasCambio;
-import models.tables.TipoBodega;
-import models.tables.UnidadTiempo;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 
 
 public class ReportInventarios {
-	
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdoubleV = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdoubleV = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0",symbols);
 	
 	public static List<List<String>> reportInventarioEquipoConTipoBodega(Connection con, String db, String fechaCorte, String permisoPorBodega,
 			Map<Long,List<Double>> mapPCompra, Map<Long,List<Double>> mapPLista, Map<Long,String> moneda, String tipo, Map<String,String> mapeoDiccionario,
@@ -183,26 +167,26 @@ public class ReportInventarios {
 					}
 					
 					switch(dec.get(idMonedaCompra).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
 					switch(dec.get(idMonedaVentaArr).toString()) {
-					 case "0": myformatdoubleV = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdoubleV = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
 					switch(dec.get((long) 1).toString()) {
-					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
@@ -303,7 +287,7 @@ public class ReportInventarios {
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
 			ResultSet rs6 = smt6.executeQuery();
-			
+
 			
 			while (rs6.next()) {
 				if(rs6.getDouble(4) != (double) 0){
@@ -314,6 +298,7 @@ public class ReportInventarios {
 					String nomEquipo = "";
 					String nomUnidad = "";
 					String imgEquipo = "0";
+					String namePropiedad = "";
 					Equipo equipo = mapEquipo.get(rs6.getLong(3));
 					if(equipo != null) {
 						id_grupo = equipo.getId_grupo();
@@ -322,6 +307,7 @@ public class ReportInventarios {
 						nomEquipo = equipo.getNombre();
 						nomUnidad = equipo.getUnidad();
 						imgEquipo = equipo.getImg();
+						namePropiedad = equipo.getPropiedad();
 					}
 					
 					String nameSucursal = "";
@@ -366,26 +352,26 @@ public class ReportInventarios {
 					}
 					
 					switch(dec.get(idMonedaCompra).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
 					switch(dec.get(idMonedaVentaArr).toString()) {
-					 case "0": myformatdoubleV = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdoubleV = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
 					switch(dec.get((long) 1).toString()) {
-					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
@@ -422,6 +408,7 @@ public class ReportInventarios {
 					aux.add(rs6.getString(7)); 								// 20 id_bodegaEmpresa
 					aux.add(rs6.getString(8)); 								// 21 nombre bodegaEmpresa
 					aux.add(nameSucursal); 									// 22 nameSucursal
+					aux.add(namePropiedad); 									// 23 namePropiedad
 					
 					lista.add(aux);
 				}
@@ -548,26 +535,26 @@ public class ReportInventarios {
 					}
 					
 					switch(dec.get(idMonedaCompra).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
 					switch(dec.get(idMonedaVentaArr).toString()) {
-					 case "0": myformatdoubleV = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdoubleV = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
 					switch(dec.get((long) 1).toString()) {
-					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
@@ -693,7 +680,7 @@ public class ReportInventarios {
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
 					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), ";
 		}
-		
+
 		try {
 			PreparedStatement smt6 = con
 					.prepareStatement(" select " +
@@ -801,26 +788,26 @@ public class ReportInventarios {
 					
 					
 					switch(dec.get(idMonedaCompra).toString()) {
-						 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 					}
 						
 					switch(dec.get(idMonedaVentaArr).toString()) {
-						 case "0": myformatdoubleV = new DecimalFormat("#,##0"); break;
-						 case "2": myformatdoubleV = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatdoubleV = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatdoubleV = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 					}
 						
 					switch(dec.get((long) 1).toString()) {
-						 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-						 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 					}
 	
@@ -851,6 +838,7 @@ public class ReportInventarios {
 					aux.add(id_cotizacion);  								// 21 id cotizacion
 					aux.add(nroCoti);  										// 22 numero cotizacion
 					aux.add(nameSucursal);  								// 23 nameSucursal
+					aux.add(equipo.getPropiedad());  						// 24 namePropiedad
 					lista.add(aux);
 				}
 			}
@@ -1008,6 +996,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 7*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROPIEDAD");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
@@ -1135,6 +1130,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(23));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -1802,7 +1803,8 @@ public class ReportInventarios {
 							" ifnull(cotizacion.numero,0), " +
 							" ifnull(movimiento.id_otDespachado,0), "+
 							" equipo.kg, " +
-							" equipo.m2 " +
+							" equipo.m2, " +
+							" equipo.id_propiedad " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
@@ -1829,7 +1831,9 @@ public class ReportInventarios {
 			smt6.setLong(4, bodega.getId());
 
 			ResultSet rs6 = smt6.executeQuery();
-			
+
+			Map<Long,Propiedad> mapPropiedad = Propiedad.mapAll(con, db);
+
 			while (rs6.next()) {
 				
 				List<Double> auxMap = mapPCompra.get(rs6.getLong(5));
@@ -1884,24 +1888,24 @@ public class ReportInventarios {
 				Double tasaVenta = tasasCorte.get(idMonedaVentaArr);
 					if(tasaVenta==null||tasaVenta==0) tasaVenta=(double)1;
 					switch(dec.get(idMonedaCompra).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					switch(dec.get(idMonedaVentaArr).toString()) {
-					 case "0": myformatdoubleV = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdoubleV = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					switch(dec.get((long) 1).toString()) {
-					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
@@ -1912,6 +1916,9 @@ public class ReportInventarios {
 					if(rs6.getDate(10)!=null) inicio.setTime(rs6.getDate(10));
 					
 					Long diasPermanencia = Math.round(  (double) (hoy.getTimeInMillis() - inicio.getTimeInMillis()) /(24 * 60 * 60 * 1000)  );
+
+					Propiedad propiedad = mapPropiedad.get(rs6.getLong(19));
+
 					List<String> aux = new ArrayList<String>();
 					aux.add(rs6.getString(5));  							//  0 id equipo
 					aux.add(rs6.getString(13)); 							//  1 tipo de cliente
@@ -1957,6 +1964,7 @@ public class ReportInventarios {
 					
 					aux.add(myformatdouble2.format(kg*rs6.getDouble(9)));  // 28 peso por cantidad
 					aux.add(myformatdouble2.format(m2*rs6.getDouble(9)));  // 29 m2 por cantidad
+					aux.add(propiedad.getNombre());  											//  30 namePropiedad
 					
 					lista.add(aux);
 			}
@@ -2124,6 +2132,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 7*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROPIEDAD");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
@@ -2279,6 +2294,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(3));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(30));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -2461,7 +2482,8 @@ public class ReportInventarios {
 							+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), " +
 							
 							" if(guia.id>0,guia.fecha,if(factura.id>0,factura.fecha,actaBaja.fecha)), " +
-							" movimiento.id_equipo " +
+							" movimiento.id_equipo, " +
+							" equipo.id_propiedad " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
@@ -2484,7 +2506,9 @@ public class ReportInventarios {
 			smt6.setString(3, fechaCorte.trim());
 			smt6.setLong(4, id_grupo);
 			ResultSet rs6 = smt6.executeQuery();
-			
+
+			Map<Long,Propiedad> mapPropiedad = Propiedad.mapAll(con, db);
+
 			while (rs6.next()) {
 				if(rs6.getDouble(7) != (double) 0){
 					
@@ -2500,32 +2524,35 @@ public class ReportInventarios {
 						if(tasaCompra==null||tasaCompra==0) tasaCompra=(double)1;
 						
 						switch(dec.get(idMonedaCompra).toString()) {
-						 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
 						switch(dec.get((long) 1).toString()) {
-						 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0"); break;
-						 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
-						
+
+						Propiedad propiedad = mapPropiedad.get(rs6.getLong(10));
+
 					List<String> aux = new ArrayList<String>();
-					aux.add(rs6.getString(3)); 							//  1 id equipo
-					aux.add(rs6.getString(2)); 							//  2 nombre grupo
-					aux.add(rs6.getString(4)); 							//  3 codigo equipo
-					aux.add(rs6.getString(5)); 							//  4 nombre equipo
-					aux.add(moneda.get(idMonedaCompra)); 				//  5 nickname moneda
-					aux.add(myformatdouble.format(ultimaCompra)); 		//  6 precio compra ultima por unidad
-					aux.add(rs6.getString(6)); 							//  7 unidad de medida
-					aux.add(myformatdouble2.format(rs6.getDouble(7))); 	//  8 cantidad
+					aux.add(rs6.getString(3)); 							//  0 id equipo
+					aux.add(rs6.getString(2)); 							//  1 nombre grupo
+					aux.add(rs6.getString(4)); 							//  2 codigo equipo
+					aux.add(rs6.getString(5)); 							//  3 nombre equipo
+					aux.add(moneda.get(idMonedaCompra)); 				//  4 nickname moneda
+					aux.add(myformatdouble.format(ultimaCompra)); 		//  5 precio compra ultima por unidad
+					aux.add(rs6.getString(6)); 							//  6 unidad de medida
+					aux.add(myformatdouble2.format(rs6.getDouble(7))); 	//  7 cantidad
 					Double total = rs6.getDouble(7)*ultimaCompra;
-					aux.add(myformatdouble.format(total));  			//  9 valor total de compra
-					aux.add(myformatMonedaOrigen.format(total*tasaCompra)); 		// 10 total pesos compra
+					aux.add(myformatdouble.format(total));  			//  8 valor total de compra
+					aux.add(myformatMonedaOrigen.format(total*tasaCompra)); 		// 9 total pesos compra
+					aux.add(propiedad.getNombre()); 		// 10 namePropiedad
 					lista.add(aux);
 				}
 			}
@@ -2623,6 +2650,13 @@ public class ReportInventarios {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROPIEDAD");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++; posColl++;
@@ -2700,6 +2734,12 @@ public class ReportInventarios {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(10));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(2));
 				
@@ -2897,10 +2937,15 @@ public class ReportInventarios {
 				}
 				rs22.close();smt22.close();
 			}
-				
+				Map<Long,Propiedad> mapPropiedad = Propiedad.mapAll(con, db);
+
 			for(int i=0;i<listaEquipos.size();i++) {
 				List<String> datos = new ArrayList<String>();
 				datos.add(listaEquipos.get(i).get(4));
+
+				Propiedad prop = mapPropiedad.get(Long.parseLong(listaEquipos.get(i).get(7)));
+				datos.add(prop.getNombre());
+
 				datos.add(listaEquipos.get(i).get(1));
 				datos.add(listaEquipos.get(i).get(2));
 				
@@ -2933,6 +2978,8 @@ public class ReportInventarios {
 					datos.add(myformatint.format(cantAux));
 				}
 				datos.add(myformatint.format(cantTot));
+
+
 				
 				if(cantTot!=0) {
 					lista.add(datos);
@@ -3062,6 +3109,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 5*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PROPIEDAD");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
@@ -3173,10 +3227,10 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(0));
-				
+
 				posCell++; posColl++;
-	            cell = row.createCell(posCell);
-	            cell.setCellStyle(detalle);
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 				
@@ -3189,11 +3243,8 @@ public class ReportInventarios {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-	            if(!lista.get(i).get(3).equals("")) {
-	            	aux = Double.parseDouble(lista.get(i).get(3).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
-				}
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(3));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -3204,7 +3255,16 @@ public class ReportInventarios {
 					cell.setCellValue(aux);
 				}
 				
-				for(int j=5;j<lista.get(i).size();j++) {
+				posCell++; posColl++;
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
+	            if(!lista.get(i).get(5).equals("")) {
+	            	aux = Double.parseDouble(lista.get(i).get(5).replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+				}
+				
+				for(int j=6;j<lista.get(i).size();j++) {
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
@@ -3312,10 +3372,10 @@ public class ReportInventarios {
 				}
 				
 				switch(dec.get(idMonedaCompra).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -3339,10 +3399,10 @@ public class ReportInventarios {
 				List<String> aux = new ArrayList<String>();
 				Long idMoneda=rs3.getLong(6);
 				switch(dec.get(idMoneda).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				aux.add(rs3.getString(2));  // moneda
@@ -3877,14 +3937,14 @@ public class ReportInventarios {
 						
 						try{
 						switch(dec.get(idMoneda.get(id_equipo+"-"+rs6.getString(14))).toString()) {
-						 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
 						}catch(Exception e){
-							myformatdouble = new DecimalFormat("#,##0.00");
+							myformatdouble = new DecimalFormat("#,##0.00",symbols);
 						}
 						
 						Long id_grupo = (long)0;

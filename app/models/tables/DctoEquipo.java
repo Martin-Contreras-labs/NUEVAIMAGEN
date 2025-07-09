@@ -49,7 +49,6 @@ public class DctoEquipo {
 	public Long getNumeroCotizacion() {return numeroCotizacion;}
 	public void setNumeroCotizacion(Long numeroCotizacion) {this.numeroCotizacion = numeroCotizacion;}
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
 	
 	
 	

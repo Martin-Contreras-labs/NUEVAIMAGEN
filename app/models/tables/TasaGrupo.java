@@ -36,8 +36,7 @@ public class TasaGrupo {
 	public void setTasaArriendo(Double tasaArriendo) {this.tasaArriendo = tasaArriendo;}
 	public String getNombreGrupo() {return nombreGrupo;}
 	public void setNombreGrupo(String nombreGrupo) {this.nombreGrupo = nombreGrupo;}
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
 	
 	
 	public static Map<String,TasaGrupo> mapAllXBodegaEmpresa(Connection con, String db, Long id_bodegaEmpresa) {

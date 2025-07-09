@@ -2,10 +2,8 @@ package models.forms;
 
 import java.sql.Connection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import models.calculo.Inventarios;
 import models.tables.*;
@@ -51,10 +49,10 @@ public class FormRedimensionar {
 	public FormRedimensionar() {
 		super();
 	}
-	
 
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols);
 	
 	public static boolean create (Connection con, String db, Map<String,String> mapeoPermiso, 
 			FormRedimensionar form, Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto) {
@@ -340,8 +338,8 @@ public class FormRedimensionar {
 					Long auxDecimal = decCompra.get(moneda);
 					if(auxDecimal==null) auxDecimal = (long)2;
 					switch(auxDecimal.toString()) {
-						case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-						default : myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
+						case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+						default : myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
 					}
 
 					List<String> aux = new ArrayList<String>();

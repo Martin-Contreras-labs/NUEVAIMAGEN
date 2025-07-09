@@ -9,10 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -278,8 +276,9 @@ public class ReportMovCompras {
 		tabla.add(linea1);
 		tabla.add(linea2);
 		tabla.add(linea3);
-			
-		DecimalFormat format = new DecimalFormat("0");
+
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		DecimalFormat format = new DecimalFormat("0",symbols);
 		
 		mapEquipos.forEach((k,v) ->{
 			List<String> linea = new ArrayList<String>();

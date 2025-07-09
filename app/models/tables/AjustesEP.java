@@ -5,12 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +58,9 @@ public class AjustesEP {
 		super();
 	}
 
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(AjustesEP.class);
 
@@ -70,10 +69,10 @@ public class AjustesEP {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-			case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			default:  break;
 		}
 		String query = "select "
@@ -114,10 +113,10 @@ public class AjustesEP {
 		Map<Long,List<List<String>>> map = new HashMap<Long,List<List<String>>>();
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-			case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			default:  break;
 		}
 		String query = "select "
@@ -203,10 +202,10 @@ public class AjustesEP {
 						nameSucursal = sucursal.getNombre();
 					}
 					switch(dec.get(rs.getLong(7)).toString()) {
-						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						default:  break;
 					}
 					String fecha = "";
@@ -288,10 +287,10 @@ public class AjustesEP {
 						nameSucursal = sucursal.getNombre();
 					}
 					switch(dec.get(rs.getLong(7)).toString()) {
-						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						default:  break;
 					}
 					String fecha = "";
@@ -450,10 +449,10 @@ public class AjustesEP {
 						nameSucursal = sucursal.getNombre();
 					}
 					switch(dec.get(rs.getLong(7)).toString()) {
-						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						default:  break;
 					}
 					String fecha = "";

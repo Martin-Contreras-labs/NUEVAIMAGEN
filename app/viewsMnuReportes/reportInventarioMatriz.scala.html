@@ -50,6 +50,7 @@ lista: List[List[String]], titulos1: List[String], titulos2: List[String], tipo:
 				        	<th></th>
 				        	<th></th>
 				        	<th></th>
+							<th></th>
 				        	<th>PESO</th>
 				        	<th>SUP.</th>
 				        	<th>CANT</th>
@@ -62,6 +63,7 @@ lista: List[List[String]], titulos1: List[String], titulos2: List[String], tipo:
 						</TR>
 						<TR>
 				        	<th>GRUPO</th>
+							<th>PROPIEDAD</th>
 				        	<th>CODIGO</th>
 				        	<th>EQUIPO</th>
 				        	<th>KG</th>
@@ -88,9 +90,10 @@ lista: List[List[String]], titulos1: List[String], titulos2: List[String], tipo:
 					@for(lista3 <- lista){
 						<TR>
 							<td style="text-align:left;min-width:150px">@lista3.get(0)</td>
-							<td style="text-align:left;min-width:80px"><a href="#" onclick="buscaEquipo('@lista3.get(1)');">@lista3.get(1)</a></td>
-							<td style="text-align:left;min-width:300px"><a href="#" onclick="buscaEquipo('@lista3.get(1)');">@lista3.get(2)</a></td>
-							@for(lista4 <- lista3.tail.tail.tail){
+							<td style="text-align:left;min-width:150px">@lista3.get(1)</td>
+							<td style="text-align:left;min-width:80px"><a href="#" onclick="buscaEquipo('@lista3.get(2)');">@lista3.get(2)</a></td>
+							<td style="text-align:left;min-width:300px"><a href="#" onclick="buscaEquipo('@lista3.get(2)');">@lista3.get(3)</a></td>
+							@for(lista4 <- lista3.tail.tail.tail.tail){
 								@if(lista4.equals("0") || lista4.trim().equals("")){
 									<td style="text-align:center">@lista4</td>
 								}else{

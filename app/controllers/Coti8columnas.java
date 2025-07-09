@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import models.utilities.DatabaseRead;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -38,14 +36,15 @@ public class Coti8columnas extends Controller {
 		public static String msgError = HomeController.msgError;
 		public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 		public static String msgSinPermiso = HomeController.msgSinPermiso;
-		
-		static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
+		static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 		
 		public static List<String> validaPlantilla(Connection con, String db, File file) {
 
 			Map<String,Equipo> mapEquipos = Equipo.mapAllVigentesPorCodigo(con, db);
 			List<String> mensaje = new ArrayList<String>();
-			DecimalFormat df = new DecimalFormat("#");
+			DecimalFormat df = new DecimalFormat("#",symbols);
 		    df.setMaximumFractionDigits(8);
 		    
 	        mensaje.add("ERROR cod:001");
@@ -586,7 +585,7 @@ public class Coti8columnas extends Controller {
 	    
 	    public static List<List<String>> llenaListaDesdeExcel (File file) {
 			List<List<String>> lista = new ArrayList<List<String>>();
-			DecimalFormat df = new DecimalFormat("#");
+			DecimalFormat df = new DecimalFormat("#",symbols);
 		    df.setMaximumFractionDigits(8);
 			try {
 	            Workbook libro = WorkbookFactory.create(file);

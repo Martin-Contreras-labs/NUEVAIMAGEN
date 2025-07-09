@@ -83,8 +83,6 @@ public class FormDespacho {
 	}
 	
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	public static boolean create (Connection con, String db, FormDespacho form,  Map<String,String> mapeoDiccionario, String id_userCrea, String id_userModifica) {
 		boolean flag = false;

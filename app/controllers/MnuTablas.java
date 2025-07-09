@@ -632,7 +632,8 @@ public class MnuTablas extends Controller {
 		}
 		try (Connection con = dbRead.getConnection()){
 			List<Equipo> listEquipos = Equipo.allAll(con, s.baseDato);
-			return ok(equipoMantencion.render(mapeoDiccionario,mapeoPermiso,userMnu,listEquipos));
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
+			return ok(equipoMantencion.render(mapeoDiccionario,mapeoPermiso,userMnu,listEquipos,listPropiedad));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -732,6 +733,37 @@ public class MnuTablas extends Controller {
 		}
 	}
 
+	public Result equipoCambiaPropiedad(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok("{ \"status\": false}").as("application/json");
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+		if (form.hasErrors()) {
+			return ok("{ \"status\": false}").as("application/json");
+		}else {
+			try (Connection con = dbWrite.getConnection()){
+				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+				String id_propiedad = form.get("id_propiedad").trim();
+				if(Equipo.modificaPorCampo(con, s.baseDato, "id_propiedad", id_equipo, id_propiedad)) {
+					return ok("{ \"status\": true}").as("application/json");
+				}else {
+					return ok("{ \"status\": false}").as("application/json");
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("{ \"status\": false}").as("application/json");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("{ \"status\": false}").as("application/json");
+			}
+		}
+	}
+
     public Result equipoModifica(Long id_equipo, Http.Request request) {
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
@@ -753,7 +785,8 @@ public class MnuTablas extends Controller {
 			List<Atributo> listAtributos = Atributo.allXEquipoConValor(con, s.baseDato, equipo);
 			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
 			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
-			return ok(equipoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,equipo,listGrupos,listAtributos,listFabrica,listUnidades));
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
+			return ok(equipoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,equipo,listGrupos,listAtributos,listFabrica,listUnidades, listPropiedad));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -784,7 +817,8 @@ public class MnuTablas extends Controller {
 			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
 			List<Atributo> listAtributos = Atributo.allXGrupo(con, s.baseDato, id_grupo);
 			Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
-			return ok(equipoNuevo.render(mapeoDiccionario,mapeoPermiso,userMnu,listGrupos,listFabrica,listUnidades,listAtributos,grupo));
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
+			return ok(equipoNuevo.render(mapeoDiccionario,mapeoPermiso,userMnu,listGrupos,listFabrica,listUnidades,listAtributos,grupo,listPropiedad));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -817,7 +851,8 @@ public class MnuTablas extends Controller {
 			List<Atributo> listAtributos = Atributo.allXEquipoConValor(con, s.baseDato, equipo);
 			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
 			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
-			return ok(equipoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,equipo,listGrupos,listAtributos,listFabrica,listUnidades));
+			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
+			return ok(equipoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,equipo,listGrupos,listAtributos,listFabrica,listUnidades,listPropiedad));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));

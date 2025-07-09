@@ -229,6 +229,7 @@ POST	/reporteExcedentesDetalleEquipoExcel/		controllers.MnuReportes.reporteExced
 
 POST	/proyectoMantencionExcel/					controllers.MnuTablas.proyectoMantencionExcel(request: Request)
 POST	/equipoCambiaEstado/						controllers.MnuTablas.equipoCambiaEstado(request: Request)
+POST	/equipoCambiaPropiedad/						controllers.MnuTablas.equipoCambiaPropiedad(request: Request)
 
 POST	/homeOdoAutorizaVentasWebExcel/				controllers.HomeController.homeOdoAutorizaVentasWebExcel(request: Request)
 

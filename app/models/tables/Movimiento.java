@@ -9,10 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -136,8 +134,8 @@ public class Movimiento {
 		this.nroGuia = nroGuia;
 	}
 
-
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	public static List<Movimiento> all(Connection con, String db) {
@@ -870,7 +868,7 @@ public class Movimiento {
 
 		Map<String,Equipo> mapEquipos = Equipo.mapAllVigentesPorCodigo(con, db);
 		List<String> mensaje = new ArrayList<String>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 	    
        // mensaje.add("");
@@ -1009,7 +1007,7 @@ public class Movimiento {
 	
 	public static List<List<String>> llenaListaDesdePlantillaExcel (File file) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 		try {
             Workbook libro = WorkbookFactory.create(file);

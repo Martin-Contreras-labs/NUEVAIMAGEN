@@ -5,11 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_BodegaEmpresa;
@@ -68,8 +65,9 @@ public class Ppto {
 	public Ppto() {
 		super();
 	}
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	
 	public static Map<Long,List<Double>> mapTotalPptoPorAllBodega(Connection con, String db){
 		Map<Long,List<Double>> map = new HashMap<Long,List<Double>>();
@@ -122,10 +120,10 @@ public class Ppto {
 			numDecimales = dec.get((long)1);
 		}
 		switch(numDecimales.toString()) {
-		 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		Ppto aux = null;
@@ -170,10 +168,10 @@ public class Ppto {
 			numDecimales = dec.get((long)1);
 		}
 		switch(numDecimales.toString()) {
-		 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		List<Ppto> lista = new ArrayList<Ppto>();
@@ -305,10 +303,10 @@ public class Ppto {
 			numDecimales = dec.get((long)1);
 		}
 		switch(numDecimales.toString()) {
-		 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		Double acumPpto = (double)0;

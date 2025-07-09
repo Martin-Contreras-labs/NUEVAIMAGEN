@@ -11,10 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -195,10 +193,10 @@ public class FormCotiza {
 	public FormCotiza() {
 		super();
 	}
-	
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	public static List<List<String>> allConSuPrecio(Connection con, String db, String nEmpresa, Long id_bodegaEmpresa, Map<String,String> mapeoPermiso, String id_sucursal, 
 			String modificaCoti, String nuevaCoti, Long id_cotizacion) {
@@ -273,10 +271,10 @@ public class FormCotiza {
 					numDec = (long)0;
 				}
 				switch(numDec.toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -977,10 +975,10 @@ public class FormCotiza {
 					numDec = (long)1;
 				}
 				switch(numDec.toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -1170,10 +1168,10 @@ public class FormCotiza {
 					numDec = (long)1;
 				}
 				switch(numDec.toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -1379,10 +1377,10 @@ public class FormCotiza {
 				numDec = (long)1;
 			}
 			switch(numDec.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -1470,7 +1468,7 @@ public class FormCotiza {
 				cell=table.getRow(0).getCell(0);
     			setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
     			
-				myformatdouble = new DecimalFormat("#,##0");
+				myformatdouble = new DecimalFormat("#,##0",symbols);
 				table = doc.getTables().get(4);
 				
     			cell=table.getRow(0).getCell(2);
@@ -1752,10 +1750,10 @@ public class FormCotiza {
 				numDec = (long)1;
 			}
 			switch(numDec.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -2226,10 +2224,10 @@ public class FormCotiza {
 				numDec = (long)1;
 			}
 			switch(numDec.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -2605,10 +2603,10 @@ public class FormCotiza {
 				numDec = (long)1;
 			}
 			switch(numDec.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -2803,7 +2801,7 @@ public class FormCotiza {
 	
 	public static List<String> cotiValidarPlantillaExcel (Connection con, String db, File file) {
 		List<String> mensaje = new ArrayList<String>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 	    
         mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
@@ -2890,7 +2888,7 @@ public class FormCotiza {
 	
 	public static List<List<String>> llenaListaDesdeExcel (File file) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 		try {
             Workbook libro = WorkbookFactory.create(file);

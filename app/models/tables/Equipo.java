@@ -52,9 +52,11 @@ public class Equipo {
 	public Double m2;
 	
 	public Long vigente;
+	public Long id_propiedad;
+	public String propiedad;
 
 	public Equipo(Long id, Long id_fabrica, String codigo, String nombre, Long id_grupo, Long id_unidad, String fabrica,
-			String grupo, String unidad, String img, Double kg, Double m2, Long vigente) {
+			String grupo, String unidad, String img, Double kg, Double m2, Long vigente, Long id_propiedad, String propiedad) {
 		super();
 		this.id = id;
 		this.id_fabrica = id_fabrica;
@@ -69,6 +71,8 @@ public class Equipo {
 		this.kg = kg;
 		this.m2 = m2;
 		this.vigente = vigente;
+		this.id_propiedad = id_propiedad;
+		this.propiedad = propiedad;
 	}
 
 	public Equipo() {
@@ -102,11 +106,22 @@ public class Equipo {
 	public Long getVigente() {return vigente;}
 	public void setVigente(Long vigente) {this.vigente = vigente;}
 
+	public Long getId_propiedad() {
+		return id_propiedad;
+	}
 
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatentero = new DecimalFormat("#,##0");
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
+	public void setId_propiedad(Long id_propiedad) {
+		this.id_propiedad = id_propiedad;
+	}
+
+	public String getPropiedad() {
+		return propiedad;
+	}
+
+	public void setPropiedad(String propiedad) {
+		this.propiedad = propiedad;
+	}
+
 	
 	
 	
@@ -178,12 +193,6 @@ public class Equipo {
 		return map;
 	}
 	
-	
-	
-	
-	
-	
-	
 	public static Map<Long,Equipo> mapAllVigentes (Connection con, String db) {
 		Map<Long,Equipo> map = new HashMap<Long,Equipo>();
 		List<Equipo> lista = Equipo.allVigentes(con, db);
@@ -239,17 +248,21 @@ public class Equipo {
 							" equipo.img, " +
 							" equipo.vigente, " +
 							" equipo.kg, " +
-							" equipo.m2 " +
+							" equipo.m2, " +
+							" equipo.id_propiedad, " +
+							" ifnull(propiedad.nombre,'') " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
+							" left join `"+db+"`.propiedad on propiedad.id = equipo.id_propiedad " +
 							" where equipo.vigente = 1 " +
 							" order by ifnull(grupo.nombre,'SIN GRUPO'),equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),
+						rs.getDouble(13),rs.getLong(11),rs.getLong(14),rs.getString(15)));
 			}
 			rs.close();
 			smt.close();
@@ -276,17 +289,21 @@ public class Equipo {
 							" equipo.img, " +
 							" equipo.vigente, " +
 							" equipo.kg, " +
-							" equipo.m2 " +
+							" equipo.m2, " +
+							" equipo.id_propiedad, " +
+							" ifnull(propiedad.nombre,'') " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
+							" left join `"+db+"`.propiedad on propiedad.id = equipo.id_propiedad " +
 							" order by ifnull(grupo.nombre,'SIN GRUPO'),equipo.nombre;");
 			ResultSet rs = smt.executeQuery();
 			
 			while (rs.next()) {
 				lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),
+						rs.getDouble(13),rs.getLong(11),rs.getLong(14),rs.getString(15)));
 			}
 			rs.close();
 			smt.close();
@@ -313,17 +330,21 @@ public class Equipo {
 							" equipo.img, " +
 							" equipo.vigente, " +
 							" equipo.kg, " +
-							" equipo.m2 " +
+							" equipo.m2, " +
+							" equipo.id_propiedad, " +
+							" ifnull(propiedad.nombre,'') " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
+							" left join `"+db+"`.propiedad on propiedad.id = equipo.id_propiedad " +
 							" where equipo.id=?;");
 			smt.setLong(1, id_equipo);
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				aux = new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),
+						rs.getDouble(13),rs.getLong(11),rs.getLong(14),rs.getString(15));
 			}
 			rs.close();
 			smt.close();
@@ -350,17 +371,21 @@ public class Equipo {
 							" equipo.img, " +
 							" equipo.vigente, " +
 							" equipo.kg, " +
-							" equipo.m2 " +
+							" equipo.m2, " +
+							" equipo.id_propiedad, " +
+							" ifnull(propiedad.nombre,'') " +
 							" from `"+db+"`.equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
+							" left join `"+db+"`.propiedad on propiedad.id = equipo.id_propiedad " +
 							" where upper(equipo.codigo)=?;" );
 			smt.setString(1, codigo.toUpperCase().trim());
 			ResultSet rs = smt.executeQuery();
 			if (rs.next()) {
 				aux = new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11));
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),
+						rs.getDouble(13),rs.getLong(11),rs.getLong(14),rs.getString(15));
 			}
 			rs.close();
 			smt.close();
@@ -553,10 +578,9 @@ public class Equipo {
 	
 	public static boolean create(Connection con, String db, FormEquipoGraba aux) {
 		boolean flag = false;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("insert into `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad,kg,m2) " +
-							" values (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+		try (PreparedStatement smt = con
+				.prepareStatement("insert into `"+db+"`.equipo (id_fabrica,codigo,nombre,id_grupo,id_unidad,kg,m2,id_propiedad) " +
+						" values (?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)){
 			smt.setLong(1, aux.id_fabrica);
 			smt.setString(2, aux.codigo.replaceAll("\\,","").trim().toUpperCase());
 			smt.setString(3, aux.nombre.trim());
@@ -564,31 +588,34 @@ public class Equipo {
 			smt.setLong(5, aux.id_unidad);
 			smt.setDouble(6, aux.kg);
 			smt.setDouble(7, aux.m2);
+			Long id_propiedad = (long)1;
+			if(aux.id_propiedad != null){
+				id_propiedad = aux.id_propiedad;
+			}
+			smt.setLong(8, id_propiedad);
 			smt.executeUpdate();
-			
+
 			Long id_equipo = (long)0;
-			ResultSet rs = smt.getGeneratedKeys();
-            if (rs.next()) {
-            	id_equipo = rs.getLong(1);
-            }
-            smt.close();
-            rs.close();
-			
-			List<Sucursal> listSucursal = Sucursal.all(con, db);
-			String datos = "";
-			for(Sucursal s: listSucursal) {
-				 datos += "("+id_equipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+s.getId()+"),";
+			try(ResultSet rs = smt.getGeneratedKeys()){
+				if (rs.next()) {
+					id_equipo = rs.getLong(1);
+				}
+				List<Sucursal> listSucursal = Sucursal.all(con, db);
+				String datos = "";
+				for(Sucursal s: listSucursal) {
+					 datos += "("+id_equipo+",'1','"+Fechas.hoy().getFechaStrAAMMDD()+"','0','0','0','4','0','0',"+s.getId()+"),";
+				}
+				if(datos.length()>10) {
+					datos = datos.substring(0,datos.length()-1);
+					PreparedStatement smt3 = con
+							.prepareStatement("insert into `"+db+"`.precio "
+									+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
+									+ " values "+datos+";");
+					smt3.executeUpdate();
+					smt3.close();
+				}
+				flag = true;
 			}
-			if(datos.length()>10) {
-				datos = datos.substring(0,datos.length()-1);
-				PreparedStatement smt3 = con
-						.prepareStatement("insert into `"+db+"`.precio "
-								+ " (id_equipo,id_moneda,fecha,precioVenta,precioReposicion,tasaArriendo,id_unidadTiempo,precioMinimo,permanenciaMinima, id_sucursal) "
-								+ " values "+datos+";");
-				smt3.executeUpdate();
-				smt3.close();
-			}
-			flag = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -715,6 +742,12 @@ public class Equipo {
 		            cell.setCellStyle(encabezado);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("GRUPO");
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("PROPIEDAD");
 					
 					posCell++;
 					cell = row.createCell(posCell);
@@ -838,6 +871,12 @@ public class Equipo {
 						cell.setCellStyle(detalle);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(listEquipos.get(i).getGrupo());
+
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue(listEquipos.get(i).getPropiedad());
 						
 						posCell++;
 						cell = row.createCell(posCell);

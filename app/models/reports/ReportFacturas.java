@@ -9,13 +9,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import models.utilities.DecimalFormato;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -64,14 +63,15 @@ public class ReportFacturas {
 		super();
 	}
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000",symbols);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	
-	static DecimalFormat myformatMonedaPrincipal = new DecimalFormat("#,##0");
-	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+	static DecimalFormat myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0",symbols);
 	
 	
 	
@@ -150,10 +150,10 @@ public class ReportFacturas {
 		
 		
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -192,10 +192,10 @@ public class ReportFacturas {
 			}
 			
 			switch(dec.get(id_moneda).toString()) {
-			 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-			 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -284,10 +284,10 @@ public class ReportFacturas {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		
 		switch(dec.get((long) 1).toString()) {
-		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		Double totalArriendo = (double) 0, totalVenta = (double) 0, totalCfi = (double) 0, totalTotal = (double) 0, ajusteArriendo = (double) 0, ajusteVenta = (double) 0;
@@ -394,10 +394,10 @@ public class ReportFacturas {
         }
 		
 		switch(dec.get((long) 1).toString()) {
-		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -527,17 +527,17 @@ public class ReportFacturas {
 					flagId_Guia = guiasPeriodo.get(i).id_guia;
 				}
 				switch(dec.get(guiasPeriodo.get(i).id_moneda).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				switch(dec.get((long)1).toString()) {
-				 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				detalle = new ArrayList<String>();
@@ -4240,10 +4240,10 @@ public class ReportFacturas {
 		Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, db);
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long) 1).toString()) {
-		 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		for(int i=0;i<valorTotalporBodegaYGrupo.size();i++){
@@ -4331,10 +4331,10 @@ public class ReportFacturas {
 		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -4514,10 +4514,10 @@ public class ReportFacturas {
 		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -4585,10 +4585,10 @@ public class ReportFacturas {
 				}
 
 				switch(dec.get(invInicicial.get(i).id_moneda).toString()) {
-				 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -4657,10 +4657,10 @@ public class ReportFacturas {
 		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -4713,10 +4713,10 @@ public class ReportFacturas {
 				String moneda = mapMoneda.get(guiasPer.get(i).id_moneda); if(moneda==null) moneda = "";
 				
 				switch(dec.get(guiasPer.get(i).id_moneda).toString()) {
-				 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				
@@ -4805,10 +4805,10 @@ public class ReportFacturas {
 			}
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			switch(dec.get((long)1).toString()) {
-			 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0"); break;
-			 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatMonedaPrincipal = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatMonedaPrincipal = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatMonedaPrincipal = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatMonedaPrincipal = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -7684,6 +7684,580 @@ public class ReportFacturas {
 		
 		return tmp;
 		
+	}
+
+	public static File exportaProformaHExcelProyectos(String db, Map<String,String> mapDiccionario,
+													  List<List<String>> proyectos, Map<String,List<String>> mapServicios,
+													  Map<Long, Long> mapDec, String desde, String hasta,
+													 Double uf, Double usd, Double eur, List<List<String>> resumenTotales) {
+
+		File tmp = TempFile.createTempFile("tmp","null");
+
+		try {
+			String path = "formatos/excel.xlsx";
+			InputStream formato = Archivos.leerArchivo(path);
+			Workbook libro = WorkbookFactory.create(formato);
+			formato.close();
+
+			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
+			CellStyle titulo = libro.createCellStyle();
+			Font font = libro.createFont();
+			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setColor((short)4);
+			font.setFontHeight((short)(14*20));
+			titulo.setFont(font);
+
+			CellStyle subtitulo = libro.createCellStyle();
+			Font font2 = libro.createFont();
+			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setColor((short)0);
+			font2.setFontHeight((short)(12*20));
+			subtitulo.setFont(font2);
+
+			CellStyle encabezado = libro.createCellStyle();
+			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
+			encabezado.setBorderTop(CellStyle.BORDER_THIN);
+			encabezado.setBorderRight(CellStyle.BORDER_THIN);
+			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
+			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setFillForegroundColor((short)19);
+			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+
+			CellStyle detalle = libro.createCellStyle();
+			detalle.setBorderBottom(CellStyle.BORDER_THIN);
+			detalle.setBorderTop(CellStyle.BORDER_THIN);
+			detalle.setBorderRight(CellStyle.BORDER_THIN);
+			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+
+			CellStyle pie = libro.createCellStyle();
+			pie.setBorderBottom(CellStyle.BORDER_THIN);
+			pie.setBorderTop(CellStyle.BORDER_THIN);
+			pie.setBorderRight(CellStyle.BORDER_THIN);
+			pie.setBorderLeft(CellStyle.BORDER_THIN);
+			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setFillForegroundColor((short)19);
+			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+
+
+			//titulos del archivo
+
+			libro.setSheetName(0, "PROCESO DE EP-FACTURACION LISTADO");
+			Sheet hoja1 = libro.getSheetAt(0);
+
+			Row row = null;
+			Cell cell = null;
+
+			row = hoja1.createRow(1);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("LISTADO DE EP/FACTURACION PROFORMA SIMPLE");
+
+			row = hoja1.createRow(2);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
+
+			row = hoja1.createRow(3);
+			cell = row.createCell(1);
+			cell.setCellStyle(subtitulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
+
+			row = hoja1.createRow(5);
+			cell = row.createCell(1);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PERIODO: desde " + Fechas.DDMMAA(desde)  + " hasta " + Fechas.DDMMAA(hasta));
+
+
+			//anchos de columnas
+			for(int i=1; i<17; i++) {
+				hoja1.setColumnWidth(i, 6*1000);
+			}
+			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
+			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
+			byte[] bytes = IOUtils.toByteArray(x);
+			x.close();
+			int pngIndex = libro.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+			Drawing draw = hoja1.createDrawingPatriarch();
+			CreationHelper helper = libro.getCreationHelper();
+			ClientAnchor anchor = helper.createClientAnchor();
+			//set top-left corner for the image
+			anchor.setCol1(9);
+			anchor.setRow1(1);
+			Picture img = draw.createPicture(anchor, pngIndex);
+			img.resize(0.4);
+			hoja1.createFreezePane(0, 0, 0,0);
+
+
+			// encabezado de la tabla
+
+			int posRow = 8;
+
+			row = hoja1.createRow(posRow);
+			int posCell = 0;
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(titulo);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("RESUMEN POR PROYECTOS  (INCLUYE AJUSTES A EP):");
+
+			posRow += 2;
+			posCell = 0;
+
+			row = hoja1.createRow(posRow);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUCURSAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE CLIENTE");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("NOMBRE PROYECTO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("COMERCIAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("CFI (en "+mapDiccionario.get("Pesos")+")");
+
+
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SubTotal "+mapDiccionario.get("ARRIENDO"));
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SubTotal VENTA");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SubTotal SERVICIO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ajustes "+mapDiccionario.get("ARRIENDO"));
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ajustes VENTA");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Ajustes SERVICIO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL (en "+mapDiccionario.get("Pesos")+")");
+
+			Double vta=(double)0;
+			Double arr=(double)0;
+			Double serv=(double)0;
+			Double cfi=(double)0;
+			Double ajusteArr=(double)0;
+			Double ajusteVta=(double)0;
+			Double ajusteServ=(double)0;
+			Double tot=(double)0;
+
+			Map<String,String> mapAuxParaRevisaServ = new HashMap<String,String>();
+			for (List<String> lista1 : proyectos) {
+				for (List<String> total : resumenTotales) {
+					if (lista1.get(1).equals(total.get(0))) {
+						Double auxTotal = (double)0;
+						try{
+							auxTotal=Double.parseDouble(total.get(4).replaceAll(",",""));
+						}catch(Exception e){}
+						List<String> servicios = mapServicios.get(total.get(0));
+						String servVta = DecimalFormato.formato(0.0,mapDec.get(1L));
+						String servAjuste =  DecimalFormato.formato(0.0,mapDec.get(1L));
+
+						if(servicios!=null){
+							Double auxServVta=0.0;
+							Double auxServAjuste=0.0;
+							try{
+								auxServVta = Double.parseDouble(servicios.get(5).replaceAll(",",""));
+								servVta = servicios.get(5);
+							}catch(Exception e){}
+							try{
+								auxServAjuste = Double.parseDouble(servicios.get(6).replaceAll(",",""));
+								servAjuste = servicios.get(6);
+							}catch(Exception e){}
+							auxTotal += auxServVta + auxServAjuste;
+						}
+						if( auxTotal > 0) {
+							mapAuxParaRevisaServ.put(lista1.get(1),lista1.get(1));
+							String totales = DecimalFormato.formato(auxTotal,mapDec.get(1L));
+
+							posRow++;
+							posCell = 0;
+							row = hoja1.createRow(posRow);
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(lista1.get(14));
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(lista1.get(5));
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(lista1.get(7));
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(lista1.get(8));
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue(lista1.get(10));
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							Double aux = Double.parseDouble(total.get(3).replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							cfi += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(total.get(1).replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							arr += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(total.get(2).replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							vta += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(servVta.replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							serv += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(total.get(5).replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							ajusteArr += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(total.get(6).replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							ajusteVta += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(servAjuste.replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							ajusteServ += aux;
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							aux = Double.parseDouble(totales.replaceAll(",", ""));
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(aux);
+							tot += aux;
+						}
+					}
+				}
+			}
+
+
+			for (Map.Entry<String, List<String>> entry : mapServicios.entrySet()) {
+				String key = entry.getKey();
+				List<String> servicios = entry.getValue();
+				String valida = mapAuxParaRevisaServ.get(key);
+				if(valida == null) {
+					String cliente = "clente";
+					String proyecto = "proyecto";
+					String comercial = "comercial";
+					Double auxTotal = 0.0;
+					Double auxServVta=0.0;
+					Double auxServAjuste=0.0;
+					String servVta = DecimalFormato.formato(0.0,mapDec.get(1L));
+					String servAjuste =  DecimalFormato.formato(0.0,mapDec.get(1L));
+					try{
+						auxServVta = Double.parseDouble(servicios.get(5).replaceAll(",",""));
+						servVta = servicios.get(5);
+					}catch(Exception e){}
+					try{
+						auxServAjuste = Double.parseDouble(servicios.get(6).replaceAll(",",""));
+						servAjuste = servicios.get(6);
+					}catch(Exception e){}
+					auxTotal += auxServVta + auxServAjuste;
+
+					posRow++;
+					posCell = 0;
+					row = hoja1.createRow(posRow);
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("");
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(servicios.get(0));
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(cliente);
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(proyecto);
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue(comercial);
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					Double aux = (double)0;
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					cfi += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = (double)0;
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					arr += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = (double)0;
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					vta += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = Double.parseDouble(servVta.replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					serv += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = (double)0;
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					ajusteArr += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = (double)0;
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					ajusteVta += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = Double.parseDouble(servAjuste.replaceAll(",", ""));
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					ajusteServ += aux;
+
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					aux = auxTotal;
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue(aux);
+					tot += aux;
+				}
+			}
+
+			posRow++;
+			posCell = 0;
+			row = hoja1.createRow(posRow);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTALES");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(cfi);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(arr);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(vta);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(serv);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(ajusteArr);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(ajusteVta);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(ajusteServ);
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(tot);
+
+			posRow = posRow + 5;
+			row = hoja1.createRow(posRow);
+			cell = row.createCell(1);
+			Hyperlink hiper = helper.createHyperlink(0);
+			hiper.setAddress("https://www.inqsol.cl");
+			cell.setHyperlink(hiper);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
+
+
+			// Write the output to a file tmp
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			libro.write(fileOut);
+			fileOut.close();
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return tmp;
+
 	}
 	
 	

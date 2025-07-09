@@ -31,7 +31,7 @@ public class Propiedad {
 
 	public static Map<Long, Propiedad> mapAll(Connection con, String db) {
 		Map<Long, Propiedad> map = new HashMap<>();
-		String query = String.format("SELECT id,nombre FROM `%s`.actaBaja;", db);
+		String query = String.format("SELECT id,nombre FROM `%s`.propiedad;", db);
 		try (PreparedStatement smt = con.prepareStatement(query);
 			 ResultSet rs = smt.executeQuery()){
 			map.put((long)0, new Propiedad((long)0,"sin propiedad"));
@@ -45,27 +45,10 @@ public class Propiedad {
 		}
 		return (map);
 	}
-	
-	public static Map<String, Propiedad> mapAllPorNombre(Connection con, String db) {
-		Map<String, Propiedad> map = new HashMap<>();
-		String query = String.format("SELECT id,nombre FROM `%s`.actaBaja;", db);
-		try (PreparedStatement smt = con.prepareStatement(query);
-			 ResultSet rs = smt.executeQuery()){
-			map.put("sin propiedad", new Propiedad((long)0,"sin propiedad"));
-			while (rs.next()) {
-				map.put(rs.getString(2).toUpperCase(), new Propiedad(rs.getLong(1),rs.getString(2)));
-			}
-		} catch (SQLException e) {
-			String className = Propiedad.class.getSimpleName();
-			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
-		}
-		return (map);
-	}
-	
+
 	public static List<Propiedad> all(Connection con, String db) {
 		List<Propiedad> lista = new ArrayList<Propiedad>();
-		String query = String.format("SELECT id,nombre FROM `%s`.propiedad;", db);
+		String query = String.format("SELECT id,nombre FROM `%s`.propiedad order by id;", db);
 		try (PreparedStatement smt = con.prepareStatement(query);
 			 ResultSet rs = smt.executeQuery()){
 			while (rs.next()) {

@@ -9,15 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import controllers.HomeController;
 import org.apache.commons.io.IOUtils;
@@ -56,14 +51,16 @@ import views.html.mensajes;
 
 
 public class ReportMovimientos {
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000",symbols);
 	
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	
-	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0",symbols);
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 		
 	
@@ -2211,10 +2208,10 @@ public class ReportMovimientos {
 					List<String> aux = new ArrayList<String>();
 					
 					switch(dec.get(rs3.getLong(15)).toString()) {
-					 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-					 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					
@@ -2236,7 +2233,7 @@ public class ReportMovimientos {
 					}else {
 						aux.add(myformatdouble2.format(tasa)+" %"); // 5 tasaArriendo
 						aux.add(myformatMoneda.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // 6 arriendo mes
-						DecimalFormat allDec = new DecimalFormat("#0.00000000000000");
+						DecimalFormat allDec = new DecimalFormat("#0.00000000000000",symbols);
 
 						if(db.equals("madaAlzatec")){
 							aux.add(allDec.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //7 arriendo dia solo ALZATEC
@@ -2508,10 +2505,10 @@ public class ReportMovimientos {
 						idMoneda = listaCodigos.get(i).get(11);
 						
 						switch(dec.get(Long.parseLong(idMoneda)).toString()) {
-						 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-						 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
 						
@@ -2540,10 +2537,10 @@ public class ReportMovimientos {
 						
 						
 						switch(dec.get((long)1).toString()) {
-						 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-						 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+						 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+						 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+						 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+						 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 						 default:  break;
 						}
 						aux.add(myformatMoneda.format((arriendo+totalCfi)*auxTasaCambio));
@@ -2597,10 +2594,10 @@ public class ReportMovimientos {
 		List<String> aux3 = new ArrayList<String>();
 		
 		switch(dec.get((long)1).toString()) {
-		 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-		 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-		 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-		 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+		 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+		 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+		 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+		 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 		 default:  break;
 		}
 		
@@ -2788,10 +2785,10 @@ public class ReportMovimientos {
 				auxValorizado.add("");
 				
 				switch(dec.get(Long.parseLong(idMoneda)).toString()) {
-				 case "0": myformatMoneda = new DecimalFormat("#,##0"); break;
-				 case "2": myformatMoneda = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatMoneda = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatMoneda = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				

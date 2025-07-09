@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-equipo: tables.Equipo, listGrupos: List[tables.Grupo], listAtributos: List[tables.Atributo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad])
+		equipo: tables.Equipo, listGrupos: List[tables.Grupo], listAtributos: List[tables.Atributo], listFabrica: List[tables.Fabrica],
+		listUnidades: List[tables.Unidad], listPropiedad: List[tables.Propiedad])
 
     	
 @main("") {
@@ -37,6 +38,19 @@ equipo: tables.Equipo, listGrupos: List[tables.Grupo], listAtributos: List[table
 									</span>
 								}
 							</form>
+						</td>
+					</TR>
+					<TR>
+						<td  style="text-align:left;">PROPIEDAD</td>
+						<td style="text-align:left">
+							<select class="custom-select"
+							id="id_propiedad"
+							onchange="cambiaPropiedad(value)">
+								<option value="@equipo.getId_propiedad">@equipo.getPropiedad()</option>
+								@for(lista <- listPropiedad){
+									<option value="@lista.getId()">@lista.getNombre()</option>
+								}
+							</select>
 						</td>
 					</TR>
 					<tr>
@@ -240,7 +254,27 @@ equipo: tables.Equipo, listGrupos: List[tables.Grupo], listAtributos: List[table
 	     	}
         });
 	}
-	
+
+	const cambiaPropiedad = (id_propiedad) =>{
+		var formData = new FormData();
+		formData.append('id_equipo',id_equipo);
+		formData.append('id_propiedad',id_propiedad);
+		$.ajax({
+			url: "/routes2/equipoCambiaPropiedad/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if( ! respuesta.status){
+					location.reload();
+				}
+			}
+		});
+	}
+
 	let extArray = new Array(".gif", ".jpg", ".png",".jpeg");
 	const LimitAttach = (form, file) => {
 		let allowSubmit = false;

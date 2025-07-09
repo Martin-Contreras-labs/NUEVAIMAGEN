@@ -96,11 +96,6 @@ public class Redimensionar {
 		this.id_bodegaDestino = id_bodegaDestino;
 	}
 
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	
 	
 	
 	public static boolean create(Connection con, String db, String detalle) {

@@ -11,8 +11,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -163,10 +165,7 @@ public class FormCotizaOdo {
 	public FormCotizaOdo() {
 		super();
 	}
-	
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	public static List<List<String>> listServiciosConValoresCoti(Connection con, String db, Long id_cotiOdo) {
 		List<List<String>> lista = new ArrayList<List<String>>();
@@ -553,7 +552,8 @@ public class FormCotizaOdo {
 	
 	public static List<String> cotiOdoValidarPlantillaExcel (Connection con, String db, File file) {
 		List<String> mensaje = new ArrayList<String>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 	    
         mensaje.add("ERROR cod:001");
@@ -644,7 +644,8 @@ public class FormCotizaOdo {
 	
 	public static List<List<String>> llenaListaDesdeExcel (File file) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 		try {
             Workbook libro = WorkbookFactory.create(file);

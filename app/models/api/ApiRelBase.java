@@ -3,8 +3,10 @@ package models.api;
 
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -263,7 +265,8 @@ public class ApiRelBase {
 			if(precioDbl < 1) {
 				precioDbl = (double) 100;
 			}
-			DecimalFormat myformatapi = new DecimalFormat("###0");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat myformatapi = new DecimalFormat("###0",symbols);
 			String precio = myformatapi.format(Math.round(precioDbl));
 			String codProducto = "MADA-"+id_cotizaSolucion;
 			int product_id = ApiRelBase.consultaIdProducto(emisor, ws, codProducto);
@@ -327,7 +330,8 @@ public class ApiRelBase {
 			if(netoSoloAjustes < 0) {
 				netoSoloAjustes = (long)0;
 			}
-			DecimalFormat myformatapi = new DecimalFormat("###0");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat myformatapi = new DecimalFormat("###0",symbols);
 			String precio = myformatapi.format(Math.round(netoSinAjustes));
 			Double dctoGlobal = ((double) netoSoloAjustes / (double) netoSinAjustes) * 100;
 			String codProducto = "MADA-"+id_cotizaSolucion;

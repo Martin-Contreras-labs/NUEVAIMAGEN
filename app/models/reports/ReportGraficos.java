@@ -6,21 +6,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
+import java.util.*;
 
 
 public class ReportGraficos {
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	
 	
 	public static List<String> graficoDistribucionGrupoBodegasValorizado(Map<String, String> mapeoDiccionario, String filtroGrupos, String filtroBodegas, 
@@ -154,7 +147,7 @@ public class ReportGraficos {
 						if(valor==null) {
 							series3 += "0,";
 						}else {
-							DecimalFormat dec = new DecimalFormat("0");
+							DecimalFormat dec = new DecimalFormat("0",symbols);
 							if((double)total != (double)0) {
 								series3 += "" +  dec.format(valor/total*100) + ",";
 							}else {
@@ -345,7 +338,7 @@ public class ReportGraficos {
 						if(valor==null) {
 							series3 += "0,";
 						}else {
-							DecimalFormat dec = new DecimalFormat("0");
+							DecimalFormat dec = new DecimalFormat("0",symbols);
 							if((double)total != (double)0) {
 								series3 += "" +  dec.format(valor/total*100) + ",";
 							}else {
@@ -507,7 +500,7 @@ public class ReportGraficos {
 						total = total + auxLista;
 					}
 					total= total/suma1;
-					DecimalFormat dec = new DecimalFormat("0");
+					DecimalFormat dec = new DecimalFormat("0",symbols);
 					List<String> aux= new ArrayList<String>();
 					aux.add(grupos.get(i));
 					aux.add(dec.format(total*100));
@@ -621,7 +614,7 @@ public class ReportGraficos {
 						total = total + auxLista;
 					}
 					total= total/suma1;
-					DecimalFormat dec = new DecimalFormat("0");
+					DecimalFormat dec = new DecimalFormat("0",symbols);
 					List<String> aux= new ArrayList<String>();
 					aux.add(grupos.get(i));
 					aux.add(dec.format(total*100));

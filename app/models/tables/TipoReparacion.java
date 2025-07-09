@@ -5,10 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import models.forms.FormTipoReparacionGraba;
 
@@ -68,8 +66,8 @@ public class TipoReparacion {
 	public void setId_moneda(Long id_moneda) {this.id_moneda = id_moneda;}
 
 
-
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.0000000000");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.0000000000",symbols);
 	
 	
 	public static Map<String, TipoReparacion> mapAll(Connection con, String db) {
@@ -104,10 +102,10 @@ public class TipoReparacion {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			while (rs.next()) {
 				switch((dec.get(rs.getLong(3))).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String precio = myformatdouble.format(rs.getDouble(7));
@@ -147,10 +145,10 @@ public class TipoReparacion {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			while (rs.next()) {
 				switch((dec.get(rs.getLong(3))).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String precio = myformatdouble.format(rs.getDouble(7));
@@ -190,10 +188,10 @@ public class TipoReparacion {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			if (rs.next()) {
 				switch((dec.get(rs.getLong(3))).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String precio = myformatdouble.format(rs.getDouble(7));

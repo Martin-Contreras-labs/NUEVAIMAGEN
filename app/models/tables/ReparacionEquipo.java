@@ -91,8 +91,6 @@ public class ReparacionEquipo {
 	}
 
 
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00 %");
 	
 	
 	

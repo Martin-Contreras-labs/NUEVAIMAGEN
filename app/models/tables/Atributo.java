@@ -5,10 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 
 public class Atributo{
@@ -57,8 +55,8 @@ public class Atributo{
 	public void setValorEnEquipo(String valorEnEquipo) {this.valorEnEquipo = valorEnEquipo;}
 
 
-
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 
 	public static List<Atributo> allXEquipoConValor(Connection con, String db, Equipo equipo) {
 		List<Atributo> listAtributo = Atributo.allXGrupo(con, db, equipo.id_grupo);

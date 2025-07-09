@@ -3,10 +3,8 @@ package models.apiRest;
 
 import java.sql.Connection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import controllers.HomeController;
@@ -54,8 +52,9 @@ public class InventariosFechaCorte {
 	public InventariosFechaCorte() {
 		super();
 	}
-	
-	static DecimalFormat sinFormato = new DecimalFormat("0");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat sinFormato = new DecimalFormat("0",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 

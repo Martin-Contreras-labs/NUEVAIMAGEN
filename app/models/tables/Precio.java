@@ -9,13 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -126,12 +123,12 @@ public class Precio {
 	public String getPermanenciaMinima() {return permanenciaMinima;}
 	public void setPermanenciaMinima(String permanenciaMinima) {this.permanenciaMinima = permanenciaMinima;}
 
-
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
 	
 	
 	
@@ -180,10 +177,10 @@ public class Precio {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			while (rs.next()) {
 				switch(dec.get(rs.getLong(3)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String monedaCompraAux = mapeoDiccionario.get("CLP");
@@ -198,10 +195,10 @@ public class Precio {
 				Long auxDecimal = decCompra.get(monedaCompraAux);
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
-				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				Double compraAux = (double)0;
@@ -296,10 +293,10 @@ public class Precio {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			while (rs.next()) {
 				switch(dec.get(rs.getLong(3)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String monedaCompraAux = mapeoDiccionario.get("CLP");
@@ -314,10 +311,10 @@ public class Precio {
 				Long auxDecimal = decCompra.get(monedaCompraAux);
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
-				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				Double compraAux = (double)0;
@@ -393,10 +390,10 @@ public class Precio {
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			while (rs.next()) {
 				switch(dec.get(rs.getLong(3)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String monedaCompraAux = mapeoDiccionario.get("CLP");
@@ -411,10 +408,10 @@ public class Precio {
 				Long auxDecimal = decCompra.get(monedaCompraAux);
 				if(auxDecimal==null) auxDecimal = (long)2;
 				switch(auxDecimal.toString()) {
-				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				Double compraAux = (double)0;
@@ -532,10 +529,10 @@ public class Precio {
 			ResultSet resultado = smt.executeQuery();
 			if (resultado.next()) {
 				switch(dec.get(resultado.getLong(3)).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				String monedaCompraAux = monedaCompra.get(resultado.getLong(2));
@@ -545,10 +542,10 @@ public class Precio {
 				
 				
 				switch(decCompra.get(monedaCompraAux).toString()) {
-				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0"); break;
-				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00"); break;
-				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000"); break;
-				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000"); break;
+				 case "0": myformatdoubleCompra = new DecimalFormat("#,##0",symbols); break;
+				 case "2": myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols); break;
+				 case "4": myformatdoubleCompra = new DecimalFormat("#,##0.0000",symbols); break;
+				 case "6": myformatdoubleCompra = new DecimalFormat("#,##0.000000",symbols); break;
 				 default:  break;
 				}
 				Double compraAux = (double)0;
@@ -845,7 +842,7 @@ public class Precio {
 
 		
 		List<String> mensaje = new ArrayList<String>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 	    
 	    mensaje.add("EQUIPOS QUE NO EXISTEN EN MADA: <br>");
@@ -975,7 +972,7 @@ public class Precio {
 	
 	public static List<List<String>> llenaListaDesdeExcel (File file) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 		try {
             Workbook libro = WorkbookFactory.create(file);

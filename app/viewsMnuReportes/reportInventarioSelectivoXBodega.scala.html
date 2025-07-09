@@ -89,37 +89,38 @@ bodega: tables.BodegaEmpresa, lista: List[List[String]], fechaCorte: String, tip
 		
 		<div>
 			ALTERNAR COLUMNAS: 
-				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">GRUPO/FAMILIA</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">Nro.Coti</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="9"><kbd id="kdb9" style="background-color: #73C6B6">COD</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="10"><kbd id="kdb10" style="background-color: #73C6B6">EQUIPO</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="11"><kbd id="kdb11" style="background-color: #73C6B6">KG/UN</kbd></a> 
-				<a class="toggle-vis" href="#" data-column="12"><kbd id="kdb12" style="background-color: #73C6B6">M2/UN</kbd></a>
-				<a class="toggle-vis" href="#" data-column="13"><kbd id="kdb13" style="background-color: #73C6B6">MON Compra</kbd></a>
-				<a class="toggle-vis" href="#" data-column="14"><kbd id="kdb14" style="background-color: #73C6B6">P.U. Compra</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">GRUPO/FAMILIA</kbd></a>
+				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">PROPIEDAD</kbd></a>
+				<a class="toggle-vis" href="#" data-column="9"><kbd id="kdb9" style="background-color: #73C6B6">Nro.Coti</kbd></a>
+				<a class="toggle-vis" href="#" data-column="10"><kbd id="kdb10" style="background-color: #73C6B6">COD</kbd></a>
+				<a class="toggle-vis" href="#" data-column="11"><kbd id="kdb11" style="background-color: #73C6B6">EQUIPO</kbd></a>
+				<a class="toggle-vis" href="#" data-column="12"><kbd id="kdb12" style="background-color: #73C6B6">KG/UN</kbd></a>
+				<a class="toggle-vis" href="#" data-column="13"><kbd id="kdb13" style="background-color: #73C6B6">M2/UN</kbd></a>
+				<a class="toggle-vis" href="#" data-column="14"><kbd id="kdb14" style="background-color: #73C6B6">MON Compra</kbd></a>
+				<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">P.U. Compra</kbd></a>
 				
 				@if(bodega.getEsInterna()==2){
-					<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">MON Vta/@mapDiccionario.get("ARR")</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">P.U. Venta</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">UN @mapDiccionario.get("ARR")</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">P.U. @mapDiccionario.get("Arriendo")</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="19"><kbd id="kdb19" style="background-color: #73C6B6">UN</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="20"><kbd id="kdb20" style="background-color: #73C6B6">CANT</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="21"><kbd id="kdb21" style="background-color: #73C6B6">TOTAL Compra</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="22"><kbd id="kdb22" style="background-color: #73C6B6">TOTAL Venta</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="23"><kbd id="kdb23" style="background-color: #73C6B6">Compra (@mapDiccionario.get("PESOS"))</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="24"><kbd id="kdb24" style="background-color: #73C6B6">Venta (@mapDiccionario.get("PESOS"))</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="25"><kbd id="kdb25" style="background-color: #73C6B6">TOTAL KG</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="26"><kbd id="kdb26" style="background-color: #73C6B6">TOTAL M2</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="27"><kbd id="kdb27" style="background-color: #73C6B6">Permanencia (en Días)</kbd></a> 
+					<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">MON Vta/@mapDiccionario.get("ARR")</kbd></a>
+					<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">P.U. Venta</kbd></a>
+					<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">UN @mapDiccionario.get("ARR")</kbd></a>
+					<a class="toggle-vis" href="#" data-column="19"><kbd id="kdb19" style="background-color: #73C6B6">P.U. @mapDiccionario.get("Arriendo")</kbd></a>
+					<a class="toggle-vis" href="#" data-column="20"><kbd id="kdb20" style="background-color: #73C6B6">UN</kbd></a>
+					<a class="toggle-vis" href="#" data-column="21"><kbd id="kdb21" style="background-color: #73C6B6">CANT</kbd></a>
+					<a class="toggle-vis" href="#" data-column="22"><kbd id="kdb22" style="background-color: #73C6B6">TOTAL Compra</kbd></a>
+					<a class="toggle-vis" href="#" data-column="23"><kbd id="kdb23" style="background-color: #73C6B6">TOTAL Venta</kbd></a>
+					<a class="toggle-vis" href="#" data-column="24"><kbd id="kdb24" style="background-color: #73C6B6">Compra (@mapDiccionario.get("PESOS"))</kbd></a>
+					<a class="toggle-vis" href="#" data-column="25"><kbd id="kdb25" style="background-color: #73C6B6">Venta (@mapDiccionario.get("PESOS"))</kbd></a>
+					<a class="toggle-vis" href="#" data-column="26"><kbd id="kdb26" style="background-color: #73C6B6">TOTAL KG</kbd></a>
+					<a class="toggle-vis" href="#" data-column="27"><kbd id="kdb27" style="background-color: #73C6B6">TOTAL M2</kbd></a>
+					<a class="toggle-vis" href="#" data-column="28"><kbd id="kdb28" style="background-color: #73C6B6">Permanencia (en Días)</kbd></a>
 				}else{
-					<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">UN</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">CANT</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">TOTAL Compra</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">Compra (@mapDiccionario.get("PESOS"))</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="19"><kbd id="kdb19" style="background-color: #73C6B6">TOTAL KG</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="20"><kbd id="kdb20" style="background-color: #73C6B6">TOTAL M2</kbd></a> 
-					<a class="toggle-vis" href="#" data-column="21"><kbd id="kdb21" style="background-color: #73C6B6">Permanencia (en Días)</kbd></a> 
+					<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">UN</kbd></a>
+					<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">CANT</kbd></a>
+					<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">TOTAL Compra</kbd></a>
+					<a class="toggle-vis" href="#" data-column="19"><kbd id="kdb19" style="background-color: #73C6B6">Compra (@mapDiccionario.get("PESOS"))</kbd></a>
+					<a class="toggle-vis" href="#" data-column="20"><kbd id="kdb20" style="background-color: #73C6B6">TOTAL KG</kbd></a>
+					<a class="toggle-vis" href="#" data-column="21"><kbd id="kdb21" style="background-color: #73C6B6">TOTAL M2</kbd></a>
+					<a class="toggle-vis" href="#" data-column="22"><kbd id="kdb22" style="background-color: #73C6B6">Permanencia (en Días)</kbd></a>
 				}
 				
 		</div>
@@ -137,12 +138,13 @@ bodega: tables.BodegaEmpresa, lista: List[List[String]], fechaCorte: String, tip
 						<TH hidden></TH>
 						
 				        <TH style= "text-align:right;vertical-align:top;width:10%;"></TH>
+						<TH style= "text-align:right;vertical-align:top;width:10%;"></TH>
 				        <TH style= "text-align:right;vertical-align:top;width:10%;"></TH>
 				        <TH style= "text-align:right;vertical-align:top;width:10%;"></TH>
 						<TH style= "text-align:right;vertical-align:top;width:20%;color:blue">SUBTOTALES (resultado de buscar):&nbsp</TH>
 						<TH style= "text-align:right;vertical-align:top;color:blue"></TH>
-						<TH style= "text-align:right;vertical-align:top;color:blue"></TH>
-						<TH style= "text-align:center;vertical-align:top;color:blue">cuenta</TH>
+						<TH style= "text-align:right;vertical-align:top;color:blue">elementos</TH>
+						<TH style= "text-align:center;vertical-align:top;color:blue"></TH>
 						<TH style= "text-align:right;vertical-align:top;color:blue"></TH>
 						@if(bodega.getEsInterna()==2){
 							<TH style= "text-align:right;vertical-align:top;color:blue"></TH>
@@ -175,6 +177,7 @@ bodega: tables.BodegaEmpresa, lista: List[List[String]], fechaCorte: String, tip
 						<TH hidden></TH>
 						
 				        <TH style= "text-align:center;vertical-align:top;width:10%;">GRUPO/FAMILIA</TH>
+						<TH style= "text-align:center;vertical-align:top;width:10%;">PROPIEDAD</TH>
 				        <TH style= "text-align:center;vertical-align:top;width:10%;">Nro.Coti</TH>
 				        <TH style= "text-align:center;vertical-align:top;width:10%;">COD</TH>
 						<TH style= "text-align:center;vertical-align:top;width:20%;">EQUIPO</TH>
@@ -225,6 +228,7 @@ bodega: tables.BodegaEmpresa, lista: List[List[String]], fechaCorte: String, tip
 						
 						
 							<td style="text-align:left;vertical-align:middle;">@lista1.get(3)</td>
+							<td style="text-align:left;vertical-align:middle;">@lista1.get(30)</td>
 							<td style="text-align:center;vertical-align:middle;">
 								@if(lista1.get(24).equals("0")){
 									@lista1.get(24)
@@ -412,14 +416,14 @@ bodega: tables.BodegaEmpresa, lista: List[List[String]], fechaCorte: String, tip
 				document.getElementById('totalM2').value=formatStandar0(sumaGranTotalesM2);
 			}
 			
-			tabla.rows[0].cells[13].textContent = formatStandar0(cuentaItems);
-			tabla.rows[0].cells[20].textContent = formatStandar0(sumaCantidades);
-			tabla.rows[0].cells[21].textContent = formatStandar0(sumaCompraMO);
-			tabla.rows[0].cells[22].textContent = formatStandar0(sumaVentaMO);
-			tabla.rows[0].cells[23].textContent = formatStandar0(sumaCompraMP);
-			tabla.rows[0].cells[24].textContent = formatStandar0(sumaVentaMP);
-			tabla.rows[0].cells[25].textContent = formatStandar0(sumaKG);
-			tabla.rows[0].cells[26].textContent = formatStandar0(sumaM2);
+			tabla.rows[0].cells[12].textContent = formatStandar0(cuentaItems);
+			tabla.rows[0].cells[21].textContent = formatStandar0(sumaCantidades);
+			tabla.rows[0].cells[22].textContent = formatStandar0(sumaCompraMO);
+			tabla.rows[0].cells[23].textContent = formatStandar0(sumaVentaMO);
+			tabla.rows[0].cells[24].textContent = formatStandar0(sumaCompraMP);
+			tabla.rows[0].cells[25].textContent = formatStandar0(sumaVentaMP);
+			tabla.rows[0].cells[26].textContent = formatStandar0(sumaKG);
+			tabla.rows[0].cells[27].textContent = formatStandar0(sumaM2);
 			
 			
 			
@@ -431,12 +435,12 @@ bodega: tables.BodegaEmpresa, lista: List[List[String]], fechaCorte: String, tip
 				document.getElementById('totalM2').value=formatStandar0(sumaGranTotalesM2);
 			}
 			
-			tabla.rows[0].cells[13].textContent = formatStandar0(cuentaItems);
-			tabla.rows[0].cells[16].textContent = formatStandar0(sumaCantidades);
-			tabla.rows[0].cells[17].textContent = formatStandar0(sumaCompraMO);
-			tabla.rows[0].cells[18].textContent = formatStandar0(sumaCompraMP);
-			tabla.rows[0].cells[19].textContent = formatStandar0(sumaKG);
-			tabla.rows[0].cells[20].textContent = formatStandar0(sumaM2);
+			tabla.rows[0].cells[12].textContent = formatStandar0(cuentaItems);
+			tabla.rows[0].cells[17].textContent = formatStandar0(sumaCantidades);
+			tabla.rows[0].cells[18].textContent = formatStandar0(sumaCompraMO);
+			tabla.rows[0].cells[19].textContent = formatStandar0(sumaCompraMP);
+			tabla.rows[0].cells[20].textContent = formatStandar0(sumaKG);
+			tabla.rows[0].cells[21].textContent = formatStandar0(sumaM2);
 			
 			
 		}

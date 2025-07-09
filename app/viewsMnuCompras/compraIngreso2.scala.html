@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listProveedor: List[tables.Proveedor], listEquipo: List[tables.Equipo], listMoneda: List[tables.Moneda], listBodegas: List[List[String]], listMon: List[tables.Moneda],
 listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad], listRegiones: List[tables.Regiones],
-listSucursales: List[tables.Sucursal], lista: List[List[String]], proveedor: tables.Proveedor)
+listSucursales: List[tables.Sucursal], lista: List[List[String]], proveedor: tables.Proveedor, listPropiedad: List[tables.Propiedad])
 
     	
 @main("") {
@@ -396,6 +396,19 @@ listSucursales: List[tables.Sucursal], lista: List[List[String]], proveedor: tab
 									id="nuevoEquipoId_grupo"
 									required>
 									@for(lista <- listGrupos){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</TR>
+						<TR>
+							<td  style="text-align:left;">PROPIEDAD</td>
+							<td style="text-align:left">
+								<select class="custom-select"
+								id="id_propiedad"
+								name="id_propiedad">
+									<option value="@listPropiedad.get(0).getId()">@listPropiedad.get(0).getNombre()</option>
+									@for(lista <- listPropiedad){
 										<option value="@lista.getId()">@lista.getNombre()</option>
 									}
 								</select>
@@ -954,6 +967,7 @@ listSucursales: List[tables.Sucursal], lista: List[List[String]], proveedor: tab
 			formData.append('desdeMenu',"COMPRA");
 			formData.append('kg',$("#nuevoEquipoId_kg").val().replace(/,/g,''));
 			formData.append('m2',$("#nuevoEquipoId_m2").val().replace(/,/g,''));
+			formData.append('id_propiedad',$("#id_propiedad").val());
 			
 			$.ajax({
 	            url: "/nuevoEquipoAjax/",

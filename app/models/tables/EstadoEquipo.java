@@ -58,9 +58,7 @@ public class EstadoEquipo {
 	}
 	public EstadoEquipo() {super();}
 	
-	
-	
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
 	
 	
 	public static Map<Long,String> mapStrEstadoEquipo (Connection con, String db, Long id_guia){

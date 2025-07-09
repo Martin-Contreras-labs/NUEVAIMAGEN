@@ -43,8 +43,6 @@ public class ReportCotiOdo {
 		super();
 	}
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
 	public static Map<String,Double> calculoCotiOdo(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, String pais) {

@@ -8,11 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -378,7 +375,8 @@ public class IConstruyeProdDet {
 	
 	public static List<List<String>> importProductoDetalleExcel(File file) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		DecimalFormat df = new DecimalFormat("#");
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		DecimalFormat df = new DecimalFormat("#",symbols);
 	    df.setMaximumFractionDigits(8);
 		try {
             Workbook libro = WorkbookFactory.create(file);
@@ -812,7 +810,8 @@ public class IConstruyeProdDet {
 	
 	public static List<List<String>> detalleProductoUploadMada(File file) {
 		 List<List<String>> lista = new ArrayList<List<String>>();
-		 DecimalFormat df = new DecimalFormat("#");
+		 DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		 DecimalFormat df = new DecimalFormat("#",symbols);
  	     df.setMaximumFractionDigits(8);
 		try {
            Workbook libro = WorkbookFactory.create(file);

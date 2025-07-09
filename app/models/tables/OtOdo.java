@@ -168,9 +168,6 @@ public class OtOdo {
 
 	public OtOdo(){super();}
 
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
 	
 	
 	public static Long anioPrimeraOt(Connection con, String db) {

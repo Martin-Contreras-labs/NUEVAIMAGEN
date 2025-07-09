@@ -5,11 +5,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import controllers.HomeController.Sessiones;
 import models.contratos.GeneraPDF_ContratoOdo;
@@ -59,9 +56,10 @@ public class MnuCotiOdo extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdoubleCompra = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	
@@ -788,7 +786,7 @@ public class MnuCotiOdo extends Controller {
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				DecimalFormat myformaNumber = new DecimalFormat("0");
+				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				Map<String,Double> map = ReportCotiOdo.calculoCotiOdo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD,  mapeoDiccionario.get("pais"));
 				Double val_Confirmadas = map.get("val_Confirmadas");
 				if(val_Confirmadas == null) val_Confirmadas = (double)0;
@@ -1857,7 +1855,7 @@ public class MnuCotiOdo extends Controller {
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				DecimalFormat myformaNumber = new DecimalFormat("0");
+				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				Map<String,Double> map = ReportCotiOdo.calculoOtOdo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD,  mapeoDiccionario.get("pais"));
 				Double val_ConOt = map.get("val_ConOt");
 				if(val_ConOt == null) val_ConOt = (double)0;

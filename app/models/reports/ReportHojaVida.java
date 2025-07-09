@@ -9,11 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,9 +34,10 @@ import models.utilities.Archivos;
 import models.utilities.Fechas;
 
 public class ReportHojaVida {
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	public static List<List<String>> reportDiasNoOperativo(Connection con, String db, String pais, Long id_sucursal) {
@@ -1223,7 +1221,7 @@ public class ReportHojaVida {
 	
 	public static List<List<String>> detalleProductoUploadMada(File file) {
 		 List<List<String>> lista = new ArrayList<List<String>>();
-		 DecimalFormat df = new DecimalFormat("#");
+		 DecimalFormat df = new DecimalFormat("#",symbols);
  	     df.setMaximumFractionDigits(8);
 		try {
            Workbook libro = WorkbookFactory.create(file);

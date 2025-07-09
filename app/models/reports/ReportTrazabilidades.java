@@ -36,9 +36,7 @@ import models.utilities.Fechas;
 
 
 public class ReportTrazabilidades {
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 		
 	

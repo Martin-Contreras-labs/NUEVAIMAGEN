@@ -446,6 +446,7 @@ POST    /generarProformaPdfXlsxXmlJson/			controllers.MnuReportes.generarProform
 
 GET     /reportFacturaPeriodoH/					    controllers.MnuReportes.reportFacturaPeriodoH(request: Request)
 POST    /reportFacturaProyectoH/:archivoPDF		    controllers.MnuReportes.reportFacturaProyectoH(request: Request, archivoPDF: String)
+POST    /reportFacturaProyectoHExcel/			controllers.MnuReportes.reportFacturaProyectoHExcel(request: Request)
 GET     /reportFacturaProyectoHGet/:p,:d,:a,:uf,:us,:eu		controllers.MnuReportes.reportFacturaProyectoHGet(request: Request, p: String, d: String, a: String, uf: Double, us: Double, eu: Double)
 
 

@@ -3,8 +3,10 @@ package controllers;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import controllers.HomeController.Sessiones;
@@ -37,8 +39,9 @@ public class MnuPpto extends Controller {
 	public static String msgErrorFormulario = HomeController.msgErrorFormulario;
 	public static String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	
 	
 	
@@ -69,10 +72,10 @@ public class MnuPpto extends Controller {
 				numDecimales = dec.get((long)1);
 			}
 			switch(numDecimales.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
@@ -358,10 +361,10 @@ public class MnuPpto extends Controller {
 				numDecimales = dec.get((long)1);
 			}
 			switch(numDecimales.toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternasFiltradas(con, s.baseDato, permisoPorBodega, s.aplicaPorSucursal, s.id_sucursal);

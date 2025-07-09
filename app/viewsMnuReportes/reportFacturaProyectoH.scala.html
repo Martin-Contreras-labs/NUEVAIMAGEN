@@ -14,6 +14,39 @@ uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String, 
 
 		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","PROCESO DE EP/FACTURACION PROFORMA SIMPLE")
 
+		<div class="noprint">
+			<div class="row">
+				<div class="col-1"></div>
+				<div class="col-5"></div>
+				<div class="col-6">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success"
+								onclick="history.go(-1);return false;">
+									Volver
+								</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoHExcel/">
+			<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
+			<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+			<input type="hidden" name="uf" value="@uf">
+			<input type="hidden" name="usd" value="@usd">
+			<input type="hidden" name="eur" value="@eur">
+		</form>
+
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<div class="noprint">

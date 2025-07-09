@@ -30,10 +30,6 @@ import org.slf4j.LoggerFactory;
 
 
 public class GeneraPDF_ContratoMontax {
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static DecimalFormat myformatdouble6 = new DecimalFormat("#,##0.000000");
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	

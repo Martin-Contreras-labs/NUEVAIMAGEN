@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -250,7 +252,8 @@ public class WebFacturacionGuiaSalidaXml {
 						String IvaTasa = tasaIvaArrAuxiliar.toString();
 						
 						for(int i=0;i<detalleGuia.size();i++) {
-							DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+							DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+							DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 							
 							String auxPrecio = detalleGuia.get(i).get(9); //precio unitario de venta
     							if(auxPrecio.equals("")||auxPrecio.equals(" "))	auxPrecio = "0";
@@ -311,8 +314,8 @@ public class WebFacturacionGuiaSalidaXml {
 	    						
 	    						String auxCantidad = detalleGuia.get(i).get(8);
 		    					if(auxCantidad.equals("")||auxCantidad.equals(" "))	auxCantidad = "0";
-							
-							DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+							DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+							DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 		    					Double precioUnitario = (double)0;
 		    					String auxNum = auxPrecio.trim().replaceAll(",", "");
 				 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";

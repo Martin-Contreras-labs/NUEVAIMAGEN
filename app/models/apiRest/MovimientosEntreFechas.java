@@ -6,8 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import controllers.HomeController;
@@ -65,8 +67,9 @@ public class MovimientosEntreFechas {
 	public MovimientosEntreFechas() {
 		super();
 	}
-	
-	static DecimalFormat sinFormato = new DecimalFormat("0");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat sinFormato = new DecimalFormat("0",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	

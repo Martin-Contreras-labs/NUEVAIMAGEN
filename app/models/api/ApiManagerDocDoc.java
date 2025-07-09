@@ -5,8 +5,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -205,7 +207,8 @@ public class ApiManagerDocDoc {
 	// FINAL DE CONSUME LOS SERVICIOS EN MANAGER:
 	//**************************************************************
 
-	static DecimalFormat myformatapi = new DecimalFormat("#.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatapi = new DecimalFormat("#.00",symbols);
 	
 	public static ApiManagerDocDoc generaGuiaSalida (Connection con, String db,Guia guia,Transportista transportista, Map<String,String> mapDiccionario, Map<String,String> mapPermiso) {
 		try {

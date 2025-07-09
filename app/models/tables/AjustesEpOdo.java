@@ -5,10 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -143,18 +145,19 @@ public class AjustesEpOdo {
 		this.nameSucursal = nameSucursal;
 	}
 
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 
 	//OBTIENE LA LISTA DETALLE DE AJUSTES POR UNA BODEGAEMPRESA EN UN DETERMINADO PERIODO
 	public static List<List<String>> detalleAjuste(Connection con, String db, Long id_bodegaEmpresa, String desdeAAMMDD, String hastaAAMMDD) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 		switch(dec.get((long)1).toString()) {
-			case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			default:  break;
 		}
 		try (PreparedStatement smt = con.prepareStatement("select if(id_tipoAjuste=1,'Menos ', 'Mas '), concepto, if(id_tipoAjuste=1,-1,1)*totalAjuste from `"+db+"`.ajustesEpOdo " +
@@ -208,10 +211,10 @@ public class AjustesEpOdo {
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				while (rs.next()) {
 					switch(dec.get(rs.getLong(6)).toString()) {
-						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						default:  break;
 					}
 					String fecha = "";
@@ -281,10 +284,10 @@ public class AjustesEpOdo {
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				if (rs.next()) {
 					switch(dec.get(rs.getLong(6)).toString()) {
-						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						default:  break;
 					}
 					String fecha = "";
@@ -435,10 +438,10 @@ public class AjustesEpOdo {
 				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 				while (rs.next()) {
 					switch(dec.get(rs.getLong(6)).toString()) {
-						case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-						case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-						case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-						case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 						default:  break;
 					}
 					String fecha = "";

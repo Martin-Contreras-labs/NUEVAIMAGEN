@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import models.tables.*;
@@ -89,11 +91,10 @@ public class FormFactura {
 	public FormFactura() {
 		super();
 	}
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00%");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00%",symbols);
 	
 	public static String generaProformaArriendo(Connection con, String db, WSClient ws, Map<String,String> mapDiccionario, Map<String,String> mapPermiso,
 			List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma, XmlFacturaReferencias referencias, 
@@ -151,10 +152,10 @@ public class FormFactura {
     			
     			
     			switch(dec.get((long) 1).toString()) {
-    			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-    			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+    			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+    			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
     			 default:  break;
     			}
     			
@@ -354,10 +355,10 @@ public class FormFactura {
 		            	Long id_moneda = Long.parseLong(inicioPer.get(i).get(6));
 		            	
 		            	switch(dec.get(id_moneda).toString()) {
-		    			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		    			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		    			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		    			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		    			 default:  break;
 		    			}
 		            	
@@ -518,10 +519,10 @@ public class FormFactura {
 		            			Long id_moneda = Long.parseLong(reportPorGuia.get(j).get(7));
 				            	
 				            	switch(dec.get(id_moneda).toString()) {
-				    			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-				    			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-				    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-				    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+				    			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				    			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 				    			 default:  break;
 				    			}
 		            			
@@ -698,10 +699,10 @@ public class FormFactura {
 		            	Long id_moneda = Long.parseLong(finalPer.get(i).get(6));
 		            	
 		            	switch(dec.get(id_moneda).toString()) {
-		    			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-		    			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-		    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-		    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+		    			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+		    			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+		    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+		    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 		    			 default:  break;
 		    			}
 		            	
@@ -1085,10 +1086,10 @@ public class FormFactura {
 			
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
 			switch(dec.get((long) 1).toString()) {
-			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
 			
@@ -1392,10 +1393,10 @@ public class FormFactura {
     			cell=table.getRow(4).getCell(3);setCelda(cell,"Arial",10,1,"2b5079",bodegaEmpresa.comercial,false);
     			
     			switch(cantDec.toString()) {
-    			 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-    			 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+    			 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+    			 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+    			 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+    			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
     			 default:  break;
     			}
     			

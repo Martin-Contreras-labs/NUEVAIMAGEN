@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listProveedor: List[tables.Proveedor], listEquipo: List[tables.Equipo], listMoneda: List[tables.Moneda], listBodegas: List[List[String]], listMon: List[tables.Moneda],
 listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades: List[tables.Unidad], factura: tables.Factura, detalleFactura: List[List[String]],
-listSucursales: List[tables.Sucursal])
+listSucursales: List[tables.Sucursal], listPropiedad: List[tables.Propiedad])
 
     	
 @main("") {
@@ -311,7 +311,7 @@ listSucursales: List[tables.Sucursal])
 	
 	
 	<div id='modalNuevoEquipo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
-		<div class='modal-dialog modal-dialog-scrollable modal-sm' role='document'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
 			<div class='modal-content'>
 				<div class='modal-header'>
 					<h5 class='modal-title'>INGRESAR NUEVO EQUIPO</h5>
@@ -328,6 +328,18 @@ listSucursales: List[tables.Sucursal])
 									id="nuevoEquipoId_grupo"
 									required>
 									@for(lista <- listGrupos){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</TR>
+						<TR>
+							<td  style="text-align:left;">PROPIEDAD</td>
+							<td style="text-align:left">
+								<select class="custom-select"
+								id="nuevoId_propiedad" required>
+									<option value="@listPropiedad.get(0).getId()">@listPropiedad.get(0).getNombre()</option>
+									@for(lista <- listPropiedad){
 										<option value="@lista.getId()">@lista.getNombre()</option>
 									}
 								</select>
@@ -921,7 +933,8 @@ listSucursales: List[tables.Sucursal])
 			formData.append('desdeMenu',"COMPRA");
 			formData.append('kg',$("#nuevoEquipoId_kg").val().replace(/,/g,''));
 			formData.append('m2',$("#nuevoEquipoId_m2").val().replace(/,/g,''));
-			
+			formData.append('id_propiedad',$("#nuevoId_propiedad").val().replace(/,/g,''));
+
 			$.ajax({
 	            url: "/nuevoEquipoAjax/",
 	            type: "POST",

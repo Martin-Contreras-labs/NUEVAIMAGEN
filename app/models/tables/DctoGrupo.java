@@ -34,8 +34,7 @@ public class DctoGrupo{
 	public void setTasaDescto(Double tasaDescto) {this.tasaDescto = tasaDescto;}
 	public String getNombreGrupo() {return nombreGrupo;}
 	public void setNombreGrupo(String nombreGrupo) {this.nombreGrupo = nombreGrupo;}
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+
 	
 	
 	

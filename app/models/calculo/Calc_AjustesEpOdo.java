@@ -6,10 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import controllers.HomeController;
 import models.tables.ActaBaja;
@@ -44,7 +42,8 @@ public class Calc_AjustesEpOdo {
 		super();
 	}
 
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
@@ -139,16 +138,16 @@ public class Calc_AjustesEpOdo {
 				Map<Long, Long> dec = Moneda.numeroDecimal(con, db);
 				switch (dec.get((long) 1).toString()) {
 					case "0":
-						myformatdouble = new DecimalFormat("#,##0");
+						myformatdouble = new DecimalFormat("#,##0",symbols);
 						break;
 					case "2":
-						myformatdouble = new DecimalFormat("#,##0.00");
+						myformatdouble = new DecimalFormat("#,##0.00",symbols);
 						break;
 					case "4":
-						myformatdouble = new DecimalFormat("#,##0.0000");
+						myformatdouble = new DecimalFormat("#,##0.0000",symbols);
 						break;
 					case "6":
-						myformatdouble = new DecimalFormat("#,##0.000000");
+						myformatdouble = new DecimalFormat("#,##0.000000",symbols);
 						break;
 					default:
 						break;

@@ -5,11 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import controllers.HomeController;
 import models.calculo.Inventarios;
@@ -97,9 +95,9 @@ public class PlanMantencion {
 
 
 
-
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	
 	public static PlanMantencion find(Connection con, String db, Long id_equipo, Long id_tipoPlan) {
 		PlanMantencion aux = new PlanMantencion();
@@ -548,12 +546,15 @@ public class PlanMantencion {
 							" equipo.img, " +
 							" equipo.vigente, " +
 							" equipo.kg, " +
-							" equipo.m2 " +
+							" equipo.m2, " +
+							" equipo.id_propiedad, " +
+							" ifnull(propiedad.nombre,'') " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
 							" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 							" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
+							" left join `"+db+"`.propiedad on propiedad.id = equipo.id_propiedad " +
 							listaCond +
 							" group by movimiento.id_equipo " +
 							" having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0 " +
@@ -561,7 +562,8 @@ public class PlanMantencion {
 				ResultSet rs = smt.executeQuery();
 				while (rs.next()) {
 						lista.add(new Equipo(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getLong(5),rs.getLong(6),
-								rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),rs.getDouble(13),rs.getLong(11)));
+								rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getDouble(12),
+								rs.getDouble(13),rs.getLong(11),rs.getLong(14),rs.getString(15)));
 				}
 				rs.close();
 				smt.close();

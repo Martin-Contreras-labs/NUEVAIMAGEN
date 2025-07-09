@@ -36,15 +36,7 @@ import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 
 public class ReportVentas {
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000");
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	
-	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0");
-	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0");
+
 	
 	
 	

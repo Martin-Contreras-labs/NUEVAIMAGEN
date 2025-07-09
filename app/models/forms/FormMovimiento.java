@@ -11,11 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 
 import org.apache.poi.util.TempFile;
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
@@ -114,9 +111,10 @@ public class FormMovimiento {
 	public FormMovimiento() {
 		super();
 	}
-	
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0");
-	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0");
+
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0",symbols);
+	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0",symbols);
 	
 	
 	
@@ -558,7 +556,7 @@ public class FormMovimiento {
 						precioArriendoDbl = Double.parseDouble(precioReposicion) * tasa;
 					}
 					
-					DecimalFormat formato = new DecimalFormat("#.########");
+					DecimalFormat formato = new DecimalFormat("#.########",symbols);
 					
 					if(db.equals("madaHeko")) {
 						precioVenta = formato.format(Math.round(precioVentaDbl));
@@ -1013,10 +1011,10 @@ public class FormMovimiento {
 					Long decimal = dec.get(id_moneda);
 					if(decimal == null) {decimal=(long)0;}
 					switch(decimal.toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 					// FIN DETERMINA CANTIDAD DE DECIMALES SEGUN MONEDA

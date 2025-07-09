@@ -14,9 +14,11 @@ public class FormEquipoGraba {
 	public Double m2;
 	
 	public String desdeMenu;
+	public Long id_propiedad;
+
 
 	public FormEquipoGraba(Long id_grupo, String codigo, String nombre, Long id_fabrica, Long id_unidad,
-			List<Long> idAtributos, List<String> valorAtributos, Double kg, Double m2, String desdeMenu) {
+			List<Long> idAtributos, List<String> valorAtributos, Double kg, Double m2, String desdeMenu, Long id_propiedad) {
 		super();
 		this.id_grupo = id_grupo;
 		this.codigo = codigo;
@@ -27,6 +29,7 @@ public class FormEquipoGraba {
 		this.valorAtributos = valorAtributos;
 		this.kg = kg;
 		this.m2 = m2;
+		this.id_propiedad = id_propiedad;
 		this.desdeMenu = desdeMenu;
 	}
 

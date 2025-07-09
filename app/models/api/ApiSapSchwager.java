@@ -3,10 +3,8 @@ package models.api;
 
 import java.sql.Connection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -163,7 +161,8 @@ public class ApiSapSchwager {
 					}
 				}
 			}
-			DecimalFormat myformatapi = new DecimalFormat("###0.0");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat myformatapi = new DecimalFormat("###0.0",symbols);
 			//codigo,precioTotal,dias
 			Map<String,List<String>> mapDetalle = new HashMap<String,List<String>>();
 			for(List<String> i: inicioPer) {
@@ -289,7 +288,8 @@ public class ApiSapSchwager {
 					}
 				}
 			}
-			DecimalFormat myformatapi = new DecimalFormat("###0.0");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat myformatapi = new DecimalFormat("###0.0",symbols);
 			//codigo,precioTotal
 			Map<String,List<String>> mapDetalle = new HashMap<String,List<String>>();
 			for(List<String> g: guiasPer) {
@@ -361,7 +361,8 @@ public class ApiSapSchwager {
 	
 	public static String generaJsonGUIA( String rutCliente, Fechas hoy, Guia guia, Transportista transportista, 
 			List<List<String>> detalleGuia, Map<Long,Double> mapTasas) {
-		DecimalFormat myformatapi = new DecimalFormat("###0.0");
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+		DecimalFormat myformatapi = new DecimalFormat("###0.0",symbols);
    		String json = "{"
    				+ "\"CardCode\": \"CL"+rutCliente+"\","
    				+ "\"DocDate\": \""+hoy.getFechaStrAAMMDD()+"\","

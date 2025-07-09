@@ -5,14 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 
 public class ListaPrecio {
@@ -146,12 +142,12 @@ public class ListaPrecio {
 	public Long getNumeroCotizacion() {return numeroCotizacion;}
 	public void setNumeroCotizacion(Long numeroCotizacion) {this.numeroCotizacion = numeroCotizacion;}
 
-
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatentero = new DecimalFormat("#,##0");
+	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
+	static DecimalFormat myformatentero = new DecimalFormat("#,##0",symbols);
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatint = new DecimalFormat("#,##0");
+	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
 	
 	
 	
@@ -258,10 +254,10 @@ public class ListaPrecio {
 				String reposPesos = myformatentero.format(rs1.getDouble(6)*tasa);
 				String arrPesos = myformatentero.format(arriendoTotal*tasa);				
 				switch((dec.get(rs1.getLong(3))).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0"); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00"); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000"); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000"); break;
+					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 					 default:  break;
 					}
 				Double tasaArriendo=(double)0;

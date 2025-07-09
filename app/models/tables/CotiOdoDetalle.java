@@ -171,11 +171,6 @@ public class CotiOdoDetalle {
 		super();
 	}
 
-	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00");
-	static DecimalFormat myformattasa = new DecimalFormat("#,##0.00 %");
-	
 
 	public static Map<Long,CotiOdoDetalle> mapAll(Connection con, String db){
 		Map<Long,CotiOdoDetalle> map = new HashMap<Long,CotiOdoDetalle>();
