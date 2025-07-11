@@ -172,8 +172,8 @@ public class Calc_Precio {
 	
 	public static Map<Long,Calc_Precio> mapPreciosCompra (Connection con, String db){
 		Map<Long,Calc_Precio> map = new HashMap<Long,Calc_Precio>();
-		String query = String.format("select max(concat(factura.fecha,'_',compra.id)) from `$s`.compra "
-				+ " left join `%s`.factura on factura.id = compra.id_factura  group by id_equipo;",db);
+		String query = String.format("select max(concat(factura.fecha,'_',compra.id)) from `%s`.compra "
+				+ " left join `%s`.factura on factura.id = compra.id_factura  group by id_equipo;",db,db);
 		try (PreparedStatement smt2 = con.prepareStatement(query)){
 			try(ResultSet rs2 = smt2.executeQuery()) {
 				String lista = "";

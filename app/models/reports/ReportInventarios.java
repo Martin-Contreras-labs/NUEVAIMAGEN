@@ -483,6 +483,7 @@ public class ReportInventarios {
 					String nomEquipo = "";
 					String nomUnidad = "";
 					String imgEquipo = "0";
+					String namePropiedad = "";
 					Equipo equipo = mapEquipo.get(rs6.getLong(3));
 					if(equipo != null) {
 						id_grupo = equipo.getId_grupo();
@@ -491,6 +492,7 @@ public class ReportInventarios {
 						nomEquipo = equipo.getNombre();
 						nomUnidad = equipo.getUnidad();
 						imgEquipo = equipo.getImg();
+						namePropiedad = equipo.getPropiedad();
 					}
 					
 					String nameSucursal = "";
@@ -591,6 +593,7 @@ public class ReportInventarios {
 					aux.add(rs6.getString(7)); 								// 20 id_bodegaEmpresa
 					aux.add(rs6.getString(8)); 								// 21 nombre bodegaEmpresa
 					aux.add(nameSucursal); 									// 22 nameSucursal
+					aux.add(namePropiedad); 									// 23 namePropiedad
 					
 					lista.add(aux);
 				}
@@ -1343,6 +1346,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 7*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("PPROPIEDAD");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
@@ -1476,6 +1486,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(23));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);

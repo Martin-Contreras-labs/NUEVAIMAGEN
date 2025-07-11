@@ -79,7 +79,8 @@ listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosEqui
 						<td style="text-align:left;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista.get(1)</td>
 						<td style="text-align:left;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista.get(2)</td>
 						<td style="text-align:left;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista.get(3)</td>
-						@for(lista2 <- lista.tail.tail.tail.tail){
+						<td style="text-align:left;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista.get(4)</td>
+						@for(lista2 <- lista.tail.tail.tail.tail.tail){
 							<td style="text-align:right;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista2</td>
 						}
 					}else{
@@ -87,7 +88,8 @@ listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosEqui
 						<td style="text-align:left;">@lista.get(1)</td>
 						<td style="text-align:left;">@lista.get(2)</td>
 						<td style="text-align:left;">@lista.get(3)</td>
-						@for(lista2 <- lista.tail.tail.tail.tail){
+						<td style="text-align:left;">@lista.get(4)</td>
+						@for(lista2 <- lista.tail.tail.tail.tail.tail){
 							<td style="text-align:right;">@lista2</td>
 						}
 					}
@@ -197,12 +199,12 @@ listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosEqui
 		    	"paging": false,
 				"info": false,
 				"searching": false,
-		    	"order": [[ 3, "asc" ]],
+		    	"order": [[ 4, "asc" ]],
 		    	"language": {
 		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 		        }
 		  } );
-		  
+
 		  
 		  @for((lista,index) <-listSeleccion.zipWithIndex){
 			Highcharts.chart('grafico_@index',{
@@ -230,7 +232,7 @@ listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosEqui
 	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
 	                    }
 	                }
-	            }, 
+	            },
 	            tooltip: {
 	                formatter: function() {
 	                    return '<b>'+ this.x +'</b><br/>'+
@@ -256,19 +258,19 @@ listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosEqui
 			            	{
 				            	name: @Html(lista2),
 				            	data: @mapDatos.get(lista+"_"+lista2).toString()
-				            	
-				            	
+
+
 				            }
 			            	@if(index2 < mapEquipo.get(lista).size()-1){
 			            		,
-			            	} 
-	            		} 
+			            	}
+	            		}
 	            	}
 	            ]
 	        });
 		}
 		
-		
+
 		
 		
 		

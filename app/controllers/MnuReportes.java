@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -9801,7 +9802,7 @@ public class MnuReportes extends Controller {
 					return ok(mensajes.render("/home/", msgReport));
 				}
 				List<String> categorias = new ArrayList<String>();
-				for(int i=4; i<datos.get(0).size()-1; i=i+3) {
+				for(int i=5; i<datos.get(0).size()-1; i=i+3) {
 					categorias.add("'" + datos.get(0).get(i) + "'");
 				}
 				//GRAFICOS POR EMPRESA
@@ -9811,30 +9812,30 @@ public class MnuReportes extends Controller {
 				Map<String,List<String>> mapEquipo = new HashMap<String,List<String>>();
 				Map<String,List<String>> mapDatosEmpresa = new HashMap<String,List<String>>();
 				for(int i=2; i<datos.size()-1; i++) {
-				if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
-					if(i>2) {
-						mapEquipo.put(aux, listEquipo);
-						listEquipo = new ArrayList<String>();
+					if(!aux.equals("'"+datos.get(i).get(0)+"'")) {
+						if(i>2) {
+							mapEquipo.put(aux, listEquipo);
+							listEquipo = new ArrayList<String>();
+						}
+						listSeleccion.add("'"+datos.get(i).get(0)+"'");
+						aux = "'"+datos.get(i).get(0)+"'";
 					}
-					listSeleccion.add("'"+datos.get(i).get(0)+"'");
-					aux = "'"+datos.get(i).get(0)+"'";
-				}
 					if(aux.equals("'"+datos.get(i).get(0)+"'")) {
-						listEquipo.add("'"+datos.get(i).get(2)+"'");
+						listEquipo.add("'"+datos.get(i).get(3)+"'");
 						mapEquipo.put(aux, listEquipo);
 					}
 					List<String> listDatos = new ArrayList<String>();
-					for(int j=4; j<datos.get(i).size()-3; j = j+3) {
+					for(int j=5; j<datos.get(i).size()-3; j = j+3) {
 						listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
 					}
-					mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(2)+"'", listDatos);
+					mapDatosEmpresa.put("'"+datos.get(i).get(0)+"'"+"_"+"'"+datos.get(i).get(3)+"'", listDatos);
 				}
 				//GRAFICOS POR EQUIPO
 				//ORDENA LA LISTA POR EQUIPO
 				for(int j=2;j<datos.size()-1;j++) {
 					for(int i=2;i<datos.size()-j;i++) {
-						String A = datos.get(i).get(2) + "_" + datos.get(i).get(0);
-						String B = datos.get(i+1).get(2) + "_" + datos.get(i+1).get(0);
+						String A = datos.get(i).get(3) + "_" + datos.get(i).get(0);
+						String B = datos.get(i+1).get(3) + "_" + datos.get(i+1).get(0);
 						if (i+1!=datos.size() && A.compareToIgnoreCase(B)>0) {
 							List<String> auxlista;
 							auxlista=datos.get(i);
@@ -9843,6 +9844,8 @@ public class MnuReportes extends Controller {
 						}
 					}
 				}
+
+
 				String aux2 ="";
 				List<String> listSeleccion2 = new ArrayList<String>();
 				List<String> listEmpresa = new ArrayList<String>();
@@ -9850,31 +9853,35 @@ public class MnuReportes extends Controller {
 				Map<String,List<String>> mapDatosEquipo = new HashMap<String,List<String>>();
 				Map<String, String> mapNomEquip = new HashMap<String,String>();
 				for(int i=2; i<datos.size()-1; i++) {
-					if(!aux2.equals("'"+datos.get(i).get(2)+"'")) {
+					if(!aux2.equals("'"+datos.get(i).get(3)+"'")) {
 						if(i>2) {
 							mapEmpresas.put(aux2, listEmpresa);
 							listEmpresa = new ArrayList<String>();
 						}
-						listSeleccion2.add("'"+datos.get(i).get(2)+"'");
-						mapNomEquip.put("'"+datos.get(i).get(2)+"'", datos.get(i).get(2)+" - "+datos.get(i).get(3));
-						aux2 = "'"+datos.get(i).get(2)+"'";
+						listSeleccion2.add("'"+datos.get(i).get(3)+"'");
+						mapNomEquip.put("'"+datos.get(i).get(3)+"'", datos.get(i).get(3)+" - "+datos.get(i).get(4));
+						aux2 = "'"+datos.get(i).get(3)+"'";
 					}
-					if(aux2.equals("'"+datos.get(i).get(2)+"'")) {
+					if(aux2.equals("'"+datos.get(i).get(3)+"'")) {
 						listEmpresa.add("'"+datos.get(i).get(0)+"'");
 						mapEmpresas.put(aux2, listEmpresa);
 					}
 					List<String> listDatos = new ArrayList<String>();
-					for(int j=6; j<datos.get(i).size()-3; j = j+3) {
+					for(int j=7; j<datos.get(i).size()-3; j = j+3) {
 						listDatos.add(datos.get(i).get(j).replaceAll(",", ""));
 					}
-					mapDatosEquipo.put("'"+datos.get(i).get(2)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
+					mapDatosEquipo.put("'"+datos.get(i).get(3)+"'"+"_"+"'"+datos.get(i).get(0)+"'", listDatos);
 				}
 				if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
 					File file = ReportFacturaConsolidado.reportConsDetalladoPorEquipoRtpExcel(s.baseDato, mapeoDiccionario, datos);
 					return ok(file,false,Optional.of("Consol_ep_por_equipo_meses.xlsx"));
 				}
+				listSeleccion2 = listSeleccion2.stream()
+						.distinct()
+						.collect(Collectors.toList());
+
 				return ok(reportFactConsolconEquiposRtp.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, form.get("fecha"), form.get("cantMeses"),
-							categorias, listSeleccion, mapEquipo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosEquipo, mapNomEquip));
+						categorias, listSeleccion, mapEquipo, mapDatosEmpresa, listSeleccion2, mapEmpresas, mapDatosEquipo, mapNomEquip));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));

@@ -172,7 +172,7 @@ public class ReportFacturaConsolidado {
     	//ORDENA LA LISTA
 		for(int j=1;j<datos.size();j++) {
             for(int i=1;i<datos.size()-j;i++) {
-                if (i+1!=datos.size() && datos.get(i).get(1).compareToIgnoreCase(datos.get(i+1).get(1))>0) {
+                if (i+1!=datos.size() && datos.get(i).get(2).compareToIgnoreCase(datos.get(i+1).get(2))>0) {
                     List<String> aux;
                     aux=datos.get(i);
                     datos.set(i,datos.get(i+1));
@@ -203,7 +203,7 @@ public class ReportFacturaConsolidado {
     	
 		return (datos);
 	}
-	
+
 	public static File reportFacturaConsolidadoRtpExcel(String db, Map<String,String> mapDiccionario, List<List<String>> datos) {
 		
 		File tmp = TempFile.createTempFile("tmp","null");
@@ -793,6 +793,7 @@ public class ReportFacturaConsolidado {
     	List<String> titulos = new ArrayList<String>();
     	titulos.add("BODEGA/CLIENTE");
     	titulos.add("GRUPO");
+		titulos.add("PROPIEDAD");
     	titulos.add("CODIGO");
     	titulos.add("EQUIPO");
     	for(int i = listaFechas.size()-1; i >= 0; i--) {
@@ -810,6 +811,7 @@ public class ReportFacturaConsolidado {
     	titulos.add("");
     	titulos.add("");
     	titulos.add("");
+		titulos.add("");
     	titulos.add("");
     	for(int i = listaFechas.size()-1; i >= 0; i--) {
     		titulos.add("Alquiler");
@@ -832,6 +834,7 @@ public class ReportFacturaConsolidado {
     		if(bod!=null && equipo!=null) {
     			auxDato.add(bod.get(5));
     			auxDato.add(equipo.getGrupo());
+				auxDato.add(equipo.getPropiedad());
     			auxDato.add(equipo.getCodigo());
     			auxDato.add(equipo.getNombre());
     			
@@ -873,8 +876,8 @@ public class ReportFacturaConsolidado {
     	//ORDENA LA LISTA
 		for(int j=2;j<datos.size();j++) {
             for(int i=2;i<datos.size()-j;i++) {
-            	String A = datos.get(i).get(0) + "_" + datos.get(i).get(1);
-            	String B = datos.get(i+1).get(0) + "_" + datos.get(i+1).get(1);
+            	String A = datos.get(i).get(0) + "_" + datos.get(i).get(2);
+            	String B = datos.get(i+1).get(0) + "_" + datos.get(i+1).get(2);
                 if (i+1!=datos.size() && A.compareToIgnoreCase(B)>0) {
                     List<String> aux;
                     aux=datos.get(i);
@@ -888,6 +891,7 @@ public class ReportFacturaConsolidado {
     	totales.add("TOTALES");
     	totales.add("");
     	totales.add("");
+		totales.add("");
     	totales.add("");
     	Double granArr = (double) 0;
     	Double granVta = (double) 0;
@@ -987,8 +991,9 @@ public class ReportFacturaConsolidado {
 			hoja1.setColumnWidth(1, 10*1000);
 			hoja1.setColumnWidth(2, 10*1000);
 			hoja1.setColumnWidth(3, 5*1000);
-			hoja1.setColumnWidth(4, 10*1000);
-			for(int i=5; i<datos.get(0).size()+1; i++){
+			hoja1.setColumnWidth(4, 5*1000);
+			hoja1.setColumnWidth(5, 10*1000);
+			for(int i=6; i<datos.get(0).size()+1; i++){
 				hoja1.setColumnWidth(i, 4*1000);
             }
 			
@@ -1064,8 +1069,15 @@ public class ReportFacturaConsolidado {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(datos.get(i).get(3));
-            	
-				for(int k=4; k<datos.get(i).size(); k++){
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(datos.get(i).get(4));
+
+
+				for(int k=5; k<datos.get(i).size(); k++){
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);

@@ -299,7 +299,7 @@ public class XmlGuiaSalida {
 	    						
 	    						String auxCantidad = detalleGuia.get(i).get(8);
 		    					if(auxCantidad.equals("")||auxCantidad.equals(" "))	auxCantidad = "0";
-							
+
 		    					Double precioUnitario = (double)0;
 		    					String auxNum = auxPrecio.trim().replaceAll(",", "");
 				 	   			if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
