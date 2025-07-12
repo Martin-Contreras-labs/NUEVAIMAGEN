@@ -9,14 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -3646,7 +3639,82 @@ public class MnuReportes extends Controller {
 		try (Connection con = dbWrite.getConnection()) {
 			Long id_grupo = (long)0;
 			List<String> series = ReportGerenciales.graficoCategoriasAnio(con, s.baseDato, id_grupo, mapeoDiccionario, "0", "1");
-			return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"TODO EL INVENTARIO"));
+			return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"ALQUILERES + VENTAS + SERVICIOS"));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+	public Result reporteGerencialVentas(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reporteGerencial1")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbWrite.getConnection()) {
+			Long id_grupo = (long)0;
+			List<String> series = ReportGerenciales.graficoCategoriasAnioVentas(con, s.baseDato, id_grupo, mapeoDiccionario, "0", "1");
+			Fechas hoy = Fechas.hoy();
+			String[] aux1 =  hoy.getFechaStrAAMMDD().split("-");
+			Long yearActual = Long.parseLong(aux1[0]);
+			Long yearAnterior = yearActual - (long)1;
+			Long yearAntAnterior = yearActual - (long)2;
+			List<List<String>> datos = new ArrayList<List<String>>();
+			String serieAntAnterior = series.get(1).replaceAll("\\[", "").replaceAll("]","");
+			List<Double> listaAntAnterior = Arrays.stream(serieAntAnterior.split(","))
+					.map(Double::parseDouble)
+					.collect(Collectors.toList());
+			String serieAnterior = series.get(4).replaceAll("\\[", "").replaceAll("]","");
+			List<Double> listaAnterior = Arrays.stream(serieAnterior.split(","))
+					.map(Double::parseDouble)
+					.collect(Collectors.toList());
+			String serieActual = series.get(7).replaceAll("\\[", "").replaceAll("]","");
+			List<Double> listaActual = Arrays.stream(serieActual.split(","))
+					.map(Double::parseDouble)
+					.collect(Collectors.toList());
+			List<String> meses = Arrays.asList(
+					"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+					"Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+			);
+
+			List<List<String>> tabla = new ArrayList<List<String>>();
+			if(listaAntAnterior.size() == listaAnterior.size() && listaAnterior.size() == listaActual.size()) {
+				int decMon = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				Double totAntAnt = (double)0;
+				Double totAnt = (double)0;
+				Double totActual = (double)0;
+				for(int i=0; i<listaAntAnterior.size(); i++) {
+					totAntAnt += listaAntAnterior.get(i);
+					totAnt += listaAnterior.get(i);
+					totActual += listaActual.get(i);
+					List<String> aux = new ArrayList<String>();
+					aux.add(meses.get(i));
+					aux.add(DecimalFormato.formato(listaAntAnterior.get(i),(long)decMon));
+					aux.add(DecimalFormato.formato(listaAnterior.get(i),(long)decMon));
+					aux.add(DecimalFormato.formato(listaActual.get(i),(long)decMon));
+					tabla.add(aux);
+				}
+				List<String> aux = new ArrayList<String>();
+				aux.add("TOTAL");
+				aux.add(DecimalFormato.formato(totAntAnt,(long)decMon));
+				aux.add(DecimalFormato.formato(totAnt,(long)decMon));
+				aux.add(DecimalFormato.formato(totActual,(long)decMon));
+				tabla.add(aux);
+			}
+			return ok(reporteGerencialVentas.render(mapeoDiccionario,mapeoPermiso,userMnu,series,yearActual,yearAnterior,yearAntAnterior,tabla,"ALQUILERES + VENTAS + SERVICIOS"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -4148,6 +4216,37 @@ public class MnuReportes extends Controller {
 					mapTipoBodega, mapEquipo);
 			List<String> graficoOcupacionUnidades = ReportGraficos.graficoOcupacionPorGrupoUnidades(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reportGraficoMovUso.render(mapeoDiccionario,mapeoPermiso,userMnu,graficoOcupacionValorizado,graficoOcupacionUnidades));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+	public Result reportGraficoMovUsoPropiedad(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("reportGraficoOcupacion1")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbWrite.getConnection()) {
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, s.baseDato);
+			Map<Long,TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, s.baseDato);
+			List<String> graficoOcupacionValorizado = ReportEjecutivos.graficoOcupacionPorPropiedadValorizado(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal,
+					mapTipoBodega, mapEquipo);
+			List<String> graficoOcupacionUnidades = ReportGraficos.graficoOcupacionPorPropiedadUnidades(con, s.baseDato, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
+			return ok(reportGraficoMovUsoPropiedad.render(mapeoDiccionario,mapeoPermiso,userMnu,graficoOcupacionValorizado,graficoOcupacionUnidades));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));

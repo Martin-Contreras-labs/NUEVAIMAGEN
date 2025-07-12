@@ -430,11 +430,14 @@ POST    /reporteGerencialGrupoDetalle/		controllers.MnuReportes.reporteGerencial
 GET     /reporteGerencialKG/					controllers.MnuReportes.reporteGerencialKG(request: Request)
 POST    /reporteGerencialKGExcel/				controllers.MnuReportes.reporteGerencialKGExcel(request: Request)
 
+GET     /reporteGerencialVentas/				controllers.MnuReportes.reporteGerencialVentas(request: Request)
+
 GET     /reportGraficoMovResumen/:listG,:vista					controllers.MnuReportes.reportGraficoMovResumen(request: Request, listG: String, vista: String)
 POST	/refreshGraficoMovResumen/								controllers.MnuReportes.refreshGraficoMovResumen(request: Request)
 GET     /reportGraficoMovPorGrupo/:lG,:lB,:vista,:idT			controllers.MnuReportes.reportGraficoMovPorGrupo(request: Request, lG: String, lB: String, vista: String, idT: String)
 POST	/refreshGraficoMovPorGrupo/:idTipoBodega				controllers.MnuReportes.refreshGraficoMovPorGrupo(request: Request, idTipoBodega: String)
 GET     /reportGraficoMovUso/									controllers.MnuReportes.reportGraficoMovUso(request: Request)
+GET     /reportGraficoMovUsoPropiedad/							controllers.MnuReportes.reportGraficoMovUsoPropiedad(request: Request)
 
 GET     /reportFacturaPeriodo/					controllers.MnuReportes.reportFacturaPeriodo(request: Request)
 POST    /reportFacturaProyecto/:archivoPDF		controllers.MnuReportes.reportFacturaProyecto(request: Request, archivoPDF: String)

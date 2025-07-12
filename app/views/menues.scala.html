@@ -957,7 +957,8 @@
 											}
 											@if(mapPermiso.get("reportGraficoOcupacion1")!=null){
 												<div class="dropdown-divider" style="border-color:black"></div>
-												<a class="dropdown-item" href='/reportGraficoMovUso/'>Ocupaci&oacute;n Mensual</a>
+												<a class="dropdown-item" href='/reportGraficoMovUso/'>Ocupaci&oacute;n por Grupo</a>
+												<a class="dropdown-item" href='/reportGraficoMovUsoPropiedad/'>Ocupaci&oacute;n por Propiedad</a>
 											}
 										</li>
 									}
@@ -978,8 +979,13 @@
 										<li><a class="dropdown-item" href='/reporteGerencialGrupo/'>Reporte por Grupos</a></li>
 									}
 									@if(mapPermiso.get("reporteGerencial2")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
 										<li><a class="dropdown-item" href='/reporteGerencialKG/'>Toneladas movidas por Año</a></li>
 										<li><a class="dropdown-item" href='/routes2/reportGerenKGPorPeriodo0/'>Toneladas movidas por Periodo</a></li>
+									}
+									@if(mapPermiso.get("reporteGerencial1")!=null){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/reporteGerencialVentas/'>Grafico Ventas</a></li>
 									}
 									
 								</ul>

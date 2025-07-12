@@ -13,6 +13,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import controllers.HomeController;
+import models.tables.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -27,21 +29,18 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
 
-import models.tables.Compra;
-import models.tables.Equipo;
-import models.tables.Moneda;
-import models.tables.Precio;
-import models.tables.TasasCambio;
-import models.tables.TipoBodega;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ReportEjecutivos {
 
 	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
-	
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+
 	public static List<String> graficoDistribucionResumenValorizado(Map<String, String> mapeoDiccionario, List<List<String>> datos, String filtroGrupos,
 			Map<Long,TipoBodega> mapTipoBodega) {
 		
@@ -289,12 +288,10 @@ public class ReportEjecutivos {
 	public static List<String> graficoOcupacionPorGrupoValorizado(Connection con, String db, String pais, String esPorSucursal, String id_sucursal,
 			Map<Long,TipoBodega> mapTipoBodega, Map<Long,Equipo> mapEquipo) {
 		List<java.sql.Date> listFechas = new ArrayList<java.sql.Date>();
-		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
 		Calendar fechaCal = Calendar.getInstance();
 		fechaCal.set(fechaCal.get(Calendar.YEAR),fechaCal.get(Calendar.MONTH),fechaCal.getActualMinimum(Calendar.DAY_OF_MONTH));
 		fechaCal.add(Calendar.DAY_OF_YEAR, -1);
@@ -310,48 +307,37 @@ public class ReportEjecutivos {
 			fechaCal.set(fechaCal.get(Calendar.YEAR),fechaCal.get(Calendar.MONTH),fechaCal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		}
 		categoriaFechas=categoriaFechas+"]";
-		
 		List<String> resultado = new ArrayList<String>();
 		resultado.add(categoriaFechas);
-		
 		List<List<List<String>>> aux = new ArrayList<List<List<String>>>();
-		
 		List<String> tipoBodegas = new ArrayList<String>();
 		List<String> grupos = new ArrayList<String>();
 		List<List<String>> datos = new ArrayList<List<String>>();
-		
-		
-		try {
-
+		String query = String.format(" SELECT  grupo.nombre  FROM `%s`.grupo ORDER BY grupo.nombre;",db);
+		try (PreparedStatement smt8 = con.prepareStatement(query);
+			 	ResultSet rs8 = smt8.executeQuery()) {
 			TipoBodega tipoBod = mapTipoBodega.get((long)2);
 			tipoBodegas.add(tipoBod.getNombre());
-			
-			PreparedStatement smt8 = con
-					.prepareStatement(" select " +
-							" grupo.nombre " +
-							" from `"+db+"`.grupo " +
-							" order by grupo.nombre;");
-			ResultSet rs8 = smt8.executeQuery();
 			while (rs8.next()) {
 				grupos.add(rs8.getString(1));  //nombre de grupo
 			}
-			rs8.close();
-			smt8.close();
-			
-			PreparedStatement smt9 = con
-					.prepareStatement("select "
-							+ " ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja),"
-							+ " bodegaEmpresa.esInterna, "
-							+ " movimiento.id_equipo, "
-							+ " if(movimiento.id_tipoMovimiento=2,-1,1)*movimiento.cantidad"
-							+ " from `"+db+"`.movimiento"
-							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia  "
-							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  "
-							+ " where ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja) is not null" + condSucursal
-							+ ";");
-
-			ResultSet rs9 = smt9.executeQuery();
-			
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		query = String.format("select "
+				+ " ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja),"
+				+ " bodegaEmpresa.esInterna, "
+				+ " movimiento.id_equipo, "
+				+ " if(movimiento.id_tipoMovimiento=2,-1,1)*movimiento.cantidad"
+				+ " from `%s`.movimiento"
+				+ " left join `%s`.guia on guia.id = movimiento.id_guia  "
+				+ " left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  "
+				+ " where ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja) is not null" + condSucursal
+				+ ";",db,db,db);
+		try (PreparedStatement smt9 = con.prepareStatement(query);
+			 ResultSet rs9 = smt9.executeQuery()) {
 			while (rs9.next()) {
 				String id_tipoBodega = "0";
 				String nomTipoBodega = "";
@@ -360,13 +346,11 @@ public class ReportEjecutivos {
 					id_tipoBodega = tipoBodega.getId().toString();
 					nomTipoBodega = tipoBodega.getNombre();
 				}
-				
 				String nomGrupo = "";
 				Equipo equipo = mapEquipo.get(rs9.getLong(3));
 				if(equipo != null) {
 					nomGrupo = equipo.getGrupo();
 				}
-				
 				List<String> aux1 = new ArrayList<String>();
 				aux1.add(rs9.getString(1));
 				aux1.add(id_tipoBodega+"_"+rs9.getString(3));
@@ -376,26 +360,17 @@ public class ReportEjecutivos {
 				aux1.add(rs9.getString(4));
 				datos.add(aux1);
 			}
-			rs9.close();
-			smt9.close();
-			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
-		
-		
 		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
 		Map<String,TasasCambio> mapAllTasas =  TasasCambio.mapTasasporAllFecha(con, db, pais);
-		
 		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
-		
-		
-		
-		
 		for(int i=0; i<listFechas.size(); i++){
 			aux.add(ReportEjecutivos.ocupacionValorizadoFechaYGrupo(listFechas.get(i).toString(), pais, tipoBodegas, grupos, mapPCompra, mapAllTasas, datos, dec));
 		}
-		
 		for(int i=0; i<aux.get(0).size(); i++){
 			String aux4 = ",";
 			if(i == aux.get(0).size()-1) {
@@ -405,18 +380,15 @@ public class ReportEjecutivos {
 	            " name: ";
 			String aux1 = "[";
 			String aux2 = "";
-			
 			for(int j=0; j<aux.size(); j++){
 				String x = ",";
 				if(j == aux.size()-1) {
 					x = "";
 				}
-				
 				if(aux.get(j).size()<=aux.get(0).size()) {
 					aux1 = aux1 + aux.get(j).get(i).get(1) + x;
 					aux2 = aux.get(j).get(i).get(0);
 				}
-				
 			}
 			aux1 = aux1+ "]";
 			aux3 = aux3 +"'"+ aux2 +"',"+
@@ -431,25 +403,17 @@ public class ReportEjecutivos {
 		}
 		return (resultado);
 	}
-	
-	
-	public static List<List<String>> ocupacionValorizadoFechaYGrupo(String fechaAAMMDD, String pais, List<String> tipoBodegas, List<String> grupos, 
-			Map<Long,List<Double>> mapPCompra, Map<String,TasasCambio> mapAllTasas, List<List<String>> datos, Map<Long,Long> dec) {
-		
+
+	public static List<List<String>> ocupacionValorizadoFechaYGrupo(String fechaAAMMDD, String pais, List<String> tipoBodegas, List<String> grupos,
+																	Map<Long,List<Double>> mapPCompra, Map<String,TasasCambio> mapAllTasas, List<List<String>> datos, Map<Long,Long> dec) {
 		Map<String,Double> mapListaGrupoTipBod = new HashMap<String,Double>();
 		Map<String,Double> mapListaGrupo = new HashMap<String,Double>();
-		
 		TasasCambio tasa = mapAllTasas.get(fechaAAMMDD);
 		Map<Long,Double> tasasCorte = TasasCambio.auxiliarMapTasasPorFecha(tasa, pais);
-		
 		Map<String, List<String>> mapAux = new HashMap<String,List<String>>();
-		
-		Fechas auxFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaAAMMDD); 
-		
+		Fechas auxFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaAAMMDD);
 		datos.forEach(x->{
-			
-			Fechas auxFecha2 = Fechas.obtenerFechaDesdeStrAAMMDD(x.get(0)); 
-			
+			Fechas auxFecha2 = Fechas.obtenerFechaDesdeStrAAMMDD(x.get(0));
 			if(auxFecha2.getFechaCal().before(auxFecha.getFechaCal()) || auxFecha2.getFechaCal().equals(auxFecha.getFechaCal())) {
 				List<String> aux = mapAux.get(x.get(1));
 				List<String> aux1 = new ArrayList<String>();
@@ -470,17 +434,11 @@ public class ReportEjecutivos {
 					mapAux.put(x.get(1), aux1);
 				}
 			}
-			
 		});
-		
-		
 		List<List<String>> dePaso = new ArrayList<List<String>>();
-		
 		mapAux.forEach((k,v)->{
 			dePaso.add(v);
 		});
-		
-		
 		dePaso.forEach(x->{
 			List<Double> auxMap = mapPCompra.get(Long.parseLong(x.get(2)));
 			Long idMonedaCompra = (long)1;
@@ -489,36 +447,28 @@ public class ReportEjecutivos {
 				idMonedaCompra=auxMap.get(1).longValue();
 				ultimaCompra = auxMap.get(0);
 			}
-			
 			Double tasaCompra = tasasCorte.get(idMonedaCompra);
-				if(tasaCompra==null) tasaCompra=(double)0;
-				
-				switch(dec.get(idMonedaCompra).toString()) {
-				 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
-				 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
-				 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
-				 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
-				 default:  break;
-				}
-				
+			if(tasaCompra==null) tasaCompra=(double)0;
+			switch(dec.get(idMonedaCompra).toString()) {
+				case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
+				default:  break;
+			}
 			Double total = ultimaCompra * tasaCompra * Double.parseDouble(x.get(3));
-			
 			Double acum1 = mapListaGrupo.get(x.get(1));
 			if(acum1==null) {
 				acum1 = (double)0;
 			}
-			
 			Double acum2 = mapListaGrupoTipBod.get(x.get(1)+"_"+x.get(0));
 			if(acum2==null) {
 				acum2 = (double)0;
 			}
-			
 			mapListaGrupo.put(x.get(1), total+acum1);
 			mapListaGrupoTipBod.put(x.get(1)+"_"+x.get(0), total+acum2);
 		});
-		
 		Map<String,Double> suma = new HashMap<String,Double>();
-		
 		for(int j=0;j<grupos.size();j++){
 			Double total = (double) 0;
 			Double auxLista = mapListaGrupo.get(grupos.get(j));
@@ -527,29 +477,242 @@ public class ReportEjecutivos {
 			}
 			suma.put(grupos.get(j), total);
 		}
-		
 		List<List<String>> resultado=new ArrayList<List<String>>();
-		
 		for(int j=0;j<tipoBodegas.size();j++){
 			for(int i=0;i<grupos.size();i++){
 				Double suma1 = suma.get(grupos.get(i));
-					Double total = (double) 0;
-					Double auxLista = mapListaGrupoTipBod.get(grupos.get(i)+"_"+tipoBodegas.get(j));
-					if(auxLista!=null) {
-						total = total + auxLista;
-					}
-					if(suma1>0) {
-						total = total/suma1;
-					}
-					DecimalFormat dec0 = new DecimalFormat("0",symbols);
-					List<String> aux= new ArrayList<String>();
-					aux.add(grupos.get(i));
-					aux.add(dec0.format(total*100));
-					resultado.add(aux);
+				Double total = (double) 0;
+				Double auxLista = mapListaGrupoTipBod.get(grupos.get(i)+"_"+tipoBodegas.get(j));
+				if(auxLista!=null) {
+					total = total + auxLista;
+				}
+				if(suma1>0) {
+					total = total/suma1;
+				}
+				DecimalFormat dec0 = new DecimalFormat("0",symbols);
+				List<String> aux= new ArrayList<String>();
+				aux.add(grupos.get(i));
+				aux.add(dec0.format(total*100));
+				resultado.add(aux);
 			}
 		}
 		return (resultado);
 	}
+
+	public static List<String> graficoOcupacionPorPropiedadValorizado(Connection con, String db, String pais, String esPorSucursal, String id_sucursal,
+																  Map<Long,TipoBodega> mapTipoBodega, Map<Long,Equipo> mapEquipo) {
+		List<java.sql.Date> listFechas = new ArrayList<java.sql.Date>();
+		String condSucursal = "";
+		if(esPorSucursal.equals("1")) {
+			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
+		}
+		Calendar fechaCal = Calendar.getInstance();
+		fechaCal.set(fechaCal.get(Calendar.YEAR),fechaCal.get(Calendar.MONTH),fechaCal.getActualMinimum(Calendar.DAY_OF_MONTH));
+		fechaCal.add(Calendar.DAY_OF_YEAR, -1);
+		fechaCal.add(Calendar.MONTH, -11);
+		String categoriaFechas ="[";
+		SimpleDateFormat myformatfecha = new SimpleDateFormat("MMM-yy");
+		for (int i=1;i<=12;i++){
+			String aux=",";	if(i==12) aux="";
+			java.util.Date date = fechaCal.getTime();
+			categoriaFechas=categoriaFechas+"'"+myformatfecha.format(date)+"'"+aux;
+			listFechas.add(new java.sql.Date(fechaCal.getTimeInMillis()));
+			fechaCal.add(Calendar.MONTH, 1);
+			fechaCal.set(fechaCal.get(Calendar.YEAR),fechaCal.get(Calendar.MONTH),fechaCal.getActualMaximum(Calendar.DAY_OF_MONTH));
+		}
+		categoriaFechas=categoriaFechas+"]";
+		List<String> resultado = new ArrayList<String>();
+		resultado.add(categoriaFechas);
+		List<List<List<String>>> aux = new ArrayList<List<List<String>>>();
+		List<String> tipoBodegas = new ArrayList<String>();
+		List<String> propiedades = new ArrayList<String>();
+		List<List<String>> datos = new ArrayList<List<String>>();
+		String query = String.format(" SELECT  propiedad.nombre  FROM `%s`.propiedad ORDER BY propiedad.nombre;",db);
+		try (PreparedStatement smt8 = con.prepareStatement(query);
+			 ResultSet rs8 = smt8.executeQuery()) {
+			TipoBodega tipoBod = mapTipoBodega.get((long)2);
+			tipoBodegas.add(tipoBod.getNombre());
+			while (rs8.next()) {
+				propiedades.add(rs8.getString(1));  //nombre de propiedad
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		query = String.format("select "
+				+ " ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja),"
+				+ " bodegaEmpresa.esInterna, "
+				+ " movimiento.id_equipo, "
+				+ " if(movimiento.id_tipoMovimiento=2,-1,1)*movimiento.cantidad"
+				+ " from `%s`.movimiento"
+				+ " left join `%s`.guia on guia.id = movimiento.id_guia  "
+				+ " left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  "
+				+ " where ifnull(ifnull(guia.fecha,movimiento.fecha_factura),movimiento.fecha_actaBaja) is not null" + condSucursal
+				+ ";",db,db,db);
+		try (PreparedStatement smt9 = con.prepareStatement(query);
+			 ResultSet rs9 = smt9.executeQuery()) {
+			while (rs9.next()) {
+				String id_tipoBodega = "0";
+				String nomTipoBodega = "";
+				TipoBodega tipoBodega = mapTipoBodega.get(rs9.getLong(2));
+				if(tipoBodega != null) {
+					id_tipoBodega = tipoBodega.getId().toString();
+					nomTipoBodega = tipoBodega.getNombre();
+				}
+				String nomPropiedad = "";
+				Equipo equipo = mapEquipo.get(rs9.getLong(3));
+				if(equipo != null) {
+					nomPropiedad = equipo.getPropiedad();
+				}
+				List<String> aux1 = new ArrayList<String>();
+				aux1.add(rs9.getString(1));
+				aux1.add(id_tipoBodega+"_"+rs9.getString(3));
+				aux1.add(nomTipoBodega);
+				aux1.add(nomPropiedad);
+				aux1.add(rs9.getString(3));
+				aux1.add(rs9.getString(4));
+				datos.add(aux1);
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		Map<Long,List<Double>> mapPCompra = Compra.ultimoPrecio(con, db);
+		Map<String,TasasCambio> mapAllTasas =  TasasCambio.mapTasasporAllFecha(con, db, pais);
+		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+		for(int i=0; i<listFechas.size(); i++){
+			aux.add(ReportEjecutivos.ocupacionValorizadoFechaYPropiedad(listFechas.get(i).toString(), pais, tipoBodegas, propiedades, mapPCompra, mapAllTasas, datos, dec));
+		}
+		for(int i=0; i<aux.get(0).size(); i++){
+			String aux4 = ",";
+			if(i == aux.get(0).size()-1) {
+				aux4="";
+			}
+			String aux3 = "{"+
+					" name: ";
+			String aux1 = "[";
+			String aux2 = "";
+			for(int j=0; j<aux.size(); j++){
+				String x = ",";
+				if(j == aux.size()-1) {
+					x = "";
+				}
+				if(aux.get(j).size()<=aux.get(0).size()) {
+					aux1 = aux1 + aux.get(j).get(i).get(1) + x;
+					aux2 = aux.get(j).get(i).get(0);
+				}
+			}
+			aux1 = aux1+ "]";
+			aux3 = aux3 +"'"+ aux2 +"',"+
+					" type: 'spline',"+
+					" yAxis: 0,"+
+					" data: "+ aux1 +","+
+					" tooltip: {"+
+					"valueSuffix: ' '"+
+					"}"+
+					"}" + aux4;
+			resultado.add(aux3);
+		}
+		return (resultado);
+	}
+
+	public static List<List<String>> ocupacionValorizadoFechaYPropiedad(String fechaAAMMDD, String pais, List<String> tipoBodegas, List<String> propiedades,
+																	Map<Long,List<Double>> mapPCompra, Map<String,TasasCambio> mapAllTasas, List<List<String>> datos, Map<Long,Long> dec) {
+		Map<String,Double> mapListaPropiedadTipBod = new HashMap<String,Double>();
+		Map<String,Double> mapListaPropiedad = new HashMap<String,Double>();
+		TasasCambio tasa = mapAllTasas.get(fechaAAMMDD);
+		Map<Long,Double> tasasCorte = TasasCambio.auxiliarMapTasasPorFecha(tasa, pais);
+		Map<String, List<String>> mapAux = new HashMap<String,List<String>>();
+		Fechas auxFecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaAAMMDD);
+		datos.forEach(x->{
+			Fechas auxFecha2 = Fechas.obtenerFechaDesdeStrAAMMDD(x.get(0));
+			if(auxFecha2.getFechaCal().before(auxFecha.getFechaCal()) || auxFecha2.getFechaCal().equals(auxFecha.getFechaCal())) {
+				List<String> aux = mapAux.get(x.get(1));
+				List<String> aux1 = new ArrayList<String>();
+				if(aux==null) {
+					aux1.add(x.get(2));
+					aux1.add(x.get(3));
+					aux1.add(x.get(4));
+					aux1.add(x.get(5));
+					mapAux.put(x.get(1), aux1);
+				}else {
+					Double cant1 = Double.parseDouble(x.get(5));
+					Double cant2 = Double.parseDouble(aux.get(3));
+					Double cant3 = cant1+cant2;
+					aux1.add(x.get(2));					// 0 tipoBodega.nombre
+					aux1.add(x.get(3));					// 1 propiedad.nombre
+					aux1.add(x.get(4));					// 2 movimiento.id_equipo
+					aux1.add(cant3.toString());			// 3 sum(if(movimiento.id_tipoMovimiento=2,-1,1)*movimiento.cantidad)
+					mapAux.put(x.get(1), aux1);
+				}
+			}
+		});
+		List<List<String>> dePaso = new ArrayList<List<String>>();
+		mapAux.forEach((k,v)->{
+			dePaso.add(v);
+		});
+		dePaso.forEach(x->{
+			List<Double> auxMap = mapPCompra.get(Long.parseLong(x.get(2)));
+			Long idMonedaCompra = (long)1;
+			Double ultimaCompra = (double)0;
+			if(auxMap!=null) {
+				idMonedaCompra=auxMap.get(1).longValue();
+				ultimaCompra = auxMap.get(0);
+			}
+			Double tasaCompra = tasasCorte.get(idMonedaCompra);
+			if(tasaCompra==null) tasaCompra=(double)0;
+			switch(dec.get(idMonedaCompra).toString()) {
+				case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+				case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+				case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+				case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
+				default:  break;
+			}
+			Double total = ultimaCompra * tasaCompra * Double.parseDouble(x.get(3));
+			Double acum1 = mapListaPropiedad.get(x.get(1));
+			if(acum1==null) {
+				acum1 = (double)0;
+			}
+			Double acum2 = mapListaPropiedadTipBod.get(x.get(1)+"_"+x.get(0));
+			if(acum2==null) {
+				acum2 = (double)0;
+			}
+			mapListaPropiedad.put(x.get(1), total+acum1);
+			mapListaPropiedadTipBod.put(x.get(1)+"_"+x.get(0), total+acum2);
+		});
+		Map<String,Double> suma = new HashMap<String,Double>();
+		for(int j=0; j<propiedades.size(); j++){
+			Double total = (double) 0;
+			Double auxLista = mapListaPropiedad.get(propiedades.get(j));
+			if(auxLista!=null) {
+				total = total + auxLista;
+			}
+			suma.put(propiedades.get(j), total);
+		}
+		List<List<String>> resultado=new ArrayList<List<String>>();
+		for(int j=0;j<tipoBodegas.size();j++){
+			for(int i=0;i<propiedades.size();i++){
+				Double suma1 = suma.get(propiedades.get(i));
+				Double total = (double) 0;
+				Double auxLista = mapListaPropiedadTipBod.get(propiedades.get(i)+"_"+tipoBodegas.get(j));
+				if(auxLista!=null) {
+					total = total + auxLista;
+				}
+				if(suma1>0) {
+					total = total/suma1;
+				}
+				DecimalFormat dec0 = new DecimalFormat("0",symbols);
+				List<String> aux= new ArrayList<String>();
+				aux.add(propiedades.get(i));
+				aux.add(dec0.format(total*100));
+				resultado.add(aux);
+			}
+		}
+		return (resultado);
+	}
+
 	
 	public static List<String> graficoDistribucionResumenValorizadoPorBodega(Connection con, String db, String pais, String esPorSucursal, String id_sucursal,
 			Map<Long,List<Double>> mapPCompra, Map<Long,Double> tasasCorte, Map<Long,Long> dec) {

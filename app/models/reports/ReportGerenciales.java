@@ -65,9 +65,7 @@ public class ReportGerenciales {
 	
 	@SuppressWarnings("static-access")
 	public static List<String> graficoCategoriasAnio(Connection con, String db, Long id_grupo, Map<String,String> mapeoDiccionario, String esPorSucursal, String id_sucursal) {
-		
 		List<String> series = new ArrayList<String>();
-		
 		List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");
 		Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
 		Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
@@ -75,43 +73,31 @@ public class ReportGerenciales {
 		Map<Long,Calc_Precio> mapPreciosCompra = Calc_Precio.mapPreciosCompra(con, db);
 		Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, db);
 		Map<String,TasasCambio> mapAllTasas = TasasCambio.mapTasasporAllFecha(con, db, mapeoDiccionario.get("pais"));
-		
 		Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, db);
 		Long ultimoAnioMes = ReportGerenciales.ultimoAnioMes(con, db, id_grupo);
-		
 		List<List<String>> listIniFinMes2Anios = ReportGerenciales.graficoMeses2Anios();
 		Long inicioMes = Long.parseLong(listIniFinMes2Anios.get(0).get(2));
-		
-		
+
 		// ACTUALIZA SIEMPRE LOS ULTIMOS 4 MESES INCLUIDO EL ACTUAL (EN LA VISTA SON 3 MESES)
-		
 		//AQUI DEBO ELIMINAR DEL LA TABLA HISTORICA reportGerencial POR ANIO COMPLETO SI DESEO ACTUALIZAR TODO o aumentar los 4 meses de acualizacion. 
+
 		//AQUI resto 4 meses para grabar en historico.
 		Long AAMM_menos4 = ReportGerenciales.actualAnioMes(-4);
-		
 		Fechas hoy = Fechas.hoy();
-		
 		String[] aux1 =  hoy.getFechaStrAAMMDD().split("-");
 		Long yearActual = Long.parseLong(aux1[0]);
 		Long yearAnterior = yearActual - (long)1;
-		
 		Map<Long,Long> mapDec = Moneda.numeroDecimal(con, db);
-		
 		Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, db);
 		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
-		
-		
+
 		//revisa y llena historico a partir del ultimo ingreso
 		String insertReportGerencial = "";
 		for(int i=0; i<listIniFinMes2Anios.size(); i++){
-			
 			Long compara = Long.parseLong(listIniFinMes2Anios.get(i).get(2));
-			
 			if(ultimoAnioMes<compara && AAMM_menos4>compara) {
-				
 				String desdeAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes2Anios.get(i).get(0)).getFechaStrAAMMDD();
 				String hastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes2Anios.get(i).get(1)).getFechaStrAAMMDD();
-				
 				TasasCambio tasasCambio = mapAllTasas.get(hastaAAMMDD);
 				Calendar auxHastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD).fechaCal;
 				Calendar auxHoyAAMMDD = hoy.getFechaCal();
@@ -119,7 +105,6 @@ public class ReportGerenciales {
 					hoy = hoy.addDias(auxHoyAAMMDD, -2);
 					tasasCambio = mapAllTasas.get(hoy.getFechaStrAAMMDD());
 				}
-				
 				Map<Long,Double> tasas = new HashMap<Long,Double>();  // id_moneda, valor tasa
 				if(tasasCambio!=null) {
 					tasas.put((long)1, (double)1);
@@ -132,11 +117,8 @@ public class ReportGerenciales {
 					tasas.put((long)3, (double)1);
 					tasas.put((long)4, (double)1);
 				}
-				
-				
 				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
-				
 				String anioMes = listIniFinMes2Anios.get(i).get(2);
 				String categoria = anioMes.substring(4,6)+"-"+anioMes.substring(0,4);
 				Double ventaParcial = Double.parseDouble(datos.get(4));
@@ -144,7 +126,6 @@ public class ReportGerenciales {
 				Double ventaPrecioLista = Double.parseDouble(datos.get(5));
 				Double precioReposicion = Double.parseDouble(datos.get(6));
 				Double precioCompra = Double.parseDouble(datos.get(7));
-				
 				insertReportGerencial += "('"+anioMes.trim()+"','"
 											+categoria+"','"
 											+precioCompra+"','"
@@ -159,36 +140,26 @@ public class ReportGerenciales {
 			insertReportGerencial = insertReportGerencial.substring(0,insertReportGerencial.length()-1);
 			ReportGerenciales.actualizaTablaReportGerencial(con, db, insertReportGerencial);
 		}
-		
-		
+
 		//trae historico desde tabla reportGerencial
 		List<ReportGerenciales> historia = ReportGerenciales.datosHistoria(con, db, inicioMes, AAMM_menos4, id_grupo);
-		
 		String categoriasVentaAnterior = "[";
 		String categoriasVentaActual = "[";
-		
 		String ventaParcialAnterior =  "[";
 		String ventaParcialActual =  "[";
 		String ventaAcumAnterior =  "[";
 		String ventaAcumActual =  "[";
-		
 		Double sumVtaAnterior = (double) 0;
 		Double sumVtaActual = (double) 0;
-		
 		String categoriasColocacion = "[";
 		String colocVtaPReal = "[";
 		String colocVtaPLista = "[";
 		String colocPVenta = "[";
 		String colocPCompra = "[";
-		
 		String anioAnterior = listIniFinMes2Anios.get(0).get(4);
-		
 		Long AAMM_menos11 = ReportGerenciales.actualAnioMes(-11);
 		
-	
-		
 		for(int i=0; i<historia.size(); i++){
-			
 			if(historia.get(i).categoria.substring(3, 7).equals(anioAnterior)) {
 				categoriasVentaAnterior += "'"+historia.get(i).categoria + "',";
 				ventaParcialAnterior += historia.get(i).ventaParcial.longValue() + ",";
@@ -200,7 +171,6 @@ public class ReportGerenciales {
 				sumVtaActual += historia.get(i).ventaParcial;
 				ventaAcumActual += sumVtaActual.longValue() + ",";
 			}
-			
 			if( historia.get(i).anioMes>=AAMM_menos11 && historia.get(i).anioMes<AAMM_menos4 ) {
 				categoriasColocacion += "'"+historia.get(i).categoria+"',";
 				colocVtaPReal += historia.get(i).precioReal.longValue() + ",";
@@ -209,23 +179,14 @@ public class ReportGerenciales {
 				colocPCompra += historia.get(i).precioCompra.longValue() + ",";
 			}
 		}
-		
-		
+
 		//obtiene los ultimos x meses mas proyeccion mes actual
-		
 		Long menos0 = ReportGerenciales.actualAnioMes(0);
-		
-		
-		
 		for(int i=0;i<listIniFinMes2Anios.size();i++){
-			
 			Long compara = Long.parseLong(listIniFinMes2Anios.get(i).get(2));
-			
 			if(AAMM_menos4 <= compara &&  compara <= menos0) {
-				
 				String desdeAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes2Anios.get(i).get(0)).getFechaStrAAMMDD();
 				String hastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes2Anios.get(i).get(1)).getFechaStrAAMMDD();
-				
 				TasasCambio tasasCambio = mapAllTasas.get(hastaAAMMDD);
 				Calendar auxHastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD).fechaCal;
 				Calendar auxHoyAAMMDD = hoy.getFechaCal();
@@ -233,8 +194,6 @@ public class ReportGerenciales {
 					hoy = hoy.addDias(auxHoyAAMMDD, -2);
 					tasasCambio = mapAllTasas.get(hoy.getFechaStrAAMMDD());
 				}
-				
-				
 				Map<Long,Double> tasas = new HashMap<Long,Double>();  // id_moneda, valor tasa
 				if(tasasCambio!=null) {
 					tasas.put((long)1, (double)1);
@@ -247,47 +206,34 @@ public class ReportGerenciales {
 					tasas.put((long)3, (double)1);
 					tasas.put((long)4, (double)1);
 				}
-				
 				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo, mapDec, mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
-				
 				String[] aux = listIniFinMes2Anios.get(i).get(3).split("-");
-
 				if(aux[1].equals(yearAnterior.toString())) {
-					
 					categoriasVentaAnterior = categoriasVentaAnterior +"'"+listIniFinMes2Anios.get(i).get(3) + "',";
 					ventaParcialAnterior = ventaParcialAnterior + datos.get(4) + ",";
 					sumVtaAnterior = sumVtaAnterior + Double.parseDouble(datos.get(4));
 					ventaAcumAnterior = ventaAcumAnterior + sumVtaAnterior.longValue() + ",";
-					
 				}else {
-					
 					categoriasVentaActual = categoriasVentaActual +"'"+listIniFinMes2Anios.get(i).get(3) + "',";
 					ventaParcialActual = ventaParcialActual + datos.get(4) + ",";
 					sumVtaActual = sumVtaActual + Double.parseDouble(datos.get(4));
 					ventaAcumActual = ventaAcumActual + sumVtaActual.longValue() + ",";
-					
 				}
-				
-				
 				categoriasColocacion = categoriasColocacion +"'"+listIniFinMes2Anios.get(i).get(3) + "',";
 				colocVtaPReal = colocVtaPReal + datos.get(4) + ",";
 				colocVtaPLista = colocVtaPLista + datos.get(5) + ",";
 				colocPVenta = colocPVenta + datos.get(6) + ",";
 				colocPCompra = colocPCompra + datos.get(7) + ",";
 			}
-			
 			if(compara > menos0) {
 				categoriasVentaActual = categoriasVentaActual +"'"+listIniFinMes2Anios.get(i).get(3) + "',";
 				ventaParcialActual = ventaParcialActual + "0,";
 				ventaAcumActual = ventaAcumActual + " ,";
 			}
 		}
-		
-		
+
 //		aqui debo quitar la ultima coma a categoriasVentaAnterior y los otros y cerrar con ]
-		
-		
 		if(categoriasVentaAnterior.length() > 1) {
 			categoriasVentaAnterior = categoriasVentaAnterior.substring(0,categoriasVentaAnterior.length()-1)+"]";
 			ventaParcialAnterior = ventaParcialAnterior.substring(0,ventaParcialAnterior.length()-1)+"]";
@@ -297,7 +243,6 @@ public class ReportGerenciales {
 			ventaParcialAnterior += "]";
 			ventaAcumAnterior += "]";
 		}
-		
 		if(categoriasVentaActual.length() > 1) {
 			categoriasVentaActual = categoriasVentaActual.substring(0,categoriasVentaActual.length()-1)+"]";
 			ventaParcialActual = ventaParcialActual.substring(0,ventaParcialActual.length()-1)+"]";
@@ -307,38 +252,31 @@ public class ReportGerenciales {
 			ventaParcialActual += "]";
 			ventaAcumActual += "]";
 		}
-		
-		
 		if(categoriasColocacion.length() > 1) {
 			categoriasColocacion = categoriasColocacion.substring(0,categoriasColocacion.length()-1)+"]";
 		}else {
 			categoriasColocacion += "]";
 		}
-		
 		if(colocVtaPReal.length() > 1) {
 			colocVtaPReal = colocVtaPReal.substring(0,colocVtaPReal.length()-1)+"]";
 		}else {
 			colocVtaPReal += "]";
 		}
-		
 		if(colocVtaPLista.length() > 1) {
 			colocVtaPLista = colocVtaPLista.substring(0,colocVtaPLista.length()-1)+"]";
 		}else {
 			colocVtaPLista += "]";
 		}
-		
 		if(colocPVenta.length() > 1) {
 			colocPVenta = colocPVenta.substring(0,colocPVenta.length()-1)+"]";
 		}else {
 			colocPVenta += "]";
 		}
-		
 		if(colocPCompra.length() > 1) {
 			colocPCompra = colocPCompra.substring(0,colocPCompra.length()-1)+"]";
 		}else {
 			colocPCompra += "]";
 		}
-	
 		series.add(categoriasVentaAnterior);	// 0 
 		series.add(ventaParcialAnterior);		// 1
 		series.add(ventaAcumAnterior);			// 2
@@ -350,7 +288,263 @@ public class ReportGerenciales {
 		series.add(colocVtaPLista);				// 8
 		series.add(colocPVenta);				// 9
 		series.add(colocPCompra);				// 10
-		
+		return (series);
+	}
+
+	public static List<String> graficoCategoriasAnioVentas(Connection con, String db, Long id_grupo, Map<String,String> mapeoDiccionario, String esPorSucursal, String id_sucursal) {
+		List<String> series = new ArrayList<String>();
+		List<Long> listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, db, "");
+		Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, db);
+		Map<String,Calc_Precio> mapPrecios = Calc_Precio.mapPrecios(con, db, listIdBodegaEmpresa);
+		Map<Long,Calc_Precio> mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, db);
+		Map<Long,Calc_Precio> mapPreciosCompra = Calc_Precio.mapPreciosCompra(con, db);
+		Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, db);
+		Map<String,TasasCambio> mapAllTasas = TasasCambio.mapTasasporAllFecha(con, db, mapeoDiccionario.get("pais"));
+		Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, db);
+		Long ultimoAnioMes = ReportGerenciales.ultimoAnioMes(con, db, id_grupo);
+		List<List<String>> listIniFinMes3Anios = ReportGerenciales.graficoMeses3Anios();
+		Long inicioMes = Long.parseLong(listIniFinMes3Anios.get(0).get(2));
+
+		// ACTUALIZA SIEMPRE LOS ULTIMOS 4 MESES INCLUIDO EL ACTUAL (EN LA VISTA SON 3 MESES)
+		//AQUI DEBO ELIMINAR DEL LA TABLA HISTORICA reportGerencial POR ANIO COMPLETO SI DESEO ACTUALIZAR TODO o aumentar los 4 meses de acualizacion.
+
+		//AQUI resto 4 meses para grabar en historico.
+		Long AAMM_menos4 = ReportGerenciales.actualAnioMes(-4);
+		Fechas hoy = Fechas.hoy();
+		String[] aux1 =  hoy.getFechaStrAAMMDD().split("-");
+		Long yearActual = Long.parseLong(aux1[0]);
+		Long yearAnterior = yearActual - (long)1;
+		Long yearAntAnterior = yearActual - (long)2;
+		Map<Long,Long> mapDec = Moneda.numeroDecimal(con, db);
+		Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, db);
+		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
+
+		//revisa y llena historico a partir del ultimo ingreso
+		String insertReportGerencial = "";
+		for(int i=0; i<listIniFinMes3Anios.size(); i++){
+			Long compara = Long.parseLong(listIniFinMes3Anios.get(i).get(2));
+			if(ultimoAnioMes<compara && AAMM_menos4>compara) {
+				String desdeAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes3Anios.get(i).get(0)).getFechaStrAAMMDD();
+				String hastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes3Anios.get(i).get(1)).getFechaStrAAMMDD();
+				TasasCambio tasasCambio = mapAllTasas.get(hastaAAMMDD);
+				Calendar auxHastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD).fechaCal;
+				Calendar auxHoyAAMMDD = hoy.getFechaCal();
+				if(auxHoyAAMMDD.before(auxHastaAAMMDD)) {
+					hoy = hoy.addDias(auxHoyAAMMDD, -2);
+					tasasCambio = mapAllTasas.get(hoy.getFechaStrAAMMDD());
+				}
+				Map<Long,Double> tasas = new HashMap<Long,Double>();  // id_moneda, valor tasa
+				if(tasasCambio!=null) {
+					tasas.put((long)1, (double)1);
+					tasas.put((long)2, Double.parseDouble(tasasCambio.getClpUsd().replaceAll(",", "")));
+					tasas.put((long)3, Double.parseDouble(tasasCambio.getClpEur().replaceAll(",", "")));
+					tasas.put((long)4, Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));
+				}else {
+					tasas.put((long)1, (double)1);
+					tasas.put((long)2, (double)1);
+					tasas.put((long)3, (double)1);
+					tasas.put((long)4, (double)1);
+				}
+				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
+				String anioMes = listIniFinMes3Anios.get(i).get(2);
+				String categoria = anioMes.substring(4,6)+"-"+anioMes.substring(0,4);
+				Double ventaParcial = Double.parseDouble(datos.get(4));
+				Double ventaReal = Double.parseDouble(datos.get(4));
+				Double ventaPrecioLista = Double.parseDouble(datos.get(5));
+				Double precioReposicion = Double.parseDouble(datos.get(6));
+				Double precioCompra = Double.parseDouble(datos.get(7));
+				insertReportGerencial += "('"+anioMes.trim()+"','"
+						+categoria+"','"
+						+precioCompra+"','"
+						+precioReposicion+"','"
+						+ventaReal+"','"
+						+ventaPrecioLista+"','"
+						+ventaParcial+"','"
+						+id_grupo+"'),";
+			}
+		}
+		if(insertReportGerencial.length()>2) {
+			insertReportGerencial = insertReportGerencial.substring(0,insertReportGerencial.length()-1);
+			ReportGerenciales.actualizaTablaReportGerencial(con, db, insertReportGerencial);
+		}
+
+		//trae historico desde tabla reportGerencial
+		List<ReportGerenciales> historia = ReportGerenciales.datosHistoria(con, db, inicioMes, AAMM_menos4, id_grupo);
+		String categoriasVentaAntAnterior = "[";
+		String categoriasVentaAnterior = "[";
+		String categoriasVentaActual = "[";
+		String ventaParcialAnterior =  "[";
+		String ventaParcialAntAnterior =  "[";
+		String ventaParcialActual =  "[";
+		String ventaAcumAntAnterior =  "[";
+		String ventaAcumAnterior =  "[";
+		String ventaAcumActual =  "[";
+		Double sumVtaAntAnterior = (double) 0;
+		Double sumVtaAnterior = (double) 0;
+		Double sumVtaActual = (double) 0;
+		String categoriasColocacion = "[";
+		String colocVtaPReal = "[";
+		String colocVtaPLista = "[";
+		String colocPVenta = "[";
+		String colocPCompra = "[";
+		Long AAMM_menos11 = ReportGerenciales.actualAnioMes(-11);
+
+		for(int i=0; i<historia.size(); i++){
+			if(historia.get(i).categoria.substring(3, 7).equals(yearAntAnterior.toString())) {
+				categoriasVentaAntAnterior += "'"+historia.get(i).categoria + "',";
+				ventaParcialAntAnterior += historia.get(i).ventaParcial.longValue() + ",";
+				sumVtaAntAnterior += historia.get(i).ventaParcial;
+				ventaAcumAntAnterior += sumVtaAntAnterior.longValue() + ",";
+			}else if(historia.get(i).categoria.substring(3, 7).equals(yearAnterior.toString())) {
+				categoriasVentaAnterior += "'"+historia.get(i).categoria + "',";
+				ventaParcialAnterior += historia.get(i).ventaParcial.longValue() + ",";
+				sumVtaAnterior += historia.get(i).ventaParcial;
+				ventaAcumAnterior += sumVtaAnterior.longValue() + ",";
+			}else {
+				categoriasVentaActual += "'"+historia.get(i).categoria + "',";
+				ventaParcialActual += historia.get(i).ventaParcial.longValue() + ",";
+				sumVtaActual += historia.get(i).ventaParcial;
+				ventaAcumActual += sumVtaActual.longValue() + ",";
+			}
+			if( historia.get(i).anioMes>=AAMM_menos11 && historia.get(i).anioMes<AAMM_menos4 ) {
+				categoriasColocacion += "'"+historia.get(i).categoria+"',";
+				colocVtaPReal += historia.get(i).precioReal.longValue() + ",";
+				colocVtaPLista+= historia.get(i).precioLista.longValue() + ",";
+				colocPVenta += historia.get(i).precioReposicion.longValue() + ",";
+				colocPCompra += historia.get(i).precioCompra.longValue() + ",";
+			}
+		}
+
+		//obtiene los ultimos x meses mas proyeccion mes actual
+		Long menos0 = ReportGerenciales.actualAnioMes(0);
+		for(int i=0;i<listIniFinMes3Anios.size();i++){
+			Long compara = Long.parseLong(listIniFinMes3Anios.get(i).get(2));
+			if(AAMM_menos4 <= compara &&  compara <= menos0) {
+				String desdeAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes3Anios.get(i).get(0)).getFechaStrAAMMDD();
+				String hastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(listIniFinMes3Anios.get(i).get(1)).getFechaStrAAMMDD();
+				TasasCambio tasasCambio = mapAllTasas.get(hastaAAMMDD);
+				Calendar auxHastaAAMMDD = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD).fechaCal;
+				Calendar auxHoyAAMMDD = hoy.getFechaCal();
+				if(auxHoyAAMMDD.before(auxHastaAAMMDD)) {
+					hoy = hoy.addDias(auxHoyAAMMDD, -2);
+					tasasCambio = mapAllTasas.get(hoy.getFechaStrAAMMDD());
+				}
+				Map<Long,Double> tasas = new HashMap<Long,Double>();  // id_moneda, valor tasa
+				if(tasasCambio!=null) {
+					tasas.put((long)1, (double)1);
+					tasas.put((long)2, Double.parseDouble(tasasCambio.getClpUsd().replaceAll(",", "")));
+					tasas.put((long)3, Double.parseDouble(tasasCambio.getClpEur().replaceAll(",", "")));
+					tasas.put((long)4, Double.parseDouble(tasasCambio.getClpUf().replaceAll(",", "")));
+				}else {
+					tasas.put((long)1, (double)1);
+					tasas.put((long)2, (double)1);
+					tasas.put((long)3, (double)1);
+					tasas.put((long)4, (double)1);
+				}
+				List<String> datos = ReportGerenciales.resumenTotalMesAnio(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa,
+						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo, mapDec, mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
+
+				if(listIniFinMes3Anios.get(i).get(4).equals(yearAntAnterior.toString())) {
+					categoriasVentaAntAnterior = categoriasVentaAntAnterior +"'"+listIniFinMes3Anios.get(i).get(3) + "',";
+					ventaParcialAntAnterior = ventaParcialAntAnterior + datos.get(4) + ",";
+					sumVtaAntAnterior = sumVtaAntAnterior + Double.parseDouble(datos.get(4));
+					ventaAcumAntAnterior = ventaAcumAntAnterior + sumVtaAntAnterior.longValue() + ",";
+				}else if(listIniFinMes3Anios.get(i).get(4).equals(yearAnterior.toString())) {
+					categoriasVentaAnterior = categoriasVentaAnterior +"'"+listIniFinMes3Anios.get(i).get(3) + "',";
+					ventaParcialAnterior = ventaParcialAnterior + datos.get(4) + ",";
+					sumVtaAnterior = sumVtaAnterior + Double.parseDouble(datos.get(4));
+					ventaAcumAnterior = ventaAcumAnterior + sumVtaAnterior.longValue() + ",";
+				}else {
+					categoriasVentaActual = categoriasVentaActual +"'"+listIniFinMes3Anios.get(i).get(3) + "',";
+					ventaParcialActual = ventaParcialActual + datos.get(4) + ",";
+					sumVtaActual = sumVtaActual + Double.parseDouble(datos.get(4));
+					ventaAcumActual = ventaAcumActual + sumVtaActual.longValue() + ",";
+				}
+				categoriasColocacion = categoriasColocacion +"'"+listIniFinMes3Anios.get(i).get(3) + "',";
+				colocVtaPReal = colocVtaPReal + datos.get(4) + ",";
+				colocVtaPLista = colocVtaPLista + datos.get(5) + ",";
+				colocPVenta = colocPVenta + datos.get(6) + ",";
+				colocPCompra = colocPCompra + datos.get(7) + ",";
+			}
+			if(compara > menos0) {
+				categoriasVentaActual = categoriasVentaActual +"'"+listIniFinMes3Anios.get(i).get(3) + "',";
+				ventaParcialActual = ventaParcialActual + "0,";
+				ventaAcumActual = ventaAcumActual + " ,";
+			}
+		}
+
+//		aqui debo quitar la ultima coma a categoriasVentaAnterior y los otros y cerrar con ]
+		if(categoriasVentaAntAnterior.length() > 1) {
+			categoriasVentaAntAnterior = categoriasVentaAntAnterior.substring(0,categoriasVentaAntAnterior.length()-1)+"]";
+			ventaParcialAntAnterior = ventaParcialAntAnterior.substring(0,ventaParcialAntAnterior.length()-1)+"]";
+			ventaAcumAntAnterior = ventaAcumAntAnterior.substring(0,ventaAcumAntAnterior.length()-1)+"]";
+		}else {
+			categoriasVentaAntAnterior += "]";
+			ventaParcialAntAnterior += "]";
+			ventaAcumAntAnterior += "]";
+		}
+		if(categoriasVentaAnterior.length() > 1) {
+			categoriasVentaAnterior = categoriasVentaAnterior.substring(0,categoriasVentaAnterior.length()-1)+"]";
+			ventaParcialAnterior = ventaParcialAnterior.substring(0,ventaParcialAnterior.length()-1)+"]";
+			ventaAcumAnterior = ventaAcumAnterior.substring(0,ventaAcumAnterior.length()-1)+"]";
+		}else {
+			categoriasVentaAnterior += "]";
+			ventaParcialAnterior += "]";
+			ventaAcumAnterior += "]";
+		}
+		if(categoriasVentaActual.length() > 1) {
+			categoriasVentaActual = categoriasVentaActual.substring(0,categoriasVentaActual.length()-1)+"]";
+			ventaParcialActual = ventaParcialActual.substring(0,ventaParcialActual.length()-1)+"]";
+			ventaAcumActual = ventaAcumActual.substring(0,ventaAcumActual.length()-1)+"]";
+		}else {
+			categoriasVentaActual += "]";
+			ventaParcialActual += "]";
+			ventaAcumActual += "]";
+		}
+		if(categoriasColocacion.length() > 1) {
+			categoriasColocacion = categoriasColocacion.substring(0,categoriasColocacion.length()-1)+"]";
+		}else {
+			categoriasColocacion += "]";
+		}
+		if(colocVtaPReal.length() > 1) {
+			colocVtaPReal = colocVtaPReal.substring(0,colocVtaPReal.length()-1)+"]";
+		}else {
+			colocVtaPReal += "]";
+		}
+		if(colocVtaPLista.length() > 1) {
+			colocVtaPLista = colocVtaPLista.substring(0,colocVtaPLista.length()-1)+"]";
+		}else {
+			colocVtaPLista += "]";
+		}
+		if(colocPVenta.length() > 1) {
+			colocPVenta = colocPVenta.substring(0,colocPVenta.length()-1)+"]";
+		}else {
+			colocPVenta += "]";
+		}
+		if(colocPCompra.length() > 1) {
+			colocPCompra = colocPCompra.substring(0,colocPCompra.length()-1)+"]";
+		}else {
+			colocPCompra += "]";
+		}
+		series.add(categoriasVentaAntAnterior);		// 0
+		series.add(ventaParcialAntAnterior);		// 1
+		series.add(ventaAcumAntAnterior);			// 2
+
+		series.add(categoriasVentaAnterior);	// 3
+		series.add(ventaParcialAnterior);		// 4
+		series.add(ventaAcumAnterior);			// 5
+
+		series.add(categoriasVentaActual);		// 6
+		series.add(ventaParcialActual);			// 7
+		series.add(ventaAcumActual);			// 8
+
+		series.add(categoriasColocacion);		// 9
+		series.add(colocVtaPReal);				// 10
+		series.add(colocVtaPLista);				// 11
+		series.add(colocPVenta);				// 12
+		series.add(colocPCompra);				// 13
+
 		return (series);
 	}
 	
@@ -673,6 +867,55 @@ public class ReportGerenciales {
 		listFechasFinMes.add(aux1);
 		
 		for(int i = 1;i<24;i++){
+			fecha.add(Calendar.MONTH,1);
+			fecha.set(Calendar.DATE, fecha.getActualMaximum(Calendar.DAY_OF_MONTH));
+			String hastaSql = fecha.get(Calendar.YEAR) + "-" + (fecha.get(Calendar.MONTH)+1) + "-" + fecha.get(Calendar.DATE);
+			fecha.set(Calendar.DATE, 1);
+			String desdeSql = fecha.get(Calendar.YEAR) + "-" + (fecha.get(Calendar.MONTH)+1) + "-" + fecha.get(Calendar.DATE);
+			auxAnio = fecha.get(Calendar.YEAR);
+			auxMes = fecha.get(Calendar.MONTH)+1;
+			strAnioMes="";
+			if(auxMes<10) {
+				strAnioMes = auxAnio+"0"+auxMes;
+			}else {
+				strAnioMes = auxAnio+""+auxMes;
+			}
+			List<String> aux = new ArrayList<String>();
+			aux.add(desdeSql);
+			aux.add(hastaSql);
+			aux.add(strAnioMes); // 2 anioMes
+			aux.add(strAnioMes.substring(4,6)+"-"+strAnioMes.substring(0,4)); // 3 mes-Anio
+			aux.add(strAnioMes.substring(0,4)); // 4 Anio
+			listFechasFinMes.add(aux);
+		}
+		return (listFechasFinMes);
+	}
+
+	public static List<List<String>> graficoMeses3Anios() {
+		Calendar fechaActual = Fechas.hoy().fechaCal;
+		int anioActual = fechaActual.get(Calendar.YEAR);
+		int anio = anioActual-2;
+
+		Calendar fecha = Fechas.hoy().fechaCal;
+		List<List<String>> listFechasFinMes = new ArrayList<List<String>>();
+		List<String> aux1 = new ArrayList<String>();
+		fecha.set(anio, 0, 1);
+		aux1.add(fecha.get(Calendar.YEAR) + "-" + (fecha.get(Calendar.MONTH)+1) + "-" + fecha.get(Calendar.DATE));
+		fecha.set(anio, 0, 31);
+		aux1.add(fecha.get(Calendar.YEAR) + "-" + (fecha.get(Calendar.MONTH)+1) + "-" + fecha.get(Calendar.DATE));
+		int auxAnio = fecha.get(Calendar.YEAR);
+		int auxMes = fecha.get(Calendar.MONTH)+1;
+		String strAnioMes="";
+		if(auxMes<10) {
+			strAnioMes = auxAnio+"0"+auxMes;
+		}else {
+			strAnioMes = auxAnio+""+auxMes;
+		}
+		aux1.add(strAnioMes);
+		aux1.add(strAnioMes.substring(5,6)+"-"+strAnioMes.substring(0,4)); // 3 mes-Anio
+		aux1.add(strAnioMes.substring(0,4)); // 4 Anio
+		listFechasFinMes.add(aux1);
+		for(int i = 1; i<36; i++){
 			fecha.add(Calendar.MONTH,1);
 			fecha.set(Calendar.DATE, fecha.getActualMaximum(Calendar.DAY_OF_MONTH));
 			String hastaSql = fecha.get(Calendar.YEAR) + "-" + (fecha.get(Calendar.MONTH)+1) + "-" + fecha.get(Calendar.DATE);
