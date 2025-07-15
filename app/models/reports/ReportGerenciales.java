@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import controllers.HomeController;
 import models.calculo.Calc_AjustesEP;
 import models.calculo.Calc_AjustesEpOdo;
 import models.calculo.Calc_BodegaEmpresa;
@@ -21,15 +22,10 @@ import models.calculo.Inventarios;
 import models.calculo.ModCalc_GuiasPer;
 import models.calculo.ModCalc_InvInicial;
 import models.calculo.ModeloCalculo;
-import models.tables.BodegaEmpresa;
-import models.tables.Equipo;
-import models.tables.ListaPrecioServicio;
-import models.tables.Moneda;
-import models.tables.TasasCambio;
-import models.tables.VentaServicio;
+import models.tables.*;
 import models.utilities.Fechas;
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ReportGerenciales {
@@ -59,8 +55,8 @@ public class ReportGerenciales {
 	public ReportGerenciales() {
 		super();
 	}
-	
 
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	
 	@SuppressWarnings("static-access")
@@ -301,9 +297,6 @@ public class ReportGerenciales {
 		Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, db);
 		Map<String,TasasCambio> mapAllTasas = TasasCambio.mapTasasporAllFecha(con, db, mapeoDiccionario.get("pais"));
 		Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, db);
-		Long ultimoAnioMes = ReportGerenciales.ultimoAnioMes(con, db, id_grupo);
-		List<List<String>> listIniFinMes3Anios = ReportGerenciales.graficoMeses3Anios();
-		Long inicioMes = Long.parseLong(listIniFinMes3Anios.get(0).get(2));
 
 		// ACTUALIZA SIEMPRE LOS ULTIMOS 4 MESES INCLUIDO EL ACTUAL (EN LA VISTA SON 3 MESES)
 		//AQUI DEBO ELIMINAR DEL LA TABLA HISTORICA reportGerencial POR ANIO COMPLETO SI DESEO ACTUALIZAR TODO o aumentar los 4 meses de acualizacion.
@@ -318,6 +311,15 @@ public class ReportGerenciales {
 		Map<Long,Long> mapDec = Moneda.numeroDecimal(con, db);
 		Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, db);
 		Map<String, Double> mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, db);
+
+		Long primerAnioMes = ReportGerenciales.primerAnioMes(con, db, id_grupo);
+		if(primerAnioMes < (yearAntAnterior*100+1)){
+			ReportGerenciales.truncate(con,db);
+		}
+
+		Long ultimoAnioMes = ReportGerenciales.ultimoAnioMes(con, db, id_grupo);
+		List<List<String>> listIniFinMes3Anios = ReportGerenciales.graficoMeses3Anios();
+		Long inicioMes = Long.parseLong(listIniFinMes3Anios.get(0).get(2));
 
 		//revisa y llena historico a partir del ultimo ingreso
 		String insertReportGerencial = "";
@@ -446,6 +448,7 @@ public class ReportGerenciales {
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo, mapDec, mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 
 				if(listIniFinMes3Anios.get(i).get(4).equals(yearAntAnterior.toString())) {
+
 					categoriasVentaAntAnterior = categoriasVentaAntAnterior +"'"+listIniFinMes3Anios.get(i).get(3) + "',";
 					ventaParcialAntAnterior = ventaParcialAntAnterior + datos.get(4) + ",";
 					sumVtaAntAnterior = sumVtaAntAnterior + Double.parseDouble(datos.get(4));
@@ -939,9 +942,26 @@ public class ReportGerenciales {
 		}
 		return (listFechasFinMes);
 	}
-	
+
+	public static Long primerAnioMes(Connection con, String db, Long id_grupo) {
+		Long aux = (long)0;
+		String query = String.format("select min(anio_mes) from %s where id_grupo = ?;", db);
+		try (PreparedStatement smt = con.prepareStatement(query)){
+			smt.setLong(1, id_grupo);
+			try(ResultSet rs = smt.executeQuery()) {
+				if (rs.next()) {
+					aux = rs.getLong(1);
+				}
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (aux);
+	}
+
 	public static Long ultimoAnioMes(Connection con, String db, Long id_grupo) {
-		
 		Long aux =(long)0;
 		try { 
 			  PreparedStatement smt = con.prepareStatement(" select max(anioMes) from `"+db+"`.reportGerencial where id_grupo=?;");
@@ -985,6 +1005,19 @@ public class ReportGerenciales {
 		} catch (SQLException e) {
 				e.printStackTrace();}
 		return(lista);
+	}
+
+	public static boolean truncate(Connection con,String db) {
+		String query = String.format("truncate table `%s`.reportGerencial;",db);
+		try (PreparedStatement smt = con.prepareStatement(query)){
+			smt.executeUpdate();
+			return(true);
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return(false);
 	}
 	
 	public static List<String> resumenTotalMesAnio (Connection con, String db, String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
