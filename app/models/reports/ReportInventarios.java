@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import controllers.HomeController;
 import models.tables.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -34,6 +35,8 @@ import models.calculo.Inventarios;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ReportInventarios {
@@ -45,6 +48,8 @@ public class ReportInventarios {
 	static DecimalFormat myformatint = new DecimalFormat("#,##0",symbols);
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	static DecimalFormat myformatMonedaOrigen = new DecimalFormat("#,##0",symbols);
+
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	public static List<List<String>> reportInventarioEquipoConTipoBodega(Connection con, String db, String fechaCorte, String permisoPorBodega,
 			Map<Long,List<Double>> mapPCompra, Map<Long,List<Double>> mapPLista, Map<Long,String> moneda, String tipo, Map<String,String> mapeoDiccionario,
@@ -54,183 +59,196 @@ public class ReportInventarios {
 		
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
-			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
+			condSucursal = " and bodegaEmpresa.id_sucursal = %s".formatted(id_sucursal);
 		}
 		
 		
 		String condicionaSuma = "";
 		if(tipo.equals(mapeoDiccionario.get("ARRIENDO")) || tipo.equals("ARRIENDO")) {
-			condicionaSuma = " if("
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, "
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad,";
+			condicionaSuma = new StringBuilder()
+					.append(" if(")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0)) = -0, 0, ")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad  * if(movimiento.esVenta=0, 1, 0))) as cantidad,")
+					.toString();
 		}else if(tipo.equals("VENTA")) {
-			condicionaSuma = " if("
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, "
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1 ,0, if(movimiento.esVenta=1, 1, 0)))) as cantidad,";
+			condicionaSuma = new StringBuilder()
+					.append(" if(")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1, 0, if(movimiento.esVenta=1, 1, 0))) = -0, 0, ")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1) * movimiento.cantidad * if(bodegaEmpresa.esInterna=1 ,0, if(movimiento.esVenta=1, 1, 0)))) as cantidad,")
+					.toString();
 		}else if(tipo.equals("TODO")){
-			condicionaSuma = "if("
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), ";
+			condicionaSuma = new StringBuilder()
+					.append("if(")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), ")
+					.toString();
 		}else {
-			condicionaSuma = "if("
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,"
-					+ "sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), ";
+			condicionaSuma = new StringBuilder()
+					.append("if(")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0,")
+					.append("sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), ")
+					.toString();
 		}
+		String query = String.format(" select " +
+				/*1*/	" 'fecha_factura',   " +
+				/*2*/	" 'fecha_actaBaja',   " +
+				/*3*/	" movimiento.id_equipo, " +
+				/*4*/	condicionaSuma +
+				/*5*/	" guia.fecha,   " +
+				/*6*/	" bodegaEmpresa.esInterna, " +
+				/*7*/	" bodegaEmpresa.id, " +
+				/*8*/	" bodegaEmpresa.nombre, " +
+				/*9*/	" bodegaEmpresa.id_sucursal " +
+				" from `%s`.movimiento  " +
+				" left join `%s`.guia on guia.id = movimiento.id_guia   " +
+				" left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
+				" where (guia.fecha is null or guia.fecha<=?) " +
+				" and (fecha_factura is null or fecha_factura<=?) " +
+				" and (fecha_actaBaja is null or fecha_actaBaja<=?)" +
+				" and movimiento.id_bodegaEmpresa <> 0" +
+				condSucursal +
+				permisoPorBodega+
+				" group by bodegaEmpresa.esInterna, bodegaEmpresa.id, movimiento.id_equipo;",db,db,db);
 		
-		
-		try {
-			PreparedStatement smt6 = con
-					.prepareStatement(" select " +
-						/*1*/	" 'fecha_factura',   " +
-						/*2*/	" 'fecha_actaBaja',   " +
-						/*3*/	" movimiento.id_equipo, " +  
-						/*4*/	condicionaSuma +
-						/*5*/	" guia.fecha,   " +
-						/*6*/	" bodegaEmpresa.esInterna, " +
-						/*7*/	" bodegaEmpresa.id, " +
-						/*8*/	" bodegaEmpresa.nombre, " +
-						/*9*/	" bodegaEmpresa.id_sucursal " +
-							" from `"+db+"`.movimiento  " + 
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia   " +
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
-							" where (guia.fecha is null or guia.fecha<=?) " +
-							" and (fecha_factura is null or fecha_factura<=?) " +
-							" and (fecha_actaBaja is null or fecha_actaBaja<=?)" +
-							" and movimiento.id_bodegaEmpresa <> 0" +
-							condSucursal +
-							permisoPorBodega+
-							" group by bodegaEmpresa.esInterna, bodegaEmpresa.id, movimiento.id_equipo;");
+		try (PreparedStatement smt6 = con.prepareStatement(query)){
 			smt6.setString(1, fechaCorte.trim());
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
-			ResultSet rs6 = smt6.executeQuery();
-			
-			
-			while (rs6.next()) {
-				if(rs6.getDouble(4) != (double) 0){
-					
-					Long id_grupo = (long)0;
-					String nomGrupo = "SIN GRUPO";
-					String codEquipo = "";
-					String nomEquipo = "";
-					String nomUnidad = "";
-					String imgEquipo = "0";
-					Equipo equipo = mapEquipo.get(rs6.getLong(3));
-					if(equipo != null) {
-						id_grupo = equipo.getId_grupo();
-						nomGrupo = equipo.getGrupo();
-						codEquipo = equipo.getCodigo();
-						nomEquipo = equipo.getNombre();
-						nomUnidad = equipo.getUnidad();
-						imgEquipo = equipo.getImg();
+			try(ResultSet rs6 = smt6.executeQuery()) {
+				while (rs6.next()) {
+					if (rs6.getDouble(4) != (double) 0) {
+						Long id_grupo = (long) 0;
+						String nomGrupo = "SIN GRUPO";
+						String codEquipo = "";
+						String nomEquipo = "";
+						String nomUnidad = "";
+						String imgEquipo = "0";
+						Equipo equipo = mapEquipo.get(rs6.getLong(3));
+						if (equipo != null) {
+							id_grupo = equipo.getId_grupo();
+							nomGrupo = equipo.getGrupo();
+							codEquipo = equipo.getCodigo();
+							nomEquipo = equipo.getNombre();
+							nomUnidad = equipo.getUnidad();
+							imgEquipo = equipo.getImg();
+						}
+						String nameSucursal = "";
+						Sucursal sucursal = mapSucursal.get(rs6.getLong(9));
+						if (sucursal != null) {
+							nameSucursal = sucursal.getNombre();
+						}
+						List<Double> auxMap = mapPCompra.get(rs6.getLong(3));
+						Long idMonedaCompra = (long) 1;
+						Double ultimaCompra = (double) 0;
+						if (auxMap != null) {
+							idMonedaCompra = auxMap.get(1).longValue();
+							ultimaCompra = auxMap.get(0);
+						}
+						auxMap = mapPLista.get(rs6.getLong(3));
+						Long idMonedaVentaArr = (long) 1;
+						Double precioVenta = (double) 0;
+						Double precioArriendo = (double) 0;
+						Long idUnidadTiempo = (long) 2;
+						if (auxMap != null) {
+							idMonedaVentaArr = auxMap.get(3).longValue();
+							precioVenta = auxMap.get(0);
+							precioArriendo = auxMap.get(1);
+							idUnidadTiempo = auxMap.get(2).longValue();
+						}
+						String unidadTiempo = "";
+						if (mapUnidadTiempo != null && mapUnidadTiempo.get(idUnidadTiempo) != null) {
+							unidadTiempo = mapUnidadTiempo.get(idUnidadTiempo).getNombre();
+						}
+						Double tasaCompra = tasasCorte.get(idMonedaCompra);
+						if (tasaCompra == null || tasaCompra == (double) 0) {
+							tasaCompra = (double) 1;
+						}
+						Double tasaVenta = tasasCorte.get(idMonedaVentaArr);
+						if (tasaVenta == null || tasaVenta == (double) 0) {
+							tasaVenta = (double) 1;
+						}
+						switch (dec.get(idMonedaCompra).toString()) {
+							case "0":
+								myformatdouble = new DecimalFormat("#,##0", symbols);
+								break;
+							case "2":
+								myformatdouble = new DecimalFormat("#,##0.00", symbols);
+								break;
+							case "4":
+								myformatdouble = new DecimalFormat("#,##0.0000", symbols);
+								break;
+							case "6":
+								myformatdouble = new DecimalFormat("#,##0.000000", symbols);
+								break;
+							default:
+								break;
+						}
+						switch (dec.get(idMonedaVentaArr).toString()) {
+							case "0":
+								myformatdoubleV = new DecimalFormat("#,##0", symbols);
+								break;
+							case "2":
+								myformatdoubleV = new DecimalFormat("#,##0.00", symbols);
+								break;
+							case "4":
+								myformatdoubleV = new DecimalFormat("#,##0.0000", symbols);
+								break;
+							case "6":
+								myformatdoubleV = new DecimalFormat("#,##0.000000", symbols);
+								break;
+							default:
+								break;
+						}
+						switch (dec.get((long) 1).toString()) {
+							case "0":
+								myformatMonedaOrigen = new DecimalFormat("#,##0", symbols);
+								break;
+							case "2":
+								myformatMonedaOrigen = new DecimalFormat("#,##0.00", symbols);
+								break;
+							case "4":
+								myformatMonedaOrigen = new DecimalFormat("#,##0.0000", symbols);
+								break;
+							case "6":
+								myformatMonedaOrigen = new DecimalFormat("#,##0.000000", symbols);
+								break;
+							default:
+								break;
+						}
+						List<String> aux = new ArrayList<String>();
+						aux.add(rs6.getString(3));                                //  0 id equipo
+						aux.add(nomGrupo);                                        //  1 nombre grupo
+						aux.add(codEquipo);                                    //  2 codigo equipo
+						aux.add(nomEquipo);                                    //  3 nombre equipo
+						aux.add(moneda.get(idMonedaCompra));                    //  4 nickname moneda de compra
+						aux.add(myformatdouble.format(ultimaCompra));            //  5 precio compra ultima por unidad
+						aux.add(moneda.get(idMonedaVentaArr));                    //  6 nickname moneda de venta - arriendo
+						aux.add(myformatdoubleV.format(precioVenta));            //  7 precio venta/reposicion por unidad
+						aux.add(unidadTiempo);                                    //  8 unidad de tiempo o medida arriendo
+						aux.add(myformatdoubleV.format(precioArriendo));        //  9 precio arriendo por unidad
+						aux.add(nomUnidad);                                    // 10 unidad de medida
+						aux.add(myformatdouble2.format(rs6.getDouble(4)));        // 11 cantidad
+						Double total = rs6.getDouble(4) * ultimaCompra;
+						aux.add(myformatdouble.format(total));                    // 12 valor total de compra
+						Double repos = rs6.getDouble(4) * precioVenta;
+						aux.add(myformatdouble.format(repos));                    // 13 valor total de reposicion o venta
+						aux.add(myformatMonedaOrigen.format(total * tasaCompra)); // 14 total pesos compra
+						aux.add(myformatMonedaOrigen.format(repos * tasaVenta));    // 15 total pesos venta
+						aux.add(imgEquipo);                                    // 16 img
+						aux.add(myformatdouble2.format(tasaVenta));            // 17 tasa de cambio venta/arriendo
+						aux.add(rs6.getString(6));                                // 18 es interna
+						aux.add(id_grupo.toString());                            // 19 id_grupo
+						aux.add(rs6.getString(7));                                // 20 id_bodegaEmpresa
+						aux.add(rs6.getString(8));                                // 21 nombre bodegaEmpresa
+						aux.add(nameSucursal);                                    // 22 nameSucursal
+						lista.add(aux);
 					}
-					
-					String nameSucursal = "";
-					Sucursal sucursal = mapSucursal.get(rs6.getLong(9));
-					if(sucursal!=null) {
-						nameSucursal = sucursal.getNombre();
-					}
-					
-					List<Double> auxMap = mapPCompra.get(rs6.getLong(3));
-					Long idMonedaCompra = (long)1;
-					Double ultimaCompra = (double)0;
-					if(auxMap!=null) {
-						idMonedaCompra=auxMap.get(1).longValue();
-						ultimaCompra = auxMap.get(0);
-					}
-						
-					auxMap = mapPLista.get(rs6.getLong(3));
-					Long idMonedaVentaArr = (long)1;
-					Double precioVenta = (double)0;
-					Double precioArriendo = (double)0;
-					Long idUnidadTiempo = (long)2;
-					if(auxMap != null) {
-						idMonedaVentaArr = auxMap.get(3).longValue();
-						precioVenta = auxMap.get(0);
-						precioArriendo = auxMap.get(1);
-						idUnidadTiempo = auxMap.get(2).longValue();
-					}
-					
-					String unidadTiempo = "";
-					if(mapUnidadTiempo != null && mapUnidadTiempo.get(idUnidadTiempo)!=null) {
-						unidadTiempo = mapUnidadTiempo.get(idUnidadTiempo).getNombre();
-					}
-					
-					Double tasaCompra = tasasCorte.get(idMonedaCompra);
-					if(tasaCompra == null || tasaCompra == (double) 0) {
-						tasaCompra=(double)1;
-					}
-					
-					Double tasaVenta = tasasCorte.get(idMonedaVentaArr);
-					if(tasaVenta == null || tasaVenta == (double)0) {
-						tasaVenta=(double)1;
-					}
-					
-					switch(dec.get(idMonedaCompra).toString()) {
-					 case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
-					 case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
-					 case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
-					 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
-					 default:  break;
-					}
-					
-					switch(dec.get(idMonedaVentaArr).toString()) {
-					 case "0": myformatdoubleV = new DecimalFormat("#,##0",symbols); break;
-					 case "2": myformatdoubleV = new DecimalFormat("#,##0.00",symbols); break;
-					 case "4": myformatdoubleV = new DecimalFormat("#,##0.0000",symbols); break;
-					 case "6": myformatdoubleV = new DecimalFormat("#,##0.000000",symbols); break;
-					 default:  break;
-					}
-					
-					switch(dec.get((long) 1).toString()) {
-					 case "0": myformatMonedaOrigen = new DecimalFormat("#,##0",symbols); break;
-					 case "2": myformatMonedaOrigen = new DecimalFormat("#,##0.00",symbols); break;
-					 case "4": myformatMonedaOrigen = new DecimalFormat("#,##0.0000",symbols); break;
-					 case "6": myformatMonedaOrigen = new DecimalFormat("#,##0.000000",symbols); break;
-					 default:  break;
-					}
-					
-					List<String> aux = new ArrayList<String>();
-					aux.add(rs6.getString(3)); 								//  0 id equipo
-					aux.add(nomGrupo); 										//  1 nombre grupo
-					aux.add(codEquipo); 									//  2 codigo equipo
-					aux.add(nomEquipo); 									//  3 nombre equipo
-					aux.add(moneda.get(idMonedaCompra)); 					//  4 nickname moneda de compra					
-					aux.add(myformatdouble.format(ultimaCompra)); 			//  5 precio compra ultima por unidad
-					
-					aux.add(moneda.get(idMonedaVentaArr)); 					//  6 nickname moneda de venta - arriendo
-					aux.add(myformatdoubleV.format(precioVenta)); 			//  7 precio venta/reposicion por unidad
-					aux.add(unidadTiempo);									//  8 unidad de tiempo o medida arriendo
-					aux.add(myformatdoubleV.format(precioArriendo)); 		//  9 precio arriendo por unidad
-					
-					aux.add(nomUnidad); 									// 10 unidad de medida
-					aux.add(myformatdouble2.format(rs6.getDouble(4))); 		// 11 cantidad
-					Double total = rs6.getDouble(4)*ultimaCompra;
-					aux.add(myformatdouble.format(total)); 					// 12 valor total de compra
-					Double repos = rs6.getDouble(4)*precioVenta;
-					aux.add(myformatdouble.format(repos)); 					// 13 valor total de reposicion o venta
-					
-					aux.add(myformatMonedaOrigen.format(total*tasaCompra)); // 14 total pesos compra
-					aux.add(myformatMonedaOrigen.format(repos*tasaVenta)); 	// 15 total pesos venta
-					aux.add(imgEquipo); 									// 16 img
-					
-					aux.add(myformatdouble2.format(tasaVenta)); 			// 17 tasa de cambio venta/arriendo
-					
-					aux.add(rs6.getString(6)); 								// 18 es interna
-					
-					aux.add(id_grupo.toString()); 							// 19 id_grupo
-					
-					aux.add(rs6.getString(7)); 								// 20 id_bodegaEmpresa
-					aux.add(rs6.getString(8)); 								// 21 nombre bodegaEmpresa
-					aux.add(nameSucursal); 									// 22 nameSucursal
-					
-					lista.add(aux);
 				}
 			}
-			rs6.close();
-			smt6.close();
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -4661,115 +4679,108 @@ public class ReportInventarios {
 	
 	public static List<List<String>> reportInventarioEstadosPorPer(Connection con, String db, String permisoPorBodega, String desde, String hasta) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		try {
-			PreparedStatement smt5 = con
-					.prepareStatement(" select "
-							+ " bodegaEmpresa.nombre, "
-							+ " guia.numero, "
-							+ " guia.fecha, "
-							+ " equipo.codigo, "
-							+ " equipo.nombre, "
-							+ " movimiento.cantidad, "
-							+ " listaPrecio.id_moneda, "
-							+ " listaPrecio.precioVenta, "
-							+ " tipoEstado.sigla, "
-							+ " estadoEquipo.cantidad, "
-							+ " ifnull(tipoReparacion.sigla,''), "
-							+ " ifnull(tipoReparacion.nombre,''), "
-							+ " ifnull(reparacionEquipo.cantidad,''), "
-							+ " ifnull(tipoReparacion.id_moneda,''), "
-							+ " ifnull(tipoReparacion.precio,''), "
-							+ " equipo.id, "
-							+ " equipo.kg, "
-							+ " equipo.m2, "
-							+ " guia.numGuiaCliente "
-							+ " from `"+db+"`.estadoEquipo "
-							+ " left join `"+db+"`.guia on guia.id = estadoEquipo.id_guia "
-							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
-							+ " left join `"+db+"`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
-							+ " left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo "
-							+ " left join `"+db+"`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
-							+ " left join `"+db+"`.reparacionEquipo on reparacionEquipo.id_estadoEquipo = estadoEquipo.id "
-							+ " left join `"+db+"`.tipoReparacion on tipoReparacion.id = reparacionEquipo.id_tipoReparacion "
-							+ " left join `"+db+"`.listaPrecio on listaPrecio.id_bodegaEmpresa = bodegaEmpresa.id and listaPrecio.id_equipo = equipo.id and listaPrecio.id_cotizacion = movimiento.id_cotizacion "
-							+ " where bodegaEmpresa.vigente = 1 and guia.fecha between ? and ? "
-							+   permisoPorBodega 
-							+ " order by movimiento.id_bodegaEmpresa, guia.fecha, movimiento.id_equipo, tipoEstado.sigla;");
+		String query = String.format("select "
+				+ " bodegaEmpresa.nombre, "
+				+ " guia.numero, "
+				+ " guia.fecha, "
+				+ " equipo.codigo, "
+				+ " equipo.nombre, "
+				+ " movimiento.cantidad, "
+				+ " listaPrecio.id_moneda, "
+				+ " listaPrecio.precioVenta, "
+				+ " tipoEstado.sigla, "
+				+ " estadoEquipo.cantidad, "
+				+ " ifnull(tipoReparacion.sigla,''), "
+				+ " ifnull(tipoReparacion.nombre,''), "
+				+ " ifnull(reparacionEquipo.cantidad,''), "
+				+ " ifnull(tipoReparacion.id_moneda,''), "
+				+ " ifnull(tipoReparacion.precio,''), "
+				+ " equipo.id, "
+				+ " equipo.kg, "
+				+ " equipo.m2, "
+				+ " guia.numGuiaCliente, "
+				+ " cliente.nickName "
+				+ " from `%s`.estadoEquipo "
+				+ " left join `%s`.guia on guia.id = estadoEquipo.id_guia "
+				+ " left join `%s`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
+				+ " left join `%s`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
+				+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
+				+ " left join `%s`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
+				+ " left join `%s`.reparacionEquipo on reparacionEquipo.id_estadoEquipo = estadoEquipo.id "
+				+ " left join `%s`.tipoReparacion on tipoReparacion.id = reparacionEquipo.id_tipoReparacion "
+				+ " left join `%s`.listaPrecio on listaPrecio.id_bodegaEmpresa = bodegaEmpresa.id and listaPrecio.id_equipo = equipo.id and listaPrecio.id_cotizacion = movimiento.id_cotizacion "
+				+ "left join `%s`.cliente on cliente.id = bodegaEmpresa.id_cliente "
+				+ " where bodegaEmpresa.vigente = 1 and guia.fecha between ? and ? "
+				+   permisoPorBodega
+				+ " order by movimiento.id_bodegaEmpresa, guia.fecha, movimiento.id_equipo, tipoEstado.sigla;",db,db,db,db,db,db,db,db,db,db);
+		try (PreparedStatement smt5 = con.prepareStatement(query)){
 			smt5.setString(1, desde);
 			smt5.setString(2, hasta);
-			ResultSet rs5 = smt5.executeQuery();
-			
-			Map<Long,Moneda> mapMoneda = Moneda.mapMonedas(con, db);
-			
-			while (rs5.next()) {
-				
-				// kg por unidad
-				Double kg = rs5.getDouble(17);
-				String kgStr = "";
-				if(kg > 0) {
-					kgStr = myformatdouble2.format(kg); 
-				}
-				// m2 por unidad
-				Double m2 = rs5.getDouble(18);
-				String m2Str = "";
-				if(m2 > 0) {
-					m2Str = myformatdouble2.format(m2);
-				}
+			try(ResultSet rs5 = smt5.executeQuery()) {
+				Map<Long, Moneda> mapMoneda = Moneda.mapMonedas(con, db);
+				while (rs5.next()) {
 
-				Moneda monedaVtaArr = mapMoneda.get(rs5.getLong(7));
-				String monVtaArr = "";
-				Long decMonVtaArr = (long)0;
-				if(monedaVtaArr != null) {
-					monVtaArr = monedaVtaArr.getNickName();
-					decMonVtaArr = monedaVtaArr.getNumeroDecimales();
+					// kg por unidad
+					Double kg = rs5.getDouble(17);
+					String kgStr = "";
+					if (kg > 0) {
+						kgStr = myformatdouble2.format(kg);
+					}
+					// m2 por unidad
+					Double m2 = rs5.getDouble(18);
+					String m2Str = "";
+					if (m2 > 0) {
+						m2Str = myformatdouble2.format(m2);
+					}
+					Moneda monedaVtaArr = mapMoneda.get(rs5.getLong(7));
+					String monVtaArr = "";
+					Long decMonVtaArr = (long) 0;
+					if (monedaVtaArr != null) {
+						monVtaArr = monedaVtaArr.getNickName();
+						decMonVtaArr = monedaVtaArr.getNumeroDecimales();
+					}
+					Moneda monedaRepar = mapMoneda.get(rs5.getLong(14));
+					String monRepar = "";
+					Long decMonRepar = (long) 0;
+					if (monedaRepar != null) {
+						monRepar = monedaRepar.getNickName();
+						decMonRepar = monedaRepar.getNumeroDecimales();
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs5.getString(1));                                        // 0 bodegaEmpresa.nombre
+					aux.add(rs5.getString(2));                                        // 1 guia.numero
+					aux.add(rs5.getString(3));                                        // 2 guia.fecha
+					aux.add(rs5.getString(4));                                        // 3 equipo.codigo
+					aux.add(rs5.getString(5));                                        // 4 equipo.nombre
+					aux.add(DecimalFormato.formato(rs5.getDouble(6), (long) 2));        // 5 movimiento.cantidad
+					aux.add(monVtaArr);                                                // 6 listaPrecio.id_moneda
+					aux.add(DecimalFormato.formato(rs5.getDouble(8), decMonVtaArr));    // 7 listaPrecio.precioVenta
+					aux.add(rs5.getString(9));                                        // 8 tipoEstado.sigla
+					aux.add(DecimalFormato.formato(rs5.getDouble(10), (long) 2));        // 9 estadoEquipo.cantidad
+					String cantreparacionEquipo = "";
+					if (!rs5.getString(13).equals("")) {
+						cantreparacionEquipo = DecimalFormato.formato(rs5.getDouble(13), (long) 2);
+					}
+					String pretreparacionEquipo = "";
+					if (!rs5.getString(15).equals("")) {
+						pretreparacionEquipo = DecimalFormato.formato(rs5.getDouble(15), decMonRepar);
+					}
+					aux.add(rs5.getString(11));                                        // 10 tipoReparacion.sigla
+					aux.add(rs5.getString(12));                                        // 11 tipoReparacion.nombre
+					aux.add(cantreparacionEquipo);                                    // 12 reparacionEquipo.cantidad
+					aux.add(monRepar);                                                // 13 reparacionEquipo.id_moneda
+					aux.add(pretreparacionEquipo);                                    // 14 reparacionEquipo.precio
+					aux.add(kgStr);                            // 15 kg unitario
+					aux.add(m2Str);                            // 16 m2 unitario
+					aux.add(rs5.getString(19));                                        // 17 nro ref cliente
+					aux.add(rs5.getString(20));                                        // 18 nickCliente
+					lista.add(aux);
 				}
-				Moneda monedaRepar = mapMoneda.get(rs5.getLong(14));
-				String monRepar = "";
-				Long decMonRepar = (long)0;
-				if(monedaRepar != null) {
-					monRepar = monedaRepar.getNickName();
-					decMonRepar = monedaRepar.getNumeroDecimales();
-				}
-
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs5.getString(1));  										// 0 bodegaEmpresa.nombre
-				aux.add(rs5.getString(2));  										// 1 guia.numero
-				aux.add(rs5.getString(3));  										// 2 guia.fecha
-				aux.add(rs5.getString(4));  										// 3 equipo.codigo
-				aux.add(rs5.getString(5));  										// 4 equipo.nombre
-				aux.add(DecimalFormato.formato(rs5.getDouble(6), (long)2));  		// 5 movimiento.cantidad
-				aux.add(monVtaArr);  												// 6 listaPrecio.id_moneda
-				aux.add(DecimalFormato.formato(rs5.getDouble(8), decMonVtaArr));  	// 7 listaPrecio.precioVenta
-				aux.add(rs5.getString(9));  										// 8 tipoEstado.sigla
-				aux.add(DecimalFormato.formato(rs5.getDouble(10), (long)2));  		// 9 estadoEquipo.cantidad
-				
-				String cantreparacionEquipo = "";
-				if(!rs5.getString(13).equals("")) {
-					cantreparacionEquipo = DecimalFormato.formato(rs5.getDouble(13), (long)2); 
-				}
-				String pretreparacionEquipo = "";
-				if(!rs5.getString(15).equals("")) {
-					pretreparacionEquipo = DecimalFormato.formato(rs5.getDouble(15), decMonRepar); 
-				}
-				
-				
-				aux.add(rs5.getString(11));  										// 10 tipoReparacion.sigla
-				aux.add(rs5.getString(12));  										// 11 tipoReparacion.nombre
-				aux.add(cantreparacionEquipo);  									// 12 reparacionEquipo.cantidad
-				aux.add(monRepar);  												// 13 reparacionEquipo.id_moneda
-				aux.add(pretreparacionEquipo);  									// 14 reparacionEquipo.precio
-				
-				aux.add(kgStr);							// 15 kg unitario
-				aux.add(m2Str);							// 16 m2 unitario
-
-				aux.add(rs5.getString(19));  										// 17 nro ref cliente
-				
-				lista.add(aux);
 			}
-			rs5.close();
-			smt5.close();
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -4868,6 +4879,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("Bodega"));
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 4*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Cliente");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 4*1000);
@@ -4987,6 +5005,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("P.U. Reparacion");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 4*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Total Reparacion");
 		
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -5004,6 +5029,7 @@ public class ReportInventarios {
 			hoja1.createFreezePane(0, 0, 0,0);
 			
 			//DETALLE DE LA TABLA
+			Double granTotal = (double) 0;
 			int posRow = 9;
 			for(int i=0;i<datos.size();i++){
 				row = hoja1.createRow(posRow);
@@ -5016,6 +5042,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(datos.get(i).get(0));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(datos.get(i).get(18));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -5117,17 +5149,17 @@ public class ReportInventarios {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            String dePaso = datos.get(i).get(12);
+				Double cant = (double)0;
 	            if(dePaso.equals("")) {
 	            	cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 	            }else {
 	            	aux = Double.parseDouble(datos.get(i).get(12).replaceAll(",", ""));
+					cant = aux;
 	            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 	            }
-	            
-				
-				
+
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
@@ -5138,19 +5170,154 @@ public class ReportInventarios {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            dePaso = datos.get(i).get(14);
+				Double pu = (double)0;
 	            if(dePaso.equals("")) {
 	            	cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 	            }else {
 	            	aux = Double.parseDouble(datos.get(i).get(14).replaceAll(",", ""));
+					pu = aux;
 					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 	            }
-	            
-				
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(cant * pu);
+				granTotal += cant * pu;
+
 				posRow++;
 			}
-			
+
+
+			// PIE
+
+			row = hoja1.createRow(posRow);
+			posCell = 0;
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(granTotal);
+
+
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
@@ -5159,7 +5326,7 @@ public class ReportInventarios {
 			cell.setHyperlink(hiper);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
-			
+
 			// Write the output to a file tmp
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			libro.write(fileOut);
@@ -5174,117 +5341,114 @@ public class ReportInventarios {
 	
 	public static List<List<String>> reportInventarioPorEstadosAll(Connection con, String db, String permisoPorBodega, Long id_bodegaEmpresa) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		try {
-			PreparedStatement smt5 = con
-					.prepareStatement(" select "
-							+ " bodegaEmpresa.nombre, "
-							+ " guia.numero, "
-							+ " guia.fecha, "
-							+ " equipo.codigo, "
-							+ " equipo.nombre, "
-							+ " movimiento.cantidad, "
-							+ " listaPrecio.id_moneda, "
-							+ " listaPrecio.precioVenta, "
-							+ " tipoEstado.sigla, "
-							+ " estadoEquipo.cantidad, "
-							+ " ifnull(tipoReparacion.sigla,''), "
-							+ " ifnull(tipoReparacion.nombre,''), "
-							+ " ifnull(reparacionEquipo.cantidad,''), "
-							+ " ifnull(tipoReparacion.id_moneda,''), "
-							+ " ifnull(tipoReparacion.precio,''), "
-							+ " equipo.id, "
-							+ " equipo.kg, "
-							+ " equipo.m2, "
-							+ " guia.numGuiaCliente "
-							+ " from `"+db+"`.estadoEquipo "
-							+ " left join `"+db+"`.guia on guia.id = estadoEquipo.id_guia "
-							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
-							+ " left join `"+db+"`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
-							+ " left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo "
-							+ " left join `"+db+"`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
-							+ " left join `"+db+"`.reparacionEquipo on reparacionEquipo.id_estadoEquipo = estadoEquipo.id "
-							+ " left join `"+db+"`.tipoReparacion on tipoReparacion.id = reparacionEquipo.id_tipoReparacion "
-							+ " left join `"+db+"`.listaPrecio on listaPrecio.id_bodegaEmpresa = bodegaEmpresa.id and listaPrecio.id_equipo = equipo.id and listaPrecio.id_cotizacion = movimiento.id_cotizacion "
-							+ " where bodegaEmpresa.id=? and bodegaEmpresa.vigente =1 "
-							+   permisoPorBodega 
-							+ " order by movimiento.id_bodegaEmpresa, guia.fecha, movimiento.id_equipo, tipoEstado.sigla;");
+		String query = """
+    SELECT 
+        bodegaEmpresa.nombre,
+        guia.numero,
+        guia.fecha,
+        equipo.codigo,
+        equipo.nombre,
+        movimiento.cantidad,
+        listaPrecio.id_moneda,
+        listaPrecio.precioVenta,
+        tipoEstado.sigla,
+        estadoEquipo.cantidad,
+        IFNULL(tipoReparacion.sigla, ''),
+        IFNULL(tipoReparacion.nombre, ''),
+        IFNULL(reparacionEquipo.cantidad, ''),
+        IFNULL(tipoReparacion.id_moneda, ''),
+        IFNULL(tipoReparacion.precio, ''),
+        equipo.id,
+        equipo.kg,
+        equipo.m2,
+        guia.numGuiaCliente,
+        cliente.nickName
+    FROM `%s`.estadoEquipo
+    LEFT JOIN `%s`.guia ON guia.id = estadoEquipo.id_guia
+    LEFT JOIN `%s`.bodegaEmpresa ON bodegaEmpresa.id = guia.id_bodegaOrigen
+    LEFT JOIN `%s`.movimiento ON movimiento.id = estadoEquipo.id_movimiento
+    LEFT JOIN `%s`.equipo ON equipo.id = movimiento.id_equipo
+    LEFT JOIN `%s`.tipoEstado ON tipoEstado.id = estadoEquipo.id_tipoEstado
+    LEFT JOIN `%s`.reparacionEquipo ON reparacionEquipo.id_estadoEquipo = estadoEquipo.id
+    LEFT JOIN `%s`.tipoReparacion ON tipoReparacion.id = reparacionEquipo.id_tipoReparacion
+    LEFT JOIN `%s`.listaPrecio ON listaPrecio.id_bodegaEmpresa = bodegaEmpresa.id 
+        AND listaPrecio.id_equipo = equipo.id 
+        AND listaPrecio.id_cotizacion = movimiento.id_cotizacion
+    LEFT JOIN `%s`.cliente ON cliente.id = bodegaEmpresa.id_cliente
+    WHERE bodegaEmpresa.id = ? 
+        AND bodegaEmpresa.vigente = 1
+        %s
+    ORDER BY movimiento.id_bodegaEmpresa, guia.fecha, movimiento.id_equipo, tipoEstado.sigla
+    """.formatted(db, db, db, db, db, db, db, db, db, db, permisoPorBodega);
+
+		try (PreparedStatement smt5 = con.prepareStatement(query)){
 			smt5.setLong(1, id_bodegaEmpresa);
-			ResultSet rs5 = smt5.executeQuery();
-			
-			Map<Long,Moneda> mapMoneda = Moneda.mapMonedas(con, db);
-			
-			while (rs5.next()) {
-				
-				// kg por unidad
-				Double kg = rs5.getDouble(17);
-				String kgStr = "";
-				if(kg > 0) {
-					kgStr = myformatdouble2.format(kg); 
+			try (ResultSet rs5 = smt5.executeQuery()) {
+				Map<Long, Moneda> mapMoneda = Moneda.mapMonedas(con, db);
+				while (rs5.next()) {
+					// kg por unidad
+					Double kg = rs5.getDouble(17);
+					String kgStr = "";
+					if (kg > 0) {
+						kgStr = myformatdouble2.format(kg);
+					}
+					// m2 por unidad
+					Double m2 = rs5.getDouble(18);
+					String m2Str = "";
+					if (m2 > 0) {
+						m2Str = myformatdouble2.format(m2);
+					}
+					Moneda monedaVtaArr = mapMoneda.get(rs5.getLong(7));
+					String monVtaArr = "";
+					Long decMonVtaArr = (long) 0;
+					if (monedaVtaArr != null) {
+						monVtaArr = monedaVtaArr.getNickName();
+						decMonVtaArr = monedaVtaArr.getNumeroDecimales();
+					}
+					Moneda monedaRepar = mapMoneda.get(rs5.getLong(14));
+					String monRepar = "";
+					Long decMonRepar = (long) 0;
+					if (monedaRepar != null) {
+						monRepar = monedaRepar.getNickName();
+						decMonRepar = monedaRepar.getNumeroDecimales();
+					}
+					List<String> aux = new ArrayList<String>();
+					aux.add(rs5.getString(1));                                        // 0 bodegaEmpresa.nombre
+					aux.add(rs5.getString(2));                                        // 1 guia.numero
+					aux.add(rs5.getString(3));                                        // 2 guia.fecha
+					aux.add(rs5.getString(4));                                        // 3 equipo.codigo
+					aux.add(rs5.getString(5));                                        // 4 equipo.nombre
+					aux.add(DecimalFormato.formato(rs5.getDouble(6), (long) 2));        // 5 movimiento.cantidad
+					aux.add(monVtaArr);                                                // 6 listaPrecio.id_moneda
+					aux.add(DecimalFormato.formato(rs5.getDouble(8), decMonVtaArr));    // 7 listaPrecio.precioVenta
+					aux.add(rs5.getString(9));                                        // 8 tipoEstado.sigla
+					aux.add(DecimalFormato.formato(rs5.getDouble(10), (long) 2));        // 9 estadoEquipo.cantidad
+					String cantreparacionEquipo = "";
+					if (!rs5.getString(13).equals("")) {
+						cantreparacionEquipo = DecimalFormato.formato(rs5.getDouble(13), (long) 2);
+					}
+					String pretreparacionEquipo = "";
+					if (!rs5.getString(15).equals("")) {
+						pretreparacionEquipo = DecimalFormato.formato(rs5.getDouble(15), decMonRepar);
+					}
+					aux.add(rs5.getString(11));                                        // 10 tipoReparacion.sigla
+					aux.add(rs5.getString(12));                                        // 11 tipoReparacion.nombre
+					aux.add(cantreparacionEquipo);                                    // 12 reparacionEquipo.cantidad
+					aux.add(monRepar);                                                // 13 reparacionEquipo.id_moneda
+					aux.add(pretreparacionEquipo);                                    // 14 reparacionEquipo.precio
+					aux.add(kgStr);                                        // 15 kg unitario
+					aux.add(m2Str);                                        // 16 m2 unitario
+					aux.add(rs5.getString(19));                            // 17 nro ref cliente
+					aux.add(rs5.getString(20));                                        // 18 nickCliente
+					if (rs5.getDouble(10) > 0) {
+						lista.add(aux);
+					}
 				}
-				// m2 por unidad
-				Double m2 = rs5.getDouble(18);
-				String m2Str = "";
-				if(m2 > 0) {
-					m2Str = myformatdouble2.format(m2);
-				}
-
-				Moneda monedaVtaArr = mapMoneda.get(rs5.getLong(7));
-				String monVtaArr = "";
-				Long decMonVtaArr = (long)0;
-				if(monedaVtaArr != null) {
-					monVtaArr = monedaVtaArr.getNickName();
-					decMonVtaArr = monedaVtaArr.getNumeroDecimales();
-				}
-				Moneda monedaRepar = mapMoneda.get(rs5.getLong(14));
-				String monRepar = "";
-				Long decMonRepar = (long)0;
-				if(monedaRepar != null) {
-					monRepar = monedaRepar.getNickName();
-					decMonRepar = monedaRepar.getNumeroDecimales();
-				}
-
-				List<String> aux = new ArrayList<String>();
-				aux.add(rs5.getString(1));  										// 0 bodegaEmpresa.nombre
-				aux.add(rs5.getString(2));  										// 1 guia.numero
-				aux.add(rs5.getString(3));  										// 2 guia.fecha
-				aux.add(rs5.getString(4));  										// 3 equipo.codigo
-				aux.add(rs5.getString(5));  										// 4 equipo.nombre
-				aux.add(DecimalFormato.formato(rs5.getDouble(6), (long)2));  		// 5 movimiento.cantidad
-				aux.add(monVtaArr);  												// 6 listaPrecio.id_moneda
-				aux.add(DecimalFormato.formato(rs5.getDouble(8), decMonVtaArr));  	// 7 listaPrecio.precioVenta
-				aux.add(rs5.getString(9));  										// 8 tipoEstado.sigla
-				aux.add(DecimalFormato.formato(rs5.getDouble(10), (long)2));  		// 9 estadoEquipo.cantidad
-				
-				String cantreparacionEquipo = "";
-				if(!rs5.getString(13).equals("")) {
-					cantreparacionEquipo = DecimalFormato.formato(rs5.getDouble(13), (long)2); 
-				}
-				String pretreparacionEquipo = "";
-				if(!rs5.getString(15).equals("")) {
-					pretreparacionEquipo = DecimalFormato.formato(rs5.getDouble(15), decMonRepar); 
-				}
-				
-				
-				aux.add(rs5.getString(11));  										// 10 tipoReparacion.sigla
-				aux.add(rs5.getString(12));  										// 11 tipoReparacion.nombre
-				aux.add(cantreparacionEquipo);  									// 12 reparacionEquipo.cantidad
-				aux.add(monRepar);  												// 13 reparacionEquipo.id_moneda
-				aux.add(pretreparacionEquipo);  									// 14 reparacionEquipo.precio
-				
-				aux.add(kgStr);										// 15 kg unitario
-				aux.add(m2Str);										// 16 m2 unitario
-
-				aux.add(rs5.getString(19)); 							// 17 nro ref cliente
-				
-				if(rs5.getDouble(10) > 0) {
-					lista.add(aux);
-				}
-				
 			}
-			rs5.close();
-			smt5.close();
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -5389,6 +5553,13 @@ public class ReportInventarios {
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Cliente");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 4*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro Mov");
 
 			posCell++; posColl++;
@@ -5502,6 +5673,13 @@ public class ReportInventarios {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("P.U. Reparacion");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 4*1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("Total Reparacion");
 		
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -5520,6 +5698,7 @@ public class ReportInventarios {
 			
 			//DETALLE DE LA TABLA
 			int posRow = 9;
+			Double granTotal = (double) 0;
 			for(int i=0;i<datos.size();i++){
 				row = hoja1.createRow(posRow);
 				posCell = 0;
@@ -5531,6 +5710,12 @@ public class ReportInventarios {
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(datos.get(i).get(0));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(datos.get(i).get(18));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -5632,16 +5817,16 @@ public class ReportInventarios {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            String dePaso = datos.get(i).get(12);
+				Double cant = (double)0;
 	            if(dePaso.equals("")) {
 	            	cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 	            }else {
 	            	aux = Double.parseDouble(datos.get(i).get(12).replaceAll(",", ""));
+					cant = aux;
 	            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 	            }
-	            
-				
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
@@ -5653,18 +5838,154 @@ public class ReportInventarios {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            dePaso = datos.get(i).get(14);
+				Double pu = (double)0;
 	            if(dePaso.equals("")) {
 	            	cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 	            }else {
 	            	aux = Double.parseDouble(datos.get(i).get(14).replaceAll(",", ""));
+					pu = aux;
 					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 	            }
-	            
-				
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(cant * pu);
+				granTotal += cant * pu;
+
 				posRow++;
 			}
+
+
+			// PIE
+
+			row = hoja1.createRow(posRow);
+			posCell = 0;
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("TOTAL");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(detalle);
+			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			cell.setCellValue(granTotal);
+
+
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);

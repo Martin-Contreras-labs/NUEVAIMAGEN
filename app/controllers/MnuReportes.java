@@ -3690,6 +3690,35 @@ public class MnuReportes extends Controller {
 					"Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 			);
 
+			List<List<String>> listRanking = new ArrayList<List<String>>();
+			for(int i=0;i<listaAnterior.size();i++) {
+				listRanking.add(new ArrayList<String>(Arrays.asList(meses.get(i),listaAnterior.get(i).toString())));
+			}
+			listRanking.sort((a, b) -> Double.compare(Double.parseDouble(b.get(1)), Double.parseDouble(a.get(1))));
+			Map<String,Long> mapRanking = new HashMap<String,Long>();
+			for(int i=0;i<listRanking.size();i++) {
+				mapRanking.put(listRanking.get(i).get(0), (long) i+1);
+			}
+
+			double promeAntAnt = listaAntAnterior.stream()
+					.filter(x -> x != 0)
+					.mapToDouble(Double::doubleValue)
+					.average()
+					.orElse(0.0);
+
+			double promeAnt = listaAnterior.stream()
+					.filter(x -> x != 0)
+					.mapToDouble(Double::doubleValue)
+					.average()
+					.orElse(0.0);
+
+			double promeActual = listaActual.stream()
+					.filter(x -> x != 0)
+					.mapToDouble(Double::doubleValue)
+					.average()
+					.orElse(0.0);
+
+
 			List<List<String>> tabla = new ArrayList<List<String>>();
 			if(listaAntAnterior.size() == listaAnterior.size() && listaAnterior.size() == listaActual.size()) {
 				int decMon = Moneda.numeroDecimalxId(con, s.baseDato, "1");
@@ -3705,6 +3734,8 @@ public class MnuReportes extends Controller {
 					aux.add(DecimalFormato.formato(listaAntAnterior.get(i),(long)decMon));
 					aux.add(DecimalFormato.formato(listaAnterior.get(i),(long)decMon));
 					aux.add(DecimalFormato.formato(listaActual.get(i),(long)decMon));
+					Long rank = mapRanking.get(meses.get(i));
+					aux.add(rank.toString());
 					tabla.add(aux);
 				}
 				List<String> aux = new ArrayList<String>();
@@ -3712,6 +3743,14 @@ public class MnuReportes extends Controller {
 				aux.add(DecimalFormato.formato(totAntAnt,(long)decMon));
 				aux.add(DecimalFormato.formato(totAnt,(long)decMon));
 				aux.add(DecimalFormato.formato(totActual,(long)decMon));
+				aux.add("");
+				tabla.add(aux);
+				aux = new ArrayList<String>();
+				aux.add("Promedio");
+				aux.add(DecimalFormato.formato(promeAntAnt,(long)decMon));
+				aux.add(DecimalFormato.formato(promeAnt,(long)decMon));
+				aux.add(DecimalFormato.formato(promeActual,(long)decMon));
+				aux.add("");
 				tabla.add(aux);
 			}
 			return ok(reporteGerencialVentas.render(mapeoDiccionario,mapeoPermiso,userMnu,series,yearActual,yearAnterior,yearAntAnterior,tabla,"ALQUILERES + VENTAS + SERVICIOS"));

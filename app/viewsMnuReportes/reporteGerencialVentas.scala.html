@@ -26,26 +26,36 @@ series: List[String], yearActual: Long, yearAnterior: Long, yearAntAnterior: Lon
                                         <th>@yearAntAnterior</th>
                                         <th>@yearAnterior</th>
                                         <th>@yearActual</th>
+                                        <th>Ranking M/Y</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @for((lista,index) <- tabla.zipWithIndex){
-                                        @if(index < tabla.size() - 1) {
+                                        @if(index < tabla.size() - 2) {
                                             <tr>
                                                 <td>@lista.get(0)</td>
                                                 <td style="text-align: right; padding: 10px 10px;">@lista.get(1)</td>
                                                 <td style="text-align: right; padding: 10px 10px;">@lista.get(2)</td>
                                                 <td style="text-align: right; padding: 10px 10px;">@lista.get(3)</td>
+                                                <td style="text-align: center; padding: 10px 10px;">@lista.get(4)</td>
                                             </tr>
                                         }
                                     }
                                 </tbody>
                                 <tfoot>
                                     <tr>
+                                        <th>@tabla.get(tabla.size() - 2).get(0)</th>
+                                        <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 2).get(1)</th>
+                                        <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 2).get(2)</th>
+                                        <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 2).get(3)</th>
+                                        <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 2).get(4)</th>
+                                    </tr>
+                                    <tr>
                                         <th>@tabla.get(tabla.size() - 1).get(0)</th>
                                         <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 1).get(1)</th>
                                         <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 1).get(2)</th>
                                         <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 1).get(3)</th>
+                                        <th style="text-align: right; padding: 10px 10px;">@tabla.get(tabla.size() - 1).get(4)</th>
                                     </tr>
                                 </tfoot>
                             </table>
