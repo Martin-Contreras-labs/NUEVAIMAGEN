@@ -154,3 +154,8 @@ POST	/mantTblOperadorMecanicoVerifica/			controllers.MnuMantencion.mantTblOperad
 
 
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU REPORTES: COBRA ARRIENDO SOBRE ESTADOS (ALZATEC UNICAMENTE)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET		/estadosMantCobraArriendo0/				controllers.MnuReportes.estadosMantCobraArriendo0(request: Request)
+

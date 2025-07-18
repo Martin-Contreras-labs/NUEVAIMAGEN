@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], listBodegas: List[List[String]])
 
-    	
+
 @main("") {
 
 @menues(mapDiccionario, mapPermiso, userMnu, " ")
@@ -36,27 +36,41 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 					<tr>
 						<td style="text-align:left;">@mapDiccionario.get("BODEGA") ASOCIADA: </td>
 						<td style="text-align:left;">
-							<select class="custom-select" 
-								id="id_bodegaAsociada" 
+							<select class="custom-select"
+								id="id_bodegaAsociada"
 								onchange="modificarTipoEstado(id);">
-								<option value="0">No asociada</option>
+								<option value="@tipoEstado.getId_bodegaAsociada">@tipoEstado.getBodegaAsociada</option>
 								@for(lista <- listBodegas){
 									<option value="@lista.get(1)">@lista.get(5)</option>
 								}
+								<option value="0">No Asociada</option>
 							</select>
 						</td>
 					</tr>
 					<tr>
 						<td style="text-align:left;">APLICA LISTA PRECIOS: </td>
 						<td style="text-align:left;">
-							<select class="custom-select" 
-								id="reparable" 
+							<select class="custom-select"
+								id="reparable"
 								onchange="modificarTipoEstado(id);">
-								<option value="1">SI</option>
-								<option value="0">NO</option>
+									<option value="1">SI</option>
+									<option value="0">NO</option>
 							</select>
 						</td>
 					</tr>
+					@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+						<tr>
+							<td style="text-align:left;">COBRA @mapDiccionario("ARRIENDO"): </td>
+							<td style="text-align:left;">
+								<select class="custom-select"
+									id="cobraArriendo"
+									onchange="modificarCobraArriendo(id);">
+										<option value="1">SI</option>
+										<option value="0">NO</option>
+								</select>
+							</td>
+						</tr>
+					}
 					<tr>
 						<td colspan="2">
 							<table class="table table-sm table-bordered table-condensed table-fluid">
@@ -98,7 +112,7 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 									}
 									<td colspan=7>
 										<div align="center">
-											<input type="button" class="btn btn-light btn-sm rounded-pill" 
+											<input type="button" class="btn btn-light btn-sm rounded-pill"
 												onclick="location.href='/tipoReparacionAgrega/@tipoEstado.getId()'"
 												value = "Agregar Reparación">
 										</div>
@@ -118,7 +132,7 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 			</div>
 		</div>
 	</div>
-	
+
 	<form id="form_eliminar" method="post" action="/tipoReparacionElimina/">
 		<input type="hidden" id="form_id_tipoReparacion" name="id_tipoReparacion">
 		<input type="hidden" id="form_id_tipoEstado" name="id_tipoEstado">
@@ -134,6 +148,7 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 	$(document).ready(function() {
 		  $('#id_bodegaAsociada > option[value="@tipoEstado.getId_bodegaAsociada()"]').attr('selected', 'selected');
 		  $('#reparable > option[value="@tipoEstado.getReparable()"]').attr('selected', 'selected');
+		  $('#cobraArriendo > option[value="@tipoEstado.getCobraArriendo()"]').attr('selected', 'selected');
 		  document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
@@ -163,6 +178,34 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 	     		}
 	     	}
         });
+	}
+
+	const modificarCobraArriendo = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+		formData.append('campo',campo);
+		formData.append('id_tipoEstado',id_tipoEstado);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/modificaTipoEstadoPorCampoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="existe"){
+					alertify.alert('La sigla asignada ya existe, intente con otra', function () {
+						$("#sigla").val("@tipoEstado.getSigla()");
+					});
+				}else if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
 	}
 	
 	const eliminarReparacion = (id_tipoReparacion) => {

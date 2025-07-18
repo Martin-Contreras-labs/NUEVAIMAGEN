@@ -1082,6 +1082,11 @@
 										<div class="dropdown-divider" style="border-color:black"></div>
 										<li><a class="dropdown-item" href='/routes2/reportVentasPorPeriodo0/'>Solo Venta por Periodo</a></li>
 									}
+
+									@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+										<div class="dropdown-divider" style="border-color:black"></div>
+										<li><a class="dropdown-item" href='/routes3/estadosMantCobraArriendo0/'>Mant Cobra @mapDiccionario.get("Arriendo") Estados</a></li>
+									}
 									
 									
 								</ul>

@@ -4569,31 +4569,27 @@ public class ReportInventarios {
 		if(esPorSucursal.equals("1")) {
 			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
 		}
-		
-		try {
-			PreparedStatement smt5 = con
-					.prepareStatement(" select  "
-							+ " id_bodegaEmpresa, "
-							+ " tipoEstado.id, "
-							+ " guia.numero, "
-							+ " guia.fecha, "
-							+ " movimiento.id_equipo, "
-							+ " estadoEquipo.cantidad, "
-							+ " movimiento.id_cotizacion, "
-							+ " bodegaEmpresa.id_sucursal, "
-							+ " guia.numGuiaCliente "
-							+ " from `"+db+"`.estadoEquipo "
-							+ " left join `"+db+"`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
-							+ " left Join `"+db+"`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
-							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia "
-							+ " left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento "
-							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa "
-							+ " left join `"+db+"`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna "
-							+ " where numero is not null  and movimiento.id_tipoMovimiento=2 and bodegaEmpresa.vigente = 1 and tipoBodega.id = 2 "
-							+ " and fecha between '"+desdeAAMMDD+"' and '"+hastaAAMMDD+"' "   
-							+   permisoPorBodega + condSucursal
-							+ " order by id_bodegaEmpresa, tipoEstado.id, movimiento.id_equipo, guia.fecha;");
-			ResultSet rs5 = smt5.executeQuery();
+		String query = String.format(" select  "
+				+ " id_bodegaEmpresa, "
+				+ " tipoEstado.id, "
+				+ " guia.numero, "
+				+ " guia.fecha, "
+				+ " movimiento.id_equipo, "
+				+ " estadoEquipo.cantidad, "
+				+ " movimiento.id_cotizacion, "
+				+ " bodegaEmpresa.id_sucursal, "
+				+ " guia.numGuiaCliente "
+				+ " from `%s`.estadoEquipo "
+				+ " left join `%s`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
+				+ " left Join `%s`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
+				+ " left join `%s`.guia on guia.id = movimiento.id_guia "
+				+ " left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa "
+				+ " where numero is not null  and movimiento.id_tipoMovimiento=2 and bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 "
+				+ " and fecha between '"+desdeAAMMDD+"' and '"+hastaAAMMDD+"' "
+				+   permisoPorBodega + condSucursal
+				+ " order by id_bodegaEmpresa, tipoEstado.id, movimiento.id_equipo, guia.fecha;",db,db,db,db,db);
+		try (PreparedStatement smt5 = con.prepareStatement(query);
+			 ResultSet rs5 = smt5.executeQuery();){
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			while (rs5.next()) {
 				String nameSucursal = "";
@@ -4616,10 +4612,10 @@ public class ReportInventarios {
 				}
 				
 			}
-			rs5.close();
-			smt5.close();
 		} catch (SQLException e) {
-				e.printStackTrace();
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return (lista);
 	}
@@ -4713,6 +4709,7 @@ public class ReportInventarios {
 				+ " where bodegaEmpresa.vigente = 1 and guia.fecha between ? and ? "
 				+   permisoPorBodega
 				+ " order by movimiento.id_bodegaEmpresa, guia.fecha, movimiento.id_equipo, tipoEstado.sigla;",db,db,db,db,db,db,db,db,db,db);
+		System.out.println("query: " + query);
 		try (PreparedStatement smt5 = con.prepareStatement(query)){
 			smt5.setString(1, desde);
 			smt5.setString(2, hasta);

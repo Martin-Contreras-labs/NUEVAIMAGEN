@@ -15,6 +15,9 @@ listEstados: List[tables.TipoEstado])
 							<TH style="vertical-align: top;">SIGLA</TH>
 							<TH>ESTADO</TH>
 							<TH>APLICA LISTA PRECIOS</TH>
+							@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) {
+								<TH>COBRA @mapDiccionario("ARRIENDO")</TH>
+							}
 							<TH>@mapDiccionario.get("BODEGA") ASOCIADA</TH>
 							<TH>SUCURSAL</TH>
 							<TH>EDIT</TH>
@@ -33,6 +36,15 @@ listEstados: List[tables.TipoEstado])
 										NO (no aplica lista precio)
 									}
 								</td>
+								@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) {
+									<td  style="text-align: left;">
+									@if(lista1.getCobraArriendo() == 1) {
+										SI cobra
+									} else {
+										NO cobra
+									}
+									</td>
+								}
 								<td  style="text-align:left;">@lista1.getBodegaAsociada()</td>
 								@if(mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")){
 									<td  style="text-align:left;">TODAS</td>

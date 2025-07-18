@@ -3145,6 +3145,7 @@ public class MnuReportes extends Controller {
 	//====================================================================================
 
 	public Result reporteEstadosPer0(Http.Request request) {
+		System.out.println("MNU reportEstadosPer0");
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -3196,6 +3197,7 @@ public class MnuReportes extends Controller {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				System.out.println("permisoPorBodega: "+permisoPorBodega);
 				List<List<String>> datos = ReportInventarios.reportInventarioEstadosPorPer(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD);
 				return ok(reporteEstadosPer1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
@@ -12834,6 +12836,61 @@ public class MnuReportes extends Controller {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
+		}
+	}
+
+
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	MENU REPORTES: COBRA ARRIENDO SOBRE ESTADOS (ALZATEC UNICAMENTE)
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+	public Result estadosMantCobraArriendo0(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")==null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("0")) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		List<List<String>> lista = new ArrayList<List<String>>();
+		try (Connection con = dbRead.getConnection()){
+			List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+			Map<Long,List<String>> map = new HashMap<Long,List<String>>();
+			listCobraArriendoEstados.forEach(x -> {
+				List<String> l = new ArrayList<String>();
+				l.add(x.getNombreSucursal());
+				l.add(x.getNombreBodega());
+				map.put(x.getId_bodegaEmpresa(), l);
+			});
+			for(Map.Entry<Long,List<String>> entry : map.entrySet()) {
+				List<String> l = new ArrayList<String>();
+				l.add(entry.getKey().toString());
+				l.add(entry.getValue().get(0));
+				l.add(entry.getValue().get(1));
+				System.out.println(l.toString());
+				lista.add(l);
+			}
+
+
+
+
+
+
+			return ok(lista.toString());
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
 
