@@ -158,4 +158,25 @@ POST	/mantTblOperadorMecanicoVerifica/			controllers.MnuMantencion.mantTblOperad
 # MENU REPORTES: COBRA ARRIENDO SOBRE ESTADOS (ALZATEC UNICAMENTE)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 GET		/estadosMantCobraArriendo0/				controllers.MnuReportes.estadosMantCobraArriendo0(request: Request)
+POST	/estadosMantCobraArriendo1/				controllers.MnuReportes.estadosMantCobraArriendo1(request: Request)
+POST	/modCobraArriendoAjax/				    controllers.MnuReportes.modCobraArriendoAjax(request: Request)
+
+GET		/estadosFacturaPeriodo/				    controllers.MnuReportes.estadosFacturaPeriodo(request: Request)
+POST	/estadosFacturaProyecto/:archivoPDF		controllers.MnuReportes.estadosFacturaProyecto(request: Request, archivoPDF: String)
+GET     /estadosFacturaProyectoGet/:d,:a,:u,:e,:f,:p             controllers.MnuReportes.estadosFacturaProyectoGet(request: Request, d: String, a: String, u: Double, e: Double, f: Double, p: String)
+
+POST	/estadosFacturaProyectoExcel/			controllers.MnuReportes.estadosFacturaProyectoExcel(request: Request)
+POST	/estadosFacturaProyectoDetalle/			controllers.MnuReportes.estadosFacturaProyectoDetalle(request: Request)
+POST	/estadosFacturaProyectoDetExcel/	    controllers.MnuReportes.estadosFacturaProyectoDetExcel(request: Request)
+
+POST	/enviarAlistAjustes/	        controllers.MnuReportes.enviarAlistAjustes(request: Request)
+POST	/envioMasivoAlistAjustes/	    controllers.MnuReportes.envioMasivoAlistAjustes(request: Request)
+
+
+
+
+
+
+
+
 

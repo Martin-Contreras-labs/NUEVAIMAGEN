@@ -238,7 +238,6 @@ public class TipoEstado {
 		try (PreparedStatement smt = con.prepareStatement(query)){
 			smt.setString(1, valor.trim());
 			smt.setLong(2, id_tipoEstado);
-			System.out.println(smt);
 			smt.executeUpdate();
 			if(campo.equals("reparable")) {
 				query = String.format("update `%s`.tipoEstado set `valoriza` = ? where id = ?;",db);

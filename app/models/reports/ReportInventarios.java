@@ -4709,7 +4709,7 @@ public class ReportInventarios {
 				+ " where bodegaEmpresa.vigente = 1 and guia.fecha between ? and ? "
 				+   permisoPorBodega
 				+ " order by movimiento.id_bodegaEmpresa, guia.fecha, movimiento.id_equipo, tipoEstado.sigla;",db,db,db,db,db,db,db,db,db,db);
-		System.out.println("query: " + query);
+
 		try (PreparedStatement smt5 = con.prepareStatement(query)){
 			smt5.setString(1, desde);
 			smt5.setString(2, hasta);

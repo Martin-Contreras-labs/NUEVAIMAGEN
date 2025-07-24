@@ -263,6 +263,10 @@ GET		/reportPipelineSelDet/				controllers.MnuCotizar.reportPipelineSelDet(reque
 POST	/reportPipelineRptDet/				controllers.MnuCotizar.reportPipelineRptDet(request: Request)
 POST	/reportPipelineRptDetExcel/			controllers.MnuCotizar.reportPipelineRptDetExcel(request: Request)
 
+GET		/reportPipelineSelComercial/				controllers.MnuCotizar.reportPipelineSelComercial(request: Request)
+POST	/reportPipelineRptComercial/				controllers.MnuCotizar.reportPipelineRptComercial(request: Request)
+POST	/reportPipelineRptComercialExcel/			controllers.MnuCotizar.reportPipelineRptComercialExcel(request: Request)
+
 
 GET		/otListarDespachosPeriodo/			controllers.MnuCotizar.otListarDespachosPeriodo(request: Request)
 POST	/otListarDespachos/					controllers.MnuCotizar.otListarDespachos(request: Request)

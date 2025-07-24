@@ -153,11 +153,11 @@ public class WebIConstruye {
 			Long id_bodegaOrigen = guia.getId_bodegaOrigen();
 			BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db,id_bodegaOrigen);
 			Cliente clienteOrigen = Cliente.find(con, db, bodegaOrigen.getId_cliente());
-			String tipo = "TRASLADO";
+			String tipo = "TRASLADO MOV."+guia.getNumero();
 			if(bodegaOrigen.getEsInterna() == (long)1 && bodegaDestino.getEsInterna() > 1) {
-				tipo = "DESPACHO";
+				tipo = "DESPACHO MOV."+guia.getNumero();
 			}else if(bodegaOrigen.getEsInterna() > 1) {
-				tipo = "DEVOLUCION";
+				tipo = "DEVOLUCION MOV."+guia.getNumero();
 			}
 			if(bodegaOrigen.getEsInterna() > 1) {
 				BodegaEmpresa aux = bodegaDestino;
@@ -460,7 +460,7 @@ public class WebIConstruye {
 				if(auxFechVenc.length == 3) {
 					fechaVencimiento = auxFechVenc[0].trim()+"-"+auxFechVenc[1].trim()+"-"+auxFechVenc[2].trim();
 				}
-				String observaciones = "PERIODO: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
+				String observaciones = "PROF."+proforma.getId()+" PERIODO: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 									   " --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
 				if(comentarios!=null && comentarios.trim().length()>1) {
 					observaciones = observaciones + " --- COMENTARIOS: "+comentarios.toUpperCase();

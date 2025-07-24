@@ -3652,7 +3652,7 @@ public class MnuTablas extends Controller {
     
     
     //============================================================
-    // MNU usuarioMantencion   Tablas/Usuarios/Perfiles
+    // MNU mnuTabla  Tablas/Usuarios/Perfiles
     //============================================================
     
     public Result usuarioMantencion(Http.Request request) {

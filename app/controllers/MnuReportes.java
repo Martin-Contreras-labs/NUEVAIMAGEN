@@ -3145,7 +3145,6 @@ public class MnuReportes extends Controller {
 	//====================================================================================
 
 	public Result reporteEstadosPer0(Http.Request request) {
-		System.out.println("MNU reportEstadosPer0");
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -3197,7 +3196,6 @@ public class MnuReportes extends Controller {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-				System.out.println("permisoPorBodega: "+permisoPorBodega);
 				List<List<String>> datos = ReportInventarios.reportInventarioEstadosPorPer(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD);
 				return ok(reporteEstadosPer1.render(mapeoDiccionario,mapeoPermiso,userMnu, datos, desdeAAMMDD, hastaAAMMDD));
 			} catch (SQLException e) {
@@ -6732,15 +6730,8 @@ public class MnuReportes extends Controller {
 					return ok(mensajes.render("/home/", msgReport));
 				}
 
-
-
-
 				File file = ReportFacturas.exportaProformaHExcelProyectos(s.baseDato, mapeoDiccionario,
 						proyectos, mapServicios, mapDec, desdeAAMMDD,hastaAAMMDD,uf,usd,eur,resumenTotales);
-
-//				return ok(reportFacturaProyectoH.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
-//						uf, usd, eur, desdeAAMMDD, hastaAAMMDD, mapDec.get(1L), archivoPDF));
-
 
 				return ok(file,false,Optional.of("EP_Proforma_Listado.xlsx"));
 			} catch (Exception e) {
@@ -8775,6 +8766,37 @@ public class MnuReportes extends Controller {
 		}
 	}
 
+	public Result reportFacturaPeriodoResumen2(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("proformaResumen")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			return ok(reportFacturaPeriodoResumen2.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
 	public Result reportFacturaResumen0(Http.Request request) {
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
@@ -8856,6 +8878,409 @@ public class MnuReportes extends Controller {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
 				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportFacturaResumen2(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		} else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String desdeAAMMDD = null;
+			String hastaAAMMDD = null;
+			Map<Long, Double> tasas = null;
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long, Calc_Precio> mapMaestroPrecios = null;
+			List<Long> listIdGuia_fechaCorte = null;
+			List<Inventarios> inventario = null;
+			List<Long> listIdGuia_entreFechas = null;
+			List<Calc_AjustesEP> listaAjustes = null;
+			Map<Long, List<String>> mapBodega = null;
+			Map<Long, Long> dec = null;
+			Map<String, String> map = null;
+			String id_proyecto = null;
+			Double uf = null;
+			Double usd = null;
+			Double eur = null;
+			Map<Long,Long> mapDec = null;
+			try (Connection con = dbRead.getConnection()) {
+				desdeAAMMDD = form.get("fechaDesde").trim();
+				hastaAAMMDD = form.get("fechaHasta").trim();
+				uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				id_proyecto = form.get("id_proyecto");
+				if (id_proyecto == null) {
+					id_proyecto = "0";
+				}
+				id_proyecto = id_proyecto.trim();
+				tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+				mapDec = Moneda.numeroDecimal(con, s.baseDato);
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+			listIdGuia_fechaCorte = null;
+			inventario = null;
+			List<Inventarios> guiasPer = null;
+			Map<String, String> mapPermanencias = null;
+			int nroDec = 0;
+			try (Connection con = dbRead.getConnection()) {
+				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			try {
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapPermanencias = null;
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				inventarioInicial = null;
+				guiasPeriodo = null;
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+				listado = null;
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if (!map.isEmpty()) {
+					for (List<String> aux : proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if (idBodega != null) {
+							proyectos.add(aux);
+						}
+					}
+				} else {
+					proyectos = proyectosAux;
+				}
+				proyectosAux = null;
+				if (!id_proyecto.equals("0")) {
+					List<List<String>> aux = new ArrayList<List<String>>();
+					for (List<String> lista1 : proyectos) {
+						if (lista1.get(3).trim().equals(id_proyecto)) {
+							aux.add(lista1);
+						}
+					}
+					proyectos = aux;
+				}
+
+
+				try (Connection con = dbRead.getConnection()) {
+					Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+					Long id_grupo = (long)0;
+					Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
+
+					Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
+					Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
+
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+
+				String tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
+						+ "<thead style=\"background-color: #eeeeee\">"
+						+ "<TR> "
+						+ "<TH style= \"text-align: center;vertical-align: top;\">SUCURSAL</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">" + mapeoDiccionario.get("BODEGA") + "/PROYECTO</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<BR>CLIENTE</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">NOMBRE<br>PROYECTO</TH>"
+						+ "<TH style= \"text-align: center;vertical-align: top;\">COMERCIAL</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">CFI (en " + mapeoDiccionario.get("PESOS") + ")</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>" + mapeoDiccionario.get("ARRIENDO") + "</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">SubTotal<br>VENTA</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(" + mapeoDiccionario.get("ARRIENDO") + ")</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">Ajustes<BR>(VENTA)</TH>"
+						+ "<TH style= \"text-align:center;vertical-align:top;\">TOTAL<BR>(en " + mapeoDiccionario.get("PESOS") + ")</TH>"
+						+ "</TR>"
+						+ "</thead>"
+						+ "<tbody>";
+
+				Map<String,List<Double>> mapResumen = new HashMap<String,List<Double>>();
+
+				Map<String,String> mapAuxParaRevisaServ = new HashMap<String,String>();
+				for (List<String> lista1 : proyectos) {
+					for (List<String> total : resumenTotales) {
+						if (lista1.get(1).equals(total.get(0))) {
+							Double auxTotal = (double)0;
+							try{
+								auxTotal=Double.parseDouble(total.get(4).replaceAll(",",""));
+							}catch(Exception e){}
+							if( auxTotal > 0) {
+								mapAuxParaRevisaServ.put(lista1.get(1),lista1.get(1));
+								String totales = DecimalFormato.formato(auxTotal,mapDec.get(1L));
+								tabla += "<TR>";
+								tabla += "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(14) + "</td>"
+										+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(5) + "</td>"
+										+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(7) + "</td>"
+										+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(8) + "</td>"
+										+ "<td style=\"text-align:left;vertical-align:middle;\">" + lista1.get(10) + "</td>"
+										+ "<td style= \"text-align:right;\" class=\"cfi\">" + total.get(3) + "</td>"
+										+ "<td style= \"text-align:right;\" class=\"arr\">" + total.get(1) + "</td>"
+										+ "<td style= \"text-align:right;\" class=\"vta\">" + total.get(2) + "</td>"
+										+ "<td style= \"text-align:right;\" class=\"ajustArr\">" + total.get(5) + "</td>"
+										+ "<td style= \"text-align:right;\" class=\"ajustVta\">" + total.get(6) + "</td>"
+										+ "<td style= \"text-align:right;\" class=\"granTotal\">" + totales + "</td>";
+								tabla += "</TR>";
+
+								List<Double> aux = new ArrayList<Double>();
+								aux.add(Double.parseDouble(total.get(3).replaceAll(",","")));
+								aux.add(Double.parseDouble(total.get(1).replaceAll(",","")));
+								aux.add(Double.parseDouble(total.get(2).replaceAll(",","")));
+								aux.add(Double.parseDouble(total.get(5).replaceAll(",","")));
+								aux.add(Double.parseDouble(total.get(6).replaceAll(",","")));
+								aux.add(Double.parseDouble(totales.replaceAll(",","")));
+								List<Double> aux2 = mapResumen.get(lista1.get(10));
+								if(aux2==null){
+									mapResumen.put(lista1.get(10),aux);
+								}else{
+									aux.set(0,aux.get(0)+aux2.get(0));
+									aux.set(1,aux.get(1)+aux2.get(1));
+									aux.set(2,aux.get(2)+aux2.get(2));
+									aux.set(3,aux.get(3)+aux2.get(3));
+									aux.set(4,aux.get(4)+aux2.get(4));
+									aux.set(5,aux.get(5)+aux2.get(5));
+									mapResumen.put(lista1.get(10),aux);
+								}
+							}
+						}
+					}
+				}
+
+				tabla += "</tbody>"
+						+ "<tfoot>"
+						+ "<TR>"
+						+ "<th style=\"background-color: #eeeeee\">TOTALES</th>"
+						+ "<th style=\"background-color: #eeeeee\"></th>"
+						+ "<th style=\"background-color: #eeeeee\"></th>"
+						+ "<th style=\"background-color: #eeeeee\"></th>"
+						+ "<th style=\"background-color: #eeeeee\"></th>"
+						+ "<th style=\"background-color: #eeeeee;text-align:right;\" id=\"cfi\"></th>"
+						+ "<th style=\"background-color: #eeeeee;text-align:right;\" id=\"arr\"></th>"
+						+ "<th style=\"background-color: #eeeeee;text-align:right;\" id=\"vta\"></th>"
+						+ "<th style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustArr\"></th>"
+						+ "<th style=\"background-color: #eeeeee;text-align:right;\" id=\"ajustVta\"></th>"
+						+ "<th style=\"background-color: #eeeeee;text-align:right;\" id=\"granTotal\"></th>"
+						+ "</TR>"
+						+ "</tfoot>"
+						+ "</table>";
+
+
+				return ok(reportFacturaResumen2.render(mapeoDiccionario, mapeoPermiso, userMnu, tabla, Fechas.DDMMAA(desdeAAMMDD), Fechas.DDMMAA(hastaAAMMDD), id_proyecto,
+						uf, usd, eur, desdeAAMMDD, hastaAAMMDD, mapDec.get(1L), "0", mapResumen));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportFacturaResumenExcel2(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		} else {
+			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String desdeAAMMDD = null;
+			String hastaAAMMDD = null;
+			Map<Long, Double> tasas = null;
+			Map<String, Double> mapFijaTasas = null;
+			List<Long> listIdBodegaEmpresa = null;
+			Map<Long, Calc_BodegaEmpresa> mapBodegaEmpresa = null;
+			Map<String, Calc_Precio> mapPrecios = null;
+			Map<Long, Calc_Precio> mapMaestroPrecios = null;
+			List<Long> listIdGuia_fechaCorte = null;
+			List<Inventarios> inventario = null;
+			List<Long> listIdGuia_entreFechas = null;
+			List<Calc_AjustesEP> listaAjustes = null;
+			Map<Long, List<String>> mapBodega = null;
+			Map<Long, Long> dec = null;
+			Map<String, String> map = null;
+			String id_proyecto = null;
+			Double uf = null;
+			Double usd = null;
+			Double eur = null;
+			Map<Long,Long> mapDec = null;
+			try (Connection con = dbRead.getConnection()) {
+				desdeAAMMDD = form.get("fechaDesde").trim();
+				hastaAAMMDD = form.get("fechaHasta").trim();
+				uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				id_proyecto = form.get("id_proyecto");
+				if (id_proyecto == null) {
+					id_proyecto = "0";
+				}
+				id_proyecto = id_proyecto.trim();
+				tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
+				mapBodegaEmpresa = Calc_BodegaEmpresa.mapAllBodegasVigentes(con, s.baseDato);
+				mapPrecios = Calc_Precio.mapPrecios(con, s.baseDato, listIdBodegaEmpresa);
+				mapMaestroPrecios = Calc_Precio.mapMaestroPrecios(con, s.baseDato);
+				mapFijaTasas = BodegaEmpresa.mapFijaTasasAll(con, s.baseDato);
+				listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, s.baseDato, desdeAAMMDD);
+				inventario = Inventarios.inventario(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_fechaCorte);
+				listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				listaAjustes = Calc_AjustesEP.listaAjustesEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD);
+				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				dec = Moneda.numeroDecimal(con, s.baseDato);
+				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
+				mapDec = Moneda.numeroDecimal(con, s.baseDato);
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(s.baseDato, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa,
+					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
+			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+			listIdGuia_fechaCorte = null;
+			inventario = null;
+			List<Inventarios> guiasPer = null;
+			Map<String, String> mapPermanencias = null;
+			int nroDec = 0;
+			try (Connection con = dbRead.getConnection()) {
+				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
+				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			try {
+				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
+						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+				mapPermanencias = null;
+				mapBodegaEmpresa = null;
+				mapPrecios = null;
+				mapMaestroPrecios = null;
+				guiasPer = null;
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				inventarioInicial = null;
+				guiasPeriodo = null;
+				listaAjustes = null;
+				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(listado, mapBodega);
+				mapBodega = null;
+				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(listado, dec);
+				listado = null;
+				List<List<String>> proyectos = new ArrayList<List<String>>();
+				if (!map.isEmpty()) {
+					for (List<String> aux : proyectosAux) {
+						String idBodega = map.get(aux.get(1));
+						if (idBodega != null) {
+							proyectos.add(aux);
+						}
+					}
+				} else {
+					proyectos = proyectosAux;
+				}
+				proyectosAux = null;
+				if (!id_proyecto.equals("0")) {
+					List<List<String>> aux = new ArrayList<List<String>>();
+					for (List<String> lista1 : proyectos) {
+						if (lista1.get(3).trim().equals(id_proyecto)) {
+							aux.add(lista1);
+						}
+					}
+					proyectos = aux;
+				}
+
+				try (Connection con = dbRead.getConnection()) {
+					Map<Long,Long> mapIdEquipoVsIdGrupo = Equipo.mapIdEquipoVsIdGrupo(con, s.baseDato);
+					Long id_grupo = (long)0;
+					Map<String,ListaPrecioServicio> mapPreciosOdo = ListaPrecioServicio.mapAllListaPrecioServicio(con, s.baseDato);
+
+					Map<Long,BodegaEmpresa> mapBodegas = BodegaEmpresa.mapAll(con, s.baseDato);
+					Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
+
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				File file = ReportFacturas.exportaFacturaResumen2Excel(s.baseDato, mapeoDiccionario,
+						proyectos, mapDec, desdeAAMMDD,hastaAAMMDD,uf,usd,eur,resumenTotales);
+				return ok(file,false,Optional.of("EP_Proforma_Resumen_Comercial.xlsx"));
 			} catch (Exception e) {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -9116,7 +9541,7 @@ public class MnuReportes extends Controller {
 					mapGuiasPer = null;
 					File file = ReportFacturas.exportaProformaExcelResumen0(s.baseDato, mapeoDiccionario,
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle);
-					return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
+					return ok(file,false,Optional.of("EP_Proforma_Resumen_Agrupado.xlsx"));
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -9408,7 +9833,7 @@ public class MnuReportes extends Controller {
 					mapGuiasPer = null;Map<String,Equipo> mapEquipo = Equipo.mapAllAllPorCodigo(con2, s.baseDato);
 					File file = ReportFacturas.exportaProformaExcelResumen(s.baseDato, mapeoDiccionario,
 							proyectos,desde,hasta,uf,usd,eur,resumenTotales,resumenPorGrupoYProyecto,resumenPorProyectoGrupoYdetalle, mapEquipo);
-					return ok(file,false,Optional.of("EP_Proforma_Resumen.xlsx"));
+					return ok(file,false,Optional.of("EP_Proforma_Resumen_Sucursal.xlsx"));
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -9553,7 +9978,7 @@ public class MnuReportes extends Controller {
 					email.setFrom("desde MADA <informaciones@inqsol.cl>");
 					email.setBodyHtml("<html>Archivo adjunto</html>");
 					email.addTo(eMail);
-					email.addAttachment("EP_Proforma_Resumen.xlsx", file);
+					email.addAttachment("EP_Proforma_Resumen_Sucursal.xlsx", file);
 					mailerClient.send(email);
 				} catch (Exception e) {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
@@ -12856,7 +13281,7 @@ public class MnuReportes extends Controller {
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-		if(mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")==null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("0")) {
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
@@ -12875,16 +13300,9 @@ public class MnuReportes extends Controller {
 				l.add(entry.getKey().toString());
 				l.add(entry.getValue().get(0));
 				l.add(entry.getValue().get(1));
-				System.out.println(l.toString());
 				lista.add(l);
 			}
-
-
-
-
-
-
-			return ok(lista.toString());
+			return ok(estadosMantCobraArriendo0.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -12893,6 +13311,618 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
+
+	public Result estadosMantCobraArriendo1(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try {
+				List<CobraArriendoEstados> lista = new ArrayList<CobraArriendoEstados>();
+				Long id_bodega = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+				try (Connection con = dbRead.getConnection()){
+					List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+					listCobraArriendoEstados.forEach(x -> {
+						if(x.getId_bodegaEmpresa().equals(id_bodega)) {
+							lista.add(x);
+						}
+					});
+					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+					return ok(estadosMantCobraArriendo1.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa));
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result modCobraArriendoAjax(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
+				Long id_movimiento = Long.parseLong(form.get("id_movimiento").trim());
+				Long valor = Long.parseLong(form.get("valor").trim());
+				if(CobraArriendoEstados.modificaCobraArriendo(con, s.baseDato, id_movimiento, valor)) {
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "estadoEquipo", id_movimiento, "update", "cambia cobraArriendo de id_movimiento: "+id_movimiento+" por valor: "+valor);
+					return ok("OK");
+				}else {
+					return ok("error");
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok("error");
+			}
+		}
+	}
+
+	public Result estadosFacturaPeriodo(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			return ok(estadosFacturaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, tasas));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+	public Result estadosFacturaProyecto(Http.Request request, String archivoPDF) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Map<Long, Double> tasas = new HashMap<Long, Double>();
+			tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+			tasas.put((long) 2, usd);           // 'Dólar', 'USD', '2'
+			tasas.put((long) 3, eur);           // 'Euro', 'EUR', '3'
+			tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+			try (Connection con = dbRead.getConnection()){
+				List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+				Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+				Long nroDec = moneda.getNumeroDecimales();
+				String nomMon = moneda.getNombre();
+				List<List<String>> lista = CobraArriendoEstados.calc_resumen(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec);
+				return ok(estadosFacturaProyecto.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,desdeAAMMDD,hastaAAMMDD,usd,eur,uf,archivoPDF,nroDec,nomMon));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result estadosFacturaProyectoGet(Http.Request request, String desdeAAMMDD, String hastaAAMMDD,
+											Double usd, Double eur, Double uf, String archivoPDF) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			Map<Long, Double> tasas = new HashMap<Long, Double>();
+			tasas.put((long) 1, (double) 1);
+			tasas.put((long) 2, usd);
+			tasas.put((long) 3, eur);
+			tasas.put((long) 4, uf);
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+			List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+			Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+			Long nroDec = moneda.getNumeroDecimales();
+			String nomMon = moneda.getNombre();
+			List<List<String>> lista = CobraArriendoEstados.calc_resumen(con, s.baseDato, desde, hasta, listCobraArriendoEstados, tasas, nroDec);
+			return ok(estadosFacturaProyecto.render(mapeoDiccionario, mapeoPermiso, userMnu, lista, desdeAAMMDD, hastaAAMMDD, usd, eur, uf, archivoPDF, nroDec, nomMon));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+
+	public Result estadosFacturaProyectoExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Map<Long, Double> tasas = new HashMap<Long, Double>();
+			tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+			tasas.put((long) 2, usd);           // 'Dólar', 'USD', '2'
+			tasas.put((long) 3, eur);           // 'Euro', 'EUR', '3'
+			tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+			try (Connection con = dbRead.getConnection()){
+				List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+				Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+				Long nroDec = moneda.getNumeroDecimales();
+				String nomMon = moneda.getNombre();
+				List<List<String>> lista = CobraArriendoEstados.calc_resumen(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec);
+				File file = CobraArriendoEstados.estadosFacturaProyectoExcel(s.baseDato, mapeoDiccionario,lista, desde, hasta);
+				return ok(file,false,Optional.of("EP_CobraArriendoEstados_Listado.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result estadosFacturaProyectoDetalle(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Map<Long, Double> tasas = new HashMap<Long, Double>();
+			tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+			tasas.put((long) 2, usd);           // 'Dólar', 'USD', '2'
+			tasas.put((long) 3, eur);           // 'Euro', 'EUR', '3'
+			tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+			try (Connection con = dbRead.getConnection()){
+				List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+				Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+				Long nroDec = moneda.getNumeroDecimales();
+				String nomMon = moneda.getNombre();
+				List<List<String>> lista = CobraArriendoEstados.calc_detalle(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec, id_bodegaEmpresa);
+				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				return ok(estadosFacturaProyectoDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa,desdeAAMMDD,hastaAAMMDD,usd,eur,uf,nroDec,nomMon));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result estadosFacturaProyectoDetExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Map<Long, Double> tasas = new HashMap<Long, Double>();
+			tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+			tasas.put((long) 2, usd);           // 'Dólar', 'USD', '2'
+			tasas.put((long) 3, eur);           // 'Euro', 'EUR', '3'
+			tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+			try (Connection con = dbRead.getConnection()){
+				List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+				Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+				Long nroDec = moneda.getNumeroDecimales();
+				String nomMon = moneda.getNombre();
+				List<List<String>> lista = CobraArriendoEstados.calc_detalle(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec, id_bodegaEmpresa);
+				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				Fechas hoy = Fechas.hoy();
+				File file = CobraArriendoEstados.estadosFacturaProyectoDetExcel(s.baseDato, mapeoDiccionario,lista, desde, hasta,bodegaEmpresa, hoy);
+				return ok(file,false,Optional.of("EP_CobraArriendoEstados_"+bodegaEmpresa.getNombre()+".xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result enviarAlistAjustes(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		if (form.hasErrors()) {
+			return ok("error");
+		}else {
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+			Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+			Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+			Map<Long, Double> tasas = new HashMap<Long, Double>();
+			tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+			tasas.put((long) 2, usd);           // 'Dólar', 'USD', '2'
+			tasas.put((long) 3, eur);           // 'Euro', 'EUR', '3'
+			tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+			try (Connection con = dbWrite.getConnection()){
+				List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+				Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+				Long nroDec = moneda.getNumeroDecimales();
+				String nomMon = moneda.getNombre();
+				List<List<String>> lista = CobraArriendoEstados.calc_detalle(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec, id_bodegaEmpresa);
+				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+				Fechas hoy = Fechas.hoy();
+				ProformaEstado proforma = ProformaEstado.create(con, s.baseDato, hoy, desde, hasta, bodegaEmpresa);
+				if(proforma!=null) {
+					File fileXls = CobraArriendoEstados.estadosFacturaProyectoDetExcel(s.baseDato, mapeoDiccionario, lista, desde, hasta,bodegaEmpresa, hoy);
+					String archivoXls = s.baseDato+"/"+proforma.getExcel();
+					Archivos.grabarArchivo(fileXls, archivoXls);
+					proforma = CobraArriendoEstados.agregaTotalesYcreaPDF(con, s.baseDato, mapeoPermiso, mapeoDiccionario, lista, desde, hasta,bodegaEmpresa, hoy, proforma, nroDec);
+					AjustesEP.createAjusteCobraArriendoEstado(con, s.baseDato, proforma);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", (long)0, "insertUno", "Envio un Ajustes por Estados nro: " + proforma.getId());
+				}
+				return redirect("/routes3/estadosFacturaProyectoGet/"+desdeAAMMDD+","+hastaAAMMDD+","+usd+","+eur+","+uf+","+proforma.getPdf());
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result envioMasivoAlistAjustes(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
+		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (formEsVenta.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			try {
+				String desdeAAMMDD = form.fechaDesde;
+				String hastaAAMMDD = form.fechaHasta;
+				Double uf = Double.parseDouble(form.uf.replaceAll(",", "").trim());
+				Double usd = Double.parseDouble(form.usd.replaceAll(",", "").trim());
+				Double eur = Double.parseDouble(form.eur.replaceAll(",", "").trim());
+				Map<Long, Double> tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);           // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);           // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+				Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
+				Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
+				String mailDestino = null;
+				List<CobraArriendoEstados> listCobraArriendoEstados = new ArrayList<CobraArriendoEstados>();
+				Long nroDec = 0L;
+				String nomMon = "";
+				try (Connection con = dbRead.getConnection()){
+					listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+					Moneda moneda = Moneda.find(con, s.baseDato, 1L);
+					nroDec = moneda.getNumeroDecimales();
+					nomMon = moneda.getNombre();
+					Usuario usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
+					if (usuario != null) {
+						mailDestino = usuario.getEmail().trim().toLowerCase();
+						if (mailDestino.length() < 4) {
+							usuario = null;
+						}
+					}
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+					if (HomeController.isValidEmail(mailDestino)) {
+						if (mailDestino != null) {
+							try (Connection con = dbWrite.getConnection()) {
+								Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)2);
+							} catch (SQLException e) {
+								logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+							} catch (Exception e) {
+								logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+							}
+							MnuReportes.envioMasivoListadoProformaEstados generar = new MnuReportes.envioMasivoListadoProformaEstados(desde, hasta, uf, usd, eur, tasas, nroDec, nomMon, listCobraArriendoEstados, mailDestino, s);
+							generar.start();
+							String mensaje = "Solicitud en preparación, recibira el resultado al correo:" + mailDestino + ". Tomara varios minutos para recibir el correo, dependiendo de la cantidad a generar.";
+							return ok(mensajes.render("/home/", mensaje));
+						} else {
+							String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
+							return ok(mensajes.render("/home/", mensaje));
+						}
+					} else {
+						String mensaje = "No es posible generar la solicitud debido a que el mail que existe en la configuración de su usuario no es valido";
+						return ok(mensajes.render("/home/", mensaje));
+					}
+
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				try (Connection con = dbWrite.getConnection()) {
+					Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)1);
+				} catch (SQLException f) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, f);
+				}
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public class envioMasivoListadoProformaEstados extends Thread {
+		Fechas desde;
+		Fechas hasta;
+		Double uf;
+		Double usd;
+		Double eur;
+		Map<Long, Double> tasas;
+		Long nroDec;
+		String nomMon;
+		List<CobraArriendoEstados> listCobraArriendoEstados;
+		String eMail;
+		Sessiones s;
+
+		public envioMasivoListadoProformaEstados(Fechas desde, Fechas hasta, Double uf, Double usd, Double eur,
+						 Map<Long, Double> tasas, Long nroDec, String nomMon, List<CobraArriendoEstados> listCobraArriendoEstados,
+						 String eMail, Sessiones s) {
+			super();
+			this.desde = desde;
+			this.hasta = hasta;
+			this.uf = uf;
+			this.usd = usd;
+			this.eur = eur;
+			this.tasas = tasas;
+			this.nroDec = nroDec;
+			this.nomMon = nomMon;
+			this.listCobraArriendoEstados = listCobraArriendoEstados;
+			this.eMail = eMail;
+			this.s = s;
+		}
+
+		public void run() {
+			String className = this.getClass().getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			try (Connection con = dbWrite.getConnection()) {
+				Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)2);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			}
+			Fechas hoy = Fechas.hoy();
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			List<Long> listId_bodegaEmpresa = new ArrayList<Long>();
+			try (Connection con = dbRead.getConnection()) {
+				List<List<String>> listaResumen = CobraArriendoEstados.calc_resumen(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec);
+				listaResumen.forEach(l -> {
+					listId_bodegaEmpresa.add(Long.parseLong(l.get(0)));
+				});
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			}
+			String nros = "";
+			for(Long id_bodegaEmpresa: listId_bodegaEmpresa) {
+				try (Connection con = dbWrite.getConnection()) {
+					List<List<String>> lista = CobraArriendoEstados.calc_detalle(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec, id_bodegaEmpresa);
+					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
+					ProformaEstado proforma = ProformaEstado.create(con, s.baseDato, hoy, desde, hasta, bodegaEmpresa);
+					if(proforma!=null) {
+						File fileXls = CobraArriendoEstados.estadosFacturaProyectoDetExcel(s.baseDato, mapeoDiccionario, lista, desde, hasta,bodegaEmpresa, hoy);
+						String archivoXls = s.baseDato+"/"+proforma.getExcel();
+						Archivos.grabarArchivo(fileXls, archivoXls);
+						proforma = CobraArriendoEstados.agregaTotalesYcreaPDF(con, s.baseDato, mapeoPermiso, mapeoDiccionario, lista, desde, hasta,bodegaEmpresa, hoy, proforma, nroDec);
+						AjustesEP.createAjusteCobraArriendoEstado(con, s.baseDato, proforma);
+					}
+					nros += proforma.getId().toString() +", ";
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				}
+			}
+			try {
+				Email email = new Email();
+				String asunto = "ENVIO MASIVO A: Listado y Ajustes para cobrar estados equipos";
+				String desde = "desde MADA <informaciones@inqsol.cl>";
+				email.setSubject(asunto);
+				email.setFrom(desde);
+				email.setBodyHtml("<html><body>" +
+						" <p>Numeros generados: "+nros+"</p>" +
+						" <p>Nota: por favor no responder este correo</p>" +
+						" </body></html>");
+				email.addTo(eMail);
+				mailerClient.send(email);
+			} catch (Exception x) {
+				Email email = new Email();
+				String asunto = "ENVIO MASIVO A: Listado y Ajustes para cobrar estados equipos";
+				String desde = "desde MADA <informaciones@inqsol.cl>";
+				email.setSubject(asunto);
+				email.setFrom(desde);
+				email.setBodyHtml("<html><body>" +
+						" <p><b>NO SE GENERARO LISTADO NI AJUSTES</b></p>" +
+						" <p>Nota: por favor no responder este correo</p>" +
+						" </body></html>");
+				email.addTo(eMail);
+				mailerClient.send(email);
+			}
+			try (Connection con = dbWrite.getConnection()) {
+				Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)1);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", (long)0, "insertMasivo", "Envio masivo de Ajustes por Estados nros: " + nros);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			}
+		}
+	}
+
 
 
 }

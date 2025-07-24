@@ -402,6 +402,36 @@ public class AjustesEP {
 		return (flag);
 	}
 
+	public static boolean createAjusteCobraArriendoEstado(Connection con, String db,  ProformaEstado proforma){
+		boolean flag = false;
+		try {
+			String concepto = "[ID:"+proforma.getId() +"] Cobrar Arriendo Estado";
+
+			String queryInsert = "insert into `"+db+"`.ajustesEP "+
+					" (id_bodegaEmpresa,id_tipoAjuste,id_tipoAjusteVenta,concepto,fechaAjuste,id_moneda,totalAjuste,observaciones, une_proformaEstado, id_proformaEstado) values " +
+					" (?,?,?,?,?,?,?,?,?,?);";
+			try (PreparedStatement smt = con.prepareStatement(queryInsert)) {
+				smt.setLong(1, proforma.getId_bodegaEmpresa());
+				smt.setLong(2, 2L);
+				smt.setLong(3, 1L);
+				smt.setString(4, concepto);
+				smt.setString(5, proforma.getHasta());
+				smt.setLong(6, 1L);
+				smt.setDouble(7, proforma.getNeto());
+				smt.setString(8, "");
+				smt.setString(9, proforma.getUne_ajustesEP());
+				smt.setLong(10, proforma.getId());
+				smt.executeUpdate();
+				flag = true;
+			}
+		} catch (SQLException e) {
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (flag);
+	}
+
 	// OBTIENE LA LISTA DETALLE DE AJUSTES POR UNA BODEGAEMPRESA EN UN DETERMINADO PERIODO PARA ARRIENDO Y VENTA
 	public static List<AjustesEP> allPorPeriodos(Connection con, String db, String desdeAAMMDD, String hastaAAMMDD,
 												 String permisoPorBodega, String esPorSucursal, String id_sucursal){

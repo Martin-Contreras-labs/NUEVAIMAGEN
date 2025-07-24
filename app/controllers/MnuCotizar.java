@@ -2378,7 +2378,8 @@ public class MnuCotizar extends Controller {
 					nameComercial = auxComercial.getNameUsuario();
 				}
 				String tituloSucursal = " (SUCURSAL: "+nameSucursal+" - COMERCIAL: "+nameComercial+") ";
-				List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial);
+				int nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial, (long) nroDec);
 				String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
 				String fechaA = Fechas.DDMMAA(hastaAAMMDD);
 				return ok(reportPipelineRptDet.render(mapeoDiccionario,mapeoPermiso,userMnu, detalle, fechaDe, fechaA, tituloSucursal, desdeAAMMDD, hastaAAMMDD, id_sucursal, id_comercial));
@@ -2427,7 +2428,8 @@ public class MnuCotizar extends Controller {
 					nameComercial = auxComercial.getNameUsuario();
 				}
 				String tituloSucursal = " (SUCURSAL: "+nameSucursal+" - COMERCIAL: "+nameComercial+") ";
-				List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial);
+				int nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial, (long) nroDec);
 				String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
 				String fechaA = Fechas.DDMMAA(hastaAAMMDD);
 				File file = ReportCotizaciones.detallePipelineDetExcel(s.baseDato, mapeoDiccionario, detalle, tituloSucursal, fechaDe, fechaA);
@@ -2440,6 +2442,200 @@ public class MnuCotizar extends Controller {
 				return ok(mensajes.render("/home/", msgReport));
 			}
     	}
+	}
+
+	//============================================================
+	// MNU cotizaReporte   Cotizar/Cotizar/Pipeline Por Comercial
+	//============================================================
+
+	public Result reportPipelineSelComercial(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("cotizaImprime")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			Comercial comercial = new Comercial();
+			Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, s.id_usuario);
+			if(auxComercial==null) {
+				comercial.setId((long)0);
+				comercial.setNameUsuario("");
+				if(mapeoPermiso.get("cambiarComercial")!=null) {
+					comercial.setNameUsuario("-- TODOS --");
+				}
+			}else {
+				comercial = auxComercial;
+			}
+			List<Comercial> listComercial = new ArrayList<Comercial>();
+			if(mapeoPermiso.get("cambiarComercial")!=null) {
+				listComercial = Comercial.allPorIdSucursalVig(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+			}
+			List<Sucursal> listSucursal = new ArrayList<Sucursal>();
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				listSucursal = Sucursal.all(con, s.baseDato);
+			}
+			Sucursal sucursal = Sucursal.find(con, s.baseDato, s.id_sucursal);
+			return ok(reportPipelineSelComercial.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, sucursal, comercial, listSucursal,listComercial));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+	public Result reportPipelineRptComercial(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String desdeAAMMDD = form.get("fechaDesde").trim();
+				String hastaAAMMDD = form.get("fechaHasta").trim();
+
+				Long id_sucursal = (long) 0;
+				Long id_comercial = (long) 0;
+
+
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String nameSucursal = "TODAS";
+				String condSucursal = "";
+				if(id_sucursal != 0) {
+					condSucursal = " and cotizacion.id_sucursal = " + id_sucursal.toString();
+					Sucursal sucursal = Sucursal.find(con, s.baseDato, id_sucursal.toString());
+					nameSucursal = sucursal.getNombre();
+				}
+				String nameComercial = "TODOS";
+				String condComercial = "";
+				if(id_comercial != 0) {
+					condComercial = " and cotizacion.id_comercial = " + id_comercial.toString();
+					Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, id_comercial.toString());
+					nameComercial = auxComercial.getNameUsuario();
+				}
+				String tituloSucursal = " (SUCURSAL: "+nameSucursal+" - COMERCIAL: "+nameComercial+") ";
+				Long nroDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial, nroDec);
+
+				Map<List<String>,Double> mapResumen = new HashMap<List<String>,Double>();
+				for(List<String> x : detalle) {
+					List<String> key = new ArrayList<String>();
+					key.add(x.get(6));
+					key.add(x.get(5));
+					Double valor = Double.parseDouble(x.get(7).replaceAll(",", ""));
+					Double rs = mapResumen.get(key);
+					if(rs==null) {
+						rs = valor;
+					}else {
+						rs = rs + valor;
+					}
+					mapResumen.put(key, rs);
+				}
+
+				String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
+				String fechaA = Fechas.DDMMAA(hastaAAMMDD);
+				tituloSucursal = "";
+				return ok(reportPipelineRptComercial.render(mapeoDiccionario,mapeoPermiso,userMnu, detalle, fechaDe, fechaA, tituloSucursal, desdeAAMMDD, hastaAAMMDD,
+						id_sucursal, id_comercial, mapResumen, nroDec));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result reportPipelineRptComercialExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()){
+				String desdeAAMMDD = form.get("desdeAAMMDD").trim();
+				String hastaAAMMDD = form.get("hastaAAMMDD").trim();
+				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
+				Long id_comercial = Long.parseLong(form.get("id_comercial").trim());
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				String nameSucursal = "TODAS";
+				String condSucursal = "";
+				if(id_sucursal != 0) {
+					condSucursal = " and cotizacion.id_sucursal = " + id_sucursal.toString();
+					Sucursal sucursal = Sucursal.find(con, s.baseDato, id_sucursal.toString());
+					nameSucursal = sucursal.getNombre();
+				}
+				String nameComercial = "TODOS";
+				String condComercial = "";
+				if(id_comercial != 0) {
+					condComercial = " and cotizacion.id_comercial = " + id_comercial.toString();
+					Comercial auxComercial = Comercial.findPorIdUsuario(con, s.baseDato, id_comercial.toString());
+					nameComercial = auxComercial.getNameUsuario();
+				}
+				String tituloSucursal = " (SUCURSAL: "+nameSucursal+" - COMERCIAL: "+nameComercial+") ";
+				Long nroDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				List<List<String>> detalle = ReportCotizaciones.detallePipelineDet(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario.get("pais"), condSucursal, condComercial, nroDec);
+				String fechaDe = Fechas.DDMMAA(desdeAAMMDD);
+				String fechaA = Fechas.DDMMAA(hastaAAMMDD);
+
+				Map<List<String>,Double> mapResumen = new HashMap<List<String>,Double>();
+				for(List<String> x : detalle) {
+					List<String> key = new ArrayList<String>();
+					key.add(x.get(6));
+					key.add(x.get(5));
+					Double valor = Double.parseDouble(x.get(7).replaceAll(",", ""));
+					Double rs = mapResumen.get(key);
+					if(rs==null) {
+						rs = valor;
+					}else {
+						rs = rs + valor;
+					}
+					mapResumen.put(key, rs);
+				}
+				tituloSucursal = "";
+				File file = ReportCotizaciones.detallePipelineComercialExcel(s.baseDato, mapeoDiccionario, detalle, tituloSucursal, fechaDe, fechaA, mapResumen);
+				return ok(file,false,Optional.of("PipelineResumenComercial.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
 	}
     
     //============================================================

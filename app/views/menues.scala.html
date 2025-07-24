@@ -166,6 +166,7 @@
 										<div class="dropdown-divider" style="border-color:black"></div>
 										<li><a class="dropdown-item" href="/routes2/reportPipelineSelRes/">Pipeline (Resumido)</a></li>
 										<li><a class="dropdown-item" href="/routes2/reportPipelineSelDet/">Pipeline (Detallado)</a></li>
+										<li><a class="dropdown-item" href="/routes2/reportPipelineSelComercial/">Pipeline Resumen por Comercial</a></li>
 									}
 									
 
@@ -1051,6 +1052,8 @@
 										<div class="dropdown-divider" style="border-color:black"></div>
 										<li><a class="dropdown-item" href='/reportFacturaPeriodoResumen0/'>Resumen y Detalle (agrupado)</a></li>
 										<li><a class="dropdown-item" href='/reportFacturaPeriodoResumen/'>Resumen y Detalle (por sucursal)</a></li>
+										<li><a class="dropdown-item" href='/reportFacturaPeriodoResumen2/'>Resumen y Detalle (por comercial)</a></li>
+										<div class="dropdown-divider" style="border-color:black"></div>
 									}
 									@if(mapPermiso.get("proformaConsolidado")!=null){
 										<li><a class="dropdown-item" href='/reportFacturaConsolidado/'>Consolidado (varios Meses)</a></li>
@@ -1086,6 +1089,7 @@
 									@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
 										<div class="dropdown-divider" style="border-color:black"></div>
 										<li><a class="dropdown-item" href='/routes3/estadosMantCobraArriendo0/'>Mant Cobra @mapDiccionario.get("Arriendo") Estados</a></li>
+										<li><a class="dropdown-item" href='/routes3/estadosFacturaPeriodo/'>EP Cobra @mapDiccionario.get("Arriendo") Estados</a></li>
 									}
 									
 									
