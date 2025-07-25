@@ -10044,6 +10044,7 @@ public class MnuReportes extends Controller {
 				List<List<String>> datos = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+
 					datos = ReportFacturaConsolidado.reportFacturaConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -11194,6 +11195,7 @@ public class MnuReportes extends Controller {
 				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 				String xml = proforma.getJsonGenerado();
 				String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, (long)0, id_proforma);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de proforma nro: "+id_proforma+" a IConstruye folio: " + rs);
 				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -13701,16 +13703,22 @@ public class MnuReportes extends Controller {
 				List<List<String>> lista = CobraArriendoEstados.calc_detalle(con, s.baseDato, desde, hasta, listCobraArriendoEstados,  tasas, nroDec, id_bodegaEmpresa);
 				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				Fechas hoy = Fechas.hoy();
-				ProformaEstado proforma = ProformaEstado.create(con, s.baseDato, hoy, desde, hasta, bodegaEmpresa);
-				if(proforma!=null) {
-					File fileXls = CobraArriendoEstados.estadosFacturaProyectoDetExcel(s.baseDato, mapeoDiccionario, lista, desde, hasta,bodegaEmpresa, hoy);
-					String archivoXls = s.baseDato+"/"+proforma.getExcel();
-					Archivos.grabarArchivo(fileXls, archivoXls);
-					proforma = CobraArriendoEstados.agregaTotalesYcreaPDF(con, s.baseDato, mapeoPermiso, mapeoDiccionario, lista, desde, hasta,bodegaEmpresa, hoy, proforma, nroDec);
-					AjustesEP.createAjusteCobraArriendoEstado(con, s.baseDato, proforma);
-					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", (long)0, "insertUno", "Envio un Ajustes por Estados nro: " + proforma.getId());
+				boolean flag = false;
+				flag = ProformaEstado.deleteUno(con, s.baseDato, desde.getFechaStrAAMMDD(), hasta.getFechaStrAAMMDD(), id_bodegaEmpresa);
+				if(flag) {
+					ProformaEstado proforma = ProformaEstado.create(con, s.baseDato, hoy, desde, hasta, bodegaEmpresa);
+					if (proforma != null) {
+						File fileXls = CobraArriendoEstados.estadosFacturaProyectoDetExcel(s.baseDato, mapeoDiccionario, lista, desde, hasta, bodegaEmpresa, hoy);
+						String archivoXls = s.baseDato + "/" + proforma.getExcel();
+						Archivos.grabarArchivo(fileXls, archivoXls);
+						proforma = CobraArriendoEstados.agregaTotalesYcreaPDF(con, s.baseDato, mapeoPermiso, mapeoDiccionario, lista, desde, hasta, bodegaEmpresa, hoy, proforma, nroDec);
+						AjustesEP.createAjusteCobraArriendoEstado(con, s.baseDato, proforma);
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", (long) 0, "insertUno", "Envio un Ajustes por Estados nro: " + proforma.getId());
+					}
+					return redirect("/routes3/estadosFacturaProyectoGet/" + desdeAAMMDD + "," + hastaAAMMDD + "," + usd + "," + eur + "," + uf + "," + proforma.getPdf());
 				}
-				return redirect("/routes3/estadosFacturaProyectoGet/"+desdeAAMMDD+","+hastaAAMMDD+","+usd+","+eur+","+uf+","+proforma.getPdf());
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/home/", msgReport));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -13780,16 +13788,22 @@ public class MnuReportes extends Controller {
 				}
 					if (HomeController.isValidEmail(mailDestino)) {
 						if (mailDestino != null) {
+							boolean flag = false;
 							try (Connection con = dbWrite.getConnection()) {
 								Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)2);
+								flag = ProformaEstado.deleteAll(con, s.baseDato, desde.getFechaStrAAMMDD(), hasta.getFechaStrAAMMDD());
 							} catch (SQLException e) {
 								logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 							} catch (Exception e) {
 								logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 							}
-							MnuReportes.envioMasivoListadoProformaEstados generar = new MnuReportes.envioMasivoListadoProformaEstados(desde, hasta, uf, usd, eur, tasas, nroDec, nomMon, listCobraArriendoEstados, mailDestino, s);
-							generar.start();
-							String mensaje = "Solicitud en preparación, recibira el resultado al correo:" + mailDestino + ". Tomara varios minutos para recibir el correo, dependiendo de la cantidad a generar.";
+							if (flag) {
+								MnuReportes.envioMasivoListadoProformaEstados generar = new MnuReportes.envioMasivoListadoProformaEstados(desde, hasta, uf, usd, eur, tasas, nroDec, nomMon, listCobraArriendoEstados, mailDestino, s);
+								generar.start();
+								String mensaje = "Solicitud en preparación, recibira el resultado al correo:" + mailDestino + ". Tomara varios minutos para recibir el correo, dependiendo de la cantidad a generar.";
+								return ok(mensajes.render("/home/", mensaje));
+							}
+							String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
 							return ok(mensajes.render("/home/", mensaje));
 						} else {
 							String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
@@ -13922,6 +13936,263 @@ public class MnuReportes extends Controller {
 			}
 		}
 	}
+
+	public Result proformaEstadoListaPeriodo(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try {
+			Fechas hoy = Fechas.hoy();
+			hoy = Fechas.addMeses(hoy.getFechaCal(),-1);
+			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			return ok(proformaEstadoListaPeriodo.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+	public Result proformaEstadoLista(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
+				String desde = form.get("fechaDesde");
+				String hasta = form.get("fechaHasta");
+				List<List<String>> listProformaEstado = ProformaEstado.listadoPorPeriodo(con, s.baseDato, desde, hasta);
+				return ok(proformaEstadoLista.render(mapeoDiccionario,mapeoPermiso,userMnu, listProformaEstado, desde, hasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result proformaEstadoListaPdf(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			try {
+				String desde = form.get("fechaDesde");
+				String hasta = form.get("fechaHasta");
+				int desdeNro = Integer.parseInt(form.get("nroIni"));
+				int hastaNro = Integer.parseInt(form.get("nroFin"));
+				String mailDestino =  null;
+				Map<String,String> map = new HashMap<String,String>();
+				Usuario usuario = null;
+				try (Connection con = dbRead.getConnection()) {
+					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+					List<List<String>> listProformaEstado = ProformaEstado.listadoPorPeriodo(con, s.baseDato, desde, hasta);
+					for(List<String> l: listProformaEstado) {
+						map.put(l.get(0), l.get(0));
+					}
+					usuario = Usuario.findXIdUser(con, s.baseDato, Long.parseLong(s.id_usuario));
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				if( usuario != null) {
+					mailDestino = usuario.getEmail().trim().toLowerCase();
+					if(mailDestino.length() < 4) {
+						usuario = null;
+					}
+				}
+				if(HomeController.isValidEmail(mailDestino)) {
+					if(map !=null && mailDestino != null) {
+						MnuReportes.proformaEstadoListaPdf0 generar = new MnuReportes.proformaEstadoListaPdf0(s.baseDato, desdeNro, hastaNro, map, mailDestino);
+						generar.start();
+						String mensaje = "Solicitud en preparación, recibira el resultado al correo:"+mailDestino+". Tomara varios minutos para recibir el correo";
+						return ok(mensajes.render("/home/",mensaje));
+					}else {
+						String mensaje = "No es posible generar la solicitud debido a que no existe dato de email en la configuración de su usuario";
+						return ok(mensajes.render("/home/",mensaje));
+					}
+				}else{
+					String mensaje = "No es posible generar la solicitud debido a que el mail que existe en la configuración de su usuario no es valido";
+					return ok(mensajes.render("/home/",mensaje));
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public class proformaEstadoListaPdf0 extends Thread {
+		String baseDato;
+		int desdeNro;
+		int hastaNro;
+		Map<String, String> map;
+		String eMail;
+
+		public proformaEstadoListaPdf0(String baseDato, int desdeNro, int hastaNro, Map<String, String> map, String eMail) {
+			super();
+			this.baseDato = baseDato;
+			this.desdeNro = desdeNro;
+			this.hastaNro = hastaNro;
+			this.map = map;
+			this.eMail = eMail;
+
+		}
+
+		public void run() {
+			String className = this.getClass().getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			PDFMergerUtility merger = new PDFMergerUtility();
+			File outputFile = TempFile.createTempFile("tmp","null");
+			try {
+				String nros = "";
+				for (int i = desdeNro; i<(hastaNro+1); i++) {
+					String valida = map.get(i+"");
+					if(valida != null) {
+						nros += i+", ";
+						String path = baseDato+"/"+"profEstadoPDF_"+i+".pdf";
+						try {
+							InputStream archivo = Archivos.leerArchivo(path);
+							merger.addSource(archivo);
+						} catch (Exception e) {
+							logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
+						}
+
+					}
+
+				}
+				merger.setDestinationFileName(outputFile.getAbsolutePath());
+				MemoryUsageSetting memoryUsageSetting = MemoryUsageSetting.setupMainMemoryOnly();
+				merger.mergeDocuments(memoryUsageSetting);
+				try {
+					Email email = new Email();
+					String asunto = "Lista de estado equipo cobrar desde nro: "+desdeNro+" hasta nro: "+hastaNro;
+					String desde = "desde MADA <informaciones@inqsol.cl>";
+					email.setSubject(asunto);
+					email.setFrom(desde);
+					email.setBodyHtml("<html><body>" +
+							" <p><b>PDF adjunto</b></p>" +
+							" <p>Numeros de proforma agregados: "+nros+"</p>" +
+							" <p>Nota: por favor no responder este correo</p>" +
+							" </body></html>");
+					email.addTo(eMail);
+					email.addAttachment("proformasEstados.pdf", outputFile);
+					mailerClient.send(email);
+				} catch (Exception x) {
+					x.printStackTrace();
+					long fileSizeInBytes = outputFile.length();
+					double fileSizeInKB = (double) fileSizeInBytes / 1024;
+					double fileSizeInMB = fileSizeInKB / 1024;
+					Email email = new Email();
+					String asunto = "Lista de estado equipo cobrar desde nro: "+desdeNro+" hasta nro: "+hastaNro;
+					String desde = "desde MADA <informaciones@inqsol.cl>";
+					email.setSubject(asunto);
+					email.setFrom(desde);
+					email.setBodyHtml("<html><body>" +
+							" <p><b>NO EXISTEN PDF ASOCIADOS EN EL RANGO SOLICITADO</b></p>" +
+							" <p><b>TAMAÑO FILE: "+fileSizeInMB+" MB</b></p>" +
+							" <p>Nota: por favor no responder este correo</p>" +
+							" </body></html>");
+					email.addTo(eMail);
+					mailerClient.send(email);
+				}
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
+			}
+		}
+	}
+
+	public Result proformaEstadoListaExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			try {
+				List<List<String>> listProformaEstado = new ArrayList<List<String>>();
+				try (Connection con = dbRead.getConnection()) {
+					String desde = form.get("fechaDesde");
+					String hasta = form.get("fechaHasta");
+					listProformaEstado = ProformaEstado.listadoPorPeriodo(con, s.baseDato, desde, hasta);
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+					return ok(mensajes.render("/home/", msgReport));
+				}
+				File file = ProformaEstado.listadoPorAnioExcel(s.baseDato, mapeoDiccionario, listProformaEstado);
+				return ok(file,false,Optional.of("ListadoEP_CobraArriendoEstados.xlsx"));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
 
 
 

@@ -36,6 +36,8 @@ libraryDependencies += "com.google.zxing" % "core" % "2.0"
 
 libraryDependencies += "software.amazon.awssdk" % "s3" % "2.13.29"
 
+dependencyOverrides += "com.google.guava" % "guava" % "33.1.0-jre"
+
 
 // Agregar configuraciones Java para manejar las advertencias
 javacOptions ++= Seq(

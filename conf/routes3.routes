@@ -161,6 +161,9 @@ GET		/estadosMantCobraArriendo0/				controllers.MnuReportes.estadosMantCobraArri
 POST	/estadosMantCobraArriendo1/				controllers.MnuReportes.estadosMantCobraArriendo1(request: Request)
 POST	/modCobraArriendoAjax/				    controllers.MnuReportes.modCobraArriendoAjax(request: Request)
 
+GET		/proformaEstadoListaPeriodo/		controllers.MnuReportes.proformaEstadoListaPeriodo(request: Request)
+POST	/proformaEstadoLista/				controllers.MnuReportes.proformaEstadoLista(request: Request)
+
 GET		/estadosFacturaPeriodo/				    controllers.MnuReportes.estadosFacturaPeriodo(request: Request)
 POST	/estadosFacturaProyecto/:archivoPDF		controllers.MnuReportes.estadosFacturaProyecto(request: Request, archivoPDF: String)
 GET     /estadosFacturaProyectoGet/:d,:a,:u,:e,:f,:p             controllers.MnuReportes.estadosFacturaProyectoGet(request: Request, d: String, a: String, u: Double, e: Double, f: Double, p: String)
@@ -171,8 +174,8 @@ POST	/estadosFacturaProyectoDetExcel/	    controllers.MnuReportes.estadosFactura
 
 POST	/enviarAlistAjustes/	        controllers.MnuReportes.enviarAlistAjustes(request: Request)
 POST	/envioMasivoAlistAjustes/	    controllers.MnuReportes.envioMasivoAlistAjustes(request: Request)
-
-
+POST	/proformaEstadoListaPdf/	    controllers.MnuReportes.proformaEstadoListaPdf(request: Request)
+POST	/proformaEstadoListaExcel/	    controllers.MnuReportes.proformaEstadoListaExcel(request: Request)
 
 
 

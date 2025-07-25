@@ -4275,7 +4275,7 @@ public class ReportFacturas {
 		for(int i=0;i<proyectos.size();i++){
 			List<List<String>> resumenSubtotales = mapResumenSubtotales.get(proyectos.get(i).get(11));
 			
-			for(int j=0;j<resumenSubtotales.size();j++){
+			for(int j=0; resumenSubtotales!=null && j<resumenSubtotales.size(); j++){
 				
 				BodegaEmpresa bodega = mapBodega.get(proyectos.get(i).get(5).toUpperCase());
 				

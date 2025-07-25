@@ -1037,7 +1037,7 @@ public class MnuCotiOdo extends Controller {
 				} else {
 					formOtOdo = new FormOtOdo((long)0, cotiOdo.getId(), cotiOdo.getId_bodegaEmpresa(), numeroOtOdo, fecha, "", id_proyecto, nickProyecto, (long)0, "");
 				}
-				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
 				String tabla = CotiOdo.vistaModalVerCotiOdo(con, s.baseDato, id_cotiOdo, mapeoDiccionario);
 				List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
@@ -2201,7 +2201,7 @@ public class MnuCotiOdo extends Controller {
 				}
 				List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 				List<Comunas> listComunas = Comunas.allPorRegion(con, s.baseDato, codRegion);
-				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
 				return ok(datosContratoOdo.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,region,comuna,listRegiones, listComunas, listBodegas, listProyectos));
 			} catch (SQLException e) {

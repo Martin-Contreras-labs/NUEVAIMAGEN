@@ -443,7 +443,7 @@ public class MnuPlanes extends Controller {
 				List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
 				List<IConstruyeProdDet> listProdDet = IConstruyeProdDet.all(con, s.baseDato);
 				List<IConstruyeProdDet> listProdDetDepurado = new ArrayList<IConstruyeProdDet>();
-				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);// nombre de bodega = get(5)
+				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);// nombre de bodega = get(5)
 				for(IConstruyeProdDet l: listProdDet) {
 					Long id_iConstruyeProdDet = l.getId();
 					Long aux = mapId_iConstruyeProdDet.get(id_iConstruyeProdDet);

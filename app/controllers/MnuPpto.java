@@ -78,7 +78,7 @@ public class MnuPpto extends Controller {
 			 case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
 			 default:  break;
 			}
-			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			List<List<String>> lista = new ArrayList<List<String>>();
 			for(int i=0; i<listBodegas.size(); i++) {
 				List<String> aux = new ArrayList<String>();

@@ -92,7 +92,7 @@ public class MnuCotizar extends Controller {
 		try (Connection con = dbRead.getConnection()){
 			Long id_bodegaEmpresa = (long)0;
 			if(mapeoPermiso.get("parametro.cotizaPorTasa").equals("1")) {
-				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(cotizaIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
 			}
 			return redirect("/cotizaIngreso2/"+id_bodegaEmpresa);
@@ -3679,7 +3679,7 @@ public class MnuCotizar extends Controller {
 			Map<String, Double> mapAllCotizadoConOt = CotizaDetalle.mapAllCotizadoConOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			/*******************************************************************************************/
 			Map<Long, Long> mapAuxEquipos = new HashMap<Long, Long>();
-			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
+			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
 			Map<List<String>,List<String>> mapAuxBodExternas = new HashMap<List<String>,List<String>>();
 			mapAllStockBodInt.forEach((k, v) -> {
 				String[] dePaso = k.split("_");
@@ -3842,7 +3842,7 @@ public class MnuCotizar extends Controller {
 			/*******************************************************************************************/
 			Map<String, String> mapAuxBodExternas = new HashMap<String, String>();
 			Map<Long, Long> mapAuxEquipos = new HashMap<Long, Long>();
-			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
+			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
 			Map<List<String>,List<String>> mapAuxBodInternas = new HashMap<List<String>,List<String>>();
 			mapAllStockBodInt.forEach((k, v) -> {
 				String[] dePaso = k.split("_");
@@ -3974,7 +3974,7 @@ public class MnuCotizar extends Controller {
 			Map<String, Double> mapAllCotizadoConOt = CotizaDetalle.mapAllCotizadoConOtPorOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			/*******************************************************************************************/
 			Map<Long, Long> mapAuxEquipos = new HashMap<Long, Long>();
-			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
+			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
 			Map<List<String>,List<String>> mapAuxBodExternas = new HashMap<List<String>,List<String>>();
 			mapAllStockBodInt.forEach((k, v) -> {
 				String[] dePaso = k.split("_");
@@ -4183,7 +4183,7 @@ public class MnuCotizar extends Controller {
 			Map<String, Double> mapAllCotizadoConOt = CotizaDetalle.mapAllCotizadoConOtPorOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			/*******************************************************************************************/
 			Map<Long, Long> mapAuxEquipos = new HashMap<Long, Long>();
-			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
+			Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
 			Map<List<String>,List<String>> mapAuxBodExternas = new HashMap<List<String>,List<String>>();
 			mapAllStockBodInt.forEach((k, v) -> {
 				String[] dePaso = k.split("_");
@@ -5919,7 +5919,7 @@ public class MnuCotizar extends Controller {
 				}
 				List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 				List<Comunas> listComunas = Comunas.allPorRegion(con, s.baseDato, codRegion);
-				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
 				return ok(datosContrato.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,region,comuna,listRegiones, listComunas, listBodegas, listProyectos));
 			} catch (SQLException e) {
@@ -6682,7 +6682,7 @@ public class MnuCotizar extends Controller {
 				Map<String, Double> mapAllDespachado = OtDespachado.mapAllDespachadoPorOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				Map<String, Double> mapAllCotizadoConOt = CotizaDetalle.mapAllCotizadoConOtPorOt(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				/*******************************************************************************************/
-				Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
+				Map<Long,List<String>> mapBodegaVigExter = BodegaEmpresa.mapAllVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal); //0=id_bodega 5=nombre
 				Map<List<String>,List<String>> mapAuxBodExternas = new HashMap<List<String>,List<String>>();
 				Map<Long,Ot> mapOt = Ot.mapAll(con, s.baseDato);
 				Map<Long,Cotizacion> mapCoti = Cotizacion.mapAll(con, s.baseDato);

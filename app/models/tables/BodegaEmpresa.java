@@ -241,9 +241,9 @@ public class BodegaEmpresa {
 		return (map);
 	}
 	
-	public static Map<Long, List<String>> mapAllVigentesExternas(Connection con, String db, Map<String,String> mapeoPermiso, String esPorSucursal, String id_sucursal) {
+	public static Map<Long, List<String>> mapAllVigentesExternas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		Map<Long, List<String>> map = new HashMap<Long, List<String>>();
-		 List<List<String>> lista = BodegaEmpresa.listaAllBodegasVigentesExternas(con, db, mapeoPermiso, esPorSucursal, id_sucursal);
+		 List<List<String>> lista = BodegaEmpresa.listaAllBodegasVigentesExternas(con, db, esPorSucursal, id_sucursal);
 		lista.forEach(x->{
 			Long aux = Long.parseLong(x.get(1));
 			map.put(aux, x);
@@ -1429,7 +1429,7 @@ public class BodegaEmpresa {
 		return (lista);
 	}
 	
-	public static List<List<String>> listaAllBodegasVigentesExternas(Connection con, String db, Map<String,String> mapeoPermiso, String esPorSucursal, String id_sucursal) {
+	public static List<List<String>> listaAllBodegasVigentesExternas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		String condSucursal = "";
 		if(esPorSucursal.equals("1")) {
@@ -1611,7 +1611,7 @@ public class BodegaEmpresa {
 	public static List<List<String>> listaAllBodegasVigentesExternasConStock(Connection con, String db, Map<String,String> mapeoPermiso, 
 			String esPorSucursal, String id_sucursal, List<List<String>> listBodegas) {
 		List<List<String>> lista = new ArrayList<List<String>>();
-		Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, mapeoPermiso, esPorSucursal, id_sucursal);
+		Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, esPorSucursal, id_sucursal);
 		listBodegas.forEach(x->{
 			List<String> aux = mapBodega.get(Long.parseLong(x.get(0)));
 			if(aux != null) {
@@ -2356,32 +2356,32 @@ public class BodegaEmpresa {
 					} else {
 						condicion = "";
 					}
-					try (PreparedStatement smt = con.prepareStatement(
-							" select " +
-									" bodegaEmpresa.esInterna, " +
-									" bodegaEmpresa.id, " +
-									" ifnull(cliente.id,0), " +
-									" ifnull(proyecto.id,0), " +
-									" bodegaEmpresa.nombre, " +
-									" ifnull(cliente.rut,''), " +
-									" ifnull(cliente.nickName,''), " +
-									" ifnull(proyecto.nickName,''), " +
-									" ifnull(comunas.nombre,''), " +
-									" tipoBodega.nombre, " +
-									" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'), " +
-									" ifnull(comercial,''), " +
-									" ifnull(bodegaEmpresa.pep,''), " +
-									" ifnull(bodegaEmpresa.ivaBodega,0), " +
-									" bodegaEmpresa.id_sucursal, " +
-									" bodegaEmpresa.id_comercial, "+
-									" bodegaEmpresa.id_rubro "+
-									" from `" + db + "`.bodegaEmpresa " +
-									" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
-									" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
-									" left join `" + db + "`.comunas on comunas.codigo = proyecto.cod_comuna " +
-									" left join `" + db + "`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
-									" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 " + permisoPorBodega + condicion + condSucursal +
-									" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;")) {
+					String query = " select " +
+							" bodegaEmpresa.esInterna, " +
+							" bodegaEmpresa.id, " +
+							" ifnull(cliente.id,0), " +
+							" ifnull(proyecto.id,0), " +
+							" bodegaEmpresa.nombre, " +
+							" ifnull(cliente.rut,''), " +
+							" ifnull(cliente.nickName,''), " +
+							" ifnull(proyecto.nickName,''), " +
+							" ifnull(comunas.nombre,''), " +
+							" tipoBodega.nombre, " +
+							" ifnull(bodegaEmpresa.tasaDescto,'0.00 %'), " +
+							" ifnull(comercial,''), " +
+							" ifnull(bodegaEmpresa.pep,''), " +
+							" ifnull(bodegaEmpresa.ivaBodega,0), " +
+							" bodegaEmpresa.id_sucursal, " +
+							" bodegaEmpresa.id_comercial, "+
+							" bodegaEmpresa.id_rubro "+
+							" from `" + db + "`.bodegaEmpresa " +
+							" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
+							" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
+							" left join `" + db + "`.comunas on comunas.codigo = proyecto.cod_comuna " +
+							" left join `" + db + "`.tipoBodega on tipoBodega.id = bodegaEmpresa.esInterna " +
+							" where bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 " + permisoPorBodega + condicion + condSucursal +
+							" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
+					try (PreparedStatement smt = con.prepareStatement(query) ){
 						try (ResultSet rs = smt.executeQuery()) {
 							Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 							Map<Long, Comercial> mapComercial = Comercial.mapAllComerciales(con, db);

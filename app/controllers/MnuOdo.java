@@ -1128,7 +1128,7 @@ public class MnuOdo extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
-			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal, s.id_sucursal);
+			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(servicioEquipos1.render(mapeoDiccionario,mapeoPermiso,userMnu,listBodegas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);

@@ -625,7 +625,7 @@ public class Proforma {
             
             //titulos del archivo
             
-            libro.setSheetName(0, "COMPRAS PR EQUIPO");
+            libro.setSheetName(0, "LISTADO");
             Sheet hoja1 = libro.getSheetAt(0);
             
             Row row = null;

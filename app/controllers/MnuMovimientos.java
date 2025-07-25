@@ -1907,6 +1907,8 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, xml);
 				Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
 				String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, id_guia, (long)0);
+				Guia guiaFinal = Guia.find(con, s.baseDato, id_guia);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "guia", id_guia, "update", "hace envio de movimiento nro: "+guiaFinal.getNumero()+" a IConstruye folio: " + rs);
 				return ok(mensajes.render("/movimientoListarPeriodo/",rs ));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);

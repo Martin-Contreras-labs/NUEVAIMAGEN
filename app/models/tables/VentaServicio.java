@@ -994,7 +994,7 @@ public class VentaServicio {
 			
 			Map<Long,Usuario> mapUsuario = Usuario.mapAll(con, db);
 			Map<Long,OperadorServicio> mapOperador = OperadorServicio.mapAll(con, db);
-			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, mapeoPermiso, esPorSucursal, id_sucursal);
+			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, esPorSucursal, id_sucursal);
 			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
 			Map<Long,Servicio> mapServicio = Servicio.mapAll(con, db);
 			Map<Long,ClaseServicio> mapClases = ClaseServicio.mapAll(con, db);
@@ -1110,7 +1110,7 @@ public class VentaServicio {
 			
 			Map<Long,Usuario> mapUsuario = Usuario.mapAll(con, db);
 			Map<Long,OperadorServicio> mapOperador = OperadorServicio.mapAll(con, db);
-			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, mapeoPermiso, esPorSucursal, id_sucursal);
+			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, esPorSucursal, id_sucursal);
 			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
 			Map<Long,Servicio> mapServicio = Servicio.mapAll(con, db);
 			Map<Long,ClaseServicio> mapClases = ClaseServicio.mapAll(con, db);
@@ -1340,7 +1340,7 @@ public class VentaServicio {
 			
 			Map<Long,Usuario> mapUsuario = Usuario.mapAll(con, db);
 			Map<Long,OperadorServicio> mapOperador = OperadorServicio.mapAll(con, db);
-			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, mapeoPermiso, esPorSucursal, id_sucursal);
+			Map<Long,List<String>> mapBodega = BodegaEmpresa.mapAllVigentesExternas(con, db, esPorSucursal, id_sucursal);
 			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
 			Map<Long,Servicio> mapServicio = Servicio.mapAll(con, db);
 			Map<Long,ClaseServicio> mapClases = ClaseServicio.mapAll(con, db);
