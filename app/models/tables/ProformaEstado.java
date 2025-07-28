@@ -314,6 +314,25 @@ public class ProformaEstado {
 		return (false);
 	}
 
+	public static boolean deletePorId(Connection con, String db, Long id_proformaEstado) {
+		String query = String.format("delete from `%s`.proformaEstado where id = ?;",db);
+		try (PreparedStatement smt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			smt.setLong(1,id_proformaEstado);
+			smt.executeUpdate();
+			query = String.format("delete from `%s`.ajustesEP where id_proformaEstado = ?;",db);
+			try(PreparedStatement smt2 = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+				smt2.setLong(1,id_proformaEstado);
+				smt2.executeUpdate();
+				return (true);
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (false);
+	}
+
 	public static File listadoPorAnioExcel(String db, Map<String,String> mapDiccionario, List<List<String>> lista) {
 
 		File tmp = TempFile.createTempFile("tmp","null");

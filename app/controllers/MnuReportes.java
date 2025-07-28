@@ -5021,6 +5021,14 @@ public class MnuReportes extends Controller {
 						" </body></html>");
 				email.addTo(eMail);
 				mailerClient.send(email);
+				try (Connection con = dbWrite.getConnection()) {
+					Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)1);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", (long)0, "insertMasivo", "Envio masivo a Listado proformas");
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				}
 			} catch (Exception x) {
 				Email email = new Email();
 				String asunto = "ENVIO MASIVO A: Listado de Proformas";
@@ -10608,6 +10616,7 @@ public class MnuReportes extends Controller {
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
 				ProformaSimple.eliminaProforma(con, s.baseDato, id_proforma);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaSimple", id_proforma, "delete", "Elimina Proforma Simple nro: " + id_proforma);
 				return ok(mensajes.render("/proformaListaHGet/"+desde+","+hasta,"Proforma nro: "+id_proforma+" eliminada" ));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -11453,6 +11462,7 @@ public class MnuReportes extends Controller {
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
 				Proforma.eliminaProforma(con, s.baseDato, id_proforma);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "delete", "Elimina Proforma nro: " + id_proforma);
 				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,"Proforma nro: "+id_proforma+" eliminada" ));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -13913,6 +13923,14 @@ public class MnuReportes extends Controller {
 						" </body></html>");
 				email.addTo(eMail);
 				mailerClient.send(email);
+				try (Connection con = dbWrite.getConnection()) {
+					Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)1);
+					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", (long)0, "insertMasivo", "Envio masivo de Ajustes por Estados");
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				}
 			} catch (Exception x) {
 				Email email = new Email();
 				String asunto = "ENVIO MASIVO A: Listado y Ajustes para cobrar estados equipos";
@@ -13925,14 +13943,6 @@ public class MnuReportes extends Controller {
 						" </body></html>");
 				email.addTo(eMail);
 				mailerClient.send(email);
-			}
-			try (Connection con = dbWrite.getConnection()) {
-				Parametros.modify(con, s.baseDato, "cobraArriendoPorAuxiliar", (long)1);
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", (long)0, "insertMasivo", "Envio masivo de Ajustes por Estados nros: " + nros);
-			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			}
 		}
 	}
@@ -13988,6 +13998,40 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbRead.getConnection()) {
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
+				List<List<String>> listProformaEstado = ProformaEstado.listadoPorPeriodo(con, s.baseDato, desde, hasta);
+				return ok(proformaEstadoLista.render(mapeoDiccionario,mapeoPermiso,userMnu, listProformaEstado, desde, hasta));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result proformaEstadoListaGet(Http.Request request, String desde, String hasta) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/",msgErrorFormulario));
+		}else {
+			try (Connection con = dbRead.getConnection()) {
 				List<List<String>> listProformaEstado = ProformaEstado.listadoPorPeriodo(con, s.baseDato, desde, hasta);
 				return ok(proformaEstadoLista.render(mapeoDiccionario,mapeoPermiso,userMnu, listProformaEstado, desde, hasta));
 			} catch (SQLException e) {
@@ -14193,6 +14237,43 @@ public class MnuReportes extends Controller {
 		}
 	}
 
+	public Result proformaEstadoElimina(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if( ! (mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) ) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()) {
+				Long id_proformaEstado = Long.parseLong(form.get("id_proformaEstado"));
+				String desde = form.get("fechaDesde");
+				String hasta = form.get("fechaHasta");
+				ProformaEstado.deletePorId(con,s.baseDato,id_proformaEstado);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", id_proformaEstado, "deletePorId", "Elimina Ajustes por Estados nro: " + id_proformaEstado);
+				return ok(mensajes.render("/routes3/proformaEstadoListaGet/"+desde+","+hasta,"ESTADO EQUIPO COBRAR (AJUSTES) nro: "+id_proformaEstado+" eliminada" ));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
 
 
 

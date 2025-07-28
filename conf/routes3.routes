@@ -163,6 +163,8 @@ POST	/modCobraArriendoAjax/				    controllers.MnuReportes.modCobraArriendoAjax(
 
 GET		/proformaEstadoListaPeriodo/		controllers.MnuReportes.proformaEstadoListaPeriodo(request: Request)
 POST	/proformaEstadoLista/				controllers.MnuReportes.proformaEstadoLista(request: Request)
+GET 	/proformaEstadoListaGet/:d,:h		controllers.MnuReportes.proformaEstadoListaGet(request: Request,d: String, h:String)
+POST	/proformaEstadoElimina/	            controllers.MnuReportes.proformaEstadoElimina(request: Request)
 
 GET		/estadosFacturaPeriodo/				    controllers.MnuReportes.estadosFacturaPeriodo(request: Request)
 POST	/estadosFacturaProyecto/:archivoPDF		controllers.MnuReportes.estadosFacturaProyecto(request: Request, archivoPDF: String)
