@@ -1356,6 +1356,13 @@ public class ReportInventarios {
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("SUCURSAL");
+
+			posCell++; posColl++;
+			hoja1.setColumnWidth(posColl, 7 * 1000);
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("BODEGA");
 			
 			posCell++; posColl++;
@@ -1496,6 +1503,12 @@ public class ReportInventarios {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(22));
+
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(21));
 				

@@ -108,7 +108,7 @@ public class ReportTrazabilidades {
 								" grupo.nombre,equipo.nombre,cantidad desc;");
 				smt1.setLong(1, idEquipo);
 				ResultSet rs1 = smt1.executeQuery();
-				
+
 				while (rs1.next()) {
 					List<String> aux = new ArrayList<String>();
 					if(rs1.getDate(8)==null) {
@@ -146,11 +146,12 @@ public class ReportTrazabilidades {
 					aux.add(bodega.get(rs1.getLong(1)).get(2)); // name sucursal hasta
 
 					aux.add(rs1.getString(18)); // numero de cotizacion
-					
+
 					if(esPorSucursal.equals("1")) {
 						if((long)rs1.getLong(2)==(long)0 && bodega.get(rs1.getLong(1)).get(3).equals(id_sucursal)) {
 							lista.add(aux);
-						}else if(bodega.get(rs1.getLong(2)).get(3).equals(id_sucursal) || bodega.get(rs1.getLong(1)).get(3).equals(id_sucursal)){
+						}else if(  (bodega.get(rs1.getLong(2)) !=null && bodega.get(rs1.getLong(2)).get(3).equals(id_sucursal))
+								|| (bodega.get(rs1.getLong(1)) != null && bodega.get(rs1.getLong(1)).get(3).equals(id_sucursal)) ){
 							lista.add(aux);
 						}
 					}else {

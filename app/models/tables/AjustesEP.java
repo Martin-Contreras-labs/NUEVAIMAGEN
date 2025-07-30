@@ -405,7 +405,7 @@ public class AjustesEP {
 	public static boolean createAjusteCobraArriendoEstado(Connection con, String db,  ProformaEstado proforma){
 		boolean flag = false;
 		try {
-			String concepto = "[ID:"+proforma.getId() +"] Cobrar Arriendo Estado";
+			String concepto = "[ID:"+proforma.getId() +"] ARRIENDOS POR DAÑOS";
 
 			String queryInsert = "insert into `"+db+"`.ajustesEP "+
 					" (id_bodegaEmpresa,id_tipoAjuste,id_tipoAjusteVenta,concepto,fechaAjuste,id_moneda,totalAjuste,observaciones, une_proformaEstado, id_proformaEstado) values " +

@@ -852,7 +852,7 @@ public class Apis extends Controller {
 		if(!baseDato.equals("0")) {
 			try (Connection con = dbRead.getConnection()){
 	   			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
-	   			List<List<String>> datos = ReportBodegas.estadoBodegas(con, baseDato);
+	   			List<List<String>> datos = ReportBodegas.estadoBodegas(con, baseDato, "0", "0");
 	   			List<List<String>> rs = new ArrayList<List<String>>();
     			
     			List<String> aux = new ArrayList<String>();

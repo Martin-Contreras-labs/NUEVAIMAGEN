@@ -811,7 +811,7 @@ public class MnuReportes extends Controller {
 			}else {
 				listSucursal = Sucursal.all(con, s.baseDato);
 			}
-			return ok(reportInventarioMatrizCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo, listSucursal));
+			return ok(reportInventarioMatrizCorte.render(mapeoDiccionario,mapeoPermiso,userMnu,hoy.getFechaStrAAMMDD(),tipo, listSucursal, s.aplicaPorSucursal));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -1043,7 +1043,7 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
-			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato);
+			List<List<String>> datos = ReportBodegas.estadoBodegas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			return ok(reportEstadoBodegas.render(mapeoDiccionario,mapeoPermiso,userMnu,datos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -1071,7 +1071,7 @@ public class MnuReportes extends Controller {
 		}else {
 			List<List<String>> datos = null;
 			try (Connection con = dbRead.getConnection()){
-				datos = ReportBodegas.estadoBodegas(con, s.baseDato);
+				datos = ReportBodegas.estadoBodegas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));

@@ -42,16 +42,22 @@ public class ReportBodegas {
 	
 
 	
-	public static List<List<String>> estadoBodegas(Connection con, String db) {
+	public static List<List<String>> estadoBodegas(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<List<String>> datos = new ArrayList<List<String>>();
+
+		String condSucursal = "";
+		if(esPorSucursal.equals("1")) {
+			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
+		}
+
 		try {
 			List<List<String>> lista = new ArrayList<List<String>>();
 			PreparedStatement smt = con.prepareStatement("select id_sucursal, id_cliente, id_proyecto, id_comercial, id_bodegaEmpresa," +
 					" vigente, nombre, sum(if(id_tipoMovimiento=1,1,-1)*cantidad)"
 					+ " from `"+db+"`.movimiento"
 					+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
-					+ " where esVenta=0 and esInterna=2"
-					+ " group by id_bodegaEmpresa;"); 
+					+ " where esVenta=0 and esInterna=2" + condSucursal
+					+ " group by id_bodegaEmpresa;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();

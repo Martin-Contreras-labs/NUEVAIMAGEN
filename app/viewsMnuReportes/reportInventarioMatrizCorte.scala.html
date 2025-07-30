@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-fechaHoy: String, tipo: String, listSucursal: List[tables.Sucursal])
+fechaHoy: String, tipo: String, listSucursal: List[tables.Sucursal], aplicaPorSucursal: String)
 
     	
 @main("") {
@@ -28,7 +28,7 @@ fechaHoy: String, tipo: String, listSucursal: List[tables.Sucursal])
 									<TH>SUCURSAL:</TH>
 									<td>
 										<select class="custom-select" name="id_sucursal">
-										@if( ! mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")){
+										@if( ! mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO") && ! aplicaPorSucursal.equals("1")){
 											<option value="0">TODAS</option>
 										}
 										@for(lista <- listSucursal){
