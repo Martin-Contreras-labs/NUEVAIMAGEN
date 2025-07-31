@@ -303,9 +303,10 @@ public class Factura {
 							" left join `"+db+"`.compra on compra.id_factura = factura.id " +
 							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = compra.id_bodegaEmpresa " +
 							" where proveedor.rut is not null " + condSucursal +
-							" group by bodegaEmpresa.id_sucursal, factura.id " +
+							" group by factura.id " +
 							" order by factura.fecha desc;");
 			ResultSet rs = smt.executeQuery();
+
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			while (rs.next()) {	
 				String nameSucursal = "";
