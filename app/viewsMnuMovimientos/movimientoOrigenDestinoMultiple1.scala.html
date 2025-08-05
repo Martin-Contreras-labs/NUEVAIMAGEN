@@ -5,21 +5,21 @@ listaTransporte: List[tables.Transportista],
 sucursal: tables.Sucursal, comercial: tables.Comercial,
 sinVenta: String)
 
-    	
+
 @main("") {
 
 	@menues(mapDiccionario, mapPermiso, userMnu, " ")
-	
+
 	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>Ahora se esta cargando.....</h1></div>
-	
+
 	@modalEquipoDescripcion()
 	@modalVerCotizacion()
-	
+
 	<script>
 		let auxBueno = -1;
 		let auxIndex = -1;
 	</script>
-	
+
 	<form action="/movimientoAplicar/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
 		<div id="mostrarmostrar" style="display:none;">
 			@barraTitulo(mapDiccionario, "MOVIMIENTOS ENTRE "+mapDiccionario.get("BODEGA")+" Y/O PROYECTOS", "")
@@ -34,8 +34,8 @@ sinVenta: String)
 								    		<span class="input-group-text" id="basic-addon1">Origen</span>
 								  		</div>
 								  		<input type="hidden" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
-	  									<input type="text" class="form-control" 
-	  										value="@bodegaOrigen.getNombre().toUpperCase" 
+	  									<input type="text" class="form-control"
+	  										value="@bodegaOrigen.getNombre().toUpperCase"
 	  										readonly>
 									</div>
 								</td>
@@ -88,31 +88,17 @@ sinVenta: String)
 								  				maxlength="50">
 									</div>
 								</td>
-								<td width="230px">
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-								  		</div>
-								  		<input type="date" class="form-control center"
-								  			name="fechaGuia" 
-								  			id="fechaGuia"
-								  			onblur="if(!limitaFecha(value,720,10)) value='@hoy';"
-								  			value="@hoy"
-						        			required>
-									</div>
-								</td>
-								<td>
-									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+								<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 10px; display: inline-block">
 										<input type="hidden" name="docAnexo" value="0">
 										<div id="txtBtn">Subir Documento</div>
-				    					<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos" onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
+										<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos"
+											onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
 									</span>
 								</td>
 							</tr>
-							
-							
-							
-							
+
+
 							<tr>
 								<td align="center">
 									<input type="hidden" id="id_sucursalOrigen" name="id_sucursalOrigen" value="@sucursal.getId()">
@@ -136,18 +122,35 @@ sinVenta: String)
 												readonly>
 									</div>
 								</td>
-								
-								
-								<td colspan="20" rowspan="3">
+
+								<td width="230px">
 									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
-								  		</div>
-	  									<textarea class="form-control" rows="3"
-	  										name="observaciones" 
-	  										autocomplete="off"></textarea>
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaGuia"
+										id="fechaGuia"
+										onblur="if(!limitaFecha(value,360,10)) {value='@hoy';$('#fechaIniTerGuia').val(value);} else {$('#fechaIniTerGuia').val(value);}"
+										value="@hoy"
+										required>
 									</div>
 								</td>
+
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaIniTerGuia"
+										id="fechaIniTerGuia"
+										onblur="if(!limitaFecha(value,360,60)) value='@hoy';"
+										value="@hoy"
+										required>
+									</div>
+								</td>
+
 							</tr>
 							<tr>
 								<td align="center">
@@ -172,28 +175,38 @@ sinVenta: String)
 												readonly>
 									</div>
 								</td>
+								<td colspan="20" rowspan="3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Observaciones</span>
+										</div>
+										<textarea class="form-control" rows="2"
+										name="observaciones"
+										autocomplete="off"></textarea>
+									</div>
+								</td>
 							</tr>
-							
-							
+
+
 
 						</thead>
 					</table>
-					
-					
+
+
 					@if(bodegaOrigen.esInterna == 1){
 						<div class="noprint" align="center">
 							<div class="row justify-content-md-center" >
 								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-									<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+									<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block"
 										onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
 								</div>
 							</div>
 						</div>
 					}
-					
-					
-					
-					
+
+
+
+
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
 							<TR>
@@ -239,7 +252,7 @@ sinVenta: String)
 										<input type="hidden" name="id_cotizacion[]" value="@lista1.get(1)">
 										@lista1.get(2)
 									</td>
-									
+
 									@if(lista1.get(10).equals("0") || lista1.get(10).equals("")){
 										<td style="text-align: center;">--</td>
 									}else{
@@ -251,18 +264,18 @@ sinVenta: String)
 											</a>
 										</td>
 									}
-									
+
 									<td style="text-align: center;">
 										<div style="display: none;"> @utilities.Fechas.AAMMDD(lista1.get(12))</div>
 										@lista1.get(12)
 									</td>
-									
+
 									@if(lista1.get(3).equals("0") || lista1.get(3).equals("")){
 										<td style="text-align: center;">--</td>
 									}else{
 										<td style="text-align: center;">@lista1.get(3)</td>
 									}
-									
+
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');"><div class="codigo">@lista1.get(4)</div></a></td>
 									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(5)</a></td>
 									<td  class="kgUnit" style="text-align:right;">@lista1.get(6)</td>
@@ -277,7 +290,7 @@ sinVenta: String)
 												name="cantidad[]"
 												id="cantidad_@lista1.get(0)_@lista1.get(1)"
 												value="0.00"
-												onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+												onfocus="value=value.replace(/,/g,''); cantAux = value;"
 												onkeypress="return ingresoDouble(event,value)"
 												autocomplete="off"
 												onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)',value,'@lista1.get(6)','@lista1.get(7)','@listTipoEstado.size()');">
@@ -286,13 +299,13 @@ sinVenta: String)
 									@if(sinVenta.equals("1")){
 										<td  style="text-align:center; display:none;">
 											<input type="hidden" class="esVenta0" name="esVenta[]" id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
-											<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1) 
+											<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1)
 											$("#esVenta_@lista1.get(0)_@lista1.get(1)").val(0); else $("#esVenta_@lista1.get(0)_@lista1.get(1)").val(1);'>
 										</td>
 									}else{
 										<td  style="text-align:center;">
 											<input type="hidden" class="esVenta0" name="esVenta[]" id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
-											<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1) 
+											<input type="checkbox" class="esVenta1" onchange='if($("#esVenta_@lista1.get(0)_@lista1.get(1)").val()==1)
 											$("#esVenta_@lista1.get(0)_@lista1.get(1)").val(0); else $("#esVenta_@lista1.get(0)_@lista1.get(1)").val(1);'>
 										</td>
 									}
@@ -342,14 +355,14 @@ sinVenta: String)
 														style="font-size:10px; vertical-align:middle"
 														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
 														value="0.00"
-														onfocus="value=value.replace(/,/g,'')" 
+														onfocus="value=value.replace(/,/g,'')"
 														onkeypress="return ingresoDouble(event,value)"
 														autocomplete="off"
 														ondblclick = "if(value>0 && '@est.getReparable()'=='1') editaReparaciones('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()')"
 														onchange="if(value=='') {
 																		value='0.00';
 																		verificaCantEstado('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()');
-																  }else{ 
+																  }else{
 																		verificaCantEstado('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()');
 																  }">
 												}
@@ -362,7 +375,7 @@ sinVenta: String)
 														name="cantCliente[]"
 														id="cantCliente_@lista1.get(0)_@lista1.get(1)"
 														value="0.00"
-														onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+														onfocus="value=value.replace(/,/g,''); cantAux = value;"
 														onkeypress="return ingresoDouble(event,value)"
 														autocomplete="off"
 														onchange="if(value=='') value=0; actualizaCantCliente('@lista1.get(0)', '@lista1.get(1)')">
@@ -377,20 +390,20 @@ sinVenta: String)
 					</table>
 				</div>
 			</div>
-			
-			
-			
+
+
+
 			<div class="noprint" align="left">
 				<div class="row justify-content-md-left" >
 					<div class="col-xs-5 col-sm-3 col-md-3 col-lg-3">
 						@if(bodegaOrigen.esInterna != 1){
-							<input type="button"  id="agregarEquiposNoEnviados" value="Agregar equipos que no fueron enviados" 
-								class="btn btn-warning btn-sm rounded-pill btn-block" 
+							<input type="button"  id="agregarEquiposNoEnviados" value="Agregar equipos que no fueron enviados"
+								class="btn btn-warning btn-sm rounded-pill btn-block"
 								onclick='$("#equipNoEnBodOrigen").modal("show")'>
 						}
 					</div>
 				</div>
-			
+
 
 				<div class="row justify-content-md-center" >
 					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
@@ -404,7 +417,7 @@ sinVenta: String)
 						<input id="cancelar" type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
 					</div>
 					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
-						<input type="submit"  id="aplica" value='Confirmar' class="btn btn-primary btn-sm rounded-pill btn-block" style="visibility:hidden" 
+						<input type="submit"  id="aplica" value='Confirmar' class="btn btn-primary btn-sm rounded-pill btn-block" style="visibility:hidden"
 							onclick="
 								document.getElementById('aplica').style.visibility = 'hidden';
 								document.getElementById('verifica').style.visibility = 'hidden';
@@ -415,7 +428,7 @@ sinVenta: String)
 							">
 					</div>
 					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
-						<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block" 
+						<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block"
 							onclick="modificaMovimientos();" style="visibility:hidden">
 					</div>
 				</div>
@@ -423,7 +436,7 @@ sinVenta: String)
 		</div>
 		<input type="hidden" id="id_transportistaXLSX" name="id_transportista" value="0">
 	</form>
-	
+
 	<div id='equipNoEnBodOrigen' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
 			<div class='modal-content'>
@@ -436,7 +449,7 @@ sinVenta: String)
 				<div class='modal-body'>
 					<table id="tablaListaEquipNoEnBodOrigen" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
 						<thead style="background-color: #eeeeee">
-							<TR> 
+							<TR>
 								<TH>GRUPO</TH>
 								<TH>CODIGO</TH>
 								<TH>NOMBRE</TH>
@@ -461,9 +474,9 @@ sinVenta: String)
 			</div>
 		</div>
 	</div>
-	
+
 	<div id='modalReparaciones'></div>
-	
+
 	<div id='modalTablaReparaciones' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>"+
 		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
 			<div class='modal-content'>
@@ -478,7 +491,7 @@ sinVenta: String)
 	    	</div>
 		</div>
 	</div>
-	
+
 	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
 	    <div class="modal-content">
@@ -489,7 +502,7 @@ sinVenta: String)
 	        </button>
 	      </div>
 	      <div class="modal-body">
-	        
+
 			<div class="row">
 				<div class="col-sm-12" style="text-align:center">
 					<form action="/routes2/movPlantilla/" method="POST"  onsubmit="return validarForm2();">
@@ -510,7 +523,7 @@ sinVenta: String)
 	    </div>
 	  </div>
 	</div>
-	
+
 	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
 			<div class='modal-content'>
@@ -531,9 +544,9 @@ sinVenta: String)
 			</div>
 		</div>
 	</div>
-	
+
 	@modalListaTransportistas(mapDiccionario, mapPermiso, listaTransporte);
-	
+
 }
 
 
@@ -557,7 +570,7 @@ sinVenta: String)
 		@for((est,index) <- listTipoEstado.zipWithIndex){
 			#tablaPrincipal td:nth-child(@(index+18)) { vertical-align: middle; }
 		}
-		
+
 		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+18)) { text-align: right; vertical-align: middle;}
 		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+19)) { text-align: right; vertical-align: middle;}
 		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+20)) { text-align: right; vertical-align: middle;}

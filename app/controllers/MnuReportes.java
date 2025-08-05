@@ -1254,6 +1254,7 @@ public class MnuReportes extends Controller {
 			List<Calc_AjustesEP> listaAjustes = null;
 			Map<Long,Long> dec = null;
 			Map<String,String> map = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()){
 				Fechas hoy = Fechas.hoy();
 				tasas = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
@@ -1272,6 +1273,7 @@ public class MnuReportes extends Controller {
 				dec = Moneda.numeroDecimal(con, s.baseDato);
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -1294,7 +1296,7 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes,mapBodConStockSoloArr);
 				guiasPeriodo = null;
 				inventarioInicial = null;
 				tasas = null;
@@ -1841,6 +1843,7 @@ public class MnuReportes extends Controller {
 			Map<Long, List<String>> mapBodega = null;
 			Map<String, String> map = null;
 			Map<Long, Long> dec = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 				listIdGuia_entreFechas = null;
@@ -1849,6 +1852,7 @@ public class MnuReportes extends Controller {
 				dec = Moneda.numeroDecimal(con, s.baseDato);
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -1867,7 +1871,7 @@ public class MnuReportes extends Controller {
 			List<List<String>> proyectosAux = null;
 			List<List<String>> resumenTotales = null;
 			try {
-				listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes,mapBodConStockSoloArr);
 				mapFijaTasas = null;
 				tasas = null;
 				listaAjustes = null;
@@ -2081,6 +2085,7 @@ public class MnuReportes extends Controller {
 			Double uf = null;
 			Double usd = null;
 			Double eur = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				desdeAAMMDD = form.get("fechaDesde").trim();
 				hastaAAMMDD = form.get("fechaHasta").trim();
@@ -2110,7 +2115,7 @@ public class MnuReportes extends Controller {
 				mapBodega = BodegaEmpresa.mapIdBod_BodegaEmpresaInternasExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				dec = Moneda.numeroDecimal(con, s.baseDato);
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
-
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -2143,7 +2148,7 @@ public class MnuReportes extends Controller {
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				mapFijaTasas = null;
 				tasas = null;
 				inventarioInicial = null;
@@ -2308,7 +2313,10 @@ public class MnuReportes extends Controller {
 					if ("1".equals(esVenta)) {
 						concepto = "VENTA";
 					}
-					List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+
+
+					List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+
 					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					return ok(reporteMovimientosDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf, id_proyecto));
 				} else {
@@ -2380,7 +2388,7 @@ public class MnuReportes extends Controller {
 						concepto = "VENTA";
 					}
 					try (Connection con = dbRead.getConnection()) {
-						datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+						datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 						bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					} catch (SQLException e) {
 						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -2463,6 +2471,7 @@ public class MnuReportes extends Controller {
 			Map<Long,Long> dec = null;
 			Map<String,String> map = null;
 			Map<String,String> mapPermanencias = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				hoy = Fechas.hoy();
 				tasas = TasasCambio.mapTasasPorFecha(con, s.baseDato,hoy.getFechaStrAAMMDD(), mapeoDiccionario.get("pais"));
@@ -2481,6 +2490,7 @@ public class MnuReportes extends Controller {
 				dec = Moneda.numeroDecimal(con, s.baseDato);
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -2501,7 +2511,7 @@ public class MnuReportes extends Controller {
 			mapPrecios = null;
 			guiasPer = null;
 			mapPermanencias = null;
-			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+			List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 			tasas = null;
 			mapFijaTasas = null;
 			listaAjustes = null;
@@ -4372,6 +4382,7 @@ public class MnuReportes extends Controller {
 				Map<Long, Long> dec = null;
 				Map<String, String> map = null;
 				Map<String, String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -4388,6 +4399,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, s.baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -4399,14 +4411,23 @@ public class MnuReportes extends Controller {
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventario);
 				inventario = null;
 				List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
+
+
+
 				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPer, mapPermanencias);
+
+
+
 				mapBodegaEmpresa = null;
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
+
+
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -4587,6 +4608,7 @@ public class MnuReportes extends Controller {
 				Map<Long, Long> dec = null;
 				Map<String, String> map = null;
 				Map<String, String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -4603,6 +4625,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, s.baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -4621,7 +4644,7 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -4802,6 +4825,7 @@ public class MnuReportes extends Controller {
 				Map<Long, Long> dec = null;
 				Map<String, String> map = null;
 				Map<String, String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					desde = Fechas.obtenerFechaDesdeStrAAMMDD(desdeAAMMDD);
 					hasta = Fechas.obtenerFechaDesdeStrAAMMDD(hastaAAMMDD);
@@ -4820,6 +4844,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, s.baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -4838,7 +4863,7 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -4929,6 +4954,7 @@ public class MnuReportes extends Controller {
 				Map<Long,Equipo> mapAllEquiposMs2 = null;
 				Map<String,String> mapFecha_primera_guiaMs2 = null;
 				Fechas hoy = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbWrite.getConnection()) {
 					Parametros.modify(con, s.baseDato, "envioMasivoProformas", (long)2);
 					permisoPorBodegaMs2 = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
@@ -4950,6 +4976,7 @@ public class MnuReportes extends Controller {
 					mapAllEquiposMs2 = Equipo.mapAllAll(con, s.baseDato);
 					mapFecha_primera_guiaMs2 = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 					hoy = Fechas.hoy();
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				} catch (Exception e) {
@@ -4961,7 +4988,7 @@ public class MnuReportes extends Controller {
 				reporte = null;
 				List<ModCalc_GuiasPer> guiasPeriodoMs2 = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas,
 						mapBodegaEmpresaMs2, mapPreciosMs2, mapMaestroPreciosMs2, guiasPerMs2, mapPermanenciasMs2);
-				List<ModeloCalculo> listadoMs2 = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, inventarioInicialMs2,guiasPeriodoMs2, listaAjustesMs2);
+				List<ModeloCalculo> listadoMs2 = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasasMs2, tasas, inventarioInicialMs2,guiasPeriodoMs2, listaAjustesMs2, mapBodConStockSoloArr);
 				inventarioInicialMs2 = null;
 				guiasPeriodoMs2 = null;
 				List<List<String>> proyectosAuxMs2 = ReportFacturas.reportFacturaProyecto(listadoMs2, mapBodegaMs2);
@@ -5152,7 +5179,7 @@ public class MnuReportes extends Controller {
 				conceptoMs2 = "VENTA";
 			}
 			try (Connection con2 = dbWrite.getConnection()) {
-				List<List<String>> datosMs2 = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDDMs2, hastaAAMMDDMs2,
+				List<List<String>> datosMs2 = ReportMovimientos.movimientoGuiasValorizado(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDDMs2, hastaAAMMDDMs2,
 						tasas.get((long)2), tasas.get((long)3), tasas.get((long)4), conceptoMs2);
 				String fileOutNameMovimientosMs2 = proformaMs2.getEpExcelMov();
 				fileMs2 = ReportMovimientos.movimientosExcel(s.baseDato, datosMs2, mapeoDiccionario, bodegaMs2, conceptoMs2, desdeAAMMDDMs2, hastaAAMMDDMs2);
@@ -5329,6 +5356,7 @@ public class MnuReportes extends Controller {
 					mapCotiAllConfirmadas = Cotizacion.mapAllConfirmadasUnaBodega(con, s.baseDato, id_bodegaEmpresa);
 					mapMoneda = Moneda.mapIdMonedaMoneda(con, s.baseDato);
 					mapAllEquipos = Equipo.mapAllAll(con, s.baseDato);
+
 					listGuiasPer = ReportFacturas.reportListGuiasEntreFechas(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 					bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
@@ -5674,7 +5702,7 @@ public class MnuReportes extends Controller {
 				}
 				String archivoPDF = "0";
 				try (Connection con2 = dbWrite.getConnection()) {
-					List<List<String>> datos = ReportMovimientos.movimientoGuias(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDD, hastaAAMMDD, usd, eur, uf, concepto);
+					List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con2, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, desdeAAMMDD, hastaAAMMDD, usd, eur, uf, concepto);
 					String fileOutNameMovimientos = proforma.getEpExcelMov();
 					file = ReportMovimientos.movimientosExcel(s.baseDato, datos, mapeoDiccionario, bodega, concepto, desdeAAMMDD, hastaAAMMDD);
 					Archivos.grabarArchivo(file, s.baseDato+"/"+fileOutNameMovimientos);
@@ -5793,6 +5821,7 @@ public class MnuReportes extends Controller {
 			Double usd = null;
 			Double eur = null;
 			Map<Long,Long> mapDec = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				desdeAAMMDD = form.get("fechaDesde").trim();
 				hastaAAMMDD = form.get("fechaHasta").trim();
@@ -5823,7 +5852,7 @@ public class MnuReportes extends Controller {
 				dec = Moneda.numeroDecimal(con, s.baseDato);
 				map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 				mapDec = Moneda.numeroDecimal(con, s.baseDato);
-
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -5858,7 +5887,7 @@ public class MnuReportes extends Controller {
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -6208,6 +6237,7 @@ public class MnuReportes extends Controller {
 			Map<String, String> map = null;
 			String id_proyecto = null;
 			Map<Long,Long> mapDec = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				if (id_proyecto == null) {
 					id_proyecto = "0";
@@ -6252,6 +6282,7 @@ public class MnuReportes extends Controller {
 				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -6267,7 +6298,7 @@ public class MnuReportes extends Controller {
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -6622,6 +6653,7 @@ public class MnuReportes extends Controller {
 			Double usd = null;
 			Double eur = null;
 			Map<Long,Long> mapDec = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				desdeAAMMDD = form.get("fechaDesde").trim();
 				hastaAAMMDD = form.get("fechaHasta").trim();
@@ -6672,6 +6704,7 @@ public class MnuReportes extends Controller {
 				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -6687,7 +6720,7 @@ public class MnuReportes extends Controller {
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -6960,7 +6993,7 @@ public class MnuReportes extends Controller {
 		}else {
 			Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			File file = detalleHVtaExcel(s,form);
+			File file = detalleHExcel(s,form);
 			Long id_bodegaEmpresa = (long) 0;
 			BodegaEmpresa bodega = null;
 			try (Connection con = dbRead.getConnection()) {
@@ -8930,6 +8963,7 @@ public class MnuReportes extends Controller {
 			Double usd = null;
 			Double eur = null;
 			Map<Long,Long> mapDec = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				desdeAAMMDD = form.get("fechaDesde").trim();
 				hastaAAMMDD = form.get("fechaHasta").trim();
@@ -8980,6 +9014,7 @@ public class MnuReportes extends Controller {
 				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -8995,7 +9030,7 @@ public class MnuReportes extends Controller {
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -9176,6 +9211,7 @@ public class MnuReportes extends Controller {
 			Double usd = null;
 			Double eur = null;
 			Map<Long,Long> mapDec = null;
+			Map<Long,Long> mapBodConStockSoloArr = null;
 			try (Connection con = dbRead.getConnection()) {
 				desdeAAMMDD = form.get("fechaDesde").trim();
 				hastaAAMMDD = form.get("fechaHasta").trim();
@@ -9226,6 +9262,7 @@ public class MnuReportes extends Controller {
 				guiasPer = Inventarios.guiasPer(con, s.baseDato, listIdBodegaEmpresa, listIdGuia_entreFechas);
 				mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
 				nroDec = Moneda.numeroDecimalxId(con, s.baseDato, "1");
+				mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -9241,7 +9278,7 @@ public class MnuReportes extends Controller {
 				mapPrecios = null;
 				mapMaestroPrecios = null;
 				guiasPer = null;
-				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> listado = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial, guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				inventarioInicial = null;
 				guiasPeriodo = null;
 				listaAjustes = null;
@@ -9335,6 +9372,7 @@ public class MnuReportes extends Controller {
 				Map<Long,Long> dec = null;
 				Map<String,String> map = null;
 				Map<String,String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -9352,6 +9390,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, s.baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -9369,12 +9408,12 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				mapBodega = null;
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
 				valorTotalPorBodega = null;
-				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
 				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {
@@ -9480,6 +9519,7 @@ public class MnuReportes extends Controller {
 				Map<Long,Long> dec = null;
 				Map<String,String> map = null;
 				Map<String,String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -9497,6 +9537,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, s.baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -9518,13 +9559,13 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				listaAjustes = null;
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				mapBodega = null;
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
 				valorTotalPorBodega = null;
-				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
 				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {
@@ -9616,6 +9657,7 @@ public class MnuReportes extends Controller {
 				Map<Long,Long> dec = null;
 				Map<String,String> map = null;
 				Map<String,String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()){
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, baseDato, Long.parseLong(id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
@@ -9632,6 +9674,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				} catch (Exception e) {
@@ -9651,12 +9694,12 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				listaAjustes = null;
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
 				valorTotalPorBodega = null;
-				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
 				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {
@@ -9774,6 +9817,7 @@ public class MnuReportes extends Controller {
 				Map<Long,Long> dec = null;
 				Map<String,String> map = null;
 				Map<String,String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, s.baseDato, permisoPorBodega);
@@ -9790,6 +9834,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, s.baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, s.baseDato, Long.parseLong(s.id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, s.baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, s.baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 					return ok(mensajes.render("/home/", msgReport));
@@ -9810,12 +9855,12 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				listaAjustes = null;
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
 				valorTotalPorBodega = null;
-				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
 				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {
@@ -9908,6 +9953,7 @@ public class MnuReportes extends Controller {
 				Map<Long,Long> dec = null;
 				Map<String,String> map = null;
 				Map<String,String> mapPermanencias = null;
+				Map<Long,Long> mapBodConStockSoloArr = null;
 				try (Connection con = dbRead.getConnection()) {
 					String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, baseDato, Long.parseLong(id_usuario));
 					listIdBodegaEmpresa = ModCalc_InvInicial.listIdBodegaEmpresa(con, baseDato, permisoPorBodega);
@@ -9924,6 +9970,7 @@ public class MnuReportes extends Controller {
 					dec = Moneda.numeroDecimal(con, baseDato);
 					map = UsuarioPermiso.mapPermisoIdBodega(con, baseDato, Long.parseLong(id_usuario));
 					mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, baseDato);
+					mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, baseDato);
 				} catch (SQLException e) {
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, eMail, e);
 				} catch (Exception e) {
@@ -9942,12 +9989,12 @@ public class MnuReportes extends Controller {
 				mapMaestroPrecios = null;
 				guiasPer = null;
 				mapPermanencias = null;
-				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+				List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 				listaAjustes = null;
 				List<List<String>> proyectosAux = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 				List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
 				valorTotalPorBodega = null;
-				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<ModeloCalculo> valorTotalporBodegaYGrupo = ModeloCalculo.valorTotalporBodegaYGrupo(inventarioInicial,guiasPeriodo);
 				List<List<String>> proyectos = new ArrayList<List<String>>();
 				if(!map.isEmpty()) {
 					for(List<String> aux: proyectosAux) {

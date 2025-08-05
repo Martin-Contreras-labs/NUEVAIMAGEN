@@ -48,7 +48,7 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
 					        @for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 < 5){
+								@if(index1 < 6){
 									<TR>
 										@for(nivel2 <- nivel1) {
 											<td style="text-align: center">@nivel2</td>
@@ -59,7 +59,7 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 						</thead>
 						<tbody>
 							@for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 > 4){
+								@if(index1 > 5){
 									<TR>
 										@for((nivel2,index2) <- nivel1.zipWithIndex) {
 											@if(index2 == 1){
@@ -108,14 +108,14 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 		var tabla = document.getElementById("tablaPrincipal");
 		
 				
-				for (var i = 0; i < tabla.rows.length; i++) { 	
+				for (var i = 0; i < tabla.rows.length; i++) {
 					tabla.rows[i].cells[11].style.backgroundColor="#eeeeee";
 				}
-				for (var i = 5; i < tabla.rows.length; i++) { 
+				for (var i = 5; i < tabla.rows.length; i++) {
 					tabla.rows[i].cells[tabla.rows[0].cells.length-5].style.backgroundColor="#eeeeee";
 				}
 				for (var i = 5; i < tabla.rows.length; i++) {
-					
+
 					tabla.rows[i].cells[0].style.textAlign="left";
 					tabla.rows[i].cells[1].style.textAlign="center";
 					tabla.rows[i].cells[2].style.textAlign="left";
@@ -128,7 +128,7 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 					tabla.rows[i].cells[9].style.textAlign="right";
 					tabla.rows[i].cells[10].style.textAlign="right";
 					tabla.rows[i].cells[11].style.textAlign="right";
-					
+
 					tabla.rows[i].cells[0].style.minWidth="150px";
 					tabla.rows[i].cells[2].style.minWidth="80px";
 					tabla.rows[i].cells[3].style.minWidth="300px";
@@ -137,7 +137,7 @@ usd: Double, eur: Double, uf: Double, id_proyecto: String)
 					tabla.rows[i].cells[9].style.minWidth="60px";
 					tabla.rows[i].cells[10].style.minWidth="60px";
 					tabla.rows[i].cells[11].style.minWidth="60px";
-					
+
 					for(var k=12;k<tabla.rows[0].cells.length;k++){
 						tabla.rows[i].cells[k].style.textAlign="right";
 					}

@@ -68,7 +68,7 @@ public class ModeloCalculo {
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	public static List<ModeloCalculo> valorTotalporBodega(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> mapTasas,
-			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo, List<Calc_AjustesEP> listaAjustes) {
+			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo, List<Calc_AjustesEP> listaAjustes, Map<Long,Long> mapBodConStockSoloArr) {
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
 		Map<Long,Long> listaBodegas = new HashMap<Long,Long>();
 		Map<Long,ModeloCalculo> invInicial = new HashMap<Long,ModeloCalculo>();
@@ -239,9 +239,13 @@ public class ModeloCalculo {
 				aux.maestroTotalArriendo = maestroTotArriendo;
 				aux.maestroTotalCfi = maestroTotCfi;
 				aux.maestroTotalTotal = aux.maestroTotalVenta + aux.maestroTotalArriendo + aux.maestroTotalCfi;
-				if(totCfi + totArriendo + ajusteArriendo +  totVenta + ajusteVenta> 0) {
+
+				Long bodConStokArr = mapBodConStockSoloArr.get(id_bod);
+				if( (totCfi + totArriendo + ajusteArriendo +  totVenta + ajusteVenta) > 0 || bodConStokArr != null) {
 					listado.add(aux);
 				}
+
+
 			}
 		} catch (Exception e) {
 			String className = ActaBaja.class.getSimpleName();
@@ -407,8 +411,7 @@ public class ModeloCalculo {
 //		return(listado);
 //	}
 
-	public static List<ModeloCalculo> valorTotalporBodegaYGrupo(String desdeAAMMDD, String hastaAAMMDD, Map<String, Double> mapFijaTasas, Map<Long,Double> tasas,
-			List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
+	public static List<ModeloCalculo> valorTotalporBodegaYGrupo(List<ModCalc_InvInicial> inventarioInicial, List<ModCalc_GuiasPer> guiasPeriodo) {
 		List<ModeloCalculo> listado = new ArrayList<ModeloCalculo>();
 		Map<String,String> listaBodegasGrupo = new HashMap<String,String>();
 		Map<String,ModeloCalculo> invInicial = new HashMap<String,ModeloCalculo>();

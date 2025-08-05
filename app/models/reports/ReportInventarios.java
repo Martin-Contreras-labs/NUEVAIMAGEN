@@ -1350,7 +1350,7 @@ public class ReportInventarios {
 			int posCell = 0;
 			int posColl = 0;
 			row = hoja1.createRow(8);
-			
+
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 7 * 1000);
 			cell = row.createCell(posCell);
@@ -1499,16 +1499,16 @@ public class ReportInventarios {
 				posCell = 0;
 				posColl = 0;
 				Double aux = (double)0;
-				
+
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(22));
-
+				
 				posCell++; posColl++;
-				cell = row.createCell(posCell);
-				cell.setCellStyle(detalle);
+	            cell = row.createCell(posCell);
+	            cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(21));
 				

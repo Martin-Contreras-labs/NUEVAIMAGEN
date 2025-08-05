@@ -116,8 +116,10 @@ public class ReportFacturaConsolidado {
 			
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
-			
-			List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+
+			Map<Long,Long> mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, db);
+
+			List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 			
 
     		
@@ -417,7 +419,7 @@ public class ReportFacturaConsolidado {
 				List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 						mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
 				
-				List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupo(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo);
+				List<ModeloCalculo> calculo = ModeloCalculo.valorTotalporBodegaYGrupo(inventarioInicial,guiasPeriodo);
 	    		
 	    		mapTotales.put(desdeAAMMDD, calculo);
 	    		for(int k=0;k<calculo.size();k++) {

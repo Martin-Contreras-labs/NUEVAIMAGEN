@@ -585,7 +585,7 @@ oc: String, listSol: List[tables.CotizaSolucion])
 			 			@for((detalle1,index2) <- guiasPer.zipWithIndex){
 								<TR>
 								<td colspan="3" style="background-color: #eeeeee">@detalle1.get(7): @detalle1.get(2)</td>
-								<td colspan="1" style="background-color: #eeeeee">FECHA @mapDiccionario.get("GUIA"): @detalle1.get(3)</td>
+								<td colspan="1" style="background-color: #eeeeee">FECHA: @mapDiccionario.get("GUIA"): @detalle1.get(3) --  INI/PER: @detalle1.get(10)</td>
 								<td colspan="4" style="background-color: #eeeeee">Nro de Ref: @detalle1.get(5)</td>
 								<td colspan="16" style="background-color: #eeeeee">Observaciones: @detalle1.get(9)</td>
 								</tr>

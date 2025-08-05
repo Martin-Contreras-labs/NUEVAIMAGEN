@@ -142,7 +142,8 @@ public class ResumenDetallePorPeriodo {
 			List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
 			List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas,
 					mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
-			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+			Map<Long,Long> mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, db);
+			List<ModeloCalculo> valorTotalPorBodega = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes, mapBodConStockSoloArr);
 			List<List<String>> proyectos = ReportFacturas.reportFacturaProyecto(valorTotalPorBodega, mapBodega);
 			List<List<String>> resumenTotales = ReportFacturas.resumenTotalesPorProyecto(valorTotalPorBodega, dec);
 			Map<String, List<List<String>>> mapInicioPer = ReportFacturas.mapInicioPerAllBodegas(con, db, inventarioInicial);  					// RESUMEN POR ESTADOS DE PAGO

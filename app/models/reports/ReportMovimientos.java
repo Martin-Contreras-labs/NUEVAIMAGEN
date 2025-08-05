@@ -74,41 +74,47 @@ public class ReportMovimientos {
 		esVenta = esVenta.trim();
 		Double granTotalArriendo = (double)0;
 		Map<String,Double> excedentes = ReportExcedentes.totalExcedentesPorCodyBod(con, db, id_bodegaEmpresa);
-		
+
 		try {
 			
 			List<String> numGuia = new ArrayList<String>();
 			List<String> fechGuia = new ArrayList<String>();
+			List<String> fechIniTerGuia = new ArrayList<String>();
 			List<String> guiaClie = new ArrayList<String>();
 			List<String> tipGuia = new ArrayList<String>();
 			List<String> blanco = new ArrayList<String>();
 				
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Grupo");
 			
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Código");
 			
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Equipo");
 			
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("kg");
 			
 			numGuia.add("Nro.Mov:");
 			fechGuia.add("Fecha:");
+			fechIniTerGuia.add("Ini/Ter:");
 			guiaClie.add("Nro.Ref");
 			tipGuia.add("Tipo.Mov: ");
 			blanco.add("m2");
@@ -122,6 +128,7 @@ public class ReportMovimientos {
 			numGuia.add("STOCK INICIAL");
 				String aux2[] = fechaDesde.split("-");
 			fechGuia.add(""+aux2[2]+"/"+aux2[1]+"/"+aux2[0]);
+			fechIniTerGuia.add("");
 			guiaClie.add("");
 			tipGuia.add(" ");
 			blanco.add(" ");
@@ -132,7 +139,8 @@ public class ReportMovimientos {
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
-							" ifnull(guia.numGuiaCliente,'') "+
+							" ifnull(guia.numGuiaCliente,''), "+
+							" ifnull(guia.fechaIniTerGuia,guia.fecha)  " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
@@ -144,7 +152,6 @@ public class ReportMovimientos {
 					smt1.setString(3, fechaDesde);
 					smt1.setString(4, fechaHasta);
 
-
 					ResultSet rs1 = smt1.executeQuery();
 
 					while (rs1.next()) {
@@ -152,6 +159,8 @@ public class ReportMovimientos {
 						if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
 							numGuia.add(rs1.getString(1));
 							fechGuia.add(rs1.getString(2));
+							String aux[] = rs1.getString(6).split("-");
+							fechIniTerGuia.add(aux[2]+"/"+aux[1]+"/"+aux[0]);
 							guiaClie.add(rs1.getString(5));
 							tipGuia.add(rs1.getString(3));
 							blanco.add(" ");
@@ -164,11 +173,13 @@ public class ReportMovimientos {
 			numGuia.add("STOCK FINAL");
 				String aux3[] = fechaHasta.split("-");
 			fechGuia.add(""+aux3[2]+"/"+aux3[1]+"/"+aux3[0]);
+			fechIniTerGuia.add("");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("");
 			numGuia.add("Excedentes");
 			fechGuia.add(" ");
+			fechIniTerGuia.add("");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("");
@@ -303,6 +314,7 @@ public class ReportMovimientos {
 			
 			lista.add(numGuia);
 			lista.add(fechGuia);
+			lista.add(fechIniTerGuia);
 			lista.add(guiaClie);
 			lista.add(tipGuia);
 			lista.add(blanco);
@@ -436,7 +448,6 @@ public class ReportMovimientos {
 							if(nDiaGraciaEnvio > 0) {
 
 								List<Inventarios> guiasPer = mapGuiasPer.get(bodega.getId());
-
 								for(int k=0; guiasPer!=null && k<guiasPer.size(); k++) {
 									String idEquipo = listaCodigos.get(i).get(10);
 									String idCotizacion = listaCodigos.get(i).get(8);
@@ -711,7 +722,7 @@ public class ReportMovimientos {
 				Double aux = (double)0;
 				for(int j=0;j<datos.get(i).size();j++){
 					String dato = datos.get(i).get(j);
-					if(i<5){
+					if(i<6){
 						posCell++; 
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
@@ -761,6 +772,7 @@ public class ReportMovimientos {
         }
 	  return tmp;
 	}
+
 	
 	public static File movPorProyectoExcelAgrupado(String db, List<List<String>> datos, 
 			Map<String,String> mapDiccionario, Proyecto proyecto, String concepto, String fechaDesde, String fechaHasta) {
@@ -872,7 +884,7 @@ public class ReportMovimientos {
 				Double aux = (double)0;
 				for(int j=0;j<datos.get(i).size();j++){
 					String dato = datos.get(i).get(j);
-					if(i<6){
+					if(i<7){
 						posCell++; 
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
@@ -939,7 +951,8 @@ public class ReportMovimientos {
 							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
-							" ifnull(guia.numGuiaCliente,'') "+
+							" ifnull(guia.numGuiaCliente,''), "+
+							" ifnull(guia.fechaIniTerGuia,guia.fecha) "+
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
@@ -951,61 +964,73 @@ public class ReportMovimientos {
 			ResultSet rs1 = smt1.executeQuery();
 				List<String> numGuia = new ArrayList<String>();
 				List<String> fechGuia = new ArrayList<String>();
+				List<String> fechIniTerGuia = new ArrayList<String>();
 				List<String> guiaClie = new ArrayList<String>();
 				List<String> tipGuia = new ArrayList<String>();
 				List<String> blanco = new ArrayList<String>();
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Grupo");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Nro.Coti");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Código");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Equipo");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("kg");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("m2");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Moneda");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Precio Venta");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Tasa Arriendo");
 				numGuia.add(" ");
 				fechGuia.add(" ");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add(" ");
 				blanco.add("Arriendo Mes");
 				numGuia.add("Nro.Mov:");
 				fechGuia.add("Fecha:");
+				fechIniTerGuia.add("Ini/Ter");
 				guiaClie.add("Nro.Ref");
 				tipGuia.add("Tipo.Mov: ");
 				blanco.add("Arriendo Dia");
@@ -1013,6 +1038,8 @@ public class ReportMovimientos {
 				while (rs1.next()) {
 					numGuia.add(rs1.getString(1));
 					fechGuia.add(rs1.getString(2));
+					String[] aux = rs1.getString(6).split("-");
+					fechIniTerGuia.add(aux[2]+"/"+aux[1]+"/"+aux[0]);
 					guiaClie.add(rs1.getString(5));
 					tipGuia.add(rs1.getString(3));
 					blanco.add(" ");
@@ -1022,6 +1049,7 @@ public class ReportMovimientos {
 				
 				numGuia.add("TOTAL");
 				fechGuia.add("INGRESOS");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add("TOTAL");
 				blanco.add("INGRESOS");
@@ -1033,7 +1061,8 @@ public class ReportMovimientos {
 								" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +   
 								" tipoMovimiento.nombre, " +
 								" guia.fecha, " +
-								" ifnull(guia.numGuiaCliente,'') "+
+								" ifnull(guia.numGuiaCliente,''), "+
+								" ifnull(guia.fechaIniTerGuia,guia.fecha) "+
 								" from `"+db+"`.movimiento " +
 								" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 								" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
@@ -1042,31 +1071,38 @@ public class ReportMovimientos {
 								" order by guia.fecha,guia.numero;");
 				smt100.setString(1, esVenta.trim());
 				smt100.setLong(2, id_bodegaEmpresa);
+
 				ResultSet rs100 = smt100.executeQuery();
 				while (rs100.next()) {
 					numGuia.add(rs100.getString(1));
 					fechGuia.add(rs100.getString(2));
+					String[] aux = rs100.getString(6).split("-");
+					fechIniTerGuia.add(aux[2]+"/"+aux[1]+"/"+aux[0]);
 					guiaClie.add(rs100.getString(5));
 					tipGuia.add(rs100.getString(3));
 					blanco.add(" ");
 				}
+				System.out.println(fechIniTerGuia.toString());
 				rs100.close();
 				smt100.close();
 				
 				numGuia.add("TOTAL");
 				fechGuia.add("SALIDAS");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add("TOTAL");
 				blanco.add("SALIDAS");
 				
 				numGuia.add("TOTAL");
 				fechGuia.add("TOTAL");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add("TOTAL");
 				blanco.add("TOTAL");
 				
 				numGuia.add("");
 				fechGuia.add("");
+				fechIniTerGuia.add(" ");
 				guiaClie.add(" ");
 				tipGuia.add("EXCEDENTES");
 				blanco.add("");
@@ -1230,6 +1266,8 @@ public class ReportMovimientos {
 				
 				lista.add(numGuia);
 				lista.add(fechGuia);
+				lista.add(fechIniTerGuia);
+				System.out.println("lista.size()="+fechIniTerGuia.toString());
 				lista.add(guiaClie);
 				lista.add(tipGuia);
 				lista.add(blanco);
@@ -1422,7 +1460,7 @@ public class ReportMovimientos {
 				Double aux = (double)0;
 				for(int j=0;j<datos.get(i).size();j++){
 					String dato = datos.get(i).get(j);
-					if(i<5){
+					if(i<6){
 						posCell++; 
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
@@ -1959,7 +1997,8 @@ public class ReportMovimientos {
 							" tipoMovimiento.nombre, " +
 							" guia.fecha, " +
 							" ifnull(guia.numGuiaCliente,''), "+
-							" guia.id " +
+							" guia.id, " +
+							" ifnull(guia.fechaIniTerGuia,guia.fecha)  " +
 							" from `"+db+"`.movimiento " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
@@ -2119,7 +2158,7 @@ public class ReportMovimientos {
 				blanco.add("");
 			
 				PreparedStatement smt2 = con
-						.prepareStatement(" select distinct  guia.numero,guia.fecha " +
+						.prepareStatement(" select distinct  guia.numero,guia.fecha,ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 								" from `"+db+"`.guia " +
 								" left join `"+db+"`.movimiento on movimiento.id_guia = guia.id " +
 								" where movimiento.esVenta= ?  and id_bodegaEmpresa = ? "+
@@ -2130,8 +2169,9 @@ public class ReportMovimientos {
 				List<List<String>> listaGuias = new ArrayList<List<String>>();
 				while (rs2.next()) {
 					List<String> aux = new ArrayList<String>();
-					aux.add(rs2.getString(1));
-					aux.add(rs2.getString(2));
+					aux.add(rs2.getString(1)); // 0 numero guia
+					aux.add(rs2.getString(2)); // 1 fecha guia
+					aux.add(rs2.getString(3)); // 2 fecha ini ter guia
 					listaGuias.add(aux);
 				}
 				rs2.close();
@@ -2360,7 +2400,10 @@ public class ReportMovimientos {
 						
 						
 						for(int k=0;k<listaGuias.size();k++){
-							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+
+							//Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(2));
+
 							if(fechaGuia.fechaCal.before(desde.fechaCal)){
 								String keyAux=listaCodigos.get(i).get(1).trim()+listaGuias.get(k).get(0).trim()+"-"+listaCodigos.get(i).get(8);
 								String cantidad = codGuiaCant.get(keyAux);
@@ -2396,8 +2439,7 @@ public class ReportMovimientos {
 								if(nDiaGraciaEnvio > 0) {
 									
 									List<Inventarios> guiasPer = mapGuiasPer.get(bodegaEmpresa.getId());
-						
-									for(int k=0; k<guiasPer.size(); k++) {
+									for(int k=0; guiasPer!=null && k<guiasPer.size(); k++) {
 										String idEquipo = listaCodigos.get(i).get(10);
 										String idCotizacion = listaCodigos.get(i).get(8);
 										if(	(long) guiasPer.get(k).id_equipo == Long.parseLong(idEquipo)
@@ -2428,7 +2470,10 @@ public class ReportMovimientos {
 						
 						
 						for(int k=0;k<listaGuias.size();k++){
-							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+
+							Fechas fechaGuia2 = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(2));
+
 							if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
 								String keyAux=listaCodigos.get(i).get(1).trim()+listaGuias.get(k).get(0).trim()+"-"+listaCodigos.get(i).get(8);
 								String cantidad = codGuiaCant.get(keyAux);
@@ -2439,10 +2484,6 @@ public class ReportMovimientos {
 										flag =1;
 									}
 									aux.add(cantidad);
-									
-									
-									
-									
 									
 									Long diasPeriodo = (long)0;
 									
@@ -2833,6 +2874,940 @@ public class ReportMovimientos {
 				
 		return (lista);
 	}
+
+	public static List<List<String>> movimientoGuiasValorizado(Connection con, String db, Map<String,String> mapDiccionario, Long id_bodegaEmpresa, String esVenta, String fechaDesde, String fechaHasta,
+													 Double usd, Double eur, Double uf, String concepto) {
+		List<List<String>> lista = new ArrayList<List<String>>();
+		Double granTotalArriendo = (double)0;
+		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+		String idMoneda = "1";
+		Double totArr =(double)0;
+
+
+		Map<String,Double> excedentes = ReportExcedentes.totalExcedentesPorNumCotiCodyBod(con, db, id_bodegaEmpresa);
+
+		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
+
+		try {
+			PreparedStatement smt1 = con
+					.prepareStatement(" select  distinct " +
+							" guia.numero, " +
+							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +
+							" tipoMovimiento.nombre, " +
+							" guia.fecha, " +
+							" ifnull(guia.numGuiaCliente,''), "+
+							" guia.id, " +
+							" ifnull(guia.fechaIniTerGuia,guia.fecha)  " +
+							" from `"+db+"`.movimiento " +
+							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
+							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
+							" where id_bodegaEmpresa =  ? and numero is not null " +
+							" and movimiento.esVenta= ?  order by guia.fecha,guia.numero;");
+			smt1.setLong(1, id_bodegaEmpresa);
+			smt1.setString(2, esVenta.trim());
+			ResultSet rs1 = smt1.executeQuery();
+
+			List<String> numGuia = new ArrayList<String>();
+
+			List<String> fechGuia = new ArrayList<String>();
+			List<String> fechIniTerGuia = new ArrayList<String>();
+
+			List<String> guiaClie = new ArrayList<String>();
+
+			List<String> tipGuia = new ArrayList<String>();
+			List<String> blanco = new ArrayList<String>();
+
+			List<Long> idsGuia = new ArrayList<Long>();
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Grupo");
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Nro.Coti");
+
+			numGuia.add(mapDiccionario.get("BODEGA")+": ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Código");
+
+			numGuia.add(bodegaEmpresa.nombre.toUpperCase());
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Descripción");
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("kg");
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("m2");
+
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Moneda");
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Precio Venta");
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("Tasa Arriendo");
+
+			numGuia.add(" ");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add(mapDiccionario.get("Arriendo")+" Mes");
+
+			numGuia.add("Nro.Mov:");
+			fechGuia.add("Fecha:");
+			fechIniTerGuia.add("Ini/Ter");
+			guiaClie.add("Nro.Ref");
+			tipGuia.add("Tipo.Mov: ");
+			blanco.add(mapDiccionario.get("Arriendo")+" Dia");
+
+
+			Fechas desde = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+			Fechas hasta = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+			Fechas hastaAux = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+			Calendar hastaMas1 = hastaAux.getFechaCal();
+			hastaMas1.add(Calendar.DAY_OF_MONTH, 1);
+
+
+			numGuia.add("STOCK INICIAL");
+			String aux2[] = fechaDesde.split("-");
+			fechGuia.add(""+aux2[2]+"/"+aux2[1]+"/"+aux2[0]);
+			fechIniTerGuia.add(" ");
+			guiaClie.add("");
+			tipGuia.add(" ");
+			blanco.add(" ");
+
+			while (rs1.next()) {
+				idsGuia.add(rs1.getLong(6));
+
+				Fechas fechaGuiaReal = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(4));
+				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(7));
+				if( ! (fechaGuia.fechaCal.before(desde.fechaCal) || fechaGuiaReal.fechaCal.after(hasta.fechaCal))) {
+					numGuia.add(rs1.getString(1));
+					fechGuia.add(rs1.getString(2));
+					String[] aux = rs1.getString(7).split("-");
+					fechIniTerGuia.add(aux[2]+"/"+aux[1]+"/"+aux[0]);
+					guiaClie.add(rs1.getString(5));
+					tipGuia.add(rs1.getString(3));
+					blanco.add(" ");
+				}
+			}
+
+			rs1.close();
+			smt1.close();
+
+			numGuia.add("STOCK FINAL");
+			String aux3[] = fechaHasta.split("-");
+			fechGuia.add(""+aux3[2]+"/"+aux3[1]+"/"+aux3[0]);
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("");
+
+			numGuia.add("");
+			fechGuia.add("CFI");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add("");
+			blanco.add("");
+
+
+			numGuia.add("TOTAL MON");
+			fechGuia.add("ORIGEN");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(concepto);
+			blanco.add("");
+
+			numGuia.add("TOTAL EN");
+			fechGuia.add(mapDiccionario.get("MONEDA PRINCIPAL"));
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(concepto);
+			blanco.add("");
+
+
+			numGuia.add("Excedentes");
+			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("");
+
+			numGuia.add("COMPROMETIDO");
+			fechGuia.add("EN COTIZACION");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("");
+
+			numGuia.add("DESPACHADO");
+			fechGuia.add("DE COTIZACION");
+			fechIniTerGuia.add(" ");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add("");
+
+			numGuia.add("SALDO POR");
+			fechGuia.add("DESPACHAR");
+			fechIniTerGuia.add("DE COTIZACION");
+			guiaClie.add(" ");
+			tipGuia.add(" ");
+			blanco.add(" ");
+
+			PreparedStatement smt2 = con
+					.prepareStatement(" select distinct  guia.numero,guia.fecha,ifnull(guia.fechaIniTerGuia,guia.fecha) " +
+							" from `"+db+"`.guia " +
+							" left join `"+db+"`.movimiento on movimiento.id_guia = guia.id " +
+							" where movimiento.esVenta= ?  and id_bodegaEmpresa = ? "+
+							" order by guia.fecha,guia.numero; ");
+			smt2.setString(1, esVenta.trim());
+			smt2.setLong(2, id_bodegaEmpresa);
+			ResultSet rs2 = smt2.executeQuery();
+			List<List<String>> listaGuias = new ArrayList<List<String>>();
+			while (rs2.next()) {
+				List<String> aux = new ArrayList<String>();
+				aux.add(rs2.getString(1)); // 0 numero guia
+				aux.add(rs2.getString(2)); // 1 fecha guia
+				aux.add(rs2.getString(3)); // 2 fecha ini ter guia
+				listaGuias.add(aux);
+			}
+			rs2.close();
+			smt2.close();
+
+			PreparedStatement smt3 = con
+					.prepareStatement(" select distinct " +
+							" grupo.nombre, " +
+							" equipo.codigo, " +
+							" equipo.nombre, " +
+							" ifnull(moneda.nickName,''), " +
+							" ifnull(listaPrecio.precioVenta,0), " +
+							" ifnull(listaPrecio.precioReposicion,0), " +
+							" ifnull(listaPrecio.precioArriendo,0), " +
+							" ifnull(listaPrecio.id_unidadTiempo,1), " +
+							" ifnull(bodegaEmpresa.tasaDescto,0), " +
+							" ifnull(dctoGrupo.tasaDescto,0), " +
+							" ifnull(dctoEquipo.tasaDescto,0), " +
+							" movimiento.id_cotizacion, " +
+							" ifNull(cotizacion.numero,0), " +
+							" equipo.id, " +
+							" ifnull(moneda.id,1), " +
+							" equipo.kg, " +
+							" equipo.m2 " +
+							" from `"+db+"`.movimiento " +
+							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
+							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
+							" left join `"+db+"`.listaPrecio on listaPrecio.id_equipo = equipo.id and listaPrecio.id_cotizacion = movimiento.id_cotizacion and listaPrecio.id_bodegaEmpresa = " +id_bodegaEmpresa +
+							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo  " +
+							" left join `"+db+"`.moneda on moneda.id = listaPrecio.id_moneda " +
+							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
+							" left join `"+db+"`.dctoGrupo on dctoGrupo.id_bodegaEmpresa = movimiento.id_bodegaEmpresa and dctoGrupo.id_grupo = equipo.id_grupo " +
+							" left join `"+db+"`.dctoEquipo on dctoEquipo.id_bodegaEmpresa = movimiento.id_bodegaEmpresa and dctoEquipo.id_equipo = movimiento.id_equipo " +
+							" where " +
+							" movimiento.id_bodegaEmpresa=? and listaPrecio.id_unidadTiempo is not null"+
+							" and equipo.nombre is not null and movimiento.esVenta= ? "+
+							" order by grupo.nombre,equipo.nombre;");
+			smt3.setLong(1, id_bodegaEmpresa);
+			smt3.setString(2, esVenta.trim());
+
+			ResultSet rs3 = smt3.executeQuery();
+			List<List<String>> listaCodigos = new ArrayList<List<String>>();
+
+
+			PreparedStatement smt4 = con
+					.prepareStatement(" select " +
+							" equipo.codigo,    " +
+							" guia.numero, " +
+							" sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)),   " +
+							" movimiento.id_cotizacion "+
+							" from `"+db+"`.movimiento " +
+							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
+							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
+							" where movimiento.id_bodegaEmpresa =  ? "+
+							" and guia.fecha is not null  and movimiento.esVenta= ?  " +
+							" group by equipo.codigo, guia.numero, movimiento.id_cotizacion  " +
+							" order by guia.fecha,guia.numero,equipo.codigo;");
+			smt4.setLong(1, id_bodegaEmpresa);
+			smt4.setString(2, esVenta.trim());
+			ResultSet rs4 = smt4.executeQuery();
+
+			Map<String,String> codGuiaCant = new HashMap<String,String>();
+			while (rs4.next()) {
+				codGuiaCant.put(rs4.getString(1).trim()+rs4.getString(2).trim()+"-"+rs4.getString(4).trim(), rs4.getString(3));
+			}
+			rs4.close();
+			smt4.close();
+
+
+
+			while (rs3.next()) {
+
+				Double factor = UnidadTiempo.equivalencia(con, db).get(rs3.getLong(8));
+
+				List<String> aux = new ArrayList<String>();
+
+				switch(dec.get(rs3.getLong(15)).toString()) {
+					case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+					case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+					case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+					case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
+					default:  break;
+				}
+
+
+				aux.add(rs3.getString(1)); // 0 grupo
+				aux.add(rs3.getString(2));  // 1 codigo
+				aux.add(rs3.getString(3));  // 2 equipo
+				aux.add(rs3.getString(4));  // 3 moneda
+				aux.add(myformatMoneda.format(rs3.getDouble(5))); // 4 precioventa
+				Double tasa=(double)0;
+
+				Double tasaDcto = 1-((1-rs3.getDouble(9))*(1-rs3.getDouble(10))*(1-rs3.getDouble(11)));
+
+				if(rs3.getDouble(7)>0&&rs3.getDouble(5)>0) tasa=((rs3.getDouble(7)*30/factor*(1-tasaDcto))/rs3.getDouble(5))*100;
+				if(esVenta.equals("1")) {
+					aux.add("0 %"); // 5 tasaArriendo
+					aux.add("0"); // 6 arriendo mes
+					aux.add("0");  // 7 arriendo dia
+				}else {
+					aux.add(myformatdouble2.format(tasa)+" %"); // 5 tasaArriendo
+					aux.add(myformatMoneda.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // 6 arriendo mes
+					DecimalFormat allDec = new DecimalFormat("#0.00000000000000",symbols);
+
+					if(db.equals("madaAlzatec")){
+						aux.add(myformatMoneda.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //7 arriendo dia solo ALZATEC
+					}else{
+						if(dec.get(rs3.getLong(15)) < 2){
+							aux.add(myformatdouble2.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  // 7 arriendo dia
+						}else{
+							aux.add(myformatMoneda.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  // 7 arriendo dia
+						}
+
+					}
+
+				}
+				aux.add(rs3.getString(12)); //  8 id cotizacion
+				aux.add(rs3.getString(13)); //  9 numero coti
+				aux.add(rs3.getString(14)); //  10 idEquipo
+				aux.add(rs3.getString(15)); //  11 idMoneda
+				aux.add(rs3.getString(16)); //  12 kg
+				aux.add(rs3.getString(17)); //  13 m2
+
+
+
+
+				listaCodigos.add(aux);
+			}
+			rs3.close();
+			smt3.close();
+
+			lista.add(numGuia);
+			lista.add(fechGuia);
+			lista.add(fechIniTerGuia);
+			lista.add(guiaClie);
+			lista.add(tipGuia);
+			lista.add(blanco);
+
+			String auxiliarDeReparacion="";
+
+
+
+			Fechas hastaAjustar = new Fechas();
+			Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+			hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+			String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -6).getFechaStrAAMMDD();
+			String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, deAjustado, aAjustado);
+
+			Map<Long, List<Inventarios>> mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
+
+
+			Map<String,Double> mapDespachado = OtDespachado.mapIdCotiIdEquipVsSumaDespachado(con, db, idsGuia, esVenta);
+			List<String> idsCoti = new ArrayList<String>();
+			for(Map.Entry<String, Double> entry: mapDespachado.entrySet()) {
+				String[] clave = entry.getKey().split("_");
+				idsCoti.add(clave[0]);
+			}
+			Set<String> conjunto = new HashSet<>(idsCoti);  // Eliminar duplicados
+			idsCoti = new ArrayList<>(conjunto);
+			Map<String,Double> mapComprometido = Cotizacion.mapIdCotiIdEquipVsSumaComprometido(con, db, idsCoti, esVenta);
+
+
+
+
+			for(int i=0;i<listaCodigos.size();i++){
+				if(!auxiliarDeReparacion.equals(listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2))) {
+					auxiliarDeReparacion=listaCodigos.get(i).get(0)+listaCodigos.get(i).get(9)+listaCodigos.get(i).get(1)+listaCodigos.get(i).get(2);
+
+					List<String> aux = new ArrayList<String>();
+					aux.add(listaCodigos.get(i).get(0)); //grupo
+					aux.add(listaCodigos.get(i).get(9)); //numero cotizacion
+					aux.add(listaCodigos.get(i).get(1)); //codigo
+					aux.add(listaCodigos.get(i).get(2)); //equipo
+
+					// kg por unidad
+					Double kg = Double.parseDouble(listaCodigos.get(i).get(12).trim());
+					if(kg > 0) {
+						aux.add(myformatdouble2.format(kg));
+					}else {
+						aux.add("");
+					}
+					// m2 por unidad
+					Double m2 = Double.parseDouble(listaCodigos.get(i).get(13).trim());
+					if(m2 > 0) {
+						aux.add(myformatdouble2.format(m2));
+					}else {
+						aux.add("");
+					}
+					aux.add(listaCodigos.get(i).get(3)); //moneda
+					aux.add(listaCodigos.get(i).get(4)); //precioVenta
+					aux.add(listaCodigos.get(i).get(5)); //tasaArriendo
+					aux.add(listaCodigos.get(i).get(6)); //precioArriendo mes
+					aux.add(listaCodigos.get(i).get(7)); //precioArriendo dia
+
+					Double cantStockIni = (double) 0;
+					Double cantStockFin=(double)0;
+					Double arriendo = (double) 0;
+					Long totalDias = (long)0;
+					Long dias = (long)0;
+
+					dias = Math.round( (double) (hasta.fechaCal.getTimeInMillis() - desde.fechaCal.getTimeInMillis())  /  (24 * 60 * 60 * 1000)  ) + 1;
+
+					if((long)bodegaEmpresa.baseCalculo==(long)2) {
+						String[] mes = fechaDesde.split("-");
+
+						if(!mes[1].equals("02")&&dias==31) dias=(long)30;
+						if(mes[1].equals("02")&&(dias==28||dias==29))  dias=(long)30;
+
+						if(dias>31) {
+							Long diasDePaso=(long)0;
+							Double factorMeses=(double) dias/30;
+							Long iPart = factorMeses.longValue();
+							Double fPart = factorMeses - iPart;
+
+							dias=(long)0;
+							Long auxMes= Long.parseLong(mes[1].trim());
+							for(int j=0;j<iPart;j++) {
+								if(auxMes==2)  diasDePaso=(long)28;
+								if(auxMes==1||auxMes==3||auxMes==5||auxMes==7||auxMes==8||auxMes==10||auxMes==12)  diasDePaso=(long)30;
+								if(auxMes==4||auxMes==6||auxMes==9||auxMes==11)  diasDePaso=(long)30;
+								dias=dias+diasDePaso;
+							}
+							fPart=fPart*30;
+							dias=dias+fPart.longValue();
+						}
+					}
+
+
+					for(int k=0;k<listaGuias.size();k++){
+
+						Fechas fechaGuiaReal = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(2));
+
+						if(fechaGuia.fechaCal.before(desde.fechaCal)){
+							String keyAux=listaCodigos.get(i).get(1).trim()+listaGuias.get(k).get(0).trim()+"-"+listaCodigos.get(i).get(8);
+							String cantidad = codGuiaCant.get(keyAux);
+							if(cantidad==null){
+							}else{
+								cantStockIni = cantStockIni + Double.parseDouble(cantidad.trim());
+							}
+						}
+						if(fechaGuiaReal.fechaCal.before(hastaMas1)){
+							String cantidad = codGuiaCant.get(listaCodigos.get(i).get(1).trim()+listaGuias.get(k).get(0).trim()+"-"+listaCodigos.get(i).get(8));
+							if(cantidad!=null){
+								cantStockFin = cantStockFin + Double.parseDouble(cantidad.trim());
+							}
+						}
+					}
+
+
+					aux.add(myformatdouble2.format(cantStockIni));
+					String auxNum = listaCodigos.get(i).get(4).trim();
+					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+					Double precioVenta=(double)0;try {precioVenta  = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {};
+
+					auxNum = listaCodigos.get(i).get(7).trim();
+					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+
+
+					Double precioDia=(double)0;try {precioDia  = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {};
+					if(esVenta.equals("0")) {
+
+						// AJUSTES POR SALDOS DIAS DE GRACIA
+						Long nDiaGraciaEnvio = bodegaEmpresa.getnDiaGraciaEnvio();
+						Double ajustePorGracia = (double)0;
+						if(nDiaGraciaEnvio > 0) {
+
+							List<Inventarios> guiasPer = mapGuiasPer.get(bodegaEmpresa.getId());
+							for(int k=0; guiasPer!=null && k<guiasPer.size(); k++) {
+								String idEquipo = listaCodigos.get(i).get(10);
+								String idCotizacion = listaCodigos.get(i).get(8);
+								if(	(long) guiasPer.get(k).id_equipo == Long.parseLong(idEquipo)
+										&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) bodegaEmpresa.getId()
+										&& (long) guiasPer.get(k).id_cotizacion == Long.parseLong(idCotizacion) )
+								{
+									Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+									Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
+									if(guiasPer.get(k).id_tipoMovimiento == 1) {
+										diasGuia = diasGuia - nDiaGraciaEnvio + 1;
+										if(diasGuia < 0 ) {
+											ajustePorGracia += guiasPer.get(k).cantidad * diasGuia * precioDia ;
+										}
+									}
+								}
+							}
+						}
+						// FIN AJUSTES
+
+						arriendo = cantStockIni * dias * precioDia + ajustePorGracia;
+
+					}else {
+						arriendo=(double)0;
+					}
+					totalDias=totalDias+dias;
+					Double cantDeDespachos=(double)0;
+					int flag=0;
+
+
+					for(int k=0;k<listaGuias.size();k++){
+
+						Fechas fechaGuiaReal = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
+						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(2));
+
+						if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuiaReal.fechaCal.after(hasta.fechaCal))) {
+							String keyAux=listaCodigos.get(i).get(1).trim()+listaGuias.get(k).get(0).trim()+"-"+listaCodigos.get(i).get(8);
+							String cantidad = codGuiaCant.get(keyAux);
+							if(cantidad==null){
+								aux.add(" ");
+							}else{
+								if (Double.parseDouble(cantidad.trim())!=0) {
+									flag =1;
+								}
+								aux.add(cantidad);
+
+								Long diasPeriodo = (long)0;
+
+								if(Double.parseDouble(cantidad.trim())>0) {
+									cantDeDespachos=cantDeDespachos+Double.parseDouble(cantidad.trim());
+									diasPeriodo = Math.round ( (double) (hasta.fechaCal.getTimeInMillis() - fechaGuia.fechaCal.getTimeInMillis() ) / (24 * 60 * 60 * 1000) );
+									diasPeriodo = diasPeriodo + bodegaEmpresa.cobraDiaDespacho - bodegaEmpresa.nDiaGraciaEnvio;
+									if(diasPeriodo < 0) {
+										diasPeriodo = (long)0;
+									}
+								}else {
+
+									diasPeriodo = Math.round ( (double) ( hasta.fechaCal.getTimeInMillis() - fechaGuia.fechaCal.getTimeInMillis() )/(24 * 60 * 60 * 1000));
+									diasPeriodo=diasPeriodo + bodegaEmpresa.nDiaGraciaRegreso;
+									if((double)bodegaEmpresa.tratoDevoluciones==(double)2) diasPeriodo=diasPeriodo-1;
+									if(diasPeriodo < 0) {
+										diasPeriodo = (long)0;
+									}
+								}
+								if((long)bodegaEmpresa.baseCalculo==(long)2) {
+									String[] mes = fechaDesde.split("-");
+									if(!mes[1].equals("02")&&diasPeriodo==31) diasPeriodo=(long)30;
+									if(mes[1].equals("02")&&(diasPeriodo==28||diasPeriodo==29))  diasPeriodo=(long)30;
+
+									if(diasPeriodo>31) {
+										Long diasDePaso=(long)0;
+										Double factorMeses=(double) diasPeriodo/30;
+										Long iPart = factorMeses.longValue();
+										Double fPart = factorMeses - iPart;
+
+										diasPeriodo=(long)0;
+										Long auxMes= Long.parseLong(mes[1].trim());
+										for(int j=0;j<iPart;j++) {
+											if(auxMes==2)  diasDePaso=(long)28;
+											if(auxMes==1||auxMes==3||auxMes==5||auxMes==7||auxMes==8||auxMes==10||auxMes==12)  diasDePaso=(long)30;
+											if(auxMes==4||auxMes==6||auxMes==9||auxMes==11)  diasDePaso=(long)30;
+											diasPeriodo=diasPeriodo+diasDePaso;
+										}
+										fPart=fPart*30;
+										diasPeriodo=diasPeriodo+fPart.longValue();
+									}
+
+								}
+
+								if(esVenta.equals("0")) {
+									arriendo=arriendo+Double.parseDouble(cantidad.trim())*diasPeriodo*precioDia;
+								}else {
+									arriendo=arriendo+Double.parseDouble(cantidad.trim())*precioVenta;
+								}
+
+							}
+
+						}
+					}
+
+
+					aux.add(myformatdouble2.format(cantStockFin));
+					Double pventa = (double)0;
+
+					idMoneda = listaCodigos.get(i).get(11);
+
+					switch(dec.get(Long.parseLong(idMoneda)).toString()) {
+						case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
+						default:  break;
+					}
+
+					auxNum = listaCodigos.get(i).get(4).trim();
+					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+					try {pventa=myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+					Double cfi = bodegaEmpresa.tasaCfi;
+					Double totalCfi = cantDeDespachos * pventa * cfi/100;
+					if(esVenta.equals("1")||totalCfi<0) totalCfi=(double)0;
+					aux.add(myformatMoneda.format(totalCfi));
+					aux.add(myformatMoneda.format(arriendo+totalCfi));
+					granTotalArriendo=granTotalArriendo+arriendo+totalCfi;
+
+
+					Double auxTasaCambio = (double) 1;
+
+
+
+					if(idMoneda.equals("2")) {
+						auxTasaCambio = usd;
+					}else if(idMoneda.equals("3")){
+						auxTasaCambio = eur;
+					}else if(idMoneda.equals("4")){
+						auxTasaCambio = uf;
+					}
+
+
+					switch(dec.get((long)1).toString()) {
+						case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
+						default:  break;
+					}
+					aux.add(myformatMoneda.format((arriendo+totalCfi)*auxTasaCambio));
+
+
+
+
+					Double auxExcedente = excedentes.get(aux.get(2)+"_"+aux.get(1));
+					if(auxExcedente==null) {
+						auxExcedente = (double)0;
+						aux.add("");
+					}else {
+						aux.add(myformatdouble.format(auxExcedente));
+					}
+
+					String idCoti = listaCodigos.get(i).get(8);
+					String idEquipo = listaCodigos.get(i).get(10);
+					Double comprometido = mapComprometido.get(idCoti+"_"+idEquipo);
+					if(comprometido == null) {
+						comprometido = (double)0;
+					}
+					aux.add(DecimalFormato.formato(comprometido, (long)2));
+
+					Double despachado = mapDespachado.get(idCoti+"_"+idEquipo);
+					if(despachado == null) {
+						despachado = (double)0;
+					}
+					aux.add(DecimalFormato.formato(despachado, (long)2));
+					Double saldo = comprometido - despachado;
+					if(saldo < 0) {
+						saldo = (double) 0;
+					}
+					aux.add(DecimalFormato.formato(saldo, (long)2));
+
+
+
+
+					if(auxExcedente!=0 || cantStockFin!=0 || cantStockIni!=0 || flag==1) {
+						totArr += (arriendo+totalCfi)*auxTasaCambio;
+						lista.add(aux);
+					}
+
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+
+		//AJUSTES EP
+		List<String> aux3 = new ArrayList<String>();
+
+		switch(dec.get((long)1).toString()) {
+			case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+			case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+			case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+			case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
+			default:  break;
+		}
+
+		if(esVenta.equals("0")) {
+			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, db, id_bodegaEmpresa, fechaDesde, fechaHasta);
+
+			for(List<String> ajuste: detalleAjuste) {
+
+				Double auxTot = (double)0;
+				try {
+					String auxNum = ajuste.get(1).trim();
+					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+					auxTot = myformatdouble.parse(auxNum).doubleValue();
+				} catch (ParseException e) {}
+				if(auxTot<0||auxTot>0) {
+					List<String> aux2 = new ArrayList<String>();
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add(ajuste.get(0));
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					for(int cell=11; cell<lista.get(0).size(); cell++) {
+						if(cell==lista.get(0).size()-5) {
+							totArr+=auxTot;
+							aux2.add(myformatMoneda.format(auxTot));
+						}else {
+							aux2.add("");
+						}
+					}
+					lista.add(aux2);
+				}
+			}
+
+		}else {
+			List<List<String>> detalleAjuste = AjustesEP.detalleAjuste(con, db, id_bodegaEmpresa, fechaDesde, fechaHasta);
+			for(List<String> ajuste: detalleAjuste) {
+				Double auxTot = (double)0;
+				try {
+					String auxNum = ajuste.get(2).trim();
+					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+					auxTot = myformatdouble.parse(auxNum).doubleValue();
+				} catch (ParseException e) {}
+				if(auxTot<0||auxTot>0) {
+					List<String> aux2 = new ArrayList<String>();
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add(ajuste.get(0));
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					aux2.add("");
+					for(int cell=11;cell<lista.get(0).size();cell++) {
+						if(cell==lista.get(0).size()-2) {
+							totArr+=auxTot;
+							aux2.add(myformatMoneda.format(auxTot));
+						}else {
+							aux2.add("");
+						}
+					}
+					lista.add(aux2);
+				}
+			}
+
+			//TOTALES
+
+			aux3.add("TOTALES");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			aux3.add("");
+			for(int cell=11;cell<lista.get(0).size();cell++) {
+				if(cell==lista.get(0).size()-3) {
+					aux3.add("");
+					//	aux3.add(myformatMoneda.format(totCfi));
+				}else if(cell==lista.get(0).size()-2){
+					aux3.add(myformatMoneda.format(totArr));
+				}else {
+					aux3.add("");
+				}
+			}
+
+		}
+
+		//SUMA TOTALES POR COLUMNA
+
+
+		List<String> aux = new ArrayList<String>();
+		aux.add("SUBTOTAL CANTIDADES");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		aux.add("");
+		for(int cell=11; cell < lista.get(0).size(); cell++) {
+			Double totPorColl = (double)0;
+
+			for(int coll=6; coll < lista.size(); coll++) {
+				Double auxTot = (double)0;
+				String auxNum = lista.get(coll).get(cell).trim();
+				if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+				try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+				totPorColl=totPorColl+auxTot;
+			}
+			if(cell >= lista.get(0).size() - 7 && cell < lista.get(0).size() -4){
+				aux.add("");
+			}else{
+				aux.add(myformatdouble2.format(totPorColl));
+			}
+		}
+
+
+		lista.add(aux);
+
+		List<String> auxKg = new ArrayList<String>();
+		auxKg.add("SUBTOTAL PESOS (KG)");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+		auxKg.add("");
+
+		for(int cell=11;cell<lista.get(0).size();cell++) {
+			Double totPorColl = (double)0;
+			for(int coll=6; coll<lista.size(); coll++) {
+				Double auxTotCant = (double)0;
+				String auxNum = lista.get(coll).get(cell).trim();
+				if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+				try {auxTotCant = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+
+				Double auxTotKg = (double)0;
+				auxNum = lista.get(coll).get(4).trim();
+				if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+				try {auxTotKg = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+
+				totPorColl=totPorColl+(auxTotCant*auxTotKg);
+			}
+			if(cell >= lista.get(0).size() - 7 && cell < lista.get(0).size() -4){
+				auxKg.add("");
+			}else{
+				auxKg.add(myformatdouble2.format(totPorColl));
+			}
+
+		}
+
+
+		lista.add(auxKg);
+
+		List<String> auxValorizado = new ArrayList<String>();
+		auxValorizado.add("SUBTOTAL VALORIZADO");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+		auxValorizado.add("");
+
+		switch(dec.get(Long.parseLong(idMoneda)).toString()) {
+			case "0": myformatMoneda = new DecimalFormat("#,##0",symbols); break;
+			case "2": myformatMoneda = new DecimalFormat("#,##0.00",symbols); break;
+			case "4": myformatMoneda = new DecimalFormat("#,##0.0000",symbols); break;
+			case "6": myformatMoneda = new DecimalFormat("#,##0.000000",symbols); break;
+			default:  break;
+		}
+
+		for(int cell=11;cell<lista.get(0).size();cell++) {
+			Double totPorColl = (double)0;
+
+			for(int coll=6; coll < lista.size(); coll++) {
+				if(cell >= lista.get(0).size() - 7){
+					Double auxTot = (double)0;
+					String auxNum = lista.get(coll).get(cell).trim();
+					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
+					try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+					totPorColl = totPorColl + auxTot;
+
+				}else{
+					Double auxTot = (double)0;
+					String auxNum = lista.get(coll).get(cell).trim();
+					if(auxNum==null) auxNum = "0";
+					try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+					Double auxVta = (double)0;
+					String valorVta = lista.get(coll).get(7).trim();
+					if(valorVta==null || valorVta.trim().length()<=0) valorVta = "0";
+					try {auxTot = auxTot * myformatdouble.parse(valorVta).doubleValue();}catch(Exception e) {}
+					totPorColl = totPorColl + auxTot;
+				}
+
+
+
+			}
+			if( cell < lista.get(0).size() -5){
+				auxValorizado.add(myformatMoneda.format(totPorColl));
+			}else if( cell < lista.get(0).size() -4){
+				Long nroDec = dec.get((long)1);
+				auxValorizado.add(DecimalFormato.formato(totPorColl, nroDec));
+			}else{
+				auxValorizado.add("");
+			}
+		}
+		lista.add(auxValorizado);
+
+		return (lista);
+	}
 	
 	public static File movimientosExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, BodegaEmpresa bodega, String concepto, String fechaDesde, String fechaHasta) {
 
@@ -2944,7 +3919,7 @@ public class ReportMovimientos {
 				Double aux = (double)0;
 				for(int j=0;j<datos.get(i).size();j++){
 					String dato = datos.get(i).get(j);
-					if(i<5){
+					if(i<6){
 						posCell++; 
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
@@ -4017,7 +4992,8 @@ public class ReportMovimientos {
 							+ " tipoMovimiento.nombre, "
 							+ " guia.fecha, "
 							+ " ifnull(guia.numGuiaCliente,''), "
-							+ " bodegaEmpresa.nombre "
+							+ " bodegaEmpresa.nombre, "
+							+ " ifnull(guia.fechaIniTerGuia,guia.fecha) "
 							+ " from `"+db+"`.movimiento "
 							+ " left join `"+db+"`.guia on guia.id = movimiento.id_guia "
 							+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa "
@@ -4036,6 +5012,7 @@ public class ReportMovimientos {
 			List<String> bodega = new ArrayList<String>();
 			List<String> numGuia = new ArrayList<String>();
 			List<String> fechGuia = new ArrayList<String>();
+			List<String> fechIniTerGuia = new ArrayList<String>();
 			List<String> guiaClie = new ArrayList<String>();
 			List<String> tipGuia = new ArrayList<String>();
 			List<String> blanco = new ArrayList<String>();
@@ -4043,6 +5020,7 @@ public class ReportMovimientos {
 			bodega.add(" ");
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Grupo");
@@ -4050,6 +5028,7 @@ public class ReportMovimientos {
 			bodega.add(" ");
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Código");
@@ -4057,6 +5036,7 @@ public class ReportMovimientos {
 			bodega.add(" ");
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("Equipo");
@@ -4064,6 +5044,7 @@ public class ReportMovimientos {
 			bodega.add(" ");
 			numGuia.add(" ");
 			fechGuia.add(" ");
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("");
@@ -4071,6 +5052,7 @@ public class ReportMovimientos {
 			bodega.add(mapDiccionario.get("BODEGA"));
 			numGuia.add("Nro.Mov:");
 			fechGuia.add("Fecha:");
+			fechIniTerGuia.add("Ini/Ter:");
 			guiaClie.add("Nro.Ref");
 			tipGuia.add("Tipo.Mov: ");
 			blanco.add("");
@@ -4085,6 +5067,7 @@ public class ReportMovimientos {
 			numGuia.add("STOCK INICIAL");
 				String aux2[] = fechaDesde.split("-");
 			fechGuia.add(""+aux2[2]+"/"+aux2[1]+"/"+aux2[0]);
+			fechIniTerGuia.add(" ");
 			guiaClie.add("");
 			tipGuia.add(" ");
 			blanco.add(" ");
@@ -4095,6 +5078,8 @@ public class ReportMovimientos {
 					bodega.add(rs1.getString(6));
 					numGuia.add(rs1.getString(1));
 					fechGuia.add(rs1.getString(2));
+					String[] aux = rs1.getString(7).split("-");
+					fechIniTerGuia.add(aux[2]+"/"+aux[1]+"/"+aux[0]);
 					guiaClie.add(rs1.getString(5));
 					tipGuia.add(rs1.getString(3));
 					blanco.add(" ");
@@ -4107,6 +5092,7 @@ public class ReportMovimientos {
 			numGuia.add("STOCK FINAL");
 				String aux3[] = fechaHasta.split("-");
 			fechGuia.add(""+aux3[2]+"/"+aux3[1]+"/"+aux3[0]);
+			fechIniTerGuia.add(" ");
 			guiaClie.add(" ");
 			tipGuia.add(" ");
 			blanco.add("");
@@ -4201,11 +5187,10 @@ public class ReportMovimientos {
 			lista.add(bodega);
 			lista.add(numGuia);
 			lista.add(fechGuia);
+			lista.add(fechIniTerGuia);
 			lista.add(guiaClie);
 			lista.add(tipGuia);
 			lista.add(blanco);
-				
-				
 			
 			for(int i=0;i<listaCodigos.size();i++){
 					List<String> aux = new ArrayList<String>();
@@ -4237,8 +5222,7 @@ public class ReportMovimientos {
 					}
 					
 					aux.add(myformatdouble2.format(cantStockIni));
-					
-						
+
 					for(int k=0;k<listaGuias.size();k++){
 						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(k).get(1));
 						if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {

@@ -57,7 +57,7 @@ public class ReportBodegas {
 					+ " from `"+db+"`.movimiento"
 					+ " left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa"
 					+ " where esVenta=0 and esInterna=2" + condSucursal
-					+ " group by id_bodegaEmpresa;");
+					+ " group by id_bodegaEmpresa;"); 
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();

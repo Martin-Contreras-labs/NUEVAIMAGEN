@@ -92,33 +92,21 @@ sinVenta: String)
 								  				maxlength="50">
 									</div>
 								</td>
-								<td width="230px">
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-								  		</div>
-								  		<input type="date" class="form-control center"
-								  			name="fechaGuia" 
-								  			id="fechaGuia"
-								  			onblur="if(!limitaFecha(value,720,10)) value='@utilities.Fechas.AAMMDD(guia.getFecha())'; else $('#seModifico').val(1);"
-								  			value="@utilities.Fechas.AAMMDD(guia.getFecha())"
-						        			required>
-									</div>
-								</td>
-								<td style="text-align:center;" width="70px">
-									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
-										@if(guia.getDocAnexo().equals("0")){
-											<input type="hidden" name="docAnexo" value="0">
-											<div id="txtBtn">Subir Documento</div>
-											<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
-										}else{
-											<input type="hidden" name="docAnexo" value="@guia.getDocAnexo()">
-											<div id="txtBtn">Cambiar Documento</div>
-											<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Cabiar documentos" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
+								<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 10px; display: inline-block">
+									@if(guia.getDocAnexo().equals("0")){
+										<input type="hidden" name="docAnexo" value="0">
+										<div id="txtBtn">Subir Documento</div>
+										<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos"
+										onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
+									}else{
+										<input type="hidden" name="docAnexo" value="@guia.getDocAnexo()">
+										<div id="txtBtn">Cambiar Documento</div>
+										<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Cabiar documentos" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
 										}
 									</span>
 								</td>
-								<td style="text-align:letf;">
+								<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
 									@if(guia.getDocAnexo().equals("0")){
 										--
 									}else{
@@ -127,7 +115,6 @@ sinVenta: String)
 										</a>
 									}
 								</td>
-								
 							</tr>
 
 							<tr>
@@ -153,25 +140,32 @@ sinVenta: String)
 												readonly>
 									</div>
 								</td>
-								
-								<td colspan="3" rowspan="3">
+								<td width="230px">
 									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
-								  		</div>
-	  									<textarea class="form-control" rows="3" onchange="$('#seModifico').val(1);"
-	  										name="observaciones" 
-	  										autocomplete="off">@guia.getObservaciones()</textarea>
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaGuia"
+										id="fechaGuia"
+										onblur="if(!limitaFecha(value,360,10)) value='@utilities.Fechas.AAMMDD(guia.getFecha())'; else $('#seModifico').val(1);"
+										value="@utilities.Fechas.AAMMDD(guia.getFecha())"
+										required>
 									</div>
 								</td>
-								<td colspan="2" rowspan="3" style="text-align:center;" width="70px" id="sube1">
-									@if(guia.getFotos().equals("0")){
-										<div id="cargadasFotos">--</div>
-									}else{
-										<a href="/muestraAlbumFotos/@guia.getFotos()">
-											<kbd style="background-color: #7F8C8D">Ver Album</kbd>
-										</a>
-									}
+
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaIniTerGuia"
+										id="fechaIniTerGuia"
+										onblur="if(!limitaFecha(value,360,60)) value='@utilities.Fechas.AAMMDD(guia.getFechaIniTerGuia())'; else $('#seModifico').val(1);"
+										value="@utilities.Fechas.AAMMDD(guia.getFechaIniTerGuia())"
+										required>
+									</div>
 								</td>
 							</tr>
 							<tr>
@@ -195,6 +189,25 @@ sinVenta: String)
 												value = ""
 												readonly>
 									</div>
+								</td>
+								<td colspan="2" rowspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Observaciones</span>
+										</div>
+										<textarea class="form-control" rows="2" onchange="$('#seModifico').val(1);"
+										name="observaciones"
+										autocomplete="off">@guia.getObservaciones()</textarea>
+									</div>
+								</td>
+								<td colspan="2" rowspan="3" style="text-align:center;" width="70px" id="sube1">
+									@if(guia.getFotos().equals("0")){
+										<div id="cargadasFotos">--</div>
+									}else{
+										<a href="/muestraAlbumFotos/@guia.getFotos()">
+											<kbd style="background-color: #7F8C8D">Ver Album</kbd>
+										</a>
+									}
 								</td>
 							</tr>
 							

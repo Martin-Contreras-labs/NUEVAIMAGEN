@@ -284,7 +284,7 @@ public class ModCalc_InvInicial {
 		List<Long> lista = new ArrayList<Long>();
 		try {
 			fechaAAMMDD  = Fechas.AAMMDD(fechaAAMMDD);
-			String query = String.format(" select id from `%s`.guia where fecha <  '" + fechaAAMMDD + "';",db);
+			String query = String.format(" select id from `%s`.guia where fecha <  '" + fechaAAMMDD + "' and ifnull(fechaIniTerGuia,fecha) < '" + fechaAAMMDD + "';",db);
 			try (PreparedStatement smt = con.prepareStatement(query)) {
 				try (ResultSet rs = smt.executeQuery()) {
 					while (rs.next()) {

@@ -46,7 +46,7 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
 				        @for((nivel1,index1) <- lista.zipWithIndex) {
-							@if(index1 < 5){
+							@if(index1 < 6){
 								<TR>
 									@for((nivel2,index2) <- nivel1.zipWithIndex) {
 										@if(index2 == 0){
@@ -71,7 +71,7 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 						</thead>
 						<tbody>
 						@for((nivel1,index1) <- lista.zipWithIndex) {
-							@if(index1 > 4){
+							@if(index1 > 5){
 								<TR>
 								@for((nivel2,index2) <- nivel1.zipWithIndex) {
 									@if(index2 == 0){

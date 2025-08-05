@@ -306,7 +306,6 @@ public class Factura {
 							" group by factura.id " +
 							" order by factura.fecha desc;");
 			ResultSet rs = smt.executeQuery();
-
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			while (rs.next()) {	
 				String nameSucursal = "";

@@ -570,12 +570,7 @@ public class ReportGerenciales {
 		List<List<String>> listIniFinMes2Anios = ReportGerenciales.graficoMeses2Anios();
 		Long inicioMes = Long.parseLong(listIniFinMes2Anios.get(0).get(2));
 		
-		
-		/*aux.add(desdeSql);
-			aux.add(hastaSql);
-			aux.add(strAnioMes); // 2 anioMes
-			aux.add(strAnioMes.substring(4,6)+"-"+strAnioMes.substring(0,4)); // 3 mes-Anio
-			aux.add(strAnioMes.substring(0,4)); // 4 Anio*/
+
 		
 		//AQUI DEBO ELIMINAR DEL LA TABLA HISTORICA reportGerencial POR ANIO COMPLETO SI DESEO ACTUALIZAR TODO o aumentar los 4 meses de acualizacion. 
 		//AQUI resto 4 meses para grabar en historico.
@@ -624,8 +619,8 @@ public class ReportGerenciales {
 					tasas.put((long)3, (double)1);
 					tasas.put((long)4, (double)1);
 				}
-				
-				
+
+
 				List<String> datos = ReportGerenciales.resumenTotalMesAnioSinAjustes(con, db, desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, mapBodegaEmpresa, 
 						mapPrecios, mapMaestroPrecios, mapPreciosCompra, mapBodegas, id_grupo,mapDec,mapPreciosOdo, mapIdEquipoVsIdGrupo, esPorSucursal, id_sucursal);
 				
@@ -945,7 +940,7 @@ public class ReportGerenciales {
 
 	public static Long primerAnioMes(Connection con, String db, Long id_grupo) {
 		Long aux = (long)0;
-		String query = String.format("select min(anio_mes) from %s where id_grupo = ?;", db);
+		String query = String.format("select min(anioMes) from %s.reportGerencial where id_grupo = ?;", db);
 		try (PreparedStatement smt = con.prepareStatement(query)){
 			smt.setLong(1, id_grupo);
 			try(ResultSet rs = smt.executeQuery()) {
@@ -1041,8 +1036,8 @@ public class ReportGerenciales {
 		
 		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
-		
-		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
+		Map<Long,Long> mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, db);
+		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes,mapBodConStockSoloArr);
 		
 		if(id_grupo > 0) {
 			List<ModCalc_InvInicial> aux = new ArrayList<ModCalc_InvInicial>();
@@ -1156,8 +1151,8 @@ public class ReportGerenciales {
 			List<Long> listIdBodegaEmpresa, Map<Long,Calc_BodegaEmpresa> mapBodegaEmpresa, Map<String,Calc_Precio> mapPrecios, Map<Long,Calc_Precio> mapMaestroPrecios, Map<Long,Calc_Precio> mapPreciosCompra, 
 			Map<Long,BodegaEmpresa> mapBodegas, Long id_grupo, Map<Long,Long> mapDec, Map<String,ListaPrecioServicio> mapPreciosOdo, Map<Long,Long> mapIdEquipoVsIdGrupo,
 			String esPorSucursal, String id_sucursal){
-		
-		
+
+
 		List<Long> listIdGuia_fechaCorte = ModCalc_InvInicial.listIdGuia_fechaCorte(con, db, desdeAAMMDD);
 		List<Inventarios> inventarioAux = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, desdeAAMMDD, hastaAAMMDD);
@@ -1167,14 +1162,12 @@ public class ReportGerenciales {
 		ReportFacturas reporte = ModCalc_InvInicial.resumenInvInicial(db,desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, listIdBodegaEmpresa, 
 				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, listIdGuia_fechaCorte, inventarioAux);
 		List<ModCalc_InvInicial> inventarioInicial = reporte.resumenInvInicial;
-		
 		Map<String,String> mapPermanencias = ModCalc_GuiasPer.mapDiasFechaMinGuiaPorEquipo(con, db);
 		
 		List<ModCalc_GuiasPer> guiasPeriodo = ModCalc_GuiasPer.resumenGuiasPer(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, 
 				mapBodegaEmpresa, mapPrecios, mapMaestroPrecios, guiasPerAux, mapPermanencias);
 		
-		List<ModeloCalculo> listCalculada = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes);
-		
+
 		if(id_grupo > 0) {
 			List<ModCalc_InvInicial> aux = new ArrayList<ModCalc_InvInicial>();
 			for(ModCalc_InvInicial x: inventarioInicial) {
@@ -1184,7 +1177,7 @@ public class ReportGerenciales {
 			}
 			inventarioInicial = aux;
 		}
-		
+
 		if(id_grupo > 0) {
 			List<ModCalc_GuiasPer> aux = new ArrayList<ModCalc_GuiasPer>();
 			for(ModCalc_GuiasPer x: guiasPeriodo) {
@@ -1194,9 +1187,9 @@ public class ReportGerenciales {
 			}
 			guiasPeriodo = aux;
 		}
-		
+		Map<Long,Long> mapBodConStockSoloArr = Inventarios.mapBodegasVigConStockSoloArr(con, db);
+		List<ModeloCalculo>  listCalculada = ModeloCalculo.valorTotalporBodega(desdeAAMMDD, hastaAAMMDD, mapFijaTasas, tasas, inventarioInicial,guiasPeriodo, listaAjustes,mapBodConStockSoloArr);
 
-		
 		List<Inventarios> inventario = Inventarios.inventario(con, db, listIdBodegaEmpresa, listIdGuia_fechaCorte);
 		if(id_grupo > 0) {
 			List<Inventarios> aux = new ArrayList<Inventarios>();
@@ -1207,11 +1200,11 @@ public class ReportGerenciales {
 			}
 			inventario = aux;
 		}
-		
+
 		//CALCULO ODO:
 		List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
 		Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, db, desdeAAMMDD, hastaAAMMDD, esPorSucursal, id_sucursal);
-		
+
 		List<List<String>> resumenTotalesPorProyecto = ReportOdo.resumenTotalesPorProyecto(db, listVentaServicio, mapFijaTasas, tasas, mapDec, mapTotalAjustePorBodega, mapBodegas, mapPreciosOdo, id_grupo, mapIdEquipoVsIdGrupo);
 		Double vtaOdo = (double)0;
 		for(List<String> lista: resumenTotalesPorProyecto) {
@@ -1222,39 +1215,39 @@ public class ReportGerenciales {
 			vtaOdo += Double.parseDouble(tot);
 		}
 		//FIN ODO
-			
-		
+
+
 		List<String> lista = new ArrayList<String>();
-		
+
 		Double totalA = (double)0;
 		Double totalV = (double)0;
 		Double totalCfi = (double)0;
 		Double totalAVCfi = (double)0;
-		
+
 		Double totalAPL = (double)0;
 		Double totalVPL = (double)0;
 		Double totalAVCfiPL = (double)0;
-		
+
 		Double totalColocAPVenta = (double)0;
 		Double totalColocAPCompra = (double)0;
-		
+
 		String[] fechAux = hastaAAMMDD.split("-");
 		String mesAnio = "'" + fechAux[1] + "-" + fechAux[0] + "'";
-		
+
 		for(Inventarios x: inventario) {
 			BodegaEmpresa bodega = mapBodegas.get(x.id_bodegaEmpresa);
 			if(bodega != null && (long) bodega.esInterna == (long)2) {
 				Calc_Precio pcompra = mapPreciosCompra.get(x.id_equipo);
 				Calc_Precio pventa = mapPrecios.get(x.id_bodegaEmpresa+"_"+x.id_equipo+"_"+x.id_cotizacion);
 				if(pcompra != null) {
-					Double tasaCambio = tasas.get(pcompra.id_moneda); 
+					Double tasaCambio = tasas.get(pcompra.id_moneda);
 					if(tasaCambio==null) {
 						tasaCambio = (double) 1;
 					}
 					totalColocAPCompra += x.cantidad * pcompra.precioCompra * tasaCambio;
 				}
 				if(pventa != null) {
-					Double tasaCambio = tasas.get(pventa.id_moneda); 
+					Double tasaCambio = tasas.get(pventa.id_moneda);
 					if(tasaCambio==null) {
 						tasaCambio = (double) 1;
 					}
@@ -1262,7 +1255,9 @@ public class ReportGerenciales {
 				}
 			}
 		}
-		
+
+
+
 		for(int i=0; i<listCalculada.size(); i++){
 			totalA += listCalculada.get(i).totalArriendo;
 			totalV += listCalculada.get(i).totalVenta;

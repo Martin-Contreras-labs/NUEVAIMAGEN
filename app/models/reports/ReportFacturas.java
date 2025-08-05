@@ -439,17 +439,21 @@ public class ReportFacturas {
 							" ifnull(guia.numGuiaCliente,''), " +
 							" movimiento.id_tipoMovimiento, " +
 							" tipoMovimiento.nombre, " +
-							" guia.observaciones " +
+							" guia.observaciones, " +
+							" ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.movimiento   " +
 							" left join `"+db+"`.guia on guia.id = movimiento.id_guia    " +
 							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
 							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = movimiento.id_tipoMovimiento " +
 							" where movimiento.id_bodegaEmpresa=? "+
-							" and guia.fecha >= ? and guia.fecha <= ? " +
+							" and (guia.fecha between ? and ? or (fecha < ? and ifnull(fechaIniTerGuia,fecha) between  ? and ?)) "+
 							" group by movimiento.id_guia order by guia.fecha;");
 			smt.setLong(1, id_bodegaEmpresa);
 			smt.setString(2, fechaDesde.trim());
 			smt.setString(3, fechaHasta.trim());
+			smt.setString(4, fechaDesde.trim());
+			smt.setString(5, fechaDesde.trim());
+			smt.setString(6, fechaHasta.trim());
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();
@@ -463,10 +467,15 @@ public class ReportFacturas {
 				aux.add(rs.getString(8)); 						// 7 nombre del tipo de guia
 				aux.add(rs.getString(1)+"_"+rs.getString(2)); 	// 8 idBodega_idGuia
 				aux.add(rs.getString(9)); 						// 9 observaciones
+				aux.add(myformatfecha.format(rs.getDate(10))); 	// 10 fecha inicio termino guia
 				lista.add(aux);
 			}
 			rs.close();
 			smt.close();
+
+
+
+
 		} catch (SQLException e) {
     			e.printStackTrace();
 		}
@@ -1165,10 +1174,10 @@ public class ReportFacturas {
 				cell.setCellValue(guiasPer.get(i).get(7)+": "+guiasPer.get(i).get(2));
 				
 				posCell++; 
-	            cell = row.createCell(posCell+3);
+	            cell = row.createCell(posCell+2);
 	            cell.setCellStyle(subtitulo);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("FECHA GUIA: "+guiasPer.get(i).get(3));
+				cell.setCellValue("FECHA GUIA: "+guiasPer.get(i).get(3)+"  --  INI/PER: "+guiasPer.get(i).get(10));
 				
 				posCell++; 
 	            cell = row.createCell(posCell+4);

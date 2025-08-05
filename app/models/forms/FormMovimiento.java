@@ -76,13 +76,14 @@ public class FormMovimiento {
 	
 	public Long id_bodegaEmpresa;
 	public List<Long> idGrupos;
-	
+
+	public String fechaIniTerGuia;
 
 	public FormMovimiento(Long id_bodegaOrigen, Long id_bodegaDestino, Long numeroGuia, String numGuiaCliente,
 			String fechaGuia, String observaciones, List<Long> id_equipo, List<Long> id_cotizacion,
 			List<String> cantidad, List<Long> esVenta, List<Long> esNuevo, List<String> exceso, List<String> estados,
 			List<String> reparaciones, Long id_guia, Long seModifico, String docAnexo, Long id_transportista,
-			List<String> cantCliente, String fotos, Long id_bodegaEmpresa, List<Long> idGrupos) {
+			List<String> cantCliente, String fotos, Long id_bodegaEmpresa, List<Long> idGrupos, String fechaIniTerGuia) {
 		super();
 		this.id_bodegaOrigen = id_bodegaOrigen;
 		this.id_bodegaDestino = id_bodegaDestino;
@@ -106,6 +107,7 @@ public class FormMovimiento {
 		this.fotos = fotos;
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
 		this.idGrupos = idGrupos;
+		this.fechaIniTerGuia = fechaIniTerGuia;
 	}
 
 	public FormMovimiento() {
@@ -166,6 +168,10 @@ public class FormMovimiento {
 		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db, form.id_bodegaOrigen);
 		
 		List<List<Double>> listaIdMovIdTipEstCant = new ArrayList<List<Double>>();
+
+		if(form.fechaIniTerGuia != null || form.fechaIniTerGuia.isEmpty()) {
+			form.fechaIniTerGuia = form.fechaGuia;
+		}
 		
 		Guia aux = new Guia();
 		aux.setNumero(form.numeroGuia);
@@ -180,6 +186,7 @@ public class FormMovimiento {
 		aux.setId_ot((long)0);     			//NOTA: guias y movimientos generados desde MOVIMIENTO no tienen ot de origen asignado a la guia
 		aux.setId_transportista(form.id_transportista);
 		aux.setFotos(form.fotos);
+		aux.setFechaIniTerGuia(form.fechaIniTerGuia);
 		
 		Guia guia = Guia.create(con, db, aux, id_userCrea, id_userMoficica);
 		

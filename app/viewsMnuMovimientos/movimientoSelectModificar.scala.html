@@ -130,7 +130,8 @@
 				+"<TH>Nro<br>COTI</TH>"
 				+"<TH>Nro<br>MOV</TH>"
 				+"<TH>Nro<br>REF</TH>"
-				+"<TH style=\"min-width:80px;\">FECHA</TH>"
+				+"<TH style=\"min-width:80px;\">FECHA<br>MOV</TH>"
+				+"<TH style=\"min-width:80px;\">FECHA<br>INI/TER</TH>"
 				+ "<TH>EDIT</TH>"
 				+"<TH>SUCURSAL<br>DESDE</TH>"
 				+"<TH>DESDE<br>"+'@mapDiccionario.get("BODEGA")'+"/PROYECTO</TH>"
@@ -167,6 +168,7 @@
 						+jsonGuias[i]["numGuiaCliente"]
 					+"</td>"
 					+"<td style=\"text-align:center;\">"+"<div style=\"display:none\">"+jsonGuias[i]["fecha"]+"</div>"+""+fechaDDMMAA(jsonGuias[i]["fecha"])
+					+"<td style=\"text-align:center;\">"+"<div style=\"display:none\">"+jsonGuias[i]["fechaIniTerGuia"]+"</div>"+""+fechaDDMMAA(jsonGuias[i]["fechaIniTerGuia"])
 					+"</td>"
 					+"<td style=\"text-align:center;\">";if(jsonGuias[i]["numeroCotizacion"]=="0"){tabla+="<form id=\"form_"+jsonGuias[i]["id"]
 					+"\"method=\"post\"action=\"/movimientoOrigenDestinoModifica/\">"+"<input type=\"hidden\"name=\"id_guia\"value=\""+jsonGuias[i]["id"]+"\">"+"<a href=\"#\"onclick='document.getElementById(\"form_"

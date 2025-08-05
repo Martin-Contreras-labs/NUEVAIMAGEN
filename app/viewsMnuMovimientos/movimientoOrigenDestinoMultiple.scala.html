@@ -75,27 +75,17 @@ nuevoNumeroGuia: Long, hoy: String)
 												readonly>
 									</div>
 								</td>
-								<td width="230px">
-									<div class="input-group">
-								  		<div class="input-group-prepend">
-								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-								  		</div>
-								  		<input type="date" class="form-control center"
-								  			name="fechaGuia" 
-								  			id="fechaGuia"
-								  			onblur="if(!limitaFecha(value,720,10)) value='@hoy';"
-								  			value="@hoy"
-											   readonly
-						        				required>
-									</div>
-								</td>
-								<td>
-									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+
+
+								<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 10px; display: inline-block">
 										<input type="hidden" name="docAnexo" value="0">
 										<div id="txtBtn">Subir Documento</div>
-				    					<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos" onchange="LimitAttach(this.form, this.form.docAdjunto.value);" disabled>
+										<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos"
+											onchange="LimitAttach(this.form, this.form.docAdjunto.value);" disabled>
 									</span>
 								</td>
+
 							</tr>
 
 
@@ -119,17 +109,37 @@ nuevoNumeroGuia: Long, hoy: String)
 									</div>
 								</td>
 
-
-								<td colspan="20" rowspan="3">
+								<td width="230px">
 									<div class="input-group">
 										<div class="input-group-prepend">
-											<span class="input-group-text" id="basic-addon1">Observaciones</span>
+											<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
 										</div>
-										<textarea class="form-control" rows="3"
-												  name="observaciones"
-												  autocomplete="off" readonly></textarea>
+										<input type="date" class="form-control center"
+										name="fechaGuia"
+										id="fechaGuia"
+										onblur="if(!limitaFecha(value,720,10)) value='@hoy';"
+										value="@hoy"
+										readonly
+										required>
 									</div>
 								</td>
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaIniTerGuia"
+										id="fechaIniTerGuia"
+										onblur="if(!limitaFecha(value,60,60)) value='@hoy';"
+										value="@hoy"
+										readonly
+										required>
+									</div>
+								</td>
+
+
+
 							</tr>
 							<tr>
 								<td align="center">
@@ -152,6 +162,16 @@ nuevoNumeroGuia: Long, hoy: String)
 											   id = "nickCliente"
 											   value = ""
 											   readonly>
+									</div>
+								</td>
+								<td colspan="20" rowspan="3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Observaciones</span>
+										</div>
+										<textarea class="form-control" rows="2"
+										name="observaciones"
+										autocomplete="off" readonly></textarea>
 									</div>
 								</td>
 							</tr>

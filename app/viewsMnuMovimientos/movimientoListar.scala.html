@@ -52,7 +52,8 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 							<TH>Nro<br>MOV</TH>
 							<TH>Nro<br>REF</TH>
 							<TH>SELECT</TH>
-							<TH style="min-width:80px;">FECHA</TH>
+							<TH style="min-width:80px;">FECHA<br>MOV</TH>
+							<TH style="min-width:80px;">FECHA<br>INI/TER</TH>
 							<TH>SUCURSAL<br>DESDE</TH>
 							<TH>DESDE<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
 							<TH>SUCURSAL<br>HASTA</TH>
@@ -131,6 +132,10 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								<td  style="text-align:center; min-width:80px;">
 									<div style="display:none">@lista1.getFecha()</div>
 									@utilities.Fechas.DDMMAA(lista1.getFecha())
+								</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@lista1.getFechaIniTerGuia()</div>
+									@utilities.Fechas.DDMMAA(lista1.getFechaIniTerGuia())
 								</td>
 								<td  style="text-align:left;">@lista1.getNameSucursalOrigen()</td>
 								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaOrigen()')">@lista1.getBodegaOrigen()</a></td>

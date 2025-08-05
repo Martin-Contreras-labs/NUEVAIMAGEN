@@ -5294,9 +5294,13 @@ public class MnuCotizar extends Controller {
 							"</tfoot>"+
 						"</table>";
 				String fechaGuia = Fechas.AAMMDD(guia.getFecha());
+				String fechaIniTerGuia = Fechas.AAMMDD(guia.getFecha());
+				if(guia.getFechaIniTerGuia() == null || guia.getFechaIniTerGuia().isEmpty()) {
+					Fechas.AAMMDD(guia.getFechaIniTerGuia());
+				}
 				List<Transportista> listaTransporte = Transportista.listaTransportista(con, s.baseDato);
 				return ok(otDespachoModificar.render(mapeoDiccionario,mapeoPermiso,userMnu, guia, cabezeraOt, bodegaDestino,
-						fechaGuia, vistaDetOrigen, coti.getId(), (long) cont, bodegaOrigen, listaTransporte, coti.getId_comercial()));
+						fechaGuia, vistaDetOrigen, coti.getId(), (long) cont, bodegaOrigen, listaTransporte, coti.getId_comercial(), fechaIniTerGuia));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -5357,12 +5361,16 @@ public class MnuCotizar extends Controller {
 						form.fotos = auxGuia.fotos;
 						if(OtDespachado.eliminarDespacho(con, s.baseDato, form.id_guia)) {
 							if(FormDespacho.create(con, s.baseDato, form, mapeoDiccionario, id_userCrea.toString(), s.id_usuario)) {
+								if(form.fechaIniTerGuia == null || form.fechaIniTerGuia.isEmpty()) {
+									form.fechaIniTerGuia = form.fechaGuia;
+								}
 								FormMovimiento formMov = new FormMovimiento();
 								formMov.numeroGuia = form.numeroGuia;
 								formMov.numGuiaCliente = form.numGuiaCliente;
 								formMov.fechaGuia = form.fechaGuia;
 								formMov.observaciones = form.observaciones;
 								formMov.id_transportista = form.id_transportista;
+								formMov.fechaIniTerGuia = form.fechaIniTerGuia;
 								if (archivos != null) {
 									MnuCotizar.grabarFilesThread grabarFile = new MnuCotizar.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 									grabarFile.run();

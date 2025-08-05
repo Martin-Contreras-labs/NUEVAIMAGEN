@@ -142,7 +142,18 @@ public class ModCalc_GuiasPer {
 					nDiaGraciaRegreso = (long) 0;
 				}
 				//determina cantidad de dias entre guia y fecha hasta
-				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(i).fechaGuia);
+
+
+
+				//Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(i).fechaGuia);
+
+				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(i).fechaIniTerGuia);
+
+				if(fechaGuia.getFechaCal().after(hasta.getFechaCal())){
+					fechaGuia = hasta;
+				}
+
+
 				Long diasGuia = (long) 0;
 				// si es una venta dias es cero sino determina los dias entre guia y hasta
 				if (guiasPer.get(i).esVenta != 1) {
@@ -342,7 +353,13 @@ public class ModCalc_GuiasPer {
 		try {
 			desdeAAMMDD  = Fechas.AAMMDD(desdeAAMMDD);
 			hastaAAMMDD  = Fechas.AAMMDD(hastaAAMMDD);
-			String query = String.format(" select id from `%s`.guia where fecha between  '" + desdeAAMMDD + "' and '" + hastaAAMMDD + "';",db);
+			String query = String.format(" select" +
+					" id" +
+					" from `%s`.guia" +
+					" where" +
+					" fecha between  '" + desdeAAMMDD + "' and '" + hastaAAMMDD +
+					"' or (fecha < '" + desdeAAMMDD + "' and ifnull(fechaIniTerGuia,fecha) between  '" + desdeAAMMDD + "' and '" + hastaAAMMDD + "')",db);
+
 			try (PreparedStatement smt = con.prepareStatement(query)) {
 				try (ResultSet rs = smt.executeQuery()) {
 					while (rs.next()) {

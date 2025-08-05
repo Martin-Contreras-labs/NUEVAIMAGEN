@@ -49,12 +49,14 @@ public class FormDespacho {
 	public Long id_transportista;
 	
 	public String fotos;
+
+	public String fechaIniTerGuia;
 	
 	public FormDespacho(long id_guia, Long id_ot, Long id_cotizacion, Long id_bodegaOrigen, Long id_bodegaDestino,
 			Long numeroGuia, String numGuiaCliente, String fechaGuia, String observaciones, List<Long> id_cotizaDetalle,
 			List<Long> id_equipoDespacho, List<Long> esVenta, List<Long> esNuevo, List<Long> id_equipoOrigen,
 			List<String> cantDespacho, List<String> cantEquivalente, Long seModifico, String docAnexo,
-			Long id_transportista, String fotos, Long id_comercial) {
+			Long id_transportista, String fotos, String fechaIniTerGuia) {
 		super();
 		this.id_guia = id_guia;
 		this.id_ot = id_ot;
@@ -76,6 +78,7 @@ public class FormDespacho {
 		this.docAnexo = docAnexo;
 		this.id_transportista = id_transportista;
 		this.fotos = fotos;
+		this.fechaIniTerGuia = fechaIniTerGuia;
 	}
 
 	public FormDespacho() {
@@ -86,6 +89,10 @@ public class FormDespacho {
 	
 	public static boolean create (Connection con, String db, FormDespacho form,  Map<String,String> mapeoDiccionario, String id_userCrea, String id_userModifica) {
 		boolean flag = false;
+
+		if(form.fechaIniTerGuia != null || form.fechaIniTerGuia.isEmpty()) {
+			form.fechaIniTerGuia = form.fechaGuia;
+		}
 		 
 		Guia aux = new Guia();
 		aux.setNumero(form.numeroGuia);
@@ -99,6 +106,7 @@ public class FormDespacho {
 		aux.setId_ot(form.id_ot);     					//NOTA: guias y movimientos generados desde MOVIMIENTO no tienen ot de origen asignado a la guia
 		aux.setId_transportista(form.id_transportista);
 		aux.setFotos(form.fotos);
+		aux.setFechaIniTerGuia(form.fechaIniTerGuia);
 		
 		
 		Guia guia = Guia.create(con, db, aux, id_userCrea, id_userModifica);

@@ -1,7 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 guia: tables.Guia, cabezeraOt: String, bodegaDestino: tables.BodegaEmpresa,
 fechaGuia: String, vistaDetOrigen: String, id_cotizacion: Long, cont: Long, bodegaOrigen: tables.BodegaEmpresa,
-listaTransporte: List[tables.Transportista], id_comercial: Long)
+listaTransporte: List[tables.Transportista], id_comercial: Long, fechaIniTerGuia: String)
 
 @main("") {
 	@menues(mapDiccionario, mapPermiso, userMnu, " ")
@@ -27,7 +27,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 			<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
 				<thead style="background-color: #eeeeee">
 					<tr>
-						<td width="25%">
+						<td width="25%" rowspan="2">
 							<div class="input-group">
 						  		<div class="input-group-prepend">
 						    		<span class="input-group-text" id="basic-addon1">Origen</span>
@@ -39,7 +39,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 									readonly>
 							</div>
 						</td>
-						<td width="25%">
+						<td width="25%" rowspan="2">
 							<div class="input-group">
 						  		<div class="input-group-prepend">
 						    		<span class="input-group-text" id="basic-addon1">Destino</span>
@@ -88,32 +88,19 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 					  				maxlength="50">
 							</div>
 						</td>
-						<td width="230px">
-							<div class="input-group">
-						  		<div class="input-group-prepend">
-						    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-						  		</div>
-						  		<input type="date" class="form-control center"
-						  			name="fechaGuia" 
-						  			id="fechaGuia"
-						  			onblur="if(!limitaFecha(value,720,10)) value='@fechaGuia'; else $('#seModifico').val(1);"
-						  			value="@fechaGuia"
-				        			required>
-							</div>
-						</td>
-						<td style="text-align:center;" width="70px">
-							<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+						<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+							<span class="btn btn-info btn-sm btn-file" style="font-size: 10px; display: inline-block">
 								@if(guia.getDocAnexo().equals("0")){
 									<input type="hidden" name="docAnexo" value="0">
-									<div id="txtBtn">Adjuntar</div>
+									<div id="txtBtn">Adjuntar Documento</div>
 								}else{
 									<input type="hidden" name="docAnexo" value="@guia.getDocAnexo()">
-									<div id="txtBtn">Cambiar</div>
+									<div id="txtBtn">Cambiar Documento</div>
 								}
-		    					<input type="file" multiple id="docAdjunto" name="docAdjunto[]" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
+								<input type="file" multiple id="docAdjunto" name="docAdjunto[]" onchange="LimitAttach(this.form, this.form.docAdjunto.value); $('#seModifico').val(1);">
 							</span>
 						</td>
-						<td style="text-align:letf;">
+						<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
 							@if(guia.getDocAnexo().equals("0")){
 								--
 							}else{
@@ -124,7 +111,37 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 						</td>
 					</tr>
 					<tr>
-						<td colspan="5">
+						<td width="230px">
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">Fecha Moviemiento</span>
+						  		</div>
+						  		<input type="date" class="form-control center"
+						  			name="fechaGuia" 
+						  			id="fechaGuia"
+						  			onblur="if(!limitaFecha(value,360,10)) value='@fechaGuia'; else $('#seModifico').val(1);"
+						  			value="@fechaGuia"
+				        			required>
+							</div>
+						</td>
+						<td width="230px">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+								</div>
+								<input type="date" class="form-control center"
+								name="fechaIniTerGuia"
+								id="fechaIniTerGuia"
+								onblur="if(!limitaFecha(value,360,60)) value='@fechaIniTerGuia'; else $('#seModifico').val(1);"
+								value="@fechaIniTerGuia"
+								required>
+							</div>
+						</td>
+
+
+					</tr>
+					<tr>
+						<td colspan="4">
 							<div class="input-group">
 						  		<div class="input-group-prepend">
 						    		<span class="input-group-text">Observaciones</span>
@@ -638,7 +655,9 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		
 		document.getElementById("fechaGuia").style.backgroundColor = "yellow";
 		document.getElementById("fechaGuia").setAttribute('disabled','true');
-		
+
+		document.getElementById("fechaIniTerGuia").style.backgroundColor = "yellow";
+		document.getElementById("fechaIniTerGuia").setAttribute('disabled','true');
 		
 		let input = document.getElementsByClassName("cantDespacho");
 		for (let i=0; i<input.length;i++){

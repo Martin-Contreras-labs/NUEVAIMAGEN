@@ -31,10 +31,12 @@ public class Inventarios {
 
 	public Long numeroGuia;
 	public String numGuiaCliente;
+
+	public String fechaIniTerGuia;
 	
 	
 	public Inventarios(Long id_bodegaEmpresa, Long id_grupo, Long id_equipo, Long id_cotizacion, Long esVenta, Double cantidad, Long id_guia, String fechaGuia, Long id_tipoMovimiento,
-					   Long numeroGuia, String numGuiaCliente) {
+					   Long numeroGuia, String numGuiaCliente, String fechaIniTerGuia) {
 		super();
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
 		this.id_equipo = id_equipo;
@@ -47,6 +49,7 @@ public class Inventarios {
 		this.id_tipoMovimiento = id_tipoMovimiento;
 		this.numeroGuia = numeroGuia;
 		this.numGuiaCliente = numGuiaCliente;
+		this.fechaIniTerGuia = fechaIniTerGuia;
 	}
 
 	public Inventarios() {
@@ -229,7 +232,7 @@ public class Inventarios {
 						+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad) "
 						+ " from `%s`.movimiento "
 						+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
-						+ " where movimiento.id_bodegaEmpresa in (" +listaInBodega+") and movimiento.id_guia in ("+listaInGuia+") "
+						+ " where movimiento.id_bodegaEmpresa in ("+listaInBodega+") and movimiento.id_guia in ("+listaInGuia+") "
 						+ " group by movimiento.id_bodegaEmpresa, movimiento.id_equipo, movimiento.id_cotizacion,movimiento.esVenta "
 						+ " order by movimiento.id_bodegaEmpresa, equipo.id_grupo, equipo.id;",db,db);
 				try (PreparedStatement smt = con.prepareStatement(query)) {
@@ -276,7 +279,8 @@ public class Inventarios {
 						+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad), "
 						+ " movimiento.id_tipoMovimiento, "
 						+ " guia.numero, "
-						+ " guia.numGuiaCliente "
+						+ " guia.numGuiaCliente, "
+						+ " ifnull(guia.fechaIniTerGuia,guia.fecha) "
 						+ " from `%s`.movimiento "
 						+ " left join `%s`.guia on guia.id = movimiento.id_guia "
 						+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
@@ -300,6 +304,7 @@ public class Inventarios {
 							aux.id_tipoMovimiento = rs.getLong(9);
 							aux.numeroGuia = rs.getLong(10);
 							aux.numGuiaCliente = rs.getString(11);
+							aux.fechaIniTerGuia = rs.getString(12);
 							lista.add(aux);
 						}
 					}
@@ -332,7 +337,8 @@ public class Inventarios {
 					+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad), "
 					+ " movimiento.id_tipoMovimiento, "
 					+ " guia.numero, "
-					+ " guia.numGuiaCliente "
+					+ " guia.numGuiaCliente, "
+					+ " ifnull(guia.fechaIniTerGuia,guia.fecha) "
 					+ " from `%s`.movimiento "
 					+ " left join `%s`.guia on guia.id = movimiento.id_guia "
 					+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
@@ -357,6 +363,7 @@ public class Inventarios {
 							aux.id_tipoMovimiento = rs.getLong(9);
 							aux.numeroGuia = rs.getLong(10);
 							aux.numGuiaCliente = rs.getString(11);
+							aux.fechaIniTerGuia = rs.getString(12);
 							List<Inventarios> lista = map.get(rs.getLong(2));
 							if (lista == null) {
 								List<Inventarios> auxLista = new ArrayList<Inventarios>();
@@ -430,6 +437,28 @@ public class Inventarios {
 				" from `%s`.movimiento " +
 				" left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  " +
 				" where bodegaEmpresa.vigente = 1 "+
+				" group by movimiento.id_bodegaEmpresa "+
+				" having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0",db,db);
+		try (PreparedStatement smt = con.prepareStatement(query)) {
+			try (ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					map.put(rs.getLong(1), rs.getLong(1));
+				}
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return(map);
+	}
+
+	public static Map<Long,Long> mapBodegasVigConStockSoloArr (Connection con, String db){
+		Map<Long,Long> map = new HashMap<Long,Long>();
+		String query = String.format(" select movimiento.id_bodegaEmpresa " +
+				" from `%s`.movimiento " +
+				" left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa  " +
+				" where bodegaEmpresa.vigente = 1 and esVenta = 0"+
 				" group by movimiento.id_bodegaEmpresa "+
 				" having if(sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1))=-0,0,sum(movimiento.cantidad*if(movimiento.id_tipoMovimiento=1,1,-1)))>0",db,db);
 		try (PreparedStatement smt = con.prepareStatement(query)) {

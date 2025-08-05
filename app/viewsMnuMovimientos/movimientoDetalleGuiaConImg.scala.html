@@ -57,17 +57,8 @@ nickCliente: String)
 							  				readonly>
 								</div>
 							</td>
-							<td width="230px">
-								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-							  		</div>
-							  		<input type="date" class="form-control center"
-							  			value="@utilities.Fechas.AAMMDD(guia.getFecha())"
-					        			readonly>
-								</div>
-							</td>
-							<td>
+							<td style="width: 1px; min-width: 1px; max-width: 1px; text-align: center; vertical-align: middle">
+							<td style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
 								@if(guia.getDocAnexo().equals("0")){
 									--
 								}else{
@@ -98,26 +89,29 @@ nickCliente: String)
 											readonly>
 								</div>
 							</td>
-							
-							<td colspan="3" rowspan="3">
+
+							<td width="230px">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
-							  		</div>
-  									<textarea class="form-control" rows="3" onchange="$('#seModifico').val(1);"
-  										name="observaciones" 
-  										autocomplete="off">@guia.getObservaciones()</textarea>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFecha())"
+									readonly>
 								</div>
 							</td>
-							<td colspan="2" rowspan="3" style="text-align:center;" width="70px" id="sube1">
-								@if(guia.getFotos().equals("0")){
-									<div id="cargadasFotos">--</div>
-								}else{
-									<a href="/muestraAlbumFotos/@guia.getFotos()">
-										<kbd style="background-color: #7F8C8D">Ver Album</kbd>
-									</a>
-								}
+							<td width="230px">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFechaIniTerGuia())"
+									readonly>
+								</div>
 							</td>
+							<td style="width: 1px; min-width: 1px; max-width: 1px; text-align: center; vertical-align: middle">
+							<td style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle"></td>
 						</tr>
 						<tr>
 							<td align="center">
@@ -139,6 +133,26 @@ nickCliente: String)
 											value = "@nickCliente"
 											readonly>
 								</div>
+							</td>
+							<td colspan="2">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Observaciones</span>
+									</div>
+									<textarea class="form-control" rows="2" onchange="$('#seModifico').val(1);"
+									name="observaciones"
+									autocomplete="off">@guia.getObservaciones()</textarea>
+								</div>
+							</td>
+							<td style="width: 1px; min-width: 1px; max-width: 1px; text-align: center; vertical-align: middle">
+							<td  style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+								@if(guia.getFotos().equals("0")){
+									<div id="cargadasFotos">--</div>
+								}else{
+									<a href="/muestraAlbumFotos/@guia.getFotos()">
+										<kbd style="background-color: #7F8C8D">Ver Album</kbd>
+									</a>
+								}
 							</td>
 						</tr>
 					</thead>

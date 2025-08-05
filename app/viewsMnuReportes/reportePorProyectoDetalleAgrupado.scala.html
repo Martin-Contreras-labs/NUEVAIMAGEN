@@ -48,7 +48,7 @@ lista: List[List[String]], proyecto: tables.Proyecto, esVenta: String, concepto:
 					
 						<thead style="background-color: #eeeeee">
 					        @for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 < 6){
+								@if(index1 < 7){
 									<TR>
 										@for(nivel2 <- nivel1) {
 											<td style="textAlign: center">@nivel2</td>
@@ -59,7 +59,7 @@ lista: List[List[String]], proyecto: tables.Proyecto, esVenta: String, concepto:
 						</thead>
 						<tbody>
 							@for((nivel1,index1) <- lista.zipWithIndex) {
-								@if(index1 > 5){
+								@if(index1 > 6){
 									<TR>
 										@for((nivel2,index2) <- nivel1.zipWithIndex) {
 											@if(index2 == 1 || index2 ==2){
@@ -147,7 +147,7 @@ lista: List[List[String]], proyecto: tables.Proyecto, esVenta: String, concepto:
 		
 		for (var i = 5; i < cellsOfRow.length; i++) {
 			var val = 0;
-			for (var j = 5; j < tabla.rows.length-1; j++) {
+			for (var j = 6; j < tabla.rows.length-1; j++) {
 				var cellsOfRow = tabla.rows[j].getElementsByTagName('td');
 				var aux = cellsOfRow[i].innerHTML;
 				if(aux.trim()==""||aux==null) {
