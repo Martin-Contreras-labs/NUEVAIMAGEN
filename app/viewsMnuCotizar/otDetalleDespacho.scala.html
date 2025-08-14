@@ -53,17 +53,7 @@ coti: tables.Cotizacion, nickCliente: String)
 							  				readonly>
 								</div>
 							</td>
-							<td width="230px">
-								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-							  		</div>
-							  		<input type="date" class="form-control center"
-							  			value="@utilities.Fechas.AAMMDD(guia.getFecha())"
-					        			readonly>
-								</div>
-							</td>
-							<td>
+							<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
 								@if(guia.getDocAnexo().equals("0")){
 									--
 								}else{
@@ -76,32 +66,42 @@ coti: tables.Cotizacion, nickCliente: String)
 						<tr>
 							<td>
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-							  			value="@guia.nameSucursalOrigen"
-					        			readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Sucursal</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.nameSucursalOrigen"
+									readonly>
 								</div>
 							</td>
 							<td>
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-							  			value="@guia.nameSucursalDestino"
-					        			readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Sucursal</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.nameSucursalDestino"
+									readonly>
 								</div>
 							</td>
-							<td colspan="6" rowspan="2">
+							<td width="230px">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
-							  		</div>
-  									<textarea class="form-control" rows="3"
-  										autocomplete="off"
-  										readonly>@guia.getObservaciones()</textarea>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFecha())"
+									readonly>
+								</div>
+							</td>
+							<td width="230px">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFechaIniTerGuia())"
+									readonly>
 								</div>
 							</td>
 						</tr>
@@ -124,6 +124,16 @@ coti: tables.Cotizacion, nickCliente: String)
 										<input type="text" class="form-control left"
 											value = "@nickCliente"
 											readonly>
+								</div>
+							</td>
+							<td colspan="6" >
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Observaciones</span>
+									</div>
+									<textarea class="form-control" rows="2"
+									autocomplete="off"
+									readonly>@guia.getObservaciones()</textarea>
 								</div>
 							</td>
 						</tr>

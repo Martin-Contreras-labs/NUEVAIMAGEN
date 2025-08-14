@@ -90,10 +90,10 @@ public class FormDespacho {
 	public static boolean create (Connection con, String db, FormDespacho form,  Map<String,String> mapeoDiccionario, String id_userCrea, String id_userModifica) {
 		boolean flag = false;
 
-		if(form.fechaIniTerGuia != null || form.fechaIniTerGuia.isEmpty()) {
+		if(form.fechaIniTerGuia == null || form.fechaIniTerGuia.isEmpty()) {
 			form.fechaIniTerGuia = form.fechaGuia;
 		}
-		 
+		
 		Guia aux = new Guia();
 		aux.setNumero(form.numeroGuia);
 		aux.setFecha(form.fechaGuia);

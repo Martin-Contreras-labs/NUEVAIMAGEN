@@ -247,27 +247,27 @@ lista: List[List[String]], fechaCorte: String, tipo:String)
 			
 			if(tabla.rows[i].style.display != "none"){
 				cuentaItems++;
-				aux = tabla.rows[i].cells[13].textContent;
-				sumaCantidades = parseFloat(sumaCantidades) + parseFloat(numero.formatBack(aux));
 				aux = tabla.rows[i].cells[14].textContent;
-				sumaTotalesCompraMO = parseFloat(sumaTotalesCompraMO) + parseFloat(numero.formatBack(aux));
+				sumaCantidades = parseFloat(sumaCantidades) + parseFloat(numero.formatBack(aux));
 				aux = tabla.rows[i].cells[15].textContent;
-				sumaTotalesVentaMO = parseFloat(sumaTotalesVentaMO) + parseFloat(numero.formatBack(aux));
+				sumaTotalesCompraMO = parseFloat(sumaTotalesCompraMO) + parseFloat(numero.formatBack(aux));
 				aux = tabla.rows[i].cells[16].textContent;
-				sumaTotalesCompraMP = parseFloat(sumaTotalesCompraMP) + parseFloat(numero.formatBack(aux));
+				sumaTotalesVentaMO = parseFloat(sumaTotalesVentaMO) + parseFloat(numero.formatBack(aux));
 				aux = tabla.rows[i].cells[17].textContent;
+				sumaTotalesCompraMP = parseFloat(sumaTotalesCompraMP) + parseFloat(numero.formatBack(aux));
+				aux = tabla.rows[i].cells[18].textContent;
 				sumaTotalesVentaMP = parseFloat(sumaTotalesVentaMP) + parseFloat(numero.formatBack(aux));
 			}
 			
 		}
 		
-		tabla.rows[0].cells[13].textContent = formatStandar0(sumaCantidades);
+		tabla.rows[0].cells[14].textContent = formatStandar0(sumaCantidades);
 		tabla.rows[0].cells[6].textContent = formatStandar0(cuentaItems);
 		tabla.rows[0].cells[7].textContent = formatStandar0("elementos");
-		tabla.rows[0].cells[14].textContent = formatStandar0(sumaTotalesCompraMO);
-		tabla.rows[0].cells[15].textContent = formatStandar0(sumaTotalesVentaMO);
-		tabla.rows[0].cells[16].textContent = formatStandar0(sumaTotalesCompraMP);
-		tabla.rows[0].cells[17].textContent = formatStandar0(sumaTotalesVentaMP);
+		tabla.rows[0].cells[15].textContent = formatStandar0(sumaTotalesCompraMO);
+		tabla.rows[0].cells[16].textContent = formatStandar0(sumaTotalesVentaMO);
+		tabla.rows[0].cells[17].textContent = formatStandar0(sumaTotalesCompraMP);
+		tabla.rows[0].cells[18].textContent = formatStandar0(sumaTotalesVentaMP);
 		if(flag){
 			document.getElementById('sumaGranTotalCompra').value=formatStandar0(sumaGranTotalCompra);
 			document.getElementById('sumaGranTotalVenta').value=formatStandar0(sumaGranTotalVenta);

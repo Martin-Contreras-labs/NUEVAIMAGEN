@@ -1082,7 +1082,7 @@ public class ReportMovimientos {
 					tipGuia.add(rs100.getString(3));
 					blanco.add(" ");
 				}
-				System.out.println(fechIniTerGuia.toString());
+
 				rs100.close();
 				smt100.close();
 				

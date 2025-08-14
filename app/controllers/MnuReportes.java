@@ -3649,7 +3649,7 @@ public class MnuReportes extends Controller {
 		try (Connection con = dbWrite.getConnection()) {
 			Long id_grupo = (long)0;
 			List<String> series = ReportGerenciales.graficoCategoriasAnio(con, s.baseDato, id_grupo, mapeoDiccionario, "0", "1");
-			return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"ALQUILERES + VENTAS + SERVICIOS"));
+			return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"ALQUILERES + VENTAS + SERVICIOS_ODO"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -3763,7 +3763,7 @@ public class MnuReportes extends Controller {
 				aux.add("");
 				tabla.add(aux);
 			}
-			return ok(reporteGerencialVentas.render(mapeoDiccionario,mapeoPermiso,userMnu,series,yearActual,yearAnterior,yearAntAnterior,tabla,"ALQUILERES + VENTAS + SERVICIOS"));
+			return ok(reporteGerencialVentas.render(mapeoDiccionario,mapeoPermiso,userMnu,series,yearActual,yearAnterior,yearAntAnterior,tabla,"ALQUILERES + VENTAS + SERVICIOS_ODO"));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -3825,7 +3825,7 @@ public class MnuReportes extends Controller {
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
 				List<String> series = ReportGerenciales.graficoCategoriasAnioPorGrupo(con, s.baseDato, id_grupo, mapeoDiccionario, s.aplicaPorSucursal, s.id_sucursal);
-				return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"(NO CONSIDERA AJUSTES)  GRUPO: "+grupo.nombre));
+				return ok(reporteGerencial.render(mapeoDiccionario,mapeoPermiso,userMnu,series,"(NO CONSIDERA AJUSTES) (ALQUILERES + VENTAS + SERVICIOS_ODO)  GRUPO: "+grupo.nombre));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));

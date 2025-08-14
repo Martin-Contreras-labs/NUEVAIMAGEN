@@ -23,7 +23,8 @@ listaGuias: List[tables.Guia])
 							<TH>Nro<br>MOV</TH>
 							<TH>Nro<br>REF</TH>
 							<TH>EDIT</TH>
-							<TH style="min-width:80px;">FECHA</TH>
+							<TH style="min-width:80px;">FECHA<br>MOV</TH>
+							<TH style="min-width:80px;">FECHA<br>INI/TER</TH>
 							<TH>DESDE<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
 							<TH>HASTA<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
 							<TH>ULTIMA<br>ACTUALIZACION</TH>
@@ -69,6 +70,10 @@ listaGuias: List[tables.Guia])
 								<td  style="min-width: 80px; text-align:center;">
 									<div style="display:none">@lista1.getFecha()</div>
 									@utilities.Fechas.DDMMAA(lista1.getFecha())
+								</td>
+								<td  style="min-width: 80px; text-align:center;">
+									<div style="display:none">@lista1.getFechaIniTerGuia()</div>
+									@utilities.Fechas.DDMMAA(lista1.getFechaIniTerGuia())
 								</td>
 								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaOrigen()')">@lista1.getBodegaOrigen()</a></td>
 								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaDestino()')">@lista1.getBodegaDestino()</a></td>

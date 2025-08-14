@@ -100,7 +100,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 						<td width="230px">
 							<div class="input-group">
 						  		<div class="input-group-prepend">
-						    		<span class="input-group-text" id="basic-addon1">Fecha Movimeinto</span>
+						    		<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
 						  		</div>
 						  		<input type="date" class="form-control center"
 						  			name="fechaGuia" 
@@ -693,7 +693,10 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		
 		document.getElementById("fechaGuia").style.backgroundColor = "white";
 		document.getElementById("fechaGuia").removeAttribute('disabled');
-		
+
+		document.getElementById("fechaIniTerGuia").style.backgroundColor = "white";
+		document.getElementById("fechaIniTerGuia").removeAttribute('disabled');
+
 		
 		let input = document.getElementsByClassName("cantDespacho");
 		for (let i=0; i<input.length;i++){
@@ -729,7 +732,8 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		document.getElementById("numeroGuia").removeAttribute('disabled');
 		document.getElementById("numGuiaCliente").removeAttribute('disabled');
 		document.getElementById("fechaGuia").removeAttribute('disabled');
-		
+		document.getElementById("fechaIniTerGuia").removeAttribute('disabled');
+
 		let input = document.getElementsByClassName("cantDespacho");
 		for (let i=0; i<input.length;i++){
 		    input[i].removeAttribute('disabled');

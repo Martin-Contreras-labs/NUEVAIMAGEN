@@ -4764,6 +4764,7 @@ public class MnuCotizar extends Controller {
 		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		FormDespacho form = formFactory.form(FormDespacho.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+
 		if (form.id_bodegaDestino==null || form.id_ot==null) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
@@ -5294,7 +5295,8 @@ public class MnuCotizar extends Controller {
 							"</tfoot>"+
 						"</table>";
 				String fechaGuia = Fechas.AAMMDD(guia.getFecha());
-				String fechaIniTerGuia = Fechas.AAMMDD(guia.getFecha());
+				String fechaIniTerGuia = Fechas.AAMMDD(guia.getFechaIniTerGuia());
+
 				if(guia.getFechaIniTerGuia() == null || guia.getFechaIniTerGuia().isEmpty()) {
 					Fechas.AAMMDD(guia.getFechaIniTerGuia());
 				}

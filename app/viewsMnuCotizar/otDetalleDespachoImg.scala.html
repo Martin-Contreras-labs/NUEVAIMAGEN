@@ -15,115 +15,125 @@ listTipoReparacion: List[tables.TipoReparacion], coti: tables.Cotizacion, nickCl
 						<tr>
 							<td width="25%">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Origen</span>
-							  		</div>
-  									<input type="text" class="form-control" 
-  										value="@guia.getBodegaOrigen().toUpperCase" 
-  										readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Origen</span>
+									</div>
+									<input type="text" class="form-control"
+									value="@guia.getBodegaOrigen().toUpperCase"
+									readonly>
 								</div>
 							</td>
 							<td width="25%">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Destino</span>
-							  		</div>
-										<input type="text" class="form-control left"
-											value="@guia.getBodegaDestino().toUpperCase" 
-											readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Destino</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.getBodegaDestino().toUpperCase"
+									readonly>
 								</div>
 							</td>
 							<td>
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-											value = "@guia.getNumero()"
-											readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
+									</div>
+									<input type="text" class="form-control left"
+									value = "@guia.getNumero()"
+									readonly>
 								</div>
 							</td>
 							<td>
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-							  				value="@guia.getNumGuiaCliente()"
-							  				readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.getNumGuiaCliente()"
+									readonly>
+								</div>
+							</td>
+							<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+							@if(guia.getDocAnexo().equals("0")){
+								--
+							}else{
+								<a href="#" onclick="document.getElementById('formDescargaDocumento').submit();">
+									<kbd style="background-color: #7F8C8D">DOC</kbd>
+								</a>
+							}
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Sucursal</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.nameSucursalOrigen"
+									readonly>
+								</div>
+							</td>
+							<td>
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Sucursal</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.nameSucursalDestino"
+									readonly>
 								</div>
 							</td>
 							<td width="230px">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Fecha</span>
-							  		</div>
-							  		<input type="date" class="form-control center"
-							  			value="@utilities.Fechas.AAMMDD(guia.getFecha())"
-					        			readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFecha())"
+									readonly>
 								</div>
 							</td>
-							<td>
-								@if(guia.getDocAnexo().equals("0")){
-									--
-								}else{
-									<a href="#" onclick="document.getElementById('formDescargaDocumento').submit();">
-										<kbd style="background-color: #7F8C8D">DOC</kbd>
-									</a>
-								}
-							</td>
-						</tr>
-						<tr>
-							<td>
+							<td width="230px">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-							  			value="@guia.nameSucursalOrigen"
-					        			readonly>
-								</div>
-							</td>
-							<td>
-								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-							  			value="@guia.nameSucursalDestino"
-					        			readonly>
-								</div>
-							</td>
-							<td colspan="6" rowspan="2">
-								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
-							  		</div>
-  									<textarea class="form-control" rows="3"
-  										autocomplete="off"
-  										readonly>@guia.getObservaciones()</textarea>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFechaIniTerGuia())"
+									readonly>
 								</div>
 							</td>
 						</tr>
 						<tr>
 							<td>
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">COMERCIAL</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-							  			value="@guia.getNameComercial"
-					        			readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Comercial</span>
+									</div>
+									<input type="text" class="form-control left"
+									value="@guia.getNameComercial"
+									readonly>
 								</div>
 							</td>
 							<td align="center">
 								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">Cliente</span>
-							  		</div>
-										<input type="text" class="form-control left"
-											value = "@nickCliente"
-											readonly>
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Cliente</span>
+									</div>
+									<input type="text" class="form-control left"
+									value = "@nickCliente"
+									readonly>
+								</div>
+							</td>
+							<td colspan="6" >
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Observaciones</span>
+									</div>
+									<textarea class="form-control" rows="2"
+									autocomplete="off"
+									readonly>@guia.getObservaciones()</textarea>
 								</div>
 							</td>
 						</tr>
