@@ -117,7 +117,7 @@ nuevoNumeroGuia: Long, hoy: String)
 										<input type="date" class="form-control center"
 										name="fechaGuia"
 										id="fechaGuia"
-										onblur="if(!limitaFecha(value,720,10)) value='@hoy';"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),@mapPermiso.get("parametro.diasMasGuia"))) value='@hoy';"
 										value="@hoy"
 										readonly
 										required>
@@ -131,7 +131,7 @@ nuevoNumeroGuia: Long, hoy: String)
 										<input type="date" class="form-control center"
 										name="fechaIniTerGuia"
 										id="fechaIniTerGuia"
-										onblur="if(!limitaFecha(value,60,60)) value='@hoy';"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosIniTer"),@mapPermiso.get("parametro.diasMasIniTer"))) value='@hoy';"
 										value="@hoy"
 										readonly
 										required>

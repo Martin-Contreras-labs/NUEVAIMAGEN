@@ -24,7 +24,7 @@ ajuste: tables.AjustesEP, listAjustes: List[tables.TipoAjustes], listAjustesVent
 							<td style="text-align: left;">
 						  		<input type="date" class="form-control left"
 						  			name="fechaAjuste"
-						  			onblur="if(!limitaFecha(value,720,10)) value='@utilities.Fechas.AAMMDD(ajuste.fechaAjuste)';"
+						  			onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),70)) value='@utilities.Fechas.AAMMDD(ajuste.fechaAjuste)';"
 						  			value="@utilities.Fechas.AAMMDD(ajuste.fechaAjuste)"
 				        			required>
 							</td>

@@ -49,13 +49,14 @@ public class ModCalc_GuiasPer {
 	public Double maestroTotalCfi;
 	public Double maestroTotalTotal;
 
+	public String fechaIniTerGuia;
 
 	public ModCalc_GuiasPer(Long id_bodegaEmpresa, Long id_grupo, Long id_equipo, Long id_cotizacion, Long esVenta,
 			Long id_guia, String fechaGuia, Long id_tipoMovimiento, Double cantidad, Long dias, Long id_moneda,
 			Double pVenta, Double pArr_dia, Double tasaCambio, Double totalVenta, Double totalArriendo, Double totalCfi,
 			Double totalTotal, Long maestroId_moneda, Double maestroPVenta, Double maestroPArr_dia,
 			Double maestroTasaCambio, Double maestroTotalVenta, Double maestroTotalArriendo, Double maestroTotalCfi,
-			Double maestroTotalTotal) {
+			Double maestroTotalTotal,String fechaIniTerGuia) {
 		super();
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
 		this.id_grupo = id_grupo;
@@ -83,6 +84,7 @@ public class ModCalc_GuiasPer {
 		this.maestroTotalArriendo = maestroTotalArriendo;
 		this.maestroTotalCfi = maestroTotalCfi;
 		this.maestroTotalTotal = maestroTotalTotal;
+		this.fechaIniTerGuia = fechaIniTerGuia;
 	}
 
 
@@ -143,16 +145,10 @@ public class ModCalc_GuiasPer {
 				}
 				//determina cantidad de dias entre guia y fecha hasta
 
-
-
-				//Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(i).fechaGuia);
-
 				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(i).fechaIniTerGuia);
-
 				if(fechaGuia.getFechaCal().after(hasta.getFechaCal())){
 					fechaGuia = hasta;
 				}
-
 
 				Long diasGuia = (long) 0;
 				// si es una venta dias es cero sino determina los dias entre guia y hasta
@@ -223,7 +219,7 @@ public class ModCalc_GuiasPer {
 							precioMinimo = precios.precioMinimo;
 						}
 						if (permanenciaMinima > 0 && precioMinimo > 0) {
-							String auxFechaGuia = guiasPer.get(i).fechaGuia;
+							String auxFechaGuia = guiasPer.get(i).fechaIniTerGuia;
 							Long id_equipo = guiasPer.get(i).id_equipo;
 							Long id_bodegaEmpresa = guiasPer.get(i).id_bodegaEmpresa;
 							Long id_cotizacion = guiasPer.get(i).id_cotizacion;
@@ -273,6 +269,7 @@ public class ModCalc_GuiasPer {
 				aux.maestroId_moneda = maestroId_moneda;
 				aux.maestroPVenta = maestroPrecioVenta;
 				aux.maestroTotalTotal = maestroTotalVenta + maestroTotalArriendo + maestroTotalCfi;
+				aux.fechaIniTerGuia = guiasPer.get(i).fechaIniTerGuia;
 				listado.add(aux);
 			}
 		} catch (Exception e) {

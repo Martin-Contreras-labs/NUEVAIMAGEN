@@ -45,61 +45,59 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 				<div class="table-responsive">
 					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 						<thead style="background-color: #eeeeee">
-				        @for((nivel1,index1) <- lista.zipWithIndex) {
-							@if(index1 < 6){
-								<TR>
+							@for((nivel1,index1) <- lista.zipWithIndex) {
+								@if(index1 < 6){
+									<TR>
+										@for((nivel2,index2) <- nivel1.zipWithIndex) {
+											@if(index2 == 0){
+												<th style="min-width:150px">@nivel2</th>
+											}
+											@if(index2 == 2){
+												<th>@nivel2</th>
+											}
+											@if(index2 == 3){
+												<th style="min-width:300px">@nivel2</th>
+											}
+
+											@if(index2 != 0 && index2 != 2 && index2 != 3){
+												<th style="min-width:50px">@nivel2</th>
+											}
+										}
+									</TR>
+								}
+							}
+						</thead>
+						<tbody>
+							@for((nivel1,index1) <- lista.zipWithIndex) {
+								@if(index1 > 5){
+									<TR>
 									@for((nivel2,index2) <- nivel1.zipWithIndex) {
 										@if(index2 == 0){
-											<th style="min-width:150px">@nivel2</th>
+											<td style="min-width:150px">@nivel2</td>
 										}
 										@if(index2 == 2){
-											<th>@nivel2</th>
+											<td><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
 										}
 										@if(index2 == 3){
-											<th style="min-width:300px">@nivel2</th>
+											<td style="min-width:300px"><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
 										}
-										
 										@if(index2 != 0 && index2 != 2 && index2 != 3){
-											<th style="min-width:50px">@nivel2</th>
+											<td style="min-width:50px; text-align:center">@nivel2</td>
 										}
 									}
 								</TR>
-							}
-						}
-					
-									
-						</thead>
-						<tbody>
-						@for((nivel1,index1) <- lista.zipWithIndex) {
-							@if(index1 > 5){
-								<TR>
-								@for((nivel2,index2) <- nivel1.zipWithIndex) {
-									@if(index2 == 0){
-										<td style="min-width:150px">@nivel2</td>
-									}
-									@if(index2 == 2){
-										<td><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
-									}
+								}
+							 }
+							 <TR>
+								@for((nivel2, index2) <- lista.get(0).zipWithIndex) {
 									@if(index2 == 3){
-										<td style="min-width:300px"><a href="#" onclick="buscaEquipo('@nivel1.get(2)');">@nivel2</a></td>
+										<td style="background-color: #eeeeee"><div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div></td>
+									}else{
+										<td style="background-color: #eeeeee"></td>
 									}
-									@if(index2 != 0 && index2 != 2 && index2 != 3){
-										<td style="min-width:50px; text-align:center">@nivel2</td>
-									}
+
 								}
 							</TR>
-							}
-						 }
-						 <TR>
-							@for((nivel2, index2) <- lista.get(0).zipWithIndex) {
-								@if(index2 == 3){
-									<td style="background-color: #eeeeee"><div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div></td>
-								}else{
-									<td style="background-color: #eeeeee"></td>
-								}
-								
-							}
-						</TR>
 						</tbody>
 					</table>
 				</div>
@@ -130,7 +128,7 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 				var aux=parseFloat(tabla.rows[k].cells[i].textContent);
 				if(isNaN(aux)) aux=0;
 				total= parseFloat(aux)+parseFloat(total);
-				if(isNaN(tabla.rows[4].cells[i].textContent)){
+				if(isNaN(tabla.rows[5].cells[i].textContent)){
 					tabla.rows[k].cells[i].style.backgroundColor="#eeeeee";
 				}
 				if(!isNaN(parseFloat(tabla.rows[k].cells[i].textContent))){

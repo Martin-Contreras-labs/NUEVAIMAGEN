@@ -381,7 +381,11 @@ public class ReportHohe {
 						/*24*/	+ "ifnull(lp.precioArriendo,0) as PB_Arriendo, " 
 						
 						/*25*/	+ "ifnull((select esInterna from `"+db+"`.bodegaEmpresa where id = m.id_bodegaOrigen),'NA') as esInternaDESDE, "
-						/*26*/	+ "b.esInterna as esInternaHASTA " +
+						/*26*/	+ "b.esInterna as esInternaHASTA, "
+
+						/*27*/	+ "ifnull(g.fechaIniTerGuia,ifnull(g.fecha,'NA')) as fechaGuiaDay " +
+
+
 									" from `"+db+"`.movimiento as m " +
 									" left join `"+db+"`.bodegaEmpresa as b on b.id=m.id_bodegaEmpresa "+
 									" left join `"+db+"`.tipoMovimiento as t on t.id=m.id_tipoMovimiento "+
@@ -433,6 +437,7 @@ public class ReportHohe {
 							
 							aux.add(rs.getString(23));        // 16  PB_Reposicion
 							aux.add(rs.getString(24));        // 17  PB_Arriendo
+							aux.add(rs.getString(27));        // 18  fechaIniTerGuia
 							datos.add(aux);
 						}
 					}
@@ -598,6 +603,7 @@ public class ReportHohe {
             aux.add("P.BODEGA_ARRIENDO");
             aux.add("FECHA_GUIA");
             aux.add("BODEGA_DESTINO");
+			aux.add("FECHA_INI_TER_GUIA");
             rs.add(aux);
             
 			for (int i=0; i<lista.size(); i++) {
@@ -616,7 +622,7 @@ public class ReportHohe {
 						String aux2 = lista.get(i).get(j).trim();
 						if(aux2.equals("")) {aux2="NA";}
 						aux.add(aux2);
-					}else {
+					}else if(j < lista.get(i).size()-1) {
 						String aux2 = lista.get(i).get(j).trim();
 						if(aux2.equals("") || aux2.equals("NA")) {
 							aux2 = "0";
@@ -624,8 +630,8 @@ public class ReportHohe {
 						aux.add(aux2);
 					}
 					
-					if(j==lista.get(i).size()-1) {
-						
+					if(j == lista.get(i).size()-1) {
+
 						String aux2 = lista.get(i).get(15).trim();
 						if(aux2.equals("") || aux2.equals("NA")) {
 							aux.add("NA");
@@ -633,12 +639,27 @@ public class ReportHohe {
 							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(7).trim()+"-"+lista.get(i).get(6).trim()+"-"+lista.get(i).get(5).trim());
 							aux.add(fechaGuia.getFechaStrAAMMDD());
 						}
-						
+
 						aux2 = lista.get(i).get(1).trim();
 						if(aux2.equals("")) {
 							aux2 = "NA";
 						}
 						aux.add(aux2);
+
+
+
+						aux2 = lista.get(i).get(18).trim();
+						if(aux2.equals("") || aux2.equals("NA")) {
+							aux.add("NA");
+						}else {
+							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(aux2);
+							aux.add(fechaGuia.getFechaStrAAMMDD());
+						}
+
+
+
+
+
 					}
 				}
 				rs.add(aux);

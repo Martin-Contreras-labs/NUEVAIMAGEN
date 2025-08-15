@@ -21,7 +21,8 @@ fechaDesde: String, fechaHasta: String)
 									<input type="date" class="form-control center"
 										id="fechaDesde"
 							  			name="fechaDesde"
-							  			value="@fechaDesde"
+									    onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),@mapPermiso.get("parametro.diasMasGuia"))) value='@fechaDesde';"
+									    value="@fechaDesde"
 					        			required>
 								</td>
 							</TR>

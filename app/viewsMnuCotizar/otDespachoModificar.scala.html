@@ -119,7 +119,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long, fechaIniTerGuia
 						  		<input type="date" class="form-control center"
 						  			name="fechaGuia" 
 						  			id="fechaGuia"
-						  			onblur="if(!limitaFecha(value,360,10)) value='@fechaGuia'; else $('#seModifico').val(1);"
+						  			onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),@mapPermiso.get("parametro.diasMasGuia"))) value='@fechaGuia'; else $('#seModifico').val(1);"
 						  			value="@fechaGuia"
 				        			required>
 							</div>
@@ -132,7 +132,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long, fechaIniTerGuia
 								<input type="date" class="form-control center"
 								name="fechaIniTerGuia"
 								id="fechaIniTerGuia"
-								onblur="if(!limitaFecha(value,360,60)) value='@fechaIniTerGuia'; else $('#seModifico').val(1);"
+								onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosIniTer"),@mapPermiso.get("parametro.diasMasIniTer"))) value='@fechaIniTerGuia'; else $('#seModifico').val(1);"
 								value="@fechaIniTerGuia"
 								required>
 							</div>

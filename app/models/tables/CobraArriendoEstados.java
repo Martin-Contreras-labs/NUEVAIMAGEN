@@ -308,7 +308,6 @@ public class CobraArriendoEstados {
 						" where tipoEstado.cobraArriendo = 1 and bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 and movimiento.id_guia > 0" +
 						" group by estadoEquipo.id_guia, movimiento.id_equipo, movimiento.id_cotizacion, movimiento.id_bodegaEmpresa" +
 						" having sum(estadoEquipo.cantidad)>0;",db,db,db,db,db,db,db);
-
 		try (PreparedStatement smt = con.prepareStatement(query);
 			 ResultSet rs = smt.executeQuery()){
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con,db);

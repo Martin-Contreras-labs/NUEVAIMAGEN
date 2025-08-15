@@ -266,7 +266,7 @@ public class Apis extends Controller {
 			try (Connection con = dbRead.getConnection()){
 	   			List<MovimientosEntreFechas> lista = MovimientosEntreFechas.movimientosEntreFechas(con, baseDato, desdeAAMMDD, hastaAAMMDD, mapeoDiccionario);
 	   			JsonNode rsJson =  Json.toJson(lista);
-	   			return ok("{\"movimientosEntreFechas\":"+rsJson.toString()+",\"desde\":\""+desdeAAMMDD+"\",\"hasta\":\""+hastaAAMMDD+",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
+	   			return ok("{\"movimientosEntreFechas\":"+rsJson.toString()+",\"desde\":\""+desdeAAMMDD+"\",\"hasta\":\""+hastaAAMMDD+"\",\"empresa\":\""+baseDato.substring(4)+"\"}").as("application/json");
 	   		} catch (SQLException e) {
 				e.printStackTrace();
 				return ok("{\"ERROR\":\"contactar a INQSOL\"}").as("application/json");

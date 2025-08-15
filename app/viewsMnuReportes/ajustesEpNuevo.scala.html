@@ -22,7 +22,7 @@ bodegaEmpresa: tables.BodegaEmpresa, hoy: utilities.Fechas, listAjustes: List[ta
 							<td style="text-align: left;">
 						  		<input type="date" class="form-control left"
 						  			name="fechaAjuste"
-						  			onblur="if(!limitaFecha(value,720,10)) value='@hoy.getFechaStrAAMMDD()';"
+						  			onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),70)) value='@hoy.getFechaStrAAMMDD()';"
 						  			value="@hoy.getFechaStrAAMMDD()"
 				        			required>
 							</td>

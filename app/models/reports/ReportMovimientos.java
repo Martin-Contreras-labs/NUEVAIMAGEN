@@ -455,7 +455,7 @@ public class ReportMovimientos {
 											&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) bodega.getId()
 											&& (long) guiasPer.get(k).id_cotizacion == Long.parseLong(idCotizacion) )
 									{
-										Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+										Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaIniTerGuia);
 										Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
 										if(guiasPer.get(k).id_tipoMovimiento == 1) {
 											diasGuia = diasGuia - nDiaGraciaEnvio + 1;
@@ -1267,7 +1267,6 @@ public class ReportMovimientos {
 				lista.add(numGuia);
 				lista.add(fechGuia);
 				lista.add(fechIniTerGuia);
-				System.out.println("lista.size()="+fechIniTerGuia.toString());
 				lista.add(guiaClie);
 				lista.add(tipGuia);
 				lista.add(blanco);
@@ -2446,7 +2445,7 @@ public class ReportMovimientos {
 												&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) bodegaEmpresa.getId()
 												&& (long) guiasPer.get(k).id_cotizacion == Long.parseLong(idCotizacion) )
 										{
-											Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+											Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaIniTerGuia);
 											Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
 											if(guiasPer.get(k).id_tipoMovimiento == 1) {
 												diasGuia = diasGuia - nDiaGraciaEnvio + 1;
@@ -3382,7 +3381,7 @@ public class ReportMovimientos {
 										&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) bodegaEmpresa.getId()
 										&& (long) guiasPer.get(k).id_cotizacion == Long.parseLong(idCotizacion) )
 								{
-									Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+									Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaIniTerGuia);
 									Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
 									if(guiasPer.get(k).id_tipoMovimiento == 1) {
 										diasGuia = diasGuia - nDiaGraciaEnvio + 1;

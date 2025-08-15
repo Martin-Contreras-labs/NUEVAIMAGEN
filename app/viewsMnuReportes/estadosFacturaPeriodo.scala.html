@@ -21,6 +21,7 @@ fechaDesde: String, fechaHasta: String, tasas: tables.TasasCambio)
 									<input type="date" class="form-control center"
 										id="fechaDesde"
 							  			name="fechaDesde"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),@mapPermiso.get("parametro.diasMasGuia"))) value='@fechaDesde';"
 							  			value="@fechaDesde"
 					        			required>
 								</td>

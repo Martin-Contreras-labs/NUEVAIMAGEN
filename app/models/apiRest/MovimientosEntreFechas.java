@@ -63,6 +63,8 @@ public class MovimientosEntreFechas {
 	
 	public String id_sucursal;
 	public String nombre_sucursal;
+
+	public String fechaIniTerGuia;
 	
 	public MovimientosEntreFechas() {
 		super();
@@ -91,7 +93,8 @@ public class MovimientosEntreFechas {
 				/*13*/	+ " ifnull(factura.numero,''), "
 				/*14*/	+ " ifnull(factura.fecha,''), "
 				/*15*/	+ " ifnull(guia.numGuiaCliente,''), "
-				/*16*/	+ " movimiento.esVenta "
+				/*16*/	+ " movimiento.esVenta, "
+				/*17*/	+ " ifnull(guia.fechaIniTerGuia,ifnull(guia.fecha,'')) "
 				+ " from `%s`.movimiento "
 				+ " left join `%s`.guia on guia.id = id_guia "
 				+ " left join `%s`.compra on compra.id = movimiento.id_compra "
@@ -215,6 +218,7 @@ public class MovimientosEntreFechas {
 						mov.tipo_operacion = tipo_operacion;
 						mov.id_sucursal = bodega.getId_sucursal().toString();
 						mov.nombre_sucursal = bodega.getNameSucursal();
+						mov.fechaIniTerGuia = rs.getString(17);
 						datos.add(mov);
 					}
 				}

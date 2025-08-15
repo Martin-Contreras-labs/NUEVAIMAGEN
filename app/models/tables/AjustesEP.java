@@ -227,6 +227,76 @@ public class AjustesEP {
 		return (lista);
 	}
 
+	public static List<AjustesEP> allPorBodegaLimitFecha(Connection con, String db, Long id_bodegaEmpresa, String esPorSucursal, String id_sucursal, String limitFecha){
+		List<AjustesEP> lista = new ArrayList<AjustesEP>();
+
+		String condSucursal = "";
+		if(esPorSucursal.equals("1")) {
+			condSucursal = " and bodegaEmpresa.id_sucursal = " + id_sucursal;
+		}
+
+		String query = " select " +
+				" ajustesEP.id," +
+				" ajustesEP.id_bodegaEmpresa," +
+				" ajustesEP.id_tipoAjuste," +
+				" ajustesEP.id_tipoAjusteVenta," +
+				" ajustesEP.concepto," +
+				" ajustesEP.fechaAjuste," +
+				" ajustesEP.id_moneda," +
+				" ajustesEP.totalAjuste," +
+				" ajustesEP.observaciones," +
+				" ajustesEP.ajustePDF," +
+				" bodegaEmpresa.nombre," +
+				" tipoAjuste.ajuste," +
+				" tipoAjusteVenta.ajusteVenta," +
+				" moneda.nickName, " +
+				" tipoAjuste.factor, " +
+				" bodegaEmpresa.id_sucursal " +
+				" from `"+db+"`.ajustesEP" +
+				" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEP.id_bodegaEmpresa" +
+				" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEP.id_tipoAjuste" +
+				" left join `"+db+"`.tipoAjusteVenta on tipoAjusteVenta.id = ajustesEP.id_tipoAjusteVenta" +
+				" left Join `"+db+"`.moneda on moneda.id = ajustesEP.id_moneda" +
+				" where ajustesEP.id_bodegaEmpresa = ? and ajustesEP.fechaAjuste > ?" + condSucursal +
+				" order by ajustesEP.fechaAjuste desc;";
+		try (PreparedStatement smt = con.prepareStatement(query)) {
+			smt.setLong(1, id_bodegaEmpresa);
+			smt.setString(2, limitFecha);
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				while (rs.next()) {
+					String nameSucursal = "";
+					Sucursal sucursal = mapSucursal.get(rs.getLong(16));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					switch(dec.get(rs.getLong(7)).toString()) {
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
+						default:  break;
+					}
+					String fecha = "";
+					if (rs.getString(6) != null) {
+						fecha = myformatfecha.format(rs.getDate(6));
+					}
+					lista.add(new AjustesEP(
+							rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
+							rs.getString(5),fecha,rs.getLong(7),myformatdouble.format(rs.getDouble(8)),
+							rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),
+							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal));
+				}
+			}
+		} catch (SQLException e) {
+			String className = AjustesEP.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (lista);
+	}
+
 	public static boolean modifyPDF(Connection con, String db, String ajustePDF, Long idAjuste) {
 		boolean flag = true;
 		String query = "update `"+db+"`.ajustesEP set ajustePDF = ?  WHERE id = ?";

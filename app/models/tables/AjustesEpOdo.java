@@ -238,6 +238,64 @@ public class AjustesEpOdo {
 		return (lista);
 	}
 
+	public static List<AjustesEpOdo> allPorBodegaLimitFecha(Connection con, String db, Long id_bodegaEmpresa, String esPorSucursal, String id_sucursal, String limitFecha){
+		List<AjustesEpOdo> lista = new ArrayList<AjustesEpOdo>();
+		try (PreparedStatement smt = con
+				.prepareStatement(" select " +
+						" ajustesEpOdo.id," +
+						" ajustesEpOdo.id_bodegaEmpresa," +
+						" ajustesEpOdo.id_tipoAjuste," +
+						" ajustesEpOdo.concepto," +
+						" ajustesEpOdo.fechaAjuste," +
+						" ajustesEpOdo.id_moneda," +
+						" ajustesEpOdo.totalAjuste," +
+						" ajustesEpOdo.observaciones," +
+						" ajustesEpOdo.ajustePDF," +
+						" bodegaEmpresa.nombre," +
+						" tipoAjuste.ajuste," +
+						" moneda.nickName, " +
+						" tipoAjuste.factor, " +
+						" bodegaEmpresa.id_sucursal " +
+						" from `"+db+"`.ajustesEpOdo" +
+						" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEpOdo.id_bodegaEmpresa" +
+						" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEpOdo.id_tipoAjuste" +
+						" left Join `"+db+"`.moneda on moneda.id = ajustesEpOdo.id_moneda" +
+						" where ajustesEpOdo.id_bodegaEmpresa = ? and ajustesEpOdo.fechaAjuste > ? " +
+						" order by ajustesEpOdo.fechaAjuste desc, ajustesEpOdo.id desc;")) {
+			smt.setLong(1, id_bodegaEmpresa);
+			smt.setString(2, limitFecha);
+			try (ResultSet rs = smt.executeQuery()) {
+				Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+				Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
+				while (rs.next()) {
+					switch(dec.get(rs.getLong(6)).toString()) {
+						case "0": myformatdouble = new DecimalFormat("#,##0",symbols); break;
+						case "2": myformatdouble = new DecimalFormat("#,##0.00",symbols); break;
+						case "4": myformatdouble = new DecimalFormat("#,##0.0000",symbols); break;
+						case "6": myformatdouble = new DecimalFormat("#,##0.000000",symbols); break;
+						default:  break;
+					}
+					String fecha = "";
+					if (rs.getString(5) != null) {
+						fecha = myformatfecha.format(rs.getDate(5));
+					}
+					String nameSucursal = "";
+					Sucursal sucursal  = mapSucursal.get(rs.getLong(14));
+					if(sucursal!=null) {
+						nameSucursal = sucursal.getNombre();
+					}
+					lista.add(new AjustesEpOdo(rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getString(4),fecha,rs.getLong(6),myformatdouble.format(rs.getDouble(7)),
+							rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getLong(13),nameSucursal));
+				}
+			}
+		} catch (SQLException e) {
+			String className  = AjustesEpOdo.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (lista);
+	}
+
 	public static boolean modifyPDF(Connection con, String db, String ajustePDF, Long idAjuste) {
 		boolean flag=true;
 		try (PreparedStatement smt = con

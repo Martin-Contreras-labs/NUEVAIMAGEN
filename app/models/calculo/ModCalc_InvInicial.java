@@ -177,7 +177,7 @@ public class ModCalc_InvInicial {
 													&& (long) guiasPer.get(k).id_bodegaEmpresa == (long) inventario.get(i).id_bodegaEmpresa
 													&& (long) guiasPer.get(k).id_cotizacion == (long) inventario.get(i).id_cotizacion )
 											{
-												Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaGuia);
+												Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(k).fechaIniTerGuia);
 												Long diasGuia = (long) Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hastaAjustar.getFechaCal());
 												if(guiasPer.get(k).id_tipoMovimiento == 1) {
 													diasGuia = diasGuia - nDiaGraciaEnvio + 1;

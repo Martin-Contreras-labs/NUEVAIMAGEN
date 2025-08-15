@@ -11572,7 +11572,10 @@ public class MnuReportes extends Controller {
 				Long id_bodega = Long.parseLong(form.get("id_bodega"));
 				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				List<AjustesEP> lista = AjustesEP.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
+				Fechas hoy = Fechas.hoy();
+				int diasMenos = (int) Long.parseLong(mapeoPermiso.get("parametro.diasMenosGuia"));
+				Fechas limitFecha = Fechas.addDias(hoy.getFechaCal(), - diasMenos);
+				List<AjustesEP> lista = AjustesEP.allPorBodegaLimitFecha(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal, limitFecha.getFechaStrAAMMDD());
 				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				return ok(ajustesEpListado.render(mapeoDiccionario, mapeoPermiso, userMnu, lista, bodegaEmpresa));
 			} catch (SQLException e) {

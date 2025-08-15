@@ -650,21 +650,22 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
     		alertify.alert("Debe ingresar una fecha valida");
        		$('#fecha').val("@fecha");
     	}else{
+			let diasMenos = '@mapPermiso.get("parametro.diasMenosGuia")';
     		var fechaMas = new Date();
         	var fechaMenos = new Date();
         	var fecha = new Date($('#fecha').val());
         	fechaMas.setDate(fechaMas.getDate() + 0);
-        	fechaMenos.setDate(fechaMenos.getDate() - 180);
+        	fechaMenos.setDate(fechaMenos.getDate() - diasMenos);
         	if(fecha>fechaMas){
         		alertify.alert("La fecha no puede ser posterior a la fecha actual.");
         		$('#fecha').val('@fecha');
         	}else if(fecha<fechaMenos){
-           		alertify.alert("La fecha no puede tener mas de 180 d&iacute;as de antiguedad.");
+           		alertify.alert("La fecha no puede tener mas de "+diasMenos+" d&iacute;as de antiguedad.");
            		$('#fecha').val('@fecha');
         	}
     	}
     	
-    };
+    }
     
 
 	
