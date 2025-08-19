@@ -68,9 +68,11 @@ listAjustes: List[tables.AjustesEP], bodegaEmpresa: tables.BodegaEmpresa)
 									}
 								</td>
 								<td style="text-align:center;">
-									<a href="#" onclick="$('#form_id_modificar').val('@lista1.id'); document.getElementById('form_modificar').submit();">
-										<kbd style="background-color: #73C6B6">E</kbd>
-									</a>
+									@if( ! (lista1.id_proformaEstado > 0) ){
+										<a href="#" onclick="$('#form_id_modificar').val('@lista1.id'); document.getElementById('form_modificar').submit();">
+											<kbd style="background-color: #73C6B6">E</kbd>
+										</a>
+									}
 								</td>
 								<td style="text-align:center;">
 									<a href="#" onclick= "ajustesEpEliminar('@lista1.id')">

@@ -5,7 +5,7 @@ fechaDesde: String, fechaHasta: String, tasas: tables.TasasCambio)
 
 	@menues(mapDiccionario, mapPermiso, userMnu, " ")
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "PROCESO DE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO"),"(SOLO CLIENTES)")
+		@barraTitulo(mapDiccionario, "PROCESO DE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO")+" POR DAÑOS","(SOLO CLIENTES)")
 		<form action="/routes3/estadosFacturaProyecto/0" method="POST" onsubmit="return validarForm();">
 			<br><br><br>
 			<div class="row  justify-content-md-center">

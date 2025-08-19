@@ -1163,7 +1163,8 @@ public class FormMovimiento {
 
 		    				if( ! db.equals("madaAlzatec")
 		    						&& ! db.equals("madaMontax")
-		    						&& ! db.equals("madaHohe")) {
+		    						&& ! db.equals("madaHohe")
+									&& ! db.equals("madaColombiaAtex")) {
 		    					cell = row.getCell(2);
 			    				texto = myformatdouble0.format(bueno);
 			    				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
@@ -1391,7 +1392,8 @@ public class FormMovimiento {
 
 	    			if( ! db.equals("madaAlzatec")
 	    					&& ! db.equals("madaMontax")
-	    					&& ! db.equals("madaHohe")) {
+	    					&& ! db.equals("madaHohe")
+							&& ! db.equals("madaColombiaAtex")) {
 	    				cell = row.getCell(2);
 		    			texto = myformatdouble0.format(granTotalBueno);
 		    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);

@@ -519,16 +519,17 @@ public class ReportHohe {
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Long.parseLong(aux));
 						}
-					}else if(j<12) {
+					}else if(j<12 || j==18) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("")) {aux="NA";}
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}else {
-						String aux = lista.get(i).get(j).trim();
-						if(aux.equals("") || aux.equals("NA")) {aux="0";}
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(Double.parseDouble(aux));
+							String aux = lista.get(i).get(j).trim();
+							if(aux.equals("") || aux.equals("NA")) {aux="0";}
+							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+							cell.setCellValue(Double.parseDouble(aux));
+
 					}
 					
 					if(j==lista.get(i).size()-1) {
@@ -1768,11 +1769,13 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 				ResultSet rs = smt.executeQuery();
 				while (rs.next()) {
 					List<String> aux = new ArrayList<String>();
-					aux.add(rs.getString(1)); // idEquipo
-					aux.add(rs.getString(2)); // codigo
-					aux.add(rs.getString(3)); // nombre equipo
-					aux.add(rs.getString(4)); // idGrupo
-					aux.add(rs.getString(5)); // nombre grupo o familia
+					aux.add(rs.getString(1)); //0 idEquipo
+					aux.add(rs.getString(2)); //1 codigo
+					aux.add(rs.getString(3)); //2 nombre equipo
+					aux.add(rs.getString(4)); //3 idGrupo
+					aux.add(rs.getString(5)); //4 nombre grupo o familia
+					aux.add(rs.getString(6)); //5 kg
+					aux.add(rs.getString(7)); //6 m2
 					listaEquipos.add(aux);
 				}
 				smt.close();rs.close();
@@ -1861,8 +1864,8 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 				
 			for(int i=0;i<listaEquipos.size();i++) {
 				
-				Double kg = Double.parseDouble(listaEquipos.get(i).get(6).trim());
-				Double m2 = Double.parseDouble(listaEquipos.get(i).get(7).trim());
+				Double kg = Double.parseDouble(listaEquipos.get(i).get(5).trim());
+				Double m2 = Double.parseDouble(listaEquipos.get(i).get(6).trim());
 				
 				for(int j=0;j<listaBodegas.size();j++) {
 					Double cantAux = mapCantidades.get(listaBodegas.get(j).get(0)+"_"+listaEquipos.get(i).get(0));

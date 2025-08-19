@@ -56,12 +56,13 @@ public class CobraArriendoEstados {
 	Double puArriendoDia;
 
 	Long cobraArriendo;
+	String fechaIniTerGuia;
 
 
 	public CobraArriendoEstados(Long id_movimiento, Long id_guia, Long id_bodegaEmpresa, Long id_equipo, Long id_unidad, Long id_cotizacion,
 								Long id_sucursal, Long id_grupo, String nombreBodega, Long nroCoti, String codigo, String nombreEquipo, Long numGuia,
 								String numGuiaCliente, String fecha, Double cantidad, String nombreSucursal, String nombreGrupo, Long id_moneda,
-								String nickMoneda, Double puArriendoDia, Double puReposicion, Long cobraArriendo) {
+								String nickMoneda, Double puArriendoDia, Double puReposicion, Long cobraArriendo, String fechaIniTerGuia) {
 		super();
 		this.id_movimiento = id_movimiento;
 		this.id_guia = id_guia;
@@ -86,6 +87,7 @@ public class CobraArriendoEstados {
 		this.puReposicion = puReposicion;
 		this.puArriendoDia = puArriendoDia;
 		this.cobraArriendo = cobraArriendo;
+		this.fechaIniTerGuia = fechaIniTerGuia;
 	}
 
 	public CobraArriendoEstados() {
@@ -276,6 +278,14 @@ public class CobraArriendoEstados {
 		this.cobraArriendo = cobraArriendo;
 	}
 
+	public String getFechaIniTerGuia() {
+		return fechaIniTerGuia;
+	}
+
+	public void setFechaIniTerGuia(String fechaIniTerGuia) {
+		this.fechaIniTerGuia = fechaIniTerGuia;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	public static List<CobraArriendoEstados> all (Connection con, String db) {
@@ -297,7 +307,8 @@ public class CobraArriendoEstados {
 						" guia.numGuiaCliente," +
 						" guia.fecha," +
 						" sum(estadoEquipo.cantidad)," +
-						" estadoEquipo.cobraArriendo" +
+						" estadoEquipo.cobraArriendo," +
+						" ifnull(guia.fechaIniTerGuia,guia.fecha) as fechaIniTerGuia" +
 						" from `%s`.estadoEquipo" +
 						" left join `%s`.movimiento on movimiento.id = estadoEquipo.id_movimiento" +
 						" left join `%s`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado" +
@@ -331,6 +342,7 @@ public class CobraArriendoEstados {
 				String fecha = rs.getString(15);
 				Double cantidad = rs.getDouble(16);
 				Long cobraArriendo = rs.getLong(17);
+				String fechaIniTerGuia = rs.getString(18);
 
 				String nombreSucursal = mapSucursal.get(id_sucursal) != null ? mapSucursal.get(id_sucursal).nombre : "";
 				String nombreGrupo = mapGrupo.get(id_grupo) != null ? mapGrupo.get(id_grupo).nombre : "";
@@ -349,7 +361,7 @@ public class CobraArriendoEstados {
 
 
 				lista.add(new CobraArriendoEstados(id_movimiento,id_guia,id_bodegaEmpresa,id_equipo,id_unidad,id_cotizacion,id_sucursal,id_grupo,nombreBodega,nroCoti,codigo,nombreEquipo,
-						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo));
+						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo, fechaIniTerGuia));
 			}
 		} catch (SQLException e) {
 			String className = ActaBaja.class.getSimpleName();
@@ -385,7 +397,7 @@ public class CobraArriendoEstados {
 				Long id_moneda = x.getId_moneda();
 				Double cantidad = x.getCantidad();
 				Double tasa = tasas.get(id_moneda) != null ? tasas.get(id_moneda) : 1.0;
-				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(x.getFecha());
+				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(x.getFechaIniTerGuia());
 				Double total = puArrDiaMO * cantidad * tasa * diasPeriodo;
 				if(fechaGuia.getFechaCal().after(desde.getFechaCal()) && fechaGuia.getFechaCal().before(hasta.getFechaCal())) {
 					int auxDias = Fechas.diasEntreFechas(fechaGuia.getFechaCal(), hasta.getFechaCal());
@@ -426,7 +438,7 @@ public class CobraArriendoEstados {
 				Double cantidad = x.getCantidad();
 				Double tasa = tasas.get(id_moneda) != null ? tasas.get(id_moneda) : 1.0;
 				Double puArrDiaMP = x.getPuArriendoDia() * tasa;
-				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(x.getFecha());
+				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(x.getFechaIniTerGuia());
 				Double total = puArrDiaMO * cantidad * tasa * diasPeriodo;
 				int dias = diasPeriodo;
 				if(fechaGuia.getFechaCal().after(desde.getFechaCal()) && fechaGuia.getFechaCal().before(hasta.getFechaCal())) {
@@ -515,7 +527,7 @@ public class CobraArriendoEstados {
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("LISTADO DE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO"));
+			cell.setCellValue("LISTADO DE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO")+" POR DAÑOS");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
@@ -719,7 +731,7 @@ public class CobraArriendoEstados {
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("DETALLE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO"));
+			cell.setCellValue("DETALLE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO")+" POR DAÑOS");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);

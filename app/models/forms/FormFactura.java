@@ -882,7 +882,7 @@ public class FormFactura {
 					if("1".equals(esVenta)) {
 						concepto = "VENTA";
 					}
- 	            	List<List<String>> datos = ReportMovimientos.movimientoGuias(con, db, mapDiccionario, bodegaEmpresa.getId(), esVenta, proforma.desde, proforma.hasta, usd, eur, uf, concepto);
+ 	            	List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, db, mapDiccionario, bodegaEmpresa.getId(), esVenta, proforma.desde, proforma.hasta, usd, eur, uf, concepto);
 					String jsonApi = ApiNuboxDocDoc.generaFactArriendo(con, db, resumenSubtotales, cliente, proforma, mapDiccionario, emisorTributario, detalleAjuste, datos);
  	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
 				}

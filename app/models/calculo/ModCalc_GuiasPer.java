@@ -146,9 +146,6 @@ public class ModCalc_GuiasPer {
 				//determina cantidad de dias entre guia y fecha hasta
 
 				Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(guiasPer.get(i).fechaIniTerGuia);
-				if(fechaGuia.getFechaCal().after(hasta.getFechaCal())){
-					fechaGuia = hasta;
-				}
 
 				Long diasGuia = (long) 0;
 				// si es una venta dias es cero sino determina los dias entre guia y hasta
@@ -176,6 +173,9 @@ public class ModCalc_GuiasPer {
 							diasGuia = ModCalc_GuiasPer.diasGuiaBase30(desdeAAMMDD, diasGuia, guiasPer.get(i).id_tipoMovimiento, desde);
 						}
 					}
+				}
+				if(fechaGuia.getFechaCal().after(hasta.getFechaCal())){
+					diasGuia = 0L;
 				}
 				//obtiene precios de cada bodega
 				String keyPrecio = guiasPer.get(i).id_bodegaEmpresa.toString() + "_" + guiasPer.get(i).id_equipo.toString() + "_" + guiasPer.get(i).id_cotizacion.toString();

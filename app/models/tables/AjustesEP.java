@@ -32,9 +32,11 @@ public class AjustesEP {
 	public Long factor;
 	public String nameSucursal;
 
+	public Long id_proformaEstado;
+
 	public AjustesEP(Long id, Long id_bodegaEmpresa, Long id_tipoAjuste, Long id_tipoAjusteVenta, String concepto,
 					 String fechaAjuste, Long id_moneda, String totalAjuste, String observaciones, String ajustePDF,
-					 String bodegaEmpresa, String tipoAjuste, String tipoAjusteVenta, String moneda, Long factor, String nameSucursal) {
+					 String bodegaEmpresa, String tipoAjuste, String tipoAjusteVenta, String moneda, Long factor, String nameSucursal, Long id_proformaEstado) {
 		super();
 		this.id = id;
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
@@ -52,6 +54,7 @@ public class AjustesEP {
 		this.moneda = moneda;
 		this.factor = factor;
 		this.nameSucursal = nameSucursal;
+		this.id_proformaEstado = id_proformaEstado;
 	}
 
 	public AjustesEP() {
@@ -182,7 +185,8 @@ public class AjustesEP {
 				" tipoAjusteVenta.ajusteVenta," +
 				" moneda.nickName, " +
 				" tipoAjuste.factor, " +
-				" bodegaEmpresa.id_sucursal " +
+				" bodegaEmpresa.id_sucursal, " +
+				" ajustesEP.id_proformaEstado" +
 				" from `"+db+"`.ajustesEP" +
 				" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEP.id_bodegaEmpresa" +
 				" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEP.id_tipoAjuste" +
@@ -216,7 +220,7 @@ public class AjustesEP {
 							rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 							rs.getString(5),fecha,rs.getLong(7),myformatdouble.format(rs.getDouble(8)),
 							rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),
-							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal));
+							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal,rs.getLong(17)));
 				}
 			}
 		} catch (SQLException e) {
@@ -251,7 +255,8 @@ public class AjustesEP {
 				" tipoAjusteVenta.ajusteVenta," +
 				" moneda.nickName, " +
 				" tipoAjuste.factor, " +
-				" bodegaEmpresa.id_sucursal " +
+				" bodegaEmpresa.id_sucursal, " +
+				" ajustesEP.id_proformaEstado" +
 				" from `"+db+"`.ajustesEP" +
 				" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEP.id_bodegaEmpresa" +
 				" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEP.id_tipoAjuste" +
@@ -286,7 +291,7 @@ public class AjustesEP {
 							rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 							rs.getString(5),fecha,rs.getLong(7),myformatdouble.format(rs.getDouble(8)),
 							rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),
-							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal));
+							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal,rs.getLong(17)));
 				}
 			}
 		} catch (SQLException e) {
@@ -337,7 +342,8 @@ public class AjustesEP {
 				" tipoAjusteVenta.ajusteVenta," +
 				" moneda.nickName, " +
 				" tipoAjuste.factor, " +
-				" bodegaEmpresa.id_sucursal " +
+				" bodegaEmpresa.id_sucursal, " +
+				" ajustesEP.id_proformaEstado" +
 				" from `"+db+"`.ajustesEP" +
 				" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEP.id_bodegaEmpresa" +
 				" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEP.id_tipoAjuste" +
@@ -371,7 +377,7 @@ public class AjustesEP {
 							rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 							rs.getString(5),fecha,rs.getLong(7),myformatdouble.format(rs.getDouble(8)),
 							rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),
-							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal);
+							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal,rs.getLong(17));
 				}
 			}
 		} catch (SQLException e) {
@@ -528,7 +534,8 @@ public class AjustesEP {
 				" tipoAjusteVenta.ajusteVenta," +
 				" moneda.nickName, " +
 				" tipoAjuste.factor, " +
-				" bodegaEmpresa.id_sucursal " +
+				" bodegaEmpresa.id_sucursal, " +
+				" ajustesEP.id_proformaEstado" +
 				" from `"+db+"`.ajustesEP" +
 				" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = ajustesEP.id_bodegaEmpresa" +
 				" left join `"+db+"`.tipoAjuste on tipoAjuste.id = ajustesEP.id_tipoAjuste" +
@@ -563,7 +570,7 @@ public class AjustesEP {
 							rs.getLong(1),rs.getLong(2),rs.getLong(3),rs.getLong(4),
 							rs.getString(5),fecha,rs.getLong(7),myformatdouble.format(rs.getDouble(8)),
 							rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),
-							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal));
+							rs.getString(13),rs.getString(14),rs.getLong(15),nameSucursal,rs.getLong(17)));
 				}
 			}
 		} catch (SQLException e) {

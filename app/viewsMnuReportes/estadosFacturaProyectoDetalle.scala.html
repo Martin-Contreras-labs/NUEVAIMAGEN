@@ -7,7 +7,7 @@
 
 @menues(mapDiccionario, mapPermiso, userMnu, " ")
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "DETALLE EP ESTADO EQUIPO COBRAR " + mapDiccionario.get("BODEGA") + "/PROYECTO: " + bodegaEmpresa.getNombre(),
+		@barraTitulo(mapDiccionario, "DETALLE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO")+" POR DAÑOS " + mapDiccionario.get("BODEGA") + "/PROYECTO: " + bodegaEmpresa.getNombre(),
 			"PERIODO: desde " + utilities.Fechas.DDMMAA(desdeAAMMDD) +" --- hasta: " +  utilities.Fechas.DDMMAA(hastaAAMMDD))
 		<div class="row  justify-content-md-center">
 			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">

@@ -1177,7 +1177,7 @@ public class ReportFacturas {
 	            cell = row.createCell(posCell+2);
 	            cell.setCellStyle(subtitulo);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("FECHA GUIA: "+guiasPer.get(i).get(3)+"  --  INI/PER: "+guiasPer.get(i).get(10));
+				cell.setCellValue("FECHA GUIA: "+guiasPer.get(i).get(3)+"  --  INI/TER: "+guiasPer.get(i).get(10));
 				
 				posCell++; 
 	            cell = row.createCell(posCell+4);

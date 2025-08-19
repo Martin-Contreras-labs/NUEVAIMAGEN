@@ -2328,7 +2328,7 @@ public class MnuReportes extends Controller {
 					List<Long> listIdBodegas = BodegaEmpresa.allIdBodPorIdProy(con, s.baseDato, id_proyecto);
 					List<List<List<String>>> listDatos = new ArrayList<List<List<String>>>();
 					for (Long i : listIdBodegas) {
-						List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+						List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 						List<String> x = datos.get(datos.size() - 1);
 						String y = x.get(x.size() - 5);
 						Double total = Double.parseDouble(y.replaceAll(",", ""));
@@ -2413,7 +2413,7 @@ public class MnuReportes extends Controller {
 						List<Long> listIdBodegas = BodegaEmpresa.allIdBodPorIdProy(con, s.baseDato, id_proyecto);
 						listDatos = new ArrayList<List<List<String>>>();
 						for(Long i: listIdBodegas) {
-							List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+							List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 							listDatos.add(datos);
 						}
 					} catch (SQLException e) {
@@ -6815,7 +6815,7 @@ public class MnuReportes extends Controller {
 				if ("1".equals(esVenta)) {
 					concepto = "VENTA";
 				}
-				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+				List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 				Map<String, Double> mapSubtotales = new HashMap<String,Double>();
@@ -7099,7 +7099,7 @@ public class MnuReportes extends Controller {
 			if ("1".equals(esVenta)) {
 				concepto = "VENTA";
 			}
-			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+			List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 			Map<String, Double> mapSubtotales = new HashMap<String,Double>();
@@ -8005,7 +8005,7 @@ public class MnuReportes extends Controller {
 
 			List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 			try (Connection con = dbRead.getConnection()) {
-				List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+				List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				Map<String, Double> mapSubtotales = new HashMap<String,Double>();
 				Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
@@ -8459,7 +8459,7 @@ public class MnuReportes extends Controller {
 
 		List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 		try (Connection con = dbRead.getConnection()) {
-			List<List<String>> datos = ReportMovimientos.movimientoGuias(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+			List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			Map<String, Double> mapSubtotales = new HashMap<String,Double>();
 			Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
@@ -11706,9 +11706,14 @@ public class MnuReportes extends Controller {
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
+				AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
 				if (AjustesEP.delete(con, s.baseDato, id_ajuste)) {
-					AjustesEP ajuste = AjustesEP.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
-					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "delete", "elimina ajuste de ep en bodega " + ajuste.bodegaEmpresa);
+					if(ajuste.id_proformaEstado > 0){
+						ProformaEstado.deletePorId(con,s.baseDato,ajuste.id_proformaEstado);
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "delete", "elimina ajuste de ep en bodega y ep por daños" + ajuste.bodegaEmpresa);
+					}else{
+						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "ajustesEP", id_ajuste, "delete", "elimina ajuste de ep en bodega " + ajuste.bodegaEmpresa);
+					}
 					return (ajustesEpListado(request));
 				} else {
 					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
@@ -14313,7 +14318,7 @@ public class MnuReportes extends Controller {
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
 				ProformaEstado.deletePorId(con,s.baseDato,id_proformaEstado);
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", id_proformaEstado, "deletePorId", "Elimina Ajustes por Estados nro: " + id_proformaEstado);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proformaEstado", id_proformaEstado, "deletePorId", "Elimina Ajustes por Estados Daños nro: " + id_proformaEstado);
 				return ok(mensajes.render("/routes3/proformaEstadoListaGet/"+desde+","+hasta,"ESTADO EQUIPO COBRAR (AJUSTES) nro: "+id_proformaEstado+" eliminada" ));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
