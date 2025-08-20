@@ -51,7 +51,7 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 								@if(index1 < 6){
 									<TR>
 										@for(nivel2 <- nivel1) {
-											<th style="text-align: center; vertical-align: middle">@nivel2</th>
+											<td style="text-align: center; vertical-align: middle">@nivel2</td>
 										}
 									</TR>
 								}
@@ -122,7 +122,7 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 		var footer = tabla.createTFoot();
 		var newRow = footer.insertRow(0);
 		var cellsOfRow = tabla.rows[0].getElementsByTagName('td');
-		
+
 		for (var i = 0; i < cellsOfRow.length; i++) { 
 			newRow.insertCell(i);
 			newRow.cells[i].style.backgroundColor="#eeeeee";

@@ -50,17 +50,17 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 									<TR>
 										@for((nivel2,index2) <- nivel1.zipWithIndex) {
 											@if(index2 == 0){
-												<th style="min-width:150px">@nivel2</th>
+												<td style="min-width:150px">@nivel2</td>
 											}
 											@if(index2 == 2){
-												<th>@nivel2</th>
+												<td>@nivel2</td>
 											}
 											@if(index2 == 3){
-												<th style="min-width:300px">@nivel2</th>
+												<td style="min-width:300px">@nivel2</td>
 											}
 
 											@if(index2 != 0 && index2 != 2 && index2 != 3){
-												<th style="min-width:50px">@nivel2</th>
+												<td style="min-width:50px">@nivel2</td>
 											}
 										}
 									</TR>
