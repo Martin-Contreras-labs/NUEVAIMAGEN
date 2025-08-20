@@ -2512,28 +2512,28 @@ public class ReportFacturas {
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("GUIA ULTIMO INGRESO");
+			cell.setCellValue("NRO GUIA ULTIMO INGRESO");
 
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("GUIA FECHA INGRESO");
+			cell.setCellValue("FECHA INI/TER INGRESO");
 
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("GUIA ULTIMA SALIDA");
+			cell.setCellValue("NRO GUIA ULTIMA SALIDA");
 
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("GUIA FECHA SALIDA");
+			cell.setCellValue("FECHA INI/TER SALIDA");
 
 
 
@@ -3724,25 +3724,25 @@ public class ReportFacturas {
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("GUIA ULTIMO INGRESO");
+				cell.setCellValue("NRO GUIA ULTIMO INGRESO");
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("GUIA FECHA INGRESO");
+				cell.setCellValue("FECHA INI/TER INGRESO");
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("GUIA ULTIMA SALIDA");
+				cell.setCellValue("NRO GUIA ULTIMA SALIDA");
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("GUIA FECHA SALIDA");
+				cell.setCellValue("FECHA INI/TER SALIDA");
 
 
 				posRow--;

@@ -6870,14 +6870,14 @@ public class MnuReportes extends Controller {
 						Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 						if(guia != null) {
 							aux.add(guia.getNumero().toString());
-							aux.add(Fechas.DDMMAA(guia.getFecha()));
+							aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 						}else{
 							if (i == 0) {
-								aux.add("Guia");
-								aux.add("Guia");
+								aux.add("Nro Guia");
+								aux.add("Fecha");
 							} else if (i == 1) {
 								aux.add("Ultimo");
-								aux.add("Fecha");
+								aux.add("Ini/Ter");
 							} else if (i == 4) {
 								aux.add("Ingreso");
 								aux.add("Ingreso");
@@ -6889,14 +6889,14 @@ public class MnuReportes extends Controller {
 						guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 						if(guia != null) {
 							aux.add(guia.getNumero().toString());
-							aux.add(Fechas.DDMMAA(guia.getFecha()));
+							aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 						}else{
 							if (i == 0) {
-								aux.add("Guia");
-								aux.add("Guia");
+								aux.add("Nro Guia");
+								aux.add("Fecha");
 							} else if (i == 1) {
 								aux.add("Ultima");
-								aux.add("Fecha");
+								aux.add("Ini/Ter");
 							} else if (i == 4) {
 								aux.add("Salida");
 								aux.add("Salida");
@@ -7154,14 +7154,14 @@ public class MnuReportes extends Controller {
 					Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 					if(guia != null) {
 						aux.add(guia.getNumero().toString());
-						aux.add(Fechas.DDMMAA(guia.getFecha()));
+						aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 					}else{
 						if (i == 0) {
-							aux.add("Guia");
-							aux.add("Guia");
+							aux.add("Nro Guia");
+							aux.add("Fecha");
 						} else if (i == 1) {
 							aux.add("Ultimo");
-							aux.add("Fecha");
+							aux.add("Ini/Ter");
 						} else if (i == 4) {
 							aux.add("Ingreso");
 							aux.add("Ingreso");
@@ -7173,14 +7173,14 @@ public class MnuReportes extends Controller {
 					guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 					if(guia != null) {
 						aux.add(guia.getNumero().toString());
-						aux.add(Fechas.DDMMAA(guia.getFecha()));
+						aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 					}else{
 						if (i == 0) {
-							aux.add("Guia");
-							aux.add("Guia");
+							aux.add("Nro Guia");
+							aux.add("Fecha");
 						} else if (i == 1) {
 							aux.add("Ultima");
-							aux.add("Fecha");
+							aux.add("Ini/Ter");
 						} else if (i == 4) {
 							aux.add("Salida");
 							aux.add("Salida");
@@ -8059,14 +8059,14 @@ public class MnuReportes extends Controller {
 						Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 						if(guia != null) {
 							aux.add(guia.getNumero().toString());
-							aux.add(Fechas.DDMMAA(guia.getFecha()));
+							aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 						}else{
 							if (i == 0) {
-								aux.add("Guia");
-								aux.add("Guia");
+								aux.add("Nro Guia");
+								aux.add("Fecha");
 							} else if (i == 1) {
 								aux.add("Ultimo");
-								aux.add("Fecha");
+								aux.add("Ini/Ter");
 							} else if (i == 4) {
 								aux.add("Ingreso");
 								aux.add("Ingreso");
@@ -8078,14 +8078,14 @@ public class MnuReportes extends Controller {
 						guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 						if(guia != null) {
 							aux.add(guia.getNumero().toString());
-							aux.add(Fechas.DDMMAA(guia.getFecha()));
+							aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 						}else{
 							if (i == 0) {
-								aux.add("Guia");
-								aux.add("Guia");
+								aux.add("Nro Guia");
+								aux.add("Fecha");
 							} else if (i == 1) {
 								aux.add("Ultima");
-								aux.add("Fecha");
+								aux.add("Ini/Ter");
 							} else if (i == 4) {
 								aux.add("Salida");
 								aux.add("Salida");
@@ -8513,14 +8513,14 @@ public class MnuReportes extends Controller {
 					Guia guia = mapGuiasIngreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 					if(guia != null) {
 						aux.add(guia.getNumero().toString());
-						aux.add(Fechas.DDMMAA(guia.getFecha()));
+						aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 					}else{
 						if (i == 0) {
-							aux.add("Guia");
-							aux.add("Guia");
+							aux.add("Nro Guia");
+							aux.add("Fecha");
 						} else if (i == 1) {
 							aux.add("Ultimo");
-							aux.add("Fecha");
+							aux.add("Ini/Ter");
 						} else if (i == 4) {
 							aux.add("Ingreso");
 							aux.add("Ingreso");
@@ -8532,14 +8532,14 @@ public class MnuReportes extends Controller {
 					guia = mapGuiasEgreso.get(id_bodegaEmpresa+"_"+datos.get(i).get(2)+"_"+datos.get(i).get(1));
 					if(guia != null) {
 						aux.add(guia.getNumero().toString());
-						aux.add(Fechas.DDMMAA(guia.getFecha()));
+						aux.add(Fechas.DDMMAA(guia.getFechaIniTerGuia()));
 					}else{
 						if (i == 0) {
-							aux.add("Guia");
-							aux.add("Guia");
+							aux.add("Nro Guia");
+							aux.add("Fecha");
 						} else if (i == 1) {
 							aux.add("Ultima");
-							aux.add("Fecha");
+							aux.add("Ini/Ter");
 						} else if (i == 4) {
 							aux.add("Salida");
 							aux.add("Salida");
