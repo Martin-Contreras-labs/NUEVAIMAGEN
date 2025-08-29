@@ -28,10 +28,6 @@ public class DatabaseRead {
         return dbRead.getConnection();
     }
     
-    
-    
-    
-    
     public void executeWithConnection(DatabaseOperation operation) throws SQLException {
         try (Connection connection = dbRead.getConnection()) {
             operation.execute(connection);

@@ -245,13 +245,14 @@ public class HomeController extends Controller {
     
     public static Map<String,String> mapPermisos(String baseDato, String permiso){
     	Map<String,String> map = new HashMap<String,String>();
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		try (Connection con = dbRead.getConnection()){
 			map = UsuarioPermiso.mapPermisos(con,baseDato,permiso);
 			return(map);
 		} catch (SQLException e) {
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", "HomeController", methodName, baseDato, "", e);
 		} catch (Exception e) {
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", "HomeController", methodName, baseDato, "", e);
 		}
     	return(map);
@@ -260,8 +261,9 @@ public class HomeController extends Controller {
     public static Map<String,String> mapDiccionario(Http.Request request){
     	Map<String,String> map = new HashMap<String,String>();
 		Sessiones s = new Sessiones(request);
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
 		if (!s.isValid()) {
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", "HomeController", methodName);
 			return(map);
 		}
@@ -269,8 +271,10 @@ public class HomeController extends Controller {
 			map = Diccionario.mapDiccionario(con, s.baseDato);
 			return(map);
 		} catch (SQLException e) {
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", "HomeController", methodName, s.baseDato, s.userName, e);
 		} catch (Exception e) {
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", "HomeController", methodName, s.baseDato, s.userName, e);
 		}
 		return(map);
@@ -334,8 +338,6 @@ public class HomeController extends Controller {
     
     public Result showPdf(String fileNamePDF, Http.Request request){
 		Sessiones s = new Sessiones(request);
-		String className = this.getClass().getSimpleName();
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
@@ -348,8 +350,6 @@ public class HomeController extends Controller {
 
     public Result redirShowPDF(String fileNamePDF, String titulo, String url, Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		String className = this.getClass().getSimpleName();
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
@@ -363,8 +363,6 @@ public class HomeController extends Controller {
     
     public Result redirOdoShowPDF(String fileNamePDF, String desdeAAMMDD, String hastaAAMMDD, String url, Http.Request request) {
 		Sessiones s = new Sessiones(request);
-		String className = this.getClass().getSimpleName();
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
@@ -378,8 +376,6 @@ public class HomeController extends Controller {
     
     public Result showPdfManuales(String fileNamePDF, Http.Request request){
 		Sessiones s = new Sessiones(request);
-		String className = this.getClass().getSimpleName();
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));

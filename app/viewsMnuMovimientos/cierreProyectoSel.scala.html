@@ -1,0 +1,101 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listBodegas: List[List[String]])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"S/PROYECTOS PARA CIERRE", "(este proceso permite vender o pasar a baja todo el saldo de stock)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>SUCURSAL</TH>
+							<TH>TIPO</TH>
+							<TH>SELECT</TH>
+							<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+							<TH>@mapDiccionario.get("RUT") (Cliente o Propietario)</TH>
+							<TH>NOMBRE CLIENTE O PROPIETARIO</TH>
+					        <TH>NOMBRE DEL PROYECTO</TH>
+					        <TH>@mapDiccionario.get("COMUNA") PROYECTO</TH>
+							<TH>SELECT</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listBodegas){
+							<TR>
+								<td  style="text-align:left;">@lista1.get(16)</td>
+								<td  style="text-align:left;">@lista1.get(4)</td>
+								<td  style="text-align:center;">
+									<form id="form_@lista1.get(1)" method="post" action="/cierreProyectoDet/">
+										<input type="hidden" name="id_bodegaEmpresa" value="@lista1.get(1)">
+										<a href="#" onclick='document.getElementById("form_@lista1.get(1)").submit();'>
+											<kbd style="background-color: #73C6B6">select</kbd>
+										</a>
+									</form>
+								</td>
+								
+								
+								
+								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.get(5)')"><div id="@lista1.get(1)">@lista1.get(5)</div></a></td>
+								<td style="text-align:center;"><a href="#" onclick="buscaCliente('@lista1.get(7)')">@lista1.get(6)</a></td>
+								<td style="text-align:left;"><a href="#" onclick="buscaCliente('@lista1.get(7)')">@lista1.get(7)</a></td>
+								<td style="text-align:left;"><a href="#" onclick="buscaProyecto('@lista1.get(8)')">@lista1.get(8)</a></td>
+								
+								<td  style="text-align:left;">@lista1.get(9)</td>
+								<td  style="text-align:center;">
+									<form id="form2_@lista1.get(1)" method="post" action="/cierreProyectoDet/">
+										<input type="hidden" name="id_bodegaEmpresa" value="@lista1.get(1)">
+										<a href="#" onclick='document.getElementById("form2_@lista1.get(1)").submit();'>
+											<kbd style="background-color: #73C6B6">select</kbd>
+										</a>
+									</form>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value='AGREGAR @mapDiccionario.get("BODEGA")' class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/bodegaCrear/';">
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "asc" ], [ 3, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+</script>
+
+
+		
+		
+	

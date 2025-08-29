@@ -1233,7 +1233,13 @@ public class BodegaEmpresa {
 				Map<Long, Cliente> mapCliente = Cliente.mapAllClientes(con, db);
 				Map<Long, Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
 				Map<Long, TipoBodega> mapTipoBodega = TipoBodega.mapAll(con, db);
-				Map<Long, Long> mapBodConInventario = Inventarios.mapBodegasVigConStock(con, db);
+				Map<Long, Long> mapBodConInventario = null;
+				if(mapeoPermiso.get("permiteDevolverVentas")!=null && !mapeoPermiso.get("permiteDevolverVentas").equals("1")) {
+					mapBodConInventario = Inventarios.mapBodegasVigConStock(con, db);
+				}else{
+					mapBodConInventario = Inventarios.mapBodegasVigConStockSoloArr(con, db);
+				}
+
 				Map<Long, Rubro> mapRubro = Rubro.mapAll(con, db);
 				while (rs.next()) {
 					String nameSucursal = "";

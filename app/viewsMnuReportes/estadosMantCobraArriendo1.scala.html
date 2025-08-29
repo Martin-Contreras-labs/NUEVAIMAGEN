@@ -36,6 +36,7 @@
 								<td  style="text-align:center;">@lista1.getNumGuia</td>
 								<td  style="text-align:center;">@lista1.getNumGuiaCliente</td>
 								<td  style="text-align:center;">
+									<div style="display: none">@lista1.getCobraArriendo</div>
 									<input type="hidden" id="select_@lista1.getId_movimiento" value="@lista1.getCobraArriendo">
 									@if(lista1.getCobraArriendo==1){
 										<input type="checkbox" checked onchange="modificaSelect('@lista1.getId_movimiento');">

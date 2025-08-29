@@ -109,11 +109,13 @@ public class ReportInventarios {
 				condSucursal +
 				permisoPorBodega+
 				" group by bodegaEmpresa.esInterna, bodegaEmpresa.id, movimiento.id_equipo;",db,db,db);
+
 		
 		try (PreparedStatement smt6 = con.prepareStatement(query)){
 			smt6.setString(1, fechaCorte.trim());
 			smt6.setString(2, fechaCorte.trim());
 			smt6.setString(3, fechaCorte.trim());
+
 			try(ResultSet rs6 = smt6.executeQuery()) {
 				while (rs6.next()) {
 					if (rs6.getDouble(4) != (double) 0) {
@@ -3221,7 +3223,7 @@ public class ReportInventarios {
 			posColl = 0;
 			row = hoja1.createRow(9);
 			
-			for(int i=0; i<6; i++) {
+			for(int i=0; i<7; i++) {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);

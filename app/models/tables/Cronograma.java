@@ -146,7 +146,7 @@ public class Cronograma{
 					/*2*/	" grupo.nombre as grupo, " +
 					/*3*/	" equipo.codigo as codEquipo, " +
 					/*4*/	" equipo.nombre as equipo, " +
-					/*5*/	" sum(if(movimiento.id_tipoMovimiento=2,-1,1)*movimiento.cantidad) as cantidad, " +
+					/*5*/	" sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad) as cantidad, " +
 					/*6*/	" DATE_FORMAT(guia.fecha,'%d-%m-%Y') as fechaDesde, " +
 					/*7*/	" movimiento.id_bodegaEmpresa as idBodega, " +
 					/*8*/	" grupo.id as idGrupo, " +

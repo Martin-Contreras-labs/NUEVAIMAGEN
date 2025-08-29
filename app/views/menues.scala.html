@@ -321,6 +321,10 @@
 							<a class="dropdown-item" href="/hojaChequeoSelectPorGrupo/">Hoja Chequeo por Grupo (Agrupado)</a>
 							<a class="dropdown-item" href="/hojaChequeoSelectBodega/">Hoja Chequeo (Por Cotizaci&oacute;n)</a>
 						}
+						@if(mapPermiso.get("movimientoSelectBodegaOrigen")!=null){
+							<div class="dropdown-divider" style="border-color:black"></div>
+							<a class="dropdown-item" href="/cierreProyectoSel/">Cierre de @mapDiccionario.get("Bodega")/Proyectos</a>
+						}
 		        	</ul>
 		        </li>
 			}

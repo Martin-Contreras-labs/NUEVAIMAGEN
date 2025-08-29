@@ -371,6 +371,173 @@ public class CobraArriendoEstados {
 		return (lista);
 	}
 
+	public static List<CobraArriendoEstados> allAgrupadoPorBodega (Connection con, String db) {
+		List<CobraArriendoEstados> lista = new ArrayList<CobraArriendoEstados>();
+		String query = String.format("select" +
+				" estadoEquipo.id_movimiento," +
+				" estadoEquipo.id_guia," +
+				" movimiento.id_bodegaEmpresa," +
+				" movimiento.id_equipo," +
+				" equipo.id_unidad," +
+				" movimiento.id_cotizacion," +
+				" bodegaEmpresa.id_sucursal," +
+				" equipo.id_grupo," +
+				" bodegaEmpresa.nombre, " +
+				" ifnull(cotizacion.numero,'') as nroCoti," +
+				" equipo.codigo," +
+				" equipo.nombre, " +
+				" guia.numero," +
+				" guia.numGuiaCliente," +
+				" guia.fecha," +
+				" sum(estadoEquipo.cantidad)," +
+				" estadoEquipo.cobraArriendo," +
+				" ifnull(guia.fechaIniTerGuia,guia.fecha) as fechaIniTerGuia" +
+				" from `%s`.estadoEquipo" +
+				" left join `%s`.movimiento on movimiento.id = estadoEquipo.id_movimiento" +
+				" left join `%s`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado" +
+				" left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa" +
+				" left join `%s`.guia on guia.id = movimiento.id_guia" +
+				" left join `%s`.equipo on equipo.id = movimiento.id_equipo" +
+				" left join `%s`.cotizacion on cotizacion.id = movimiento.id_cotizacion" +
+				" where tipoEstado.cobraArriendo = 1 and bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 and movimiento.id_guia > 0" +
+				" group by movimiento.id_bodegaEmpresa" +
+				" having sum(estadoEquipo.cantidad)>0;",db,db,db,db,db,db,db);
+		try (PreparedStatement smt = con.prepareStatement(query);
+			 ResultSet rs = smt.executeQuery()){
+			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con,db);
+			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con,db);
+			Map<String,List<Double>> mapPrecio = ListaPrecio.mapListaPreciosAll(con,db);
+			while (rs.next()) {
+				Long id_movimiento = rs.getLong(1);
+				Long id_guia = rs.getLong(2);
+				Long id_bodegaEmpresa = rs.getLong(3);
+				Long id_equipo = rs.getLong(4);
+				Long id_unidad = rs.getLong(5);
+				Long id_cotizacion = rs.getLong(6);
+				Long id_sucursal = rs.getLong(7);
+				Long id_grupo = rs.getLong(8);
+				String nombreBodega = rs.getString(9);
+				Long nroCoti = rs.getLong(10);
+				String codigo = rs.getString(11);
+				String nombreEquipo = rs.getString(12);
+				Long numGuia = rs.getLong(13);
+				String numGuiaCliente = rs.getString(14);
+				String fecha = rs.getString(15);
+				Double cantidad = rs.getDouble(16);
+				Long cobraArriendo = rs.getLong(17);
+				String fechaIniTerGuia = rs.getString(18);
+
+				String nombreSucursal = mapSucursal.get(id_sucursal) != null ? mapSucursal.get(id_sucursal).nombre : "";
+				String nombreGrupo = mapGrupo.get(id_grupo) != null ? mapGrupo.get(id_grupo).nombre : "";
+
+				// key = id_bodegaEmpresa + id_cotizacion + id_equipo
+				List<Double> listPrecio = mapPrecio.get(id_bodegaEmpresa+"_"+id_cotizacion+"_"+id_equipo);
+				Long id_moneda = 1L;
+				String nickMoneda = Moneda.find(con,db,id_moneda).getNickName();
+				Double puReposicion = (double) 0;
+				Double puArriendoDia = (double) 0;
+				if (listPrecio != null && listPrecio.size() > 0) {
+					puReposicion = listPrecio.get(0);
+					puArriendoDia = listPrecio.get(1)/listPrecio.get(4).doubleValue();
+					id_moneda = listPrecio.get(3).longValue();
+				}
+
+
+				lista.add(new CobraArriendoEstados(id_movimiento,id_guia,id_bodegaEmpresa,id_equipo,id_unidad,id_cotizacion,id_sucursal,id_grupo,nombreBodega,nroCoti,codigo,nombreEquipo,
+						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo, fechaIniTerGuia));
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (lista);
+	}
+
+	public static List<CobraArriendoEstados> allPorIdBodega (Connection con, String db, Long id_bodegaEmpresa) {
+		List<CobraArriendoEstados> lista = new ArrayList<CobraArriendoEstados>();
+		String query = String.format("select" +
+				" estadoEquipo.id_movimiento," +
+				" estadoEquipo.id_guia," +
+				" movimiento.id_bodegaEmpresa," +
+				" movimiento.id_equipo," +
+				" equipo.id_unidad," +
+				" movimiento.id_cotizacion," +
+				" bodegaEmpresa.id_sucursal," +
+				" equipo.id_grupo," +
+				" bodegaEmpresa.nombre, " +
+				" ifnull(cotizacion.numero,'') as nroCoti," +
+				" equipo.codigo," +
+				" equipo.nombre, " +
+				" guia.numero," +
+				" guia.numGuiaCliente," +
+				" guia.fecha," +
+				" sum(estadoEquipo.cantidad)," +
+				" estadoEquipo.cobraArriendo," +
+				" ifnull(guia.fechaIniTerGuia,guia.fecha) as fechaIniTerGuia" +
+				" from `%s`.estadoEquipo" +
+				" left join `%s`.movimiento on movimiento.id = estadoEquipo.id_movimiento" +
+				" left join `%s`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado" +
+				" left join `%s`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa" +
+				" left join `%s`.guia on guia.id = movimiento.id_guia" +
+				" left join `%s`.equipo on equipo.id = movimiento.id_equipo" +
+				" left join `%s`.cotizacion on cotizacion.id = movimiento.id_cotizacion" +
+				" where tipoEstado.cobraArriendo = 1 and bodegaEmpresa.vigente = 1 and bodegaEmpresa.esInterna = 2 and movimiento.id_guia > 0  and movimiento.id_bodegaEmpresa = "+ id_bodegaEmpresa +
+				" group by estadoEquipo.id_guia, movimiento.id_equipo, movimiento.id_cotizacion, movimiento.id_bodegaEmpresa" +
+				" having sum(estadoEquipo.cantidad)>0;",db,db,db,db,db,db,db);
+
+		try (PreparedStatement smt = con.prepareStatement(query);
+			 ResultSet rs = smt.executeQuery()){
+			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con,db);
+			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con,db);
+			Map<String,List<Double>> mapPrecio = ListaPrecio.mapListaPreciosAll(con,db);
+			while (rs.next()) {
+				Long id_movimiento = rs.getLong(1);
+				Long id_guia = rs.getLong(2);
+				id_bodegaEmpresa = rs.getLong(3);
+				Long id_equipo = rs.getLong(4);
+				Long id_unidad = rs.getLong(5);
+				Long id_cotizacion = rs.getLong(6);
+				Long id_sucursal = rs.getLong(7);
+				Long id_grupo = rs.getLong(8);
+				String nombreBodega = rs.getString(9);
+				Long nroCoti = rs.getLong(10);
+				String codigo = rs.getString(11);
+				String nombreEquipo = rs.getString(12);
+				Long numGuia = rs.getLong(13);
+				String numGuiaCliente = rs.getString(14);
+				String fecha = rs.getString(15);
+				Double cantidad = rs.getDouble(16);
+				Long cobraArriendo = rs.getLong(17);
+				String fechaIniTerGuia = rs.getString(18);
+
+				String nombreSucursal = mapSucursal.get(id_sucursal) != null ? mapSucursal.get(id_sucursal).nombre : "";
+				String nombreGrupo = mapGrupo.get(id_grupo) != null ? mapGrupo.get(id_grupo).nombre : "";
+
+				// key = id_bodegaEmpresa + id_cotizacion + id_equipo
+				List<Double> listPrecio = mapPrecio.get(id_bodegaEmpresa+"_"+id_cotizacion+"_"+id_equipo);
+				Long id_moneda = 1L;
+				String nickMoneda = Moneda.find(con,db,id_moneda).getNickName();
+				Double puReposicion = (double) 0;
+				Double puArriendoDia = (double) 0;
+				if (listPrecio != null && listPrecio.size() > 0) {
+					puReposicion = listPrecio.get(0);
+					puArriendoDia = listPrecio.get(1)/listPrecio.get(4).doubleValue();
+					id_moneda = listPrecio.get(3).longValue();
+				}
+
+
+				lista.add(new CobraArriendoEstados(id_movimiento,id_guia,id_bodegaEmpresa,id_equipo,id_unidad,id_cotizacion,id_sucursal,id_grupo,nombreBodega,nroCoti,codigo,nombreEquipo,
+						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo, fechaIniTerGuia));
+			}
+		} catch (SQLException e) {
+			String className = ActaBaja.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+		}
+		return (lista);
+	}
+
 	public static boolean modificaCobraArriendo (Connection con, String db, Long id_movimiento, Long valor) {
 		String query = String.format("update `%s`.estadoEquipo set cobraArriendo = ? where id_movimiento = ?;",db);
 		try (PreparedStatement smt = con.prepareStatement(query)){

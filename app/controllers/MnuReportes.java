@@ -13354,14 +13354,16 @@ public class MnuReportes extends Controller {
 		}
 		List<List<String>> lista = new ArrayList<List<String>>();
 		try (Connection con = dbRead.getConnection()){
-			List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
+			List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.allAgrupadoPorBodega(con, s.baseDato);
 			Map<Long,List<String>> map = new HashMap<Long,List<String>>();
+
 			listCobraArriendoEstados.forEach(x -> {
 				List<String> l = new ArrayList<String>();
 				l.add(x.getNombreSucursal());
 				l.add(x.getNombreBodega());
 				map.put(x.getId_bodegaEmpresa(), l);
 			});
+
 			for(Map.Entry<Long,List<String>> entry : map.entrySet()) {
 				List<String> l = new ArrayList<String>();
 				l.add(entry.getKey().toString());
@@ -13404,12 +13406,7 @@ public class MnuReportes extends Controller {
 				List<CobraArriendoEstados> lista = new ArrayList<CobraArriendoEstados>();
 				Long id_bodega = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 				try (Connection con = dbRead.getConnection()){
-					List<CobraArriendoEstados> listCobraArriendoEstados = CobraArriendoEstados.all(con, s.baseDato);
-					listCobraArriendoEstados.forEach(x -> {
-						if(x.getId_bodegaEmpresa().equals(id_bodega)) {
-							lista.add(x);
-						}
-					});
+					lista = CobraArriendoEstados.allPorIdBodega(con, s.baseDato, id_bodega);
 					BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 					return ok(estadosMantCobraArriendo1.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa));
 				} catch (SQLException e) {

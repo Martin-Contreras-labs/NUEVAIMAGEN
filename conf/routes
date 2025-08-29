@@ -847,14 +847,15 @@ GET		/hojaChequeoDetalle/:id_bodega				controllers.MnuMovimientos.hojaChequeoDet
 GET		/hojaChequeoSelectPorGrupo/					controllers.MnuMovimientos.hojaChequeoSelectPorGrupo(request: Request)
 POST	/hojaChequeoDetallePorGrupo/				controllers.MnuMovimientos.hojaChequeoDetallePorGrupo(request: Request)
 
-
-
-
-
 POST    /hojaChequeoAgrupadoExcel/					controllers.MnuMovimientos.hojaChequeoAgrupadoExcel(request: Request) 
 POST    /hojaChequeoExcel/							controllers.MnuMovimientos.hojaChequeoExcel(request: Request) 
 
-POST    /hojaChequeoDetallePorGrupoExcel/					controllers.MnuMovimientos.hojaChequeoDetallePorGrupoExcel(request: Request) 
+POST    /hojaChequeoDetallePorGrupoExcel/					controllers.MnuMovimientos.hojaChequeoDetallePorGrupoExcel(request: Request)
+
+
+GET     /cierreProyectoSel/				controllers.MnuMovimientos.cierreProyectoSel(request: Request)
+POST    /cierreProyectoDet/				controllers.MnuMovimientos.cierreProyectoDet(request: Request)
+POST	/cierreAplicar/					controllers.MnuMovimientos.cierreAplicar(request: Request)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

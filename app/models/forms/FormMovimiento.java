@@ -76,11 +76,14 @@ public class FormMovimiento {
 	public Long id_bodegaEmpresa;
 	public List<Long> idGrupos;
 	public String fechaIniTerGuia;
+	public String cierreVentaBaja;
+
+
 	public FormMovimiento(Long id_bodegaOrigen, Long id_bodegaDestino, Long numeroGuia, String numGuiaCliente,
 			String fechaGuia, String observaciones, List<Long> id_equipo, List<Long> id_cotizacion,
 			List<String> cantidad, List<Long> esVenta, List<Long> esNuevo, List<String> exceso, List<String> estados,
 			List<String> reparaciones, Long id_guia, Long seModifico, String docAnexo, Long id_transportista,
-			List<String> cantCliente, String fotos, Long id_bodegaEmpresa, List<Long> idGrupos, String fechaIniTerGuia) {
+			List<String> cantCliente, String fotos, Long id_bodegaEmpresa, List<Long> idGrupos, String fechaIniTerGuia, String cierreVentaBaja) {
 		super();
 		this.id_bodegaOrigen = id_bodegaOrigen;
 		this.id_bodegaDestino = id_bodegaDestino;
@@ -105,6 +108,7 @@ public class FormMovimiento {
 		this.id_bodegaEmpresa = id_bodegaEmpresa;
 		this.idGrupos = idGrupos;
 		this.fechaIniTerGuia = fechaIniTerGuia;
+		this.cierreVentaBaja = cierreVentaBaja;
 	}
 	public FormMovimiento() {
 		super();
@@ -149,11 +153,11 @@ public class FormMovimiento {
 				Double exceso = (double)0;
 				Double cantCliente = (double)0;
 
-				if(form.cantidad!=null) {
+				if(form.cantidad != null) {
 					cantidad = Double.parseDouble(form.cantidad.get(i).replaceAll(",", ""));
 				}
 
-				if(form.exceso!=null) {
+				if(form.exceso != null && !form.exceso.isEmpty()) {
 					exceso =Double.parseDouble(form.exceso.get(i).replaceAll(",", ""));
 				}
 
@@ -170,8 +174,8 @@ public class FormMovimiento {
 				}
 				// fin verifica
 
-				if(form.cantCliente!=null) {
-					cantCliente =Double.parseDouble(form.cantCliente.get(i).replaceAll(",", ""));
+				if(form.cantCliente != null && !form.cantCliente.isEmpty()) {
+					cantCliente = Double.parseDouble(form.cantCliente.get(i).replaceAll(",", ""));
 				}
 
 				Movimiento auxMov = new Movimiento();
