@@ -19,14 +19,14 @@
 					<table class="table table-sm table-condensed table-fluid">
 						<tr>
 							<td style="width: 25%">
-								<div class="input-group">
-							  		<div class="input-group-prepend">
-							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
-							  		</div>
-							  		<input type="text" class="form-control left"
-										id="searchTermtablaPrincipal"
-										onkeyup="doSearch3('tablaPrincipal');">
-								</div>
+@*								<div class="input-group">*@
+@*							  		<div class="input-group-prepend">*@
+@*							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>*@
+@*							  		</div>*@
+@*							  		<input type="text" class="form-control left"*@
+@*										id="searchTermtablaPrincipal"*@
+@*										onkeyup="doSearch3('tablaPrincipal');">*@
+@*								</div>*@
 							</td>
 							<td>
 								<div style="text-align: center;">
@@ -238,6 +238,19 @@
 		$("#proftotal").val(formatStandar(total,"@nroDecimales"));
 
 		$("#profVta").val(formatStandar(neto,"@nroDecimales"));
+
+		if ($('#tablaPrincipal tbody tr').length > 1) {
+			$('#tablaPrincipal').DataTable({
+				"fixedHeader": true,
+				"paging": false,
+				"info": false,
+				"searching": false,
+				"order": false,
+				"language": {
+					"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				}
+			});
+		}
 
 		document.getElementById('mostrarmostrar').style.display="block";
 	});

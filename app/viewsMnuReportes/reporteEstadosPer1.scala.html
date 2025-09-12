@@ -40,20 +40,21 @@ datos: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 				<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">Nro Mov</kbd></a>
 				<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">Ref Clie</kbd></a>
 				<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">Fecha Guia</kbd></a>
-				<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">Codigo</kbd></a>
-				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">Equipo</kbd></a>
-				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">Cant Equipo</kbd></a>
-				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">Mon Equip</kbd></a>
-				<a class="toggle-vis" href="#" data-column="9"><kbd id="kdb9" style="background-color: #73C6B6">P.U. Equipo</kbd></a>
-				<a class="toggle-vis" href="#" data-column="10"><kbd id="kdb10" style="background-color: #73C6B6">KG</kbd></a>
-				<a class="toggle-vis" href="#" data-column="11"><kbd id="kdb11" style="background-color: #73C6B6">M2</kbd></a>
-				<a class="toggle-vis" href="#" data-column="12"><kbd id="kdb12" style="background-color: #73C6B6">Estado</kbd></a>
-				<a class="toggle-vis" href="#" data-column="13"><kbd id="kdb13" style="background-color: #73C6B6">Cant Estado</kbd></a>
-				<a class="toggle-vis" href="#" data-column="14"><kbd id="kdb14" style="background-color: #73C6B6">Sigla</kbd></a>
-				<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">Reparacion</kbd></a>
-				<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">Cant Repar</kbd></a>
-				<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">Mon Repar</kbd></a>
-				<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">P.U. Reparacion</kbd></a>
+
+				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">Codigo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">Equipo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">Cant Equipo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="9"><kbd id="kdb9" style="background-color: #73C6B6">Mon Equip</kbd></a>
+				<a class="toggle-vis" href="#" data-column="10"><kbd id="kdb10" style="background-color: #73C6B6">P.U. Equipo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="11"><kbd id="kdb11" style="background-color: #73C6B6">KG</kbd></a>
+				<a class="toggle-vis" href="#" data-column="12"><kbd id="kdb12" style="background-color: #73C6B6">M2</kbd></a>
+				<a class="toggle-vis" href="#" data-column="13"><kbd id="kdb13" style="background-color: #73C6B6">Estado</kbd></a>
+				<a class="toggle-vis" href="#" data-column="14"><kbd id="kdb14" style="background-color: #73C6B6">Cant Estado</kbd></a>
+				<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">Sigla</kbd></a>
+				<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">Reparacion</kbd></a>
+				<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">Cant Repar</kbd></a>
+				<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">Mon Repar</kbd></a>
+				<a class="toggle-vis" href="#" data-column="19"><kbd id="kdb19" style="background-color: #73C6B6">P.U. Reparacion</kbd></a>
 		</div>
     				
     				
@@ -66,6 +67,11 @@ datos: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 					        <TH style= "text-align: center; vertical-align: top;">Nro Mov</TH>
 							<TH style= "text-align: center; vertical-align: top;">Ref Clie</TH>
 					        <TH style= "text-align: center; vertical-align: top;">Fecha Guia</TH>
+							@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+								<TH style= "text-align: center; vertical-align: top;">COBRA @mapDiccionario("ARR")</TH>
+							}else{
+								<TH style= "display:none"></TH>
+							}
 							<TH style= "text-align: center; vertical-align: top;">Codigo</TH>
 							<TH style= "text-align: center; vertical-align: top;">Equipo</TH>
 							<TH style= "text-align: center; vertical-align: top;">Cant Equipo</TH>
@@ -94,6 +100,22 @@ datos: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 							<span style="display:none">@lista1.get(2)</span>
 							@utilities.Fechas.DDMMAA(lista1.get(2))
 						</td>
+						@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+							<td  style="text-align:center;">
+								@if(lista1.get(21).equals("1")){
+									<div style="display: none">@lista1.get(19)</div>
+									<input type="hidden" id="select_@lista1.get(20)" value="@lista1.get(19)">
+									@if(lista1.get(19).equals("1")){
+										<input type="checkbox" id="selectCheck_@lista1.get(20)" checked onchange="modificaSelect('@lista1.get(20)');">
+									}else{
+										<input type="checkbox" id="selectCheck_@lista1.get(20)" onchange="modificaSelect('@lista1.get(20)');">
+										}
+								}
+							</td>
+						}else{
+							<td style= "display:none"></td>
+						}
+
 						<td style="text-align: left; vertical-align:middle;">@lista1.get(3)</td>
 						<td style="text-align: left; vertical-align:middle;">@lista1.get(4)</td>
 						<td style="text-align: right; vertical-align:middle;">@lista1.get(5)</td>
@@ -119,6 +141,11 @@ datos: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 						<TH></TH>
 						<TH></TH>
 						<TH></TH>
+						@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+							<TH></TH>
+						}else{
+							<TH style= "display:none"></TH>
+						}
 						<TH></TH>
 						<TH></TH>
 						<TH></TH>
@@ -163,7 +190,7 @@ datos: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 		    	"fixedHeader": true,
 		    	"lengthMenu": [[-1, 20, 50, 100, 200], ["All",20, 50, 100, 200]],
 		    	"paging": true,
-		    	"order": [[ 0, "asc" ],[ 5, "asc" ],[ 3, "asc" ],[ 9, "asc" ]],
+		    	"order": [[ 0, "asc" ],[ 5, "asc" ],[ 3, "asc" ]],
 				"info": true,
 				"searching": true,
 
@@ -253,7 +280,53 @@ datos: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
 		$("#granTotal").text(formatStandar(granTotal,0));
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
-	
+
+	const modificaSelect = (id_movimiento) => {
+		let select = $("#select_"+id_movimiento).val();
+		if(select == 1){
+			modificaSelect2(id_movimiento, 0);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(0);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', false);
+			});
+		}else{
+			modificaSelect2(id_movimiento, 1);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(1);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', true);
+			});
+		}
+	}
+
+	const modificaSelect2 = (id_movimiento, valor) => {
+		let formData = new FormData();
+		formData.append('id_movimiento',id_movimiento);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/routes3/modCobraArriendoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
+	}
 	
 	
 </script>

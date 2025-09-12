@@ -12,6 +12,7 @@ import java.util.*;
 
 import javax.inject.Inject;
 
+import models.tables.*;
 import models.utilities.*;
 import org.apache.poi.util.TempFile;
 
@@ -25,25 +26,6 @@ import models.api.WebIConstruye;
 import models.api.WebMaximise;
 import models.calculo.Inventarios;
 import models.forms.FormMovimiento;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Comercial;
-import models.tables.ContactoBodegaEmpresa;
-import models.tables.CotizaSolucion;
-import models.tables.Cotizacion;
-import models.tables.EmisorTributario;
-import models.tables.Equipo;
-import models.tables.Grupo;
-import models.tables.Guia;
-import models.tables.Movimiento;
-import models.tables.Ot;
-import models.tables.Proyecto;
-import models.tables.Sucursal;
-import models.tables.TasasCambio;
-import models.tables.TipoEstado;
-import models.tables.TipoReparacion;
-import models.tables.Transportista;
-import models.tables.UsuarioPermiso;
 import models.xlsx.MovimHojaChequeo;
 import models.xlsx.XLSX_GuiaEntrada;
 import models.xlsx.XLSX_GuiaSalida;
@@ -598,7 +580,11 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 					soloArriendo = (long) 0;
 				}
 				Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
-				List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0", mapStock);
+
+				Map<Long,Long> mapEquipVsCobraArriendo = null;
+				List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, mapeoPermiso, mapEquipVsCobraArriendo, form, s.id_usuario, "0", mapStock);
+
+
 				FormMovimiento.insertPreciosNuevos(con, s.baseDato, form, mapeoDiccionario);
 				if(listaIdMovIdTipEstCant.size()>0) {
 					FormMovimiento.moveSegunTipoEstado (con, s.baseDato, listaIdMovIdTipEstCant, s.id_usuario, "0");
@@ -1045,6 +1031,11 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				Archivos archivos = formFactory.form(Archivos.class).withDirectFieldAccess(true).bindFromRequest(request).get();
 				try (Connection con = dbWrite.getConnection()){
 					Guia auxGuia = Guia.find(con, s.baseDato, form.id_guia);
+
+					Map<Long,Long> mapEquipVsCobraArriendo = EstadoEquipo.mapEquipVsCobraArriendo(con, s.baseDato, form.id_guia);
+
+
+
 					Long id_userCrea = auxGuia.getId_userCrea();
 					if(auxGuia != null && Movimiento.delete(con, s.baseDato, form.id_guia)) {
 						if(Guia.existeNumero(con, s.baseDato, form.numeroGuia)) {
@@ -1077,7 +1068,14 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 							soloArriendo = (long) 0;
 						}
 						Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
-						List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, form, id_userCrea.toString(), s.id_usuario, mapStock);
+
+
+
+						List<List<Double>> listaIdMovIdTipEstCant = FormMovimiento.create(con, s.baseDato, mapeoPermiso, mapEquipVsCobraArriendo, form, id_userCrea.toString(), s.id_usuario, mapStock);
+
+
+
+
 						FormMovimiento.insertPreciosNuevos(con, s.baseDato, form, mapeoDiccionario);
 						if(listaIdMovIdTipEstCant.size()>0) {
 							FormMovimiento.moveSegunTipoEstado (con, s.baseDato, listaIdMovIdTipEstCant, id_userCrea.toString(), s.id_usuario);
@@ -3186,7 +3184,10 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 						soloArriendo = (long) 0;
 					}
 					Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
-					FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0", mapStock);
+
+					Map<Long,Long> mapEquipVsCobraArriendo = null;
+					FormMovimiento.create(con, s.baseDato, mapeoPermiso, mapEquipVsCobraArriendo, form, s.id_usuario, "0", mapStock);
+
 					if (archivos != null) {
 						MnuMovimientos.grabarFilesThread grabarFile = new MnuMovimientos.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 						grabarFile.run();
@@ -3233,7 +3234,10 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 						soloArriendo = (long) 0;
 					}
 					Map<String,Movimiento> mapStock = Inventarios.invPorIdBodega(con, s.baseDato, form.id_bodegaOrigen, soloArriendo);
-					FormMovimiento.create(con, s.baseDato, form, s.id_usuario, "0", mapStock);
+
+					Map<Long,Long> mapEquipVsCobraArriendo = null;
+					FormMovimiento.create(con, s.baseDato, mapeoPermiso, mapEquipVsCobraArriendo, form, s.id_usuario, "0", mapStock);
+
 					if (archivos != null) {
 						MnuMovimientos.grabarFilesThread grabarFile = new MnuMovimientos.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 						grabarFile.run();

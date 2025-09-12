@@ -71,6 +71,7 @@ desdeAAMMDD: String, hastaAAMMDD: String, lista: List[List[String]])
 								<TH style= "text-align: center;vertical-align: top;">NRO.MOV</TH>
 								<TH style= "text-align: center;vertical-align: top;">REF.CLIE</TH>
 								<TH style= "text-align: center;vertical-align: top; width: 80px">FECHA</TH>
+								<TH>COBRA @mapDiccionario("ARR")</TH>
 							</TR>
 						</thead>
 						<tbody>
@@ -94,6 +95,17 @@ desdeAAMMDD: String, hastaAAMMDD: String, lista: List[List[String]])
 								<td style="text-align:center;vertical-align:middle;">
 									<div style="display:none">@lista1.get(12)</div>
 									@lista1.get(13)
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.get(19).equals("1")){
+										<div style="display: none">@lista1.get(17)</div>
+										<input type="hidden" id="select_@lista1.get(18)" value="@lista1.get(17)">
+										@if(lista1.get(17).equals("1")){
+											<input type="checkbox" id="selectCheck_@lista1.get(18)" checked onchange="modificaSelect('@lista1.get(18)');">
+										}else{
+											<input type="checkbox" id="selectCheck_@lista1.get(18)" onchange="modificaSelect('@lista1.get(18)');">
+										}
+									}
 								</td>
 							</TR>
 			 			}
@@ -131,8 +143,53 @@ desdeAAMMDD: String, hastaAAMMDD: String, lista: List[List[String]])
 
 			document.getElementById('mostrarmostrar').style.display="block";
 	});
-	
-	
+
+	const modificaSelect = (id_movimiento) => {
+		let select = $("#select_"+id_movimiento).val();
+		if(select == 1){
+			modificaSelect2(id_movimiento, 0);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(0);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', false);
+			});
+		}else{
+			modificaSelect2(id_movimiento, 1);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(1);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', true);
+			});
+		}
+	}
+
+	const modificaSelect2 = (id_movimiento, valor) => {
+		let formData = new FormData();
+		formData.append('id_movimiento',id_movimiento);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/routes3/modCobraArriendoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
+	}
 	
 </script>
 

@@ -3402,6 +3402,9 @@ public class ReportMovimientos {
 				
 				aux.add(bodega.getNameSucursal());								// 15 namesucursal
 				aux.add(d.get(8));												// 16 nro ref cliente
+				aux.add(d.get(9));												// 17 cobraArriendo por estado la guia
+				aux.add(d.get(10));												// 18 id_movimiento
+				aux.add(d.get(11));  											// 19 cobraArriendo por el tipo estado
 
 				lista.add(aux);
 			}

@@ -8,7 +8,7 @@
 	   background-size: cover;
 	   width: 100% ;
 	   text-align: center;
-	 
+
 	}
 </style>
 
@@ -20,14 +20,13 @@
 						<div class="col-xs-10 col-sm-4 col-md-4 col-lg-4">
 	                    	<h2>MADA</h2>
 		                    <form onsubmit="return validarIngreso()">
-<!-- <a href="/routes2/prueba/" target="_blank">Abrir en nueva pestaña</a> -->
 		                    		<input type="hidden" id="gRecaptchaResponse" name="gRecaptchaResponse">
 		                    		<div class="input-group mb-3">
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="pais" style="width:120px">Pais</label>
 									  </div>
-									  <select class="custom-select" style="min-width:120px" id="pais" name="pais" 
-									  		onchange='$("#ingPais").val(value)'>
+									  <select class="custom-select" style="min-width:120px" id="pais" name="pais"
+									  		onchange='$("#ingPais").val(this.value)'>
 									  	@for(lista <- listaPaises){
 									  		<option value="@lista">@lista</option>
 									  	}
@@ -37,33 +36,33 @@
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="empresa" style="width:120px">Empresa</label>
 									  </div>
-									  <input type="text" class="form-control" style="min-width:120px" 
-									  		onchange='value= value.toUpperCase(); $("#ingEmpresa").val(value.toUpperCase())' 
+									  <input type="text" class="form-control" style="min-width:120px"
+									  		onchange='this.value= this.value.toUpperCase(); $("#ingEmpresa").val(this.value.toUpperCase())'
 												id="empresa" name="empresa" placeholder="Empresa" required>
 									</div>
 									<div class="input-group mb-3">
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="userName"  style="width:120px">Usuario</label>
 									  </div>
-									  <input type="text" class="form-control" style="min-width:120px" 
-									  		onchange='value= value.toUpperCase(); $("#ingUserName").val(value.toUpperCase())' id="userName" name="userName" placeholder="Usuario" required>
+									  <input type="text" class="form-control" style="min-width:120px"
+									  		onchange='this.value= this.value.toUpperCase(); $("#ingUserName").val(this.value.toUpperCase())' id="userName" name="userName" placeholder="Usuario" required>
 									</div>
 									<div class="input-group mb-3">
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="userKey"  style="width:120px">Clave</label>
 									  </div>
-									  <input type="password" class="form-control" style="min-width:120px" 
-									  		onchange='$("#ingUserKey").val(value)' name="userKey" placeholder="Clave" required>
+									  <input type="password" class="form-control" style="min-width:120px"
+									  		onchange='$("#ingUserKey").val(this.value)' name="userKey" placeholder="Clave" required>
 									</div>
-			                    
-			
-			
+
+
+
 									<div id="ingresar1">
 										<input type="submit"  value="INGRESAR" class="btn btn-success rounded-pill btn-block">
 									</div>
-			
 
-									
+
+
 		                    </form>
 		                    <br>
 		                    <u><a href="#" onclick="$('#olvidoClave').modal('show');">recuperar clave</a></u>
@@ -87,37 +86,37 @@
 							text-align: center;
 						}
 					</style>
-					
+
 					<table class="table table-sm borderless table-condensed table-fluid">
 						<tr>
 							<th>
 								<input type="button" class="form-control font-weight-bold"
-									style="text-align: center; color:blue" 
+									style="text-align: center; color:blue"
 									value="Más Mada..."
 									onclick="window.open('https://inqsol.cl/servicios-mada/','_blank')">
 							</th>
 							<th>
 								<input type="button" class="form-control font-weight-bold"
-									style="text-align: center; color:blue" 
+									style="text-align: center; color:blue"
 									value="Tutoriales"
 									onclick="window.open('https://inqsol.cl/tutoriales/#mada','_blank')">
 							</th>
 							<th>
 								<input type="button" class="form-control font-weight-bold"
-									style="text-align: center; color:blue" 
+									style="text-align: center; color:blue"
 									value="Contacto"
 									onclick="window.open('https://inqsol.cl/#contacto','_blank')">
 							</th>
 							<th>
 								<input type="button" class="form-control font-weight-bold"
-									style="text-align: center; color:blue" 
+									style="text-align: center; color:blue"
 									value="Asesoría"
 									onclick="window.open('https://inqsol.cl/asesoria/?utm_source=header','_blank')">
 							</th>
 						</tr>
 					</table>
-					
-		         	
+
+
 	         		<hr>
 					<h5>ÁREAS CLAVE DE <span>MADA</span></h5>
 					<hr>
@@ -147,7 +146,7 @@
 			</div>
 		</div>
    	</div>
-   	
+
    	<div id='olvidoClave' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable ' role='document'>
 			<div class='modal-content'>
@@ -165,8 +164,8 @@
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="pais" style="width:120px">Pais</label>
 									  </div>
-									  <select class="custom-select" style="min-width:220px" 
-									  		onchange='$("#recuPais").val(value)' id="pais" name="pais">
+									  <select class="custom-select" style="min-width:220px"
+									  		onchange='$("#recuPais").val(value)' name="pais">
 									  	@for(lista <- listaPaises){
 									  		<option value="@lista">@lista</option>
 									  	}
@@ -176,24 +175,24 @@
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="empresa" style="width:120px">Empresa</label>
 									  </div>
-									  <input type="text" class="form-control" style="min-width:220px" 
-									  		onchange='value= value.toUpperCase(); $("#recuEmpresa").val(value.toUpperCase())' id="empresa" name="empresa" placeholder="Empresa" required>
+									  <input type="text" class="form-control" style="min-width:220px"
+									  		onchange='value= value.toUpperCase(); $("#recuEmpresa").val(value.toUpperCase())' name="empresa" placeholder="Empresa" required>
 									</div>
 									<div class="input-group mb-3">
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="userName"  style="width:120px">Usuario</label>
 									  </div>
-									  <input type="text" class="form-control" style="min-width:220px" 
-									  		onchange='value= value.toUpperCase(); $("#recuUserName").val(value.toUpperCase())' id="userName" name="userName" placeholder="Usuario" required>
+									  <input type="text" class="form-control" style="min-width:220px"
+									  		onchange='value= value.toUpperCase(); $("#recuUserName").val(value.toUpperCase())' name="userName" placeholder="Usuario" required>
 									</div>
 									<div class="input-group mb-3">
 									  <div class="input-group-prepend">
 									    <label class="input-group-text" for="eMail"  style="width:120px">Correo (eMail)</label>
 									  </div>
-									  <input type="text" class="form-control" style="min-width:220px" 
-									  		onchange='value= value.toUpperCase(); $("#recueMail").val(value.toUpperCase())' id="eMail" name="eMail" placeholder="eMail" required>
+									  <input type="text" class="form-control" style="min-width:220px"
+									  		onchange='value= value.toUpperCase(); $("#recueMail").val(value.toUpperCase())'  name="eMail" placeholder="eMail" required>
 									</div>
-			                     
+
 
 									<div id="recuperar1">
 										 <input type="submit"  value="ENVIAR" class="btn btn-success rounded-pill btn-block">
@@ -225,27 +224,34 @@
 
 <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9"></script>
 <script>
+	// function validarIngreso() {
+	//   grecaptcha.enterprise.ready(async () => {
+	//     const token = await grecaptcha.enterprise.execute('6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9', {action: 'LOGIN'}).then(onSuccessIngreso, onError);
+	//   });
+	//   if($("#gRecaptchaResponse").val().length > 0){
+	//   	return true;
+	//   }else{
+	//   	return false;
+	//   }
+	// }
 	function validarIngreso() {
-	  grecaptcha.enterprise.ready(async () => {
-	    const token = await grecaptcha.enterprise.execute('6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9', {action: 'LOGIN'}).then(onSuccessIngreso, onError);
-	  });
-	  if($("#gRecaptchaResponse").val().length > 0){
-	  	return true;
-	  }else{
-	  	return false;
-	  }
+		grecaptcha.enterprise.ready(async () => {
+			const token = await grecaptcha.enterprise.execute('6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9', {action: 'LOGIN'});
+			onSuccessIngreso(token);
+		});
+		return false; // evita envío inmediato
 	}
 	function onSuccessIngreso(action_token){
-		
+
 		let btnIngresar = "<button style=\"visibility: visible;\" class=\"btn btn-success rounded-pill btn-block\""+
 		" type=\"button\" disabled>"+
 		"<span class=\"spinner-border spinner-border-sm mr-2\"></span>Enviando datos...</button>";
 		$("#ingresar1").html(btnIngresar);
-		
+
 			$("#ingCaptcha").val(action_token);
 			$("#ingresar").submit();
 	}
-	
+
 	function validarRecuperar() {
 	  grecaptcha.enterprise.ready(async () => {
 	    const token = await grecaptcha.enterprise.execute('6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9', {action: 'LOGIN'}).then(onSuccessRecuperar, onError);
@@ -257,16 +263,16 @@
 	  }
 	}
 	function onSuccessRecuperar(action_token){
-		
+
 		let btnRecuperar = "<button style=\"visibility: visible;\" class=\"btn btn-success rounded-pill btn-block\""+
 		" type=\"button\" disabled>"+
 		"<span class=\"spinner-border spinner-border-sm mr-2\"></span>Enviando datos...</button>";
 		$("#recuperar1").html(btnRecuperar);
-			
+
 			$("#recuCaptcha").val(action_token);
 			$("#recuperar").submit();
 	}
-	
+
 	function onError(reason) {
 	  alert("problemas con el captcha, contactar a inqsol.cl");
       location.reload();
@@ -276,17 +282,17 @@
 
 	<script>
             $(document).ready(function() {
-                if("@mensaje"!="0") alert("@mensaje");          
+                if("@mensaje"!="0") alert("@mensaje");
             });
     </script>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+

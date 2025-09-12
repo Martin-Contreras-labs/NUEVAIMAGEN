@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
+import models.tables.*;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
@@ -28,21 +29,6 @@ import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
 
 import models.reports.ReportInventarios;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Compra;
-import models.tables.ContactoBodegaEmpresa;
-import models.tables.Guia;
-import models.tables.ListaPrecio;
-import models.tables.Moneda;
-import models.tables.Movimiento;
-import models.tables.Precio;
-import models.tables.Proyecto;
-import models.tables.TasaEquipo;
-import models.tables.TasaGrupo;
-import models.tables.TipoEstado;
-import models.tables.Transportista;
-import models.tables.UsuarioPermiso;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
@@ -114,7 +100,8 @@ public class FormMovimiento {
 		super();
 	}
 	
-	public static List<List<Double>> create (Connection con, String db, FormMovimiento form, String id_userCrea, String id_userMoficica,
+	public static List<List<Double>> create (Connection con, String db, Map<String,String> mapeoPermiso,
+											 Map<Long,Long> mapEquipVsCobraArriendo, FormMovimiento form, String id_userCrea, String id_userMoficica,
 			Map<String,Movimiento> mapStock) {
 
 		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db, form.id_bodegaOrigen);
@@ -222,13 +209,14 @@ public class FormMovimiento {
 				//agrega a la lista
 				listMov.add(auxMov);
 			}
-			listaIdMovIdTipEstCant = FormMovimiento.insertMovimientos(con, db, listMov, listEstad, listRepar, bodegaOrigen, guia);
+			listaIdMovIdTipEstCant = FormMovimiento.insertMovimientos(con, db, mapeoPermiso, mapEquipVsCobraArriendo, listMov, listEstad, listRepar, bodegaOrigen, guia);
 		}
 		return(listaIdMovIdTipEstCant);
 	}
 	
-	//BBBB
-	public static List<List<Double>> insertMovimientos(Connection con, String db, List<Movimiento> listMov, List<String> listEstad, List<String> listRepar, BodegaEmpresa bodegaOrigen, Guia guia) {
+
+	public static List<List<Double>> insertMovimientos(Connection con, String db, Map<String,String> mapeoPermiso,
+					   Map<Long,Long> mapEquipVsCobraArriendo, List<Movimiento> listMov, List<String> listEstad, List<String> listRepar, BodegaEmpresa bodegaOrigen, Guia guia) {
 
 
 		List<List<Double>> listaIdMovIdTipEstCant = new ArrayList<List<Double>>();
@@ -311,16 +299,28 @@ public class FormMovimiento {
 
 									if(id_movimiento!=null && ! id_equipo_id_coti.equals(auxId_equipo_id_coti) && id_equipo_id_coti.equals(auxId_EquipoId_coti)) {
 
-										auxId_EquipoId_coti = id_equipo_id_coti;
+										Map<Long,TipoEstado> mapTipoEstado = TipoEstado.mapAll(con,db);
+										Long cobraArriendo = (long)0;
 
 										for(int k=0; k<estados.length; k++) {
 											if(estados[k].length()>2) {
 												String[] auxEst = estados[k].split(":");
+
+												if(mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) {
+													TipoEstado tipoEstado = mapTipoEstado.get(Long.parseLong(auxEst[0]));
+													if(tipoEstado!=null && tipoEstado.getCobraArriendo() == (long)1) {
+														cobraArriendo = (long)1;
+													}else {
+														cobraArriendo = (long)0;
+													}
+												}
+
 												insertEstadoEquipo += "('"
 														+id_movimiento+"','"
 														+auxEst[0]+"','"
 														+auxEst[1]+"','"
-														+guia.getId()+"'),";
+														+guia.getId()+"','"
+														+cobraArriendo+"'),";
 
 												List<Double> auxMov = new ArrayList<Double>();
 												auxMov.add(Double.parseDouble(id_movimiento.toString()));					//0 id_movimiento
@@ -345,12 +345,8 @@ public class FormMovimiento {
 					insertEstadoEquipo = null;
 				}
 
-
-
-
-
 				if(insertEstadoEquipo!=null && insertEstadoEquipo.length()>2) {
-					PreparedStatement smt3 = con.prepareStatement("insert into `"+db+"`.estadoEquipo (id_movimiento, id_tipoEstado, cantidad, id_guia) "
+					PreparedStatement smt3 = con.prepareStatement("insert into `"+db+"`.estadoEquipo (id_movimiento, id_tipoEstado, cantidad, id_guia, cobraArriendo) "
 							+ " values "+insertEstadoEquipo+";");
 					smt3.executeUpdate();
 					smt3.close();
@@ -403,7 +399,7 @@ public class FormMovimiento {
 								}
 							}
 						} catch (SQLException e) {
-			    			e.printStackTrace();
+							e.printStackTrace();
 						}
 					}
 
@@ -424,6 +420,33 @@ public class FormMovimiento {
 						smt5.close();
 					}
 
+					// corrige campo cobraArriendo si es una modificacion de movimiento devolucion
+					if(mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapeoPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")) {
+
+
+//						Long modificaCobraArriendo = 0L; ESTO SE DEBE OBTENER DE PARAMETROS
+//						// no aplica cambios a estadoEquipos que ya estaban anteriormente, si no estaban no los considera
+//						FALTA PROGRAMAR: if((long) modificaCobraArriendo == (long)1) {
+//
+//						}
+
+
+
+						// corrige campo cobraArriendo si es una modificacion de movimiento devolucion
+						if (mapEquipVsCobraArriendo != null) {
+							Map<Long,Long> auxActual = EstadoEquipo.mapEquipVsCobraArriendo(con, db, guia.getId());
+							if(auxActual!=null && auxActual.size()>0) {
+								for (Map.Entry<Long, Long> entry : auxActual.entrySet()) {
+									Long id_equipo = entry.getKey();
+									Long valor = entry.getValue();
+									Long auxAnterior = mapEquipVsCobraArriendo.get(id_equipo);
+									if(auxAnterior != null && auxAnterior.longValue() != (valor.longValue())) {
+										EstadoEquipo.updateCobraArriendo(con, db, auxAnterior, id_equipo, guia.getId());
+									}
+								}
+							}
+						}
+					}
 
 				}
 			} catch (SQLException e) {

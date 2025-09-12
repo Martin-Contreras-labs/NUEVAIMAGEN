@@ -6255,8 +6255,8 @@ public class MnuCotizar extends Controller {
 							List<String> lexcel = mapListaExcel.get(listaConPrecio.get(i).get(1).toUpperCase());
 							if(lexcel!=null) {
 								//CANTIDAD
-								Double cantDbl = (double) 1;
-								String cantStr = "1.00";
+								Double cantDbl = (double) 0;
+								String cantStr = "0.00";
 								String auxStr = lexcel.get(4).trim();
 								if(!auxStr.equals("")) {
 									try {

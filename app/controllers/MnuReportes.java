@@ -13057,6 +13057,14 @@ public class MnuReportes extends Controller {
 						String auxNeto = l.get(2);
 						Cliente cliente = mapClie.get(rutClie);
 						BodegaEmpresa bodega = mapBodegas.get(Long.parseLong(l.get(5)));
+
+						Sucursal sucursal = Sucursal.find(con1, s.baseDato, bodega.getId_sucursal().toString());
+						String ccost = sucursal.getCcost().trim();
+						String cen_hohe = sucursal.getCen_hohe().trim();
+						String bod_hohe = sucursal.getBod_hohe().trim();
+						String ubi_hohe = sucursal.getUbi_hohe().trim();
+
+
 						if (cliente != null && bodega != null) {
 							Long neto = Math.round(Double.parseDouble(auxNeto));
 							Long iva = Math.round(neto * emisor.getTasaIva() / 100);
@@ -13095,6 +13103,7 @@ public class MnuReportes extends Controller {
 							api.tipodocumento = "NV";
 							api.num_doc = id_proforma.toString();
 							api.fecha_doc = Fechas.DDMMAA(fecha);
+							api.cod_unidnegocio = ccost;
 							api.fecha_ref = Fechas.DDMMAA(fecha);
 							api.rut_cliente = rutClie;
 							api.dire_cliente = "LEGAL";
@@ -13125,10 +13134,10 @@ public class MnuReportes extends Controller {
 							det.unidad = "UNS";
 							det.precio_unit = neto.toString();
 							det.moneda_det = "CLP";
-							det.cen_cos = "1";
+							det.cen_cos = cen_hohe;
 							det.tipo_desc = "M";
-							det.ubicacion = "";
-							det.bodega = "";
+							det.ubicacion = ubi_hohe;
+							det.bodega = bod_hohe;
 							det.descrip = concepto1;
 							det.stock = "R";
 							det.desc_adic = concepto2;

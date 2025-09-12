@@ -147,7 +147,8 @@ public class OtDespachado {
 							+ " otDespachado.id_ot, "
 							+ " otDespachado.id_equipoOrigen, "
 							+ " otDespachado.id_equipoDespacho, "
-							+ " equipo.codigo, equipo.nombre, " 
+							+ " equipo.codigo, "
+							+ " equipo.nombre, "
 							+ " unidad.nombre,"
 							+ " sum(cantidadDespacho),"
 							+ " sum(cantidadRebajaOt), "
@@ -158,11 +159,11 @@ public class OtDespachado {
 							" where otDespachado.id_ot=? group by otDespachado.id_equipoOrigen, otDespachado.id_equipoDespacho" +
 							" order by equipo.nombre;");
 			smt.setLong(1, idOt);
-			
+
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				
-				Double kg = rs.getDouble(8);
+				Double kg = rs.getDouble(9);
 				
 				
 				List<String> aux = new ArrayList<String>();
@@ -175,8 +176,8 @@ public class OtDespachado {
 				aux.add(myformatdouble.format(rs.getDouble(7))); 	// 6 cantidadDespacho
 				aux.add(myformatdouble.format(rs.getDouble(8))); 	// 7 cantidadRebajaOt
 				
-				aux.add(myformatdouble.format(rs.getDouble(7) * kg)); 	// 8 total kg despachados
-				
+				aux.add(myformatdouble.format(rs.getDouble(8) * kg)); 	// 8 total kg despachados
+
 				lista.add(aux);
 			}
 			rs.close();smt.close();

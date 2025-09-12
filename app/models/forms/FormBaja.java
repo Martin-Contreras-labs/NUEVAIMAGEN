@@ -62,9 +62,11 @@ public class FormBaja {
 			if(mapeoPermiso.get("parametro.permiteDevolverVentas").equals("1")) {
 				soloArriendo = (long) 0;
 			}
-			Map<Long,Precio> mapPrecio = Precio.mapAll(con, db, mapeoDiccionario, (long) 1);
+			Long id_suscursal = 1L;
+			Map<Long,Precio> mapPrecio = Precio.mapAll(con, db, mapeoDiccionario, id_suscursal);
 			Map<String,Long> decCompra = Moneda.numeroDecimalxNombre(con, db);
-			Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, (long)1, soloArriendo);
+			Long id_bodegaEmpresa = 1L;
+			Map<String,Movimiento> map = Inventarios.invPorIdBodega(con, db, id_bodegaEmpresa, soloArriendo);
 			Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, db);
 			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
 			Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);

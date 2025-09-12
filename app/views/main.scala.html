@@ -52,7 +52,6 @@ vertical-align: middle;
     
     	<script src="@routes.Assets.versioned("javascripts/main.js")"></script>
         <script src="@routes.Assets.versioned("javascripts/DecimalFormat.js")"></script>
-        <script src="@routes.Assets.versioned("javascripts/jquery-3.3.1.slim.min.js")"></script>
 		<script src="@routes.Assets.versioned("javascripts/jquery.js")"></script>
 		<script src="@routes.Assets.versioned("bootstrap-4.3.1/js/bootstrap.min.js")"></script>
 		<script src="@routes.Assets.versioned("alertify.js/lib/alertify.js")"></script>
@@ -83,7 +82,7 @@ vertical-align: middle;
 
 <script>
 	//VERIFICA CONEXION A INTERNET
-	setInterval('estaConectado()',1000);
+	setInterval(estaConectado(),1000);
 	function estaConectado(){
 		if(!navigator.onLine){
 		    document.getElementById('bloquear').style.display="block"; 

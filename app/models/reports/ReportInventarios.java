@@ -4593,7 +4593,10 @@ public class ReportInventarios {
 				+ " estadoEquipo.cantidad, "
 				+ " movimiento.id_cotizacion, "
 				+ " bodegaEmpresa.id_sucursal, "
-				+ " guia.numGuiaCliente "
+				+ " guia.numGuiaCliente, "
+				+ " estadoEquipo.cobraArriendo, "
+				+ " movimiento.id, "
+				+ " tipoEstado.cobraArriendo "
 				+ " from `%s`.estadoEquipo "
 				+ " left join `%s`.movimiento on movimiento.id = estadoEquipo.id_movimiento "
 				+ " left Join `%s`.tipoEstado on tipoEstado.id = estadoEquipo.id_tipoEstado "
@@ -4603,6 +4606,7 @@ public class ReportInventarios {
 				+ " and fecha between '"+desdeAAMMDD+"' and '"+hastaAAMMDD+"' "
 				+   permisoPorBodega + condSucursal
 				+ " order by id_bodegaEmpresa, tipoEstado.id, movimiento.id_equipo, guia.fecha;",db,db,db,db,db);
+
 		try (PreparedStatement smt5 = con.prepareStatement(query);
 			 ResultSet rs5 = smt5.executeQuery();){
 			Map<Long, Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
@@ -4622,6 +4626,9 @@ public class ReportInventarios {
 				aux.add(rs5.getString(7));  // 6 id_cotizacion
 				aux.add(nameSucursal);  			   // 7 nameSucursal
 				aux.add(rs5.getString(9));  // 8 referencia cliente
+				aux.add(rs5.getString(10));  // 9 cobraArriendo por estado la guia
+				aux.add(rs5.getString(11));  // 10 movimiento.id
+				aux.add(rs5.getString(12));  // 11 cobraArriendo por el tipo estado
 				if(rs5.getDouble(6) > 0) {
 					lista.add(aux);
 				}
@@ -4710,7 +4717,10 @@ public class ReportInventarios {
 				+ " equipo.kg, "
 				+ " equipo.m2, "
 				+ " guia.numGuiaCliente, "
-				+ " cliente.nickName "
+				+ " cliente.nickName, "
+				+ " estadoEquipo.cobraArriendo, "
+				+ " movimiento.id, "
+				+ " tipoEstado.cobraArriendo "
 				+ " from `%s`.estadoEquipo "
 				+ " left join `%s`.guia on guia.id = estadoEquipo.id_guia "
 				+ " left join `%s`.bodegaEmpresa on bodegaEmpresa.id = guia.id_bodegaOrigen "
@@ -4786,6 +4796,9 @@ public class ReportInventarios {
 					aux.add(m2Str);                            // 16 m2 unitario
 					aux.add(rs5.getString(19));                                        // 17 nro ref cliente
 					aux.add(rs5.getString(20));                                        // 18 nickCliente
+					aux.add(rs5.getString(21));  // 19 cobraArriendo por estado la guia
+					aux.add(rs5.getString(22));  // 20 movimiento.id
+					aux.add(rs5.getString(23));  // 21 cobraArriendo por el tipo estado
 					lista.add(aux);
 				}
 			}
@@ -5374,7 +5387,10 @@ public class ReportInventarios {
         equipo.kg,
         equipo.m2,
         guia.numGuiaCliente,
-        cliente.nickName
+        cliente.nickName,
+        estadoEquipo.cobraArriendo,
+		movimiento.id,
+		tipoEstado.cobraArriendo
     FROM `%s`.estadoEquipo
     LEFT JOIN `%s`.guia ON guia.id = estadoEquipo.id_guia
     LEFT JOIN `%s`.bodegaEmpresa ON bodegaEmpresa.id = guia.id_bodegaOrigen
@@ -5452,6 +5468,11 @@ public class ReportInventarios {
 					aux.add(m2Str);                                        // 16 m2 unitario
 					aux.add(rs5.getString(19));                            // 17 nro ref cliente
 					aux.add(rs5.getString(20));                                        // 18 nickCliente
+
+					aux.add(rs5.getString(21));  // 19 cobraArriendo por estado la guia
+					aux.add(rs5.getString(22));  // 20 movimiento.id
+					aux.add(rs5.getString(23));  // 21 cobraArriendo por el tipo estado
+
 					if (rs5.getDouble(10) > 0) {
 						lista.add(aux);
 					}
