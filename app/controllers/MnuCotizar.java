@@ -4803,6 +4803,7 @@ public class MnuCotizar extends Controller {
 					formMov.fechaGuia = form.fechaGuia;
 					formMov.observaciones = form.observaciones;
 					formMov.id_transportista = form.id_transportista;
+					formMov.fechaIniTerGuia = form.fechaIniTerGuia;
 					if (archivos != null) {
 						MnuCotizar.grabarFilesThread grabarFile = new MnuCotizar.grabarFilesThread(s.baseDato, archivos, nombreArchivoSinExtencion);
 						grabarFile.run();

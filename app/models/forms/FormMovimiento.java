@@ -766,7 +766,12 @@ public class FormMovimiento {
 				setCelda(cell,"Arial",10,2,"2b5079",texto,false);
 				cell = table.getRow(3).getCell(2);
 				texto = Fechas.DDMMAA(form.fechaGuia);
-				setCelda(cell,"Arial",12,2,"2b5079",texto,false);
+				if(form.fechaIniTerGuia == null || form.fechaIniTerGuia.equals("")) {
+					form.fechaIniTerGuia = form.fechaGuia;
+				}
+				String iniTer = Fechas.DDMMAA(form.fechaIniTerGuia);
+				String celdaFecha = "Nota: "+texto+"\n IniTer: "+iniTer;
+				setCelda(cell,"Arial",10,2,"2b5079",celdaFecha,false);
 
 				table= doc.getTables().get(1);
 				if((long)bodegaOrigen.getEsInterna()>(long)1) {
