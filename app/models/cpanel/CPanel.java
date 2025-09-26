@@ -186,7 +186,6 @@ public class CPanel {
 				
 				vista.add(aux);
 			}
-			rs.close();
 		} catch (SQLException e) {
 			String className = ActaBaja.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();

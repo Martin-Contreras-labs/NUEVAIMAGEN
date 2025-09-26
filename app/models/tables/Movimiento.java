@@ -477,6 +477,11 @@ public class Movimiento {
 				
 				aux.add(detalleGuia.get(i).get(34)); 	//18 cantidad que dice el cliente
 				aux.add(detalleGuia.get(i).get(35)); 	//19 diferencia con cliente
+
+				aux.add(""); 	//20 id_ot
+				aux.add(""); 	//21 numero de ot
+				aux.add(""); 	//22 fecha de ot
+
 				detalleGuiaFinal.add(aux);
 			}
 		}
