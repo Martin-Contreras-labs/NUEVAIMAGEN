@@ -305,6 +305,13 @@ public class OtOdoEnExcel {
 			            cell.setCellStyle(encabezado2);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANTIDAD");
+
+						posCell++; posColl++;
+						hoja1.setColumnWidth(posColl, 13*1000);
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado2);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue("EQUIPO ASOCIADO");
 	
 			
 				//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
@@ -424,6 +431,12 @@ public class OtOdoEnExcel {
 								cell.setCellStyle(detalle);
 								cell.setCellValue(cantVendida);
 								posRow++;
+
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellStyle(detalle);
+								cell.setCellValue(listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16));
 							}
 							
 							
@@ -508,6 +521,12 @@ public class OtOdoEnExcel {
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalCantVendida);
+
+							posCell++; posColl++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
 							
 							posRow++;
 							
@@ -585,6 +604,13 @@ public class OtOdoEnExcel {
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
+
+							posCell++; posColl++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+
 						}
 						
 						posRow++;
@@ -663,6 +689,12 @@ public class OtOdoEnExcel {
 			            cell.setCellStyle(detalle);
 						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalCantVendida);
+
+						posCell++; posColl++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue("");
 						
 						
 						posRow = posRow + 5;

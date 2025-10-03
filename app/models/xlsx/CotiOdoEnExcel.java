@@ -232,6 +232,13 @@ public class CotiOdoEnExcel {
 			            cell.setCellStyle(encabezado);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("PRECIO ADICIONAL");
+
+						posCell++; posColl++;
+						hoja1.setColumnWidth(posColl, 12*1000);
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue("EQUIPO ASOCIADO");
 			
 				//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 						InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -337,6 +344,12 @@ public class CotiOdoEnExcel {
 					            cell.setCellStyle(detalle);
 								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellValue(preAdic);
+
+								posCell++;
+								cell = row.createCell(posCell);
+								cell.setCellStyle(detalle);
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16));
 								
 								posRow++;
 							}
@@ -413,6 +426,12 @@ public class CotiOdoEnExcel {
 				            cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
 							
 							posRow++;
 							
@@ -483,6 +502,12 @@ public class CotiOdoEnExcel {
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
+							cell.setCellType(Cell.CELL_TYPE_STRING);
+							cell.setCellValue("");
+
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
 							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
@@ -557,6 +582,12 @@ public class CotiOdoEnExcel {
 						posCell++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
+						cell.setCellValue("");
+
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						

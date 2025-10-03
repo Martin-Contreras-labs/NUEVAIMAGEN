@@ -598,7 +598,7 @@ public class Inventarios {
 								listaEquipos.add(aux);
 							}
 						}
-						}
+					}
 				}
 			} catch (SQLException e) {
 				String className = ActaBaja.class.getSimpleName();

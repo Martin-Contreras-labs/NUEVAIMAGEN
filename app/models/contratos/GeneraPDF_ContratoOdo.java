@@ -117,6 +117,11 @@ public class GeneraPDF_ContratoOdo {
 				String moneda = listadoServicios.get(i).get(6);
 				String puVenta = listadoServicios.get(i).get(7);
 				String aplicaMin = listadoServicios.get(i).get(9);
+				if(aplicaMin.equals("1")){
+					aplicaMin = "SI";
+				}else{
+					aplicaMin = "NO";
+				}
 				String cantMin = listadoServicios.get(i).get(10);
 				String preAdic = listadoServicios.get(i).get(11);
 				row = table.getRow(i+1);

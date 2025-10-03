@@ -534,15 +534,16 @@ public class ProformaEstado {
 
 				posCell++;
 				cell = row.createCell(posCell);
-				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue(lista.get(i).get(1));
+				cell.setCellStyle(formatFecha);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(1));
+				cell.setCellValue(fecha.getFechaUtil());
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(formatFecha);
 				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(2));
+				fecha = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(2));
 				cell.setCellValue(fecha.getFechaUtil());
 
 				posCell++;
@@ -555,9 +556,8 @@ public class ProformaEstado {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(formatFecha);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				fecha = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(4));
-				cell.setCellValue(fecha.getFechaUtil());
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(lista.get(i).get(4));
 
 				posCell++;
 				cell = row.createCell(posCell);

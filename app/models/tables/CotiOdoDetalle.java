@@ -33,11 +33,14 @@ public class CotiOdoDetalle {
 	public String unidadServicio;
 	
 	public String totalVenta;
-	
+
+	public Long id_equipo;
+	public String codigoEquipo;
+	public String nombreEquipo;
 
 	public CotiOdoDetalle(Long id, Long id_cotiOdo, Long id_servicio, Long id_moneda, String precio, String cantidad,
 			Long aplicaMinimo, String cantidadMinimo, String precioAdicional, String codigo, String servicio, String moneda,
-			String unidadServicio, String totalVenta) {
+			String unidadServicio, String totalVenta, Long id_equipo, String codigoEquipo, String nombreEquipo) {
 		super();
 		this.id = id;
 		this.id_cotiOdo = id_cotiOdo;
@@ -53,6 +56,9 @@ public class CotiOdoDetalle {
 		this.moneda = moneda;
 		this.unidadServicio = unidadServicio;
 		this.totalVenta = totalVenta;
+		this.id_equipo = id_equipo;
+		this.codigoEquipo = codigoEquipo;
+		this.nombreEquipo = nombreEquipo;
 	}
 
 	public Long getId() {
@@ -167,6 +173,30 @@ public class CotiOdoDetalle {
 		this.totalVenta = totalVenta;
 	}
 
+	public Long getId_equipo() {
+		return id_equipo;
+	}
+
+	public void setId_equipo(Long id_equipo) {
+		this.id_equipo = id_equipo;
+	}
+
+	public String getCodigoEquipo() {
+		return codigoEquipo;
+	}
+
+	public void setCodigoEquipo(String codigoEquipo) {
+		this.codigoEquipo = codigoEquipo;
+	}
+
+	public String getNombreEquipo() {
+		return nombreEquipo;
+	}
+
+	public void setNombreEquipo(String nombreEquipo) {
+		this.nombreEquipo = nombreEquipo;
+	}
+
 	public CotiOdoDetalle() {
 		super();
 	}
@@ -179,6 +209,13 @@ public class CotiOdoDetalle {
 			map.put(x.id, x);
 		}
 		return(map);
+	}
+
+	public static Map<Long,CotiOdoDetalle> mapDetalleCotiOdo(Connection con, String db,Long id_cotiOdo){
+		Map<Long,CotiOdoDetalle> mapDetalle = new HashMap<Long,CotiOdoDetalle>();
+		List<CotiOdoDetalle> list = CotiOdoDetalle.allPorIdCotiOdo(con, db, id_cotiOdo);
+		list.forEach(x -> mapDetalle.put(x.getId_servicio(), x));
+		return(mapDetalle);
 	}
 	
 	public static List<CotiOdoDetalle> all(Connection con, String db) {
@@ -198,11 +235,15 @@ public class CotiOdoDetalle {
 							+ "	servicio.codigo, "
 							+ "	servicio.nombre, "
 							+ "	moneda.nickName, "
-							+ "	unidadServicio.nombre " + 
-							" from `"+db+"`.cotiOdoDetalle" + 
+							+ "	unidadServicio.nombre, "
+							+ "	cotiOdoDetalle.id_equipo, "
+							+ "	ifnull(equipo.codigo,''), "
+							+ "	ifnull(equipo.nombre,'') " +
+							" from `"+db+"`.cotiOdoDetalle" +
 							" left join `"+db+"`.servicio on servicio.id = cotiOdoDetalle.id_servicio " + 
 							" left join `"+db+"`.moneda on moneda.id = cotiOdoDetalle.id_moneda " + 
-							" left join `"+db+"`.unidadServicio on unidadServicio.id = servicio.id_unidadServicio " + 
+							" left join `"+db+"`.unidadServicio on unidadServicio.id = servicio.id_unidadServicio " +
+							" left join `"+db+"`.equipo on equipo.id = cotiOdoDetalle.id_equipo " +
 							" order by servicio.nombre;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
@@ -219,7 +260,8 @@ public class CotiOdoDetalle {
 				String precioAdicional = DecimalFormato.formato(rs.getDouble(9),numDec);
 				lista.add(new CotiOdoDetalle(rs.getLong(1),rs.getLong(2),rs.getLong(3),
 						rs.getLong(4),precio,cantidad,rs.getLong(7),cantidadMinimo,precioAdicional,
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),totalVenta));
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),
+						totalVenta,rs.getLong(14),rs.getString(15),rs.getString(16)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -245,11 +287,15 @@ public class CotiOdoDetalle {
 							+ "	servicio.codigo, "
 							+ "	servicio.nombre, "
 							+ "	moneda.nickName, "
-							+ "	unidadServicio.nombre " + 
+							+ "	unidadServicio.nombre, "
+							+ "	cotiOdoDetalle.id_equipo, "
+							+ "	ifnull(equipo.codigo,''), "
+							+ "	ifnull(equipo.nombre,'') " +
 							" from `"+db+"`.cotiOdoDetalle" + 
 							" left join `"+db+"`.servicio on servicio.id = cotiOdoDetalle.id_servicio " + 
 							" left join `"+db+"`.moneda on moneda.id = cotiOdoDetalle.id_moneda " + 
-							" left join `"+db+"`.unidadServicio on unidadServicio.id = servicio.id_unidadServicio " + 
+							" left join `"+db+"`.unidadServicio on unidadServicio.id = servicio.id_unidadServicio " +
+							" left join `"+db+"`.equipo on equipo.id = cotiOdoDetalle.id_equipo " +
 							" where cotiOdoDetalle.id_cotiOdo=?  order by servicio.nombre;");
 			smt.setLong(1, id_cotiOdo);
 			ResultSet rs = smt.executeQuery();
@@ -267,7 +313,8 @@ public class CotiOdoDetalle {
 				String precioAdicional = DecimalFormato.formato(rs.getDouble(9),numDec);
 				lista.add(new CotiOdoDetalle(rs.getLong(1),rs.getLong(2),rs.getLong(3),
 						rs.getLong(4),precio,cantidad,rs.getLong(7),cantidadMinimo,precioAdicional,
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),totalVenta));
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),
+						totalVenta,rs.getLong(14),rs.getString(15),rs.getString(16)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -280,7 +327,7 @@ public class CotiOdoDetalle {
 		boolean flag = false;
 		try {
 			PreparedStatement smt1 = con
-					.prepareStatement("insert into `"+db+"`.cotiOdoDetalle (id_cotiOdo, id_servicio, id_moneda, precio, cantidad, aplicaMinimo, cantidadMinimo, precioAdicional)"
+					.prepareStatement("insert into `"+db+"`.cotiOdoDetalle (id_cotiOdo, id_servicio, id_moneda, precio, cantidad, aplicaMinimo, cantidadMinimo, precioAdicional, id_equipo)"
 							+ " values "+detalle+";");
 			smt1.executeUpdate();
 			smt1.close();
@@ -323,11 +370,15 @@ public class CotiOdoDetalle {
 							+ "	servicio.codigo, "
 							+ "	servicio.nombre, "
 							+ "	moneda.nickName, "
-							+ "	unidadServicio.nombre " + 
+							+ "	unidadServicio.nombre, "
+							+ "	cotiOdoDetalle.id_equipo, "
+							+ "	ifnull(equipo.codigo,''), "
+							+ "	ifnull(equipo.nombre,'') " +
 							" from `"+db+"`.cotiOdoDetalle" + 
 							" left join `"+db+"`.servicio on servicio.id = cotiOdoDetalle.id_servicio " + 
 							" left join `"+db+"`.moneda on moneda.id = cotiOdoDetalle.id_moneda " + 
-							" left join `"+db+"`.unidadServicio on unidadServicio.id = servicio.id_unidadServicio " + 
+							" left join `"+db+"`.unidadServicio on unidadServicio.id = servicio.id_unidadServicio " +
+							" left join `"+db+"`.equipo on equipo.id = cotiOdoDetalle.id_equipo " +
 							" order by cotiOdoDetalle.id_cotiOdo;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
@@ -344,7 +395,8 @@ public class CotiOdoDetalle {
 				String precioAdicional = DecimalFormato.formato(rs.getDouble(9),numDec);
 				lista.add(new CotiOdoDetalle(rs.getLong(1),rs.getLong(2),rs.getLong(3),
 						rs.getLong(4),precio,cantidad,rs.getLong(7),cantidadMinimo,precioAdicional,
-						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),totalVenta));
+						rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),
+						totalVenta,rs.getLong(14),rs.getString(15),rs.getString(16)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {

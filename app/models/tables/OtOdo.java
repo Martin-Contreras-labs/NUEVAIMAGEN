@@ -571,6 +571,7 @@ public class OtOdo {
 					"<TH style= 'text-align: center;'>Cantidad<br>Minimo</TH>"+
 					"<TH style= 'text-align: center;'>Precio<br>Adicional</TH>"+
 					"<TH style= 'text-align: center;'>CANT</TH>"+
+					"<TH style= 'text-align: center;'>EQUIPO ASOCIADO</TH>"+
 				"</TR>"+
 			"</thead>"+
 		"<tbody>";
@@ -614,6 +615,7 @@ public class OtOdo {
 					"<td style='text-align:right;'>"+listadoServicios.get(i).get(10)+"</td>"+
 					"<td style='text-align:right;'>"+listadoServicios.get(i).get(11)+"</td>"+
 					"<td style='text-align:right;'>"+DecimalFormato.formato(cantVendida, (long)2)+"</td>"+
+					"<td style='text-align:left;'>"+listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16)+"</td>"+
 				"</TR>";
 			}
  		}
@@ -633,6 +635,7 @@ public class OtOdo {
 							"<TH style='text-align: right;'>"+DecimalFormato.formato(total, numDec)+"</TH>"+
 							"<TH colspan='3'></TH>"+
 							"<TH style='text-align: right;'>"+DecimalFormato.formato(totalCantVendida, (long)2)+"</TH>"+
+							"<TH></TH>"+
 					"</TR>"+
 					"<TR>"+
 							"<TH colspan='4' style='text-align: right;'>DESCUENTO</TH>"+
@@ -640,6 +643,8 @@ public class OtOdo {
 							"<TH style='text-align: right;'>"+formCotizaOdo.dctoOdo+" %</TH>"+
 							"<TH colspan='3'></TH>"+
 							"<TH></TH>"+
+							"<TH></TH>"+
+
 					"</TR>";
 		}
 		
@@ -652,6 +657,7 @@ public class OtOdo {
 					"<TH style='text-align: right;'>"+DecimalFormato.formato(total*(1-dcto), numDec)+"</TH>"+
 					"<TH colspan='3'></TH>"+
 					"<TH style='text-align: right;'>"+DecimalFormato.formato(totalCantVendida, (long)2)+"</TH>"+
+					"<TH></TH>"+
 				"</TR>"+
 			"</tfoot>"+
 		"</table>";
@@ -740,7 +746,8 @@ public class OtOdo {
 					"<TH style= 'text-align: center;'>Cantidad<br>Minimo</TH>"+
 					"<TH style= 'text-align: center;'>Precio<br>Adicional</TH>"+
 					"<TH style= 'text-align: center;'>CANT</TH>"+
-					"<TH style= 'text-align: center;'>HIST</TH>"+
+					"<TH style= 'text-align: left;'>EQUIPO ASOCIADO</TH>"+
+					"<TH style= 'text-align: center;' class='noprint'>HIST</TH>"+
 				"</TR>"+
 			"</thead>"+
 		"<tbody>";
@@ -784,8 +791,8 @@ public class OtOdo {
 					"<td style='text-align:right;'>"+listadoServicios.get(i).get(10)+"</td>"+
 					"<td style='text-align:right;'>"+listadoServicios.get(i).get(11)+"</td>"+
 					"<td style='text-align:right;'>"+DecimalFormato.formato(cantVendida, (long)2)+"</td>"+
-					
-					"<td style='text-align: center;' title='Trazabilidad de las vetas'>"+
+					"<td style='text-align:left;'>"+listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16)+"</td>"+
+					"<td style='text-align: center;' title='Trazabilidad de las vetas' class='noprint'>"+
 						"<a href='#' onclick='trazaOt("+id_otOdo+","+id_servicio.toString()+")'>"+
 							"<kbd style='background-color: rgb(90, 200, 245)'><font color='green'>H</font></kbd>"+
 						"</a>"+
@@ -810,6 +817,7 @@ public class OtOdo {
 							"<TH colspan='3'></TH>"+
 							"<TH style='text-align: right;'>"+DecimalFormato.formato(totalCantVendida, (long)2)+"</TH>"+
 							"<TH></TH>"+
+							"<TH class='noprint'></TH>"+
 					"</TR>"+
 					"<TR>"+
 							"<TH colspan='4' style='text-align: right;'>DESCUENTO</TH>"+
@@ -818,6 +826,7 @@ public class OtOdo {
 							"<TH colspan='3'></TH>"+
 							"<TH></TH>"+
 							"<TH></TH>"+
+							"<TH class='noprint'></TH>"+
 					"</TR>";
 		}
 		
@@ -831,6 +840,7 @@ public class OtOdo {
 					"<TH colspan='3'></TH>"+
 					"<TH style='text-align: right;'>"+DecimalFormato.formato(totalCantVendida, (long)2)+"</TH>"+
 					"<TH></TH>"+
+					"<TH class='noprint'></TH>"+
 				"</TR>"+
 			"</tfoot>"+
 		"</table>";
@@ -923,13 +933,17 @@ public class OtOdo {
 							+ " aplicaMinimo, "
 							+ " cantidadMinimo, "
 							+ " precioAdicional, "
-							+ " id_cotiOdo "
+							+ " id_cotiOdo, "
+							+ " id_equipo "
 							+ " from `"+db+"`.cotiOdoDetalle "
 							+ " left join `"+db+"`.cotiOdo on cotiOdo.id = cotiOdoDetalle.id_cotiOdo "
 							+ " where id_otOdo in "+listadoIdOtConfirmar+";");
 			ResultSet rs2 = smt2.executeQuery();
-			
+
+			Map<String,EquipoServicio> mapEquiposInscritos = EquipoServicio.mapIdBodIdEquipVsEquiposServicio(con, db, "0", "0");
+
 			List<List<String>> auxLista = new ArrayList<List<String>>();
+			List<List<String>> auxEquipo = new ArrayList<List<String>>();
 			while (rs2.next()) {
 				List<String> aux = new ArrayList<String>();
 				aux.add("'"+rs2.getString(1)+"'");
@@ -942,23 +956,57 @@ public class OtOdo {
 				aux.add("'"+rs2.getString(8)+"'");
 				aux.add("'"+rs2.getString(9)+"'");
 				auxLista.add(aux);
+
+				Long id_equipo = rs2.getLong(10);
+				if(id_equipo > 0){
+					//String key = x.getId_bodegaEmpresa().toString()+"_"+x.getId_equipo().toString();
+
+					String key = rs2.getLong(1)+"_"+rs2.getLong(10);
+					EquipoServicio aux2 = mapEquiposInscritos.get(key);
+					if(aux2 == null){
+						List<String> aux3 = new ArrayList<String>();
+						aux3.add("'"+rs2.getString(1)+"'");
+						aux3.add("'"+rs2.getString(10)+"'");
+						aux3.add("'1'");
+						auxEquipo.add(aux3);
+
+						//EquipoServicio.insert(con, db, rs2.getLong(1), rs2.getLong(10));
+					}else{
+						Long vigente = aux2.getVigente();
+						if(vigente < 1){
+							EquipoServicio.modifyVigencia(con, db, aux2.getId_bodegaEmpresa(), aux2.getId_equipo(), 1L);
+						}
+					}
+				}
 			}
 			smt2.close();
 			rs2.close();
 			
 			String paraInsert = auxLista.toString();
-			if(paraInsert.length()>1) {
+			if(paraInsert.length()>2) {
 				paraInsert = paraInsert.substring(1,paraInsert.length()-1);
 				paraInsert = paraInsert.replaceAll("\\[", "\\(");
 				paraInsert = paraInsert.replaceAll("\\]", ")");
-				
 				PreparedStatement smt3 = con
 						.prepareStatement("insert into `"+db+"`.listaPrecioServicio "
 								+ " (id_bodegaEmpresa, id_servicio, id_moneda, fecha, precio, aplicaMinimo, cantMinimo, precioAdicional, id_cotiOdo) "
 								+ " values "+paraInsert+";");
 				smt3.executeUpdate();
 				smt3.close();
-				
+				flag = true;
+			}
+
+			String paraInsertEquipo = auxEquipo.toString();
+			if(paraInsertEquipo.length()>2) {
+				paraInsertEquipo = paraInsertEquipo.substring(1, paraInsertEquipo.length() - 1);
+				paraInsertEquipo = paraInsertEquipo.replaceAll("\\[", "\\(");
+				paraInsertEquipo = paraInsertEquipo.replaceAll("\\]", ")");
+				PreparedStatement smt3 = con
+						.prepareStatement("insert into `"+db+"`.equipoServicio " +
+								" (id_bodegaEmpresa, id_equipo, vigente) "
+								+ " values "+paraInsertEquipo+";");
+				smt3.executeUpdate();
+				smt3.close();
 				flag = true;
 			}
 			

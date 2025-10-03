@@ -80,13 +80,15 @@ public class FormCotizaOdo {
 	
 	public String estadoCotizacion;
 	public String fechaConfirmada;
-	
+
+	public List<String> id_equipo;
+
 
 	public FormCotizaOdo(Long id_cotizacion, Long numeroCoti, String fechaCoti, Long id_cliente, Long id_proyecto,
 			Long id_bodegaEmpresa, String rutCliente, String nickCliente, String nickProyecto, String nombreBodega,
 			String observaciones, List<Long> id_servicio, List<Long> id_moneda, List<Long> aplicaMinimo,
 			List<String> cantidad, List<String> precio, List<String> cantidadMinimo, List<String> precioAdicional,
-			String dctoOdo, String cotiOdoPDF, String estadoCotizacion, String fechaConfirmada) {
+			String dctoOdo, String cotiOdoPDF, String estadoCotizacion, String fechaConfirmada, List<String> id_equipo) {
 		super();
 		this.id_cotiOdo = id_cotizacion;
 		this.numeroCoti = numeroCoti;
@@ -110,6 +112,7 @@ public class FormCotizaOdo {
 		this.cotiOdoPDF = cotiOdoPDF;
 		this.estadoCotizacion = estadoCotizacion;
 		this.fechaConfirmada = fechaConfirmada;
+		this.id_equipo = id_equipo;
 	}
 
 	public FormCotizaOdo(Long numeroCoti, String fecha) {
@@ -188,7 +191,7 @@ public class FormCotizaOdo {
 							+ " order by servicio.nombre; ");
 			ResultSet rs = smt.executeQuery();
 			
-			Map<Long,List<Double>> mapCotiDetalle = CotiOdo.mapDetalleCotiOdo(con, db, id_cotiOdo);
+			Map<Long,CotiOdoDetalle> mapCotiDetalle = CotiOdoDetalle.mapDetalleCotiOdo(con, db, id_cotiOdo);
 			
 			while (rs.next()) {
 				Long numDec =  rs.getLong(8);
@@ -207,20 +210,33 @@ public class FormCotizaOdo {
 				aux.add(DecimalFormato.formato((double)0, numDec));  		//11 precio adicional
 				aux.add(rs.getString(8));									//12 numDec
 				aux.add(rs.getString(9));									//13 id_moneda
+
+				aux.add("0");  												//14 id_equipo asociado
+				aux.add("");  												//15 codigo equipo
+				aux.add("");  												//16 nombre equipo
 				
 				//DETERMINA EL PRECIO CANTIDAD MINIMO  DE ARRIENDO A APLICAR EN LA COTIZACION:
-				List<Double> detCoti = mapCotiDetalle.get(rs.getLong(1));
-				if(detCoti!=null) {
-					Double total = detCoti.get(0)*detCoti.get(1);
-					aux.set(5, DecimalFormato.formato(detCoti.get(0),(long)2));		//5 cantidad
-					aux.set(7, DecimalFormato.formato(detCoti.get(1),numDec));		//7 servicio.precio
-					aux.set(8, DecimalFormato.formato(total, numDec));  			//8 total
-					aux.set(9, DecimalFormato.formato(detCoti.get(2),(long)0));		//9 aplicaMinimo
-					aux.set(10, DecimalFormato.formato(detCoti.get(3),(long)2));	//10 cantidad minimo
-					aux.set(11, DecimalFormato.formato(detCoti.get(4),numDec));		//11 precio adicional
+				CotiOdoDetalle cotiOdoDetalle = mapCotiDetalle.get(rs.getLong(1));
+				if(cotiOdoDetalle!=null) {
+					Double cant = Double.parseDouble(cotiOdoDetalle.getCantidad().replaceAll(",", ""));
+					Double precio = Double.parseDouble(cotiOdoDetalle.getPrecio().replaceAll(",", ""));
+					Double total = cant * precio;
+					Double cantMinimo = Double.parseDouble(cotiOdoDetalle.getCantidadMinimo().replaceAll(",", ""));
+					Double precioAdicional = Double.parseDouble(cotiOdoDetalle.getPrecioAdicional().replaceAll(",", ""));
+
+					aux.set(5, DecimalFormato.formato(cant,(long)2));			//5 cantidad
+					aux.set(7, DecimalFormato.formato(precio,numDec));			//7 servicio.precio
+					aux.set(8, DecimalFormato.formato(total, numDec));  		//8 total
+					aux.set(9, cotiOdoDetalle.getAplicaMinimo().toString());		//9 aplicaMinimo
+					aux.set(10, DecimalFormato.formato(cantMinimo,(long)2));	//10 cantidad minimo
+					aux.set(11, DecimalFormato.formato(precioAdicional,numDec));		//11 precio adicional
+
+					aux.set(14, cotiOdoDetalle.getId_equipo().toString());				//14 id_equipo asociado
+					aux.set(15, cotiOdoDetalle.getCodigoEquipo());						//15 codigo equipo
+					aux.set(16, cotiOdoDetalle.getNombreEquipo());						//16 nombre equipo
 				}
 				// FIN DETERMINA PRECIO ARRIENDO
-					
+
 				lista.add(aux);
 			}
 			
@@ -249,7 +265,8 @@ public class FormCotizaOdo {
 							form.cantidad.get(i).replaceAll(",", "")+"','"+
 							form.aplicaMinimo.get(i)+"','"+
 							form.cantidadMinimo.get(i).replaceAll(",", "")+"','"+
-							form.precioAdicional.get(i).replaceAll(",", "")+"'),";
+							form.precioAdicional.get(i).replaceAll(",", "")+"','"+
+							form.id_equipo.get(i)+"'),";
 				}
 			}
 			if(form.id_servicio!=null && detalle.length()>10) {
@@ -259,6 +276,10 @@ public class FormCotizaOdo {
 				if(!CotiOdoDetalle.create(con, db, detalle)) {
 					CotiOdo.delete(con, db, id_cotiOdo);
 				}else {
+
+					// INSCRIBIR EL EQUIPO
+
+
 					if (docAdjunto != null) {
 						String nombreArchivoSinExtencion = "Doc_CotiOdo_" + id_cotiOdo;
 						String nombreArchivoConExtencion = Archivos.grabarArchivos(docAdjunto, db, nombreArchivoSinExtencion);
@@ -288,7 +309,8 @@ public class FormCotizaOdo {
 							form.cantidad.get(i).replaceAll(",", "")+"','"+
 							form.aplicaMinimo.get(i)+"','"+
 							form.cantidadMinimo.get(i).replaceAll(",", "")+"','"+
-							form.precioAdicional.get(i).replaceAll(",", "")+"'),";
+							form.precioAdicional.get(i).replaceAll(",", "")+"','"+
+							form.id_equipo.get(i)+"'),";
 				}
 			}
 			if(form.id_servicio!=null && detalle.length()>10) {

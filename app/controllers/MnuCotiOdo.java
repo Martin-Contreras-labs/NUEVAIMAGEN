@@ -9,26 +9,14 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import controllers.HomeController.Sessiones;
+import models.calculo.Inventarios;
 import models.contratos.GeneraPDF_ContratoOdo;
 import models.forms.CotiJsonA;
 import models.forms.FormContratoOdo;
 import models.forms.FormCotizaOdo;
 import models.forms.FormOtOdo;
 import models.reports.ReportCotiOdo;
-import models.tables.BodegaEmpresa;
-import models.tables.Cliente;
-import models.tables.Comunas;
-import models.tables.CotiOdo;
-import models.tables.CotiOdoDetalle;
-import models.tables.CotizaEstado;
-import models.tables.Moneda;
-import models.tables.OperadorServicio;
-import models.tables.OtEstado;
-import models.tables.OtOdo;
-import models.tables.Proyecto;
-import models.tables.Regiones;
-import models.tables.Servicio;
-import models.tables.VentaServicio;
+import models.tables.*;
 import models.utilities.*;
 import models.xlsx.CotiOdoEnExcel;
 import models.xlsx.OtOdoEnExcel;
@@ -144,7 +132,18 @@ public class MnuCotiOdo extends Controller {
 				aux.add(x.getId_moneda().toString());					//13 id_moneda
 				listadoServicios.add(aux);
 			}
-			return ok(cotiOdoIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, listCotiOdo, numDec));
+
+			List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
+			Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
+			List<Equipo> listEquipos = new ArrayList<Equipo>();
+			for(Equipo x: auxlistEquipos) {
+				Double stock = mapEquipConStock.get(x.getId());
+				if(stock!=null && stock.doubleValue() > 0) {
+					listEquipos.add(x);
+				}
+			}
+
+			return ok(cotiOdoIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, listCotiOdo, numDec, listEquipos));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -414,7 +413,18 @@ public class MnuCotiOdo extends Controller {
 					String auxNumDec = listadoServicios.get(listadoServicios.size()-1).get(12);
 					numDec = Long.parseLong(auxNumDec);
 				}
-				return ok(cotiOdoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, numDec));
+
+				List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
+				Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
+				List<Equipo> listEquipos = new ArrayList<Equipo>();
+				for(Equipo x: auxlistEquipos) {
+					Double stock = mapEquipConStock.get(x.getId());
+					if(stock!=null && stock.doubleValue() > 0) {
+						listEquipos.add(x);
+					}
+				}
+
+				return ok(cotiOdoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, numDec, listEquipos));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -1209,6 +1219,7 @@ public class MnuCotiOdo extends Controller {
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				String listadoIdOtOdoConfirmar = form.get("cambiosDeEstados").trim();
+
 				if(listadoIdOtOdoConfirmar.length()>1) {
 					listadoIdOtOdoConfirmar = "("+listadoIdOtOdoConfirmar.substring(0,listadoIdOtOdoConfirmar.length()-1)+")";
 					OtOdo.confirmar(con, s.baseDato, listadoIdOtOdoConfirmar);
@@ -2401,7 +2412,18 @@ public class MnuCotiOdo extends Controller {
 								aux.add(x.getId_moneda().toString());					//13 id_moneda
 								listadoServicios.add(aux);
 							}
-							return ok(cotiOdoIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, listCotiOdo, numDec));
+
+							List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
+							Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
+							List<Equipo> listEquipos = new ArrayList<Equipo>();
+							for(Equipo x: auxlistEquipos) {
+								Double stock = mapEquipConStock.get(x.getId());
+								if(stock!=null && stock.doubleValue() > 0) {
+									listEquipos.add(x);
+								}
+							}
+
+							return ok(cotiOdoIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, listCotiOdo, numDec, listEquipos));
 						}else {
 							return ok(mensajes.render("/routes2/cotiOdoIngreso/"+id_bodegaEmpresa, "Existen codigos duplicados en el archivo"));
 						}

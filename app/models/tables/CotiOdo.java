@@ -1011,6 +1011,7 @@ public class CotiOdo {
 						"<TH style= 'text-align: center;'>Aplica<br>Minimo</TH>"+
 						"<TH style= 'text-align: center;'>Cantidad<br>Minimo</TH>"+
 						"<TH style= 'text-align: center;'>Precio<br>Adicional</TH>"+
+						"<TH style= 'text-align: center;'>EQUIPO ASOCIADO</TH>"+
 				"</TR>"+
 			"</thead>"+
 			"<tbody>";
@@ -1044,6 +1045,7 @@ public class CotiOdo {
 					"</td>"+
 					"<td style='text-align:right;'>"+listadoServicios.get(i).get(10)+"</td>"+
 					"<td style='text-align:right;'>"+listadoServicios.get(i).get(11)+"</td>"+
+					"<td style='text-align:left;'>"+listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16)+"</td>"+
 				"</TR>";
 			}
  		}
@@ -1061,13 +1063,13 @@ public class CotiOdo {
 							"<TH style='text-align: right;'>"+DecimalFormato.formato(cant, (long)2)+"</TH>"+
 							"<TH colspan='2'></TH>"+
 							"<TH style='text-align: right;'>"+DecimalFormato.formato(total, numDec)+"</TH>"+
-							"<TH colspan='3'></TH>"+
+							"<TH colspan='4'></TH>"+
 					"</TR>"+
 					"<TR>"+
 							"<TH colspan='4' style='text-align: right;'>DESCUENTO</TH>"+
 							"<TH colspan='3'></TH>"+
 							"<TH style='text-align: right;'>"+formCotizaOdo.dctoOdo+" %</TH>"+
-							"<TH colspan='3'></TH>"+
+							"<TH colspan='4'></TH>"+
 					"</TR>";
 		}
 		
@@ -1078,7 +1080,7 @@ public class CotiOdo {
 					"<TH style='text-align: right;'>"+DecimalFormato.formato(cant, (long)2)+"</TH>"+
 					"<TH colspan='2'></TH>"+
 					"<TH style='text-align: right;'>"+DecimalFormato.formato(total*(1-dcto), numDec)+"</TH>"+
-					"<TH colspan='3'></TH>"+
+					"<TH colspan='4'></TH>"+
 				"</TR>"+
 			"</tfoot>"+
 		"</table>";
@@ -1122,30 +1124,7 @@ public class CotiOdo {
 		}
 		return(flag);
 	}
-	
-	public static Map<Long,List<Double>> mapDetalleCotiOdo(Connection con, String db,Long id_cotiOdo){
-		Map<Long,List<Double>> mapDetalle = new HashMap<Long,List<Double>>();
-		try{
-		PreparedStatement smt = con
-				.prepareStatement("select id_servicio,cantidad,precio,aplicaMinimo,cantidadMinimo,precioAdicional "+
-						" from `"+db+"`.cotiOdoDetalle where id_cotiOdo=?;");
-		smt.setLong(1, id_cotiOdo);
-		ResultSet rs = smt.executeQuery();
-		while (rs.next()) {
-			List<Double> aux = new ArrayList<Double>();			
-			aux.add(rs.getDouble(2)); 					//0 cantidad
-			aux.add(rs.getDouble(3)); 					//1 precio
-			aux.add(rs.getDouble(4)); 					//2 aplicaMinimo
-			aux.add(rs.getDouble(5)); 					//3 cantidadMinimo
-			aux.add(rs.getDouble(6)); 					//4 precioAdicional
-			mapDetalle.put(rs.getLong(1), aux);
-		}
-		rs.close();smt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return(mapDetalle);
-	}
+
 	
 	public static Long create(Connection con, String db, CotiOdo cotiOdo) {
 		Long id_cotiOdo = (long)0;

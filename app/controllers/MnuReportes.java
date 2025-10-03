@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -2314,9 +2315,26 @@ public class MnuReportes extends Controller {
 						concepto = "VENTA";
 					}
 
-
 					List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
-
+					Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+					for(int i=6; i<datos.size(); i++) {
+						Long nroDec = mapDec.get(datos.get(i).get(6).toUpperCase());
+						if(nroDec == null) {
+							nroDec = 0L;
+						}
+						String auxNumero = datos.get(i).get(7).trim();
+						if( ! auxNumero.equals("")) {
+							datos.get(i).set(7, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(7).replaceAll(",","")), nroDec));
+						}
+						auxNumero = datos.get(i).get(9).trim();
+						if( ! auxNumero.equals("")) {
+							datos.get(i).set(9, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(9).replaceAll(",","")), nroDec));
+						}
+						auxNumero = datos.get(i).get(10).trim();
+						if( ! auxNumero.equals("")) {
+							datos.get(i).set(10, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(10).replaceAll(",","")), nroDec));
+						}
+					}
 					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					return ok(reporteMovimientosDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, datos, bodega, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf, id_proyecto));
 				} else {
@@ -2329,6 +2347,25 @@ public class MnuReportes extends Controller {
 					List<List<List<String>>> listDatos = new ArrayList<List<List<String>>>();
 					for (Long i : listIdBodegas) {
 						List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, i, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+						Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+						for(int j=6; j<datos.size(); j++) {
+							Long nroDec = mapDec.get(datos.get(j).get(6).toUpperCase());
+							if(nroDec == null) {
+								nroDec = 0L;
+							}
+							String auxNumero = datos.get(j).get(7).trim();
+							if( ! auxNumero.equals("")) {
+								datos.get(j).set(7, DecimalFormato.formato(Double.parseDouble(datos.get(j).get(7).replaceAll(",","")), nroDec));
+							}
+							auxNumero = datos.get(j).get(9).trim();
+							if( ! auxNumero.equals("")) {
+								datos.get(j).set(9, DecimalFormato.formato(Double.parseDouble(datos.get(j).get(9).replaceAll(",","")), nroDec));
+							}
+							auxNumero = datos.get(j).get(10).trim();
+							if( ! auxNumero.equals("")) {
+								datos.get(j).set(10, DecimalFormato.formato(Double.parseDouble(datos.get(j).get(10).replaceAll(",","")), nroDec));
+							}
+						}
 						List<String> x = datos.get(datos.size() - 1);
 						String y = x.get(x.size() - 5);
 						Double total = Double.parseDouble(y.replaceAll(",", ""));
@@ -2336,6 +2373,9 @@ public class MnuReportes extends Controller {
 							listDatos.add(datos);
 						}
 					}
+
+
+
 					return ok(reporteMovimientosDetallePorProyecto.render(mapeoDiccionario, mapeoPermiso, userMnu, listDatos, proyecto, esVenta, concepto, fechaDesde, fechaHasta, usd, eur, uf, id_proyecto));
 				}
 			} catch (SQLException e) {

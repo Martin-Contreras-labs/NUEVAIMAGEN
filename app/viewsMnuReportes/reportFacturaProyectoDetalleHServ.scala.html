@@ -271,19 +271,6 @@ groupPorClaseServicioEquipo: List[List[String]], tasaIva: Double)
 
 				  $("#profServ").val(formatStandar(neto,"@cantDec"));
 
-				  if ($('#tablaResumen tbody tr').length > 1) {
-					  $('#tablaResumen').DataTable({
-						  "fixedHeader": true,
-						  "paging": false,
-						  "info": false,
-						  "searching": false,
-						  "order": false,
-						  "language": {
-							  "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-						  }
-					  });
-				  }
-
 				    document.getElementById('mostrarmostrar').style.display="block"; 
 						
 			   });

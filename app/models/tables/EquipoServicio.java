@@ -192,6 +192,16 @@ public class EquipoServicio {
 		});
 		return(map);
 	}
+
+	public static Map<String,EquipoServicio> mapIdBodIdEquipVsEquiposServicio(Connection con, String db, String esPorSucursal, String id_sucursal){
+		Map<String,EquipoServicio> map =new HashMap<String,EquipoServicio>();
+		List<EquipoServicio> auxLista = EquipoServicio.allInscritos(con, db, esPorSucursal, id_sucursal);
+		auxLista.forEach(x->{
+			String key = x.getId_bodegaEmpresa().toString()+"_"+x.getId_equipo().toString();
+			map.put(key, x);
+		});
+		return(map);
+	}
 	
 	public static List<EquipoServicio> allInscritos(Connection con, String db, String esPorSucursal, String id_sucursal) {
 		List<EquipoServicio> lista = new ArrayList<EquipoServicio>();

@@ -589,7 +589,7 @@ public class ReportFacturas {
 				if(db.equals("madaHohe")){
 					detalle.add(myformatdouble.format(guiasPeriodo.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
 				}else {
-					detalle.add(myformatdouble4.format(guiasPeriodo.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
+					detalle.add(myformatdouble.format(guiasPeriodo.get(i).pArr_dia)); 			// 16 precioArriendo por día con descuento
 				}
 				detalle.add(myformatint.format(guiasPeriodo.get(i).dias)); 						// 17 cantidad de dias a cobrar
 				detalle.add(myformatdouble2.format(guiasPeriodo.get(i).tasaCambio));			// 18 tasa de cambio

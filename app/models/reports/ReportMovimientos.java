@@ -44,10 +44,8 @@ import views.html.mensajes;
 public class ReportMovimientos {
 
 	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-	static DecimalFormat myformatdouble = new DecimalFormat("#,##0.00",symbols);
 	static DecimalFormat myformatdouble0 = new DecimalFormat("#,##0",symbols);
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
-	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000",symbols);
 	
 	static SimpleDateFormat myformatfecha = new SimpleDateFormat("dd-MM-yyyy");
 	
@@ -252,7 +250,8 @@ public class ReportMovimientos {
 						aux.add(rs3.getString(2));  //codigo
 						aux.add(rs3.getString(3));  //equipo
 						aux.add(rs3.getString(4));  //moneda
-						aux.add(myformatdouble2.format(rs3.getDouble(5))); //precioventa
+						Double precVta = rs3.getDouble(5);
+						aux.add(precVta.toString());
 						Double tasa=(double)0;
 						Double tasaDcto = 1-((1-rs3.getDouble(9))*(1-rs3.getDouble(10))*(1-rs3.getDouble(11)));
 						if(rs3.getDouble(7)>0&&rs3.getDouble(5)>0) tasa=((rs3.getDouble(7)*30/factor*(1-tasaDcto))/rs3.getDouble(5))*100;
@@ -262,8 +261,10 @@ public class ReportMovimientos {
 							aux.add("0");  //arriendo dia
 						}else {
 							aux.add(myformatdouble2.format(tasa)+" %"); //tasaArriendo
-							aux.add(myformatdouble2.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // arriendo mes
-							aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+							Double arrMes = rs3.getDouble(7)*30/factor*(1-tasaDcto);
+							Double arrDia = rs3.getDouble(7)/factor*(1-tasaDcto);
+							aux.add(arrMes.toString()); // arriendo mes
+							aux.add(arrDia.toString());  //arriendo dia
 						}
 						aux.add(rs3.getString(12)); //  8 id cotizacion
 						aux.add(rs3.getString(13)); //  9 numero coti
@@ -418,7 +419,8 @@ public class ReportMovimientos {
 
 					Double precioVenta=(double)0;
 					try {
-						precioVenta  = myformatdouble.parse(auxNum).doubleValue();
+						precioVenta  = Double.parseDouble(auxNum.replaceAll(",", "").trim());
+						//precioVenta  = myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {};
 
 					auxNum = listaCodigos.get(i).get(7).trim();
@@ -428,7 +430,8 @@ public class ReportMovimientos {
 
 					Double precioDia=(double)0;
 					try {
-						precioDia  = myformatdouble.parse(auxNum).doubleValue();
+						precioDia  = Double.parseDouble(auxNum.replaceAll(",", "").trim());
+						//precioDia  = myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {};
 
 					if(esVenta.equals("0")) {
@@ -564,7 +567,8 @@ public class ReportMovimientos {
 	 	   				auxNum = "0";
 	 	   			}
 					try {
-						pventa=myformatdouble.parse(auxNum).doubleValue();
+						pventa  = Double.parseDouble(auxNum.replaceAll(",", "").trim());
+						//pventa=myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {}
 
 					Double cfi = (double)0;
@@ -574,7 +578,8 @@ public class ReportMovimientos {
 	 	   				auxNum = "0";
 	 	   			}
 					try {
-						cfi=myformatdouble.parse(auxNum).doubleValue();
+						cfi  = Double.parseDouble(auxNum.replaceAll(",", "").trim());
+						//cfi=myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {}
 					Double totalCfi=cantDeDespachos*pventa*cfi/100;
 					if(esVenta.equals("1")||totalCfi<0) {
@@ -587,7 +592,7 @@ public class ReportMovimientos {
 						auxExcedente = (double)0;
 						aux.add("");
 					}else {
-						aux.add(myformatdouble.format(auxExcedente));
+						aux.add(myformatdouble2.format(auxExcedente));
 					}
 
 					if(auxExcedente!=0 || cantStockFin!=0 || cantStockIni!=0 || cantDeDespachos!=0) {
@@ -1182,7 +1187,8 @@ public class ReportMovimientos {
 					aux.add(rs3.getString(2));
 					aux.add(rs3.getString(3));
 					aux.add(rs3.getString(4));
-					aux.add(myformatdouble2.format(rs3.getDouble(5)));
+					Double precVta = rs3.getDouble(5);
+					aux.add(precVta.toString());
 					Double tasa=(double)0;
 					Double tasaDcto = 1-((1-rs3.getDouble(9))*(1-rs3.getDouble(10))*(1-rs3.getDouble(11)));
 					if(rs3.getDouble(7)>0&&rs3.getDouble(5)>0) tasa=((rs3.getDouble(7)*30/factor*(1-tasaDcto))/rs3.getDouble(5))*100;
@@ -1193,8 +1199,10 @@ public class ReportMovimientos {
 						aux.add("0");  //arriendo dia
 					}else {
 						aux.add(myformatdouble2.format(tasa)+" %"); //tasaArriendo
-						aux.add(myformatdouble2.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // arriendo mes
-						aux.add(myformatdouble4.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //arriendo dia
+						Double arrMes = rs3.getDouble(6)*rs3.getDouble(5)*factor;
+						Double arrDia = rs3.getDouble(7)/factor*(1-tasaDcto);
+						aux.add(arrMes.toString()); // arriendo mes
+						aux.add(arrDia.toString());  //arriendo dia
 					}
 					aux.add(rs3.getString(12)); //  8 id cotizacion
 					aux.add(rs3.getString(13)); //  9 numero coti
@@ -1333,7 +1341,7 @@ public class ReportMovimientos {
 							auxExcedente = (double)0;
 							aux.add("0");
 						}else {
-							aux.add(myformatdouble.format(auxExcedente));	//14 excedente
+							aux.add(myformatdouble2.format(auxExcedente));	//14 excedente
 						}
 						
 						if(subtotal>0||subtotal2<0||auxExcedente>0) {
@@ -1678,14 +1686,17 @@ public class ReportMovimientos {
 				aux.add(rs3.getString(2));									// 1 codigo
 				aux.add(rs3.getString(3));									// 2 nombre
 				aux.add(rs3.getString(4));									// 3 moneda
-				aux.add(myformatdouble2.format(rs3.getDouble(5)));			// 4 precio repos
+				Double precVta = rs3.getDouble(5);
+				aux.add(precVta.toString());			// 4 precio repos
 				Double tasa=(double)0;
 				if(rs3.getDouble(7)>0 && rs3.getDouble(5)>0) {
 					tasa=((rs3.getDouble(7)*30/factor)/rs3.getDouble(5))*100;
 				}
 				aux.add(myformatdouble2.format(tasa)+" %");						// 5 tasa arr
-				aux.add(myformatdouble.format(rs3.getDouble(7)*30/factor));		// 6 arr mes
-				aux.add(myformatdouble.format(rs3.getDouble(7)/factor));		// 7 arr dia
+				Double arrMes = rs3.getDouble(7)*30/factor;
+				Double arrDia = rs3.getDouble(7)/factor;
+				aux.add(arrMes.toString());							// 6 arr mes
+				aux.add(arrDia.toString());							// 7 arr dia
 				aux.add(rs3.getString(9));										// 8 id_cotizacion
 				aux.add(rs3.getString(10));										// 9 numero cotizacion
 				
@@ -2301,19 +2312,23 @@ public class ReportMovimientos {
 					aux.add("0");  // 7 arriendo dia
 				}else {
 					aux.add(myformatdouble2.format(tasa)+" %"); // 5 tasaArriendo
-					aux.add(myformatMoneda.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // 6 arriendo mes
-					DecimalFormat allDec = new DecimalFormat("#0.00000000000000",symbols);
 
-					if(db.equals("madaAlzatec")){
-						aux.add(myformatMoneda.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //7 arriendo dia solo ALZATEC
-					}else{
-						if(dec.get(rs3.getLong(15)) < 2){
-							aux.add(myformatdouble2.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  // 7 arriendo dia
-						}else{
-							aux.add(myformatMoneda.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  // 7 arriendo dia
-						}
+					Double arrMes = rs3.getDouble(7)*30/factor*(1-tasaDcto);
+					aux.add(arrMes.toString()); 																	// 6 arriendo mes
 
-					}
+					Double arrDia = rs3.getDouble(7)/factor*(1-tasaDcto);
+					aux.add(arrDia.toString());  																	// 7 arriendo dia
+
+
+// 					aux.add(myformatMoneda.format(rs3.getDouble(7)*30/factor*(1-tasaDcto))); // 6 arriendo mes
+//					DecimalFormat allDec = new DecimalFormat("#0.00000000000000",symbols);
+//					if(db.equals("madaAlzatec")){
+//						aux.add(myformatMoneda.format(rs3.getDouble(7)/factor*(1-tasaDcto)));  //7 arriendo dia solo ALZATEC
+//					}else{
+//						Double xx = rs3.getDouble(7)/factor*(1-tasaDcto);
+//						aux.add(xx.toString());
+//
+//					}
 
 				}
 				aux.add(rs3.getString(12)); //  8 id cotizacion
@@ -2322,9 +2337,6 @@ public class ReportMovimientos {
 				aux.add(rs3.getString(15)); //  11 idMoneda
 				aux.add(rs3.getString(16)); //  12 kg
 				aux.add(rs3.getString(17)); //  13 m2
-
-
-
 
 				listaCodigos.add(aux);
 			}
@@ -2457,13 +2469,22 @@ public class ReportMovimientos {
 					aux.add(myformatdouble2.format(cantStockIni));
 					String auxNum = listaCodigos.get(i).get(4).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-					Double precioVenta=(double)0;try {precioVenta  = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {};
+					Double precioVenta=(double)0;
+					try {
+						precioVenta  = Double.parseDouble(auxNum.replaceAll(",", ""));
+						// precioVenta  = myformatdouble.parse(auxNum).doubleValue();
+					}catch(Exception e) {};
 
 					auxNum = listaCodigos.get(i).get(7).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
 
 
-					Double precioDia=(double)0;try {precioDia  = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {};
+					Double precioDia=(double)0;
+					try {
+						precioDia  = Double.parseDouble(auxNum.replaceAll(",", ""));
+						//precioDia  = myformatdouble.parse(auxNum).doubleValue();
+					}catch(Exception e) {};
+
 					if(esVenta.equals("0")) {
 
 						// AJUSTES POR SALDOS DIAS DE GRACIA
@@ -2658,7 +2679,10 @@ public class ReportMovimientos {
 
 					auxNum = listaCodigos.get(i).get(4).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-					try {pventa=myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+					try {
+						pventa=Double.parseDouble(auxNum.replaceAll(",", ""));
+						//pventa=myformatdouble.parse(auxNum).doubleValue();
+					}catch(Exception e) {}
 					Double cfi = bodegaEmpresa.tasaCfi;
 					Double totalCfi = cantDeDespachos * pventa * cfi/100;
 					if(esVenta.equals("1")||totalCfi<0) totalCfi=(double)0;
@@ -2697,7 +2721,7 @@ public class ReportMovimientos {
 						auxExcedente = (double)0;
 						aux.add("");
 					}else {
-						aux.add(myformatdouble.format(auxExcedente));
+						aux.add(myformatdouble2.format(auxExcedente));
 					}
 
 					String idCoti = listaCodigos.get(i).get(8);
@@ -2754,8 +2778,9 @@ public class ReportMovimientos {
 				try {
 					String auxNum = ajuste.get(1).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-					auxTot = myformatdouble.parse(auxNum).doubleValue();
-				} catch (ParseException e) {}
+					auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
+					//auxTot = myformatdouble.parse(auxNum).doubleValue();
+				} catch (Exception e) {}
 				if(auxTot<0||auxTot>0) {
 					List<String> aux2 = new ArrayList<String>();
 					aux2.add("");
@@ -2788,8 +2813,9 @@ public class ReportMovimientos {
 				try {
 					String auxNum = ajuste.get(2).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-					auxTot = myformatdouble.parse(auxNum).doubleValue();
-				} catch (ParseException e) {}
+					auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
+					//auxTot = myformatdouble.parse(auxNum).doubleValue();
+				} catch (Exception e) {}
 				if(auxTot<0||auxTot>0) {
 					List<String> aux2 = new ArrayList<String>();
 					aux2.add("");
@@ -2863,7 +2889,10 @@ public class ReportMovimientos {
 				Double auxTot = (double)0;
 				String auxNum = lista.get(coll).get(cell).trim();
 				if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-				try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+				try {
+					auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
+					//auxTot = myformatdouble.parse(auxNum).doubleValue();
+				}catch(Exception e) {}
 				totPorColl=totPorColl+auxTot;
 			}
 			if(cell >= lista.get(0).size() - 7 && cell < lista.get(0).size() -4){
@@ -2895,12 +2924,18 @@ public class ReportMovimientos {
 				Double auxTotCant = (double)0;
 				String auxNum = lista.get(coll).get(cell).trim();
 				if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-				try {auxTotCant = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+				try {
+					auxTotCant = Double.parseDouble(auxNum.replaceAll(",", ""));
+				//	auxTotCant = myformatdouble.parse(auxNum).doubleValue();
+				}catch(Exception e) {}
 
 				Double auxTotKg = (double)0;
 				auxNum = lista.get(coll).get(4).trim();
 				if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-				try {auxTotKg = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+				try {
+					auxTotKg = Double.parseDouble(auxNum.replaceAll(",", ""));
+					//auxTotKg = myformatdouble.parse(auxNum).doubleValue();
+				}catch(Exception e) {}
 
 				totPorColl=totPorColl+(auxTotCant*auxTotKg);
 			}
@@ -2944,18 +2979,27 @@ public class ReportMovimientos {
 					Double auxTot = (double)0;
 					String auxNum = lista.get(coll).get(cell).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-					try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+					try {
+						auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
+						//auxTot = myformatdouble.parse(auxNum).doubleValue();
+					}catch(Exception e) {}
 					totPorColl = totPorColl + auxTot;
 
 				}else{
 					Double auxTot = (double)0;
 					String auxNum = lista.get(coll).get(cell).trim();
 					if(auxNum==null) auxNum = "0";
-					try {auxTot = myformatdouble.parse(auxNum).doubleValue();}catch(Exception e) {}
+					try {
+						auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
+						//auxTot = myformatdouble.parse(auxNum).doubleValue();
+					}catch(Exception e) {}
 					Double auxVta = (double)0;
 					String valorVta = lista.get(coll).get(7).trim();
 					if(valorVta==null || valorVta.trim().length()<=0) valorVta = "0";
-					try {auxTot = auxTot * myformatdouble.parse(valorVta).doubleValue();}catch(Exception e) {}
+					try {
+						auxTot = Double.parseDouble(valorVta.replaceAll(",", ""));
+						// auxTot = auxTot * myformatdouble.parse(valorVta).doubleValue();
+					}catch(Exception e) {}
 					totPorColl = totPorColl + auxTot;
 				}
 

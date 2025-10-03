@@ -144,13 +144,13 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		  // $('#tablaPrincipal').DataTable({
-			// 	"fixedHeader": true,
-			// 	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
-			// 	"language": {
-			// 		"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-			// 	}
-		  // } );
+		  $('#tablaPrincipal').DataTable({
+				"fixedHeader": true,
+				"lengthMenu": [[-1, 50, 100, 200], ["All", 50, 100, 200]],
+				"language": {
+					"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				}
+		  } );
 
 		document.getElementById('mostrarmostrar').style.display="block";
 

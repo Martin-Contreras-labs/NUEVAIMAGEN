@@ -1,6 +1,7 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], listRegiones: List[tables.Regiones],
-formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCotiOdo: List[List[String]], numDec: Long)
+		listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], listRegiones: List[tables.Regiones],
+		formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCotiOdo: List[List[String]], numDec: Long,
+		listEquipos: List[tables.Equipo])
 
 @main("") {
 
@@ -31,7 +32,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 			}
 		</script>
 	<!-- FIN MODAL CREA CLIENTES -->
-	
+
 	<!-- MODAL CREA PROYECTOS -->
 		@modalProyectoNuevo(mapDiccionario, listRegiones)
 		<script>
@@ -54,7 +55,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 			}
 		</script>
 	<!-- FIN MODAL CREA PROYECTOS -->
-	
+
 
 	<form action="/routes2/cotiOdoNuevo/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
 		<div id="mostrarmostrar" style="display:block;">
@@ -84,7 +85,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
 								  		</div>
 								  		<input type="date" class="form-control center"
-								  			name="fechaCoti" 
+								  			name="fechaCoti"
 								  			id="fechaCoti"
 								  			onblur="if(!limitaFecha(value,720,10)) value='@formCotizaOdo.fechaCoti';"
 								  			value="@formCotizaOdo.fechaCoti"
@@ -97,28 +98,12 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 								    		<span class="input-group-text" id="basic-addon1">@mapDiccionario.get("RUT") Cliente</span>
 								  		</div>
 								  		<input type="hidden" id="id_cliente" name="id_cliente" value="@formCotizaOdo.id_cliente">
-										@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
-											@if(formCotizaOdo.id_cliente>0){
-												<input type="text" class="form-control"
-			  										id="rutCliente"
-			  										value="@formCotizaOdo.rutCliente"
-			  										readonly>
-											}else{
-												<input type="text" class="form-control"
-			  										id="rutCliente"
-			  										value="@formCotizaOdo.rutCliente" 
-			  										style="background:white"
-			  										onclick="$('#listaCliente').modal('show');"
-			  										readonly>
-											}
-										}else{
-											<input type="text" class="form-control"
+										<input type="text" class="form-control"
 		  										id="rutCliente"
-		  										value="@formCotizaOdo.rutCliente" 
+		  										value="@formCotizaOdo.rutCliente"
 		  										style="background:white"
 		  										onclick="$('#listaCliente').modal('show');"
 		  										readonly>
-										}
 									</div>
 								</td>
 								<td>
@@ -126,31 +111,13 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 								  		<div class="input-group-prepend">
 								    		<span class="input-group-text" id="basic-addon1">Cliente</span>
 								  		</div>
-											@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
-												@if(formCotizaOdo.id_cliente>0){
-													<input type="text" class="form-control left"
-													id="nombreCliente"
-													value="@formCotizaOdo.nickCliente"
-													required
-													readonly>
-												}else{
-													<input type="text" class="form-control left"
+											<input type="text" class="form-control left"
 													id="nombreCliente"
 													value="@formCotizaOdo.nickCliente"
 													style="background:white"
 													onclick='$("#listaCliente").modal("show")'
 													required
 													readonly>
-												}
-											}else{
-												<input type="text" class="form-control left"
-													id="nombreCliente"
-													value="@formCotizaOdo.nickCliente"
-													style="background:white"
-													onclick='$("#listaCliente").modal("show")'
-													required
-													readonly>
-											}
 									</div>
 								</td>
 								<td>
@@ -159,19 +126,12 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 								    		<span class="input-group-text" id="basic-addon1">Proyecto</span>
 								  		</div>
 										<input type="hidden" id="id_proyecto" name="id_proyecto" value="@formCotizaOdo.id_proyecto">
-										@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
-											<input type="text" class="form-control left"
-												id="nombreProyecto"
-												value="@formCotizaOdo.nickProyecto"
-												readonly>
-										}else{
-											<input type="text" class="form-control left"
+										<input type="text" class="form-control left"
 												id="nombreProyecto"
 												value="@formCotizaOdo.nickProyecto"
 												style="background:white"
 												onclick='$("#listaProyecto").modal("show")'
 												readonly>
-										}
 									</div>
 								</td>
 								<td>
@@ -183,25 +143,13 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 							</tr>
 							<tr>
 								<input type="hidden" id="id_bodegaEmpresa" name="id_bodegaEmpresa" value="@formCotizaOdo.id_bodegaEmpresa">
-								@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
-									<td align="center"  colspan="2">
-										<div class="input-group">
-									  		<div class="input-group-prepend">
-									    		<span class="input-group-text" id="basic-addon1">@mapDiccionario.get("BODEGA")/PROYECTO</span>
-									  		</div>
-									  		<input type="text" class="form-control left"
-													value = "@formCotizaOdo.nombreBodega"
-													readonly>
-										</div>
-									</td>
-								}
 								<td colspan="20">
 									<div class="input-group">
 								  		<div class="input-group-prepend">
 								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
 								  		</div>
-	  									<textarea class="form-control" 
-	  										name="observaciones" 
+	  									<textarea class="form-control"
+	  										name="observaciones"
 	  										autocomplete="off">@formCotizaOdo.observaciones</textarea>
 									</div>
 								</td>
@@ -209,26 +157,21 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 						</thead>
 					</table>
 					<hr>
-					
+
 					<div class="noprint" align="center">
 						<div class="row justify-content-md-center" >
 							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-								<input id="btnCopiaCoti" type="button"  value="Copiar desde otra cotización" class="btn btn-warning btn-sm rounded-pill btn-block" 
+								<input id="btnCopiaCoti" type="button"  value="Copiar desde otra cotización" class="btn btn-warning btn-sm rounded-pill btn-block"
 									onclick="$('#modalListaCotizacion').modal('show');">&nbsp;&nbsp;&nbsp;
 							</div>
 							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
-								<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+								<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block"
 									onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
 							</div>
 						</div>
 					</div>
-					
-					
-		
-		
-		
-					
-					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid" style="width:100%">
 						<thead style="background-color: #eeeeee">
 							<TR>
 								<TH>FAMILIA</TH>
@@ -242,7 +185,10 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 								<TH>Aplica<br>Minimo</TH>
 								<TH>Cantidad<br>Minimo</TH>
 								<TH>Precio<br>Adicional</TH>
+								<TH>EQUIPO<br>ASOCIADO</TH>
 								<TH style = "display:none">id_servicio</TH>
+								<TH style = "display:none">id_equipo</TH>
+
 							</TR>
 						</thead>
 						<tbody>
@@ -261,7 +207,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 											name="cantidad[]"
 											id="cantidad_@lista1.get(0)"
 											value="@lista1.get(5)"
-											onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+											onfocus="value=value.replace(/,/g,''); cantAux = value;"
 											onblur = "value = formatStandar(value, '2');"
 											onkeypress="return ingresoDouble(event,value)"
 											autocomplete="off"
@@ -273,7 +219,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 											name="precio[]"
 											id="precio_@lista1.get(0)"
 											value="@lista1.get(7)"
-											onfocus="value=value.replace(/,/g,'');" 
+											onfocus="value=value.replace(/,/g,'');"
 											onblur = "value = formatStandar(value, '@lista1.get(12)');"
 											onkeypress="return ingresoDouble(event,value)"
 											autocomplete="off"
@@ -293,7 +239,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 											name="cantidadMinimo[]"
 											id="cantidadMinimo_@lista1.get(0)"
 											value="@lista1.get(10)"
-											onfocus="value=value.replace(/,/g,''); cantAux = value;" 
+											onfocus="value=value.replace(/,/g,''); cantAux = value;"
 											onblur = "value = formatStandar(value, '2');"
 											onkeypress="return ingresoDouble(event,value)"
 											autocomplete="off"
@@ -304,26 +250,38 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 											name="precioAdicional[]"
 											id="precioAdicional_@lista1.get(0)"
 											value="@lista1.get(11)"
-											onfocus="value=value.replace(/,/g,'');" 
+											onfocus="value=value.replace(/,/g,'');"
 											onblur = "value = formatStandar(value, '@lista1.get(12)');"
 											onkeypress="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') value=0;">
 									</td>
+									<td style= "text-align: left;">
+										<input type="text" class="form-control"
+										id="equipoAsociado_@lista1.get(0)"
+										value=" - "
+										style="background:white"
+										onclick="auxEquipoAsociado = '@lista1.get(0)'; $('#listaEquipos').modal('show');"
+										readonly>
+									</td>
 									<td style = "display:none" id="idServicio_@lista1.get(0)">@lista1.get(0)</td>
+									<td style = "display:none" >
+										<input type="hidden" id="idEquipo_@lista1.get(0)" name="id_equipo[]" value="0">
+									</td>
 								</TR>
 				 			}
 						</tbody>
 						<tfoot id="tfoot" style="background-color: #eeeeee; display:none">
-							<TR> 
+							<TR>
 								<TH colspan="4" style= "text-align: right;">SUB-TOTALES </TH>
 								<TH style="text-align:right;"><div id="subTotCant">0.00</div></TH>
 								<TH colspan="2"></TH>
 								<TH style="text-align:right;"><div id="subTotPrecio">0.00</div></TH>
-								<TH colspan="3"></TH>
+								<TH colspan="4"></TH>
+								<TH style = "display:none"></TH>
 								<TH style = "display:none"></TH>
 							</TR>
-							<TR> 
+							<TR>
 								<TH colspan="4" style="text-align:right;">DESCUENTO</TH>
 								<TH colspan="3"></TH>
 								<TH style="text-align:center;">
@@ -331,13 +289,14 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 										id="dctoOdo"
 										name="dctoOdo"
 										value="@formCotizaOdo.dctoOdo %"
-										onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
+										onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
 										onblur = "value = formatPorcentaje(value);"
 										onkeypress="return ingresoDouble(event,value)"
 										onchange="sumaTotales();">
 									</td>
 								</TH>
-								<TH colspan="3"></TH>
+								<TH colspan="4"></TH>
+								<TH style = "display:none"></TH>
 								<TH style = "display:none"></TH>
 							</TR>
 							<TR>
@@ -345,15 +304,16 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 								<TH style="text-align:right;"><div id="granTotCant">0.00</div></TH>
 								<TH colspan="2"></TH>
 								<TH style="text-align:right;"><div id="granTotPrecio">0.00</div></TH>
-								<TH colspan="3"></TH>
+								<TH colspan="4"></TH>
+								<TH style = "display:none"></TH>
 								<TH style = "display:none"></TH>
 							</TR>
 						</tfoot>
 					</table>
 				</div>
 			</div>
-			
-			
+
+
 			<div class="noprint" align="left">
 				<div class="row justify-content-md-center" >
 					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
@@ -370,15 +330,15 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 					</div>
 				</div>
 			</div>
-			
+
 		</div>
 	</form>
 	<br><br><br><br><br>
-	
-	
-	
-	
-	
+
+
+
+
+
 	<div id="listaCliente" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 		<div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
 			<div class="modal-content">
@@ -396,7 +356,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 					</div>
 					<table id="tablaListaClientes" class="table table-sm table-bordered table-condensed table-hover table-fluid">
 						<thead style="background-color: #eeeeee">
-							<TR> 
+							<TR>
 								<TH>@mapDiccionario.get("RUT")</TH>
 								<TH>NICK</TH>
 								<TH>NOMBRE</TH>
@@ -421,7 +381,56 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 			</div>
 		</div>
 	</div>
-	
+
+	<div id="listaEquipos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">SELECCIONAR EQUIPO ASOCIADO</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaCliente').modal('hide'); $('#modalClienteNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaEquipos" class="table table-sm table-bordered table-condensed table-hover table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>CODIGO</TH>
+								<TH>EQUIPO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							<TR onClick="
+									$('#idEquipo_'+auxEquipoAsociado).val('0');
+									$('#equipoAsociado_'+auxEquipoAsociado).val(' - ');" data-dismiss="modal">
+								<td  style="text-align:left;">Sin Equipo</td>
+								<td  style="text-align:left;">Sin Equipo</td>
+							</TR>
+							@for(lista1 <- listEquipos){
+								<TR onClick="
+										$('#idEquipo_'+auxEquipoAsociado).val('@lista1.getId()');
+										$('#equipoAsociado_'+auxEquipoAsociado).val('@lista1.getCodigo() - @lista1.getNombre()');" data-dismiss="modal">
+									<td  style="text-align:left;">@lista1.getCodigo()</td>
+									<td  style="text-align:left;">@lista1.getNombre()</td>
+								</TR>
+							}
+						</tbody>
+					</table>
+					<div class="row">
+						<div class="col-sm-12" style="text-align:center">
+							<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div id="listaProyecto" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 		<div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
 			<div class="modal-content">
@@ -464,9 +473,9 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 			</div>
 		</div>
 	</div>
-	
-	
-	
+
+
+
 	<div id="modalListaCotizacion" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 		<div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
 			<div class="modal-content">
@@ -509,7 +518,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 			</div>
 		</div>
 	</div>
-	
+
 	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
 	    <div class="modal-content">
@@ -520,7 +529,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 	        </button>
 	      </div>
 	      <div class="modal-body">
-	        
+
 			<div class="row">
 				<div class="col-sm-12" style="text-align:center">
 					<form action="/routes2/cotiOdoPlantilla/" method="POST">
@@ -543,13 +552,14 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 	    </div>
 	  </div>
 	</div>
-	
-	
+
+
 }
 
 
 
 <script type="text/javascript">
+	let auxEquipoAsociado = "";
 
 	$(document).ready(function() {
 		$('#tablaListaClientes').DataTable({
@@ -560,6 +570,15 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 	        }
 	  	} );
+
+		$('#tablaListaEquipos').DataTable({
+			"fixedHeader": true,
+			"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+			"order": [[ 1, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		} );
 
 		$('#tablaListaProyectos').DataTable({
 	    	"fixedHeader": true,
@@ -573,6 +592,7 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], listCo
 		sumaTotales();
 		
 		$('#tablaPrincipal').DataTable({
+				"responsive": true,
 		    	"fixedHeader": true,
 		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
 		    	"order": [[ 2, "asc" ]],

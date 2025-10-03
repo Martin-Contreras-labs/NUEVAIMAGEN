@@ -442,48 +442,6 @@
 		$("#profVta").val(formatStandar(totVta,"@cantDec"));
 		$("#profServ").val(formatStandar(totServ,"@cantDec"));
 
-
-		if ($('#tablaPrincipalARR tbody tr').length > 1) {
-			$('#tablaPrincipalARR').DataTable({
-				"fixedHeader": true,
-				"paging": false,
-				"info": false,
-				"searching": false,
-				"order": false,
-				"language": {
-					"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-				}
-			});
-		}
-
-		if ($('#tablaPrincipalVTA tbody tr').length > 1) {
-			$('#tablaPrincipalVTA').DataTable({
-				"fixedHeader": true,
-				"paging": false,
-				"info": false,
-				"searching": false,
-				"order": false,
-				"language": {
-					"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-				}
-			});
-		}
-
-		if ($('#tablaPrincipalSERV tbody tr').length > 1) {
-			$('#tablaPrincipalSERV').DataTable({
-				"fixedHeader": true,
-				"paging": false,
-				"info": false,
-				"searching": false,
-				"order": false,
-				"language": {
-					"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-				}
-			});
-		}
-
-
-
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
 
