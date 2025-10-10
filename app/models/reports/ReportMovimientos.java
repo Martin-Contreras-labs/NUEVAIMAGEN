@@ -51,8 +51,8 @@ public class ReportMovimientos {
 	
 	static DecimalFormat myformatMoneda = new DecimalFormat("#,##0",symbols);
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-		
-	
+
+
 	
 	public static List<List<String>> movimientoGuiasAgrupado(Connection con, String db, Long id_bodegaEmpresa, String esVenta, String fechaDesde, String fechaHasta) {
 
@@ -251,6 +251,10 @@ public class ReportMovimientos {
 						aux.add(rs3.getString(3));  //equipo
 						aux.add(rs3.getString(4));  //moneda
 						Double precVta = rs3.getDouble(5);
+
+
+
+
 						aux.add(precVta.toString());
 						Double tasa=(double)0;
 						Double tasaDcto = 1-((1-rs3.getDouble(9))*(1-rs3.getDouble(10))*(1-rs3.getDouble(11)));
@@ -581,7 +585,7 @@ public class ReportMovimientos {
 						cfi  = Double.parseDouble(auxNum.replaceAll(",", "").trim());
 						//cfi=myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {}
-					Double totalCfi=cantDeDespachos*pventa*cfi/100;
+					Double totalCfi=cantDeDespachos*pventa*cfi;
 					if(esVenta.equals("1")||totalCfi<0) {
 						totalCfi=(double)0;
 					}
@@ -1297,6 +1301,11 @@ public class ReportMovimientos {
 							aux.add("");
 						}
 						aux.add(listaCodigos.get(i).get(3)); //moneda
+
+
+
+
+
 						aux.add(listaCodigos.get(i).get(4)); //precioVenta
 						aux.add(listaCodigos.get(i).get(5)); //tasaArriendo
 						aux.add(listaCodigos.get(i).get(6)); //precioArriendo mes
@@ -2684,7 +2693,8 @@ public class ReportMovimientos {
 						//pventa=myformatdouble.parse(auxNum).doubleValue();
 					}catch(Exception e) {}
 					Double cfi = bodegaEmpresa.tasaCfi;
-					Double totalCfi = cantDeDespachos * pventa * cfi/100;
+					Double totalCfi = cantDeDespachos * pventa * cfi;
+
 					if(esVenta.equals("1")||totalCfi<0) totalCfi=(double)0;
 					aux.add(myformatMoneda.format(totalCfi));
 					aux.add(myformatMoneda.format(arriendo+totalCfi));
@@ -2979,27 +2989,18 @@ public class ReportMovimientos {
 					Double auxTot = (double)0;
 					String auxNum = lista.get(coll).get(cell).trim();
 					if(auxNum==null || auxNum.trim().length()<=0) auxNum = "0";
-					try {
-						auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
-						//auxTot = myformatdouble.parse(auxNum).doubleValue();
-					}catch(Exception e) {}
+					try {auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));}catch(Exception e) {}
 					totPorColl = totPorColl + auxTot;
 
 				}else{
 					Double auxTot = (double)0;
 					String auxNum = lista.get(coll).get(cell).trim();
 					if(auxNum==null) auxNum = "0";
-					try {
-						auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));
-						//auxTot = myformatdouble.parse(auxNum).doubleValue();
-					}catch(Exception e) {}
+					try {auxTot = Double.parseDouble(auxNum.replaceAll(",", ""));}catch(Exception e) {}
 					Double auxVta = (double)0;
 					String valorVta = lista.get(coll).get(7).trim();
 					if(valorVta==null || valorVta.trim().length()<=0) valorVta = "0";
-					try {
-						auxTot = Double.parseDouble(valorVta.replaceAll(",", ""));
-						// auxTot = auxTot * myformatdouble.parse(valorVta).doubleValue();
-					}catch(Exception e) {}
+					try {auxTot = auxTot * Double.parseDouble(valorVta.replaceAll(",", ""));}catch(Exception e) {}
 					totPorColl = totPorColl + auxTot;
 				}
 

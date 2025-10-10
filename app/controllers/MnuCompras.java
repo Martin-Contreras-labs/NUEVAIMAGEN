@@ -261,7 +261,11 @@ public class MnuCompras extends Controller {
 					}
 					List<Equipo> listEquipo = Equipo.allAll(con, s.baseDato);
 					List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
-					List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					String aplicaSucursal = s.aplicaPorSucursal;
+					if(mapeoPermiso.get("cambiarSucursal")!=null) {
+						aplicaSucursal = "0";
+					}
+					List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 					List<Moneda> listMon = Moneda.all(con, s.baseDato);
 					List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
 					List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
@@ -304,7 +308,11 @@ public class MnuCompras extends Controller {
 			List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
 			List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
 			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
-			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 			List<Moneda> listMon = Moneda.all(con, s.baseDato);
 			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
 			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
@@ -817,7 +825,11 @@ public class MnuCompras extends Controller {
 					List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
 					List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
 					List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
-					List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+					String aplicaSucursal = s.aplicaPorSucursal;
+					if(mapeoPermiso.get("cambiarSucursal")!=null) {
+						aplicaSucursal = "0";
+					}
+					List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 					List<Moneda> listMon = Moneda.all(con, s.baseDato);
 					List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
 					List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
@@ -935,7 +947,11 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
-			List<List<String>> listaAconfirmar = Compra.listaConfirmaIngreso(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, mapeoDiccionario);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<List<String>> listaAconfirmar = Compra.listaConfirmaIngreso(con, s.baseDato, aplicaSucursal, s.id_sucursal, mapeoDiccionario);
 			return ok(compraConfirma.render(mapeoDiccionario,mapeoPermiso,userMnu,listaAconfirmar));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -1029,7 +1045,11 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
-			List<Factura> listFacturas = Factura.all(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<Factura> listFacturas = Factura.all(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 			return ok(compraListaModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,listFacturas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -1059,13 +1079,17 @@ public class MnuCompras extends Controller {
 			List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
 			List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
 			List<Moneda> listMoneda = Moneda.all(con, s.baseDato);
-			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesInternas(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 			List<Moneda> listMon = Moneda.all(con, s.baseDato);
 			List<Grupo> listGrupos = Grupo.all(con, s.baseDato);
 			List<Fabrica> listFabrica = Fabrica.all(con, s.baseDato);
 			List<Unidad> listUnidades = Unidad.all(con, s.baseDato);
 			Factura factura = Factura.find(con, s.baseDato, id_factura);
-			List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, s.aplicaPorSucursal, s.id_sucursal);
+			List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, aplicaSucursal, s.id_sucursal);
 			List<Sucursal> listSucursales = Sucursal.all(con, s.baseDato);
 			List<Propiedad> listPropiedad = Propiedad.all(con, s.baseDato);
 			return ok(compraModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,listProveedor,listEquipo,listMoneda,listBodegas,listMon,listGrupos,listFabrica,listUnidades,
@@ -1231,7 +1255,11 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
-			List<Factura> listFacturas = Factura.all(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<Factura> listFacturas = Factura.all(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 			return ok(listComprasPorCompra.render(mapeoDiccionario,mapeoPermiso,userMnu,listFacturas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -1263,7 +1291,11 @@ public class MnuCompras extends Controller {
 				return ok(mensajes.render("/",msgSinPermiso));
 			}
 			try (Connection con = dbRead.getConnection()){
-				List<Factura> listFacturas = Factura.all(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+				String aplicaSucursal = s.aplicaPorSucursal;
+				if(mapeoPermiso.get("cambiarSucursal")!=null) {
+					aplicaSucursal = "0";
+				}
+				List<Factura> listFacturas = Factura.all(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 				File file = Factura.compralistComprasPorCompraExcel(s.baseDato, mapeoDiccionario, listFacturas);
 				return ok(file,false,Optional.of("ListadoDeComprasPorCompra.xlsx"));
 			} catch (SQLException e) {
@@ -1293,7 +1325,11 @@ public class MnuCompras extends Controller {
 		}
 		try (Connection con = dbRead.getConnection()){
 			Factura factura = Factura.find(con, s.baseDato, id_factura);
-			List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, s.aplicaPorSucursal, s.id_sucursal);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, aplicaSucursal, s.id_sucursal);
 			return ok(compraFacturaPrint.render(mapeoDiccionario,mapeoPermiso,userMnu,factura, detalleFactura));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -1318,11 +1354,16 @@ public class MnuCompras extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbRead.getConnection()){
 				Long id_factura = Long.parseLong(form.get("id_factura").trim());
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Factura factura = Factura.find(con, s.baseDato, id_factura);
-				List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, s.aplicaPorSucursal, s.id_sucursal);
+				String aplicaSucursal = s.aplicaPorSucursal;
+				if(mapeoPermiso.get("cambiarSucursal")!=null) {
+					aplicaSucursal = "0";
+				}
+				List<List<String>> detalleFactura = Factura.detalleFactura(con, s.baseDato, factura.getId_proveedor(), id_factura, aplicaSucursal, s.id_sucursal);
 				File file = Factura.compraFacturaPrintExcel(s.baseDato, mapeoDiccionario, factura, detalleFactura);
 				return ok(file,false,Optional.of("Detalle_Compra_"+factura.numero+".xlsx"));
 			} catch (SQLException e) {
@@ -1445,7 +1486,11 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
 		try (Connection con = dbRead.getConnection()){
-			List<Factura> listFacturas = Factura.allEliminables(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
+			String aplicaSucursal = s.aplicaPorSucursal;
+			if(mapeoPermiso.get("cambiarSucursal")!=null) {
+				aplicaSucursal = "0";
+			}
+			List<Factura> listFacturas = Factura.allEliminables(con, s.baseDato, aplicaSucursal, s.id_sucursal);
 			return ok(compraElimina.render(mapeoDiccionario,mapeoPermiso,userMnu,listFacturas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -1471,9 +1516,14 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()){
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Long id_factura = Long.parseLong(form.get("id_factura").trim());
 				Factura factura = Factura.find(con, s.baseDato, id_factura);
-				if(s.aplicaPorSucursal.equals("1")) {
+				String aplicaSucursal = s.aplicaPorSucursal;
+				if(mapeoPermiso.get("cambiarSucursal")!=null) {
+					aplicaSucursal = "0";
+				}
+				if(aplicaSucursal.equals("1")) {
 					if(Compra.deleteAllDetallePorSucursal(con, s.baseDato, id_factura, s.id_sucursal)) {
 						if(!factura.numOcIConstruye.equals("0")) {
 							IConstruye.delete(con, s.baseDato, factura.numOcIConstruye);

@@ -2429,6 +2429,7 @@ public class MnuReportes extends Controller {
 					}
 					try (Connection con = dbRead.getConnection()) {
 						datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+						Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
 						bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 					} catch (SQLException e) {
 						logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -2627,6 +2628,25 @@ public class MnuReportes extends Controller {
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> datos = ReportMovimientos.movimientoGuiasIE(con, s.baseDato, id_bodegaEmpresa, esVenta);
+				Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+				for(int i=6; i<datos.size(); i++) {
+					Long nroDec = mapDec.get(datos.get(i).get(6).toUpperCase());
+					if(nroDec == null) {
+						nroDec = 0L;
+					}
+					String auxNumero = datos.get(i).get(7).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(7, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(7).replaceAll(",","")), nroDec));
+					}
+					auxNumero = datos.get(i).get(9).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(9, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(9).replaceAll(",","")), nroDec));
+					}
+					auxNumero = datos.get(i).get(10).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(10, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(10).replaceAll(",","")), nroDec));
+					}
+				}
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				String concepto = mapeoDiccionario.get("ARRIENDO");
 				if("1".equals(esVenta)) {
@@ -2938,6 +2958,26 @@ public class MnuReportes extends Controller {
 				Map<Long, List<List<String>>> mapDatos = new HashMap<Long, List<List<String>>>();
 				for (TipoEstado x : listTipoEstados) {
 					List<List<String>> datos = ReportMovimientos.movimientoGuiasPorEstado(con, s.baseDato, id_bodegaEmpresa, x.getId(), mapUnidadTiempo);
+					Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+					for(int i=5; i<datos.size(); i++) {
+						Long nroDec = mapDec.get(datos.get(i).get(4).toUpperCase());
+						if(nroDec == null) {
+							nroDec = 0L;
+						}
+						String auxNumero = datos.get(i).get(5).trim();
+						if( ! auxNumero.equals("")) {
+							datos.get(i).set(5, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(5).replaceAll(",","")), nroDec));
+						}
+						auxNumero = datos.get(i).get(7).trim();
+						if( ! auxNumero.equals("")) {
+							datos.get(i).set(7, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(7).replaceAll(",","")), nroDec));
+						}
+						auxNumero = datos.get(i).get(8).trim();
+						if( ! auxNumero.equals("")) {
+							datos.get(i).set(8, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(8).replaceAll(",","")), nroDec));
+						}
+					}
+
 					mapDatos.put(x.getId(), datos);
 				}
 				return ok(reporteEstadosTodosDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, listTipoEstados, mapDatos, bodega));
@@ -6856,10 +6896,29 @@ public class MnuReportes extends Controller {
 					concepto = "VENTA";
 				}
 				List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+				Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+				for(int i=6; i<datos.size(); i++) {
+					Long nroDec = mapDec.get(datos.get(i).get(6).toUpperCase());
+					if(nroDec == null) {
+						nroDec = 0L;
+					}
+					String auxNumero = datos.get(i).get(7).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(7, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(7).replaceAll(",","")), nroDec));
+					}
+					auxNumero = datos.get(i).get(9).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(9, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(9).replaceAll(",","")), nroDec));
+					}
+					auxNumero = datos.get(i).get(10).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(10, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(10).replaceAll(",","")), nroDec));
+					}
+				}
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 				Map<String, Double> mapSubtotales = new HashMap<String,Double>();
-				Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
+				Map<Long,Guia> mapGuias = Guia.mapAllPorIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
 				Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
 				for(int i=0; i<datos.size(); i++) {
@@ -6953,7 +7012,6 @@ public class MnuReportes extends Controller {
 				Cliente cliente = Cliente.find(con, s.baseDato, bodega.getId_cliente());
 				Proyecto proyecto = Proyecto.find(con,s.baseDato , bodega.getId_proyecto());
 				String oc = Cotizacion.ocParticiaEnBodega(con, s.baseDato, id_bodegaEmpresa);
-
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 				Double tasaIva = emisor.getTasaIva()/100;
 				if(mapeoPermiso.get("parametro.ivaPorBodega")!=null && mapeoPermiso.get("parametro.ivaPorBodega").equals("1")) {
@@ -6967,7 +7025,6 @@ public class MnuReportes extends Controller {
 					}
 				}
 				Long cantDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
-
 				return ok(reportFacturaProyectoDetalleH.render(mapeoDiccionario, mapeoPermiso, userMnu, idTipoUsuario,
 						datosSeleccionados, bodega, esVenta, fechaDesde, fechaHasta, usd, eur, uf, cliente, proyecto, oc,
 						tasaIva, cantDec));
@@ -7143,7 +7200,7 @@ public class MnuReportes extends Controller {
 			BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 			Map<String, Double> mapSubtotales = new HashMap<String,Double>();
-			Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
+			Map<Long,Guia> mapGuias = Guia.mapAllPorIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
 			Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
 			for(int i=0; i<datos.size(); i++) {
@@ -8046,9 +8103,28 @@ public class MnuReportes extends Controller {
 			List<List<String>> datosSeleccionados = new ArrayList<List<String>>();
 			try (Connection con = dbRead.getConnection()) {
 				List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
+				Map<String,Long> mapDec = Moneda.numeroDecimalxNombre(con, s.baseDato);
+				for(int i=6; i<datos.size(); i++) {
+					Long nroDec = mapDec.get(datos.get(i).get(6).toUpperCase());
+					if(nroDec == null) {
+						nroDec = 0L;
+					}
+					String auxNumero = datos.get(i).get(7).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(7, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(7).replaceAll(",","")), nroDec));
+					}
+					auxNumero = datos.get(i).get(9).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(9, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(9).replaceAll(",","")), nroDec));
+					}
+					auxNumero = datos.get(i).get(10).trim();
+					if( ! auxNumero.equals("")) {
+						datos.get(i).set(10, DecimalFormato.formato(Double.parseDouble(datos.get(i).get(10).replaceAll(",","")), nroDec));
+					}
+				}
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				Map<String, Double> mapSubtotales = new HashMap<String,Double>();
-				Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
+				Map<Long,Guia> mapGuias = Guia.mapAllPorIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
 				Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
 				for(int i=0; i<datos.size(); i++) {
@@ -8502,7 +8578,7 @@ public class MnuReportes extends Controller {
 			List<List<String>> datos = ReportMovimientos.movimientoGuiasValorizado(con, s.baseDato, mapeoDiccionario, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, usd, eur, uf, concepto);
 			bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			Map<String, Double> mapSubtotales = new HashMap<String,Double>();
-			Map<Long,Guia> mapGuias = Guia.mapAll(con, s.baseDato);
+			Map<Long,Guia> mapGuias = Guia.mapAllPorIdBodega(con, s.baseDato, id_bodegaEmpresa);
 			Map<String,Guia> mapGuiasIngreso = ModCalc_GuiasPer.mapUltimaGuiaArrIngreso(con, s.baseDato, mapGuias);
 			Map<String,Guia> mapGuiasEgreso = ModCalc_GuiasPer.mapUltimaGuiaArrEgreso(con, s.baseDato, mapGuias);
 			for(int i=0; i<datos.size(); i++) {

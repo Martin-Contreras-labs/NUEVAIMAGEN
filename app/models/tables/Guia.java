@@ -914,7 +914,16 @@ public class Guia {
 		for(Guia guia: lista) {
 			map.put(guia.getId(), guia);
 		}
-		
+
+		return(map);
+	}
+
+	public static Map<Long,Guia> mapAllPorIdBodega(Connection con, String db, Long id_bodega){
+		Map<Long,Guia> map = new HashMap<Long,Guia>();
+		List<Guia> lista = Guia.allPorIdBodega(con, db, id_bodega);
+		for(Guia guia: lista) {
+			map.put(guia.getId(), guia);
+		}
 		return(map);
 	}
 	
@@ -1342,6 +1351,141 @@ public class Guia {
 			smt.close();
 		} catch (SQLException e) {
 				e.printStackTrace();
+		}
+		return (aux);
+	}
+
+	public static List<Guia> allPorIdBodega(Connection con, String db, Long id_bodega) {
+		List<Guia> aux = new ArrayList<Guia>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" select  "
+							+ "guia.id, "
+							+ "guia.numero, "
+							+ "guia.fecha, "
+							+ "guia.docAnexo, "
+							/*5*/	+ "guia.guiaPDF, "
+							+ "guia.guiaXml, "
+							+ "guia.observaciones, "
+							+ "guia.numGuiaCliente, "
+							+ "guia.jsonGenerado, "
+							/*10*/	+ "guia.id_bodegaOrigen, "
+							+ "guia.id_bodegaDestino, "
+							+ "guia.id_cotizacion, "
+							+ "guia.id_ot, "
+							+ "guia.linkFolio, "
+							/*15*/	+ "ifnull(guia.response,0), "
+							+ "guia.id_transportista, "
+							+ "guia.fotos, "
+							+ "'', "
+							+ "guia.id_userCrea, "
+							/*20*/	+ "guia.id_userModifica, "
+							+ "ifnull(guia.fechaUserModifica,''), "
+							+ "guia.totalKg, "
+							+ "guia.totalM2, "
+							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
+							" from `"+db+"`.guia " +
+							" where guia.id_bodegaOrigen=? or guia.id_bodegaDestino=? " +
+							" order by guia.fecha desc, guia.id desc;" );
+			smt.setLong(1, id_bodega);
+			smt.setLong(2, id_bodega);
+			ResultSet rs = smt.executeQuery();
+			Map<Long,BodegaEmpresa> bodegas = BodegaEmpresa.mapAll(con, db);
+			Map<Long,Ot> ots = Ot.mapAll(con, db);
+			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);
+
+			Map<Long,List<Long>> mapIdvsNumCotiSucur = Cotizacion.mapIdvsNumCotiSucur(con, db);
+			Map<Long,List<String>> mapIdvsFechActEnvio = Ot.mapIdvsFechActEnvio(con, db);
+
+			while (rs.next()) {
+
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
+
+				String nameSucursalOrigen = "Sin Sucursal";
+				Long id_sucursalOrigen = (long)0;
+				String nombreBodegaOrigen = "";
+				Long esInternaOrigen = (long)0;
+				Long id_comercialOrigen = (long)0;
+
+				if(bodegaOrigen!=null) {
+					nombreBodegaOrigen = bodegaOrigen.getNombre();
+					nameSucursalOrigen = bodegaOrigen.getNameSucursal();
+					id_sucursalOrigen = bodegaOrigen.getId_sucursal();
+					esInternaOrigen = bodegaOrigen.getEsInterna();
+					id_comercialOrigen = bodegaOrigen.getId_comercial();
+				}
+
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+
+				String nameSucursalDestino = "Sin Sucursal";
+				Long id_sucursalDestino = (long)0;
+				String nombreBodegaDestino = "";
+				Long esInternaDestino = (long)0;
+				Long id_comercialDestino = (long)0;
+				if(bodegaDestino!=null) {
+					nombreBodegaDestino = bodegaDestino.getNombre();
+					nameSucursalDestino = bodegaDestino.getNameSucursal();
+					id_sucursalDestino = bodegaDestino.getId_sucursal();
+					esInternaDestino = bodegaDestino.getEsInterna();
+					id_comercialDestino = bodegaDestino.getId_comercial();
+				}
+
+				Ot ot = ots.get(rs.getLong(13));
+				Long numeroOt = (long)0;
+				if(ot!=null) {
+					numeroOt = ot.numero;
+				}
+				String tipoGuia = Guia.tipoGuia(db, bodegaOrigen, bodegaDestino);
+
+				String nameComercial = "";
+				if((long)esInternaOrigen == (long)2) {
+					if(id_comercialOrigen.toString().equals("0")) {
+						nameComercial = "Sin Comercial";
+					}else {
+						Comercial comercial = mapComercial.get(id_comercialOrigen);
+						if(comercial!=null) {
+							nameComercial = comercial.nameUsuario;
+						}
+					}
+				}else if((long)esInternaDestino == (long)2){
+					if(id_comercialDestino.toString().equals("0")) {
+						nameComercial = "Sin Comercial";
+					}else {
+						Comercial comercial = mapComercial.get(id_comercialDestino);
+						if(comercial!=null) {
+							nameComercial = comercial.nameUsuario;
+						}
+					}
+				}else {
+					nameComercial = "";
+				}
+
+				String fechaActualizacion = "";
+				String fechaEnvio = "";
+				List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+				if(auxFecha!=null) {
+					fechaActualizacion = auxFecha.get(0);
+					fechaEnvio = auxFecha.get(1);
+				}
+
+				Long numCoti = (long)0;
+				List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+				if(auxNumCotiSucur!=null) {
+					numCoti = auxNumCotiSucur.get(0);
+				}
+
+				String totalKg = myformatdouble2.format(rs.getDouble(22));
+				String totalM2 = myformatdouble2.format(rs.getDouble(23));
+
+				aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+						numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
+						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return (aux);
 	}
