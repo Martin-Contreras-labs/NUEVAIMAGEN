@@ -53,7 +53,7 @@ presup: tables.Ppto, bodega: tables.BodegaEmpresa, listGrupo: List[tables.Grupo]
 									id="total"
 									value="@presup.total"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									onchange="if(value.trim()=='') value = 0; value = formatStandar(value,'@numDecimales');">
 						    </td>
 						</tr>

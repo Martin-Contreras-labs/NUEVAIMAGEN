@@ -35,7 +35,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 									value = "@servicio.getCodigo()"
 									required
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservCodigos(window.event)"
 									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
 									maxlength="50">
 							</td>
@@ -46,7 +46,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 								<input type="text" class="form-control left"
 									name="nombre"
 									value = "@servicio.getNombre()"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									required
 									autocomplete="off"
 									maxlength="100">
@@ -89,7 +89,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 									value = "@servicio.getPrecio()"
 									onfocus="value=value.replace(/,/g,'')" 
 									onfocusout = "if(value.trim()=='') value=0; formateaPrecio($('#id_moneda').val());"
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									onchange="if(value.trim()=='') value=0; formateaPrecio($('#id_moneda').val()); $('#cambioElprecio').val('1');">
 							</td>
 						</tr>

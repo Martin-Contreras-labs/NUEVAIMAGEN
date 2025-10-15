@@ -16,7 +16,7 @@
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@propiedad.getNombre()"
 								maxlength="100"
 							    required

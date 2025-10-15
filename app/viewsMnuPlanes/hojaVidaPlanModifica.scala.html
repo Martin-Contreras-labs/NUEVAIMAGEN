@@ -130,7 +130,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 						        id="lectActual_@index"
 						        value="@lista.estadoActual"
 						        onfocus="value = value.replace(/,/g, ''); auxiliar = value;"
-						        onkeypress="return ingresoDouble(event, value)"
+						        onkeydown="return ingresoDouble(event, value)"
 						        autocomplete="off"
 						        onchange="if(value == '') value = 0; 
 						          actualizaAll('@index', '@lista.id_equipo', 'estadoActual', value); 
@@ -143,7 +143,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 						        id="frecuencia_@index"
 						        value="@lista.cadaNEstimado"
 						        onfocus="value = value.replace(/,/g, ''); auxiliar = value;"
-						        onkeypress="return ingresoDouble(event, value)"
+						        onkeydown="return ingresoDouble(event, value)"
 						        autocomplete="off"
 						        onchange="if(value == '') value = 0; 
 						          actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'cadaNEstimado', value);
@@ -156,7 +156,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 						        id="consumoEstimado_@index"
 						        value="@lista.consumoEstimadoPorMes"
 						        onfocus="value = value.replace(/,/g, '');"
-						        onkeypress="return ingresoDouble(event, value)"
+						        onkeydown="return ingresoDouble(event, value)"
 						        autocomplete="off"
 						        onchange="if(value == '') value = 0; 
 						          actualizaPorCampo('@lista.id_tipoPlan', '@lista.id_equipo', 'consumoEstimadoPorMes', value);">
@@ -170,7 +170,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 							               id="proximaMantencion_@index"
 							               value="@lista.proximaMantencion"
 							               onfocus="value = value.replace(/,/g,'');"
-							               onkeypress="return ingresoDouble(event, value)"
+							               onkeydown="return ingresoDouble(event, value)"
 							               autocomplete="off"
 							               onchange="if(value == '') value = 0; recalcularFechaEstimada('@index', '@lista.id_tipoPlan', '@lista.id_equipo');">
 							    </td>

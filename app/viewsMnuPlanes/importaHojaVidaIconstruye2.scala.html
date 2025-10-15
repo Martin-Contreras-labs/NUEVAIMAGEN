@@ -117,7 +117,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 											id="cantidad_@index"
 											value="@lista1.get(10)" 
 											onfocus="value=value.replace(/,/g,'');" 
-											onkeypress="return ingresoDouble(event,value)" 
+											onkeydown="return ingresoDouble(event,value)" 
 											autocomplete="off" 
 											onchange="if(value=='') value='@lista1.get(10)'; value=formatStandar(value,'@index'); actualTotales(id);">
 									</td>
@@ -135,7 +135,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 											id="puCompra_@index" 
 											value="@lista1.get(16)" 
 											onfocus="value=value.replace(/,/g,'');" 
-											onkeypress="return ingresoDouble(event,value)" 
+											onkeydown="return ingresoDouble(event,value)" 
 											autocomplete="off" 
 											onchange="if(value=='') value=0; value=formatStandar(value,'@index'); actualTotales(id);">
 									</td>
@@ -285,7 +285,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 									id="nuevoEquipoCodigo"
 									required
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservCodigos(window.event)"
 									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
 									maxlength="50">
 							</td>
@@ -295,7 +295,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									id="nuevoEquipoNombre"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									required
 									autocomplete="off"
 									maxlength="100">
@@ -333,7 +333,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 									autocomplete="off"
 									value="0.00"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									onchange="value = formatStandar(value,2);">
 							</td>
 						</tr>
@@ -345,7 +345,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 									autocomplete="off"
 									value="0.00"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									onchange="value = formatStandar(value,2);">
 							</td>
 						</tr>
@@ -448,7 +448,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 			"id=\"cantidad_"+cont+"\" "+
 			"value=\"0.00\" "+
 			"onfocus=\"value=value.replace(/,/g,'');\" "+
-			"onkeypress=\"return ingresoDouble(event,value)\" "+
+			"onkeydown=\"return ingresoDouble(event,value)\" "+
 			"autocomplete=\"off\" "+
 			"onchange=\"if(value=='') value=0; value=formatStandar(value,2); actualTotales(id);\">";
 		
@@ -468,7 +468,7 @@ listGrupos: List[tables.Grupo], listFabrica: List[tables.Fabrica], listUnidades:
 			"id=\"puCompra_"+cont+"\" "+
 			"value=\"0\" "+
 			"onfocus=\"value=value.replace(/,/g,'');\" "+ 
-			"onkeypress=\"return ingresoDouble(event,value)\" "+
+			"onkeydown=\"return ingresoDouble(event,value)\" "+
 			"autocomplete=\"off\" "+
 			"onchange=\"if(value=='') value=0; value=formatStandar(value,2); actualTotales(id);\"> ";
 		

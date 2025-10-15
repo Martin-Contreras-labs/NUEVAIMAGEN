@@ -141,15 +141,30 @@ function ingresoInt (e) {
 /************************************************************/
 
 
-function sinReservados (e) {
-    k = (document.getElementById) ? e.keyCode : e.which;
-	//34 = " doble comilla
-	//32 = espacio
-    if (k!=47 && k!=92 && k!=44 && k!=39 && k!=96) return true;
-    patron = /\d/;
-    n = String.fromCharCode(k);
-    return patron.test(n);
+function sinReservados(e) {
+	const k = e.key;
+	// Caracteres a bloquear: / \ , ' `
+	const caracteresProhibidos = ['/', '\\', ',', "'", '`'];
+	if (caracteresProhibidos.includes(k)) {
+		e.preventDefault();
+		return false;
+	}
+	return true;
 }
+
+
+function sinReservCodigos(e) {
+	const k = e.key;
+	// Caracteres a bloquear: / \ , ' ` " espacio _
+	const caracteresProhibidos = ['/', '\\', ',', "'", '`', '"', ' ', '_'];
+
+	if (caracteresProhibidos.includes(k)) {
+		e.preventDefault();
+		return false;
+	}
+	return true;
+}
+
 
 function limitaFecha(fecha, menos, mas) {
 	var fechaMas = new Date();

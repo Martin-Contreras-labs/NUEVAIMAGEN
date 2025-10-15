@@ -26,7 +26,7 @@ tipoEstado: tables.TipoEstado, listTipoReparacion: List[tables.TipoReparacion], 
 						<td style="text-align:left;">
 							<input type="text" class="form-control left"
 								id="nombre"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								autocomplete="off"
 								value="@tipoEstado.getNombre()"
 								maxlength="50"

@@ -68,7 +68,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 							  				name="numeroGuia"
 											id="numeroGuia"
 											value = "@nuevoNumeroGuia"
-											onkeypress="return ingresoInt(event)"
+											onkeydown="return ingresoInt(event)"
 											onchange="verificarNumeroGuia(value)"
 											autocomplete="off"
 											required>
@@ -356,7 +356,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 		    				let stockInicial = parseFloat(rs[i][9].replace(/,/g,''));
 		    				vistaHTML += 
 		    					"<tr onclick=\"selCod='"+rs[i][4]+"';"
-		    								+ "selEquip='"+rs[i][5].replace(/"\""/g,'')+"';"
+		    								+ "selEquip='"+rs[i][5].replace(/"\\""/g,'')+"';"
 		    								+ "selStock='"+rs[i][9]+"';"
 		    								+ "selUnidad='"+rs[i][8]+"';"
 		    								+ "selKg='"+rs[i][6]+"';"
@@ -530,7 +530,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 				" name='cantDespacho[]' " +
 				" value='"+formatStandar2(saldo)+"'"+
 				" onfocus=\"value=value.replace(/,/g,'')\" "+
-				" onkeypress='return ingresoDouble(event,value)' "+
+				" onkeydown='return ingresoDouble(event,value)' "+
 				" onfocusout='value = formatStandar2(value);'"+
 				" onchange='validaCantDespacho("+cont+",value,"+id_equipo+","+id_cotizacion+","+stockInicial+"); value=formatStandar2(value);'>";
 		
@@ -542,7 +542,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 			" name='cantEquivalente[]' " +
 			" value='"+formatStandar2(saldo)+"'"+
 			" onfocus=\"value=value.replace(/,/g,'')\" "+
-			" onkeypress='return ingresoDouble(event,value)' "+
+			" onkeydown='return ingresoDouble(event,value)' "+
 			" onfocusout='value = formatStandar2(value);'"+
 			" onchange='value=formatStandar2(value);'>";
 	

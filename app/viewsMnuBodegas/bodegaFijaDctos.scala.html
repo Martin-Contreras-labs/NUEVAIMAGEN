@@ -33,7 +33,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 												id="dctoGlobal"
 												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 												onblur = "value = formatPorcentaje(value);"
-												onkeypress="return ingresoDouble(event,value)"
+												onkeydown="return ingresoDouble(event,value)"
 												onchange="modificarDctoGlobal(value)">
 										</td>
 									</TR>
@@ -64,7 +64,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 													id="dctoGrupo_@lista.getId_grupo()"
 													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 													onblur = "value = formatPorcentaje(value);"
-													onkeypress="return ingresoDouble(event,value)"
+													onkeydown="return ingresoDouble(event,value)"
 													onchange="modificarDctoGrupo('@lista.getId_grupo()', value)">
 											</td>
 											<td  style="text-align:center;">
@@ -103,7 +103,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 													id="dctoEquipo_@lista.getId_equipo()"
 													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 													onblur = "value = formatPorcentaje(value);"
-													onkeypress="return ingresoDouble(event,value)"
+													onkeydown="return ingresoDouble(event,value)"
 													onchange="modificarDctoEquipo('@lista.getId_equipo()','@lista.getId_cotizacion()', value)">
 											</td>
 											<td  style="text-align:center;">
@@ -454,7 +454,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 		  		" id='dctoGrupo_"+id_grupo+"'"+
 				" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+ 
 				" onblur = 'value = formatPorcentaje(value);'"+
-				" onkeypress='return ingresoDouble(event,value)'"+
+				" onkeydown='return ingresoDouble(event,value)'"+
 				" onchange='modificarDctoGrupo("+id_grupo+", value)'>";
 			td = tr.insertCell(tr.cells.length);
 			td.setAttribute ('style', 'text-align:center' );
@@ -517,7 +517,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 		  		" id='dctoEquipo_"+id_equipo+"'"+
 				" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+ 
 				" onblur = 'value = formatPorcentaje(value);'"+
-				" onkeypress='return ingresoDouble(event,value)'"+
+				" onkeydown='return ingresoDouble(event,value)'"+
 				" onchange='modificarDctoEquipo("+id_equipo+",0, value)'>";
 				
 			td = tr.insertCell(tr.cells.length);

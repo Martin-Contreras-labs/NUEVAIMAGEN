@@ -38,7 +38,7 @@ listRegiones: List[tables.Regiones])
 									id="nickName"
 									name="nickName"
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									maxlength="50"
 									required
 									onchange="value = value.trim();verificaNick(value);">

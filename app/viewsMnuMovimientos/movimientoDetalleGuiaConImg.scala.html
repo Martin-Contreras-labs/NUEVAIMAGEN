@@ -239,7 +239,7 @@ nickCliente: String)
 												id="estado_@lista1.get(2)_@lista1.get(23)_@index"
 												value="0.00"
 												onfocus="value=value.replace(/,/g,'')" 
-												onkeypress="return ingresoInt(event)"
+												onkeydown="return ingresoInt(event)"
 												autocomplete="off"
 												ondblclick = "if(value>0 && '@est.getReparable()'=='1') editaReparaciones('@index','@listTipoEstado.size()','@lista1.get(2)','@lista1.get(23)',value,'@est.getReparable()','@est.getId()')"
 												readonly>
@@ -360,7 +360,7 @@ nickCliente: String)
 					    				"<input type='text' class='form-control right width80px' "+
 										" value='"+reparNiv2[2]+"' "+ 
 										" onfocus=\"value=value.replace(/,/g,'')\"  "+
-										" onkeypress='return ingresoInt(event)' "+
+										" onkeydown='return ingresoInt(event)' "+
 										" autocomplete='off' "+
 										" readonly>"+
 				    				"</td></tr>";

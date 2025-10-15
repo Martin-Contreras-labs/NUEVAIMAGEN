@@ -16,7 +16,7 @@ operadorMecanico: tables.MantOperadorMecanico, listActorPersonal: List[tables.Ma
 							<input type="text" class="form-control left"
 								id="userName"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@operadorMecanico.getUserName()"
 								maxlength="100"
 								onchange="value = value.trim(); modificaOperadorMecanico(id)">
@@ -39,7 +39,7 @@ operadorMecanico: tables.MantOperadorMecanico, listActorPersonal: List[tables.Ma
 							<input type="text" class="form-control left"
 								id="rut"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@operadorMecanico.getRut()"
 								maxlength="100"
 								onchange="value = value.trim(); modificaOperadorMecanico(id)">
@@ -51,7 +51,7 @@ operadorMecanico: tables.MantOperadorMecanico, listActorPersonal: List[tables.Ma
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@operadorMecanico.getNombre()"
 								maxlength="100"
 								onchange="value = value.trim(); modificaOperadorMecanico(id)">
@@ -63,7 +63,7 @@ operadorMecanico: tables.MantOperadorMecanico, listActorPersonal: List[tables.Ma
 							<input type="text" class="form-control left"
 								id="cargo"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@operadorMecanico.getCargo()"
 								maxlength="100"
 								onchange="value = value.trim(); modificaOperadorMecanico(id)">

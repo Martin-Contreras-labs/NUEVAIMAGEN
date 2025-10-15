@@ -21,7 +21,7 @@ actividad: tables.MantActividad)
 									<input type="text" class="form-control"
 										id="nombre"
 										maxlength="50"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										value="@actividad.getNombre()"
 										onchange="value = value.trim(); modificarActividad(id)">
 								</div>

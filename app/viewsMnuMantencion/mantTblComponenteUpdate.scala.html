@@ -21,7 +21,7 @@ componente: tables.MantComponente)
 									<input type="text" class="form-control"
 										id="nombre"
 										maxlength="50"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										value="@componente.getNombre()"
 										onchange="value = value.trim(); modificarComponente(id)">
 								</div>

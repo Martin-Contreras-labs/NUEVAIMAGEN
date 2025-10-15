@@ -25,7 +25,7 @@ tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
 									name="sigla"
 									autocomplete="off"
 									maxlength="5"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									onchange="value = value.trim();verificaSigla(value, @tipoEstado.getId());"
 									required>
 							</td>
@@ -35,7 +35,7 @@ tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
 							<td style="text-align:left;">
 								<input type="text" class="form-control left"
 									name="nombre"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									autocomplete="off"
 									maxlength="50">
 							</td>
@@ -59,7 +59,7 @@ tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
 									name="precio"
 									value="0"
 									onchange="if(value.trim()=='') value=0"
-									onkeypress="return ingresoDouble(event,value)">	
+									onkeydown="return ingresoDouble(event,value)">	
 							</td>
 						</tr>
 						<tr>

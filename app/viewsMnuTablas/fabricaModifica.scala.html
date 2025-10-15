@@ -15,7 +15,7 @@ fabrica: tables.Fabrica, listComunas: List[tables.Comunas], listRegiones: List[t
 						<td style="text-align:left;">
 							<input type="text" class="form-control left"
 								id="nombre"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								autocomplete="off"
 								value="@fabrica.getNombre()"
 								maxlength="100"
@@ -27,7 +27,7 @@ fabrica: tables.Fabrica, listComunas: List[tables.Comunas], listRegiones: List[t
 						<td style="text-align:left;">
 							<input type="text" class="form-control left"
 								id="nickName"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								autocomplete="off"
 								value="@fabrica.getNickName()"
 								maxlength="50"

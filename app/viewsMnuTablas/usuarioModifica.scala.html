@@ -17,7 +17,7 @@ esPorPorProyecto: Long, listEsPorProyecto: List[List[Long]], listSucursal: List[
 							<input type="text" class="form-control left"
 								id="userName"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@usuario.getUserName()"
 								maxlength="100"
 								onchange="value = value.trim(); modificarUsuario(id)">
@@ -40,7 +40,7 @@ esPorPorProyecto: Long, listEsPorProyecto: List[List[Long]], listSucursal: List[
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@usuario.getNombre()"
 								maxlength="100"
 								onchange="value = value.trim(); modificarUsuario(id)">
@@ -52,7 +52,7 @@ esPorPorProyecto: Long, listEsPorProyecto: List[List[Long]], listSucursal: List[
 							<input type="text" class="form-control left"
 								id="cargo"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@usuario.getCargo()"
 								maxlength="100"
 								onchange="value = value.trim(); modificarUsuario(id)">

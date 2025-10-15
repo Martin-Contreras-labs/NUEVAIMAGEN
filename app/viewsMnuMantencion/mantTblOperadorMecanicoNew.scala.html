@@ -17,7 +17,7 @@ listActorPersonal: List[tables.MantActorPersonal], listTipoPersonal: List[tables
 								<input type="text" class="form-control left"
 									id="userName"
 									name="userName"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									autocomplete="off"
 									maxlength="100"
 									required

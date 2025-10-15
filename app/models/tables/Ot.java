@@ -1370,7 +1370,7 @@ public class Ot {
 							+ " id=\"PV_"+detalleDespacho.get(k).get(2)+""+coti.getId()+"\"" 
 							+ " value='"+DecimalFormato.formato(list.get(0),nroDec)+"'"
 							+ "	onfocus=\"value=value.replace(/,/g,'')\""
-							+ "	onkeypress=\"return ingresoDouble(event,value)\""
+							+ "	onkeydown=\"return ingresoDouble(event,value)\""
 							+ " onchange=\"grabar(id,value,'"+detalleDespacho.get(k).get(2)+"','"+coti.getId()+"')\">";
 					}else {
 						vista += "<br>";
@@ -1424,7 +1424,7 @@ public class Ot {
 						+ " id=\"PA_"+detalleDespacho.get(k).get(2)+""+coti.getId()+"\"" 
 						+ " value='"+DecimalFormato.formato(list.get(1),nroDec)+"'"
 						+ "	onfocus=\"value=value.replace(/,/g,'')\""
-						+ "	onkeypress=\"return ingresoDouble(event,value)\""
+						+ "	onkeydown=\"return ingresoDouble(event,value)\""
 						+ " onchange=\"grabar(id,value,'"+detalleDespacho.get(k).get(2)+"','"+coti.getId()+"')\">";
 				}else {
 					vista += "<br>";

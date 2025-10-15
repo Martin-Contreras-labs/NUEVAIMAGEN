@@ -27,7 +27,7 @@ listBodegas: List[List[String]])
 							<td style="text-align:left;">
 								<input type="text" class="form-control left"
 									name="nombre"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									autocomplete="off"
 									maxlength="50"
 									onchange="value = value.trim();">

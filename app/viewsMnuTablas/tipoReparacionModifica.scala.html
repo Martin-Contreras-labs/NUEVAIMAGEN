@@ -22,7 +22,7 @@ tipoReparacion: tables.TipoReparacion, tipoEstado: tables.TipoEstado, listMoneda
 							<input type="text" class="form-control left"
 								id="sigla"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								maxlength="5"
 								value = "@tipoReparacion.getSigla()"
 								onchange="modificarTipoReparacion(id)">
@@ -34,7 +34,7 @@ tipoReparacion: tables.TipoReparacion, tipoEstado: tables.TipoEstado, listMoneda
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								maxlength="50"
 								value = "@tipoReparacion.getNombre()"
 								onchange="modificarTipoReparacion(id)">
@@ -59,7 +59,7 @@ tipoReparacion: tables.TipoReparacion, tipoEstado: tables.TipoEstado, listMoneda
 								id="precio"
 								value="@tipoReparacion.getPrecio()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeypress="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(event,value)"
 								onchange="if(value.trim()=='') value=0; modificarTipoReparacion(id)">	
 						</td>
 					</tr>

@@ -60,7 +60,7 @@ servicio: tables.Servicio, listPrecio: List[tables.ListaPrecioServicio], listMon
 										id="precio_@lista2.getId_bodegaEmpresa()_@lista2.getId_cotiOdo"
 										value="@lista2.getPrecioStr()"
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										onchange="modificaPorCampo('@lista2.getId_bodegaEmpresa()', 'precio', value, '@lista2.getId_cotiOdo');">
 										
 								</td>
@@ -83,14 +83,14 @@ servicio: tables.Servicio, listPrecio: List[tables.ListaPrecioServicio], listMon
 											id="cantMinimo_@lista2.getId_bodegaEmpresa()_@lista2.getId_cotiOdo"
 											value="@lista2.getCantMinimoStr()"
 											onfocus="value=value.replace(/,/g,'')" 
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											onchange="modificaPorCampo('@lista2.getId_bodegaEmpresa()', 'cantMinimo', value, '@lista2.getId_cotiOdo');">
 									}else{
 										<input type="text" class="form-control right"
 											id="cantMinimo_@lista2.getId_bodegaEmpresa()_@lista2.getId_cotiOdo"
 											value="@lista2.getCantMinimoStr()"
 											onfocus="value=value.replace(/,/g,'')" 
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											onchange="modificaPorCampo('@lista2.getId_bodegaEmpresa()', 'cantMinimo', value, '@lista2.getId_cotiOdo');"
 											disabled>
 									}
@@ -104,14 +104,14 @@ servicio: tables.Servicio, listPrecio: List[tables.ListaPrecioServicio], listMon
 											id="precioAdicional_@lista2.getId_bodegaEmpresa()_@lista2.getId_cotiOdo"
 											value="@lista2.getPrecioAdicionalStr()"
 											onfocus="value=value.replace(/,/g,'')" 
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											onchange="modificaPorCampo('@lista2.getId_bodegaEmpresa()', 'precioAdicional', value, '@lista2.getId_cotiOdo');">
 									}else{
 										<input type="text" class="form-control right"
 											id="precioAdicional_@lista2.getId_bodegaEmpresa()_@lista2.getId_cotiOdo"
 											value="@lista2.getPrecioAdicionalStr()"
 											onfocus="value=value.replace(/,/g,'')" 
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											onchange="modificaPorCampo('@lista2.getId_bodegaEmpresa()', 'precioAdicional', value, '@lista2.getId_cotiOdo');"
 											disabled>
 									}

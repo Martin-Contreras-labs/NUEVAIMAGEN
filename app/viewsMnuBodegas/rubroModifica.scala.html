@@ -16,7 +16,7 @@ rubro: tables.Rubro)
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@rubro.getNombre()"
 								maxlength="100"
 							    required

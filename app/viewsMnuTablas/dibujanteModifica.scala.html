@@ -16,7 +16,7 @@ dibujante: tables.Dibujante)
 							<input type="text" class="form-control left"
 								id="nombre"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@dibujante.getNombre()"
 								maxlength="100"
 							    required

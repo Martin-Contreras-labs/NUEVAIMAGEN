@@ -136,7 +136,7 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 										onClick="this.select();"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										onchange="validarLectIni()"
 										autocomplete="off">
 						        </td>
@@ -149,7 +149,7 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 										onClick="this.select();"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										onchange="validarLectTer()"
 										autocomplete="off">
 						        </td>
@@ -165,7 +165,7 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 										onClick="this.select();"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										onchange="if(value.trim()=='') value=formatStandar(0,2);"
 										autocomplete="off">
 						        </td>

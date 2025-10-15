@@ -17,7 +17,7 @@ grupo: tables.Grupo, listUnidades: List[tables.Unidad])
 							<td><input type="text" class="form-control" 
 										name="nombreAtributo" 
 										maxlength="50" 
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										required>
 							</td>
 						</tr>

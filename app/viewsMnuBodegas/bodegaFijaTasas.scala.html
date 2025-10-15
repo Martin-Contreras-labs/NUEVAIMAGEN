@@ -33,7 +33,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 												id="tasaGlobal"
 												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 												onblur = "value = formatPorcentaje(value);"
-												onkeypress="return ingresoDouble(event,value)"
+												onkeydown="return ingresoDouble(event,value)"
 												onchange="modificarTasaGlobal(value)">
 										</td>
 									</TR>
@@ -64,7 +64,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 													id="tasaGrupo_@lista.getId_grupo()"
 													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 													onblur = "value = formatPorcentaje(value);"
-													onkeypress="return ingresoDouble(event,value)"
+													onkeydown="return ingresoDouble(event,value)"
 													onchange="modificarTasaGrupo(@lista.getId_grupo(), value)">
 											</td>
 											<td  style="text-align:center;">
@@ -103,7 +103,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 													id="tasaEquipo_@lista.getId_equipo()"
 													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 													onblur = "value = formatPorcentaje(value);"
-													onkeypress="return ingresoDouble(event,value)"
+													onkeydown="return ingresoDouble(event,value)"
 													onchange="modificarTasaEquipo(@lista.getId_equipo(),@lista.getId_cotizacion(), value)">
 											</td>
 											<td  style="text-align:center;">
@@ -466,7 +466,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 		  		" id='tasaGrupo_"+id_grupo+"'"+
 				" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+ 
 				" onblur = 'value = formatPorcentaje(value);'"+
-				" onkeypress='return ingresoDouble(event,value)'"+
+				" onkeydown='return ingresoDouble(event,value)'"+
 				" onchange='modificarTasaGrupo("+id_grupo+", value)'>";
 			td = tr.insertCell(tr.cells.length);
 			td.setAttribute ('style', 'text-align:center' );
@@ -529,7 +529,7 @@ listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
 		  		" id='tasaEquipo_"+id_equipo+"'"+
 				" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+ 
 				" onblur = 'value = formatPorcentaje(value);'"+
-				" onkeypress='return ingresoDouble(event,value)'"+
+				" onkeydown='return ingresoDouble(event,value)'"+
 				" onchange='modificarTasaEquipo("+id_equipo+",0, value)'>";
 				
 			td = tr.insertCell(tr.cells.length);

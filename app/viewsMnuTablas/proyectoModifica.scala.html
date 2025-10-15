@@ -17,7 +17,7 @@ proyecto: tables.Proyecto, listComunas: List[tables.Comunas], listRegiones: List
 								id="nombre"
 								autocomplete="off"
 								value="@proyecto.getNombre()"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								maxlength="100"
 								onchange="value = value.trim(); modificarProyecto(id)">
 						</td>
@@ -28,7 +28,7 @@ proyecto: tables.Proyecto, listComunas: List[tables.Comunas], listRegiones: List
 							<input type="text" class="form-control left"
 								id="nickName"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value="@proyecto.getNickName()"
 								maxlength="50"
 								onchange="value = value.trim(); modificarProyecto(id)">

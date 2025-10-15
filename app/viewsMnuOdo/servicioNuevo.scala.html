@@ -32,7 +32,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 									name="codigo"
 									required
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservCodigos(window.event)"
 									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
 									maxlength="50">
 							</td>
@@ -43,7 +43,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 								<input type="text" class="form-control left"
 									name="nombre"
 									required
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									autocomplete="off"
 									maxlength="100">
 							</td>
@@ -84,7 +84,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 									value="0"
 									onfocus="value=value.replace(/,/g,'')" 
 									onfocusout = "if(value.trim()=='') value=0; formateaPrecio($('#id_moneda').val());"
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									onchange="if(value.trim()=='') value=0; formateaPrecio($('#id_moneda').val());">
 							</td>
 						</tr>

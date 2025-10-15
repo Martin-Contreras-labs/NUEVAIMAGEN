@@ -21,7 +21,7 @@ grupo: tables.Grupo, listAtributosGrupo: List[tables.Atributo])
 									<input type="text" class="form-control"
 										id="nombre"
 										maxlength="50"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										value="@grupo.getNombre()"
 										onchange="value = value.trim(); modificarGrupo(id)">
 								</div>

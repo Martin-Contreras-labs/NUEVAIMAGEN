@@ -77,7 +77,7 @@ importDesdeExcel: String, json: String)
 								  				id="numeroCoti"
 												name="numeroCoti"
 												value = "@formCotiza.numeroCoti"
-												onkeypress="return ingresoInt(event,value)"
+												onkeydown="return ingresoInt(event,value)"
 												onchange="if(value.trim()==''){value='@formCotiza.numeroCoti';}else{validarNumero(value);}">
 									</div>
 								</td>
@@ -310,7 +310,7 @@ importDesdeExcel: String, json: String)
 											id="tasaGlobal"
 											value="0.00 %"
 											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="value = formatPorcentaje(value); if(value=='') {value='0.00 %';}">
 									</div>
@@ -343,7 +343,7 @@ importDesdeExcel: String, json: String)
 											id="factorGlobal"
 											value="0.0000"
 											onfocus="value = value.replace(/,/g,'')"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="value = formatStandar(value,4); if(value=='') {value='0.0000';}">
 									</div>
@@ -376,7 +376,7 @@ importDesdeExcel: String, json: String)
 											id="factorGlobalRepos"
 											value="0.0000"
 											onfocus="value = value.replace(/,/g,'')"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="value = formatStandar(value,4); if(value=='') {value='0.0000';}">
 									</div>
@@ -468,7 +468,7 @@ importDesdeExcel: String, json: String)
 											value="@lista1.get(10)"
 											onfocus="value=value.replace(/,/g,''); cantAux = value;" 
 											onblur = "value = formatStandar(value, '2');"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') value=0; calculaLinea('@lista1.get(0)', '@lista1.get(20)');">
 									</td>
@@ -489,7 +489,7 @@ importDesdeExcel: String, json: String)
 											value="@lista1.get(5)"
 											onfocus="value=value.replace(/,/g,'');" 
 											onblur = "value = formatStandar(value, '@lista1.get(20)');"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') {value=0;} else {calculaTasa(1,'@lista1.get(0)', '@lista1.get(20)'); calculaLinea('@lista1.get(0)', '@lista1.get(20)');}">
 									</td>
@@ -510,7 +510,7 @@ importDesdeExcel: String, json: String)
 											value="@lista1.get(24)"
 											onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
 											onblur = "value = formatPorcentaje(value);"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') {value='0.00 %';} else {calculaTasa(2,'@lista1.get(0)', '@lista1.get(20)'); calculaLinea('@lista1.get(0)', '@lista1.get(20)');}">
 									</td>
@@ -522,7 +522,7 @@ importDesdeExcel: String, json: String)
 											value="@lista1.get(7)"
 											onfocus="value=value.replace(/,/g,'');" 
 											onblur = "value = formatStandar(value, '@lista1.get(20)');"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') {value=0;} else {calculaTasa(1,'@lista1.get(0)', '@lista1.get(20)'); calculaLinea('@lista1.get(0)', '@lista1.get(20)');}">
 									</td>
@@ -534,7 +534,7 @@ importDesdeExcel: String, json: String)
 											value="@lista1.get(12)"
 											onfocus="value=value.replace(/,/g,'');" 
 											onblur = "$('#hiddenpermanencia_@lista1.get(0)').text(value); value = formatStandar(value, '2');"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="if(value=='') value=0; calculaLinea('@lista1.get(0)', '@lista1.get(20)');">
 									</td>
@@ -586,7 +586,7 @@ importDesdeExcel: String, json: String)
 										value="@formCotiza.dctoArriendo %"
 										onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 										onblur = "value = formatPorcentaje(value);"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										onchange="sumaTotales(); dctoObligado=1;">
 									</td>
 								</TH>
@@ -597,7 +597,7 @@ importDesdeExcel: String, json: String)
 										value="@formCotiza.dctoVenta %"
 										onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 										onblur = "value = formatPorcentaje(value);"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										onchange="sumaTotales(); dctoObligado=1;">
 									</td>
 								</TH>
@@ -1581,7 +1581,7 @@ importDesdeExcel: String, json: String)
 											" value=\""+arrayDetalle[i][10]+"\""+
 											" onfocus=\"value=value.replace(/,/g,''); cantAux = value;\""+
 											" onblur = \"value = formatStandar(value, '2');\""+
-											" onkeypress=\"return ingresoDouble(event,value)\""+
+											" onkeydown=\"return ingresoDouble(event,value)\""+
 											" autocomplete=\"off\""+
 											" onchange=\"if(value=='') value=0; calculaLinea('"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"');\">";
 
@@ -1608,7 +1608,7 @@ importDesdeExcel: String, json: String)
 											" value=\""+arrayDetalle[i][5]+"\""+
 											" onfocus=\"value=value.replace(/,/g,'');\""+
 											" onblur =\"value = formatStandar(value, '"+arrayDetalle[i][20]+"');\""+
-											" onkeypress=\"return ingresoDouble(event,value)\""+
+											" onkeydown=\"return ingresoDouble(event,value)\""+
 											" autocomplete=\"off\""+
 											" onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"'); calculaLinea('"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"');}\">";
 						
@@ -1631,7 +1631,7 @@ importDesdeExcel: String, json: String)
 										" value=\""+arrayDetalle[i][24]+"\""+
 										" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+
 										" onblur = \"value = formatPorcentaje(value);\""+
-										" onkeypress=\"return ingresoDouble(event,value)\""+
+										" onkeydown=\"return ingresoDouble(event,value)\""+
 										" autocomplete=\"off\""+
 										" onchange=\"if(value=='') {value='0.00 %';} else {calculaTasa(2,'"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"'); calculaLinea('"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"');}\">";
 											
@@ -1644,7 +1644,7 @@ importDesdeExcel: String, json: String)
 											" value=\""+arrayDetalle[i][7]+"\""+
 											" onfocus=\"value=value.replace(/,/g,'');\""+ 
 											" onblur = \"value = formatStandar(value, '"+arrayDetalle[i][20]+"');\""+
-											" onkeypress=\"return ingresoDouble(event,value)\""+
+											" onkeydown=\"return ingresoDouble(event,value)\""+
 											" autocomplete=\"off\""+
 											" onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"'); calculaLinea('"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"');}\">";
 						
@@ -1657,7 +1657,7 @@ importDesdeExcel: String, json: String)
 											" value=\""+arrayDetalle[i][12]+"\""+
 											" onfocus=\"value=value.replace(/,/g,'');\""+ 
 											" onblur = \"$('#hiddenpermanencia_"+arrayDetalle[i][0]+"').text(value); value = formatStandar(value, '2');\""+
-											" onkeypress=\"return ingresoDouble(event,value)\""+
+											" onkeydown=\"return ingresoDouble(event,value)\""+
 											" autocomplete=\"off\""+
 											" onchange=\"if(value=='') value=0; calculaLinea('"+arrayDetalle[i][0]+"', '"+arrayDetalle[i][20]+"');\">";
 										

@@ -117,7 +117,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 					                   id="lectActual_@index"
 					                   value="@lista.estadoActual"
 					                   onfocus="value = value.replace(/,/g, ''); auxiliar = value;"
-					                   onkeypress="return ingresoDouble(event, value)"
+					                   onkeydown="return ingresoDouble(event, value)"
 					                   autocomplete="off"
 					                   onchange="if(value == '') value = 0; 
 					                             actualizaAll('@index', '@lista.id_equipo', 'estadoActual', value); 
@@ -138,7 +138,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 							               id="proximaMantencion_@index"
 							               value="@lista.proximaMantencion"
 							               onfocus="value = value.replace(/,/g,'');"
-							               onkeypress="return ingresoDouble(event, value)"
+							               onkeydown="return ingresoDouble(event, value)"
 							               autocomplete="off"
 							               onchange="if(value == '') value = 0; actualizaPlan('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
 							    </td>
@@ -256,7 +256,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 									<input type="text" class="form-control center"
 										value="@det.costoNeto"
 										onfocus="value = value.replace(/,/g,'');" 
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										autocomplete="off"
 										onchange="actualizaPorCampo('@det.id','costoNeto',value);">
 								</td>

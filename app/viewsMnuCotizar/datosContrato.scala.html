@@ -264,7 +264,7 @@ listBodegas: List[List[String]], listProyectos: List[tables.Proyecto])
 								<td style="text-align: left;">NUMERO O.COMPRA:</td>
 								<td style="text-align: left;">
 								  	<input type="text"   name="clienteOC" 	value="@datos.clienteOC" autocomplete="off"
-								  		class="input-large" onkeypress="return sinReservados(event)" style="text-align:left;width:100%" maxlength="50">
+								  		class="input-large" onkeydown="return sinReservados(window.event)" style="text-align:left;width:100%" maxlength="50">
 							    </td>
 							</tr>
 							<tr>

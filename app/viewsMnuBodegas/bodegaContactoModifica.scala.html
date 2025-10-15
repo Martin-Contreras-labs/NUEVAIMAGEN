@@ -23,7 +23,7 @@ contacto: tables.ContactoBodegaEmpresa, bodega: tables.BodegaEmpresa)
 								id="nombre"
 								autocomplete="off"
 								maxlength="100"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								value = "@contacto.getNombre()"
 								onchange="modificarContacto(id)">
 						</td>
@@ -34,7 +34,7 @@ contacto: tables.ContactoBodegaEmpresa, bodega: tables.BodegaEmpresa)
 							<input type="text" class="form-control left"
 								id="cargo"
 								autocomplete="off"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								maxlength="100"
 								value = "@contacto.getCargo()"
 								onchange="modificarContacto(id)">

@@ -5164,7 +5164,7 @@ public class MnuCotizar extends Controller {
 												" id='"+cont+"_cantDespacho_"+detalleDespachado.get(j).get(1)+"_"+detalleDespachado.get(j).get(14)+"' "+
 												" name='cantDespacho[]' " +
 												" onfocus=\"value=value.replace(/,/g,'')\" "+
-												" onkeypress='return ingresoDouble(event,value)' "+
+												" onkeydown='return ingresoDouble(event,value)' "+
 												" onfocusout='value = formatStandar2(value);' "+
 												" onchange='validaCantDespacho("+cont+",value,"+detalleDespachado.get(j).get(1)+","+detalleDespachado.get(j).get(14)+","+stockInicial+","+cantInicial+","+cantDespAgrup+"); value=formatStandar2(value);'>"+
 											"</td>"+
@@ -5174,7 +5174,7 @@ public class MnuCotizar extends Controller {
 												" id='"+cont+"_cantEquivalente' "+
 												" name='cantEquivalente[]' " +
 												" onfocus=\"value=value.replace(/,/g,'')\" "+
-												" onkeypress='return ingresoDouble(event,value)' "+
+												" onkeydown='return ingresoDouble(event,value)' "+
 												" onfocusout='value = formatStandar2(value);' "+
 												" onchange='value=formatStandar2(value); $(\"#seModifico\").val(1)'>"+
 											"</td>"+
@@ -5224,7 +5224,7 @@ public class MnuCotizar extends Controller {
 											" id='"+cont+"_cantDespacho_"+detOrigen.get(i).get(0)+"_0' "+
 											" name='cantDespacho[]' " +
 											" onfocus=\"value=value.replace(/,/g,'')\" "+
-											" onkeypress='return ingresoDouble(event,value)' "+
+											" onkeydown='return ingresoDouble(event,value)' "+
 											" onfocusout='value = formatStandar2(value);' "+
 											" onchange='validaCantDespacho(1,value,"+detOrigen.get(i).get(0)+",0,"+auxStock+",0,0); value=formatStandar2(value);'>"+
 										"</td>"+
@@ -5234,7 +5234,7 @@ public class MnuCotizar extends Controller {
 											" id='"+cont+"_cantEquivalente' "+
 											" name='cantEquivalente[]' " +
 											" onfocus=\"value=value.replace(/,/g,'')\" "+
-											" onkeypress='return ingresoDouble(event,value)' "+
+											" onkeydown='return ingresoDouble(event,value)' "+
 											" onfocusout='value = formatStandar2(value);' "+
 											" onchange='value=formatStandar2(value); $(\"#seModifico\").val(1)'>"+
 										"</td>"+

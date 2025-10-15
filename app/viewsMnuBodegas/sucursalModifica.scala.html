@@ -22,7 +22,7 @@ sucursal: tables.Sucursal)
 										id="nombre"
 										maxlength="50"
 										value="@sucursal.getNombre()"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										onchange="value = value.trim(); modificarSucursal(id)">
 								</div>
 							</div>
@@ -38,7 +38,7 @@ sucursal: tables.Sucursal)
 											value="@(sucursal.getIvaSucursal()*100) %"
 											onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 											onblur = "value = formatPorcentaje(value);"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											onchange="modificarSucursal(id)">
 									</div>
 								</div>
@@ -54,7 +54,7 @@ sucursal: tables.Sucursal)
 										id="ccost"
 										maxlength="50"
 										value="@sucursal.getCcost()"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										onchange="value = value.trim(); modificarHohe(id)">
 									</div>
 								</div>
@@ -68,7 +68,7 @@ sucursal: tables.Sucursal)
 										id="cen_hohe"
 										maxlength="50"
 										value="@sucursal.getCen_hohe()"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										onchange="value = value.trim(); modificarHohe(id)">
 									</div>
 								</div>
@@ -82,7 +82,7 @@ sucursal: tables.Sucursal)
 										id="bod_hohe"
 										maxlength="50"
 										value="@sucursal.getBod_hohe()"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										onchange="value = value.trim(); modificarHohe(id)">
 									</div>
 								</div>
@@ -96,7 +96,7 @@ sucursal: tables.Sucursal)
 										id="ubi_hohe"
 										maxlength="50"
 										value="@sucursal.getUbi_hohe()"
-										onkeypress="return sinReservados(event)"
+										onkeydown="return sinReservados(window.event)"
 										onchange="value = value.trim(); modificarHohe(id)">
 									</div>
 								</div>

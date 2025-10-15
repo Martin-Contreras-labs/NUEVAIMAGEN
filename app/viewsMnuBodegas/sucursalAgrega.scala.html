@@ -20,7 +20,7 @@
 										<input type="text" class="form-control" 
 											name="nombreSucursal" 
 											maxlength="50" 
-											onkeypress="return sinReservados(event)"
+											onkeydown="return sinReservados(window.event)"
 											required>
 									</div>
 								</div>
@@ -36,7 +36,7 @@
 												value="0.00 %"
 												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 												onblur = "value = formatPorcentaje(value);"
-												onkeypress="return ingresoDouble(event,value)">
+												onkeydown="return ingresoDouble(event,value)">
 										</div>
 									</div>
 								}else{
@@ -52,7 +52,7 @@
 											name="ccost"
 											maxlength="50"
 											value=""
-											onkeypress="return sinReservados(event)">
+											onkeydown="return sinReservados(window.event)">
 										</div>
 									</div>
 									<div class="row">
@@ -64,7 +64,7 @@
 											name="cen_hohe"
 											maxlength="50"
 											value=""
-											onkeypress="return sinReservados(event)">
+											onkeydown="return sinReservados(window.event)">
 										</div>
 									</div>
 									<div class="row">
@@ -76,7 +76,7 @@
 											name="bod_hohe"
 											maxlength="50"
 											value=""
-											onkeypress="return sinReservados(event)">
+											onkeydown="return sinReservados(window.event)">
 										</div>
 									</div><div class="row">
 										<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
@@ -87,7 +87,7 @@
 											name="ubi_hohe"
 											maxlength="50"
 											value=""
-											onkeypress="return sinReservados(event)">
+											onkeydown="return sinReservados(window.event)">
 										</div>
 									</div>
 								}

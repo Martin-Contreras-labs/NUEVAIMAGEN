@@ -28,7 +28,7 @@ proveedor: tables.Proveedor, listComunas: List[tables.Comunas], listRegiones: Li
 								id="nombre"
 								autocomplete="off"
 								value="@proveedor.getNombre()"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								maxlength="100"
 								onchange="value = value.trim(); modificarProveedor(id)">
 						</td>
@@ -38,7 +38,7 @@ proveedor: tables.Proveedor, listComunas: List[tables.Comunas], listRegiones: Li
 						<td style="text-align:left;">
 							<input type="text" class="form-control left"
 								id="nickName"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								autocomplete="off"
 								value="@proveedor.getNickName()"
 								maxlength="50"

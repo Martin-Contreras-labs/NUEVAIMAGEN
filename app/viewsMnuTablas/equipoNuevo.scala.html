@@ -48,7 +48,7 @@
 									name="codigo"
 									required
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservCodigos(window.event)"
 									onchange="value = value.replace(/\s/g,'').toUpperCase(); verificaCodigo(value)"
 									maxlength="50">
 							</td>
@@ -58,7 +58,7 @@
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									name="nombre"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									required
 									autocomplete="off"
 									maxlength="100">
@@ -96,7 +96,7 @@
 									autocomplete="off"
 									value="0.00"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeypress="return ingresoDouble(event,value)">
+									onkeydown="return ingresoDouble(event,value)">
 							</td>
 						</tr>
 						<tr>
@@ -107,7 +107,7 @@
 									autocomplete="off"
 									value="0.00"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeypress="return ingresoDouble(event,value)">
+									onkeydown="return ingresoDouble(event,value)">
 							</td>
 						</tr>
 						<tr>
@@ -125,7 +125,7 @@
 											<input type="text" class="form-control left"
 												name="valorAtributos[]"
 												onfocus="value=value.replace(/,/g,'')" 
-												onkeypress="return ingresoDouble(event,value)"
+												onkeydown="return ingresoDouble(event,value)"
 												value="">
 										}
 										@if(lista.getEsNumerico()==0){

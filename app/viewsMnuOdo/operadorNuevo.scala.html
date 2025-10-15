@@ -19,7 +19,7 @@ listUsuarios: List[tables.Usuario])
 									id="rut"
 									required
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									onchange="value=value.replace(/\s/g,'').toUpperCase(); verificaRut(value)"
 									maxlength="25">
 							</td>
@@ -29,7 +29,7 @@ listUsuarios: List[tables.Usuario])
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									name="nombre"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									required
 									autocomplete="off"
 									maxlength="200">
@@ -40,7 +40,7 @@ listUsuarios: List[tables.Usuario])
 							<td style="text-align:left; vertical-align:top">
 								<input type="text" class="form-control left"
 									name="cargo"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									value=""
 									autocomplete="off"
 									maxlength="100">

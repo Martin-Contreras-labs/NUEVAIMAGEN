@@ -21,7 +21,7 @@ contacto: tables.ContactoProyecto, proyecto: tables.Proyecto)
 						<td style="text-align:left;">
 							<input type="text" class="form-control left"
 								id="nombre"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								autocomplete="off"
 								maxlength="100"
 								value = "@contacto.getNombre()"
@@ -33,7 +33,7 @@ contacto: tables.ContactoProyecto, proyecto: tables.Proyecto)
 						<td style="text-align:left;">
 							<input type="text" class="form-control left"
 								id="cargo"
-								onkeypress="return sinReservados(event)"
+								onkeydown="return sinReservados(window.event)"
 								autocomplete="off"
 								maxlength="100"
 								value = "@contacto.getCargo()"

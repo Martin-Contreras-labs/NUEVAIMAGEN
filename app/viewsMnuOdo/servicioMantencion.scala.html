@@ -51,7 +51,7 @@ listServicios: List[List[String]], hoy: utilities.Fechas)
 										id="precio_@lista1.get(8)"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; formateaPrecio(id, '@lista1.get(7)');"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										value = "@lista1.get(5)"
 										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.get(8)',id, value, 'precio'); formateaPrecio(id,'@lista1.get(7)');">
 										
@@ -69,7 +69,7 @@ listServicios: List[List[String]], hoy: utilities.Fechas)
 										id="cantMinimo_@lista1.get(8)"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; formateaPrecio(id, '2');"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										value = "@lista1.get(9)"
 										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.get(8)',id, value, 'cantMinimo'); formateaPrecio(id,'2');">
 										
@@ -82,7 +82,7 @@ listServicios: List[List[String]], hoy: utilities.Fechas)
 										id="precioAdicional_@lista1.get(8)"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; formateaPrecio(id, '@lista1.get(7)');"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										value = "@lista1.get(10)"
 										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.get(8)',id, value, 'precioAdicional'); formateaPrecio(id,'@lista1.get(7)');">
 										

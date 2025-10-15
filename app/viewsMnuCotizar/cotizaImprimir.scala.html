@@ -90,7 +90,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo], tasaIva: Str
 									name="cfi"
 									value="0.00 %"
 									onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									autocomplete="off"
 									onchange="value = formatPorcentaje(value);">
 							</div>
@@ -105,7 +105,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo], tasaIva: Str
 										name="tasaIva"
 										value="@tasaIva"
 										onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
-										onkeypress="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(event,value)"
 										autocomplete="off"
 										onchange="value = formatPorcentaje(value);">
 								</div>
@@ -160,7 +160,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo], tasaIva: Str
 									name="tipoCambio"
 									value="1.00"
 									onfocus="value = value.replace(/,/g,'').trim()"
-									onkeypress="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(event,value)"
 									autocomplete="off"
 									onchange="value = formatStandar(value, 2);">
 							</div>
@@ -196,7 +196,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo], tasaIva: Str
 								  		<input type="text" class="form-control center"
 											value="@tasaIva"
 											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="value = formatPorcentaje(value); $('#tasaIvaArrVta').val(value);">
 									</div>
@@ -250,7 +250,7 @@ id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo], tasaIva: Str
 								  		<input type="text" class="form-control center"
 											value="@tasaIva"
 											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
-											onkeypress="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(event,value)"
 											autocomplete="off"
 											onchange="value = formatPorcentaje(value); $('#tasaIvaVta').val(value);">
 									</div>

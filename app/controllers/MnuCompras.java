@@ -448,7 +448,7 @@ public class MnuCompras extends Controller {
 								"id=\"precioVenta\" " +
 								"value=\""+precio.getPrecioVenta()+"\" " +
 								"onfocus=\"value=value.replace(/,/g,'')\" " +
-								"onkeypress=\"return ingresoDouble(event,value)\" " +
+								"onkeydown=\"return ingresoDouble(event,value)\" " +
 								"onchange='cambiarPrecio("+id_sucursal+","+precio.getId_equipo()+",\"precioVenta\",value)'>"+
 							"</td>"+
 						"</TR>"+
@@ -466,7 +466,7 @@ public class MnuCompras extends Controller {
 								"id=\"precioArriendo\" " +
 								"value=\""+precio.getPrecioArriendo()+"\" " +
 								"onfocus=\"value=value.replace(/,/g,'')\" " +
-								"onkeypress=\"return ingresoDouble(event,value)\" " +
+								"onkeydown=\"return ingresoDouble(event,value)\" " +
 								"onchange='cambiarPrecio("+id_sucursal+","+precio.getId_equipo()+",\"precioArriendo\",value)'>"+
 							"</td>"+
 						"</TR>"+
@@ -487,7 +487,7 @@ public class MnuCompras extends Controller {
 								"id=\"precioMinimo\" " +
 								"value=\""+precio.getPrecioMinimo()+"\" " +
 								"onfocus=\"value=value.replace(/,/g,'')\" " +
-								"onkeypress=\"return ingresoDouble(event,value)\" " +
+								"onkeydown=\"return ingresoDouble(event,value)\" " +
 								"onchange='cambiarPrecio("+id_sucursal+","+precio.getId_equipo()+",\"precioMinimo\",value)'>"+
 							"</td>"+
 						"</TR>"+
@@ -498,7 +498,7 @@ public class MnuCompras extends Controller {
 								"id=\"permanenciaMinima\" " +
 								"value=\""+precio.getPermanenciaMinima()+"\" " +
 								"onfocus=\"value=value.replace(/,/g,'')\" " +
-								"onkeypress=\"return ingresoInt(event)\" " +
+								"onkeydown=\"return ingresoInt(event)\" " +
 								"onchange='cambiarPrecio("+id_sucursal+","+precio.getId_equipo()+",\"permanenciaMinima\",value)'>"+
 							"</td>"+
 						"</TR>"+
@@ -747,7 +747,10 @@ public class MnuCompras extends Controller {
 					Map<String, Unidad> mapUnidad = Unidad.mapPorNombre(con, s.baseDato);
 					String selEquipos = "";
 					for (List<String> l : listaExcel) {
+
 						String codEquipo = l.get(1);
+						codEquipo = codEquipo.replaceAll("[/\\\\,'`\"_\\s]", "");
+
 						if (codEquipo != null) {
 							codEquipo = codEquipo.trim().toUpperCase();
 						}

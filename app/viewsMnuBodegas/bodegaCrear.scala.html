@@ -95,7 +95,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 									id="nombre"
 									name="nombre"
 									autocomplete="off"
-									onkeypress="return sinReservados(event)"
+									onkeydown="return sinReservados(window.event)"
 									maxlength="100"
 									onchange="value = value.trim(); verificaNombre(value);"
 									required>
@@ -207,7 +207,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 												value="0.00 %"
 												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 												onblur = "value = formatPorcentaje(value);"
-												onkeypress="return ingresoDouble(event,value)">
+												onkeydown="return ingresoDouble(event,value)">
 										</td>
 									</tr>
 									<tr>
@@ -283,7 +283,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 													value="0.00 %"
 													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 													onblur = "value = formatPorcentaje(value);"
-													onkeypress="return ingresoDouble(event,value)">
+													onkeydown="return ingresoDouble(event,value)">
 											</td>
 										</tr>
     								}
@@ -304,7 +304,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 												name="nDiasEnvio"
 												autocomplete="off"
 												value="0"
-												onkeypress="return ingresoInt(event)"
+												onkeydown="return ingresoInt(event)"
 												onchange="if(value=='') value=0;">
 										</td>
 									</tr>
@@ -315,7 +315,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 												name="nDiasRegreso"
 												autocomplete="off"
 												value="0"
-												onkeypress="return ingresoInt(event)"
+												onkeydown="return ingresoInt(event)"
 												onchange="if(value=='') value=0;">
 										</td>
 									</tr>
@@ -592,7 +592,7 @@ listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: S
 		cell.innerHTML = "<input type=\"text\" class=\"form-control right\" "+
 			"name=\"tasaCambio[]\" "+
 			"value=\"0\" "+
-			"onkeypress=\"return ingresoDouble(event,value)\" "+
+			"onkeydown=\"return ingresoDouble(event,value)\" "+
 			"onchange=\"if(value.trim() == '') value='0';\" "+
 			"autocomplete=\"off\" \">";
 		

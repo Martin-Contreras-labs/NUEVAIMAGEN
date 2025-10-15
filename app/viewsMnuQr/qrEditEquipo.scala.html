@@ -42,7 +42,7 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 									<input type="text" class="form-control center"
 										id="orden"
 										value="@lista.orden"
-										onkeypress="return ingresoInt(event)"
+										onkeydown="return ingresoInt(event)"
 										onchange="if(value.trim().length==0) value=0; actualizaPorCampo('@lista.id_qrAtributoEquipo', id, value)">
 								</td>
 								<td width="20%" style="text-align:left;"><b>@lista.campo</b></td>
@@ -202,7 +202,7 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 								"<input type='text' class='form-control center' "+
 										" id='orden' "+
 										" value='"+respuesta.orden+"' "+
-										" onkeypress='return ingresoInt(event)' "+
+										" onkeydown='return ingresoInt(event)' "+
 										" onchange='if(value.trim().length==0) value=0;actualizaPorCampo("+idCampo+",id,value)'>";
 		     			agregarLinea();
 		     		}else{
