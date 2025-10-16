@@ -116,7 +116,7 @@
 								autocomplete="off"
 								value="@equipo.getKg()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="modificarEquipo(id); value = formatStandar(value,2);">
 						</td>
 					</tr>
@@ -128,7 +128,7 @@
 								autocomplete="off"
 								value="@equipo.getM2()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="modificarEquipo(id); value = formatStandar(value,2);">
 						</td>
 					</tr>
@@ -149,7 +149,7 @@
 										id="atrib_@lista.getId()"
 										value="@lista.getValorEnEquipo()"
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										onchange="modificarAtributo(id, '@lista.getEsNumerico')">
 								}else{
 									<input type="text" class="form-control left"

@@ -51,7 +51,7 @@ decMon: Long, hoy: utilities.Fechas)
 										value = "@lista1.getPrecioSTR()"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, '@decMon');"
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.getId_bodegaEmpresa()','@lista1.getId_servicio','@utilities.Fechas.AAMMDD(lista1.fecha)',value,'@lista1.getId_cotiOdo'); value = formatStandar(value, '@decMon');">
 								</td>
 								<td style="text-align:center;">
@@ -116,7 +116,7 @@ decMon: Long, hoy: utilities.Fechas)
 										name="precio"
 										onfocus="value=value.replace(/,/g,'')" 
 										onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, '@decMon');"
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										onchange="if(value.trim()=='') value=0; value = formatStandar(value,'@decMon');"
 										autocomplete="off"
 										required>

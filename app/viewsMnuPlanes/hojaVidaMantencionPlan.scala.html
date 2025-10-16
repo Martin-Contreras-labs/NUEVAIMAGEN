@@ -113,7 +113,7 @@ allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: L
 									id="lectActual_@index"
 									value="@lista.estadoActual"
 									onfocus="value = value.replace(/,/g,''); auxiliar = value;" 
-									onkeydown="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(window.event)"
 									autocomplete="off"
 									onchange="if(value=='') value=0;
 										actualizaAll('@index', '@lista.id_equipo', 'estadoActual', value);">

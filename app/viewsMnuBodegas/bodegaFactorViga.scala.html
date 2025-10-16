@@ -36,7 +36,7 @@ listBodegas: List[List[String]])
 									<input type="text" class="form-control height23px width120px right"
 										value="@lista1.get(12)"
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										onchange="grabar('@lista1.get(1)',value); value = formatStandar(value,4);">
 								</td>
 							</TR>

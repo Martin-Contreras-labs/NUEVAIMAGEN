@@ -59,7 +59,7 @@ tipoReparacion: tables.TipoReparacion, tipoEstado: tables.TipoEstado, listMoneda
 								id="precio"
 								value="@tipoReparacion.getPrecio()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="if(value.trim()=='') value=0; modificarTipoReparacion(id)">	
 						</td>
 					</tr>

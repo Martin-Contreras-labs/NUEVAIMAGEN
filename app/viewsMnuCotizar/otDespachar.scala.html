@@ -68,7 +68,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 							  				name="numeroGuia"
 											id="numeroGuia"
 											value = "@nuevoNumeroGuia"
-											onkeydown="return ingresoInt(event)"
+											onkeydown="return ingresoInt(window.event)"
 											onchange="verificarNumeroGuia(value)"
 											autocomplete="off"
 											required>
@@ -530,7 +530,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 				" name='cantDespacho[]' " +
 				" value='"+formatStandar2(saldo)+"'"+
 				" onfocus=\"value=value.replace(/,/g,'')\" "+
-				" onkeydown='return ingresoDouble(event,value)' "+
+				" onkeydown='return ingresoDouble(window.event)' "+
 				" onfocusout='value = formatStandar2(value);'"+
 				" onchange='validaCantDespacho("+cont+",value,"+id_equipo+","+id_cotizacion+","+stockInicial+"); value=formatStandar2(value);'>";
 		
@@ -542,7 +542,7 @@ listaTransporte: List[tables.Transportista], id_comercial: Long)
 			" name='cantEquivalente[]' " +
 			" value='"+formatStandar2(saldo)+"'"+
 			" onfocus=\"value=value.replace(/,/g,'')\" "+
-			" onkeydown='return ingresoDouble(event,value)' "+
+			" onkeydown='return ingresoDouble(window.event)' "+
 			" onfocusout='value = formatStandar2(value);'"+
 			" onchange='value=formatStandar2(value);'>";
 	

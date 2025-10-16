@@ -256,7 +256,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 									<input type="text" class="form-control center"
 										value="@det.costoNeto"
 										onfocus="value = value.replace(/,/g,'');" 
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										autocomplete="off"
 										onchange="actualizaPorCampo('@det.id','costoNeto',value);">
 								</td>

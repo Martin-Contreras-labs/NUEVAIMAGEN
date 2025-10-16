@@ -89,7 +89,7 @@ listClases: List[tables.ClaseServicio], listUnidades: List[tables.UnidadServicio
 									value = "@servicio.getPrecio()"
 									onfocus="value=value.replace(/,/g,'')" 
 									onfocusout = "if(value.trim()=='') value=0; formateaPrecio($('#id_moneda').val());"
-									onkeydown="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(window.event)"
 									onchange="if(value.trim()=='') value=0; formateaPrecio($('#id_moneda').val()); $('#cambioElprecio').val('1');">
 							</td>
 						</tr>

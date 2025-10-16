@@ -208,7 +208,7 @@ listComponentes: List[tables.MantComponente])
 							onClick="this.select();"
 							onfocus="value=value.replace(/,/g,'')" 
 							onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
-							onkeydown="return ingresoDouble(event,value)"
+							onkeydown="return ingresoDouble(window.event)"
 							onchange="validarLectIni_mecP()"
 							autocomplete="off"
 							required disabled>
@@ -222,7 +222,7 @@ listComponentes: List[tables.MantComponente])
 							onClick="this.select();"
 							onfocus="value=value.replace(/,/g,'')" 
 							onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
-							onkeydown="return ingresoDouble(event,value)"
+							onkeydown="return ingresoDouble(window.event)"
 							onchange="validarLectTer_mecP()"
 							autocomplete="off"
 							required disabled>
@@ -239,7 +239,7 @@ listComponentes: List[tables.MantComponente])
 							onClick="this.select();"
 							onfocus="value=value.replace(/,/g,'')" 
 							onfocusout = "if(value.trim()=='') value=0; value = formatStandar(value, 2);"
-							onkeydown="return ingresoDouble(event,value)"
+							onkeydown="return ingresoDouble(window.event)"
 							onchange="if(value.trim()=='') value=formatStandar(0,2);"
 							autocomplete="off"
 							required disabled>

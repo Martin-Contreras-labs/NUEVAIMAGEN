@@ -63,7 +63,7 @@ fechaDesde: String, fechaHasta: String, tasas: tables.TasasCambio)
 											id="uf"
 											value="@tasas.getClpUf()"
 											onfocus="value=value.replace(/,/g,''); cantAux = value;" 
-											onkeydown="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(window.event)"
 											autocomplete="off"
 											onchange="if(value=='') value=1; value=formatStandar(value,2);"
 											required>
@@ -80,7 +80,7 @@ fechaDesde: String, fechaHasta: String, tasas: tables.TasasCambio)
 										id="usd"
 										value="@tasas.getClpUsd()"
 										onfocus="value=value.replace(/,/g,''); cantAux = value;" 
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										autocomplete="off"
 										onchange="if(value=='') value=1; value=formatStandar(value,2);"
 										required>
@@ -94,7 +94,7 @@ fechaDesde: String, fechaHasta: String, tasas: tables.TasasCambio)
 										id="eur"
 										value="@tasas.getClpEur()"
 										onfocus="value=value.replace(/,/g,''); cantAux = value;" 
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 										autocomplete="off"
 										onchange="if(value=='') value=1; value=formatStandar(value,2);"
 										required>

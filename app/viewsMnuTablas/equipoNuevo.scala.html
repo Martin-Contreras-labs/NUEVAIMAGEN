@@ -96,7 +96,7 @@
 									autocomplete="off"
 									value="0.00"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeydown="return ingresoDouble(event,value)">
+									onkeydown="return ingresoDouble(window.event)">
 							</td>
 						</tr>
 						<tr>
@@ -107,7 +107,7 @@
 									autocomplete="off"
 									value="0.00"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeydown="return ingresoDouble(event,value)">
+									onkeydown="return ingresoDouble(window.event)">
 							</td>
 						</tr>
 						<tr>
@@ -125,7 +125,7 @@
 											<input type="text" class="form-control left"
 												name="valorAtributos[]"
 												onfocus="value=value.replace(/,/g,'')" 
-												onkeydown="return ingresoDouble(event,value)"
+												onkeydown="return ingresoDouble(window.event)"
 												value="">
 										}
 										@if(lista.getEsNumerico()==0){

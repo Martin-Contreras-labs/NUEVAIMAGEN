@@ -49,7 +49,7 @@ bodega: tables.BodegaEmpresa, listGrupo: List[tables.Grupo], numDecimales: Long)
 									name="total"
 									value="0"
 									onfocus="value=value.replace(/,/g,'')" 
-									onkeydown="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(window.event)"
 									onchange="if(value.trim()=='') value = 0; value = formatStandar(value,'@numDecimales');">
 						    </td>
 						</tr>

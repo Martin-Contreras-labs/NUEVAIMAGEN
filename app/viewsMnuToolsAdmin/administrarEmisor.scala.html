@@ -59,7 +59,7 @@ emisor: tables.EmisorTributario)
 										value="@emisor.actividadEconomica"
 								  		autocomplete="off" 
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeydown="return ingresoInt(event)"
+										onkeydown="return ingresoInt(window.event)"
 								  		maxlength="6">
 							    </td>
 							</tr>
@@ -121,7 +121,7 @@ emisor: tables.EmisorTributario)
 										value="@emisor.tasaIva"
 								  		autocomplete="off" 
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeydown="return ingresoDouble(event,value)"
+										onkeydown="return ingresoDouble(window.event)"
 								  		maxlength="5">
 							    </td>
 							</tr>
@@ -142,7 +142,7 @@ emisor: tables.EmisorTributario)
 										name="fonoFijo" value="@emisor.fonoFijo"
 								  		autocomplete="off" 
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeydown="return ingresoInt(event)"
+										onkeydown="return ingresoInt(window.event)"
 								  		maxlength="20">
 							    </td>
 							</tr>
@@ -154,7 +154,7 @@ emisor: tables.EmisorTributario)
 										value="@emisor.fonoMovil"
 								  		autocomplete="off" 
 										onfocus="value=value.replace(/,/g,'')" 
-										onkeydown="return ingresoInt(event)"
+										onkeydown="return ingresoInt(window.event)"
 								  		maxlength="20">
 							    </td>
 							</tr>

@@ -77,7 +77,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 								  				id="numeroCoti"
 												name="numeroCoti"
 												value = "@formCotiza.numeroCoti"
-												onkeydown="return ingresoInt(event,value)"
+												onkeydown="return ingresoInt(window.event)"
 												onchange="if(value.trim()==''){value='@formCotiza.numeroCoti';}else{validarNumero(value);}">
 									</div>
 								</td>
@@ -380,7 +380,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 											id="tasaGlobal"
 											value="0.00 %"
 											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
-											onkeydown="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(window.event)"
 											autocomplete="off"
 											onchange="value = formatPorcentaje(value); if(value=='') {value='0.00 %';}">
 									</div>
@@ -413,7 +413,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 											id="permGlobal"
 											value="0.00"
 											onfocus="value = value.replace(/,/g,'')"
-											onkeydown="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(window.event)"
 											autocomplete="off"
 											onchange="value = formatStandar(value,2); if(value=='') {value='0.00';}">
 									</div>
@@ -728,7 +728,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 					+ " style='background-color: #ffc107'"
 					+ " id=\"btnAplicarFactorRepos\""
 					+ " value=\"1.00\""
-					+ " onkeydown=\"return ingresoDouble(event,value)\""
+					+ " onkeydown=\"return ingresoDouble(window.event)\""
 					+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
 					+ " onchange=\"if(value=='' || value==0) {"
 							+ " value = formatStandar(factorVta,2);"
@@ -747,7 +747,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 						+ " style='background-color: #ffc107'"
 						+ " id=\"btnAplicarFactorArr\""
 						+ " value=\"1.00\""
-						+ " onkeydown=\"return ingresoDouble(event,value)\""
+						+ " onkeydown=\"return ingresoDouble(window.event)\""
 						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
 						+ " onchange=\"if(value=='' || value==0) {"
 							+ " value = formatStandar(factorArr,2);"
@@ -819,7 +819,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 					+ "value=\""+jsonDetalle[i][10]+"\""
 					+ "onfocus=\"value=value.replace(/,/g,''); cantAux = value;\" "
 					+ "onblur = \"value = formatStandar(value, '2');\""
-					+ "onkeydown=\"return ingresoDouble(event,value)\""
+					+ "onkeydown=\"return ingresoDouble(window.event)\""
 					+ "autocomplete=\"off\""
 					+ "onchange=\"if(value=='') value=0; calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
 					+ "</td>"
@@ -861,7 +861,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 							+ "value=\""+jsonDetalle[i][5]+"\""
 							+ "onfocus=\"value=value.replace(/,/g,'');\" "
 							+ "onblur = \"calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\""
-							+ "onkeydown=\"return ingresoDouble(event,value)\""
+							+ "onkeydown=\"return ingresoDouble(window.event)\""
 							+ "autocomplete=\"off\" "
 							+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">";
 						}
@@ -879,7 +879,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 						+ "value=\""+jsonDetalle[i][24]+"\""
 						+ "onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
 						+ "onblur = \"value = formatPorcentaje(value);\""
-						+ "onkeydown=\"return ingresoDouble(event,value)\""
+						+ "onkeydown=\"return ingresoDouble(window.event)\""
 						+ "autocomplete=\"off\""
 						+ "onchange=\"if(value=='') {value='0.00 %';} else {calculaTasa(2,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">"
 						+ "</td>"
@@ -891,7 +891,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 						+ "value=\""+jsonDetalle[i][7]+"\""
 						+ "onfocus=\"value=value.replace(/,/g,'');\" "
 						+ "onblur = \"calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\""
-						+ "onkeydown=\"return ingresoDouble(event,value)\""
+						+ "onkeydown=\"return ingresoDouble(window.event)\""
 						+ "autocomplete=\"off\""
 						+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">"
 						+ "</td>"
@@ -903,7 +903,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 						+ "value=\""+jsonDetalle[i][12]+"\""
 						+ "onfocus=\"value=value.replace(/,/g,'');\" "
 						+ "onblur = \"$('#hiddenpermanencia_"+jsonDetalle[i][0]+"').text(value); value = formatStandar(value, '2');\""
-						+ "onkeydown=\"return ingresoDouble(event,value)\""
+						+ "onkeydown=\"return ingresoDouble(window.event)\""
 						+ "autocomplete=\"off\""
 						+ "onchange=\"if(value=='') value=0; calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
 						+ "</td>"
@@ -955,7 +955,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 				+ "value=\"@formCotiza.dctoArriendo %\""
 				+ "onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\" "
 				+ "onblur = \"value = formatPorcentaje(value);\""
-				+ "onkeydown=\"return ingresoDouble(event,value)\""
+				+ "onkeydown=\"return ingresoDouble(window.event)\""
 				+ "onchange=\"sumaTotales(); dctoObligado=1;\">"
 				+ "</td>"
 				+ "</TH>"
@@ -966,7 +966,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 				+ "value=\"@formCotiza.dctoVenta %\""
 				+ "onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\" "
 				+ "onblur = \"value = formatPorcentaje(value);\""
-				+ "onkeydown=\"return ingresoDouble(event,value)\""
+				+ "onkeydown=\"return ingresoDouble(window.event)\""
 				+ "onchange=\"sumaTotales(); dctoObligado=1;\">"
 				+ "</td>"
 				+ "</TH>"

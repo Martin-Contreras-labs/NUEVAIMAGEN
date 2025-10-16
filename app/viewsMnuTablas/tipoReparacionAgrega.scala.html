@@ -59,7 +59,7 @@ tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
 									name="precio"
 									value="0"
 									onchange="if(value.trim()=='') value=0"
-									onkeydown="return ingresoDouble(event,value)">	
+									onkeydown="return ingresoDouble(window.event)">	
 							</td>
 						</tr>
 						<tr>

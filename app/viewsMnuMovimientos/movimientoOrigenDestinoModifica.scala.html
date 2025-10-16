@@ -72,7 +72,7 @@ sinVenta: String)
 											  				name="numeroGuia"
 															id="numeroGuia"
 															value = "@guia.getNumero()"
-															onkeydown="return ingresoInt(event)"
+															onkeydown="return ingresoInt(window.event)"
 															onchange="verificarNumeroGuia(value)"
 															autocomplete="off"
 															required>
@@ -305,7 +305,7 @@ sinVenta: String)
 												id="cantidad_@lista1.get(0)_@lista1.get(1)"
 												value="@lista1.get(10)"
 												onfocus="value=value.replace(/,/g,''); cantAux = value;" 
-												onkeydown="return ingresoDouble(event,value)"
+												onkeydown="return ingresoDouble(window.event)"
 												autocomplete="off"
 												onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)',value,'@lista1.get(6)','@lista1.get(7)','@listTipoEstado.size()');">
 										</div>
@@ -401,7 +401,7 @@ sinVenta: String)
 														id="estado_@lista1.get(0)_@lista1.get(1)_@index"
 														value="0.00"
 														onfocus="value=value.replace(/,/g,'')" 
-														onkeydown="return ingresoDouble(event,value)"
+														onkeydown="return ingresoDouble(window.event)"
 														autocomplete="off"
 														ondblclick = "if(value>0 && '@est.getReparable()'=='1') editaReparaciones('@index','@listTipoEstado.size()','@lista1.get(0)','@lista1.get(1)',value,'@est.getReparable()','@est.getId()')"
 														onchange="if(value=='') {
@@ -431,7 +431,7 @@ sinVenta: String)
 														id="cantCliente_@lista1.get(0)_@lista1.get(1)"
 														value="@lista1.get(18)"
 														onfocus="value=value.replace(/,/g,''); cantAux = value;" 
-														onkeydown="return ingresoDouble(event,value)"
+														onkeydown="return ingresoDouble(window.event)"
 														autocomplete="off"
 														onchange="if(value=='') value=0; actualizaCantCliente('@lista1.get(0)', '@lista1.get(1)')">
 												</div>
@@ -1007,7 +1007,7 @@ sinVenta: String)
 							" id=\"cantidad_"+id_equipo+"_0\" "+
 							" value=\"0.00\" "+
 							" onfocus=\"value=value.replace(/,/g,\'\'); cantAux = value;\" "+
-							" onkeydown=\"return ingresoDouble(event,value)\" "+
+							" onkeydown=\"return ingresoDouble(window.event)\" "+
 							" autocomplete='off' "+
 							" onchange=\"if(value=='') value=0; verificaCantidad("+id_equipo+",'0',value,'"+KG+"','"+M2+"',@listTipoEstado.size());\"></div>";
 		let esVenta = "<input type='hidden' name='esVenta[]' id=\"esVenta_"+id_equipo+"_0\" value='0'>"+
@@ -1041,7 +1041,7 @@ sinVenta: String)
 								" id=\"cantCliente_"+id_equipo+"_0\" "+
 								" value=\"0.00\" "+
 								" onfocus=\"value=value.replace(/,/g,\'\');\" "+
-								" onkeydown=\"return ingresoDouble(event,value)\" "+
+								" onkeydown=\"return ingresoDouble(window.event)\" "+
 								" autocomplete='off' "+
 								" onchange=\"if(value=='') value=0; actualizaCantCliente("+id_equipo+",'0');\"></div>",
 								
@@ -1334,7 +1334,7 @@ sinVenta: String)
 					    				"<input type='text' class='form-control right width80px' "+
 										" value='"+formatStandar(reparNiv2[2],2)+"' "+ 
 										" onfocus=\"value=value.replace(/,/g,'')\"  "+
-										" onkeydown='return ingresoDouble(event,value)' "+
+										" onkeydown='return ingresoDouble(window.event)' "+
 										" autocomplete='off' "+
 										" onchange='modificaReparacion("+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+reparNiv2[1]+",value)'>"+
 				    				"</td>"+
@@ -1410,7 +1410,7 @@ sinVenta: String)
 		    		cell.innerHTML = "<input type='text' class='form-control right width80px' "+
 							" value='0.00' "+
 							" onfocus=\"value=value.replace(/,/g,'')\"  "+
-							" onkeydown='return ingresoDouble(event,value)' "+
+							" onkeydown='return ingresoDouble(window.event)' "+
 							" autocomplete='off' "+
 							" onchange='modificaReparacion("+id_equipo+","+id_cotizacion+","+id_tipoEstado+","+id_reparacion+",value)'>";
 					cell = row.insertCell(5);

@@ -64,7 +64,7 @@ sucursal: tables.Sucursal)
 								id="PV_@lista2.getId_equipo()"
 								value="@lista2.getPrecioVenta()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()')">
 						</td>
 						<td>
@@ -80,7 +80,7 @@ sucursal: tables.Sucursal)
 								id="PA_@lista2.getId_equipo()"
 								value="@lista2.getPrecioArriendo()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()')">	
 						</td>
 						<td>
@@ -103,7 +103,7 @@ sucursal: tables.Sucursal)
 								id="PM_@lista2.getId_equipo()"
 								value="@lista2.getPrecioMinimo()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()')">
 						</td>
 						<td>
@@ -112,7 +112,7 @@ sucursal: tables.Sucursal)
 								id="PE_@lista2.getId_equipo()"
 								value="@lista2.getPermanenciaMinima()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoInt(event)"
+								onkeydown="return ingresoInt(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()')">									
 						</td>
 					</tr>

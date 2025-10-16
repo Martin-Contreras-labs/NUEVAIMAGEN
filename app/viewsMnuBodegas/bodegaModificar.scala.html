@@ -208,7 +208,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 												autocomplete="off"
 												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 												onblur = "value = formatPorcentaje(value);"
-												onkeydown="return ingresoDouble(event,value)">
+												onkeydown="return ingresoDouble(window.event)">
 										</td>
 									</tr>
 									<tr>
@@ -258,7 +258,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 																	<input type="text" class="form-control right"
 																		name="tasaCambio[]"
 																		value="@lista.get(1)"
-																		onkeydown="return ingresoDouble(event,value)"
+																		onkeydown="return ingresoDouble(window.event)"
 																		onchange="if(value.trim() == '') value='0';"
 																		autocomplete="off">
 																</td>
@@ -309,7 +309,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 													autocomplete="off"
 													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
 													onblur = "value = formatPorcentaje(value);"
-													onkeydown="return ingresoDouble(event,value)">
+													onkeydown="return ingresoDouble(window.event)">
 											</td>
 										</tr>
 									}
@@ -331,7 +331,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 												name="nDiasEnvio"
 												value="@bodega.getnDiaGraciaEnvio()"
 												autocomplete="off"
-												onkeydown="return ingresoInt(event)"
+												onkeydown="return ingresoInt(window.event)"
 												onchange="if(value=='') value=0;">
 										</td>
 									</tr>
@@ -342,7 +342,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 												name="nDiasRegreso"
 												value="@bodega.getnDiaGraciaRegreso()"
 												autocomplete="off"
-												onkeydown="return ingresoInt(event)"
+												onkeydown="return ingresoInt(window.event)"
 												onchange="if(value=='') value=0;">
 										</td>
 									</tr>
@@ -605,7 +605,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 		cell.innerHTML = "<input type=\"text\" class=\"form-control right\" "+
 			"name=\"tasaCambio[]\" "+
 			"value=\"0\" "+
-			"onkeydown=\"return ingresoDouble(event,value)\" "+
+			"onkeydown=\"return ingresoDouble(window.event)\" "+
 			"onchange=\"if(value.trim() == '') value='0';\" "+
 			"autocomplete=\"off\" \">";
 		

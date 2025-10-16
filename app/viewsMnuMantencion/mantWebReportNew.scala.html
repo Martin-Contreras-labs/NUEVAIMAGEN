@@ -838,7 +838,7 @@
 		$('#id_componenteC0').val(id_componente);
 		document.getElementById('divCantidadC0').innerHTML=
 			"<input type='text' class='form-control form-control-sm' id='cantidadC"+id_componente+"' name='cantidadC[]' style='text-align:right;'"+
-			" onfocus=\"value=value.replace(/,/g,'')\" onkeydown='return ingresoDouble(event,value)' onChange='value=formatStandar2(value);' value='1.00' required>";
+			" onfocus=\"value=value.replace(/,/g,'')\" onkeydown='return ingresoDouble(window.event)' onChange='value=formatStandar2(value);' value='1.00' required>";
 		document.getElementById('componenteC0').innerHTML="<input type='text' class='form-control form-control-sm' value='"+componente+"' readonly>";
 		document.getElementById('delLineaC0').innerHTML="<a href='#' onclick='eliminarLineaC(this,"+id_componente+")'><kbd style='background-color:red'>X</kbd></a>";
 		document.getElementById('tdId_componenteC0').innerHTML=id_componente;
@@ -915,7 +915,7 @@
 		$('#id_componenteP0').val(id_componente);
 		document.getElementById('divCantidadP0').innerHTML=
 			"<input type='text' class='form-control form-control-sm' id='cantidadP"+id_componente+"' name='cantidadP[]' style='text-align:right;'"+
-			" onfocus=\"value=value.replace(/,/g,'')\" onkeydown='return ingresoDouble(event,value)' onChange='value=formatStandar2(value);' value='1.00' required>";
+			" onfocus=\"value=value.replace(/,/g,'')\" onkeydown='return ingresoDouble(window.event)' onChange='value=formatStandar2(value);' value='1.00' required>";
 		document.getElementById('componenteP0').innerHTML="<input type='text' class='form-control form-control-sm' value='"+componente+"' readonly>";
 		document.getElementById('delLineaP0').innerHTML="<a href='#' onclick='eliminarLineaP(this,"+id_componente+")'><kbd style='background-color:red'>X</kbd></a>";
 		document.getElementById('tdId_componenteP0').innerHTML=id_componente;

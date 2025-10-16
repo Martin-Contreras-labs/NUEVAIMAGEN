@@ -53,7 +53,7 @@ bodegaEmpresa: tables.BodegaEmpresa, hoy: utilities.Fechas, listAjustes: List[ta
 								<input type="text" class="form-control left"
 									name="totalAjuste"
 									onfocus="value = value.replace(/,/g,'');" 
-									onkeydown="return ingresoDouble(event,value)"
+									onkeydown="return ingresoDouble(window.event)"
 									autocomplete="off"
 									onchange="if(value=='') value=0; value = formatStandar(value,'@numDec');"
 									required>

@@ -107,7 +107,7 @@ actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
 											id="cantidad_@lista1.get(0)_@lista1.get(1)"
 											value="@lista1.get(13)"
 											onfocus="value=value.replace(/,/g,''); cantAux = value;"
-											onkeydown="return ingresoDouble(event,value)"
+											onkeydown="return ingresoDouble(window.event)"
 											autocomplete="off"
 											onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)', value);">
 									</td>

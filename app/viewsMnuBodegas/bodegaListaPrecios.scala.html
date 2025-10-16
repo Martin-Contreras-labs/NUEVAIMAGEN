@@ -55,7 +55,7 @@ bodega: tables.BodegaEmpresa, listPrecio: List[tables.ListaPrecio], listMoneda: 
 								id="PV_@lista2.getId_equipo()@lista2.getId_cotizacion()"
 								value="@lista2.getPrecioVenta()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()','@lista2.getId_cotizacion()')">
 						</td>
 						<td>
@@ -71,7 +71,7 @@ bodega: tables.BodegaEmpresa, listPrecio: List[tables.ListaPrecio], listMoneda: 
 								id="PA_@lista2.getId_equipo()@lista2.getId_cotizacion()"
 								value="@lista2.getPrecioArriendo()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()','@lista2.getId_cotizacion()')">	
 						</td>
 						<td>
@@ -90,7 +90,7 @@ bodega: tables.BodegaEmpresa, listPrecio: List[tables.ListaPrecio], listMoneda: 
 								id="PM_@lista2.getId_equipo()@lista2.getId_cotizacion()"
 								value="@lista2.getPrecioMinimo()"
 								onfocus="value=value.replace(/,/g,'')" 
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()','@lista2.getId_cotizacion()')">
 						</td>
 						<td>
@@ -99,7 +99,7 @@ bodega: tables.BodegaEmpresa, listPrecio: List[tables.ListaPrecio], listMoneda: 
 								id="PE_@lista2.getId_equipo()@lista2.getId_cotizacion()"
 								value="@lista2.getPermanenciaMinima()"
 								onfocus="value=value.replace(/,/g,'')"
-								onkeydown="return ingresoDouble(event,value)"
+								onkeydown="return ingresoDouble(window.event)"
 								onchange="grabar(id,value,'@lista2.getId_equipo()','@lista2.getId_cotizacion()')">									
 						</td>
 					</tr>
