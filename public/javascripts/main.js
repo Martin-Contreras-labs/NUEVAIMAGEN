@@ -107,36 +107,118 @@ function formatPorcentaje(valor){
 	return(formato.format(valor)+" %");
 }
 
-function ingresoDouble (e,valor) {
-    k = (document.getElementById) ? e.keyCode : e.which;
-    if (k==8 || k==0) return true;
-    if (k==46&&valor.indexOf('.')==-1) return true;
-    if (k==13) return true;
-    patron = /\d/;
-    n = String.fromCharCode(k);
-    return patron.test(n);
+function ingresoDouble(event) {
+	// Permitir teclas de control y navegación
+	if (event.ctrlKey || event.altKey || event.metaKey) {
+		return true;
+	}
+
+	const specialKeys = [
+		'Backspace',
+		'Tab',
+		'ArrowLeft',
+		'ArrowRight',
+		'Delete',
+		'Enter',
+		'Home',
+		'End',
+		'Clear',
+		'NumLock'
+	];
+
+	// Permitir teclas especiales
+	if (specialKeys.includes(event.key)) {
+		return true;
+	}
+
+	const input = event.target;
+	const currentValue = input.value;
+	const cursorPosition = input.selectionStart;
+
+	// Permitir solo un punto decimal
+	if ((event.key === '.' || event.code === 'NumpadDecimal') &&
+		!currentValue.includes('.')) {
+		return true;
+	}
+
+	// Manejar números del teclado normal y numérico
+	const numberPattern = /^[0-9]$/;
+	const isNumPadNumber = event.code?.startsWith('Numpad') &&
+		!['NumpadSubtract', 'NumpadAdd', 'NumpadMultiply',
+			'NumpadDivide', 'NumpadEnter']
+			.includes(event.code);
+
+	return numberPattern.test(event.key) || isNumPadNumber;
 }
 
-function ingresoDoubleConNegativos (e,valor) {
-    k = (document.getElementById) ? e.keyCode : e.which;
-    if (k==8 || k==0) return true;
-    if (k==46&&valor.indexOf('.')==-1) return true;
-    if (k==13) return true;
-    if (k==45&&valor.indexOf('-')==-1) return true;
-    patron = /\d/;
-    n = String.fromCharCode(k);
-    return patron.test(n);
+
+function ingresoDoubleConNegativos(event) {
+	// Permitir teclas de control y navegación
+	if (event.ctrlKey || event.altKey || event.metaKey) {
+		return true;
+	}
+
+	const specialKeys = [
+		'Backspace',
+		'Tab',
+		'ArrowLeft',
+		'ArrowRight',
+		'Delete',
+		'Enter',
+		'Home',
+		'End',
+		'Clear',
+		'NumLock',
+		'-',
+		'Minus',
+		'NumpadSubtract'
+	];
+
+	if (specialKeys.includes(event.key)) {
+		return true;
+	}
+
+	// Manejar tanto el teclado numérico como el normal
+	const numberPattern = /^[0-9]$/;
+	const isNumPadNumber = event.code?.startsWith('Numpad') && event.code !== 'NumpadEnter';
+
+	return numberPattern.test(event.key) || isNumPadNumber;
 }
 
-function ingresoInt (e) {
-    k = (document.getElementById) ? e.keyCode : e.which;
-    if (k==8 || k==0) return true;
-    if (k==13) return true;
-    patron = /\d/;
-    n = String.fromCharCode(k);
-    return patron.test(n);
-}
 
+function ingresoInt(event) {
+	// Permitir teclas de control y navegación
+	if (event.ctrlKey || event.altKey || event.metaKey) {
+		return true;
+	}
+
+	const specialKeys = [
+		'Backspace',
+		'Tab',
+		'ArrowLeft',
+		'ArrowRight',
+		'Delete',
+		'Enter',
+		'Home',
+		'End',
+		'Clear',
+		'NumLock'
+	];
+
+	// Permitir teclas especiales
+	if (specialKeys.includes(event.key)) {
+		return true;
+	}
+
+	// Manejar números del teclado normal y numérico
+	const numberPattern = /^[0-9]$/;
+	const isNumPadNumber = event.code?.startsWith('Numpad') &&
+		!['NumpadSubtract', 'NumpadAdd', 'NumpadMultiply',
+			'NumpadDivide', 'NumpadEnter', 'NumpadDecimal']
+			.includes(event.code);
+
+	return numberPattern.test(event.key) || isNumPadNumber;
+}
 /*			FIN-FORMATO-NUMEROS									*/
 /************************************************************/
 

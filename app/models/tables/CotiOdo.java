@@ -1086,6 +1086,152 @@ public class CotiOdo {
 		"</table>";
 		return(vista);
 	}
+
+	public static String vistaHaceOT(Connection con, String db, Long id_cotiOdo, Map<String,String> mapDiccionario, List<Equipo> listEquipos){
+		String vista="";
+		CotiOdo cotiOdo = CotiOdo.find(con, db,id_cotiOdo);
+		String fecha = Fechas.AAMMDD(cotiOdo.getFecha());
+		Cliente cliente = Cliente.find(con, db, cotiOdo.getId_cliente());
+		String rutCliente = "";
+		String nomCliente = "";
+		if(cliente!=null) {
+			rutCliente = cliente.getRut();
+			nomCliente = cliente.getNickName();
+		}
+		Proyecto proyecto = Proyecto.find(con, db, cotiOdo.getId_proyecto());
+		String nomProyecto = "";
+		if(proyecto!=null) {
+			nomProyecto = proyecto.getNickName();
+		}
+
+		FormCotizaOdo formCotizaOdo = new FormCotizaOdo(cotiOdo, fecha, rutCliente, nomCliente, nomProyecto);
+		formCotizaOdo.id_cotiOdo = id_cotiOdo;
+		formCotizaOdo.dctoOdo = DecimalFormato.formato(cotiOdo.getDctoOdo()*100, (long)2);
+
+		List<List<String>> listadoServicios = FormCotizaOdo.listServiciosConValoresCoti(con, db, id_cotiOdo);
+
+
+		Long numDec = (long) 0;
+		if(listadoServicios.size()>0) {
+			String auxNumDec = listadoServicios.get(listadoServicios.size()-1).get(12);
+			numDec = Long.parseLong(auxNumDec);
+		}
+
+		vista=vista+
+				"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
+				"<tr>"+
+				"<td><label for='numeroCotizacion'>Nro. Cotización: "+cotiOdo.numero+"</label></td>"+
+				"<td colspan='2'><label for='fechaCotizacion'>Fecha: "+Fechas.DDMMAA(cotiOdo.fecha)+"</label></td>"+
+				"</tr>"+
+				"<tr>"+
+				"<td><label for='rutCliente'>"+mapDiccionario.get("RUT")+" Cliente: "+rutCliente+"</label></td>"+
+				"<td><label for='nombreCliente'>Nombre Cliente: "+nomCliente+"</label></td>"+
+				"<td><label for='nombreProyecto'>Nombre Proyecto: "+nomProyecto+"</label></td>"+
+				"</tr>"+
+				"<tr>"+
+				"<td colspan='3'style='text-align:left;'><label>Observaciones: "+cotiOdo.observaciones+"</label></td>"+
+				"</tr>"+
+				"</table>"+
+				"<table class='table table-sm table-hover table-bordered table-condensed table-fluid'>"+
+				"<thead style='background-color: #eeeeee'>"+
+				"<TR> "+
+				"<TH style= 'text-align: center;'>FAMILIA</TH>"+
+				"<TH style= 'text-align: center;'>CODIGO</TH>"+
+				"<TH style= 'text-align: center;'>SERVICIO</TH>"+
+				"<TH style= 'text-align: center;'>UN</TH>"+
+				"<TH style= 'text-align: center;'>CANTIDAD</TH>"+
+				"<TH style= 'text-align: center;'>MON</TH>"+
+				"<TH style= 'text-align: center;'>PRECIO<br>UNITARIO</TH>"+
+				"<TH style= 'text-align: center;'>TOTAL</TH>"+
+				"<TH style= 'text-align: center;'>Aplica<br>Minimo</TH>"+
+				"<TH style= 'text-align: center;'>Cantidad<br>Minimo</TH>"+
+				"<TH style= 'text-align: center;'>Precio<br>Adicional</TH>"+
+				"<TH style= 'text-align: center;'>EQUIPO ASOCIADO</TH>"+
+				"</TR>"+
+				"</thead>"+
+				"<tbody>";
+
+		Double total = (double)0;
+		Double cant = (double)0;
+
+		for(int i=0;i<listadoServicios.size();i++){
+			Double cantidad = Double.parseDouble(listadoServicios.get(i).get(5).replaceAll(",", ""));
+			if(cantidad > 0) {
+				cant += cantidad;
+				total += Double.parseDouble(listadoServicios.get(i).get(8).replaceAll(",", ""));
+
+				vista=vista+
+						"<TR>"+
+						"<td style='text-align:left;'>"+listadoServicios.get(i).get(1)+"</td>"+
+						"<td style='text-align:left;'>"+listadoServicios.get(i).get(2)+"</td>"+
+						"<td style='text-align:left;'>"+listadoServicios.get(i).get(3)+"</td>"+
+						"<td style='text-align:center;'>"+listadoServicios.get(i).get(4)+"</td>"+
+						"<td style='text-align:right;'>"+listadoServicios.get(i).get(5)+"</td>"+
+						"<td style='text-align:center;'>"+listadoServicios.get(i).get(6)+"</td>"+
+						"<td style='text-align:right;'>"+listadoServicios.get(i).get(7)+"</td>"+
+						"<td style='text-align:right;'>"+listadoServicios.get(i).get(8)+"</td>"+
+						"<td style='text-align:center;'>";
+				if(listadoServicios.get(i).get(9).equals("0")){
+					vista = vista + "NO";
+				}else{
+					vista = vista + "SI";
+				}
+				vista=vista+
+						"</td>"+
+						"<td style='text-align:right;'>"+listadoServicios.get(i).get(10)+"</td>"+
+						"<td style='text-align:right;'>"+listadoServicios.get(i).get(11)+"</td>"+
+
+
+						"<td style= 'text-align: left;'>"+
+							" <input type='text' class='form-control'"+
+								" id='equipoAsociado_"+listadoServicios.get(i).get(0)+"'"+
+								" value='"+listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16)+"'"+
+								" style='background:white'"+
+								" onclick='auxId_cotiOdoDetalle = "+listadoServicios.get(i).get(17)+";auxEquipoAsociado = "+listadoServicios.get(i).get(0)+"; $(\"#listaEquipos\").modal(\"show\");'"+
+								" readonly>"+
+						"</td>"+
+
+
+						"</TR>";
+			}
+		}
+		vista=vista+
+				"</tbody>"+
+				"<tfoot style='background-color: #eeeeee'>";
+
+		Double dcto = Double.parseDouble(formCotizaOdo.dctoOdo.replaceAll(",", "")) / 100;
+
+		if((double) cotiOdo.getDctoOdo() > (double) 0 ){
+			vista=vista+
+					"<TR>"+
+
+					"<TH colspan='4' style='text-align: right;'>SUB-TOTALES </TH>"+
+					"<TH style='text-align: right;'>"+DecimalFormato.formato(cant, (long)2)+"</TH>"+
+					"<TH colspan='2'></TH>"+
+					"<TH style='text-align: right;'>"+DecimalFormato.formato(total, numDec)+"</TH>"+
+					"<TH colspan='4'></TH>"+
+					"</TR>"+
+					"<TR>"+
+					"<TH colspan='4' style='text-align: right;'>DESCUENTO</TH>"+
+					"<TH colspan='3'></TH>"+
+					"<TH style='text-align: right;'>"+formCotizaOdo.dctoOdo+" %</TH>"+
+					"<TH colspan='4'></TH>"+
+					"</TR>";
+		}
+
+		vista=vista+
+
+				"<TR>"+
+				"<TH colspan='4' style='text-align: right;'>TOTALES </TH>"+
+				"<TH style='text-align: right;'>"+DecimalFormato.formato(cant, (long)2)+"</TH>"+
+				"<TH colspan='2'></TH>"+
+				"<TH style='text-align: right;'>"+DecimalFormato.formato(total*(1-dcto), numDec)+"</TH>"+
+				"<TH colspan='4'></TH>"+
+				"</TR>"+
+				"</tfoot>"+
+				"</table>";
+		return(vista);
+	}
 	
 	public static Long findNuevoNumeroOdo(Connection con, String db){
 		Long numeroCoti=(long) 1;

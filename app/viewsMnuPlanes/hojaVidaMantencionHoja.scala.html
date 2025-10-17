@@ -104,7 +104,7 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 					                  onblur="if(!limitaFecha(value, 720, 10)) {
 					                               value = '@utilities.Fechas.AAMMDD(lista.fechaReset)';
 					                           } else {
-					                               actualizaAll('@lista.id_unidadMantencion', '@lista.id_equipo', 'fechaReset', value);
+					                               actualizaAll('@index', '@lista.id_equipo', 'fechaReset', value);
 					                           }"
 					                  value="@utilities.Fechas.AAMMDD(lista.fechaReset)">
 					        </td>
@@ -462,7 +462,6 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 	const actualizaAll = (index, id_equipo, campo, valor) => {
 	    const unidadCambiada = $(".id_unidadMantencion")[index].value;
 	    const filas = $(".estadoActual").length;
-	
 	    for (let i = 0; i < filas; i++) {
 	        if ($(".id_unidadMantencion")[i].value === unidadCambiada) {
 	            if (campo === 'estadoActual') {
@@ -470,6 +469,11 @@ listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo
 	                actualizaPlan($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
 	                actualizarProximaMantencion(i, $(".id_tipoPlan")[i].value, id_equipo, campo);
 	            }
+				if (campo === 'fechaReset') {
+					$(".fechaReset")[i].value = valor;
+					actualizaPlan($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+					actualizarProximaMantencion(i, $(".id_tipoPlan")[i].value, id_equipo, campo);
+				}
 	        }
 	    }
 	}

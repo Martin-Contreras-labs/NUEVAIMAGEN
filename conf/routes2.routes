@@ -57,6 +57,7 @@ POST	/movPlantilla/						controllers.MnuMovimientos.movPlantilla(request: Reques
 # MENU COTI ODO
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+POST    /cotiOdoModifyXCampo/           controllers.MnuCotiOdo.cotiOdoModifyXCampo(request: Request)
 GET		/cotiOdoIngreso/				controllers.MnuCotiOdo.cotiOdoIngreso(request: Request)
 POST	/cotiOdoNuevo/					controllers.MnuCotiOdo.cotiOdoNuevo(request: Request)
 POST	/existeNumeroCotiOdoAjax/		controllers.MnuCotiOdo.existeNumeroCotiOdoAjax(request: Request)

@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 formOtOdo: forms.FormOtOdo, listBodegas: List[List[String]], tabla: String, listProyectos: List[tables.Proyecto], listRegiones: List[tables.Regiones],
-listOperadoresServicio: List[tables.OperadorServicio])
+listOperadoresServicio: List[tables.OperadorServicio], listEquipos: List[tables.Equipo])
 
 @main("") {
 
@@ -249,7 +249,57 @@ listOperadoresServicio: List[tables.OperadorServicio])
 				</div>
 			</div>
 		</div>
-		
+
+	<div id="listaEquipos" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">SELECCIONAR EQUIPO ASOCIADO</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaCliente').modal('hide'); $('#modalClienteNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaEquipos" class="table table-sm table-bordered table-condensed table-hover table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>CODIGO</TH>
+								<TH>EQUIPO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							<TR onClick=
+									"$('#equipoAsociado_'+auxEquipoAsociado).val(' - ');
+										modificaPorCampo(auxId_cotiOdoDetalle,'id_equipo',0);"
+									data-dismiss="modal">
+								<td  style="text-align:left;">Sin Equipo</td>
+								<td  style="text-align:left;">Sin Equipo</td>
+							</TR>
+							@for(lista1 <- listEquipos){
+								<TR onClick=
+									"$('#equipoAsociado_'+auxEquipoAsociado).val('@lista1.getCodigo() - @lista1.getNombre()');
+										modificaPorCampo(auxId_cotiOdoDetalle,'id_equipo',@lista1.getId());"
+									data-dismiss="modal">
+									<td  style="text-align:left;">@lista1.getCodigo()</td>
+									<td  style="text-align:left;">@lista1.getNombre()</td>
+								</TR>
+							}
+						</tbody>
+					</table>
+					<div class="row">
+						<div class="col-sm-12" style="text-align:center">
+							<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 		
 		
@@ -283,6 +333,26 @@ listOperadoresServicio: List[tables.OperadorServicio])
 
 		document.getElementById('mostrarmostrar').style.display="block";
 	});
+
+	let auxId_cotiOdoDetalle = "0";
+	let auxEquipoAsociado = "0";
+
+	const modificaPorCampo = (id_cotiOdoDetalle, campo, valor) =>{
+		var formData = new FormData();
+		formData.append('id_cotiOdoDetalle',id_cotiOdoDetalle);
+		formData.append('campo',campo);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/routes2/cotiOdoModifyXCampo/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){}
+		});
+	}
 	
 	const selectBodega = (id_bodega) =>{
 		$("#id_bodegaEmpresa").val(id_bodega);

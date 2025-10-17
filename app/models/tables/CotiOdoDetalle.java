@@ -211,6 +211,15 @@ public class CotiOdoDetalle {
 		return(map);
 	}
 
+	public static Map<String,CotiOdoDetalle> mapIdCotiOdoIdSevicio(Connection con, String db){
+		Map<String,CotiOdoDetalle> map = new HashMap<String,CotiOdoDetalle>();
+		List<CotiOdoDetalle> lista = CotiOdoDetalle.all(con, db);
+		for(CotiOdoDetalle x: lista) {
+			map.put(x.getId_cotiOdo()+"_"+x.getId_servicio(),x);
+		}
+		return(map);
+	}
+
 	public static Map<Long,CotiOdoDetalle> mapDetalleCotiOdo(Connection con, String db,Long id_cotiOdo){
 		Map<Long,CotiOdoDetalle> mapDetalle = new HashMap<Long,CotiOdoDetalle>();
 		List<CotiOdoDetalle> list = CotiOdoDetalle.allPorIdCotiOdo(con, db, id_cotiOdo);
@@ -321,6 +330,22 @@ public class CotiOdoDetalle {
 			e.printStackTrace();
 		}
 		return (lista);
+	}
+
+	public static boolean modifyXCampo(Connection con, String db, String campo, String valor, String id_cotiOdoDetalle) {
+		boolean flag = false;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("update `"+db+"`.cotiOdoDetalle set `"+campo+"` = ? WHERE id = ?;");
+			smt.setString(1, valor.trim());
+			smt.setString(2, id_cotiOdoDetalle);
+			smt.executeUpdate();
+			smt.close();
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (flag);
 	}
 	
 	public static boolean create (Connection con, String db, String detalle) {

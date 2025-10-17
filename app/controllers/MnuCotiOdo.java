@@ -1049,10 +1049,25 @@ public class MnuCotiOdo extends Controller {
 				}
 				List<List<String>> listBodegas = BodegaEmpresa.listaAllBodegasVigentesExternas(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 				List<Proyecto> listProyectos = Proyecto.all(con, s.baseDato);
-				String tabla = CotiOdo.vistaModalVerCotiOdo(con, s.baseDato, id_cotiOdo, mapeoDiccionario);
+
+				List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
+				Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
+				List<Equipo> listEquipos = new ArrayList<Equipo>();
+				for(Equipo x: auxlistEquipos) {
+					Double stock = mapEquipConStock.get(x.getId());
+					if(stock!=null && stock.doubleValue() > 0) {
+						listEquipos.add(x);
+					}
+				}
+
+
+				String tabla = CotiOdo.vistaHaceOT(con, s.baseDato, id_cotiOdo, mapeoDiccionario, listEquipos);
 				List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 				List<OperadorServicio> listOperadoresServicio = OperadorServicio.all(con, s.baseDato);
-				return ok(otOdoHacer.render(mapeoDiccionario,mapeoPermiso,userMnu,formOtOdo,listBodegas,tabla,listProyectos,listRegiones,listOperadoresServicio));
+
+
+
+				return ok(otOdoHacer.render(mapeoDiccionario,mapeoPermiso,userMnu,formOtOdo,listBodegas,tabla,listProyectos,listRegiones,listOperadoresServicio,listEquipos));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -1062,6 +1077,38 @@ public class MnuCotiOdo extends Controller {
 			}
     	}
     }
+
+
+	public Result cotiOdoModifyXCampo(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+		}else {
+			String campo = form.get("campo").trim();
+			String valor = form.get("valor").trim();
+			String id_cotiOdoDetalle = form.get("id_cotiOdoDetalle").trim();
+			try (Connection con = dbWrite.getConnection()){
+				if(CotiOdoDetalle.modifyXCampo(con,s.baseDato,campo,valor,id_cotiOdoDetalle)){
+					return ok("OK");
+				}else{
+					return ok("error");
+				}
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			}
+		}
+		return ok("error");
+	}
 	
 	public Result otOdoGrabar(Http.Request request) {
 		Sessiones s = new Sessiones(request);

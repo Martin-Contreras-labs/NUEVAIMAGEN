@@ -270,6 +270,7 @@ public class ListaPrecioServicio {
 		List<List<String>> lista = new ArrayList<List<String>>();
 		BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, db, id_bodegaEmpresa);
 		List<ListaPrecioServicio> auxLista = ListaPrecioServicio.allXBodega(con, db, bodega);
+		Map<String,CotiOdoDetalle> mapCotiOdoDetalle = CotiOdoDetalle.mapIdCotiOdoIdSevicio(con, db);
 		auxLista.forEach(x->{
 			if((long)x.vigente == (long)1) {
 				List<String> aux = new ArrayList<String>();
@@ -279,6 +280,22 @@ public class ListaPrecioServicio {
 				aux.add(x.getNomUnidad());
 				aux.add(x.getId_cotiOdo().toString()); 		//4 id_cotiOdo
 				aux.add(x.getNumeroCotiOdo().toString());	//5 nro cotiOdo
+
+				CotiOdoDetalle cotiOdoDetalle = mapCotiOdoDetalle.get(x.getId_cotiOdo()+"_"+x.getId_servicio());
+				if(cotiOdoDetalle!=null) {
+					aux.add(cotiOdoDetalle.getId_equipo().toString());	//6 id_equipo
+
+
+
+// AGREGAR COD EQUIPO Y SU NOMBRE
+					aux.add(cotiOdoDetalle.getId_equipo().toString());	//7 cod_equipo
+					aux.add(cotiOdoDetalle.getId_equipo().toString());	//8 nomb_equipo
+
+				}else{
+					aux.add("0");	//6 id_equipo
+					aux.add("");	//7 cod_equipo
+					aux.add("");	//8 nomb_equipo
+				}
 				lista.add(aux);
 			}
 		});

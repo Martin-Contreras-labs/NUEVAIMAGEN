@@ -214,6 +214,7 @@ public class FormCotizaOdo {
 				aux.add("0");  												//14 id_equipo asociado
 				aux.add("");  												//15 codigo equipo
 				aux.add("");  												//16 nombre equipo
+				aux.add("");  												//17 id_cotiOdoDetalle
 				
 				//DETERMINA EL PRECIO CANTIDAD MINIMO  DE ARRIENDO A APLICAR EN LA COTIZACION:
 				CotiOdoDetalle cotiOdoDetalle = mapCotiDetalle.get(rs.getLong(1));
@@ -234,6 +235,7 @@ public class FormCotizaOdo {
 					aux.set(14, cotiOdoDetalle.getId_equipo().toString());				//14 id_equipo asociado
 					aux.set(15, cotiOdoDetalle.getCodigoEquipo());						//15 codigo equipo
 					aux.set(16, cotiOdoDetalle.getNombreEquipo());						//16 nombre equipo
+					aux.set(17, cotiOdoDetalle.getId().toString());						//17 id_cotiOdoDetalle
 				}
 				// FIN DETERMINA PRECIO ARRIENDO
 

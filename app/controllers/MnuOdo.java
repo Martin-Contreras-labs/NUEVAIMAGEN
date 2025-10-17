@@ -1398,7 +1398,7 @@ public class MnuOdo extends Controller {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
-		try (Connection con = dbRead.getConnection()){
+		try (Connection con = dbWrite.getConnection()){
 			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
 			List<OperadorServicio> listOperadores = OperadorServicio.allActivos(con, s.baseDato);
 			List<List<String>> lista = VentaServicio.listaBodegasConServ_equip(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
@@ -1436,6 +1436,7 @@ public class MnuOdo extends Controller {
 									+ "<th>Nro.Coti</th>"
 									+ "<th>Codigo</th>"
 									+ "<th>Servicio</th>"
+									+ "<th>Equipo Asociado</th>"
 								+ "</TR>"
 							+ "</thead>"
 							+ "<tbody>";
@@ -1447,6 +1448,7 @@ public class MnuOdo extends Controller {
 									+ "<td style=\"text-align:center\"><a href=\"#\">"+x.get(5)+"</a></td>"
 									+ "<td style=\"text-align:center\"><a href=\"#\">"+x.get(1)+"</a></td>"
 									+ "<td style=\"text-align:left\"><a href=\"#\">"+x.get(2)+"</a></td>"
+									+ "<td style=\"text-align:left\"><a href=\"#\">"+x.get(6)+"</a></td>"
 							+ "</TR>";
 				}
 				vistaTabla +=
