@@ -1442,13 +1442,18 @@ public class MnuOdo extends Controller {
 							+ "<tbody>";
 				for(List<String> x: listServ){
 					String servicio = x.get(5)+" - "+x.get(1)+" - "+x.get(2);
-					String encoded = new String(Base64.getEncoder().encode(servicio.getBytes()));
+					String encodedServ = new String(Base64.getEncoder().encode(servicio.getBytes()));
+					String equipo = x.get(7) + " - " + x.get(8);
+					String encodedEquipo = new String(Base64.getEncoder().encode(equipo.getBytes()));
+					if(x.get(6).equals("0")) {
+						equipo = "Sin equipo asociado";
+					}
 					vistaTabla +=
-							"<TR onclick=\"selectServicio('"+x.get(0)+"', '"+encoded+"', '"+x.get(3)+"', '"+x.get(4)+"')\">"
+							"<TR onclick=\"selectServicio('"+x.get(0)+"', '"+encodedServ+"', '"+x.get(3)+"', '"+x.get(4)+"', '"+encodedEquipo+"', '"+x.get(6)+"')\">"
 									+ "<td style=\"text-align:center\"><a href=\"#\">"+x.get(5)+"</a></td>"
 									+ "<td style=\"text-align:center\"><a href=\"#\">"+x.get(1)+"</a></td>"
 									+ "<td style=\"text-align:left\"><a href=\"#\">"+x.get(2)+"</a></td>"
-									+ "<td style=\"text-align:left\"><a href=\"#\">"+x.get(6)+"</a></td>"
+									+ "<td style=\"text-align:left\"><a href=\"#\">"+equipo+"</a></td>"
 							+ "</TR>";
 				}
 				vistaTabla +=

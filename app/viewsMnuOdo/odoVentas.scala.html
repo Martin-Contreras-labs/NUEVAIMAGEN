@@ -573,8 +573,9 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 	  	});
 	}
 	
-	function selectServicio(id_servicio, servicio, unidad, id_cotiOdo){
+	function selectServicio(id_servicio, servicio, unidad, id_cotiOdo, equipo, id_equipo){
 		servicio = atob(servicio);
+		equipo = atob(equipo);
 		$('#id_servicio').val(id_servicio);
 		$('#id_cotiOdo').val(id_cotiOdo);
 		document.getElementById("nombreServicio").innerHTML=
@@ -585,19 +586,22 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 			  "</div>"+
 			"</div>";
 		$("#unidad").text("CANT (*) en "+unidad);
-
-
-		// document.getElementById("nombreBodegaEmpresa").innerHTML=
-		// 		"<div class='input-group input-group-sm'>"+
-		// 		"<input class='form-control' type='text' onclick=\"$('#modalListaBodegas').modal('show');\" value='"+bodega+"' readonly>"+
-		// 		"<div class='input-group-append'>"+
-		// 		"<span class='input-group-text' onclick=\"$('#modalListaBodegas').modal('show');\">Buscar</span>"+
-		// 		"</div>"+
-		// 		"</div>";
-
-
-
-
+		if(id_equipo != "0"){
+			$('#id_equipo').val(id_equipo);
+			document.getElementById("nombreEquipo").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+					"<input class='form-control' type='text' value='"+equipo+"' readonly>"+
+				"</div>";
+		}else{
+			$('#id_equipo').val("0");
+			document.getElementById("nombreEquipo").innerHTML=
+				"<div class='input-group input-group-sm'>"+
+					"<input class=\"form-control\" type=\"text\" onclick=\"$('#modalListaEquipos').modal('show');\" value=\"Sin equipo asociado\" readonly>"+
+						"<div class=\"input-group-append\">"+
+							"<span class=\"input-group-text\" onclick=\"$('#modalListaEquipos').modal('show');\">Buscar</span>"+
+						"</div>"+
+				"</div>";
+		}
 
 		$('#modalListaServicios').modal('hide');
 	}
