@@ -133,7 +133,8 @@ public class MnuOdoAppWeb extends Controller {
 							return ok(mensajes.render("/odo",msgSinPermiso));
 						}
 						String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
-						List<OperadorServicio> listOperadores = OperadorServicio.allActivos(con, inicio.getBaseDato());
+						OperadorServicio operador = OperadorServicio.findPorIdUserMada(con,inicio.baseDato,userMnu.getId_usuario());
+
 						List<List<String>> listBodegasConEquipos = EquipoServicio.listaBodegasConEquipos(con, inicio.getBaseDato(), aplicaPorSucursal, inicio.getId_sucursal().toString());
 						List<List<String>> listBodegasConServicios = ListaPrecioServicio.listaBodegasConServicios(con, inicio.getBaseDato(), aplicaPorSucursal, inicio.getId_sucursal().toString());
 						Map<String,List<String>> mapLista = new HashMap<String,List<String>>();
@@ -159,7 +160,7 @@ public class MnuOdoAppWeb extends Controller {
 							}
 						}
 						Long aux_huella = AuxHuella.findHuella(con, inicio.getBaseDato(), userMnu.getId_usuario());
-						return ok(odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listOperadores,lista,aux_huella))
+						return ok(odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,operador,lista,aux_huella))
 								.addingToSession(request, "userName", inicio.getUserName())
 								.addingToSession(request, "id_usuario", inicio.getId().toString())
 								.addingToSession(request, "baseDato", inicio.getBaseDato())
@@ -218,7 +219,8 @@ public class MnuOdoAppWeb extends Controller {
 		}
 		try (Connection con = dbRead.getConnection()){
 			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
-			List<OperadorServicio> listOperadores = OperadorServicio.allActivos(con, s.baseDato);
+			OperadorServicio operador = OperadorServicio.findPorIdUserMada(con,s.baseDato,userMnu.getId_usuario());
+
 			List<List<String>> listBodegasConEquipos = EquipoServicio.listaBodegasConEquipos(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			List<List<String>> listBodegasConServicios = ListaPrecioServicio.listaBodegasConServicios(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			Map<String,List<String>> mapLista = new HashMap<String,List<String>>();
@@ -244,7 +246,7 @@ public class MnuOdoAppWeb extends Controller {
 				}
 			}
 			Long aux_huella = AuxHuella.findHuella(con, s.baseDato, userMnu.getId_usuario());
-			return ok(odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listOperadores,lista,aux_huella));
+			return ok(odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,operador,lista,aux_huella));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/odo", msgReport));

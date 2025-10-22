@@ -74,19 +74,7 @@ listUsuarios: List[tables.Usuario])
 									autocomplete="off"></textarea>
 							</td>
 						</tr>
-						<TR>
-							<td  style="text-align:left;">USUARIO MADA</td>
-							<td style="text-align:left">
-								<select class="custom-select"
-									name="id_userAdam"
-									required>
-									<option value="0">N/A</option>
-									@for(lista <- listUsuarios){
-										<option value="@lista.id">@lista.getUserName()</option>
-									}
-								</select>
-							</td>
-						</TR>
+						<input type="hidden" name="id_userAdam" value="0">
 					</table>
 				</div>
 			</div>

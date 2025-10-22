@@ -3747,6 +3747,33 @@ public class MnuTablas extends Controller {
 				if(!Usuario.modificaPorCampo(con, s.baseDato, campo, id_usuario, valor)){
 					return ok("error");
 				}else {
+					Usuario usuario = Usuario.findXIdUser(con, s.baseDato, id_usuario);
+
+					OperadorServicio operadorServicio = OperadorServicio.findPorIdUserMada(con,s.baseDato,id_usuario.toString());
+					if((long) usuario.id_tipoUsuario == 7L) {
+						if(operadorServicio!=null) {
+							OperadorServicio.modificaPorCampo(con, s.baseDato, campo, operadorServicio.getId(), valor);
+							OperadorServicio.modificaPorCampo(con, s.baseDato, "activo", operadorServicio.getId(), usuario.getVigente().toString());
+						}else{
+							OperadorServicio operador = new OperadorServicio();
+							operador.setId_userAdam(id_usuario);
+							operador.setRut("");
+							operador.setNombre(usuario.getNombre());
+							operador.setCargo(usuario.getCargo());
+							operador.setEmail(usuario.getEmail());
+							operador.setFono(usuario.getFono());
+							operador.setNotas(usuario.getObservaciones());
+							operador.setActivo(usuario.getVigente());
+							OperadorServicio.create(con,s.baseDato,operador);
+						}
+					}else {
+						if(operadorServicio!=null) {
+							OperadorServicio.modificaPorCampo(con, s.baseDato, campo, operadorServicio.getId(), valor);
+							OperadorServicio.modificaPorCampo(con, s.baseDato, "activo", operadorServicio.getId(), "0");
+						}
+					}
+
+
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "usuario", id_usuario, "update", "cambia el valor de: "+campo);
 					return ok("");
 				}
@@ -3872,6 +3899,19 @@ public class MnuTablas extends Controller {
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
 				if(Usuario.create(con, s.baseDato, form)) {
+					if((long) form.id_tipoUsuario == 7L) {
+						Usuario usuario = Usuario.findXUserName(con,s.baseDato,form.userName);
+						OperadorServicio operador = new OperadorServicio();
+						operador.setId_userAdam(usuario.getId());
+						operador.setRut("");
+						operador.setNombre(usuario.getNombre());
+						operador.setCargo(usuario.getCargo());
+						operador.setEmail(usuario.getEmail());
+						operador.setFono(usuario.getFono());
+						operador.setNotas(usuario.getObservaciones());
+						operador.setActivo(usuario.getVigente());
+						OperadorServicio.create(con,s.baseDato,operador);
+					}
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "usuario", (long)0, "create", "crea nuevo usuario");
 					return redirect("/usuarioMantencion/");
 				}else {
@@ -4053,6 +4093,24 @@ public class MnuTablas extends Controller {
 				Long id_usuario = Long.parseLong(form.get("id_usuario").trim());
 				Long valor = Long.parseLong(form.get("valor").trim());
 				if(Usuario.modivicaVigencia(con, s.baseDato, id_usuario, valor)) {
+					OperadorServicio operadorServicio = OperadorServicio.findPorIdUserMada(con,s.baseDato,id_usuario.toString());
+					if(operadorServicio!=null) {
+						OperadorServicio.modificaPorCampo(con, s.baseDato, "activo", operadorServicio.getId(), valor.toString());
+					}else{
+						Usuario usuario = Usuario.findXIdUser(con, s.baseDato, id_usuario);
+						if(usuario != null && (long) usuario.id_tipoUsuario == 7L) {
+							OperadorServicio operador = new OperadorServicio();
+							operador.setId_userAdam(usuario.getId());
+							operador.setRut("");
+							operador.setNombre(usuario.getNombre());
+							operador.setCargo(usuario.getCargo());
+							operador.setEmail(usuario.getEmail());
+							operador.setFono(usuario.getFono());
+							operador.setNotas(usuario.getObservaciones());
+							operador.setActivo(usuario.getVigente());
+							OperadorServicio.create(con,s.baseDato,operador);
+						}
+					}
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "usuario", id_usuario, "update", "cambia vigencia de usuario");
 					return ok("OK");
 				}else {

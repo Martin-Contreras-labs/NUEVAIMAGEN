@@ -77,20 +77,7 @@ listUsuarios: List[tables.Usuario], operador: tables.OperadorServicio)
 									autocomplete="off">@operador.getNotas()</textarea>
 							</td>
 						</tr>
-						<TR>
-							<td  style="text-align:left;">USUARIO MADA</td>
-							<td style="text-align:left">
-								<select class="custom-select"
-									name="id_userAdam"
-									required>
-									<option value="@operador.getId_userAdam()">@operador.getUserAdamName()</option>
-									@for(lista <- listUsuarios){
-										<option value="@lista.id">@lista.getUserName()</option>
-									}
-									<option value="0">N/A</option>
-								</select>
-							</td>
-						</TR>
+						<input type="hidden" name="id_userAdam" value="@operador.getId_userAdam()">
 					</table>
 				</div>
 			</div>

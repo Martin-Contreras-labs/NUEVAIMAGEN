@@ -832,7 +832,8 @@ public class HomeController extends Controller {
 		}
 		try (Connection con = dbRead.getConnection()){
 			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
-			List<OperadorServicio> listOperadores = OperadorServicio.allActivos(con, s.baseDato);
+			OperadorServicio operador = OperadorServicio.findPorIdUserMada(con,s.baseDato,userMnu.getId_usuario());
+
 			List<List<String>> listBodegasConEquipos = EquipoServicio.listaBodegasConEquipos(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			List<List<String>> listBodegasConServicios = ListaPrecioServicio.listaBodegasConServicios(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			Map<String,List<String>> mapLista = new HashMap<String,List<String>>();
@@ -858,7 +859,7 @@ public class HomeController extends Controller {
 				}
 			}
 			Long aux_huella = AuxHuella.findHuella(con, s.baseDato, userMnu.getId_usuario());
-			return ok(viewsMnuOdoAppWeb.html.odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,listOperadores,lista,aux_huella));
+			return ok(viewsMnuOdoAppWeb.html.odoVentasWeb.render(mapeoDiccionario,mapeoPermiso,userMnu,fechaAAMMDD,operador,lista,aux_huella));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));

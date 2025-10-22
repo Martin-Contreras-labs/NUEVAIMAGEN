@@ -155,7 +155,7 @@ public class OperadorServicio {
 							" operadorServicio.fono, " +
 							" operadorServicio.notas, " +
 							" operadorServicio.activo, " +
-							" ifnull(usuario.userName,'N/A') " +
+							" ifnull(usuario.userName,'') " +
 							" from `"+db+"`.operadorServicio " +
 							" left join `"+db+"`.usuario on usuario.id = operadorServicio.id_userAdam " +
 							" order by operadorServicio.nombre;");
@@ -187,7 +187,7 @@ public class OperadorServicio {
 							" operadorServicio.fono, " +
 							" operadorServicio.notas, " +
 							" operadorServicio.activo, " +
-							" ifnull(usuario.userName,'N/A') " +
+							" ifnull(usuario.userName,'') " +
 							" from `"+db+"`.operadorServicio " +
 							" left join `"+db+"`.usuario on usuario.id = operadorServicio.id_userAdam " +
 							" where operadorServicio.id=?;");
@@ -204,6 +204,60 @@ public class OperadorServicio {
 			e.printStackTrace();
 		}
 		return (aux);
+	}
+
+	public static OperadorServicio findPorIdUserMada(Connection con, String db, String id_userMada) {
+		OperadorServicio aux = null;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement(" select " +
+							" operadorServicio.id, " +
+							" operadorServicio.id_userAdam, " +
+							" operadorServicio.rut, " +
+							" operadorServicio.nombre, " +
+							" operadorServicio.cargo, " +
+							" operadorServicio.email, " +
+							" operadorServicio.fono, " +
+							" operadorServicio.notas, " +
+							" operadorServicio.activo, " +
+							" ifnull(usuario.userName,'') " +
+							" from `"+db+"`.operadorServicio " +
+							" left join `"+db+"`.usuario on usuario.id = operadorServicio.id_userAdam " +
+							" where operadorServicio.id_userAdam = ?;");
+			smt.setString(1, id_userMada);
+			ResultSet rs = smt.executeQuery();
+
+			if (rs.next()) {
+				aux = new OperadorServicio(rs.getLong(1),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8),rs.getLong(9),rs.getString(10));
+			}
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+
+	public static boolean modificaPorCampo(Connection con,String db,String campo,Long id_operadorServicio,String valor) {
+		boolean flag = false;
+		if(campo.equals("userName") || campo.equals("userKey") || campo.equals("id_tipoUsuario") || campo.equals("id_sucursal")){
+			return(true);
+		}
+		if(campo.equals("observaciones")){
+			campo = "notas";
+		}
+		try {
+			PreparedStatement smt = con.prepareStatement("update `"+db+"`.operadorServicio set `" + campo + "` = ? WHERE id = ?;");
+			smt.setString(1, valor.trim());
+			smt.setLong(2, id_operadorServicio);
+			smt.executeUpdate();
+			smt.close();
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (flag);
 	}
 	
 	public static boolean existeRut(Connection con, String db, String rut) {
@@ -226,7 +280,7 @@ public class OperadorServicio {
 	
 	public static boolean create(Connection con, String db, OperadorServicio form) {
 		boolean flag = false;
-		if(!OperadorServicio.existeRut(con, db, form.getRut())) {
+		if( form.getRut().equals("") || ! OperadorServicio.existeRut(con, db, form.getRut())) {
 			try {
 				PreparedStatement smt = con
 						.prepareStatement(" insert into `"+db+"`.operadorServicio (id_userAdam, rut, nombre, cargo, email, fono, notas, activo) "
@@ -238,7 +292,7 @@ public class OperadorServicio {
 				smt.setString(5, form.getEmail());
 				smt.setString(6, form.getFono());
 				smt.setString(7, form.getNotas());
-				smt.setLong(8, (long) 1);
+				smt.setLong(8, form.getActivo());
 				smt.executeUpdate();
 				smt.close();
 				flag = true;

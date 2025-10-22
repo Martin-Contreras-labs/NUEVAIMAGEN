@@ -1575,6 +1575,42 @@ public class MnuPlanes extends Controller {
 			return ok(mensajes.render("/home/", msgReport));
 		}
 	}
+
+	public Result hojaVidaMantencionListaExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			if(mapeoPermiso.get("planHojaVida")==null) {
+				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+				return ok(mensajes.render("/",msgSinPermiso));
+			}
+			try (Connection con = dbRead.getConnection()){
+				List<PlanMantencion> listaPlanes = PlanMantencion.all(con, s.baseDato);
+				Fechas hoy = Fechas.hoy();
+				File file = ReportHojaVida.hojaVidaMantencionListaExcel(s.baseDato, mapeoDiccionario, listaPlanes, hoy);
+				return ok(file,false,Optional.of("ProductoDetalladoMada.xlsx"));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
 	
 	public Result hojaVidaMantencionPlan(Http.Request request) {
 		Sessiones s = new Sessiones(request);
@@ -1963,7 +1999,6 @@ public class MnuPlanes extends Controller {
 			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("analisisHojaVida")==null) {
-				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/",msgSinPermiso));
 			}

@@ -1010,10 +1010,16 @@
 										<li><a class="dropdown-item" href='/reporteMovimientosListaProyectosIE/'>Ordenado por Ingreso-Egreso</a></li>
 									}
 									
-									@if(mapPermiso.get("reporteMovimientos0")!=null){
-										<div class="dropdown-divider" style="border-color:black"></div>
-										<li><a class="dropdown-item" href='/routes2/reportePorProyectoAgrupado/'>Por Proyecto (Agrupado)</a></li>
-										<li><a class="dropdown-item" href='/routes2/reportePorProyectoValorizado/'>Por Proyecto (Valorizado)</a></li>
+									@if(mapPermiso.get("reporteMovimientos0")!=null) {
+										<div class="dropdown-divider" style="border-color: black"></div>
+										<li><a class="dropdown-item" href='/routes2/reportePorProyectoAgrupado/'>
+											Por Proyecto (Agrupado)</a></li>
+									}
+									@if(mapPermiso.get("reporteMovimientos1")!=null) {
+										<li><a class="dropdown-item" href='/routes2/reportePorProyectoValorizado/'>
+											Por Proyecto (Valorizado)</a></li>
+									}
+									@if(mapPermiso.get("reporteMovimientos0")!=null) {
 										<li><a class="dropdown-item" href='/reporteMovSoloBodInternas0/'>Solo @mapDiccionario.get("Bodega")s Internas</a></li>
 									}
 									

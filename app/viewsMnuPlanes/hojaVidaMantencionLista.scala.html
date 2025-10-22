@@ -12,6 +12,30 @@ listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
 				<button type="button" class="btn btn-sm  btn-info" style="font-size: 10px; width: 250px" onclick="$('#modalCargaMasiva').modal('show')">CARGA MASIVA</button>
 			}
 			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<div align="center">
+									<button type="button" class="btn btn-sm btn-success" onclick="window.print(); return false;">
+										Imprimir
+									</button>
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button"  class="btn btn-sm btn-success"
+									onclick="location.href='/home/';">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<form id="excel" class="formulario" method="post" action="/hojaVidaMantencionListaExcel/"></form>
+
 				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">
 						<TR> 
@@ -67,6 +91,7 @@ listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
 								</td>
 								
 								<td style="text-align:center">
+									<div class="auxFechaEstimada" style="display: none"></div>
 									<input type="date" class="fechaEstimada form-control center" disabled>
 								</td>
 								
@@ -255,15 +280,16 @@ listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
 <script type="text/javascript">
 	$(document).ready(function() {
 		  calcFechaProxima();
-		  $('#tablaPrincipal').DataTable({
-		    	"fixedHeader": true,
-		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
-				"order": [[ 0, "asc" ],[ 1, "asc" ],[ 3, "asc" ]],
-		    	"language": {
-		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-		        }
-		  } );
-		  document.getElementById('mostrarmostrar').style.display="block";
+		$('#tablaPrincipal').DataTable({
+			"fixedHeader": true,
+			"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+			"order": [[ 0, "asc" ],[ 1, "asc" ],[ 3, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		});
+
+		document.getElementById('mostrarmostrar').style.display="block";
 		  if('@flagModal'=='1'){
 			$('#modalCargaMasiva').modal('show');
 		  }
@@ -283,12 +309,14 @@ listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
 				rotacion = rotacion.replace(/,/g,'');
 				let dif = parseFloat(proxima) - parseFloat(actual);
 				if(dif <= 0 || parseFloat(rotacion) <= 0){
+					$(".auxFechaEstimada")[i].innerText = fechaAAMMDD(hoy);
 					$(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
 				}else{
 					let diasASumar = dif/rotacion * 30;
 					let aux = fecha.split("-");
 					let auxFecha = new Date(aux[0],parseInt(aux[1])-1,aux[2]);
 					auxFecha.setDate(auxFecha.getDate() + diasASumar);
+					$(".auxFechaEstimada")[i].innerText = fechaAAMMDD(auxFecha);
 					$(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
 				}
 			}

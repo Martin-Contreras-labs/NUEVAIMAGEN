@@ -140,6 +140,36 @@ public class Usuario {
 		}
 		return (aux);
 	}
+
+	public static Usuario findXUserName(Connection con, String db, String userName) {
+		Usuario aux = null;
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select usuario.id, usuario.userName, usuario.userKey, ifnull(usuario.nombre,''), ifnull(usuario.cargo,''), " +
+							" usuario.id_tipoUsuario, tipoUsuario.porProyecto, ifnull(tipoUsuario.tipo,''), ifnull(usuario.email,''), ifnull(usuario.fono,''), " +
+							" ifnull(usuario.observaciones,''), usuario.vigente, usuario.id_sucursal, sucursal.nombre " +
+							" from `"+db+"`.usuario " +
+							" left join `"+db+"`.tipoUsuario on tipoUsuario.id = id_tipoUsuario " +
+							" left join `"+db+"`.sucursal on sucursal.id = usuario.id_sucursal " +
+							" where usuario.userName = ?" );
+			smt.setString(1, userName);
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {
+				aux = new Usuario(rs.getLong(1),rs.getString(2),
+						rs.getString(3),rs.getString(4),rs.getString(5),
+						rs.getLong(6),rs.getLong(7),rs.getString(8),"",rs.getString(9),db,rs.getString(10),rs.getString(11),rs.getLong(12), rs.getLong(13),rs.getString(14));
+
+			}else {
+				aux = new Usuario((long)0,"","","","",(long)1,(long)0,"","","",db,"","",(long)1,(long)1,"CASA MATRIZ");
+			}
+
+			rs.close();
+			smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
 	
 	public static boolean modify(Connection con,String db, Usuario user) {
 		boolean flag = false;

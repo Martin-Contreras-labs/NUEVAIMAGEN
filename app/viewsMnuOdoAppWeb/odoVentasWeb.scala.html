@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[List[String]], aux_huella: Long)
+fecha: String, operador: tables.OperadorServicio, listBodegas: List[List[String]], aux_huella: Long)
 
     	
 @main("") {
@@ -49,15 +49,8 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 							<tr>
 								<td style="text-align:left;"><strong>OPERADOR:</strong></td>
 						        <td style="text-align:left" width="70%" colspan="4">
-						        	<input type="hidden" id="id_operador" name="id_operador" value="0">
-						        	<div id="nombreOperador">
-						        		<div class="input-group input-group-sm">
-										  <input class="form-control" type="text" onclick="$('#modalListaOperadores').modal('show');" value="Sin operador" readonly>
-										  <div class="input-group-append">
-										    <span class="input-group-text" onclick="$('#modalListaOperadores').modal('show');">Buscar</span>
-										  </div>
-										</div> 
-				    				</div>
+						        	<input type="hidden" name="id_operador" value="@operador.getId()" readonly>
+									<input class="form-control" type="text" name="id_operador" value="@operador.getNombre()" readonly>
 						        </td>
 							</tr>
 							<tr>
@@ -225,45 +218,6 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 				</form>
 			</div>
 		</div>
-
-		<div id="modalListaOperadores" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
-			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title">Seleccionar operador</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-			      <div class="modal-body">
-					<table id="tablaOperadores" class="table table-sm table-bordered table-condensed table-hover table-fluid">
-				        <thead style="background-color: #eeeeee">
-							<TR> 
-								<th>RUT</th>
-								<th>Operador</th>
-							</TR>
-						</thead>
-						<tbody>
-							<TR onclick="selectOperador('0','Sin operador')">
-								<td><a href="#">N/A</a></td>
-								<td style="text-align:left"><a href="#">Sin operador</a></td>														
-							</TR>
-							@for(lista <- listOperadores){
-								<TR onclick="selectOperador('@lista.getId()', btoa('@lista.getNombre()') )">
-									<td style="text-align:left"><a href="#">@lista.getRut()</a></td>	
-									<td style="text-align:left"><a href="#">@lista.getNombre()</a></td>														
-								</TR>
-							}
-						</tbody>
-					</table>
-			        <br>
-					<div align="center">
-			           	<button type="button" class="btn btn-sm btn-success" data-dismiss="modal" style="font-size: 10px;">CERRAR</button>
-				    </div>
-			      </div>
-			    </div>
-			 </div>
-		</div>
 		
 		<div id="modalListaBodegas" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 			<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
@@ -414,17 +368,7 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 
 	
 	$(document).ready(function() {
-		$('#tablaOperadores').DataTable({
-	    	"fixedHeader": true,
-	    	"lengthMenu": false,
-	    	"paging":   false,
-	        "ordering": [['1','asc']],
-	        "info":     false,
-			"searching": true,
-	    	"language": {
-	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
-	        }
-	    } );
+
 		$('#tablaBodegas').DataTable({
 	    	"fixedHeader": true,
 	    	"lengthMenu": false,
@@ -523,21 +467,7 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 			}
 		}
 	}
-	
-	
-	function selectOperador(id_operador, operador){
-		operador = atob(operador);
-		$('#id_operador').val(id_operador);
-		document.getElementById("nombreOperador").innerHTML=
-			"<div class='input-group input-group-sm'>"+
-			  "<input class='form-control' type='text' onclick=\"$('#modalListaOperadores').modal('show');\" value='"+operador+"' readonly>"+
-			  "<div class='input-group-append'>"+
-			    "<span class='input-group-text' onclick=\"$('#modalListaOperadores').modal('show');\">Buscar</span>"+
-			  "</div>"+
-			"</div>";
-		$('#modalListaOperadores').modal('hide');
-	}
-	
+
 	function selectBodega(id_bodega, bodega){
 		bodega = atob(bodega);
 		$('#id_bodega').val(id_bodega);
@@ -571,8 +501,9 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 	  	});
 	}
 	
-	function selectServicio(id_servicio, servicio, unidad, id_cotiOdo){
+	function selectServicio(id_servicio, servicio, unidad, id_cotiOdo, equipo, id_equipo){
 		servicio = atob(servicio);
+		equipo = atob(equipo);
 		$('#id_servicio').val(id_servicio);
 		$('#id_cotiOdo').val(id_cotiOdo);
 		document.getElementById("nombreServicio").innerHTML=
@@ -583,6 +514,23 @@ fecha: String, listOperadores: List[tables.OperadorServicio], listBodegas: List[
 			  "</div>"+
 			"</div>";
 		$("#unidad").text("CANT (*) en "+unidad);
+		if(id_equipo != "0"){
+			$('#id_equipo').val(id_equipo);
+			document.getElementById("nombreEquipo").innerHTML=
+					"<div class='input-group input-group-sm'>"+
+					"<input class='form-control' type='text' value='"+equipo+"' readonly>"+
+					"</div>";
+		}else{
+			$('#id_equipo').val("0");
+			document.getElementById("nombreEquipo").innerHTML=
+					"<div class='input-group input-group-sm'>"+
+					"<input class=\"form-control\" type=\"text\" onclick=\"$('#modalListaEquipos').modal('show');\" value=\"Sin equipo asociado\" readonly>"+
+					"<div class=\"input-group-append\">"+
+					"<span class=\"input-group-text\" onclick=\"$('#modalListaEquipos').modal('show');\">Buscar</span>"+
+					"</div>"+
+					"</div>";
+		}
+
 		$('#modalListaServicios').modal('hide');
 	}
 	

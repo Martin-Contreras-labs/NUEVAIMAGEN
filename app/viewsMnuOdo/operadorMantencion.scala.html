@@ -18,7 +18,7 @@ listOperadores: List[tables.OperadorServicio])
 							<TH>E-MAIL</TH>
 							<TH>TELEFONO</TH>
 							<TH>NOTAS</TH>
-							<TH>USER ASOCIADO</TH>
+							<TH>USER MADA</TH>
 							<TH>ACTIVO</TH>
 							<TH>EDIT</TH>
 						</TR>
@@ -35,16 +35,28 @@ listOperadores: List[tables.OperadorServicio])
 								<td style="text-align:center;">@lista1.getUserAdamName()</td>
 								<td  style="text-align:center;">
 									<input type="hidden" id="activo_@lista1.getId()" value="@lista1.getActivo()">
-									@if(lista1.getActivo()==1){
-										<input type="checkbox" checked onchange="modificaActivo('@lista1.getId()');">
+									@if(lista1.getUserAdamName().equals("")){
+										@if(lista1.getActivo()==1){
+											<input type="checkbox" checked onchange="modificaActivo('@lista1.getId()');">
+										}else{
+											<input type="checkbox" onchange="modificaActivo('@lista1.getId()');">
+										}
 									}else{
-										<input type="checkbox" onchange="modificaActivo('@lista1.getId()');">
+										@if(lista1.getActivo()==1){
+											<input type="checkbox" checked disabled>
+										}else{
+											<input type="checkbox" disabled>
+										}
 									}
+
+
 								</td>
 								<td style="text-align:center;">
-									<a href="/operadorModifica/@lista1.getId()">
-										<kbd style="background-color: #73C6B6">E</kbd>
-									</a>
+									@if(lista1.getUserAdamName().equals("")){
+										<a href="/operadorModifica/@lista1.getId()">
+											<kbd style="background-color: #73C6B6">E</kbd>
+										</a>
+									}
 								</td>
 							</TR>
 			 			}

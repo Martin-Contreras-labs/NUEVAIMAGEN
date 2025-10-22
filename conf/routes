@@ -316,6 +316,8 @@ GET     /hojaVidaMantencionLista/:flag					controllers.MnuPlanes.hojaVidaMantenc
 POST    /hojaVidaMantencionPlan/					controllers.MnuPlanes.hojaVidaMantencionPlan(request: Request)
 POST    /hojaVidaMantencionHoja/					controllers.MnuPlanes.hojaVidaMantencionHoja(request: Request)
 GET    	/hojaVidaMantencionHojaReturn/:id_equipo	controllers.MnuPlanes.hojaVidaMantencionHojaReturn(request: Request, id_equipo: Long)
+POST    /hojaVidaMantencionListaExcel/				controllers.MnuPlanes.hojaVidaMantencionListaExcel(request: Request)
+
 
 POST    /hojaVidaMantencionHojaAgrega/		controllers.MnuPlanes.hojaVidaMantencionHojaAgrega(request: Request)
 POST    /hojaVidaMantencionHojaElimina/		controllers.MnuPlanes.hojaVidaMantencionHojaElimina(request: Request)
