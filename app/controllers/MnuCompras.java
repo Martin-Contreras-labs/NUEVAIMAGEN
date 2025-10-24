@@ -748,8 +748,7 @@ public class MnuCompras extends Controller {
 					String selEquipos = "";
 					for (List<String> l : listaExcel) {
 
-						String codEquipo = l.get(1);
-						codEquipo = codEquipo.replaceAll("[/\\\\,'`\"_\\s]", "");
+						String codEquipo = l.get(1).trim();
 
 						if (codEquipo != null) {
 							codEquipo = codEquipo.trim().toUpperCase();

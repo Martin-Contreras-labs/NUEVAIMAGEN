@@ -12964,6 +12964,12 @@ public class MnuReportes extends Controller {
 					Cell cell = null;
 					List<String> listErr = new ArrayList<String>();
 					List<List<String>> listado = new ArrayList<List<String>>();
+
+					// CODIGO EQUIPO - PRODUCTO HOHE
+					Map<String,String> mapCodProducto = new HashMap<String,String>();
+					mapCodProducto.put("I001", "I001");
+					mapCodProducto.put("I005", "I005");
+
 					// valido datos
 					int fila = 1;
 					row = hoja1.getRow(fila);
@@ -13084,9 +13090,31 @@ public class MnuReportes extends Controller {
 								listErr.add("EN FILA " + (fila + 1) + ": el ID BODEGA no es valido obligatorio.");
 								flag = false;
 							}
+
+							// Valido codigo producto
+							cell = row.getCell(7);
+							if (cell != null) {
+								try {
+									String cod_producto = mapCodProducto.get(cell.getStringCellValue().trim());
+									if (cod_producto != null) {
+										auxList.add(cod_producto);
+									} else {
+										listErr.add("EN FILA " + (fila + 1) + ": el COD PRODUCTO no es valido obligatorio.");
+										flag = false;
+									}
+								} catch (Exception e) {
+									listErr.add("EN FILA " + (fila + 1) + ": el COD PRODUCTO no es valido obligatorio.");
+									flag = false;
+								}
+							} else {
+								listErr.add("EN FILA " + (fila + 1) + ": el COD PRODUCTO no es valido obligatorio.");
+								flag = false;
+							}
+
 							if (flag) {
 								listado.add(auxList);
 							}
+
 							//siguiente linea
 							fila++;
 							row = hoja1.getRow(fila);
@@ -13120,6 +13148,7 @@ public class MnuReportes extends Controller {
 						}
 						MnuReportes.hoheGeneraNVdesdeExcel generar = new MnuReportes.hoheGeneraNVdesdeExcel(listado, s, mailDestino);
 						generar.start();
+
 						String msg = "NV en preparación, recibira el resultado al correo:" + mailDestino + ". Tomara varios minutos para recibir el correo";
 						return ok("{\"status\":true,\"error\":false,\"msg\":\"" + msg + "\"}").as("application/json");
 					}
@@ -13173,6 +13202,7 @@ public class MnuReportes extends Controller {
 						String auxNeto = l.get(2);
 						Cliente cliente = mapClie.get(rutClie);
 						BodegaEmpresa bodega = mapBodegas.get(Long.parseLong(l.get(5)));
+						String cod_producto = l.get(6);
 
 						Sucursal sucursal = Sucursal.find(con1, s.baseDato, bodega.getId_sucursal().toString());
 						String ccost = sucursal.getCcost().trim();
@@ -13245,7 +13275,7 @@ public class MnuReportes extends Controller {
 							api.referencia = "";
 							List<ApiManagerDocDet> detalle = new ArrayList<ApiManagerDocDet>();
 							ApiManagerDocDet det = new ApiManagerDocDet();
-							det.cod_producto = "I001";
+							det.cod_producto = cod_producto;
 							det.cantidad = "1";
 							det.unidad = "UNS";
 							det.precio_unit = neto.toString();
@@ -13360,6 +13390,12 @@ public class MnuReportes extends Controller {
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("ID_BODEGA");
+				cell = row.createCell(7);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("COD PRODUCTO");
+				hoja1.setColumnWidth(7, 4 * 1000);
+
 				libro.setSheetName(1, "AUXILIAR");
 				Sheet hoja2 = libro.getSheetAt(1);
 				List<Cliente> listCliente = null;
@@ -13385,6 +13421,7 @@ public class MnuReportes extends Controller {
 				}
 				hoja2.setColumnWidth(1, 15 * 1000);
 				hoja2.setColumnWidth(5, 15 * 1000);
+				hoja2.setColumnWidth(8, 2 * 1000);
 				row = hoja2.getRow(0);
 				cell = row.createCell(0);
 				cell.setCellStyle(encabezado);
@@ -13423,7 +13460,11 @@ public class MnuReportes extends Controller {
 				int cont = 1;
 				for (int i = 0; i < listBodegas.size(); i++) {
 					if (listBodegas.get(i).getComercial().length() > 0) {
-						row = hoja2.getRow(cont);
+						try {
+							row = hoja2.getRow(cont);
+						} catch (Exception e) {
+							row = hoja2.createRow(cont);
+						}
 						cell = row.createCell(3);
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(listBodegas.get(i).getId());
@@ -13439,6 +13480,29 @@ public class MnuReportes extends Controller {
 						cont++;
 					}
 				}
+
+				row = hoja2.getRow(0);
+				cell = row.createCell(8);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("COD_PRODUCTO");
+				try {
+					row = hoja2.getRow(1);
+				} catch (Exception e) {
+					row = hoja2.createRow(1);
+				}
+				cell = row.createCell(8);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("I001");
+				try {
+					row = hoja2.getRow(2);
+				} catch (Exception e) {
+					row = hoja2.createRow(2);
+				}
+				cell = row.createCell(8);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("I005");
+
 				// Write the output to a file tmp
 				FileOutputStream fileOut = new FileOutputStream(tmp);
 				libro.write(fileOut);

@@ -159,19 +159,7 @@ listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
 	        
 			<div class="row">
 				<div class="col-sm-12" style="text-align:center">
-				
-				
-				<!--
-					<button type="button" class="btn btn-sm  btn-info" style="font-size: 8px;" onclick="$('#modalBajarArchivo').modal('show')">OBTENER EXCEL ICONSTRUYE</button>
-					<br><br>
-					<form id="importPlantilla" action="/plantillaIConstruyeUpload/" method="POST" enctype="multipart/form-data">
-						<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
-							<div>SUBIR EXCEL ICONSTRUYE</div>
-							<input type="file" id="archivoXLSX" name="archivoXLSX" value="" onchange="subirArchivo(this.form, this.form.archivoXLSX.value)">
-						</span>
-					</form>
-				-->
-					
+
 					<form id="importPlantilla" action="/detalleProductoUploadIConstruye/" method="POST" enctype="multipart/form-data">
 						<span class="btn btn-primary btn-lg btn-file" style="font-size: 8px;">
 							<div>PASO 1: SUBIR PROD_DET (IConstruye)</div>
@@ -194,9 +182,7 @@ listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
 							<input type="file" id="archivoXLSX2" name="archivoXLSX" value="" onchange="subirArchivo2(this.form, this.form.archivoXLSX2.value)">
 						</span>
 					</form>
-					
-					
-					
+
 					
 					
 					<br>
