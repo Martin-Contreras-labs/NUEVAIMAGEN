@@ -1233,7 +1233,7 @@ public class VentaServicio {
 			while(rs2.next()) {
 				BodegaEmpresa bodega = mapBodega.get(rs2.getLong(4));
 				Equipo equipo = mapEquipo.get(rs2.getLong(5));
-				if(bodega!=null && equipo!=null) {
+				if(bodega!=null || equipo!=null) {
 					String fecha = Fechas.DDMMAA(rs2.getString(7));
 					String horaIni = rs2.getString(9).substring(0,5);
 					String horaTer = rs2.getString(10).substring(0,5);

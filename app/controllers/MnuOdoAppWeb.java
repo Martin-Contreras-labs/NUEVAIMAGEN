@@ -220,6 +220,12 @@ public class MnuOdoAppWeb extends Controller {
 		try (Connection con = dbRead.getConnection()){
 			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
 			OperadorServicio operador = OperadorServicio.findPorIdUserMada(con,s.baseDato,userMnu.getId_usuario());
+			if(operador==null) {
+				operador = new OperadorServicio();
+				operador.id = 0L;
+				operador.id_userAdam = Long.parseLong(userMnu.getId_usuario());
+				operador.nombre = userMnu.getUserName();
+			}
 
 			List<List<String>> listBodegasConEquipos = EquipoServicio.listaBodegasConEquipos(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
 			List<List<String>> listBodegasConServicios = ListaPrecioServicio.listaBodegasConServicios(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal);
