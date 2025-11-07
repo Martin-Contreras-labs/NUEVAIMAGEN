@@ -234,7 +234,7 @@ public class ResumenDetallePorPeriodo {
 				}
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ResumenDetallePorPeriodo.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

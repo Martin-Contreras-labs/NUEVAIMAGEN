@@ -99,7 +99,7 @@ public static String genera(Connection con, String db, String xml, WSClient ws, 
 				 ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 		return rs;
 	} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-		String className = ActaBaja.class.getSimpleName();
+		String className = WebFacturacion.class.getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		return "FALLA";
@@ -182,7 +182,7 @@ public static String genera(Connection con, String db, String xml, WSClient ws, 
 			rs.replace("http:", "https:");
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = WebFacturacion.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA";

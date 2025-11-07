@@ -132,7 +132,7 @@ public class FormContrato {
 			contrato.rutRepresEmpresa = cotizacion.rutRepresEmpresa;
 			contrato.direccionObra = cotizacion.direccionObra;
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormContrato.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -235,7 +235,7 @@ public class FormContrato {
 				flag = true;
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormContrato.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

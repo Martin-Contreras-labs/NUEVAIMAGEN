@@ -98,7 +98,7 @@ public class WebMaximise {
 			Guia.modificaPorCampo(con, db, "response", id_guia, rs);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA: SE PRESENTARON ERRORES";
@@ -156,7 +156,7 @@ public class WebMaximise {
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -341,7 +341,7 @@ public class WebMaximise {
 			String xml = xmlHead+xmlDetalle;
 			return(xml);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -379,7 +379,7 @@ public class WebMaximise {
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA: SE PRESENTARON ERRORES";
@@ -562,13 +562,13 @@ public class WebMaximise {
 			try {
 				xmlEncode = URLEncoder.encode(xml, StandardCharsets.UTF_8.toString());
 			} catch (UnsupportedEncodingException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = ApiSapConconcreto.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 	  		return(xmlEncode);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -626,7 +626,7 @@ public class WebMaximise {
 			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -666,7 +666,7 @@ public class WebMaximise {
 					 ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA: SE PRESENTARON ERRORES";

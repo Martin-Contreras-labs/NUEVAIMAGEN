@@ -22,7 +22,7 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 				<table id="tablaCampos" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 					<thead style="background-color: #eeeeee">
 						<TR>
-							<th colspan="4">ATRIBUTOS ASOCIADOS AL EQUIPO</th>
+							<th colspan="7">ATRIBUTOS ASOCIADOS AL EQUIPO</th>
 						</TR>
 						<TR>
 							<th hidden="true"> IdCampo</th>
@@ -30,6 +30,8 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 							<th>ORDEN</th>
 							<th>ATRIBUTO</th>
 							<th>CONTENIDO</th>
+							<th>FECHA DE<br>VENCIMIENTO</th>
+							<th>DIAS PRE<br>AVISO</th>
 							<th>DEL</th>
 						</TR>
 					</thead>
@@ -81,6 +83,20 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 						        		}
 						        	}
 					        	</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none;">@lista.fechaVencimiento</div>
+									<input type="date" class="form-control center"
+										id="fechaVencimiento"
+										value="@lista.fechaVencimiento"
+										onblur="actualizaPorCampo('@lista.id_qrAtributoEquipo', id, value)">
+								</td>
+								<td>
+									<input type="text" class="form-control center"
+										id="diasPreAviso"
+										value="@lista.diasPreAviso"
+										onkeydown="return ingresoInt(window.event)"
+										onchange="if(value.trim().length==0) value=0; actualizaPorCampo('@lista.id_qrAtributoEquipo', id, value)">
+								</td>
 								<td width="5%" style="text-align:center;">
 									<a href="#" onclick= "eliminar(this, '@lista.id_qrAtributoEquipo')">
 										<kbd style="background-color: red">X</kbd>
@@ -102,6 +118,8 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 								</select>
 					        </td>
 					        <td width="60%" style="text-align:left;"></td>
+							<td width="30%" style="text-align:left;">
+							<td style="text-align:left;">
 					        <td width="5%"></td>
 						</TR>
 					</tbody>
@@ -178,7 +196,20 @@ qrEquipo: qr.QrEquipo, listaTransac: List[qr.QrTransacEquipo], listaCampos:List[
 						        "</span>";
         			}
 					cellsOfRow[5].setAttribute("style","text-align:center;");
-        			cellsOfRow[5].innerHTML=
+					cellsOfRow[5].innerHTML=
+							"<input type=\"date\" class=\"form-control center\" " +
+							" id=\"fechaVencimiento\" " +
+							" onblur='actualizaPorCampo("+idCampo+", id, value)'>";
+
+					cellsOfRow[6].setAttribute("style","text-align:center;");
+					cellsOfRow[6].innerHTML=
+							"<input type=\"text\" class=\"form-control center\" " +
+							" id=\"diasPreAviso\" " +
+							" onkeydown=\"return ingresoInt(window.event)\""+
+							" onchange='if(value.trim().length==0) value=0; actualizaPorCampo("+idCampo+", id, value)'>";
+
+					cellsOfRow[7].setAttribute("style","text-align:center;");
+        			cellsOfRow[7].innerHTML=
 									"<a href='#' onclick='eliminar(this,"+idCampo+")'>"+
 										"<kbd style='background-color: red'>X</kbd>"+
 									"</a>";

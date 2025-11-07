@@ -53,7 +53,7 @@ public class AppCPanel extends Controller {
     	if(idUserCpanel==null) {
     		return ok(mensajes.render("/cpanel",msgErrorFormulario));
     	}else {
-    		try (Connection con = dbRead.getConnection()){
+    		try (Connection con = dbWrite.getConnection()){
 	    		CPanel usuario = CPanel.findIdUserCpanel(con, idUserCpanel);
 	    		Map<String,String> map = new HashMap<String,String>();
 				map.put("pais", "sinPais");
@@ -104,7 +104,7 @@ public class AppCPanel extends Controller {
        		}
 
 
-			try (Connection con = dbRead.getConnection()){
+			try (Connection con = dbWrite.getConnection()){
 				CPanel usuario = CPanel.findUsuario(con, userName, empresa, userKey);
 				if(usuario.id_user==null) {
 					String msg = "Los datos ingresados de usuario, empresa o clave, no corresponden, vuelva a ingresarlos. En caso de continuar " +
@@ -195,7 +195,7 @@ public class AppCPanel extends Controller {
    			return ok(mensajes.render("/cpanel",msgErrorFormulario));
        	}else {
        		Long id_cPanel = Long.parseLong(form.get("id_cPanel"));
-			try (Connection con = dbRead.getConnection()){
+			try (Connection con = dbWrite.getConnection()){
 				CPanel empresa = CPanel.findEmpresa(con, id_cPanel);
 				if(request.session().get("userNameAdmin").get()==null || empresa.id_cPanel==null) {
 					return ok(mensajes.render("/cpanel",msgError));

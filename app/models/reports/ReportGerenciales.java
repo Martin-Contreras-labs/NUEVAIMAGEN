@@ -949,7 +949,7 @@ public class ReportGerenciales {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ReportGerenciales.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -1008,7 +1008,7 @@ public class ReportGerenciales {
 			smt.executeUpdate();
 			return(true);
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ReportGerenciales.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

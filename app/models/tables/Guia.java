@@ -1799,9 +1799,10 @@ public class Guia {
        			campo = campo.substring(0, campo.length() - 1) + "-" + campo.charAt(campo.length() - 1);
             }campo = campo.replaceAll("[\\,\\.]","").trim();
 		}
+
 		try {
 			PreparedStatement smt = con.prepareStatement("update `"+db+"`.guia set `"+campo+"` = ? WHERE id = ?;");	
-			smt.setString(1, valor.trim());
+			smt.setString(1, valor);
 			smt.setLong(2, id_guia);
 			smt.executeUpdate();
 			smt.close();

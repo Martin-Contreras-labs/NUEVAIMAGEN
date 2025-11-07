@@ -65,7 +65,7 @@ public class Calc_AjustesEpOdo {
 				}
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Calc_AjustesEpOdo.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -111,7 +111,7 @@ public class Calc_AjustesEpOdo {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Calc_AjustesEpOdo.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -170,7 +170,7 @@ public class Calc_AjustesEpOdo {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Calc_AjustesEpOdo.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

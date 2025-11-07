@@ -65,7 +65,7 @@ public class ApiIConstruyeOC {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiIConstruyeOC.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return null;
@@ -111,7 +111,7 @@ public class ApiIConstruyeOC {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiIConstruyeOC.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return null;
@@ -148,7 +148,7 @@ public class ApiIConstruyeOC {
 			            }).toCompletableFuture().get(6000000,TimeUnit.MILLISECONDS);
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiIConstruyeOC.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return null;
@@ -228,7 +228,7 @@ public class ApiIConstruyeOC {
 			            }).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiIConstruyeOC.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return null;

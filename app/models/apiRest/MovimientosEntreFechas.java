@@ -224,7 +224,7 @@ public class MovimientosEntreFechas {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = MovimientosEntreFechas.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

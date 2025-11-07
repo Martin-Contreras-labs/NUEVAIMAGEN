@@ -12,6 +12,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import controllers.HomeController;
 import models.tables.*;
@@ -136,6 +137,8 @@ public class GeneraPDF_ContratoOdo {
 				cell = row.getCell(8); setCelda(cell,"Arial",8,3,"2b5079",preAdic,false);
 				table.createRow();
 			}
+			Map<Long, Map<String,String>> mapAtributos = Atributo.mapIdEquipoVsMapAtributos(con,db);
+
 			for (XWPFParagraph p : doc.getParagraphs()) {
 				 for (XWPFRun r : p.getRuns()) {
 					 String text = r.getText(0);
@@ -239,6 +242,32 @@ public class GeneraPDF_ContratoOdo {
 					   if (text.contains("fechaCotizacion"))  {
 							text = text.replace("fechaCotizacion",fechaCotizacion);
 							r.setText(text, 0); }
+					   if (text.contains("detalleEquipo"))  {
+						   String auxAtributos = "";
+						   boolean flag = true;
+						   for(int i=0;i<listadoServicios.size();i++) {
+							   Long id_equipo = Long.parseLong(listadoServicios.get(i).get(14));
+							   if(id_equipo > 0) {
+								   if (flag) {
+									   flag = false;
+									   auxAtributos = "ITEM II: EQUIPO\n\n";
+								   }
+								   auxAtributos +=  "Codigo : " + listadoServicios.get(i).get(15) + "\n";
+								   auxAtributos +=  "Equipo : " + listadoServicios.get(i).get(16) + "\n";
+								   Map<String,String> mapAtrib = mapAtributos.get(id_equipo);
+								   if(mapAtrib != null) {
+									   for (Map.Entry<String, String> entry : mapAtrib.entrySet()) {
+										   String atributo = entry.getKey();
+										   String valor = entry.getValue();
+										   auxAtributos += atributo + " : " + valor + "\n";
+									   }
+								   }
+								   auxAtributos += "\n";
+							   }
+						   }
+						   text = text.replace("detalleEquipo",auxAtributos);
+						   r.setText(text, 0);
+					   }
 					}
 				 }
 			  }
@@ -261,7 +290,7 @@ public class GeneraPDF_ContratoOdo {
 				Archivos.grabarArchivo(tmp, path);
 				return(archivoPdf);
 		} catch (IOException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = GeneraPDF_ContratoOdo.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

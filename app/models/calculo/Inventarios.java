@@ -105,7 +105,7 @@ public class Inventarios {
 			}
 			return(map);
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return(null);
@@ -160,7 +160,7 @@ public class Inventarios {
 			}
 			return(map);
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return(null);
@@ -210,7 +210,7 @@ public class Inventarios {
 			});
 			return(map);
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return(null);
@@ -249,13 +249,13 @@ public class Inventarios {
 						}
 					}
 				} catch (SQLException e) {
-					String className = ActaBaja.class.getSimpleName();
+					String className = Inventarios.class.getSimpleName();
 					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				}
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -309,13 +309,13 @@ public class Inventarios {
 						}
 					}
 				} catch (SQLException e) {
-					String className = ActaBaja.class.getSimpleName();
+					String className = Inventarios.class.getSimpleName();
 					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				}
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -376,13 +376,13 @@ public class Inventarios {
 						}
 					}
 				} catch (SQLException e) {
-					String className = ActaBaja.class.getSimpleName();
+					String className = Inventarios.class.getSimpleName();
 					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				}
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -404,7 +404,7 @@ public class Inventarios {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -424,7 +424,7 @@ public class Inventarios {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -446,7 +446,7 @@ public class Inventarios {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -468,7 +468,7 @@ public class Inventarios {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -533,12 +533,12 @@ public class Inventarios {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = Inventarios.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -601,12 +601,12 @@ public class Inventarios {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = Inventarios.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -647,12 +647,12 @@ public class Inventarios {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = Inventarios.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

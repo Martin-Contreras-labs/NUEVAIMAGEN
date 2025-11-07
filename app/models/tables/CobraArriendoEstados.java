@@ -364,7 +364,7 @@ public class CobraArriendoEstados {
 						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo, fechaIniTerGuia));
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CobraArriendoEstados.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -447,7 +447,7 @@ public class CobraArriendoEstados {
 						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo, fechaIniTerGuia));
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CobraArriendoEstados.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -531,7 +531,7 @@ public class CobraArriendoEstados {
 						numGuia,numGuiaCliente,fecha,cantidad,nombreSucursal,nombreGrupo,id_moneda,nickMoneda,puArriendoDia,puReposicion, cobraArriendo, fechaIniTerGuia));
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CobraArriendoEstados.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -546,7 +546,7 @@ public class CobraArriendoEstados {
 			smt.executeUpdate();
 			return (true);
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CobraArriendoEstados.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

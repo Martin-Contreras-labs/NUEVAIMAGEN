@@ -94,7 +94,7 @@ public class CPanel {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "madaCPanel", e);
 		}
@@ -116,7 +116,7 @@ public class CPanel {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "madaCPanel", e);
 		}
@@ -187,7 +187,7 @@ public class CPanel {
 				vista.add(aux);
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -225,7 +225,7 @@ public class CPanel {
 				resultado.add(aux.get(i));
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -275,7 +275,7 @@ public class CPanel {
 				resultado.add(aux3);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -308,7 +308,7 @@ public class CPanel {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = CPanel.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
@@ -333,7 +333,7 @@ public class CPanel {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = CPanel.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
@@ -344,7 +344,7 @@ public class CPanel {
 				total = total/100;
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -392,7 +392,7 @@ public class CPanel {
 				tabla.add(datos.get(i));
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -413,7 +413,7 @@ public class CPanel {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "madaCPanel", e);
 		}
@@ -438,7 +438,7 @@ public class CPanel {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = CPanel.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, bd, e);
 			}
@@ -466,7 +466,7 @@ public class CPanel {
 						"<div align='center'><button type='button' class='btn btn-mini' data-dismiss='modal' tabindex='-1'>cerrar</button></div>" +
 						"</div>";
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -491,7 +491,7 @@ public class CPanel {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = CPanel.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, bd, e);
 			}
@@ -519,7 +519,7 @@ public class CPanel {
 						"<div align='center'><button type='button' class='btn btn-mini' data-dismiss='modal' tabindex='-1'>cerrar</button></div>" +
 						"</div>";
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -544,7 +544,7 @@ public class CPanel {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = CPanel.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, bd, e);
 			}
@@ -572,7 +572,7 @@ public class CPanel {
 						"<div align='center'><button type='button' class='btn btn-mini' data-dismiss='modal' tabindex='-1'>cerrar</button></div>" +
 						"</div>";
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -589,7 +589,7 @@ public class CPanel {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, empresa.baseDato, e);
 		}
@@ -612,7 +612,7 @@ public class CPanel {
 				}
 			}
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = CPanel.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "madaCPanel", e);
 		}

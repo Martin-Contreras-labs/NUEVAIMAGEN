@@ -1902,6 +1902,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				Transportista transporte = Transportista.find(con, s.baseDato, id_transportista);
 				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
 				String xml = WebIConstruye.generaGuiaXMLGuias(con, s.baseDato, mapeoPermiso, guia, transporte, mapeoDiccionario, emisorTributario);
+				if(xml==null){
+					return ok(mensajes.render("/home/", msgReport));
+				}
 				Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, xml);
 				Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
 				String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, id_guia, (long)0);

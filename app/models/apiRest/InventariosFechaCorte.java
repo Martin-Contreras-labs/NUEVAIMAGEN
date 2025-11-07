@@ -156,7 +156,7 @@ public class InventariosFechaCorte {
 			}
 			return (datos);
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = InventariosFechaCorte.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;

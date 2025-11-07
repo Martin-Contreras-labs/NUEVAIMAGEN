@@ -598,7 +598,13 @@ GET		/qrSelectEquipos/			controllers.MnuQr.qrSelectEquipos(request: Request)
 POST	/qrAgregaEquipo/			controllers.MnuQr.qrAgregaEquipo(request: Request)
 POST	/qrCambiaEstadoEquipos/		controllers.MnuQr.qrCambiaEstadoEquipos(request: Request)
 
-POST	/qrRevisarDatos/			controllers.MnuQr.qrRevisarDatos(request: Request)
+POST	/qrRevisarDatos/			        controllers.MnuQr.qrRevisarDatos(request: Request)
+GET	    /qrRevisarDatosAllVigentes/			controllers.MnuQr.qrRevisarDatosAllVigentes(request: Request)
+POST	/qrRevisarDatosAllVigentesExcel/    controllers.MnuQr.qrRevisarDatosAllVigentesExcel(request: Request)
+
+
+
+
 POST	/qrCambiarPubEquipo/		controllers.MnuQr.qrCambiarPubEquipo(request: Request)
 POST	/qrCambiarPubQr/			controllers.MnuQr.qrCambiarPubQr(request: Request)
 POST	/qrEditEquipo/				controllers.MnuQr.qrEditEquipo(request: Request)

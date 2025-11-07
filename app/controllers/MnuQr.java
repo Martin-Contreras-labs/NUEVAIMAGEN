@@ -21,10 +21,7 @@ import models.qr.QrTipoContenido;
 import models.qr.QrTransacEquipo;
 import models.reports.ReportTrazabilidades;
 import models.tables.*;
-import models.utilities.Archivos;
-import models.utilities.DatabaseRead;
-import models.utilities.Registro;
-import models.utilities.UserMnu;
+import models.utilities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
@@ -212,6 +209,117 @@ public class MnuQr extends Controller {
 				return ok(mensajes.render("/home/", msgReport));
 			}
     	}
+	}
+
+	public Result qrRevisarDatosAllVigentes(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("qrAdminEquipos")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			List<QrTransacEquipo> listaTransacAll = QrTransacEquipo.allEquiposActivos(con, s.baseDato);
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con,s.baseDato);
+			List<List<String>> lista = new ArrayList<List<String>>();
+			for(int i=0; i<listaTransacAll.size(); i++) {
+				Equipo equipoAux = mapEquipo.get(listaTransacAll.get(i).id_equipo);
+				if(equipoAux != null) {
+					List<String> aux = new ArrayList<String>();
+
+					aux.add(equipoAux.codigo);		// 0
+					aux.add(equipoAux.nombre);		// 1
+					aux.add(listaTransacAll.get(i).campo);		// 2
+
+					aux.add(listaTransacAll.get(i).id_qrTipoContenido.toString());		// 3
+					aux.add(listaTransacAll.get(i).contenido);		// 4
+					aux.add(listaTransacAll.get(i).extencion);		// 5
+					aux.add(listaTransacAll.get(i).tipo);			// 6
+
+					aux.add(listaTransacAll.get(i).colorCelda);				// 7
+					aux.add(listaTransacAll.get(i).fechaVencimiento);		// 8
+
+					aux.add(listaTransacAll.get(i).id_equipo.toString());				// 9
+					aux.add(listaTransacAll.get(i).id_qrAtributoEquipo.toString());		// 10
+					aux.add(listaTransacAll.get(i).activo.toString());					// 11
+
+					lista.add(aux);
+
+				}
+			}
+			return ok(qrRevisarDatosALL.render(mapeoDiccionario,mapeoPermiso,userMnu, lista));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+
+	public Result qrRevisarDatosAllVigentesExcel(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+		if(mapeoPermiso.get("qrAdminEquipos")==null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/",msgSinPermiso));
+		}
+		try (Connection con = dbRead.getConnection()){
+			List<QrTransacEquipo> listaTransacAll = QrTransacEquipo.allEquiposActivos(con, s.baseDato);
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con,s.baseDato);
+			List<List<String>> lista = new ArrayList<List<String>>();
+			for(int i=0; i<listaTransacAll.size(); i++) {
+				Equipo equipoAux = mapEquipo.get(listaTransacAll.get(i).id_equipo);
+				if(equipoAux != null) {
+					List<String> aux = new ArrayList<String>();
+
+					aux.add(equipoAux.codigo);		// 0
+					aux.add(equipoAux.nombre);		// 1
+					aux.add(listaTransacAll.get(i).campo);		// 2
+
+					aux.add(listaTransacAll.get(i).id_qrTipoContenido.toString());		// 3
+					aux.add(listaTransacAll.get(i).contenido);		// 4
+					aux.add(listaTransacAll.get(i).extencion);		// 5
+					aux.add(listaTransacAll.get(i).tipo);			// 6
+
+					aux.add(listaTransacAll.get(i).colorCelda);				// 7
+					aux.add(listaTransacAll.get(i).fechaVencimiento);		// 8
+
+					aux.add(listaTransacAll.get(i).id_equipo.toString());				// 9
+					aux.add(listaTransacAll.get(i).id_qrAtributoEquipo.toString());		// 10
+					aux.add(listaTransacAll.get(i).activo.toString());					// 11
+
+					lista.add(aux);
+
+				}
+			}
+			Fechas hoy = Fechas.hoy();
+			File file = QrTransacEquipo.qrRevisarDatosAllVigentesExcel(s.baseDato, mapeoDiccionario, lista, hoy);
+			return ok(file,false,Optional.of("RevisaDatosQrTodos.xlsx"));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
 	}
 	
 	public static List<List<String>> atributosPorEquipo (Connection con, String base, Long id_grupo, Long id_equipo){

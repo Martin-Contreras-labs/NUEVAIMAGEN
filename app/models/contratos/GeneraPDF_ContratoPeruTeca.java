@@ -106,7 +106,7 @@ public class GeneraPDF_ContratoPeruTeca {
 			Archivos.grabarArchivo(tmp, path);
 			return(archivoPdf);
 		} catch (IOException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = GeneraPDF_ContratoPeruTeca.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

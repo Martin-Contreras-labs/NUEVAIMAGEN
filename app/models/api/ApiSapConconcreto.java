@@ -155,7 +155,7 @@ public class ApiSapConconcreto {
 			            }).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS).get(600000,TimeUnit.MILLISECONDS);
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA";
@@ -264,7 +264,7 @@ public class ApiSapConconcreto {
 				return(datos);
 			}
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;

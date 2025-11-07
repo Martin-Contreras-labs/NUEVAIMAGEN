@@ -100,7 +100,7 @@ public class ApiNuboxDocDoc {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS).get(100000,TimeUnit.MILLISECONDS);
 			return rs;
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiNuboxDocDoc.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "FALLA";
@@ -239,7 +239,7 @@ public class ApiNuboxDocDoc {
 			api.documentoReferenciado.glosa = msg;
 			return(api);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiNuboxDocDoc.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -343,7 +343,7 @@ public class ApiNuboxDocDoc {
 			String datosJSon = Json.toJson(api).toString();
 			return(datosJSon);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiNuboxDocDoc.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;

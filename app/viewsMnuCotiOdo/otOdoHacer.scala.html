@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 formOtOdo: forms.FormOtOdo, listBodegas: List[List[String]], tabla: String, listProyectos: List[tables.Proyecto], listRegiones: List[tables.Regiones],
-listOperadoresServicio: List[tables.OperadorServicio], listEquipos: List[tables.Equipo])
+listOperadoresServicio: List[tables.OperadorServicio], listEquipos: List[List[String]])
 
 @main("") {
 
@@ -260,16 +260,12 @@ listOperadoresServicio: List[tables.OperadorServicio], listEquipos: List[tables.
 					</button>
 				</div>
 				<div class="modal-body">
-					<div class="noprint" align="center">
-						<a href="#" onclick="$('#listaCliente').modal('hide'); $('#modalClienteNuevo').modal('show');">
-							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
-						</a>
-					</div>
 					<table id="tablaListaEquipos" class="table table-sm table-bordered table-condensed table-hover table-fluid">
 						<thead style="background-color: #eeeeee">
 							<TR>
 								<TH>CODIGO</TH>
 								<TH>EQUIPO</TH>
+								<TH>UBICACION</TH>
 							</TR>
 						</thead>
 						<tbody>
@@ -279,14 +275,16 @@ listOperadoresServicio: List[tables.OperadorServicio], listEquipos: List[tables.
 									data-dismiss="modal">
 								<td  style="text-align:left;">Sin Equipo</td>
 								<td  style="text-align:left;">Sin Equipo</td>
+								<td  style="text-align:left;">Sin Equipo</td>
 							</TR>
 							@for(lista1 <- listEquipos){
 								<TR onClick=
-									"$('#equipoAsociado_'+auxEquipoAsociado).val('@lista1.getCodigo() - @lista1.getNombre()');
-										modificaPorCampo(auxId_cotiOdoDetalle,'id_equipo',@lista1.getId());"
+									"$('#equipoAsociado_'+auxEquipoAsociado).val('@lista1.get(1) - @lista1.get(2)');
+										modificaPorCampo(auxId_cotiOdoDetalle,'id_equipo',@lista1.get(0));"
 									data-dismiss="modal">
-									<td  style="text-align:left;">@lista1.getCodigo()</td>
-									<td  style="text-align:left;">@lista1.getNombre()</td>
+									<td  style="text-align:left;">@lista1.get(1)</td>
+									<td  style="text-align:left;">@lista1.get(2)</td>
+									<td  style="text-align:left;">@lista1.get(3)</td>
 								</TR>
 							}
 						</tbody>
@@ -330,6 +328,15 @@ listOperadoresServicio: List[tables.OperadorServicio], listEquipos: List[tables.
 	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 	        }
 	  	} );
+
+		$('#tablaListaEquipos').DataTable({
+			"fixedHeader": true,
+			"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+			"order": [[ 1, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		} );
 
 		document.getElementById('mostrarmostrar').style.display="block";
 	});

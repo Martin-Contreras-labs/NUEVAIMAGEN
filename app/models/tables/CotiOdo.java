@@ -1087,7 +1087,7 @@ public class CotiOdo {
 		return(vista);
 	}
 
-	public static String vistaHaceOT(Connection con, String db, Long id_cotiOdo, Map<String,String> mapDiccionario, List<Equipo> listEquipos){
+	public static String vistaHaceOT(Connection con, String db, Long id_cotiOdo, Map<String,String> mapDiccionario){
 		String vista="";
 		CotiOdo cotiOdo = CotiOdo.find(con, db,id_cotiOdo);
 		String fecha = Fechas.AAMMDD(cotiOdo.getFecha());

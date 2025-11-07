@@ -830,7 +830,7 @@ public class HomeController extends Controller {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
 		}
-		try (Connection con = dbRead.getConnection()){
+		try (Connection con = dbWrite.getConnection()){
 			String fechaAAMMDD = Fechas.hoy().getFechaStrAAMMDD();
 			OperadorServicio operador = OperadorServicio.findPorIdUserMada(con,s.baseDato,userMnu.getId_usuario());
 			if(operador==null) {

@@ -5166,7 +5166,7 @@ public class MnuReportes extends Controller {
 													 List<Long> listIdGuia_entreFechas, List<Inventarios> guiasPer, Map<Long,Long> dec, Map<String,String> mapPermanencias, Map<String,String> mapFecha_primera_guia,
 													 Map<String,String> mapeoPermiso, Map<String,String> mapeoDiccionario, FormFactura form,
 													 Map<Long,String> mapMoneda, Map<Long,Equipo> mapAllEquipos, Fechas hoy) {
-		String className = ActaBaja.class.getSimpleName();
+		String className = MnuReportes.class.getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		Map<Long,Cotizacion> mapCotiAllConfirmadasMs2 = null;
 		List<List<String>> listGuiasPerMs2 = null;

@@ -220,7 +220,7 @@ public class ModCalc_InvInicial {
 			}
 			reporte = new ReportFacturas(mapIdEquiposConAjuste,listado);
 		} catch (SQLException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ModCalc_InvInicial.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -249,7 +249,7 @@ public class ModCalc_InvInicial {
 				diasPeriodo=diasPeriodo+fPart.longValue();
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ModCalc_InvInicial.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 		}
@@ -268,12 +268,12 @@ public class ModCalc_InvInicial {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = ModCalc_InvInicial.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ModCalc_InvInicial.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -292,12 +292,12 @@ public class ModCalc_InvInicial {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = ModCalc_InvInicial.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ModCalc_InvInicial.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -320,12 +320,12 @@ public class ModCalc_InvInicial {
 					}
 				}
 			} catch (SQLException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = ModCalc_InvInicial.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ModCalc_InvInicial.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}

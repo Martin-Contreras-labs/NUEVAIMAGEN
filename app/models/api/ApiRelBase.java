@@ -72,7 +72,7 @@ public class ApiRelBase {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return 0;
@@ -104,7 +104,7 @@ public class ApiRelBase {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return "0";
@@ -135,7 +135,7 @@ public class ApiRelBase {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return 0;
@@ -171,7 +171,7 @@ public class ApiRelBase {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return 0;
@@ -196,7 +196,7 @@ public class ApiRelBase {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return(rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return false;
@@ -294,7 +294,7 @@ public class ApiRelBase {
 					+ "}";
 			return (json);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -406,7 +406,7 @@ public class ApiRelBase {
 					}
 			return (json);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiRelBase.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;

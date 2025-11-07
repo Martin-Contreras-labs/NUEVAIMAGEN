@@ -93,7 +93,7 @@ public class FormCompra {
 				}
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -123,7 +123,7 @@ public class FormCompra {
 				flag = true;
 			}
 		} catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
@@ -151,7 +151,7 @@ public class FormCompra {
             	return(null);
             }
 		} catch (InvalidFormatException | IOException e1) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e1);
 			return(null);
@@ -292,7 +292,7 @@ public class FormCompra {
             	mensaje.set(0,"true");
             }
         } catch (Exception e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
@@ -356,7 +356,7 @@ public class FormCompra {
             	}
             }
 		} catch (InvalidFormatException | IOException e1) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e1);
 		}

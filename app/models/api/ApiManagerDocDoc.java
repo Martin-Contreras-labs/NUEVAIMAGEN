@@ -196,7 +196,7 @@ public class ApiManagerDocDoc {
 				            }).toCompletableFuture().get().get();
 				return rs;
 			} catch (UnsupportedEncodingException | java.lang.InterruptedException | java.util.concurrent.ExecutionException e) {
-				String className = ActaBaja.class.getSimpleName();
+				String className = ApiManagerDocDoc.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				return "FALLA";
@@ -396,7 +396,7 @@ public class ApiManagerDocDoc {
 			api.detalles = detalle;
 			return (api);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiManagerDocDoc.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -485,7 +485,7 @@ public class ApiManagerDocDoc {
 			String datos = Json.toJson(api).toString();
 			return (datos);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiManagerDocDoc.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -620,7 +620,7 @@ public class ApiManagerDocDoc {
 			String datos = Json.toJson(api).toString();
 			return(datos);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiManagerDocDoc.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;

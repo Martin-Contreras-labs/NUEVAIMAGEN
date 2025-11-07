@@ -135,11 +135,23 @@ public class MnuCotiOdo extends Controller {
 
 			List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
 			Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
-			List<Equipo> listEquipos = new ArrayList<Equipo>();
+			Map<String,String> mapUbicacion = Equipo.mapConExistenciaUnaUnidad(con, s.baseDato, mapeoDiccionario);
+			List<List<String>> listEquipos = new ArrayList<List<String>>();
 			for(Equipo x: auxlistEquipos) {
 				Double stock = mapEquipConStock.get(x.getId());
 				if(stock!=null && stock.doubleValue() > 0) {
-					listEquipos.add(x);
+					List<String> aux = new ArrayList<String>();
+					aux.add(x.getId().toString());
+					aux.add(x.getCodigo());
+					aux.add(x.getNombre());
+					String ubicacion = mapUbicacion.get(x.getId().toString());
+					if(ubicacion!=null) {
+						String[] aux2 = ubicacion.split("_&_");
+						aux.add(aux2[0]);
+					}else{
+						aux.add("Varias");
+					}
+					listEquipos.add(aux);
 				}
 			}
 
@@ -416,11 +428,23 @@ public class MnuCotiOdo extends Controller {
 
 				List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
 				Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
-				List<Equipo> listEquipos = new ArrayList<Equipo>();
+				Map<String,String> mapUbicacion = Equipo.mapConExistenciaUnaUnidad(con, s.baseDato, mapeoDiccionario);
+				List<List<String>> listEquipos = new ArrayList<List<String>>();
 				for(Equipo x: auxlistEquipos) {
 					Double stock = mapEquipConStock.get(x.getId());
 					if(stock!=null && stock.doubleValue() > 0) {
-						listEquipos.add(x);
+						List<String> aux = new ArrayList<String>();
+						aux.add(x.getId().toString());
+						aux.add(x.getCodigo());
+						aux.add(x.getNombre());
+						String ubicacion = mapUbicacion.get(x.getId().toString());
+						if(ubicacion!=null) {
+							String[] aux2 = ubicacion.split("_&_");
+							aux.add(aux2[0]);
+						}else{
+							aux.add("Varias");
+						}
+						listEquipos.add(aux);
 					}
 				}
 
@@ -1052,16 +1076,28 @@ public class MnuCotiOdo extends Controller {
 
 				List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
 				Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
-				List<Equipo> listEquipos = new ArrayList<Equipo>();
+				Map<String,String> mapUbicacion = Equipo.mapConExistenciaUnaUnidad(con, s.baseDato, mapeoDiccionario);
+				List<List<String>> listEquipos = new ArrayList<List<String>>();
 				for(Equipo x: auxlistEquipos) {
 					Double stock = mapEquipConStock.get(x.getId());
 					if(stock!=null && stock.doubleValue() > 0) {
-						listEquipos.add(x);
+						List<String> aux = new ArrayList<String>();
+						aux.add(x.getId().toString());
+						aux.add(x.getCodigo());
+						aux.add(x.getNombre());
+						String ubicacion = mapUbicacion.get(x.getId().toString());
+						if(ubicacion!=null) {
+							String[] aux2 = ubicacion.split("_&_");
+							aux.add(aux2[0]);
+						}else{
+							aux.add("Varias");
+						}
+						listEquipos.add(aux);
 					}
 				}
 
 
-				String tabla = CotiOdo.vistaHaceOT(con, s.baseDato, id_cotiOdo, mapeoDiccionario, listEquipos);
+				String tabla = CotiOdo.vistaHaceOT(con, s.baseDato, id_cotiOdo, mapeoDiccionario);
 				List<Regiones> listRegiones = Regiones.all(con, s.baseDato);
 				List<OperadorServicio> listOperadoresServicio = OperadorServicio.all(con, s.baseDato);
 
@@ -2462,14 +2498,25 @@ public class MnuCotiOdo extends Controller {
 
 							List<Equipo> auxlistEquipos = Equipo.allVigentes(con, s.baseDato);
 							Map<Long,Double> mapEquipConStock = Inventarios.mapEquiposConStock(con, s.baseDato,"ARRIENDO",mapeoDiccionario);
-							List<Equipo> listEquipos = new ArrayList<Equipo>();
+							Map<String,String> mapUbicacion = Equipo.mapConExistenciaUnaUnidad(con, s.baseDato, mapeoDiccionario);
+							List<List<String>> listEquipos = new ArrayList<List<String>>();
 							for(Equipo x: auxlistEquipos) {
 								Double stock = mapEquipConStock.get(x.getId());
 								if(stock!=null && stock.doubleValue() > 0) {
-									listEquipos.add(x);
+									List<String> aux = new ArrayList<String>();
+									aux.add(x.getId().toString());
+									aux.add(x.getCodigo());
+									aux.add(x.getNombre());
+									String ubicacion = mapUbicacion.get(x.getId().toString());
+									if(ubicacion!=null) {
+										String[] aux2 = ubicacion.split("_&_");
+										aux.add(aux2[0]);
+									}else{
+										aux.add("Varias");
+									}
+									listEquipos.add(aux);
 								}
 							}
-
 							return ok(cotiOdoIngreso.render(mapeoDiccionario,mapeoPermiso,userMnu,listClientes,listProyectos,listRegiones, formCotizaOdo, listadoServicios, listCotiOdo, numDec, listEquipos));
 						}else {
 							return ok(mensajes.render("/routes2/cotiOdoIngreso/"+id_bodegaEmpresa, "Existen codigos duplicados en el archivo"));

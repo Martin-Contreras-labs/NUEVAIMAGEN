@@ -1,3 +1,4 @@
+@import models.utilities.Fechas
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 equipo: tables.Equipo, atribEquipo: List[List[String]], listaTransac: List[qr.QrTransacEquipo])
 
@@ -77,6 +78,7 @@ equipo: tables.Equipo, atribEquipo: List[List[String]], listaTransac: List[qr.Qr
 									<TR>
 										<th>ATRIBUTO</th>
 										<th>VALOR</th>
+										<th>FECHA DE<br>VENCIMIENTO</th>
 										<th>PUBLICAR</th>
 									</TR>
 								</thead>
@@ -94,6 +96,10 @@ equipo: tables.Equipo, atribEquipo: List[List[String]], listaTransac: List[qr.Qr
 														</a>
 									        		}
 									        	}
+											</td>
+											<td  style="text-align:center; min-width:80px; background-color:@lista.colorCelda">
+												<div style="display:none;">@lista.fechaVencimiento</div>
+												@utilities.Fechas.DDMMAA(lista.fechaVencimiento)
 											</td>
 									        <td style="text-align:center">
 												<div id="cambiarEstadoPubQr_@lista.id_equipo _@lista.id_qrAtributoEquipo">

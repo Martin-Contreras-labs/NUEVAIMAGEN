@@ -134,7 +134,7 @@ public class WebIConstruye {
 			}
 			return("DTE generado con éxito, folio: "+folioStr);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = WebIConstruye.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "ERROR";
@@ -272,7 +272,6 @@ public class WebIConstruye {
 				Long auxIvaTotal =  Math.round(auxPTotal * (emisorTributario.getTasaIva()/100));
 				totalNeto += auxPTotal;
 				totalIva += auxIvaTotal;
-				totalTotal += totalNeto + totalIva;
 				int nroLinea = i + 1;
 				String producto = detalleGuia.get(i).get(6);
 				String codigo = detalleGuia.get(i).get(5);
@@ -302,6 +301,7 @@ public class WebIConstruye {
 							+ "         <MontoItem>"+auxPTotal+"</MontoItem>\n"
 							+ "     </Detalle>\n";
 			}
+			totalTotal 	+= totalNeto + totalIva;
 			Double tasaIvaArrAuxiliar = emisorTributario.getTasaIva();
 		     if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
 		        	if(bodegaDestino!=null) {
@@ -318,6 +318,10 @@ public class WebIConstruye {
 			String[] auxFechGuia = Fechas.AAMMDD(guia.getFecha()).split("-");
 			String fechaGuia = auxFechGuia[0].trim()+"-"+auxFechGuia[1].trim()+"-"+auxFechGuia[2].trim();
 			String idDocumento = "madaGuia_"+guia.getId();
+			String rutClienteSinDv = "";
+			if(rutCliente.length()>5){
+				rutClienteSinDv =  rutCliente.substring(0,rutCliente.length()-2);
+			}
 			String xmlCabecera = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
 					+ "<DTE version=\"1.0\"\n"
 					+ "	xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
@@ -345,7 +349,7 @@ public class WebIConstruye {
 					+ "			</Emisor>\n"
 					+ "			<Receptor>\n"
 					+ "				<RUTRecep>"+rutCliente+"</RUTRecep>\n"
-					+ "				<CdgIntRecep>"+rutCliente.substring(0,rutCliente.length()-2)+"</CdgIntRecep>\n"
+					+ "				<CdgIntRecep>"+rutClienteSinDv+"</CdgIntRecep>\n"
 					+ "				<RznSocRecep>"+nomCliente+"</RznSocRecep>\n"
 					+ "				<GiroRecep>"+giroCliente+"</GiroRecep>\n"
 					+ "				<DirRecep>"+direccionCliente+"</DirRecep>\n"
@@ -381,7 +385,7 @@ public class WebIConstruye {
 			String xml = xmlCabecera+xmlDetalle+xmlPie;
 			return(xml);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = WebIConstruye.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return null;
@@ -637,7 +641,7 @@ public class WebIConstruye {
 				String xml = xmlCabecera+xmlDetalle+xmlAjustes+xmlReferencias+xmlPie;
 				return(xml);
 			}catch(Exception e){
-				String className = ActaBaja.class.getSimpleName();
+				String className = WebIConstruye.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				return null;
@@ -917,7 +921,7 @@ public class WebIConstruye {
 				String xml = xmlCabecera+xmlDetalle+xmlAjustes+xmlReferencias+xmlPie;
 				return(xml);
 			}catch(Exception e){
-				String className = ActaBaja.class.getSimpleName();
+				String className = WebIConstruye.class.getSimpleName();
 				String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				return null;

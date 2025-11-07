@@ -56,7 +56,7 @@ public class ApiSapSchwager {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return (token);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapSchwager.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, emisor.getNombreFantasia(), e);
 			return "ERROR";
@@ -90,7 +90,7 @@ public class ApiSapSchwager {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return (rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapSchwager.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "ERROR DE SISTEMA 2";
@@ -124,7 +124,7 @@ public class ApiSapSchwager {
 			            }).toCompletableFuture().get(10000,TimeUnit.MILLISECONDS);
 			return (rs);
 		} catch (java.lang.InterruptedException | java.util.concurrent.ExecutionException | TimeoutException e) {
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapSchwager.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			return "ERROR DE SISTEMA 2";
@@ -253,7 +253,7 @@ public class ApiSapSchwager {
 						+ "}";
 			return(json);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapSchwager.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 			return null;
@@ -352,7 +352,7 @@ public class ApiSapSchwager {
 						+ "}";
 			return(json);
 		}catch(Exception e){
-			String className = ActaBaja.class.getSimpleName();
+			String className = ApiSapSchwager.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e);
 			return null;

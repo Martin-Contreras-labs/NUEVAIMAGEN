@@ -155,6 +155,44 @@ public class Atributo{
 		}
 		return (map);
 	}
+
+	public static Map<Long,Map<String,String>> mapIdEquipoVsMapAtributos(Connection con, String db) {
+		Map<Long,Map<String,String>> map = new HashMap<Long,Map<String,String>>();
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select"
+							+ " atributo.atributo,"
+							+ " atributoEquipo.id_equipo,"
+							+ " atributoEquipo.strAtributo,"
+							+ " atributoEquipo.numAtributo,"
+							+ " atributo.esNumerico "
+							+ " from `"+db+"`.atributoEquipo"
+							+ " left join `"+db+"`.atributo on atributo.id = atributoEquipo.id_atributo"
+							+ " group by atributo.atributo, atributoEquipo.id_equipo order by atributoEquipo.id_equipo;");
+			ResultSet rs = smt.executeQuery();
+			Long auxId = 0L;
+			Map<String,String> auxMap = new HashMap<String,String>();
+			while (rs.next()) {
+				Long id_equipo = rs.getLong(2);
+				String valorFinal = rs.getString(3);
+				if(rs.getLong(5) > 0) {
+					valorFinal = rs.getString(4);
+				}
+				auxMap.put(rs.getString(1), valorFinal);
+				if((long) auxId != (long) id_equipo && (long) auxId != 0L) {
+					map.put(auxId, auxMap);
+					auxMap = new HashMap<String,String>();
+				}
+				auxId = id_equipo;
+			}
+			map.put(auxId, auxMap);
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (map);
+	}
+
 	
 	
 	public static List<Atributo> allXGrupo(Connection con, String db, Long id_grupo) {

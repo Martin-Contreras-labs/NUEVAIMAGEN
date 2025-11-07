@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], listRegiones: List[tables.Regiones],
-formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], numDec: Long, listEquipos: List[tables.Equipo])
+formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], numDec: Long, listEquipos: List[List[String]])
 
 
 @main("") {
@@ -391,16 +391,12 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], numDec
 					</button>
 				</div>
 				<div class="modal-body">
-					<div class="noprint" align="center">
-						<a href="#" onclick="$('#listaCliente').modal('hide'); $('#modalClienteNuevo').modal('show');">
-							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
-						</a>
-					</div>
 					<table id="tablaListaEquipos" class="table table-sm table-bordered table-condensed table-hover table-fluid">
 						<thead style="background-color: #eeeeee">
 							<TR>
 								<TH>CODIGO</TH>
 								<TH>EQUIPO</TH>
+								<TH>UBICACION</TH>
 							</TR>
 						</thead>
 						<tbody>
@@ -409,13 +405,15 @@ formCotizaOdo: forms.FormCotizaOdo, listadoServicios: List[List[String]], numDec
 									$('#equipoAsociado_'+auxEquipoAsociado).val(' - ');" data-dismiss="modal">
 								<td  style="text-align:left;">Sin Equipo</td>
 								<td  style="text-align:left;">Sin Equipo</td>
+								<td  style="text-align:left;">Sin Equipo</td>
 							</TR>
 							@for(lista1 <- listEquipos){
 								<TR onClick="
-										$('#idEquipo_'+auxEquipoAsociado).val('@lista1.getId()');
-										$('#equipoAsociado_'+auxEquipoAsociado).val('@lista1.getCodigo() - @lista1.getNombre()');" data-dismiss="modal">
-									<td  style="text-align:left;">@lista1.getCodigo()</td>
-									<td  style="text-align:left;">@lista1.getNombre()</td>
+										$('#idEquipo_'+auxEquipoAsociado).val('@lista1.get(0)');
+										$('#equipoAsociado_'+auxEquipoAsociado).val('@lista1.get(1) - @lista1.get(2)');" data-dismiss="modal">
+									<td  style="text-align:left;">@lista1.get(1)</td>
+									<td  style="text-align:left;">@lista1.get(2)</td>
+									<td  style="text-align:left;">@lista1.get(3)</td>
 								</TR>
 							}
 						</tbody>
