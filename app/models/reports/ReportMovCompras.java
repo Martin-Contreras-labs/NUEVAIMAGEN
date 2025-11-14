@@ -12,6 +12,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
+import models.tables.Moneda;
+import models.utilities.DecimalFormato;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -197,7 +199,8 @@ public class ReportMovCompras {
 		return (lista);
 	}
 	
-	public static List<List<String>> movComprasPeriodo(Connection con, String db, String fechaDesde, String fechaHasta, String filtroPorProveedor) {
+	public static List<List<String>> movComprasPeriodo(Connection con, String db, String fechaDesde, String fechaHasta, String filtroPorProveedor,
+													   Map<Long,List<String>> ultimoPrecio, Map<Long, Double> tasas) {
 		
 		List<ReportMovCompras> ini = ReportMovCompras.movStockIni(con, db, fechaDesde, filtroPorProveedor);
 		List<ReportMovCompras> betwen = ReportMovCompras.movComprasBetwen(con, db, fechaDesde, fechaHasta, filtroPorProveedor);
@@ -249,15 +252,27 @@ public class ReportMovCompras {
 		linea0.add("id_factura");
 		linea0.add("");
 		linea0.add("");
+		linea0.add("");
+		linea0.add("");
+		linea0.add("");
 		
 		linea1.add("CODIGO");
 		linea1.add("EQUIPO");
+		linea1.add("ULTIMO PRECIO");
+		linea1.add("REGISTRADO ");
+		linea1.add("");
 		linea1.add("STOCK");
 		
 		linea2.add("");
 		linea2.add("");
+		linea2.add("PROVEEDOR");
+		linea2.add("FECHA");
+		linea2.add("PRECIO");
 		linea2.add("INI");
 		
+		linea3.add("");
+		linea3.add("");
+		linea3.add("");
 		linea3.add("");
 		linea3.add("");
 		linea3.add(Fechas.DDMMAA(fechaDesde).replaceAll("-", "/"));
@@ -272,26 +287,52 @@ public class ReportMovCompras {
 		linea1.add("STOCK");
 		linea2.add("FIN");
 		linea3.add(Fechas.DDMMAA(fechaHasta).replaceAll("-", "/"));
+
+//		linea0.add("");
+		linea1.add("PRECIO");
+		linea2.add("");
+		linea3.add("");
 		tabla.add(linea0);
 		tabla.add(linea1);
 		tabla.add(linea2);
 		tabla.add(linea3);
 
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-		DecimalFormat format = new DecimalFormat("0",symbols);
-		
-		mapEquipos.forEach((k,v) ->{
+		DecimalFormat format = new DecimalFormat("#,##0",symbols);
+
+		int nroDec = Moneda.numeroDecimalxId(con,db,"1");
+
+		for(Map.Entry<Long,List<String>> entry : mapEquipos.entrySet()) {
+			List<String> v = entry.getValue();
 			List<String> linea = new ArrayList<String>();
 			linea.add(v.get(0));
 			linea.add(v.get(1));
+			Double precioUnit = 0D;
+			List<String> precio = ultimoPrecio.get(Long.parseLong(v.get(2)));
+			if(precio!=null) {
+				Double tasaCambio = tasas.get(Long.parseLong(precio.get(5)));
+				if(tasaCambio!=null) {
+					precioUnit = Double.parseDouble(precio.get(0)) * tasaCambio;
+				}
+				linea.add(precio.get(4));
+				linea.add(Fechas.DDMMAA(precio.get(2)));
+				String precioFormateado = DecimalFormato.formato(precioUnit,(long) nroDec);
+				linea.add(precioFormateado);
+				precioUnit = Double.parseDouble(precioFormateado.replaceAll(",",""));
+			}else{
+				linea.add("");
+				linea.add("");
+				linea.add("0");
+			}
 			
 			Double cant = mapDetalleIni.get(Long.parseLong(v.get(2)));
 			if(cant == null) {
 				cant = (double) 0;
 			}
 			linea.add(format.format(cant));
-			
-			for(int i = 3; i < tabla.get(0).size() - 1; i++) {
+
+
+			for(int i = 6; i < tabla.get(0).size() - 1; i++) {
 				ReportMovCompras x = mapDetalleBetwen.get(tabla.get(0).get(i) + "_" + v.get(2));
 				if(x == null) {
 					cant = (double) 0;
@@ -300,19 +341,20 @@ public class ReportMovCompras {
 				}
 				linea.add(format.format(cant));
 			}
-			
 			cant = mapDetalleFin.get(Long.parseLong(v.get(2)));
 			if(cant == null) {
 				cant = (double) 0;
 			}
 			linea.add(format.format(cant));
+			linea.add(DecimalFormato.formato(precioUnit*cant,(long) nroDec));
 			tabla.add(linea);
-		});
+		}
 		return (tabla);
 	}
 	
 	
-	public static File movComprasPeriodoExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, String fechaDesde, String fechaHasta) {
+	public static File movComprasPeriodoExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario, String fechaDesde,
+											  String fechaHasta, Moneda moneda) {
 
    		File tmp = TempFile.createTempFile("tmp","null");
 		
@@ -351,8 +393,16 @@ public class ReportMovCompras {
             detalle.setBorderTop(CellStyle.BORDER_THIN);
             detalle.setBorderRight(CellStyle.BORDER_THIN);
             detalle.setBorderLeft(CellStyle.BORDER_THIN);
+
+			CreationHelper creationHelper = libro.getCreationHelper();
+			CellStyle fecha = libro.createCellStyle();
+			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
+			fecha.setBorderBottom(CellStyle.BORDER_THIN);
+			fecha.setBorderTop(CellStyle.BORDER_THIN);
+			fecha.setBorderRight(CellStyle.BORDER_THIN);
+			fecha.setBorderLeft(CellStyle.BORDER_THIN);
             
-            
+
             
             
             Sheet hoja1 = libro.getSheetAt(0);
@@ -363,7 +413,7 @@ public class ReportMovCompras {
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			cell.setCellValue("DETALLE MOVIMIENTOS DE COMPRAS");
+			cell.setCellValue("DETALLE MOVIMIENTOS DE COMPRAS - MONEDA "+moneda.nombre.toUpperCase());
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
@@ -421,12 +471,28 @@ public class ReportMovCompras {
 						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(dato);
 					}else{
-						if(j<2){
-							posCell++; 
-				            cell = row.createCell(posCell);
-				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellValue(dato);
+						if(j<5){
+							posCell++;
+							cell = row.createCell(posCell);
+							cell.setCellStyle(detalle);
+							if(j==4){
+								aux = Double.parseDouble(dato.replaceAll(",", ""));
+								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+								cell.setCellValue(aux);
+							}else if(j==3){
+								cell.setCellStyle(fecha);
+								if(!dato.equals("")){
+									Fechas auxFecha = Fechas.obtenerFechaDesdeStrDDMMAA(dato);
+									cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+									cell.setCellValue(auxFecha.getFechaUtil());
+								}
+							}else{
+								cell.setCellType(Cell.CELL_TYPE_STRING);
+								cell.setCellValue(dato);
+							}
+
+
+
 						}else {
 							if(dato.equals("")||dato.equals(" ")) {
 								dato = "0";
@@ -442,8 +508,92 @@ public class ReportMovCompras {
 				}
 				posRow++;
 			}
-			
-			
+
+			Double granTotPrecio = (double)0;
+			if(datos.size()>2){
+				row = hoja1.createRow(posRow);
+				int posCell = 0;
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("TOTALES");
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("CANTIDADES");
+				for(int i=0; i<3; i++){
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("");
+				}
+				for(int j=5; j<datos.get(4).size(); j++){
+					Double cant = (double)0;
+					for(int i=4; i<datos.size(); i++){
+						Double precio = Double.parseDouble(datos.get(i).get(4).replaceAll(",", ""));
+						cant += Double.parseDouble(datos.get(i).get(j).replaceAll(",", ""));
+					}
+
+					if(j != datos.get(4).size()-1){
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(cant);
+					}else{
+						granTotPrecio = cant;
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+					}
+				}
+				posRow++;
+				row = hoja1.createRow(posRow);
+				posCell = 0;
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("TOTALES");
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("PRECIO");
+				for(int i=0; i<3; i++){
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("");
+				}
+				for(int j=5; j<datos.get(4).size(); j++){
+					Double totPrecio = (double)0;
+					for(int i=4; i<datos.size(); i++){
+						Double precio = Double.parseDouble(datos.get(i).get(4).replaceAll(",", ""));
+						Double cant = Double.parseDouble(datos.get(i).get(j).replaceAll(",", ""));
+						totPrecio += precio * cant;
+					}
+
+					if(j!=datos.get(4).size()-1){
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(totPrecio);
+					}else{
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(granTotPrecio);
+					}
+				}
+
+			}
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);

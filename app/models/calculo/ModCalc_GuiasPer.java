@@ -350,14 +350,15 @@ public class ModCalc_GuiasPer {
 		try {
 			desdeAAMMDD  = Fechas.AAMMDD(desdeAAMMDD);
 			hastaAAMMDD  = Fechas.AAMMDD(hastaAAMMDD);
-			String query = String.format(" select" +
-					" id" +
-					" from `%s`.guia" +
-					" where" +
-					" fecha between  '" + desdeAAMMDD + "' and '" + hastaAAMMDD +
-					"' or (fecha < '" + desdeAAMMDD + "' and ifnull(fechaIniTerGuia,fecha) between  '" + desdeAAMMDD + "' and '" + hastaAAMMDD + "')",db);
-
+			String query = String.format("SELECT id FROM `%s`.guia " +
+					"WHERE fecha BETWEEN ? AND ? " +
+					"OR (fecha < ? AND IFNULL(fechaIniTerGuia,fecha) BETWEEN ? AND ?)", db);
 			try (PreparedStatement smt = con.prepareStatement(query)) {
+				smt.setString(1, desdeAAMMDD);
+				smt.setString(2, hastaAAMMDD);
+				smt.setString(3, desdeAAMMDD);
+				smt.setString(4, desdeAAMMDD);
+				smt.setString(5, hastaAAMMDD);
 				try (ResultSet rs = smt.executeQuery()) {
 					while (rs.next()) {
 						lista.add(rs.getLong(1));

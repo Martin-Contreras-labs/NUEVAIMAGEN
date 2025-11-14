@@ -1370,14 +1370,32 @@ public class MnuReportes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String esVenta = form.get("esVenta").trim();
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+			Fechas hastaAjustar = new Fechas();
+			Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+			hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+			String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -6).getFechaStrAAMMDD();
+			String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+
+			Map<Long, List<Inventarios>> mapGuiasPer = new HashMap<Long, List<Inventarios>>();
 			try (Connection con = dbRead.getConnection()){
-				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
-				String fechaDesde = form.get("fechaDesde").trim();
-				String fechaHasta = form.get("fechaHasta").trim();
-				String esVenta = form.get("esVenta").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				List<List<String>> datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, deAjustado, aAjustado);
+				mapGuiasPer = Inventarios.guiasPerAllBodegas(con, s.baseDato, listIdGuia_entreFechas);
+			} catch (SQLException e) {
+				logger.error("DB ERROR1. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR1. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			try (Connection con = dbRead.getConnection()){
+				List<List<String>> datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, mapGuiasPer,hastaAjustar);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				String concepto = mapeoDiccionario.getOrDefault("ARRIENDO","ARRIENDO");
 				if("1".equals(esVenta)) {
@@ -1385,10 +1403,10 @@ public class MnuReportes extends Controller {
 				}
 				return ok(reporteMovimientosDetalleAgrupado.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,esVenta,concepto,fechaDesde,fechaHasta));
 			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				logger.error("DB ERROR2. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				logger.error("ERROR2. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
 		}
@@ -1408,18 +1426,38 @@ public class MnuReportes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-			String fechaDesde = form.get("fechaDesde").trim();
-			String fechaHasta = form.get("fechaHasta").trim();
-			String concepto = mapeoDiccionario.get("ARRIENDO");
+
+
 			List<List<String>> datos = null;
 			BodegaEmpresa bodega = null;
+
+			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
+			String fechaDesde = form.get("fechaDesde").trim();
+			String fechaHasta = form.get("fechaHasta").trim();
+			String esVenta = form.get("esVenta").trim();
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			String concepto = mapeoDiccionario.get("ARRIENDO");
+
+			Fechas hastaAjustar = new Fechas();
+			Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
+			hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
+			String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -6).getFechaStrAAMMDD();
+			String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
+
+			Map<Long, List<Inventarios>> mapGuiasPer = new HashMap<Long, List<Inventarios>>();
 			try (Connection con = dbRead.getConnection()){
-				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
-				fechaDesde = form.get("fechaDesde").trim();
-				fechaHasta = form.get("fechaHasta").trim();
-				String esVenta = form.get("esVenta").trim();
-				datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta);
+				List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, s.baseDato, deAjustado, aAjustado);
+				mapGuiasPer = Inventarios.guiasPerAllBodegas(con, s.baseDato, listIdGuia_entreFechas);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			try (Connection con = dbRead.getConnection()){
+				datos = ReportMovimientos.movimientoGuiasAgrupado(con, s.baseDato, id_bodegaEmpresa, esVenta, fechaDesde, fechaHasta, mapGuiasPer, hastaAjustar);
 				bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				if("1".equals(esVenta)) {
 					concepto = "VENTA";

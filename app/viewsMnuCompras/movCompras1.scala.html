@@ -1,5 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor: Long)
+		lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor: Long, moneda: tables.Moneda,
+		uf: Double, usd: Double, eur: Double)
     	
 @main("") {
 
@@ -8,7 +9,7 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor:
 	@modalEquipoDescripcion()
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "DETALLE MOVIMIENTOS DE COMPRAS","")
+		@barraTitulo(mapDiccionario, "DETALLE MOVIMIENTOS DE COMPRAS","MONEDA "+moneda.getNombre().toUpperCase())
 
 				<div class="noprint">
 					<table class="table table-sm table-condensed table-fluid">
@@ -60,13 +61,22 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor:
 								@if(index1 > 3){
 									<TR>
 										@for((nivel2,index2) <- nivel1.zipWithIndex) {
-											@if(index2 < 2){
+											@if(index2 < 4){
 												<td>@nivel2</td>
+											}else if(index2 == 3){
+												<td>
+													<div style="display:none">@utilities.Fechas.AAMMDD(nivel2)</div>
+													@nivel2
+												</td>
 											}else{
-												@if(!nivel2.equals("0") || index2 == 2){
-													<td style="background-color: #eeeeee">@nivel2</td>
+												@if( index2 == 5 || index2 == nivel1.size-2){
+													<td style="background-color: #eeeeee">
+														@nivel2
+													</td>
 												}else{
-													<td>@nivel2</td>
+													<td>
+														@nivel2
+													</td>
 												}
 											}
 										}
@@ -83,6 +93,9 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor:
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
 		<input type="hidden" id="id_proveedor" name="id_proveedor" value="@id_proveedor">
+		<input type="hidden" name="uf" value="@uf">
+		<input type="hidden" name="usd" value="@usd">
+		<input type="hidden" name="eur" value="@eur">
 	</form>
 
 
@@ -103,9 +116,9 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor:
 			}
 		}
 		
-		var footer = tabla.createTFoot();
-		var newRow = footer.insertRow(0);
-		var cellsOfRow = tabla.rows[0].getElementsByTagName('th');
+		let footer = tabla.createTFoot();
+		let newRow = footer.insertRow(0);
+		let cellsOfRow = tabla.rows[0].getElementsByTagName('th');
 		for (var i = 0; i < cellsOfRow.length; i++) { 
 			newRow.insertCell(i);
 			newRow.cells[i].style.backgroundColor="#eeeeee";
@@ -118,35 +131,97 @@ lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor:
 				newRow.cells[i].style.textAlign="left";
 				newRow.cells[i].innerHTML="TOTALES";
 			}
+			if(i==1){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="CANTIDADES";
+			}
+			if(i==2){
+				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
+			}
+		}
+
+		newRow = footer.insertRow(1);
+		cellsOfRow = tabla.rows[0].getElementsByTagName('th');
+		for (var i = 0; i < cellsOfRow.length; i++) {
+			newRow.insertCell(i);
+			newRow.cells[i].style.backgroundColor="#eeeeee";
+			if(i<2){
+				newRow.cells[i].style.textAlign="left";
+			}else {
+				newRow.cells[i].style.textAlign="center";
+			}
+			if(i==0){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="TOTALES";
+			}
+			if(i==1){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="PRECIO";
+			}
 			if(i==2){
 				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
 			}
 		}
 		
 		var numero0 = new DecimalFormat("#,##0");
-		
-		for (var i = 2; i < cellsOfRow.length; i++) {
-			var val = 0;
-			for (var j = 3; j < tabla.rows.length-1; j++) {
-				var cellsOfRow = tabla.rows[j].getElementsByTagName('td');
-				var aux = cellsOfRow[i].innerHTML;
-				
-				var val = parseFloat(val) + parseFloat(numero0.formatBack(aux));
+		for (var i = 5; i < cellsOfRow.length; i++) {
+			let cant = 0;
+			let precio = 0;
+			for (var j = 3; j < tabla.rows.length-2; j++) {
+				cellsOfRow = tabla.rows[j].getElementsByTagName('td');
+				let auxCant = cellsOfRow[i].innerHTML;
+				let auxPrecio = cellsOfRow[4].innerHTML;
+				auxPrecio = auxPrecio.replace(",", "").replace(",", "").replace(",", "");
+				auxCant = auxCant.replace(",", "").replace(",", "").replace(",", "");
+				cant = parseFloat(cant) + parseFloat(auxCant);
+				precio = parseFloat(precio) + parseFloat(auxPrecio * parseFloat(auxCant));
 			}
-			var cellsOfRow = tabla.rows[tabla.rows.length-1].getElementsByTagName('td');
-			cellsOfRow[i].innerHTML = numero0.format(val);
+			if(i != cellsOfRow.length-1){
+				cellsOfRow = tabla.rows[tabla.rows.length-2].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = numero0.format(cant);
+			}
+
+			if(i == cellsOfRow.length-1) {
+				cellsOfRow = tabla.rows[tabla.rows.length-1].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = numero0.format(cant);
+			}else{
+				cellsOfRow = tabla.rows[tabla.rows.length-1].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = formatStandar(precio,"@moneda.getNumeroDecimales()");
+			}
+
 		}
-		
+
+		let col = [];
+		for(let i = 4; i < @lista.get(0).size; i++) {
+			col.push(i);
+		}
+
+
 		$('#tablaPrincipal').DataTable({
 		    	"fixedHeader": true,
-		    //	"fixedColumns":{ left: 3 },
 		    	"paging": false,
 				"info": false,
 				"searching": false,
-		    	"order": [[ 2, "asc" ]],
-				//"scrollY": 550,
+		    	"order": [],
 				"scrollX": true,
-		    	"language": {
+			"columnDefs": [
+				{
+					"targets": col,
+					"orderDataType": "dom-text",
+					"type": "num-fmt",
+					"render": function(data, type, row) {
+						if (type === 'sort') {
+							// Remover cualquier formato de número (comas, espacios)
+							return parseFloat(data.toString().replace(/[^\d.-]/g, '')) || 0;
+						}
+						return data;
+					}
+				}
+			],
+
+
+
+			"language": {
 		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 		        }
 		  } );

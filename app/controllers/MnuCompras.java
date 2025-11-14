@@ -1579,8 +1579,9 @@ public class MnuCompras extends Controller {
 			Fechas hoy = Fechas.hoy();
 			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
 			List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
-			return ok(movCompras0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, listProveedor));
+			return ok(movCompras0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, listProveedor,tasas));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));
@@ -1609,14 +1610,28 @@ public class MnuCompras extends Controller {
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
 				Long id_proveedor = Long.parseLong(form.get("id_proveedor"));
+
+
+				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				Map<Long, Double> tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
 				String filtroPorProveedor = "";
 				if(id_proveedor > 0) {
 					filtroPorProveedor = " and proveedor.id = " + id_proveedor;
 				}
 				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor);
-				return ok(movCompras1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta,id_proveedor));
+				Map<Long,List<String>> mapUltimoPrecio = Compra.ultimoPrecioMasFactura(con,s.baseDato);
+				List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor,
+						mapUltimoPrecio, tasas);
+				Moneda moneda = Moneda.find(con,s.baseDato,1L);
+				return ok(movCompras1.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,fechaDesde,fechaHasta,id_proveedor,
+						moneda, uf, usd, eur));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -1645,6 +1660,17 @@ public class MnuCompras extends Controller {
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
 				Long id_proveedor = Long.parseLong(form.get("id_proveedor"));
+
+				Double uf = Double.parseDouble(form.get("uf").replaceAll(",", "").trim());
+				Double usd = Double.parseDouble(form.get("usd").replaceAll(",", "").trim());
+				Double eur = Double.parseDouble(form.get("eur").replaceAll(",", "").trim());
+				Map<Long, Double> tasas = new HashMap<Long, Double>();
+				tasas.put((long) 1, (double) 1);    // 'Peso Chileno', 'CLP', '0'
+				tasas.put((long) 2, usd);            // 'Dólar', 'USD', '2'
+				tasas.put((long) 3, eur);            // 'Euro', 'EUR', '3'
+				tasas.put((long) 4, uf);            // 'Unidad Fomento', 'UF', '4'
+
+
 				List<List<String>> datos = null;
 				Map<String,String> mapeoDiccionario = null;
 				mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1652,8 +1678,11 @@ public class MnuCompras extends Controller {
 				if(id_proveedor > 0) {
 					filtroPorProveedor = " and proveedor.id = " + id_proveedor;
 				}
-				datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor);
-				File file = ReportMovCompras.movComprasPeriodoExcel(s.baseDato, datos, mapeoDiccionario, fechaDesde, fechaHasta);
+				Map<Long,List<String>> mapUltimoPrecio = Compra.ultimoPrecioMasFactura(con,s.baseDato);
+				datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor,
+						mapUltimoPrecio, tasas);
+				Moneda moneda = Moneda.find(con,s.baseDato,1L);
+				File file = ReportMovCompras.movComprasPeriodoExcel(s.baseDato, datos, mapeoDiccionario, fechaDesde, fechaHasta, moneda);
 				return ok(file,false,Optional.of("MovimientosPorBodegaAgrupado.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);

@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor])
+fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor], tasas: tables.TasasCambio)
 
     	
 @main("") {
@@ -43,6 +43,69 @@ fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor])
 											<option value="@lista.getId()">@lista.getNickName()</option>
 										}
 									</select>
+								</td>
+							</TR>
+							<TR style="background-color: rgb(254, 255, 255)">
+								<TH colspan="2"><br>
+							</TR>
+							<TR>
+								<TH colspan="2">TASAS DE CAMBIO</TH>
+							</TR>
+							<TR>
+								<TH>Fecha:</TH>
+								<td>
+									<input type="date" class="form-control center"
+									id="fechaCambio"
+									name="fechaCambio"
+									value="@fechaHasta"
+									onchange="obtieneTasas(value)"
+									required>
+								</td>
+							</TR>
+							@if(mapDiccionario.get("pais").equals("CHILE")){
+								<TR>
+									<TH>Unidad Fomento (UF):</TH>
+									<td>
+										<input type="text" class="form-control center"
+										name="uf"
+										id="uf"
+										value="@tasas.getClpUf()"
+										onfocus="value=value.replace(/,/g,''); cantAux = value;"
+										onkeydown="return ingresoDouble(window.event)"
+										autocomplete="off"
+										onchange="if(value=='') value=1; value=formatStandar(value,2);"
+										required>
+									</td>
+								</TR>
+							}else{
+								<input type="hidden" id="uf" name="uf" value="1">
+							}
+							<TR>
+								<TH>D&oacutelar (USD):</TH>
+								<td>
+									<input type="text" class="form-control center"
+									name="usd"
+									id="usd"
+									value="@tasas.getClpUsd()"
+									onfocus="value=value.replace(/,/g,''); cantAux = value;"
+									onkeydown="return ingresoDouble(window.event)"
+									autocomplete="off"
+									onchange="if(value=='') value=1; value=formatStandar(value,2);"
+									required>
+								</td>
+							</TR>
+							<TR>
+								<TH>Euro (EUR):</TH>
+								<td>
+									<input type="text" class="form-control center"
+									name="eur"
+									id="eur"
+									value="@tasas.getClpEur()"
+									onfocus="value=value.replace(/,/g,''); cantAux = value;"
+									onkeydown="return ingresoDouble(window.event)"
+									autocomplete="off"
+									onchange="if(value=='') value=1; value=formatStandar(value,2);"
+									required>
 								</td>
 							</TR>
 						</thead>

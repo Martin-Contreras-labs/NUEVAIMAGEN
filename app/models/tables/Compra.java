@@ -147,7 +147,8 @@ public class Compra {
 								+ " moneda.nickName,"
 								+ " factura.fecha,"
 								+ " factura.numero,"
-								+ " proveedor.nickName"
+								+ " proveedor.nickName,"
+								+ " moneda.id"
 								+ " from `"+db+"`.compra"
 								+ " left join `"+db+"`.moneda on moneda.id = compra.id_moneda"
 								+ " left join `"+db+"`.factura on factura.id = compra.id_factura"
@@ -161,6 +162,9 @@ public class Compra {
 					aux2.add(rs.getString(4)); // 2 factura.fecha
 					aux2.add(rs.getString(5)); // 3 factura.numero
 					aux2.add(rs.getString(6)); // 4 proveedor
+
+					aux2.add(rs.getString(7)); // 5 moneda.id
+
 					aux.put(rs.getLong(1),aux2);  
 				}
 				rs.close();

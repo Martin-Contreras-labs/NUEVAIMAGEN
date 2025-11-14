@@ -54,7 +54,8 @@ public class ReportMovimientos {
 
 
 	
-	public static List<List<String>> movimientoGuiasAgrupado(Connection con, String db, Long id_bodegaEmpresa, String esVenta, String fechaDesde, String fechaHasta) {
+	public static List<List<String>> movimientoGuiasAgrupado(Connection con, String db, Long id_bodegaEmpresa, String esVenta, String fechaDesde, String fechaHasta,
+															 Map<Long, List<Inventarios>> mapGuiasPer, Fechas hastaAjustar) {
 
 		String className = ReportMovimientos.class.getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -122,27 +123,30 @@ public class ReportMovimientos {
 			tipGuia.add(" ");
 			blanco.add(" ");
 
-			try (PreparedStatement smt1 = con
-					.prepareStatement(" select  distinct " +
-							" guia.numero, " +
-							" concat(day(guia.fecha),'/',month(guia.fecha),'/',year(guia.fecha)),  " +
-							" tipoMovimiento.nombre, " +
-							" guia.fecha, " +
-							" ifnull(guia.numGuiaCliente,''), "+
-							" ifnull(guia.fechaIniTerGuia,guia.fecha)  " +
-							" from `"+db+"`.movimiento " +
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-							" left join `"+db+"`.tipoMovimiento on tipoMovimiento.id = id_tipoMovimiento  " +
-							" where id_bodegaEmpresa =  ? and numero is not null " +
-							" and movimiento.esVenta= ?  "
-							+ " and (guia.fecha between ? and ?) order by guia.fecha,guia.numero;")){
+			String query = String.format(
+					"SELECT DISTINCT "
+							+ "g.numero, "
+							+ "CONCAT(DAY(g.fecha),'/',MONTH(g.fecha),'/',YEAR(g.fecha)), "
+							+ "tm.nombre, "
+							+ "g.fecha, "
+							+ "COALESCE(g.numGuiaCliente,''), "
+							+ "COALESCE(g.fechaIniTerGuia,g.fecha) "
+							+ "FROM `%s`.movimiento m "
+							+ "LEFT JOIN `%s`.guia g ON g.id = m.id_guia "
+							+ "LEFT JOIN `%s`.tipoMovimiento tm ON tm.id = m.id_tipoMovimiento "
+							+ "WHERE m.id_bodegaEmpresa = ? "
+							+ "AND g.numero IS NOT NULL "
+							+ "AND m.esVenta = ? "
+							+ "AND g.fecha BETWEEN ? AND ? "
+							+ "ORDER BY g.fecha, g.numero",
+					db, db, db
+			);
+			try (PreparedStatement smt1 = con.prepareStatement(query)){
 					smt1.setLong(1, id_bodegaEmpresa);
 					smt1.setString(2, esVenta);
 					smt1.setString(3, fechaDesde);
 					smt1.setString(4, fechaHasta);
-
-					ResultSet rs1 = smt1.executeQuery();
-
+				try (ResultSet rs1 = smt1.executeQuery()) {
 					while (rs1.next()) {
 						Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(rs1.getString(4));
 						if(!(fechaGuia.fechaCal.before(desde.fechaCal)||fechaGuia.fechaCal.after(hasta.fechaCal))) {
@@ -155,6 +159,7 @@ public class ReportMovimientos {
 							blanco.add(" ");
 						}
 					}
+				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
@@ -175,71 +180,72 @@ public class ReportMovimientos {
 
 			List<List<String>> listaGuias = new ArrayList<List<String>>();
 
-			try (PreparedStatement smt2 = con
-					.prepareStatement(" select distinct  guia.numero,guia.fecha " +
-							" from `"+db+"`.guia " +
-							" left join `"+db+"`.movimiento on movimiento.id_guia = guia.id " +
-							" where movimiento.esVenta= ?  and id_bodegaEmpresa = ? "+
-							" order by guia.fecha,guia.numero; ")){
+			query = String.format(
+					"SELECT DISTINCT "
+							+ "g.numero, "
+							+ "g.fecha "
+							+ "FROM `%s`.guia g "
+							+ "LEFT JOIN `%s`.movimiento m ON m.id_guia = g.id "
+							+ "WHERE m.esVenta = ? "
+							+ "AND m.id_bodegaEmpresa = ? "
+							+ "ORDER BY g.fecha, g.numero",
+					db, db);
+			try (PreparedStatement smt2 = con.prepareStatement(query)){
 					smt2.setString(1, esVenta);
 					smt2.setLong(2, id_bodegaEmpresa);
-
-					ResultSet rs2 = smt2.executeQuery();
-
+				try (ResultSet rs2 = smt2.executeQuery()) {
 					while (rs2.next()) {
 						List<String> aux = new ArrayList<String>();
 						aux.add(rs2.getString(1));
 						aux.add(rs2.getString(2));
 						listaGuias.add(aux);
 					}
+				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 
 			List<List<String>> listaCodigos = new ArrayList<List<String>>();
-
-			try (PreparedStatement smt3 = con
-					.prepareStatement(" select distinct " +
-							" grupo.nombre, " +
-							" equipo.codigo, " +
-							" equipo.nombre, " +
-							" ifnull(moneda.nickName,''), " + 
-							" ifnull(listaPrecio.precioVenta,0), " + 
-							" ifnull(listaPrecio.precioReposicion,0), " + 
-							" ifnull(listaPrecio.precioArriendo,0), " + 
-							" ifnull(listaPrecio.id_unidadTiempo,1), " +
-							" ifnull(bodegaEmpresa.tasaDescto,0), " +
-							" ifnull(dctoGrupo.tasaDescto,0), " +
-							" ifnull(dctoEquipo.tasaDescto,0), " +
-							" 0, " +
-							" 0, " +
-							" equipo.id, " +
-							" equipo.kg, " +
-							" equipo.m2 " +
-							" from `"+db+"`.movimiento " + 
-							" left join `"+db+"`.cotizacion on cotizacion.id = movimiento.id_cotizacion " +
-							" left join `"+db+"`.equipo on equipo.id=movimiento.id_equipo " + 
-							" left join `"+db+"`.listaPrecio on "
-									+ "listaPrecio.id_equipo = equipo.id "
-									+ "and listaPrecio.id_cotizacion = movimiento.id_cotizacion "
-									+ "and listaPrecio.id_bodegaEmpresa = " +id_bodegaEmpresa +
-							" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo  " + 
-							" left join `"+db+"`.moneda on moneda.id = listaPrecio.id_moneda " + 
-							" left join `"+db+"`.bodegaEmpresa on bodegaEmpresa.id = movimiento.id_bodegaEmpresa " +
-							" left join `"+db+"`.dctoGrupo on dctoGrupo.id_bodegaEmpresa = movimiento.id_bodegaEmpresa and dctoGrupo.id_grupo = equipo.id_grupo " +
-							" left join `"+db+"`.dctoEquipo on dctoEquipo.id_bodegaEmpresa = movimiento.id_bodegaEmpresa and dctoEquipo.id_equipo = movimiento.id_equipo " +
-							" where " + 
-							" movimiento.id_bodegaEmpresa=? "+ 
-							" and equipo.nombre is not null and movimiento.esVenta= ? "+
-							" order by grupo.nombre,equipo.nombre;")){
-			
+			query = String.format(
+					"SELECT DISTINCT "
+							+ "g.nombre, "           // 1 - grupo
+							+ "e.codigo, "          // 2 - equipo código
+							+ "e.nombre, "          // 3 - equipo nombre
+							+ "COALESCE(mon.nickName,''), "  // 4 - moneda (cambiado m -> mon)
+							+ "COALESCE(lp.precioVenta,0), "     // 5
+							+ "COALESCE(lp.precioReposicion,0), " // 6
+							+ "COALESCE(lp.precioArriendo,0), "   // 7
+							+ "COALESCE(lp.id_unidadTiempo,1), "  // 8
+							+ "COALESCE(be.tasaDescto,0), "      // 9
+							+ "COALESCE(dg.tasaDescto,0), "      // 10
+							+ "COALESCE(de.tasaDescto,0), "      // 11
+							+ "0, 0, "                           // 12,13
+							+ "e.id, "                          // 14
+							+ "e.kg, "                         // 15
+							+ "e.m2 "                         // 16
+							+ "FROM `%s`.movimiento m "
+							+ "LEFT JOIN `%s`.cotizacion c ON c.id = m.id_cotizacion "
+							+ "LEFT JOIN `%s`.equipo e ON e.id = m.id_equipo "
+							+ "LEFT JOIN `%s`.listaPrecio lp ON lp.id_equipo = e.id "
+							+ "  AND lp.id_cotizacion = m.id_cotizacion "
+							+ "  AND lp.id_bodegaEmpresa = %d "
+							+ "LEFT JOIN `%s`.grupo g ON g.id = e.id_grupo "
+							+ "LEFT JOIN `%s`.moneda mon ON mon.id = lp.id_moneda " // cambiado m -> mon
+							+ "LEFT JOIN `%s`.bodegaEmpresa be ON be.id = m.id_bodegaEmpresa "
+							+ "LEFT JOIN `%s`.dctoGrupo dg ON dg.id_bodegaEmpresa = m.id_bodegaEmpresa "
+							+ "  AND dg.id_grupo = e.id_grupo "
+							+ "LEFT JOIN `%s`.dctoEquipo de ON de.id_bodegaEmpresa = m.id_bodegaEmpresa "
+							+ "  AND de.id_equipo = m.id_equipo "
+							+ "WHERE m.id_bodegaEmpresa = ? "
+							+ "AND e.nombre IS NOT NULL "
+							+ "AND m.esVenta = ? "
+							+ "ORDER BY g.nombre, e.nombre",
+					db, db, db, db, id_bodegaEmpresa, db, db, db, db, db);
+			try (PreparedStatement smt3 = con.prepareStatement(query)){
 					smt3.setLong(1, id_bodegaEmpresa);
 					smt3.setString(2, esVenta);
-
-					ResultSet rs3 = smt3.executeQuery();
-
-					Map<Long,Double> mapUnidadTiempo = UnidadTiempo.equivalencia(con, db);
-
+				Map<Long,Double> mapUnidadTiempo = UnidadTiempo.equivalencia(con, db);
+				try (ResultSet rs3 = smt3.executeQuery()){
 					while (rs3.next()) {
 						List<String> aux = new ArrayList<String>();
 						Double factor = mapUnidadTiempo.get(rs3.getLong(8));
@@ -251,9 +257,6 @@ public class ReportMovimientos {
 						aux.add(rs3.getString(3));  //equipo
 						aux.add(rs3.getString(4));  //moneda
 						Double precVta = rs3.getDouble(5);
-
-
-
 
 						aux.add(precVta.toString());
 						Double tasa=(double)0;
@@ -277,33 +280,37 @@ public class ReportMovimientos {
 						aux.add(rs3.getString(16)); //  12 m2
 						listaCodigos.add(aux);
 					}
+				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
 
 			Map<String,String> codGuiaCant = new HashMap<String,String>();
+			query = String.format(
+					"SELECT e.codigo, g.numero, " +
+							"SUM(CASE WHEN m.id_tipoMovimiento = 2 THEN m.cantidad * -1 ELSE m.cantidad END), " +
+							"m.id_cotizacion " +
+							"FROM `%s`.movimiento m " +
+							"LEFT JOIN `%s`.equipo e ON e.id = m.id_equipo " +
+							"LEFT JOIN `%s`.guia g ON g.id = m.id_guia " +
+							"WHERE m.id_bodegaEmpresa = ? " +
+							"AND g.fecha IS NOT NULL " +
+							"AND m.esVenta = ? " +
+							"GROUP BY e.codigo, g.numero " +
+							"ORDER BY g.fecha, g.numero, e.codigo",
+					db, db, db);
 
-			try (PreparedStatement smt4 = con
-					.prepareStatement(" select " +
-							" equipo.codigo,    " +
-							" guia.numero, " +
-							" sum(if(movimiento.id_tipoMovimiento=2,movimiento.cantidad*-1,movimiento.cantidad)),   " +
-							" movimiento.id_cotizacion "+
-							" from `"+db+"`.movimiento " +
-							" left join `"+db+"`.equipo on equipo.id = movimiento.id_equipo " +
-							" left join `"+db+"`.guia on guia.id = movimiento.id_guia " +
-							" where movimiento.id_bodegaEmpresa =  ? "+  
-							" and guia.fecha is not null  and movimiento.esVenta= ?  " +
-							" group by equipo.codigo, guia.numero  " + 
-							" order by guia.fecha,guia.numero,equipo.codigo;")){
+
+			try (PreparedStatement smt4 = con.prepareStatement(query)){
 					smt4.setLong(1, id_bodegaEmpresa);
 					smt4.setString(2, esVenta);
-
-					ResultSet rs4 = smt4.executeQuery();
-
+				try (ResultSet rs4 = smt4.executeQuery()) {
 					while (rs4.next()) {
-						codGuiaCant.put(rs4.getString(1).trim()+"_"+rs4.getString(2).trim(), rs4.getString(3));
+						String key = rs4.getString(1).trim() + "_" + rs4.getString(2).trim();
+						codGuiaCant.put(key, rs4.getString(3));
+
 					}
+				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			}
@@ -318,15 +325,6 @@ public class ReportMovimientos {
 			Map<Long,BodegaEmpresa> mapBodegaEmpresa = BodegaEmpresa.mapAll(con, db);
 				
 			String auxiliarDeReparacion="";
-			
-			Fechas hastaAjustar = new Fechas();
-			Fechas desdeAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaDesde);
-			hastaAjustar = Fechas.obtenerFechaDesdeStrAAMMDD(fechaHasta);
-			String deAjustado = Fechas.addMeses(desdeAjustar.getFechaCal(), -6).getFechaStrAAMMDD();
-			String aAjustado = Fechas.addMeses(hastaAjustar.getFechaCal(), -1).getFechaStrAAMMDD();
-			List<Long> listIdGuia_entreFechas = ModCalc_GuiasPer.listIdGuia_entreFecha(con, db, deAjustado, aAjustado);
-			
-			Map<Long, List<Inventarios>> mapGuiasPer = Inventarios.guiasPerAllBodegas(con, db, listIdGuia_entreFechas);
 			
 			for(int i=0;i<listaCodigos.size();i++){
 

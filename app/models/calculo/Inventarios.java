@@ -324,67 +324,57 @@ public class Inventarios {
 	
 	public static Map<Long, List<Inventarios>> guiasPerAllBodegas (Connection con, String db, List<Long> listIdGuia){
 		Map<Long, List<Inventarios>> map = new HashMap<Long, List<Inventarios>>();
-		try{
-			String listaInGuia = listIdGuia.toString().replace("[", "").replace("]", "");
-			String query = String.format(" select "
-					+ " movimiento.id_guia, "
-					+ " movimiento.id_bodegaEmpresa, "
-					+ " equipo.id_grupo, "
-					+ " movimiento.id_equipo,  "
-					+ " movimiento.id_cotizacion,  "
-					+ " movimiento.esVenta, "
-					+ " guia.fecha, "
-					+ " sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad), "
-					+ " movimiento.id_tipoMovimiento, "
-					+ " guia.numero, "
-					+ " guia.numGuiaCliente, "
-					+ " ifnull(guia.fechaIniTerGuia,guia.fecha) "
-					+ " from `%s`.movimiento "
-					+ " left join `%s`.guia on guia.id = movimiento.id_guia "
-					+ " left join `%s`.equipo on equipo.id = movimiento.id_equipo "
-					+ " where movimiento.id_guia in ("+listaInGuia+") "
-					+ " group by movimiento.id_guia, movimiento.id_bodegaEmpresa, movimiento.id_equipo, "
-					+ " movimiento.id_cotizacion,  "
-					+ " movimiento.esVenta "
-					+ " order by movimiento.id_bodegaEmpresa, equipo.id_grupo, equipo.id, guia.fecha;",db,db,db);
-			if(listaInGuia.trim().length()>0) {
-				try (PreparedStatement smt = con.prepareStatement(query)) {
-					try (ResultSet rs = smt.executeQuery()) {
-						while (rs.next()) {
-							Inventarios aux = new Inventarios();
-							aux.id_guia = rs.getLong(1);
-							aux.id_bodegaEmpresa = rs.getLong(2);
-							aux.id_grupo = rs.getLong(3);
-							aux.id_equipo = rs.getLong(4);
-							aux.id_cotizacion = rs.getLong(5);
-							aux.esVenta = rs.getLong(6);
-							aux.fechaGuia = rs.getString(7);
-							aux.cantidad = rs.getDouble(8);
-							aux.id_tipoMovimiento = rs.getLong(9);
-							aux.numeroGuia = rs.getLong(10);
-							aux.numGuiaCliente = rs.getString(11);
-							aux.fechaIniTerGuia = rs.getString(12);
-							List<Inventarios> lista = map.get(rs.getLong(2));
-							if (lista == null) {
-								List<Inventarios> auxLista = new ArrayList<Inventarios>();
-								auxLista.add(aux);
-								map.put(rs.getLong(2), auxLista);
-							} else {
-								lista.add(aux);
-								map.put(rs.getLong(2), lista);
-							}
-						}
+		if (listIdGuia == null || listIdGuia.isEmpty()) {
+			return map;
+		}
+		String query = String.format(
+				"SELECT m.id_guia, m.id_bodegaEmpresa, e.id_grupo, m.id_equipo, " +
+						"m.id_cotizacion, m.esVenta, g.fecha, " +
+						"SUM(CASE WHEN m.id_tipoMovimiento = 1 THEN m.cantidad ELSE -m.cantidad END), " +
+						"m.id_tipoMovimiento, g.numero, g.numGuiaCliente, " +
+						"COALESCE(g.fechaIniTerGuia, g.fecha) " +
+						"FROM `%s`.movimiento m " +
+						"LEFT JOIN `%s`.guia g ON g.id = m.id_guia " +
+						"LEFT JOIN `%s`.equipo e ON e.id = m.id_equipo " +
+						"WHERE m.id_guia IN (%s) " +
+						"GROUP BY m.id_guia, m.id_bodegaEmpresa, m.id_equipo, " +
+						"m.id_cotizacion, m.esVenta " +
+						"ORDER BY m.id_bodegaEmpresa, e.id_grupo, e.id, g.fecha",
+				db, db, db,
+				listIdGuia.stream()
+						.map(String::valueOf)
+						.collect(Collectors.joining(","))
+		);
+		try (PreparedStatement smt = con.prepareStatement(query);
+			 ResultSet rs = smt.executeQuery()) {
+				while (rs.next()) {
+					Inventarios aux = new Inventarios();
+					aux.id_guia = rs.getLong(1);
+					aux.id_bodegaEmpresa = rs.getLong(2);
+					aux.id_grupo = rs.getLong(3);
+					aux.id_equipo = rs.getLong(4);
+					aux.id_cotizacion = rs.getLong(5);
+					aux.esVenta = rs.getLong(6);
+					aux.fechaGuia = rs.getString(7);
+					aux.cantidad = rs.getDouble(8);
+					aux.id_tipoMovimiento = rs.getLong(9);
+					aux.numeroGuia = rs.getLong(10);
+					aux.numGuiaCliente = rs.getString(11);
+					aux.fechaIniTerGuia = rs.getString(12);
+					List<Inventarios> lista = map.get(rs.getLong(2));
+					if (lista == null) {
+						List<Inventarios> auxLista = new ArrayList<Inventarios>();
+						auxLista.add(aux);
+						map.put(rs.getLong(2), auxLista);
+					} else {
+						lista.add(aux);
+						map.put(rs.getLong(2), lista);
 					}
-				} catch (SQLException e) {
-					String className = Inventarios.class.getSimpleName();
-					String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 				}
-			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			String className = Inventarios.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 		}
 		return map;
 	}
