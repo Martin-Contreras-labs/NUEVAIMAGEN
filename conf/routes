@@ -70,9 +70,11 @@ GET		/inicio2Admin/:db			controllers.HomeController.inicio2Admin(db: String, req
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MODULO DE USO GENERAL
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-GET     /viewImg/:img						controllers.HomeController.viewImg(img:String, request: Request)
-GET     /viewImgAlbum/:img,:carp			controllers.HomeController.viewImgAlbum(img:String, carp: String, request: Request)
-GET     /showPdf/:fileNamePdf 				controllers.HomeController.showPdf(fileNamePdf: String, request: Request)
+GET     /viewImg/:img					        	controllers.HomeController.viewImg(img:String, request: Request)
+GET     /viewImgAlbum/:img,:carp		        	controllers.HomeController.viewImgAlbum(img:String, carp: String, request: Request)
+GET     /showPdf/:fileNamePdf 				        controllers.HomeController.showPdf(fileNamePdf: String, request: Request)
+GET     /showPdfmasAlbum/:id_guia,:fileNamePdf 		controllers.HomeController.showPdfmasAlbum(id_guia: Long, fileNamePdf: String, request: Request)
+
 GET     /showPdfManuales/:fileNamePdf 		controllers.HomeController.showPdfManuales(fileNamePdf: String, request: Request)
 POST    /downloadPDF/						controllers.HomeController.downloadPDF(request: Request)
 POST    /tasasDeFechaAjax/					controllers.HomeController.tasasDeFechaAjax(request: Request)

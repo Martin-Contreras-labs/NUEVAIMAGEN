@@ -6,6 +6,8 @@ import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,10 +23,14 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.converter.pdf.PdfConverter;
+import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -347,6 +353,46 @@ public class HomeController extends Controller {
 		return ok(archivo);
    	}
 
+	public Result showPdfmasAlbum(Long id_guia, String fileNamePDF, Http.Request request){
+		Sessiones s = new Sessiones(request);
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		String path = s.baseDato+"/"+fileNamePDF;
+		InputStream archivo = Archivos.leerArchivo(path);
+		Guia guia = new Guia();
+		try (Connection con = dbRead.getConnection()) {
+			guia = Guia.find(con,s.baseDato,id_guia);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			if( ! guia.getFotos().equals("0")){
+				File fotos = HomeController.muestraGuiaMasAlbum(guia,s.baseDato);
+				PDFMergerUtility merger = new PDFMergerUtility();
+				File outputFile = TempFile.createTempFile("tmp","null");
+				try {
+					File pdfBase = TempFile.createTempFile("tmpBase", "pdf");
+					Files.copy(archivo, pdfBase.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+					merger.addSource(pdfBase);
+					// merger.addSource(archivo);
+					merger.addSource(fotos);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				merger.setDestinationFileName(outputFile.getAbsolutePath());
+				MemoryUsageSetting memoryUsageSetting = MemoryUsageSetting.setupMainMemoryOnly();
+				merger.mergeDocuments(memoryUsageSetting);
+				return ok(Archivos.parseFileToInputStream(outputFile));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ok(archivo);
+	}
+
 
     public Result redirShowPDF(String fileNamePDF, String titulo, String url, Http.Request request) {
 		Sessiones s = new Sessiones(request);
@@ -575,7 +621,56 @@ public class HomeController extends Controller {
    		
 	}
 
-    public static File reporteEnWordHome(String db, List<List<List<String>>> lista, Guia guia, VentaServicio ventaServicio) {
+	public static File muestraGuiaMasAlbum(Guia guia, String db) {
+		File file = null;
+		try {
+			String carpeta = guia.getFotos();
+			List<List<String>> listado = Archivos.listaDeObjetos(db, carpeta);
+			List<List<List<String>>> lista = new ArrayList<List<List<String>>>();
+			for(int i=0; i<listado.size(); i++) {
+				List<List<String>> aux = new ArrayList<List<String>>();
+				for(int j=0; j<listado.get(i).size(); j++) {
+					List<String> aux2 = new ArrayList<String>();
+					aux2.add(carpeta+"/"+listado.get(i).get(j));
+					aux2.add(listado.get(i).get(j));
+					aux.add(aux2);
+				}
+				lista.add(aux);
+			}
+			String aux[] = carpeta.split("_");
+			String origen = aux[1];
+			if(origen.equals("Mov")) {
+				VentaServicio ventaServicio = null;
+				file = HomeController.reporteEnWordHome(db, lista, guia, ventaServicio);
+			}else if(origen.equals("Report")){
+				guia = null;
+				try (Connection con = dbRead.getConnection()){
+					VentaServicio ventaServicio = VentaServicio.findPorAlbum(con, db, carpeta);
+					file = HomeController.reporteEnWordHome(db, lista, guia, ventaServicio);
+				}
+			}
+		} catch (Exception e) {
+			file = null;
+		}
+		try {
+			// 1) Load DOCX into XWPFDocument
+			InputStream is = new FileInputStream(file);
+			XWPFDocument document = new XWPFDocument(is);
+			is.close();
+			// 2) Prepare Pdf options
+			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			// 3) Convert XWPFDocument to Pdf
+			OutputStream out = new FileOutputStream(file);
+			PdfConverter.getInstance().convert(document, out, options);
+			out.close();
+		}catch (Exception e){
+			file = null;
+		}
+		return (file);
+	}
+
+
+	public static File reporteEnWordHome(String db, List<List<List<String>>> lista, Guia guia, VentaServicio ventaServicio) {
 		File tmp = TempFile.createTempFile("tmp","null");
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		try {
@@ -584,34 +679,34 @@ public class HomeController extends Controller {
 			XWPFDocument doc = new XWPFDocument(formato);
 			if(guia!=null) {
 				XWPFParagraph p1 = doc.getParagraphArray(0);
-	            p1.setAlignment(ParagraphAlignment.LEFT);
-	            XWPFRun r1 = p1.createRun();
-	            r1.setBold(true);
-	            r1.setText("Movimiento Nro: " + guia.getNumero() + " de fecha " + Fechas.DDMMAA(guia.getFecha()) );
-	            p1 = doc.getParagraphArray(1);
-	            r1 = p1.createRun();
-	            r1.setText("Referencia: " + guia.getNumGuiaCliente());
-	            p1 = doc.getParagraphArray(2);
-	            r1 = p1.createRun();
-	            r1.setText("Origen: " + guia.getBodegaOrigen());
-	            p1 = doc.getParagraphArray(3);
-	            r1 = p1.createRun();
-	            r1.setText("Destino: " + guia.getBodegaDestino());
-	            p1 = doc.getParagraphArray(4);
-	            r1 = p1.createRun();
-	            r1.setText("Observaciones: " + guia.getObservaciones());
+				p1.setAlignment(ParagraphAlignment.LEFT);
+				XWPFRun r1 = p1.createRun();
+				r1.setBold(true);
+				r1.setText("Movimiento Nro: " + guia.getNumero() + " de fecha " + Fechas.DDMMAA(guia.getFecha()) );
+				p1 = doc.getParagraphArray(1);
+				r1 = p1.createRun();
+				r1.setText("Referencia: " + guia.getNumGuiaCliente());
+				p1 = doc.getParagraphArray(2);
+				r1 = p1.createRun();
+				r1.setText("Origen: " + guia.getBodegaOrigen());
+				p1 = doc.getParagraphArray(3);
+				r1 = p1.createRun();
+				r1.setText("Destino: " + guia.getBodegaDestino());
+				p1 = doc.getParagraphArray(4);
+				r1 = p1.createRun();
+				r1.setText("Observaciones: " + guia.getObservaciones());
 			}else if(ventaServicio!=null) {
 				XWPFParagraph p1 = doc.getParagraphArray(0);
-	            p1.setAlignment(ParagraphAlignment.LEFT);
-	            XWPFRun r1 = p1.createRun();
-	            r1.setBold(true);
-	            r1.setText("Report Id: " + ventaServicio.getId() + " de fecha " + Fechas.DDMMAA(ventaServicio.getFecha()) );
-	            p1 = doc.getParagraphArray(1);
-	            r1 = p1.createRun();
-	            r1.setText("Servicio: " + ventaServicio.getNomServicio());
-	            p1 = doc.getParagraphArray(2);
-	            r1 = p1.createRun();
-	            r1.setText("Destino: " + ventaServicio.getNomBodegaEmpresa());
+				p1.setAlignment(ParagraphAlignment.LEFT);
+				XWPFRun r1 = p1.createRun();
+				r1.setBold(true);
+				r1.setText("Report Id: " + ventaServicio.getId() + " de fecha " + Fechas.DDMMAA(ventaServicio.getFecha()) );
+				p1 = doc.getParagraphArray(1);
+				r1 = p1.createRun();
+				r1.setText("Servicio: " + ventaServicio.getNomServicio());
+				p1 = doc.getParagraphArray(2);
+				r1 = p1.createRun();
+				r1.setText("Destino: " + ventaServicio.getNomBodegaEmpresa());
 			}
 			XWPFTable table = doc.getTables().get(0);
 			XWPFTableCell cell = null;
@@ -624,9 +719,9 @@ public class HomeController extends Controller {
 					inputStream.close();
 					XWPFParagraph paragraph = cell.addParagraph();
 					paragraph.setAlignment(ParagraphAlignment.CENTER);
-	    			XWPFRun run2 = paragraph.createRun();
-	    			run2.addPicture(new ByteArrayInputStream(qr), XWPFDocument.PICTURE_TYPE_PNG, "firma", Units.toEMU(60), Units.toEMU(60));
-	    			HomeController.setCeldaHome(cell,"Arial",6,2,"000000",lista.get(i).get(j).get(1),false);
+					XWPFRun run2 = paragraph.createRun();
+					run2.addPicture(new ByteArrayInputStream(qr), XWPFDocument.PICTURE_TYPE_PNG, "firma", Units.toEMU(60), Units.toEMU(60));
+					HomeController.setCeldaHome(cell,"Arial",6,2,"000000",lista.get(i).get(j).get(1),false);
 				}
 				table.createRow();
 			}

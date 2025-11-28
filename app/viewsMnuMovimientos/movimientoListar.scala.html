@@ -159,7 +159,7 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 									@if(lista1.getGuiaPDF().equals("0")){
 										--
 									}else{
-										<a href="#" onclick="mostrarPDF('@lista1.getGuiaPDF()')">
+										<a href="#" onclick="mostrarPDFmasAlbum('@lista1.getId()','@lista1.getGuiaPDF()')">
 											<kbd style="background-color: #85C1E9">pdf</kbd>
 										</a>
 									}
@@ -588,8 +588,8 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
         });
 	}
 	
-	const mostrarPDF = (nombrePDF) => {
-		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+	const mostrarPDFmasAlbum = (id_guia, nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdfmasAlbum/"+id_guia+","+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
 		  $('#muestraPDF').modal('show');
 	}
 	

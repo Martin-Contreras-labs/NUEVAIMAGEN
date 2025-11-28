@@ -69,7 +69,7 @@
 													@nivel2
 												</td>
 											}else{
-												@if( index2 == 5 || index2 == nivel1.size-2){
+												@if( index2 == 6 || index2 == nivel1.size-3){
 													<td style="background-color: #eeeeee">
 														@nivel2
 													</td>
@@ -133,7 +133,7 @@
 			}
 			if(i==1){
 				newRow.cells[i].style.textAlign="left";
-				newRow.cells[i].innerHTML="CANTIDADES";
+				newRow.cells[i].innerHTML="POR COLUMNA";
 			}
 			if(i==2){
 				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
@@ -152,11 +152,34 @@
 			}
 			if(i==0){
 				newRow.cells[i].style.textAlign="left";
-				newRow.cells[i].innerHTML="TOTALES";
+				newRow.cells[i].innerHTML="TOTAL";
 			}
 			if(i==1){
 				newRow.cells[i].style.textAlign="left";
-				newRow.cells[i].innerHTML="PRECIO";
+				newRow.cells[i].innerHTML="PRECIOS";
+			}
+			if(i==2){
+				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
+			}
+		}
+
+		newRow = footer.insertRow(1);
+		cellsOfRow = tabla.rows[0].getElementsByTagName('th');
+		for (var i = 0; i < cellsOfRow.length; i++) {
+			newRow.insertCell(i);
+			newRow.cells[i].style.backgroundColor="#eeeeee";
+			if(i<2){
+				newRow.cells[i].style.textAlign="left";
+			}else {
+				newRow.cells[i].style.textAlign="center";
+			}
+			if(i==0){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="TOTAL";
+			}
+			if(i==1){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="KG";
 			}
 			if(i==2){
 				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
@@ -164,27 +187,35 @@
 		}
 		
 		var numero0 = new DecimalFormat("#,##0");
-		for (var i = 5; i < cellsOfRow.length; i++) {
+		for (var i = 6; i < cellsOfRow.length; i++) {
 			let cant = 0;
+			let kg = 0;
 			let precio = 0;
-			for (var j = 3; j < tabla.rows.length-2; j++) {
+			for (var j = 3; j < tabla.rows.length-3; j++) {
 				cellsOfRow = tabla.rows[j].getElementsByTagName('td');
 				let auxCant = cellsOfRow[i].innerHTML;
-				let auxPrecio = cellsOfRow[4].innerHTML;
+
+				let auxPrecio = cellsOfRow[5].innerHTML;
 				auxPrecio = auxPrecio.replace(",", "").replace(",", "").replace(",", "");
 				auxCant = auxCant.replace(",", "").replace(",", "").replace(",", "");
 				cant = parseFloat(cant) + parseFloat(auxCant);
 				precio = parseFloat(precio) + parseFloat(auxPrecio * parseFloat(auxCant));
+
+				let auxKg = cellsOfRow[4].innerHTML;
+				auxKg = auxKg.replace(",", "").replace(",", "").replace(",", "");
+				kg = parseFloat(kg) + parseFloat(auxKg * parseFloat(auxCant));
 			}
-			if(i != cellsOfRow.length-1){
-				cellsOfRow = tabla.rows[tabla.rows.length-2].getElementsByTagName('td');
+			//if(i != cellsOfRow.length-2 && i != cellsOfRow.length-1){
+				cellsOfRow = tabla.rows[tabla.rows.length-3].getElementsByTagName('td');
 				cellsOfRow[i].innerHTML = numero0.format(cant);
+			//}
+
+			if(i != cellsOfRow.length-2 && i != cellsOfRow.length-1){
+				cellsOfRow = tabla.rows[tabla.rows.length-2].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = numero0.format(kg);
 			}
 
-			if(i == cellsOfRow.length-1) {
-				cellsOfRow = tabla.rows[tabla.rows.length-1].getElementsByTagName('td');
-				cellsOfRow[i].innerHTML = numero0.format(cant);
-			}else{
+			if(i != cellsOfRow.length-2 && i != cellsOfRow.length-1){
 				cellsOfRow = tabla.rows[tabla.rows.length-1].getElementsByTagName('td');
 				cellsOfRow[i].innerHTML = formatStandar(precio,"@moneda.getNumeroDecimales()");
 			}
@@ -224,9 +255,9 @@
 			"language": {
 		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
 		        }
-		  } );
+		} );
 
-			document.getElementById('mostrarmostrar').style.display="block";
+		document.getElementById('mostrarmostrar').style.display="block";
 	});
 	
 	

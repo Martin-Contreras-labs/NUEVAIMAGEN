@@ -71,6 +71,8 @@ public class Archivos{
 		}
 		return (output);
 	}
+
+
 	
 	public static File parseMultipartFormDatatoFile(Http.MultipartFormData.FilePart<TemporaryFile> archivo) {
 		String fileName = archivo.getFilename();
@@ -83,6 +85,14 @@ public class Archivos{
 		File tmp = TempFile.createTempFile("tmp",ext);
 		file.moveTo(tmp);
 		return tmp;
+	}
+
+	public static InputStream parseFileToInputStream(File file) {
+		try {
+			return new FileInputStream(file);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public static InputStream leerArchivo(String path){

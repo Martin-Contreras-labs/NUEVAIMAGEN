@@ -43,9 +43,10 @@ public class ReportMovCompras {
 	public String codigoEquipo;
 	public String nameEquipo;
 	public Double cantidad;
+	public Double kg;
 	
 	public ReportMovCompras(Long id_factura, Long id_equipo, String nickProveedor, String numeroFactura,
-			String fechaFactura, String codigoEquipo, String nameEquipo, Double cantidad) {
+			String fechaFactura, String codigoEquipo, String nameEquipo, Double cantidad, Double kg) {
 		super();
 		this.id_factura = id_factura;
 		this.id_equipo = id_equipo;
@@ -55,6 +56,7 @@ public class ReportMovCompras {
 		this.codigoEquipo = codigoEquipo;
 		this.nameEquipo = nameEquipo;
 		this.cantidad = cantidad;
+		this.kg = kg;
 	}
 
 	public ReportMovCompras() {
@@ -106,7 +108,8 @@ public class ReportMovCompras {
 							+ " factura.fecha, "
 							+ " equipo.codigo, "
 							+ " equipo.nombre, "
-							+ " sum(compra.cantidad) "
+							+ " sum(compra.cantidad), "
+							+ " equipo.kg "
 							+ " from `"+db+"`.compra "
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
@@ -118,7 +121,8 @@ public class ReportMovCompras {
 			ResultSet rs1 = smt1.executeQuery();
 			while (rs1.next()) {
 				if(rs1.getDouble(8) > 0) {
-					lista.add(new ReportMovCompras(rs1.getLong(1),rs1.getLong(2),rs1.getString(3),rs1.getString(4),rs1.getString(5),rs1.getString(6),rs1.getString(7),rs1.getDouble(8)));
+					lista.add(new ReportMovCompras(rs1.getLong(1),rs1.getLong(2),rs1.getString(3),rs1.getString(4),rs1.getString(5),rs1.getString(6),
+							rs1.getString(7),rs1.getDouble(8),rs1.getDouble(9)));
 				}
 			}
 			rs1.close();
@@ -142,7 +146,8 @@ public class ReportMovCompras {
 							+ " factura.fecha, "
 							+ " equipo.codigo, "
 							+ " equipo.nombre, "
-							+ " sum(compra.cantidad) "
+							+ " sum(compra.cantidad), "
+							+ " equipo.kg "
 							+ " from `"+db+"`.compra "
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
@@ -153,7 +158,8 @@ public class ReportMovCompras {
 			ResultSet rs1 = smt1.executeQuery();
 			while (rs1.next()) {
 				if(rs1.getDouble(8) > 0) {
-					lista.add(new ReportMovCompras(rs1.getLong(1),rs1.getLong(2),rs1.getString(3),rs1.getString(4),rs1.getString(5),rs1.getString(6),rs1.getString(7),rs1.getDouble(8)));
+					lista.add(new ReportMovCompras(rs1.getLong(1),rs1.getLong(2),rs1.getString(3),rs1.getString(4),rs1.getString(5),rs1.getString(6),
+							rs1.getString(7),rs1.getDouble(8),rs1.getDouble(9)));
 				}
 			}
 			rs1.close();
@@ -176,7 +182,8 @@ public class ReportMovCompras {
 							+ " factura.fecha, "
 							+ " equipo.codigo, "
 							+ " equipo.nombre, "
-							+ " sum(compra.cantidad) "
+							+ " sum(compra.cantidad), "
+							+ " equipo.kg "
 							+ " from `"+db+"`.compra "
 							+ " left join `"+db+"`.factura on factura.id = compra.id_factura "
 							+ " left join `"+db+"`.proveedor on proveedor.id = factura.id_proveedor "
@@ -188,7 +195,8 @@ public class ReportMovCompras {
 			ResultSet rs1 = smt1.executeQuery();
 			while (rs1.next()) {
 				if(rs1.getDouble(8) > 0) {
-					lista.add(new ReportMovCompras(rs1.getLong(1),rs1.getLong(2),rs1.getString(3),rs1.getString(4),rs1.getString(5),rs1.getString(6),rs1.getString(7),rs1.getDouble(8)));
+					lista.add(new ReportMovCompras(rs1.getLong(1),rs1.getLong(2),rs1.getString(3),rs1.getString(4),rs1.getString(5),rs1.getString(6),
+							rs1.getString(7),rs1.getDouble(8),rs1.getDouble(9)));
 				}
 			}
 			rs1.close();
@@ -222,6 +230,7 @@ public class ReportMovCompras {
 			aux.add(x.codigoEquipo);
 			aux.add(x.nameEquipo);
 			aux.add(x.id_equipo.toString());
+			aux.add(x.kg.toString());
 			mapEquipos.put(x.id_equipo, aux);
 		}
 		
@@ -255,11 +264,13 @@ public class ReportMovCompras {
 		linea0.add("");
 		linea0.add("");
 		linea0.add("");
+		linea0.add("");
 		
 		linea1.add("CODIGO");
 		linea1.add("EQUIPO");
 		linea1.add("ULTIMO PRECIO");
 		linea1.add("REGISTRADO ");
+		linea1.add("");
 		linea1.add("");
 		linea1.add("STOCK");
 		
@@ -267,9 +278,11 @@ public class ReportMovCompras {
 		linea2.add("");
 		linea2.add("PROVEEDOR");
 		linea2.add("FECHA");
+		linea2.add("KG");
 		linea2.add("PRECIO");
 		linea2.add("INI");
 		
+		linea3.add("");
 		linea3.add("");
 		linea3.add("");
 		linea3.add("");
@@ -289,8 +302,11 @@ public class ReportMovCompras {
 		linea3.add(Fechas.DDMMAA(fechaHasta).replaceAll("-", "/"));
 
 //		linea0.add("");
-		linea1.add("PRECIO");
-		linea2.add("");
+		linea1.add("");
+		linea1.add("");
+		linea2.add("KG");
+		linea2.add("PRECIO");
+		linea3.add("");
 		linea3.add("");
 		tabla.add(linea0);
 		tabla.add(linea1);
@@ -317,9 +333,11 @@ public class ReportMovCompras {
 				linea.add(precio.get(4));
 				linea.add(Fechas.DDMMAA(precio.get(2)));
 				String precioFormateado = DecimalFormato.formato(precioUnit,(long) nroDec);
+				linea.add(DecimalFormato.formato(Double.parseDouble(v.get(3)),2L));
 				linea.add(precioFormateado);
 				precioUnit = Double.parseDouble(precioFormateado.replaceAll(",",""));
 			}else{
+				linea.add("");
 				linea.add("");
 				linea.add("");
 				linea.add("0");
@@ -332,7 +350,7 @@ public class ReportMovCompras {
 			linea.add(format.format(cant));
 
 
-			for(int i = 6; i < tabla.get(0).size() - 1; i++) {
+			for(int i = 6; i < tabla.get(0).size() - 2; i++) {
 				ReportMovCompras x = mapDetalleBetwen.get(tabla.get(0).get(i) + "_" + v.get(2));
 				if(x == null) {
 					cant = (double) 0;
@@ -346,6 +364,7 @@ public class ReportMovCompras {
 				cant = (double) 0;
 			}
 			linea.add(format.format(cant));
+			linea.add(format.format(Double.parseDouble(v.get(3))*cant));
 			linea.add(DecimalFormato.formato(precioUnit*cant,(long) nroDec));
 			tabla.add(linea);
 		}
@@ -522,33 +541,24 @@ public class ReportMovCompras {
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("CANTIDADES");
-				for(int i=0; i<3; i++){
+				cell.setCellValue("POR COLUMNA");
+				for(int i=0; i<4; i++){
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(encabezado);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 				}
-				for(int j=5; j<datos.get(4).size(); j++){
+				for(int j=6; j<datos.get(4).size(); j++){
 					Double cant = (double)0;
 					for(int i=4; i<datos.size(); i++){
-						Double precio = Double.parseDouble(datos.get(i).get(4).replaceAll(",", ""));
 						cant += Double.parseDouble(datos.get(i).get(j).replaceAll(",", ""));
 					}
-
-					if(j != datos.get(4).size()-1){
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(encabezado);
 						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(cant);
-					}else{
-						granTotPrecio = cant;
-						posCell++;
-						cell = row.createCell(posCell);
-						cell.setCellStyle(encabezado);
-					}
 				}
 				posRow++;
 				row = hoja1.createRow(posRow);
@@ -557,28 +567,70 @@ public class ReportMovCompras {
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("TOTALES");
+				cell.setCellValue("TOTAL");
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
-				cell.setCellValue("PRECIO");
-				for(int i=0; i<3; i++){
+				cell.setCellValue("KG");
+				for(int i=0; i<4; i++){
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(encabezado);
 					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 				}
-				for(int j=5; j<datos.get(4).size(); j++){
+				for(int j=6; j<datos.get(4).size(); j++){
+					Double totKg = (double)0;
+					for(int i=4; i<datos.size(); i++){
+						Double kg = Double.parseDouble(datos.get(i).get(4).replaceAll(",", ""));
+						Double cant = Double.parseDouble(datos.get(i).get(j).replaceAll(",", ""));
+						totKg += kg * cant;
+					}
+
+					if(j != datos.get(4).size()-2 && j != datos.get(4).size()-1){
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+						cell.setCellValue(totKg);
+					}else{
+						posCell++;
+						cell = row.createCell(posCell);
+						cell.setCellStyle(encabezado);
+						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					}
+				}
+
+				posRow++;
+				row = hoja1.createRow(posRow);
+				posCell = 0;
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("TOTAL");
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("PRECIO");
+				for(int i=0; i<4; i++){
+					posCell++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(encabezado);
+					cell.setCellType(Cell.CELL_TYPE_STRING);
+					cell.setCellValue("");
+				}
+				for(int j=6; j<datos.get(4).size(); j++){
 					Double totPrecio = (double)0;
 					for(int i=4; i<datos.size(); i++){
-						Double precio = Double.parseDouble(datos.get(i).get(4).replaceAll(",", ""));
+						Double precio = Double.parseDouble(datos.get(i).get(5).replaceAll(",", ""));
 						Double cant = Double.parseDouble(datos.get(i).get(j).replaceAll(",", ""));
 						totPrecio += precio * cant;
 					}
 
-					if(j!=datos.get(4).size()-1){
+					if(j != datos.get(4).size()-2 && j != datos.get(4).size()-1){
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(encabezado);
@@ -589,9 +641,9 @@ public class ReportMovCompras {
 						cell = row.createCell(posCell);
 						cell.setCellStyle(encabezado);
 						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(granTotPrecio);
 					}
 				}
+
 
 			}
 			posRow = posRow + 5;

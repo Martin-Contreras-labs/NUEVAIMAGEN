@@ -1620,7 +1620,8 @@ public class FormMovimiento {
     					if(lista.size()>0) {
 
     						table = doc.getTables().get(7);
-
+							Double total = (double)0;
+							String moneda = "";
     						contLinea = 1;
     						for(List<String> x : lista) {
 
@@ -1643,16 +1644,38 @@ public class FormMovimiento {
     							cell = row.getCell(5);
     							texto = x.get(13).trim();
     							setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+								moneda = texto;
     							cell = row.getCell(6);
     							texto = x.get(14).trim();
     							setCelda(cell,"Arial",8,3,"2b5079",texto,false);
     							cell = row.getCell(7);
     							texto = x.get(16).trim();
     							setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+								if(texto.trim().length()>0) {
+									Double auxTot = Double.parseDouble(texto.replaceAll(",", ""));
+									total += auxTot;
+								}
+
 
     							table.createRow();
     							contLinea++;
     						}
+
+							Long nroDec = mapDecimal.get(moneda);
+							if(nroDec==null) {
+								nroDec = (long)0;
+							}
+
+							row = table.getRow(contLinea);
+
+							cell = row.getCell(0);
+							texto = "TOTAL";
+							setCelda(cell,"Arial",8,2,"2b5079",texto,false);
+
+							cell = row.getCell(7);
+							texto = total.toString();
+							setCelda(cell,"Arial",8,3,"2b5079",DecimalFormato.formato(total, nroDec),false);
+
     					}else {
     						try {
     							table = doc.getTables().get(7);
