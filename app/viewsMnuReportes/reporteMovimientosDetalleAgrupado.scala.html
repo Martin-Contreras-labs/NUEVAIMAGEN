@@ -79,7 +79,7 @@ lista: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, concep
 
 	
 	<form id="excel" class="formulario" method="post" action="/reporteMovimientosDetalleAgrupadoExcel/">
-		<input type="hidden" name="id_bodegaEmpresa" value="@bodega.getId()">
+		<input type="hidden" name="id_bodega" value="@bodega.getId()">
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
 		<input type="hidden" name="esVenta" value="@esVenta">

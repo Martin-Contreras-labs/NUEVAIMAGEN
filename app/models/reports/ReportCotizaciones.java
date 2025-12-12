@@ -200,7 +200,9 @@ public class ReportCotizaciones {
 							+ " cotizaDetalle.id_equipo,"  			// 14
 							+ " ifnull(ot.fecha,''),"  				// 15
 							+ " cotizacion.id,"  					// 16
-							+ " ifnull(ot.confirmada,0)"  			// 17
+							+ " ifnull(ot.confirmada,0),"  			// 17
+							+ " cotizacion.dctoArriendo,"   		// 18
+							+ " cotizacion.dctoVenta"  				// 19
 							+ " from `"+db+"`.cotizaDetalle"
 							+ " left join `"+db+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
 							+ " left join `"+db+"`.ot on ot.id_cotizacion = cotizacion.id"
@@ -248,6 +250,8 @@ public class ReportCotizaciones {
 				Long esVenta = rs.getLong(9);
 				Double precioVenta = rs.getDouble(11);
 				Double precioArriendo = rs.getDouble(12);
+				Double dctoArriendo = rs.getDouble(18);
+				Double dctoVenta = rs.getDouble(19);
 				Double permanencia = rs.getDouble(13);
 				Long id_equipo = rs.getLong(14);
 				Double peso = (double)0;
@@ -258,9 +262,9 @@ public class ReportCotizaciones {
 					
 					Double total = (double) 0;
 					if((long) esVenta == (long)1 ) {
-						total = cantidad * precioVenta * valorTasa;
+						total = cantidad * precioVenta * valorTasa * (1-dctoVenta);
 					}else {
-						total = cantidad * precioArriendo * permanencia * valorTasa;
+						total = cantidad * precioArriendo * permanencia * valorTasa * (1-dctoArriendo);
 					}
 					
 					Equipo equipo = mapEquipos.get(id_equipo);
@@ -278,9 +282,9 @@ public class ReportCotizaciones {
 					
 					Double total = (double) 0;
 					if((long) esVenta == (long)1 ) {
-						total = cantidad * precioVenta * valorTasa;
+						total = cantidad * precioVenta * valorTasa * (1-dctoVenta);;
 					}else {
-						total = cantidad * precioArriendo * permanencia * valorTasa;
+						total = cantidad * precioArriendo * permanencia * valorTasa * (1-dctoArriendo);;
 					}
 					
 					Equipo equipo = mapEquipos.get(id_equipo);
@@ -588,7 +592,9 @@ public class ReportCotizaciones {
 							+ " ifnull(ot.numero,''),"  				// 19
 							+ " ifnull(ot.confirmada,''),"  				// 20
 							+ " ifnull(cotizacion.id_dibujante,'0'),"  				// 21
-							+ " ifnull(cotizacion.fechaProbable,'')"  				// 22
+							+ " ifnull(cotizacion.fechaProbable,''),"  				// 22
+							+ " cotizacion.dctoArriendo,"   				// 23
+							+ " cotizacion.dctoVenta"  				// 24
 									+ " from `"+db+"`.cotizaDetalle"
 							+ " left join `"+db+"`.cotizacion on cotizacion.id = cotizaDetalle.id_cotizacion"
 							+ " left join `"+db+"`.ot on ot.id_cotizacion = cotizacion.id"
@@ -642,6 +648,10 @@ public class ReportCotizaciones {
 				Double precioVenta = rs.getDouble(11);
 				Double precioArriendo = rs.getDouble(12);
 				Double permanencia = rs.getDouble(13);
+				Double dctoArriendo = rs.getDouble(23);
+				Double dctoVenta = rs.getDouble(24);
+
+
 				Long id_equipo = rs.getLong(14);
 				Double peso = (double)0;
 
@@ -651,9 +661,9 @@ public class ReportCotizaciones {
 
 					Double total = (double) 0;
 					if((long) esVenta == (long)1 ) {
-						total = cantidad * precioVenta * valorTasa;
+						total = cantidad * precioVenta * valorTasa * (1 - dctoVenta);
 					}else {
-						total = cantidad * precioArriendo * permanencia * valorTasa;
+						total = cantidad * precioArriendo * permanencia * valorTasa * (1- dctoArriendo);
 					}
 
 					Equipo equipo = mapEquipos.get(id_equipo);
@@ -671,9 +681,9 @@ public class ReportCotizaciones {
 
 					Double total = (double) 0;
 					if((long) esVenta == (long)1 ) {
-						total = cantidad * precioVenta * valorTasa;
+						total = cantidad * precioVenta * valorTasa * (1 - dctoVenta);
 					}else {
-						total = cantidad * precioArriendo * permanencia * valorTasa;
+						total = cantidad * precioArriendo * permanencia * valorTasa * (1- dctoArriendo);
 					}
 
 					Equipo equipo = mapEquipos.get(id_equipo);

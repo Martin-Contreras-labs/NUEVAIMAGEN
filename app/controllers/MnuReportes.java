@@ -837,14 +837,20 @@ public class MnuReportes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+
+			Map<String,String> mapeoPermiso = new HashMap<String,String>();
+			Map<String,String> mapeoDiccionario = new HashMap<String,String>();
+			String permisoPorBodega = "";
+			String tipo = form.get("tipo").trim();
+			String fechaCorte = form.get("fechaCorte").trim();
+			String id_sucursal = form.get("id_sucursal").trim();
+			List<List<String>> listaBodegas = new ArrayList<List<String>>();
+
 			try (Connection con = dbRead.getConnection()){
-				String tipo = form.get("tipo").trim();
-				String fechaCorte = form.get("fechaCorte").trim();
-				String id_sucursal = form.get("id_sucursal").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
-				List<List<String>> listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
+				mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+				listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
 						permisoPorBodega, "1", id_sucursal, tipo);
 				if(tipo.equals("VENTA")) {
 					List<List<String>> aux = new ArrayList<List<String>>();
@@ -863,21 +869,7 @@ public class MnuReportes extends Controller {
 				}
 				listaBodegas = aux;
 				aux = null;
-				List<String> titulos1 = ReportInventarios.listaMatrizEquiposTitulos1(listaBodegas, tipo, mapeoDiccionario);
-				List<String> titulos2 = ReportInventarios.listaMatrizEquiposTitulos2(listaBodegas);
-				List<String> titulos3 = ReportInventarios.listaMatrizEquiposTitulos3(listaBodegas);
-				List<List<String>> datos = ReportInventarios.listaMatrizEquipos(con, s.baseDato, permisoPorBodega, tipo, fechaCorte, listaBodegas, mapeoDiccionario);
-				Sucursal sucursal = new Sucursal();
-				sucursal.setId((long)0);
-				sucursal.setNombre("TODAS");
-				if( ! id_sucursal.equals("0")) {
-					sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
-				}
-				if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
-					File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
-					return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
-				}
-				return ok(reportInventarioMatriz.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,titulos1,titulos2,tipo,fechaCorte,sucursal));
+
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -885,6 +877,32 @@ public class MnuReportes extends Controller {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
+
+			Sucursal sucursal = new Sucursal();
+			List<List<String>> datos = new ArrayList<List<String>>();
+			try (Connection con = dbRead.getConnection()){
+				datos = ReportInventarios.listaMatrizEquipos(con, s.baseDato, permisoPorBodega, tipo, fechaCorte, listaBodegas, mapeoDiccionario);
+				sucursal.setId((long)0);
+				sucursal.setNombre("TODAS");
+				if( ! id_sucursal.equals("0")) {
+					sucursal = Sucursal.find(con, s.baseDato, id_sucursal);
+				}
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			List<String> titulos1 = ReportInventarios.listaMatrizEquiposTitulos1(listaBodegas, tipo, mapeoDiccionario);
+			List<String> titulos2 = ReportInventarios.listaMatrizEquiposTitulos2(listaBodegas);
+			List<String> titulos3 = ReportInventarios.listaMatrizEquiposTitulos3(listaBodegas);
+			if(mapeoDiccionario.get("nEmpresa").equals("SM8 DE MEXICO")) {
+				File file = ReportInventarios.exportaReportInventarioMatriz(s.baseDato, datos, titulos3, titulos2, tipo, fechaCorte, mapeoDiccionario, sucursal.getNombre());
+				return ok(file,false,Optional.of("InventarioMatriz.xlsx"));
+			}
+			return ok(reportInventarioMatriz.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,titulos1,titulos2,tipo,fechaCorte,sucursal));
 		}
 	}
 
@@ -5132,9 +5150,13 @@ public class MnuReportes extends Controller {
 							Double valorArr = Double.parseDouble((total.get(1)).replaceAll(",", ""));
 							Double valorVta = Double.parseDouble((total.get(2)).replaceAll(",", ""));
 							Double valorGranTotal = Double.parseDouble((total.get(4)).replaceAll(",", ""));
-							Double valorCompara = valorArr;
+
+							Double ajusteArr = Double.parseDouble((total.get(5)).replaceAll(",", ""));
+							Double ajusteVta = Double.parseDouble((total.get(6)).replaceAll(",", ""));
+
+							Double valorCompara = valorArr + ajusteArr;
 							if("1".equals(esVenta)) {
-								valorCompara = valorVta;
+								valorCompara = valorVta + ajusteVta;
 							}
 							if(valorGranTotal>(double)0 && valorCompara>(double)0) {
 								String aux = MnuReportes.envioMasivoListadoProforma1(s, desdeAAMMDD, hastaAAMMDD,tasas,

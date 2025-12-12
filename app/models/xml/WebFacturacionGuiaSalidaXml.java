@@ -108,8 +108,9 @@ public class WebFacturacionGuiaSalidaXml {
 		}catch(Exception e) {}
 		
 		
-		String valObs ="MOV/DESP MADA NRO: "+guia.getNumero()+" DE FECHA: "+Fechas.DDMMAA(guia.getFecha())+".\n   "
-				+ "OBSERVACIONES:"+ observaciones.toUpperCase() + ".\n   "
+		String valObs = ""//"MOV/DESP MADA NRO: "+guia.getNumero()+" DE FECHA: "+Fechas.DDMMAA(guia.getFecha())+".\n   "
+				//+ "OBSERVACIONES:"
+				+ observaciones.toUpperCase() + ".\n   "
 				+ "OBRA: "+guia.getBodegaDestino().toUpperCase()+".";
 		
 		

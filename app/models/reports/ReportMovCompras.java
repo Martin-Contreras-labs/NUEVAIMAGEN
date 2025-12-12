@@ -350,14 +350,17 @@ public class ReportMovCompras {
 			linea.add(format.format(cant));
 
 
-			for(int i = 6; i < tabla.get(0).size() - 2; i++) {
-				ReportMovCompras x = mapDetalleBetwen.get(tabla.get(0).get(i) + "_" + v.get(2));
-				if(x == null) {
-					cant = (double) 0;
-				}else {
-					cant = x.cantidad;
+			for(int i = 6; i < tabla.get(0).size() - 1; i++) {
+				if(tabla.get(0).get(i) != null && tabla.get(0).get(i).trim().length() > 0) {
+					ReportMovCompras x = mapDetalleBetwen.get(tabla.get(0).get(i) + "_" + v.get(2));
+					if(x == null) {
+						cant = (double) 0;
+					}else {
+						cant = x.cantidad;
+					}
+					linea.add(format.format(cant));
 				}
-				linea.add(format.format(cant));
+
 			}
 			cant = mapDetalleFin.get(Long.parseLong(v.get(2)));
 			if(cant == null) {

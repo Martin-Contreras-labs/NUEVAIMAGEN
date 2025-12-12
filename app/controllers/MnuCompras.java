@@ -1579,9 +1579,9 @@ public class MnuCompras extends Controller {
 			Fechas hoy = Fechas.hoy();
 			String desde = Fechas.obtenerInicioMes(hoy.getFechaCal()).getFechaStrAAMMDD();
 			String hasta = Fechas.obtenerFinMes(hoy.getFechaCal()).getFechaStrAAMMDD();
-			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"),hasta);
+			TasasCambio tasas = TasasCambio.allDeUnaFecha(con, s.baseDato, mapeoDiccionario.get("pais"), hoy.getFechaStrAAMMDD());
 			List<Proveedor> listProveedor = Proveedor.all(con, s.baseDato);
-			return ok(movCompras0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, listProveedor,tasas));
+			return ok(movCompras0.render(mapeoDiccionario,mapeoPermiso,userMnu, desde, hasta, listProveedor,tasas, hoy.getFechaStrAAMMDD()));
 		} catch (SQLException e) {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 			return ok(mensajes.render("/home/", msgReport));

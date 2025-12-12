@@ -1,5 +1,5 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
-fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor], tasas: tables.TasasCambio)
+fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor], tasas: tables.TasasCambio, fechaTasa: String)
 
     	
 @main("") {
@@ -57,7 +57,7 @@ fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor], t
 									<input type="date" class="form-control center"
 									id="fechaCambio"
 									name="fechaCambio"
-									value="@fechaHasta"
+									value="@fechaTasa"
 									onchange="obtieneTasas(value)"
 									required>
 								</td>
@@ -141,6 +141,50 @@ fechaDesde: String, fechaHasta: String, listProveedor: List[tables.Proveedor], t
      		});
 		}
 		return(flag);
+	}
+
+	const obtieneTasas = (date) =>{
+		let fecha = date.split("-");
+		let x = new Date(fecha[0],(fecha[1]-1),fecha[2]);
+		let today = new Date();
+		let  y = new Date(today.getFullYear(),today.getMonth(),today.getDate());
+		if (x > y){
+			alertify.alert("La fecha escogida no puede ser mayor a la fecha actual");
+			$("#fechaCambio").val('@fechaTasa');
+			obtieneTasas("@fechaTasa");
+		}else{
+			if('@mapDiccionario.get("pais")'=="CHILE"){
+				var formData = new FormData();
+				formData.append('fecha',date);
+				$.ajax({
+					url: "/tasasDeFechaAjax/",
+					type: "POST",
+					method: "POST",
+					data: formData,
+					cache: false,
+					contentType: false,
+					processData: false,
+					success: function(respuesta){
+						if(respuesta=="error"){
+							alertify.alert(msgError, function () {
+								location.href = "/";
+							});
+						}else{
+							let valor = respuesta.split(";");
+							$("#uf").val(formatStandar(valor[0],2));
+							$("#usd").val(formatStandar(valor[1],2));
+							$("#eur").val(formatStandar(valor[2],2));
+						}
+					}
+				});
+			}else{
+				document.getElementById('usd').value=1;
+				document.getElementById('eur').value=1;
+			}
+
+
+		}
+
 	}
 	
 </script>

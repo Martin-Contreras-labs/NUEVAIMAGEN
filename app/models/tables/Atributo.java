@@ -434,14 +434,17 @@ public class Atributo{
 								" equipo.id_unidad, " +
 								" equipo.codigo, " +
 								" equipo.nombre, " +
-								" grupo.nombre, " +
-								" unidad.nombre, " +
-								" equipo.img " +
+								" ifnull(grupo.nombre,'SIN GRUPO'), " +
+								" ifnull(unidad.nombre,''), " +
+								" equipo.img, " +
+								" ifnull(fabrica.nombre,'S/F') " +
 								" from `"+db+"`.equipo " +
 								" left join `"+db+"`.grupo on grupo.id = equipo.id_grupo " +
 								" left join `"+db+"`.unidad on unidad.id = equipo.id_unidad " +
+								" left join `"+db+"`.fabrica on fabrica.id = equipo.id_fabrica " +
 								" where equipo.id = ?;");
 				smt1.setLong(1, id_equipo);
+
 				ResultSet rs1 = smt1.executeQuery();
 				String img = "";
 				if (rs1.next()) {
@@ -458,7 +461,10 @@ public class Atributo{
 						"</TR><TR>"+
 							"<td style= 'text-align: left;'>UNIDAD:</td>"+
 							"<td style= 'text-align: left;'>"+rs1.getString(7)+"</td>"+
-						"</TR><TR>";
+						"</TR><TR>"+
+							"<td style= 'text-align: left;'>FABRICA:</td>"+
+							"<td style= 'text-align: left;'>"+rs1.getString(9)+"</td>"+
+						"</TR>";
 					img=rs1.getString(8);
 				}
 				rs1.close();

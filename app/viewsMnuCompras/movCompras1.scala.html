@@ -107,7 +107,7 @@
 	$(document).ready(function() {
 		
 		var tabla = document.getElementById("tablaPrincipal");
-		
+
 		for (var i = 3; i < tabla.rows.length; i++) {
 			tabla.rows[i].cells[0].style.textAlign="center";
 			tabla.rows[i].cells[1].style.textAlign="left";
@@ -115,11 +115,11 @@
 				tabla.rows[i].cells[k].style.textAlign="center";
 			}
 		}
-		
+
 		let footer = tabla.createTFoot();
 		let newRow = footer.insertRow(0);
 		let cellsOfRow = tabla.rows[0].getElementsByTagName('th');
-		for (var i = 0; i < cellsOfRow.length; i++) { 
+		for (var i = 0; i < cellsOfRow.length; i++) {
 			newRow.insertCell(i);
 			newRow.cells[i].style.backgroundColor="#eeeeee";
 			if(i<2){
@@ -185,7 +185,7 @@
 				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
 			}
 		}
-		
+
 		var numero0 = new DecimalFormat("#,##0");
 		for (var i = 6; i < cellsOfRow.length; i++) {
 			let cant = 0;
