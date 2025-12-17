@@ -28,13 +28,15 @@ listado: List[List[String]])
 							<TH>CODIGO<br>EQUIPO</TH>
 							<TH>NOMBRE<br>EQUIPO</TH>
 							<TH>UBICACION</TH>
+							<TH></TH>
 							<TH>ID_REPORT<br>OPER_CORR</TH>
 							<TH style="min-width:80px;">FECHA<br>LECTURA</TH>
+							<TH>OPER/CORR</TH>
 							<TH>UNIDAD</TH>
 							<TH>LECTURA<br>OPER_CORR</TH>
 							<TH>ESTADO<br>EN OBRA</TH>
 							<TH>COMENTARIO</TH>
-
+							<TH></TH>
 							<TH>ID_REPORT<br>PREVENTIVO</TH>
 							<TH style="min-width:80px;">FECHA<br>MANT</TH>
 							<TH>PLAN MANTENCION</TH>
@@ -55,6 +57,7 @@ listado: List[List[String]])
 								<td  style="text-align:left;">@lista1.get(2)</td>
 								<td  style="text-align:left;">@lista1.get(3)</td>
 								<td  style="text-align:left;">@lista1.get(4)</td>
+								<td  style="background-color: #eeeeee"></td>
 								<td  style="text-align:center;">
 									@if(lista1.get(18).equals("0")){
 										--
@@ -68,10 +71,12 @@ listado: List[List[String]])
 									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(6))</div>
 									@utilities.Fechas.DDMMAA(lista1.get(6))
 								</td>
+								<td  style="text-align:center;">@lista1.get(23)</td>
 								<td  style="text-align:center;">@lista1.get(22)</td>
 								<td  style="text-align:right;">@lista1.get(5)</td>
 								<td  style="text-align:left;">@lista1.get(7)</td>
 								<td  style="text-align:left;">@lista1.get(8)</td>
+								<td  style="background-color: #eeeeee"></td>
 								<td  style="text-align:center;">
 									@if(lista1.get(17).equals("0")){
 										--

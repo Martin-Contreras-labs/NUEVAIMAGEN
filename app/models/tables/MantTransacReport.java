@@ -768,6 +768,7 @@ public class MantTransacReport {
 							+ " where fecha between ? and ? ;");
 			smt.setString(1, desde);
 			smt.setString(2, hasta);
+
 			ResultSet rs = smt.executeQuery();
 			while(rs.next()) {
 				String userNameAdam = "";
@@ -2383,8 +2384,8 @@ public class MantTransacReport {
 				if(nameTipoActividad == null) {
 					nameTipoActividad = "";
 				}
-				
-				
+
+
 				String nameTipoMantencion = "";
 				String namePlanMantencion = "no Aplica";
 				if(rs.getLong(11) > 0){
@@ -2415,7 +2416,7 @@ public class MantTransacReport {
 					fullNameMecanico, fullNameOperador, nameTipoPersonal, nameTipoActividad,
 					nameTipoMantencion, namePlanMantencion, nameTipoBodega, rs.getLong(35),nameUnidadMantencion));
 			}
-			
+
 			rs.close();
 			smt.close();
 		} catch (SQLException e) {
@@ -2662,10 +2663,20 @@ public class MantTransacReport {
 				String pdfReportOper = "0";
 				String planMec = l.getTipoPlanNombre();
 				String unMec = l.getUnidadMantencion();
+				String oper_corr = "OPER";
 				if(oper != null) {
 					UnidadMantencion unidadMantencion = mapUnidadMantencion.get(oper.getId_unidadMantencion());
 					if(unidadMantencion != null) {
 						unidad = unidadMantencion.getNombre();
+					}else{
+						if(mec != null) {
+							unidad = oper.nameUnidadMantencion;
+							if(unidadMantencion != null) {
+								unidad = unidadMantencion.getNombre();
+							}
+						}
+						//unidad = "XX";
+						oper_corr = "CORR";
 					}
 					id_mantTransacReportOper = oper.getId().toString();
 					ubicacion = oper.nameBodega;
@@ -2687,6 +2698,11 @@ public class MantTransacReport {
 						lectActual = DecimalFormato.formato(mec.getLectActual(), (long) 2);
 						auxLectActual = mec.getLectActual();
 						fechLectura = mec.getFecha();
+							unidad = unMec;
+							if(!oper_corr.equals("CORR")) {
+								oper_corr = "";
+							}
+
 					}
 				}
 				Double dif = proximaMant - auxLectActual;
@@ -2745,6 +2761,9 @@ public class MantTransacReport {
 
 				aux.add(planMec);                                    		//  21 nombre del plan de mantencion
 				aux.add(unidad);                                    		//  22 nombre de unidad lectura operador
+
+
+				aux.add(oper_corr);		// 23 operador o correctivo
 
 				lista.add(aux);
 			}
@@ -2851,24 +2870,27 @@ public class MantTransacReport {
 			hoja1.setColumnWidth(1, 5*1000);
 			hoja1.setColumnWidth(2, 10*1000);
 			hoja1.setColumnWidth(3, 10*1000);
-			hoja1.setColumnWidth(4, 4*1000);
-			hoja1.setColumnWidth(5, 4*1000);
-			hoja1.setColumnWidth(6, 2*1000);
-			hoja1.setColumnWidth(7, 4*1000);
-			hoja1.setColumnWidth(8, 7*1000);
-			hoja1.setColumnWidth(9, 10*1000);
-			hoja1.setColumnWidth(10, 4*1000);
-			hoja1.setColumnWidth(11, 4*1000);
-			hoja1.setColumnWidth(12, 7*1000);
-			hoja1.setColumnWidth(13, 2*1000);
-			hoja1.setColumnWidth(14, 4*1000);
-			hoja1.setColumnWidth(15, 4*1000);
-			hoja1.setColumnWidth(16, 4*1000);
-			hoja1.setColumnWidth(17, 4*1000);
-			hoja1.setColumnWidth(18, 4*1000);
-			hoja1.setColumnWidth(19, 7*1000);
-			hoja1.setColumnWidth(20, 7*1000);
-			hoja1.setColumnWidth(21, 4*1000);
+			hoja1.setColumnWidth(4, 1000);
+			hoja1.setColumnWidth(5, 5*1000);
+			hoja1.setColumnWidth(6, 5*1000);
+			hoja1.setColumnWidth(7, 5*1000);
+			hoja1.setColumnWidth(8, 5*1000);
+			hoja1.setColumnWidth(9, 5*1000);
+			hoja1.setColumnWidth(10, 5*1000);
+			hoja1.setColumnWidth(11, 5*1000);
+			hoja1.setColumnWidth(12, 1000);
+			hoja1.setColumnWidth(13, 5*1000);
+			hoja1.setColumnWidth(14, 5*1000);
+			hoja1.setColumnWidth(15, 5*1000);
+			hoja1.setColumnWidth(16, 5*1000);
+			hoja1.setColumnWidth(17, 5*1000);
+			hoja1.setColumnWidth(18, 5*1000);
+			hoja1.setColumnWidth(19, 5*1000);
+			hoja1.setColumnWidth(20, 5*1000);
+			hoja1.setColumnWidth(21, 5*1000);
+			hoja1.setColumnWidth(22, 5*1000);
+			hoja1.setColumnWidth(23, 5*1000);
+			hoja1.setColumnWidth(24, 5*1000);
 			
 			
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
@@ -2911,6 +2933,12 @@ public class MantTransacReport {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UBICACION");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
@@ -2923,6 +2951,12 @@ public class MantTransacReport {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA_LECT");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("OPER/CORR");
 
 			posCell++;
 			cell = row.createCell(posCell);
@@ -2947,6 +2981,12 @@ public class MantTransacReport {
             cell.setCellStyle(encabezado);
 			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMENTARIO");
+
+			posCell++;
+			cell = row.createCell(posCell);
+			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
@@ -3042,6 +3082,12 @@ public class MantTransacReport {
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(4));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
 				
 				posCell++;
 				cell = row.createCell(posCell);
@@ -3057,6 +3103,12 @@ public class MantTransacReport {
 				Fechas fechax = Fechas.obtenerFechaDesdeStrAAMMDD(Fechas.AAMMDD(list.get(6)));
 				cell.setCellValue(fechax.fechaUtil);
 				cell.setCellStyle(fecha);
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(23));
 
 				posCell++;
 				cell = row.createCell(posCell);
@@ -3082,6 +3134,12 @@ public class MantTransacReport {
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(8));
+
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue("");
 				
 				posCell++;
 				cell = row.createCell(posCell);
@@ -3510,13 +3568,16 @@ public class MantTransacReport {
 					" equipo.nombre," +
 					" id_tipoPlan," +
 					" sum(horaDif) * sum(fechaDif) as cantHoras," +
-					" sum(lectDif)" +
+					" sum(lectDif)," +
+					" unidadMantencion.nombre " +
 					" from `"+db+"`.mantTransacReport" +
 					" left join `"+db+"`.equipo on equipo.id = mantTransacReport.id_equipo" +
+					" left join `"+db+"`.unidadMantencion on unidadMantencion.id = mantTransacReport.id_unidadMantencion" +
 					" where id_mantOperador = 0 and id_tipoPlan > 0 and fecha between ? and ?" +
 					" group by id_equipo, id_tipoPlan;");
 			smt.setString(1, desde);
 			smt.setString(2, hasta);
+			System.out.println(smt.toString());
 			ResultSet rs = smt.executeQuery();
 			Map<Long,String> mapTipo = TipoPlan.mapAll(con,db);
 			while(rs.next()){
@@ -3529,6 +3590,7 @@ public class MantTransacReport {
 				aux.add(nameTipo);
 				aux.add(DecimalFormato.formato(rs.getDouble(5),2L));
 				aux.add(DecimalFormato.formato(rs.getDouble(6),2L));
+				aux.add(rs.getString(7));
 				lista.add(aux);
 			}
 		} catch (SQLException e) {
@@ -3645,7 +3707,7 @@ public class MantTransacReport {
 			hoja1.setColumnWidth(2, 10*1000);
 			hoja1.setColumnWidth(3, 1*1000);
 			hoja1.setColumnWidth(4, 10*1000);
-			hoja1.setColumnWidth(5, 1*1000);
+			hoja1.setColumnWidth(5, 4*1000);
 			hoja1.setColumnWidth(6, 4*1000);
 			hoja1.setColumnWidth(7, 4*1000);
 
@@ -3698,6 +3760,8 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			cell.setCellValue("UNIDAD");
 
 			posCell++;
 			cell = row.createCell(posCell);
@@ -3741,17 +3805,19 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
+				cell.setCellType(Cell.CELL_TYPE_STRING);
+				cell.setCellValue(list.get(6));
 
 				posCell++;
 				cell = row.createCell(posCell);
-				Double valor = Double.parseDouble(list.get(4).replaceAll(",", ""));
+				Double valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 
 				posCell++;
 				cell = row.createCell(posCell);
-				valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
+				valor = Double.parseDouble(list.get(4).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
 				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);

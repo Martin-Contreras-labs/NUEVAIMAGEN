@@ -903,19 +903,23 @@ public class MnuMantencion extends Controller {
 					mapEquipos.put(x.getId_equipo(), aux);
 				}else {
 					String u = x.getUnidadMantencion();
-					if(u.equals("HR") || u.equals("KG") && ! aux.get(4).equals("HR")) {
-						aux.set(4,u);
-						aux.set(5,x.getEstadoActual());
-						aux.set(6,x.getId_unidadMantencion().toString());
-					}else {
-						aux.set(5,"0.00");
-						aux.set(6,"0");
+					if( ! (aux.get(4).equals("HR") || aux.get(4).equals("KG"))){
+						if(u.equals("HR") || u.equals("KG")) {
+							aux.set(4,u);
+							aux.set(5,x.getEstadoActual());
+							aux.set(6,x.getId_unidadMantencion().toString());
+						}else {
+							aux.set(5,"0.00");
+							aux.set(6,"0");
+						}
+						mapEquipos.put(x.getId_equipo(), aux);
 					}
-					mapEquipos.put(x.getId_equipo(), aux);
+
 				}
 			}
 			List<List<String>> listEquipos = new ArrayList<List<String>>();
 			mapEquipos.forEach((k,v) -> {
+				System.out.println("k = "+v.toString());
 				listEquipos.add(v);
 			});
 			List<TipoMantencion> listTipoMantencion = TipoMantencion.all(con, s.baseDato);
