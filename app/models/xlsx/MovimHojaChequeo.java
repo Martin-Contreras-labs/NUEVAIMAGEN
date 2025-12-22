@@ -9,18 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.BodegaEmpresa;
@@ -38,7 +31,10 @@ public class MovimHojaChequeo {
 	public static File hojaChequeoAgrupadoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, 
 			List<TipoEstado> listTipoEstado, String contactos, String direccion, String sinCant) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -51,32 +47,32 @@ public class MovimHojaChequeo {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             
             
@@ -88,43 +84,36 @@ public class MovimHojaChequeo {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HOJA DE CHEQUEO (AGRUPADO POR EQUIPOS)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE: "+bodegaOrigen.getNickCliente().toUpperCase());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA") + " (PROYECTO): "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
 			
 			row = hoja1.createRow(7);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DIRECCION PROYECTO: "+direccion);
 			
 			row = hoja1.createRow(8);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONTACTOS "+mapDiccionario.get("BODEGA")+":"+contactos);
 			
 			// encabezado de la tabla
@@ -137,56 +126,48 @@ public class MovimHojaChequeo {
 			hoja1.setColumnWidth(posColl, 7*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("KG UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("M2 UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
 
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL KG");
 			
 			
@@ -197,7 +178,6 @@ public class MovimHojaChequeo {
 					hoja1.setColumnWidth(posColl, 3*1000);
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listTipoEstado.get(i).getSigla());
 				}
 			}
@@ -229,39 +209,33 @@ public class MovimHojaChequeo {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(1));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(2));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(3));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            Double kg = Double.parseDouble(listEquipBodOrigen.get(i).get(4).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(kg);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(5).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(6));
 				
 				if(sinCant.equals("0")) {
@@ -269,27 +243,23 @@ public class MovimHojaChequeo {
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
 		            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
+						cell.setCellValue(aux);
 
 					posCell++; posColl++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
 					aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux*kg);
+						cell.setCellValue(aux*kg);
 
 				}else {
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 
 					posCell++; posColl++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				}
+					}
 				
 				
 				if(bodegaOrigen.esInterna!=1){
@@ -297,7 +267,6 @@ public class MovimHojaChequeo {
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 					}
 				}
@@ -309,16 +278,14 @@ public class MovimHojaChequeo {
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(contactos);
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			
@@ -336,7 +303,10 @@ public class MovimHojaChequeo {
 	public static File hojaChequeoXlsx(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, 
 			List<TipoEstado> listTipoEstado, String contactos, String direccion, String sinCant) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -348,32 +318,32 @@ public class MovimHojaChequeo {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
          
             
@@ -384,43 +354,36 @@ public class MovimHojaChequeo {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HOJA DE CHEQUEO (AGRUPADO POR EQUIPOS Y COTIZACIONES)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE: "+bodegaOrigen.getNickCliente().toUpperCase());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA") + " (PROYECTO): "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
 			
 			row = hoja1.createRow(7);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DIRECCION PROYECTO: "+direccion);
 			
 			row = hoja1.createRow(8);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONTACTOS "+mapDiccionario.get("BODEGA")+":"+contactos);
 			
 			// encabezado de la tabla
@@ -433,63 +396,54 @@ public class MovimHojaChequeo {
 			hoja1.setColumnWidth(posColl, 7*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro.COTI");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("KG UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("M2 UNIT");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
 
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL KG");
 			
 			if(bodegaOrigen.esInterna != (long)1){
@@ -498,7 +452,6 @@ public class MovimHojaChequeo {
 					hoja1.setColumnWidth(posColl, 3*1000);
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listTipoEstado.get(i).getSigla());
 				}
 			}
@@ -530,45 +483,38 @@ public class MovimHojaChequeo {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(2));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(3));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(4));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(5));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            Double kg = Double.parseDouble(listEquipBodOrigen.get(i).get(6).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(kg);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(8));
 
 				if(sinCant.equals("0")) {
@@ -576,25 +522,21 @@ public class MovimHojaChequeo {
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
 		            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(9).replaceAll(",", ""));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux);
+						cell.setCellValue(aux);
 
 					posCell++; posColl++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(aux*kg);
+						cell.setCellValue(aux*kg);
 				}else {
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 
 					posCell++; posColl++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-				}
+					}
 				
 				
 				if(bodegaOrigen.esInterna!=1){
@@ -602,7 +544,6 @@ public class MovimHojaChequeo {
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 					}
 				}
@@ -614,16 +555,14 @@ public class MovimHojaChequeo {
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(contactos);
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			
@@ -641,7 +580,10 @@ public class MovimHojaChequeo {
 	
 	public static File hojaChequeoAgrupadoXlsxSoloHOHE(String db, Map<String,String> mapDiccionario, BodegaEmpresa bodegaOrigen, List<List<String>> listEquipBodOrigen, List<TipoEstado> listTipoEstado) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -654,32 +596,32 @@ public class MovimHojaChequeo {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             
             
@@ -691,53 +633,44 @@ public class MovimHojaChequeo {
             row = hoja1.createRow(0);
             cell = row.createCell(8);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NUMERO DE GUIA");
 			
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HOJA DE CHEQUEO HOHE (AGRUPADO POR EQUIPOS)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			cell = row.createCell(8);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA RECEPCION");
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(4);
             cell = row.createCell(8);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA REVISION");
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE: "+bodegaOrigen.getNickCliente().toUpperCase());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROYECTO/BODEGA: "+bodegaOrigen.getNombre().toUpperCase()+" ("+bodegaOrigen.getNickProyecto().toUpperCase()+")");
 			
 			cell = row.createCell(8);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("REVISADO POR");
 			
 			// encabezado de la tabla
@@ -750,49 +683,42 @@ public class MovimHojaChequeo {
 			hoja1.setColumnWidth(posColl, 7*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("KG");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("M2");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 2*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
 			
 			if(bodegaOrigen.esInterna != (long)1){
@@ -801,7 +727,6 @@ public class MovimHojaChequeo {
 					hoja1.setColumnWidth(posColl, 3*1000);
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listTipoEstado.get(i).getSigla());
 				}
 			}
@@ -809,25 +734,21 @@ public class MovimHojaChequeo {
 			hoja1.setColumnWidth(8, 10*1000);
 			cell = row.createCell(8);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("..........................BUENOS…........................");
 			
 			hoja1.setColumnWidth(9, 4*1000);
 			cell = row.createCell(9);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("IRREPARABLES");
 			
 			hoja1.setColumnWidth(10, 4*1000);
 			cell = row.createCell(10);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EXTERIOR");
 			
 			hoja1.setColumnWidth(11, 4*1000);
 			cell = row.createCell(11);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("INTERIORES");
 			
 			
@@ -863,46 +784,39 @@ public class MovimHojaChequeo {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(1));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(2));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(3));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(4).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(5).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(6));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(7).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				if(bodegaOrigen.esInterna!=1){
@@ -910,13 +824,11 @@ public class MovimHojaChequeo {
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 					}
 					posCell++; posColl++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 				}
 				
@@ -927,35 +839,30 @@ public class MovimHojaChequeo {
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COPLA");
 			
 			posRow = posRow + 2;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GANCHO 10MM");
 			
 			posRow = posRow + 2;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GANCHO 14MM");
 			
 			posRow = posRow + 2;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GANCHO 16MM");
 			
 			posRow = posRow + 2;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EXCEDENTES");
 			
 			
@@ -963,10 +870,9 @@ public class MovimHojaChequeo {
 			posRow = posRow + 10;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			

@@ -12,13 +12,12 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.forms.FormCotiza;
@@ -3486,7 +3485,7 @@ public class Cotizacion {
 	}
 	
 	public static File plantillaCotizacion(Connection con, String db) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		
 		
 		List<Grupo> listGrupos = Grupo.all(con, db);
@@ -3496,22 +3495,23 @@ public class Cotizacion {
 		List<UnidadTiempo> listUnTiempo = UnidadTiempo.all(con, db);
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			InputStream formato = Archivos.leerArchivo("formatos/plantillaCotizacion.xlsx");
             Workbook libro = WorkbookFactory.create(formato);
             formato.close();
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
-         
-            CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+
+			CellStyle detalle = libro.createCellStyle();
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja2 = libro.getSheetAt(1);
             Row row = null;
@@ -3528,7 +3528,6 @@ public class Cotizacion {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(1);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listGrupos.get(i).getNombre());
             }
             
@@ -3539,10 +3538,8 @@ public class Cotizacion {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(3);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listEquipos.get(i).getCodigo());
             	cell = row.createCell(4);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listEquipos.get(i).getNombre());
             }
             
@@ -3553,7 +3550,6 @@ public class Cotizacion {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(6);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listUnidades.get(i).getNombre());
             }
             
@@ -3565,7 +3561,6 @@ public class Cotizacion {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(8);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listMonedas.get(i).getNickName());
             }
 			
@@ -3578,7 +3573,6 @@ public class Cotizacion {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(10);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listUnTiempo.get(i).getNombre());
             }
             

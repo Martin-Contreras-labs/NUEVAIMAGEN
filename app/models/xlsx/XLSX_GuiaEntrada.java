@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.BodegaEmpresa;
@@ -55,7 +56,10 @@ public class XLSX_GuiaEntrada {
 		String mes = MES[c1.get(Calendar.MONTH)];
 		String dia = "" + c1.get(Calendar.DATE);
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = db + "/formatos/guiaDeRecepcionExcel.xlsx";
@@ -70,30 +74,25 @@ public class XLSX_GuiaEntrada {
             
             row = hoja1.getRow(9);
             cell = row.getCell(7);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(dia);
 			
 			row = hoja1.getRow(9);
             cell = row.getCell(8);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mes.toUpperCase());
 			
 			
 			row = hoja1.getRow(9);
             cell = row.getCell(11);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(anio);
 			
 			String cliente = "";
 			if(clienteOrigen != null) cliente = clienteOrigen.getNombre();
 			row = hoja1.getRow(12);
             cell = row.getCell(3);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(cliente);
 			
 			row = hoja1.getRow(13);
             cell = row.getCell(3);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(guia.getNumero());
 			
 			
@@ -101,7 +100,6 @@ public class XLSX_GuiaEntrada {
 			if(proyectoOrigen != null) proyecto = proyectoOrigen.getNombre();
 			row = hoja1.getRow(13);
             cell = row.getCell(9);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(proyecto);
 			
 			int inicio = 17;
@@ -110,26 +108,19 @@ public class XLSX_GuiaEntrada {
 				
 				row = hoja1.getRow(i);
 				cell = row.getCell(1);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(2);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(4);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(5);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				
 				cell = row.getCell(9);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(10);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(11);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
@@ -137,21 +128,17 @@ public class XLSX_GuiaEntrada {
 				
 				row = hoja1.getRow(i+inicio);
 				cell = row.getCell(1);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(i+1);
 				
 				cell = row.getCell(2);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(5).trim());
 				
 				String cantidad = detalleGuia.get(i).get(8).replaceAll(",", "").trim();
    				Double cant = Double.parseDouble(cantidad);
 				cell = row.getCell(4);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatdouble.format(cant));
 				
 				cell = row.getCell(5);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(6).trim());
 				
 				String idMovimiento = detalleGuia.get(i).get(0).trim();
@@ -173,15 +160,12 @@ public class XLSX_GuiaEntrada {
 				
 				
 				cell = row.getCell(9);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatint.format(lim));
 				
 				cell = row.getCell(10);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatint.format(rep));
 				
 				cell = row.getCell(11);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatint.format(irr));
 				
 				

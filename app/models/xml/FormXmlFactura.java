@@ -363,7 +363,10 @@ public class FormXmlFactura {
 			
 			DOMSource source = new DOMSource(doc);
 			
-			File tmp = TempFile.createTempFile("tmp","null");
+			File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 			StreamResult result = new StreamResult(tmp);
 			transformer.transform(source, result);
 			

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,17 +17,11 @@ import java.util.*;
 
 import models.tables.*;
 import org.apache.poi.util.TempFile;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
+import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import models.reports.ReportInventarios;
 import models.utilities.Archivos;
@@ -709,9 +704,9 @@ public class FormMovimiento {
 
 		List<ContactoBodegaEmpresa> listContactos = ContactoBodegaEmpresa.allxBodega(con, db, bodegaDestino.getId());
 
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		try {
-
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db;
 			if((long)bodegaOrigen.getEsInterna()==(long)1) {
 				//GUIA DE SALIDA (DESPACHO DE EQUIPOS A CLIENTE)
@@ -1702,21 +1697,34 @@ public class FormMovimiento {
 				Guia.modificaPorCampo(con, db, "totalM2", guia.getId(), granTotalM2.toString());
 
 
-				// Write the output to a file word
-				FileOutputStream fileOut = new FileOutputStream(tmp);
-				doc.write(fileOut);
-				fileOut.close();
-
-					// 1) Load DOCX into XWPFDocument
-					InputStream is = new FileInputStream(tmp);
-					XWPFDocument document = new XWPFDocument(is);
-					is.close();
-					// 2) Prepare Pdf options
-					PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
-					// 3) Convert XWPFDocument to Pdf
-					OutputStream out = new FileOutputStream(tmp);
-					PdfConverter.getInstance().convert(document, out, options);
-					out.close();
+			// Write the output to a file word
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			doc.write(fileOut);
+			fileOut.close();
+			// 1) Load DOCX into XWPFDocument
+			InputStream is = new FileInputStream(tmp);
+			XWPFDocument document = new XWPFDocument(is);
+			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
+			// 2) Prepare Pdf options
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
+			// 3) Convert XWPFDocument to Pdf
+			OutputStream out = new FileOutputStream(tmp);
+			PdfConverter.getInstance().convert(document, out, options);
+			out.close();
 
 					String archivoPdf = "";
 					if((long)bodegaOrigen.getEsInterna()==(long)1) {
@@ -1739,28 +1747,40 @@ public class FormMovimiento {
 
 		// db
 	}
-	
-	private static void setCelda (XWPFTableCell cell,String fontFamily,int fontSize,int alingH,String colorRGB,String text,boolean bold) {
-		cell.removeParagraph(0);
-		XWPFParagraph paragraph =null;
-		if(text==null) text="-"; else if(text.trim().length()==0) text="-";
-		paragraph = cell.addParagraph();
-		if(alingH==3) {
-			paragraph.setAlignment(ParagraphAlignment.RIGHT);
-		}else if (alingH==2) {
-			paragraph.setAlignment(ParagraphAlignment.CENTER);
-		}else {
-			paragraph.setAlignment(ParagraphAlignment.LEFT);
-		}
-		cell.setVerticalAlignment(XWPFVertAlign.CENTER);
 
-		XWPFRun celda = paragraph.createRun();
-		celda.setFontFamily(fontFamily);
-		celda.setFontSize(fontSize);
-		celda.setColor(colorRGB);
-		celda.setText(text);
-		celda.setBold(bold);
-    }
+	private static void setCelda(XWPFTableCell cell, String fontFamily, int fontSize, int alingH, String colorRGB, String text, boolean bold) {
+		for (int i = cell.getParagraphs().size() - 1; i >= 0; i--) {
+			cell.removeParagraph(i);
+		}
+		XWPFParagraph paragraph = cell.addParagraph();
+		if(text == null || text.trim().length() == 0) text = "-";
+		paragraph.setSpacingAfter(1);
+		paragraph.setSpacingBefore(0);
+		paragraph.setSpacingBetween(1.0); // Fuerza interlineado sencillo
+		paragraph.setIndentationLeft(0);  // Elimina sangrías heredadas
+		paragraph.setIndentationRight(0);
+		if(alingH == 3) paragraph.setAlignment(ParagraphAlignment.RIGHT);
+		else if (alingH == 2) paragraph.setAlignment(ParagraphAlignment.CENTER);
+		else paragraph.setAlignment(ParagraphAlignment.LEFT);
+		cell.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+		if (cell.getCTTc().getTcPr() == null) cell.getCTTc().addNewTcPr();
+		if (cell.getCTTc().getTcPr().getVAlign() == null) cell.getCTTc().getTcPr().addNewVAlign();
+		cell.getCTTc().getTcPr().getVAlign().setVal(org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc.CENTER);
+		XWPFRun run = paragraph.createRun();
+		run.setFontFamily(fontFamily);
+		run.setFontSize(fontSize);
+		run.setColor(colorRGB);
+		if (text.contains("\n")) {
+			String[] lines = text.split("\n");
+			for (int i = 0; i < lines.length; i++) {
+				run.setText(lines[i]);
+				if (i < lines.length - 1) run.addCarriageReturn();
+			}
+		} else {
+			run.setText(text);
+		}
+		run.setBold(bold);
+	}
 	
 	public class grabarFilesThread extends Thread {
 		String db;

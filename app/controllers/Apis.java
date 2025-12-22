@@ -18,7 +18,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.madaApis;
+import views.html.*;
 
 import java.security.SecureRandom;
 import java.sql.Connection;

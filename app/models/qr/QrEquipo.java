@@ -248,7 +248,10 @@ public class QrEquipo{
 	}
 	
 	public static File reporteEnWord(Connection con, String db, List<List<List<String>>> lista, Map<String,String> mapDiccionario) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/listadoQR.docx";
 			InputStream formato = Archivos.leerArchivo(path);

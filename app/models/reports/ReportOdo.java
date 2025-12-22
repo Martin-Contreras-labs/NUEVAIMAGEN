@@ -11,18 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.BodegaEmpresa;
@@ -438,7 +431,10 @@ public class ReportOdo {
 			List<List<String>> detalleProformaPorServicio, List<String> fechas, List<Double> tasaCambio, 
 			BodegaEmpresa bodega, Proyecto proyecto, Cliente cliente, List<List<String>> groupPorClaseServicioEquipo, List<List<String>> listaAjustes) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -449,32 +445,32 @@ public class ReportOdo {
 		    // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 		    CellStyle titulo = libro.createCellStyle();
 		    Font font = libro.createFont();
-		    font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		    font.setBold(true);
 		    font.setColor((short)4);
 		    font.setFontHeight((short)(14*20));
 		    titulo.setFont(font);
 		    
 		    CellStyle subtitulo = libro.createCellStyle();
 		    Font font2 = libro.createFont();
-		    font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		    font2.setBold(true);
 		    font2.setColor((short)0);
 		    font2.setFontHeight((short)(12*20));
 		    subtitulo.setFont(font2);
 		    
 		    CellStyle encabezado = libro.createCellStyle();
-		    encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-		    encabezado.setBorderTop(CellStyle.BORDER_THIN);
-		    encabezado.setBorderRight(CellStyle.BORDER_THIN);
-		    encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-		    encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		    encabezado.setBorderBottom(BorderStyle.THIN);
+		    encabezado.setBorderTop(BorderStyle.THIN);
+		    encabezado.setBorderRight(BorderStyle.THIN);
+		    encabezado.setBorderLeft(BorderStyle.THIN);
+		    encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		    encabezado.setFillForegroundColor((short)19);
-		    encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+		    encabezado.setAlignment(HorizontalAlignment.CENTER);
 		    
 		    CellStyle detalle = libro.createCellStyle();
-		    detalle.setBorderBottom(CellStyle.BORDER_THIN);
-		    detalle.setBorderTop(CellStyle.BORDER_THIN);
-		    detalle.setBorderRight(CellStyle.BORDER_THIN);
-		    detalle.setBorderLeft(CellStyle.BORDER_THIN);
+		    detalle.setBorderBottom(BorderStyle.THIN);
+		    detalle.setBorderTop(BorderStyle.THIN);
+		    detalle.setBorderRight(BorderStyle.THIN);
+		    detalle.setBorderLeft(BorderStyle.THIN);
 		    
 		    //********************************
 		    //ESTADO DE PAGO DETALLADO
@@ -489,49 +485,41 @@ public class ReportOdo {
 		    row = hoja1.createRow(1);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE EP/FACTURA PROFORMA SERVICIO");
 			
 			row = hoja1.createRow(2);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE: "+cliente.rut + " --- " + cliente.nombre);
 			
 		    row = hoja1.createRow(6);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodega.getNombre().toUpperCase());
 			
 			row = hoja1.createRow(7);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROYECTO: "+proyecto.nickName.toUpperCase());
 			
 			row = hoja1.createRow(8);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + fechas.get(2)  + " hasta " + fechas.get(3));
 			
 			row = hoja1.createRow(9);
 		    cell = row.createCell(1);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL: "+bodega.comercial);
 			
 			
@@ -544,7 +532,6 @@ public class ReportOdo {
 			posCell++; 
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("RESUMEN AGRUPADO:");
 			
 			
@@ -558,63 +545,54 @@ public class ReportOdo {
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLASE");
 			
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NRO.COTI");
 			
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COD-SERVICIO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 10*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SERVICIO");
 			
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COD-EQUIPO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 10*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 3*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANT");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL");
 			
 			
@@ -623,28 +601,24 @@ public class ReportOdo {
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANT MIN");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL MINIMO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL ADICIONAL");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRAN TOTAL");
 			
 			
@@ -668,50 +642,42 @@ public class ReportOdo {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(0));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(12));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(1));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(2));
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(3));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(4));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(groupPorClaseServicioEquipo.get(i).get(5));
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(groupPorClaseServicioEquipo.get(i).get(6).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subCant += aux;
 				
@@ -719,7 +685,6 @@ public class ReportOdo {
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(groupPorClaseServicioEquipo.get(i).get(7).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subTot += aux;
 				
@@ -731,7 +696,6 @@ public class ReportOdo {
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(groupPorClaseServicioEquipo.get(i).get(8).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subCantMin += aux;
 				
@@ -739,7 +703,6 @@ public class ReportOdo {
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(groupPorClaseServicioEquipo.get(i).get(9).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subTotMin += aux;
 				
@@ -747,7 +710,6 @@ public class ReportOdo {
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(groupPorClaseServicioEquipo.get(i).get(10).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subTotAdic += aux;
 				
@@ -755,7 +717,6 @@ public class ReportOdo {
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(groupPorClaseServicioEquipo.get(i).get(11).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subTotTot += aux;
 				
@@ -770,13 +731,11 @@ public class ReportOdo {
 			
 			cell = row.createCell(posCell - 2);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES (sin ajuste)");
 			
 			
 			cell = row.createCell(posCell);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(subTotTot);
 			
 			
@@ -789,12 +748,10 @@ public class ReportOdo {
 				
 				
 				cell = row.createCell(posCell - 2);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(5)+": "+lista.get(6));
 				
 			
 		        cell = row.createCell(posCell);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				aux = Double.parseDouble(lista.get(4).replaceAll(",","").trim());
 				cell.setCellValue(aux);
 				totconajust += aux;
@@ -809,13 +766,11 @@ public class ReportOdo {
 			
 		    cell = row.createCell(posCell - 2);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRAN TOTAL");
 			
 	
 			cell = row.createCell(posCell);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(totconajust);
 			
 			
@@ -834,7 +789,6 @@ public class ReportOdo {
 			posCell++; 
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE DE LOS SERVICIOS:");
 			
 			
@@ -849,140 +803,120 @@ public class ReportOdo {
 			hoja1.setColumnWidth(posCell, 2*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ID");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLASE");
 			
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NRO.COTI");
 			
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COD-SERVICIO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 10*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SERVICIO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 10*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE");
 			
 			posCell++;
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COD-EQUIPO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 10*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 3*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HR-INI");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 3*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HR-TER");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 3*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECT-INI");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECT-TER");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANT");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 3*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("MON");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("P.U.");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUBTOTAL");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TASA");
 			
 			posCell++; 
 			hoja1.setColumnWidth(posCell, 5*1000);
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL");
 			
 		
@@ -1018,128 +952,108 @@ public class ReportOdo {
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(6).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(1));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(24));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(2));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(3));
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(Fechas.DDMMAA(detalleProformaPorServicio.get(i).get(4)).replaceAll("-", "/"));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(5));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(9));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(10));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(7));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(8));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(11));
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(12).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(13).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(14).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleProformaPorServicio.get(i).get(15));
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(16).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(17).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(18).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; 
 		        cell = row.createCell(posCell);
 		        cell.setCellStyle(detalle);
 		        aux = Double.parseDouble(detalleProformaPorServicio.get(i).get(19).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				subtotal += aux;
@@ -1154,23 +1068,20 @@ public class ReportOdo {
 			
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES (sin ajuste)");
 			
 			posCell = posCell + 2;
 		    cell = row.createCell(posCell);
 		    cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(subtotal);
 			
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			
@@ -1189,7 +1100,10 @@ public class ReportOdo {
 	
 	public static File exportaProformaExcelResumen(String db, Map<String,String> mapDiccionario, Fechas desde, Fechas hasta, List<List<String>> totalesPorProyecto, Map<String, List<List<String>>> mapAgrupado, Map<String, List<List<String>>> mapDetallado) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -1200,41 +1114,41 @@ public class ReportOdo {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle encabezadoRight = libro.createCellStyle();
-            encabezadoRight.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezadoRight.setBorderTop(CellStyle.BORDER_THIN);
-            encabezadoRight.setBorderRight(CellStyle.BORDER_THIN);
-            encabezadoRight.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezadoRight.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezadoRight.setBorderBottom(BorderStyle.THIN);
+            encabezadoRight.setBorderTop(BorderStyle.THIN);
+            encabezadoRight.setBorderRight(BorderStyle.THIN);
+            encabezadoRight.setBorderLeft(BorderStyle.THIN);
+            encabezadoRight.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezadoRight.setFillForegroundColor((short)19);
-            encabezadoRight.setAlignment(CellStyle.ALIGN_RIGHT);
+            encabezadoRight.setAlignment(HorizontalAlignment.RIGHT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             
             
@@ -1249,25 +1163,21 @@ public class ReportOdo {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("REPORTE ODO RESUMEN Y DETALLE POR TODOS LOS PROYECTOS (INCLUIDOS AJUSTES DE EP)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + desde.getFechaStrDDMMAA()  + " hasta " + hasta.getFechaStrDDMMAA());
 			
 			
@@ -1306,7 +1216,6 @@ public class ReportOdo {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("RESUMEN POR PROYECTOS  (INCLUYE AJUSTES A EP):");
 			
 			posRow += 2;
@@ -1317,49 +1226,41 @@ public class ReportOdo {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
 		
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE CLIENTE");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
 		        
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUBTOTAL (en "+mapDiccionario.get("PESOS")+")");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("AJUSTES (en "+mapDiccionario.get("PESOS")+")");
 
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL (en "+mapDiccionario.get("PESOS")+")");
 				
 		       
@@ -1377,38 +1278,32 @@ public class ReportOdo {
 		        posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(totalesPorProyecto.get(i).get(10));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(totalesPorProyecto.get(i).get(1));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(totalesPorProyecto.get(i).get(2));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(totalesPorProyecto.get(i).get(3));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(totalesPorProyecto.get(i).get(4));
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            Double aux = Double.parseDouble(totalesPorProyecto.get(i).get(5).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subtotal += aux;
 				
@@ -1416,7 +1311,6 @@ public class ReportOdo {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(totalesPorProyecto.get(i).get(6).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				ajuste += aux;
 				
@@ -1424,7 +1318,6 @@ public class ReportOdo {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(totalesPorProyecto.get(i).get(7).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				total += aux;
 			}
@@ -1436,49 +1329,41 @@ public class ReportOdo {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezadoRight);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(subtotal);
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezadoRight);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(ajuste);
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezadoRight);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(total);
 			
 			
@@ -1491,7 +1376,6 @@ public class ReportOdo {
 	        posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE POR PROYECTO (INCLUYE AJUSTES A EP):");
 			
 			posRow++;
@@ -1510,7 +1394,6 @@ public class ReportOdo {
 		        	posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(totalesPorProyecto.get(i).get(1));
 			        
 					for(int j=0;j<19;j++){
@@ -1528,7 +1411,6 @@ public class ReportOdo {
 			        posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("AGRUPADO POR SERVICIO:");
 					
 					posRow++;
@@ -1538,55 +1420,46 @@ public class ReportOdo {
 			        posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("CLASE");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("NRO.COTI");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("COD-SERVICIO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("SERVICIO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("COD-EQUIPO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("EQUIPO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("UN");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("CANT");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TOTAL");
 					
 					
@@ -1594,28 +1467,24 @@ public class ReportOdo {
 					hoja1.setColumnWidth(posCell, 5*1000);
 				    cell = row.createCell(posCell);
 				    cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("CANT MIN");
 					
 					posCell++; 
 					hoja1.setColumnWidth(posCell, 5*1000);
 				    cell = row.createCell(posCell);
 				    cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TOTAL MINIMO");
 					
 					posCell++; 
 					hoja1.setColumnWidth(posCell, 5*1000);
 				    cell = row.createCell(posCell);
 				    cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TOTAL ADICIONAL");
 					
 					posCell++; 
 					hoja1.setColumnWidth(posCell, 5*1000);
 				    cell = row.createCell(posCell);
 				    cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("GRAN TOTAL");
 					
 					
@@ -1635,50 +1504,41 @@ public class ReportOdo {
 				        
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(0));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(12));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(1));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(2));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(3));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(4));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(5));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						Double aux = Double.parseDouble(lista.get(6).replaceAll(",", ""));
+								Double aux = Double.parseDouble(lista.get(6).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						totalcant += aux;
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(7).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(7).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						totaltotal += aux;
 						
@@ -1687,29 +1547,25 @@ public class ReportOdo {
 						posCell++; 
 				        cell = row.createCell(posCell);
 				        aux = Double.parseDouble(lista.get(8).replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(aux);
+								cell.setCellValue(aux);
 						subCantMin += aux;
 						
 						posCell++; 
 				        cell = row.createCell(posCell);
 				        aux = Double.parseDouble(lista.get(9).replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(aux);
+								cell.setCellValue(aux);
 						subTotMin += aux;
 						
 						posCell++; 
 				        cell = row.createCell(posCell);
 				        aux = Double.parseDouble(lista.get(10).replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(aux);
+								cell.setCellValue(aux);
 						subTotAdic += aux;
 						
 						posCell++; 
 				        cell = row.createCell(posCell);
 				        aux = Double.parseDouble(lista.get(11).replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						cell.setCellValue(aux);
+								cell.setCellValue(aux);
 						subTotTot += aux;
 						
 					}
@@ -1721,82 +1577,69 @@ public class ReportOdo {
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TOTALES NETO (sin ajustes)");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(totalcant);
+						cell.setCellValue(totalcant);
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(totaltotal);
+						cell.setCellValue(totaltotal);
 					
 					
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(subCantMin);
+						cell.setCellValue(subCantMin);
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(subTotMin);
+						cell.setCellValue(subTotMin);
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(subTotAdic);
+						cell.setCellValue(subTotAdic);
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(subTotTot);
+						cell.setCellValue(subTotTot);
 					
 					
 					//DETALLADO
@@ -1808,7 +1651,6 @@ public class ReportOdo {
 			        posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("DETALLADO POR REPORT:");
 					
 					for(int j=0;j<7;j++){
@@ -1824,121 +1666,101 @@ public class ReportOdo {
 			        posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("ID");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("CLASE");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("NRO.COTI");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("COD-SERVICIO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("SERVICIO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("FECHA");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("DETALLE");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("COD-EQUIPO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("EQUIPO");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("HR INI");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("HR TER");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("UN");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("LECT INI");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("LECT TER");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("CANT");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("MON");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("PU");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("SUBTOTAL");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TASA");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TOTAL");
 					
 					
@@ -1951,109 +1773,89 @@ public class ReportOdo {
 				        
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(6));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(1));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(24));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(2));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(3));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(4));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(5));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(9));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(10));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(7));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(8));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(11));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						Double aux = Double.parseDouble(lista.get(12).replaceAll(",", ""));
+								Double aux = Double.parseDouble(lista.get(12).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(13).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(13).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(14).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(14).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(lista.get(15));
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(16).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(16).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(17).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(17).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(18).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(18).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						posCell++;
 						cell = row.createCell(posCell);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-						aux = Double.parseDouble(lista.get(19).replaceAll(",", ""));
+								aux = Double.parseDouble(lista.get(19).replaceAll(",", ""));
 						cell.setCellValue(aux);
 						
 						totaltotal += aux;
@@ -2067,122 +1869,102 @@ public class ReportOdo {
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("TOTALES NETO (sin ajustes)");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue("");
+						cell.setCellValue("");
 					
 					posCell++; 
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(subtitulo);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-					cell.setCellValue(totaltotal);
+						cell.setCellValue(totaltotal);
 					
 					
 					
@@ -2194,10 +1976,9 @@ public class ReportOdo {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 		        
@@ -2218,7 +1999,10 @@ public class ReportOdo {
 	public static File exportaProformaExcelProyectos(String db, Map<String,String> mapDiccionario, List<List<String>> resumenTotalesPorProyecto, String desdeAAMMDD, String hastaAAMMDD,
 			Double uf, Double usd, Double eur) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -2229,41 +2013,41 @@ public class ReportOdo {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle pie = libro.createCellStyle();
-            pie.setBorderBottom(CellStyle.BORDER_THIN);
-            pie.setBorderTop(CellStyle.BORDER_THIN);
-            pie.setBorderRight(CellStyle.BORDER_THIN);
-            pie.setBorderLeft(CellStyle.BORDER_THIN);
-            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setBorderBottom(BorderStyle.THIN);
+            pie.setBorderTop(BorderStyle.THIN);
+            pie.setBorderRight(BorderStyle.THIN);
+            pie.setBorderLeft(BorderStyle.THIN);
+            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             pie.setFillForegroundColor((short)19);
-            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            pie.setAlignment(HorizontalAlignment.RIGHT);
             
             
             
@@ -2278,25 +2062,21 @@ public class ReportOdo {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LISTADO DE EP ODO PROYECTOS (INCLUIDOS AJUSTES DE EP ODO)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + Fechas.DDMMAA(desdeAAMMDD)  + " hasta " + Fechas.DDMMAA(hastaAAMMDD));
 			
 			
@@ -2330,7 +2110,6 @@ public class ReportOdo {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("RESUMEN POR PROYECTOS  (INCLUYE AJUSTES A EP):");
 			
 			posRow += 2;
@@ -2341,49 +2120,41 @@ public class ReportOdo {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE CLIENTE");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUBTOTAL (en "+mapDiccionario.get("PESOS")+")");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("AJUSTES (en "+mapDiccionario.get("PESOS")+")");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL (en "+mapDiccionario.get("PESOS")+")");
 				
 		       
@@ -2399,38 +2170,32 @@ public class ReportOdo {
 		        posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(proyectos.get(10));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(proyectos.get(1));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(proyectos.get(2));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(proyectos.get(3));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(proyectos.get(4));
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            Double aux = Double.parseDouble(proyectos.get(5).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				subtotal += aux;
 				
@@ -2438,7 +2203,6 @@ public class ReportOdo {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(proyectos.get(6).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				ajustes += aux;
 				
@@ -2446,7 +2210,6 @@ public class ReportOdo {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(proyectos.get(7).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				total += aux;
 			}
@@ -2458,59 +2221,50 @@ public class ReportOdo {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(pie);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(subtotal);
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(pie);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(ajustes);
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(pie);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(total);
 			
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -2531,7 +2285,10 @@ public class ReportOdo {
 	public static File exportaExcelOdoListarVentas1(String db, Map<String,String> mapDiccionario, List<VentaServicio> listVentas, 
 			String desdeAAMMDD, String hastaAAMMDD) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -2542,58 +2299,58 @@ public class ReportOdo {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle pie = libro.createCellStyle();
-            pie.setBorderBottom(CellStyle.BORDER_THIN);
-            pie.setBorderTop(CellStyle.BORDER_THIN);
-            pie.setBorderRight(CellStyle.BORDER_THIN);
-            pie.setBorderLeft(CellStyle.BORDER_THIN);
-            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setBorderBottom(BorderStyle.THIN);
+            pie.setBorderTop(BorderStyle.THIN);
+            pie.setBorderRight(BorderStyle.THIN);
+            pie.setBorderLeft(BorderStyle.THIN);
+            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             pie.setFillForegroundColor((short)19);
-            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            pie.setAlignment(HorizontalAlignment.RIGHT);
             
             
             
             CreationHelper creationHelper = libro.getCreationHelper();
             CellStyle hora = libro.createCellStyle();
             hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-            hora.setBorderBottom(CellStyle.BORDER_THIN);
-            hora.setBorderTop(CellStyle.BORDER_THIN);
-            hora.setBorderRight(CellStyle.BORDER_THIN);
-            hora.setBorderLeft(CellStyle.BORDER_THIN);
+            hora.setBorderBottom(BorderStyle.THIN);
+            hora.setBorderTop(BorderStyle.THIN);
+            hora.setBorderRight(BorderStyle.THIN);
+            hora.setBorderLeft(BorderStyle.THIN);
             
             CellStyle fecha = libro.createCellStyle();
             fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-            fecha.setBorderBottom(CellStyle.BORDER_THIN);
-            fecha.setBorderTop(CellStyle.BORDER_THIN);
-            fecha.setBorderRight(CellStyle.BORDER_THIN);
-            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+            fecha.setBorderBottom(BorderStyle.THIN);
+            fecha.setBorderTop(BorderStyle.THIN);
+            fecha.setBorderRight(BorderStyle.THIN);
+            fecha.setBorderLeft(BorderStyle.THIN);
 
 
             
@@ -2609,25 +2366,21 @@ public class ReportOdo {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LISTA DE REPORT DIARIO");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + Fechas.DDMMAA(desdeAAMMDD)  + " hasta " + Fechas.DDMMAA(hastaAAMMDD));
 			
 			
@@ -2667,121 +2420,101 @@ public class ReportOdo {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ID");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("USER_MADA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OPERADOR");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA"));
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COTI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SERVICIO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Hr_INI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Hr_TER");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Lect_INI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Lect_TER");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDAD");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OPERADOR");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("AUTORIZADOR");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOTAS");
 			
 			
@@ -2793,7 +2526,6 @@ public class ReportOdo {
 		        posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getId());
 				
 				posCell++;
@@ -2805,49 +2537,41 @@ public class ReportOdo {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNomUserAdam());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNomOperador());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNameSucursal());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNomBodegaEmpresa());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNroCotiOdo());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getCodServicio());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNomServicio());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getNomEquipo());
 				
 				posCell++;
@@ -2868,27 +2592,23 @@ public class ReportOdo {
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            Double aux = Double.parseDouble(venta.getLecturaIni().replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(venta.getLecturaTer().replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getUnidadServicio());
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(venta.getCantidad().replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 			
 				posCell++; 
@@ -2924,13 +2644,11 @@ public class ReportOdo {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getDetalle());
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(venta.getObservaciones());
 				
 			
@@ -2941,10 +2659,9 @@ public class ReportOdo {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp

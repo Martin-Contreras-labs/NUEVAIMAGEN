@@ -4,8 +4,13 @@ package models.qr;
 import models.tables.PlanMantencion;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import java.io.File;
@@ -291,7 +296,10 @@ public class QrTransacEquipo{
 
 	public static File qrRevisarDatosAllVigentesExcel(String db, Map<String,String> mapDiccionario, List<List<String>> lista, Fechas hoy) {
 
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 
 		try {
 			String path = "formatos/excel.xlsx";
@@ -302,56 +310,56 @@ public class QrTransacEquipo{
 			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 			CellStyle titulo = libro.createCellStyle();
 			Font font = libro.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			font.setColor((short)4);
 			font.setFontHeight((short)(14*20));
 			titulo.setFont(font);
 
 			CellStyle subtitulo = libro.createCellStyle();
 			Font font2 = libro.createFont();
-			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
 			font2.setColor((short)0);
 			font2.setFontHeight((short)(12*20));
 			subtitulo.setFont(font2);
 
 			CellStyle encabezado = libro.createCellStyle();
-			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-			encabezado.setBorderTop(CellStyle.BORDER_THIN);
-			encabezado.setBorderRight(CellStyle.BORDER_THIN);
-			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			encabezado.setFillForegroundColor((short)19);
-			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
 
 			CellStyle detalle = libro.createCellStyle();
-			detalle.setBorderBottom(CellStyle.BORDER_THIN);
-			detalle.setBorderTop(CellStyle.BORDER_THIN);
-			detalle.setBorderRight(CellStyle.BORDER_THIN);
-			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle pie = libro.createCellStyle();
-			pie.setBorderBottom(CellStyle.BORDER_THIN);
-			pie.setBorderTop(CellStyle.BORDER_THIN);
-			pie.setBorderRight(CellStyle.BORDER_THIN);
-			pie.setBorderLeft(CellStyle.BORDER_THIN);
-			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setBorderBottom(BorderStyle.THIN);
+			pie.setBorderTop(BorderStyle.THIN);
+			pie.setBorderRight(BorderStyle.THIN);
+			pie.setBorderLeft(BorderStyle.THIN);
+			pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			pie.setFillForegroundColor((short)19);
-			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+			pie.setAlignment(HorizontalAlignment.RIGHT);
 
 			CreationHelper creationHelper = libro.getCreationHelper();
 			CellStyle hora = libro.createCellStyle();
 			hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-			hora.setBorderBottom(CellStyle.BORDER_THIN);
-			hora.setBorderTop(CellStyle.BORDER_THIN);
-			hora.setBorderRight(CellStyle.BORDER_THIN);
-			hora.setBorderLeft(CellStyle.BORDER_THIN);
+			hora.setBorderBottom(BorderStyle.THIN);
+			hora.setBorderTop(BorderStyle.THIN);
+			hora.setBorderRight(BorderStyle.THIN);
+			hora.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle fecha = libro.createCellStyle();
 			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-			fecha.setBorderBottom(CellStyle.BORDER_THIN);
-			fecha.setBorderTop(CellStyle.BORDER_THIN);
-			fecha.setBorderRight(CellStyle.BORDER_THIN);
-			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+			fecha.setBorderBottom(BorderStyle.THIN);
+			fecha.setBorderTop(BorderStyle.THIN);
+			fecha.setBorderRight(BorderStyle.THIN);
+			fecha.setBorderLeft(BorderStyle.THIN);
 
 			//titulos del archivo
 
@@ -364,19 +372,16 @@ public class QrTransacEquipo{
 			row = hoja1.createRow(1);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("REVISAR ATRIBUTOS QR DE TODOS LOS EQUIPOS VIGENTES");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 
 			row = hoja1.createRow(3);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+hoy.getFechaStrDDMMAA());
 
 
@@ -411,37 +416,31 @@ public class QrTransacEquipo{
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ATRIBUTO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("VALOR");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA VENCIMIENTO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PUBLICAR");
 
 			for(List<String> lista1: lista){
@@ -452,25 +451,21 @@ public class QrTransacEquipo{
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.get(0));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.get(1));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.get(2));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				if(lista1.get(3).equals("1")){
 					if(!lista1.get(4).equals("0")){
 						cell.setCellValue(lista1.get(4));
@@ -486,7 +481,6 @@ public class QrTransacEquipo{
 				cell.setCellStyle(fecha);
 				if(!lista1.get(8).equals("")){
 					Fechas auxFecha = Fechas.obtenerFechaDesdeStrAAMMDD(lista1.get(8));
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(auxFecha.getFechaUtil());
 				}
 
@@ -494,7 +488,6 @@ public class QrTransacEquipo{
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				if(lista1.get(11).equals("1")){
 					cell.setCellValue("SI");
 				}
@@ -506,10 +499,9 @@ public class QrTransacEquipo{
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 

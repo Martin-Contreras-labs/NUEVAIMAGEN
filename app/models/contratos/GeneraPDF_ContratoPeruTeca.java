@@ -6,24 +6,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 
 import controllers.HomeController;
 import models.tables.ActaBaja;
 import org.apache.poi.util.TempFile;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
+import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 
 import models.forms.FormContrato;
 import models.tables.Cotizacion;
 import models.utilities.Archivos;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcMar;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,10 @@ public class GeneraPDF_ContratoPeruTeca {
 			String garantiaDet = form.garantiaDet;
 			String garantiaEquiv = form.garantiaDet;
 			String garantiaVenc = form.garantiaVenc;
-			File tmp = TempFile.createTempFile("tmp","null");
+			File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 			String path = db + "/formatos/contratoTeca1.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -87,6 +90,7 @@ public class GeneraPDF_ContratoPeruTeca {
 					}
 				 }
 			  }
+
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
@@ -95,12 +99,27 @@ public class GeneraPDF_ContratoPeruTeca {
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);
 			out.close();
+			
 			String archivoPdf = "Contrato_"+coti.getNumeroContrato()+".pdf";
 			path = db+"/"+archivoPdf;
 			Archivos.grabarArchivo(tmp, path);

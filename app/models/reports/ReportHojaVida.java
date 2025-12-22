@@ -13,19 +13,13 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import models.tables.PlanMantencion;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.Precio;
@@ -846,7 +840,10 @@ public class ReportHojaVida {
 	}
 	
 	public static File hojaVidaReportKpisExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado, Map<String,String> mapUbicacion) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -856,62 +853,62 @@ public class ReportHojaVida {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             Font font3 = libro.createFont();
-            font3.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font3.setBold(true);
             font3.setColor((short)0);
             encabezado.setFont(font3);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle pie = libro.createCellStyle();
-            pie.setBorderBottom(CellStyle.BORDER_THIN);
-            pie.setBorderTop(CellStyle.BORDER_THIN);
-            pie.setBorderRight(CellStyle.BORDER_THIN);
-            pie.setBorderLeft(CellStyle.BORDER_THIN);
-            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setBorderBottom(BorderStyle.THIN);
+            pie.setBorderTop(BorderStyle.THIN);
+            pie.setBorderRight(BorderStyle.THIN);
+            pie.setBorderLeft(BorderStyle.THIN);
+            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             pie.setFillForegroundColor((short)19);
-            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            pie.setAlignment(HorizontalAlignment.RIGHT);
             
             
             
             CreationHelper creationHelper = libro.getCreationHelper();
             CellStyle hora = libro.createCellStyle();
             hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-            hora.setBorderBottom(CellStyle.BORDER_THIN);
-            hora.setBorderTop(CellStyle.BORDER_THIN);
-            hora.setBorderRight(CellStyle.BORDER_THIN);
-            hora.setBorderLeft(CellStyle.BORDER_THIN);
+            hora.setBorderBottom(BorderStyle.THIN);
+            hora.setBorderTop(BorderStyle.THIN);
+            hora.setBorderRight(BorderStyle.THIN);
+            hora.setBorderLeft(BorderStyle.THIN);
             
             CellStyle fecha = libro.createCellStyle();
             fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-            fecha.setBorderBottom(CellStyle.BORDER_THIN);
-            fecha.setBorderTop(CellStyle.BORDER_THIN);
-            fecha.setBorderRight(CellStyle.BORDER_THIN);
-            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+            fecha.setBorderBottom(BorderStyle.THIN);
+            fecha.setBorderTop(BorderStyle.THIN);
+            fecha.setBorderRight(BorderStyle.THIN);
+            fecha.setBorderLeft(BorderStyle.THIN);
 
 
             
@@ -927,19 +924,16 @@ public class ReportHojaVida {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("REPORTE KPIs MANTENCIONES");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -985,7 +979,6 @@ public class ReportHojaVida {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++;
@@ -995,7 +988,6 @@ public class ReportHojaVida {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DIAS DE EQUIPO NO OPERATIVOS");
 			
 			posCell += 6;
@@ -1005,7 +997,6 @@ public class ReportHojaVida {
             posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COSTO vs VENTA MAXIMA (PLista X Días Operativos)");
 			
 			posCell += 6;
@@ -1015,7 +1006,6 @@ public class ReportHojaVida {
             posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COSTO vs VENTA ESPERADA (PLista X Total Días)");
 			
 			posCell += 6;
@@ -1025,7 +1015,6 @@ public class ReportHojaVida {
             posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COSTO vs VENTA REAL (Venta real período)");
 			
 			posCell += 6;
@@ -1043,7 +1032,6 @@ public class ReportHojaVida {
 		        			posCell++;
 							cell = row.createCell(posCell);
 							cell.setCellStyle(encabezado);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(lista.get(i));
 			        	}else {
 			        		posCell++;
@@ -1051,10 +1039,8 @@ public class ReportHojaVida {
 							cell.setCellStyle(detalle);
 							try {
 								Double aux = Double.parseDouble(lista.get(i).replaceAll(",", ""));
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellValue(aux);
 							}catch(Exception ee){
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellValue(lista.get(i));
 							}
 							
@@ -1065,7 +1051,6 @@ public class ReportHojaVida {
 		        	posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(lista.get(1));
 					
 					posCell++;
@@ -1075,7 +1060,6 @@ public class ReportHojaVida {
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(lista.get(2));
 					
 					posCell++;
@@ -1089,7 +1073,6 @@ public class ReportHojaVida {
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					String ubicacion = "Ubicacion actual: ";
 					if(mapUbicacion.get(lista.get(0))!=null) {
 						ubicacion += mapUbicacion.get(lista.get(0));
@@ -1108,10 +1091,9 @@ public class ReportHojaVida {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -1128,7 +1110,10 @@ public class ReportHojaVida {
 
 	public static File hojaVidaMantencionListaExcel(String db, Map<String,String> mapDiccionario, List<PlanMantencion> listaPlanes, Fechas hoy) {
 
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 
 		try {
 			String path = "formatos/excel.xlsx";
@@ -1139,56 +1124,56 @@ public class ReportHojaVida {
 			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 			CellStyle titulo = libro.createCellStyle();
 			Font font = libro.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			font.setColor((short)4);
 			font.setFontHeight((short)(14*20));
 			titulo.setFont(font);
 
 			CellStyle subtitulo = libro.createCellStyle();
 			Font font2 = libro.createFont();
-			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
 			font2.setColor((short)0);
 			font2.setFontHeight((short)(12*20));
 			subtitulo.setFont(font2);
 
 			CellStyle encabezado = libro.createCellStyle();
-			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-			encabezado.setBorderTop(CellStyle.BORDER_THIN);
-			encabezado.setBorderRight(CellStyle.BORDER_THIN);
-			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			encabezado.setFillForegroundColor((short)19);
-			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
 
 			CellStyle detalle = libro.createCellStyle();
-			detalle.setBorderBottom(CellStyle.BORDER_THIN);
-			detalle.setBorderTop(CellStyle.BORDER_THIN);
-			detalle.setBorderRight(CellStyle.BORDER_THIN);
-			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle pie = libro.createCellStyle();
-			pie.setBorderBottom(CellStyle.BORDER_THIN);
-			pie.setBorderTop(CellStyle.BORDER_THIN);
-			pie.setBorderRight(CellStyle.BORDER_THIN);
-			pie.setBorderLeft(CellStyle.BORDER_THIN);
-			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setBorderBottom(BorderStyle.THIN);
+			pie.setBorderTop(BorderStyle.THIN);
+			pie.setBorderRight(BorderStyle.THIN);
+			pie.setBorderLeft(BorderStyle.THIN);
+			pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			pie.setFillForegroundColor((short)19);
-			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+			pie.setAlignment(HorizontalAlignment.RIGHT);
 
 			CreationHelper creationHelper = libro.getCreationHelper();
 			CellStyle hora = libro.createCellStyle();
 			hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-			hora.setBorderBottom(CellStyle.BORDER_THIN);
-			hora.setBorderTop(CellStyle.BORDER_THIN);
-			hora.setBorderRight(CellStyle.BORDER_THIN);
-			hora.setBorderLeft(CellStyle.BORDER_THIN);
+			hora.setBorderBottom(BorderStyle.THIN);
+			hora.setBorderTop(BorderStyle.THIN);
+			hora.setBorderRight(BorderStyle.THIN);
+			hora.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle fecha = libro.createCellStyle();
 			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-			fecha.setBorderBottom(CellStyle.BORDER_THIN);
-			fecha.setBorderTop(CellStyle.BORDER_THIN);
-			fecha.setBorderRight(CellStyle.BORDER_THIN);
-			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+			fecha.setBorderBottom(BorderStyle.THIN);
+			fecha.setBorderTop(BorderStyle.THIN);
+			fecha.setBorderRight(BorderStyle.THIN);
+			fecha.setBorderLeft(BorderStyle.THIN);
 
 
 			//titulos del archivo
@@ -1202,19 +1187,16 @@ public class ReportHojaVida {
 			row = hoja1.createRow(1);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PLANES DE MANTENCION EQUIPOS");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 
 			row = hoja1.createRow(3);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+hoy.getFechaStrDDMMAA());
 
 
@@ -1249,7 +1231,6 @@ public class ReportHojaVida {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("RESUMEN POR PROYECTOS  (INCLUYE AJUSTES A EP):");
 
 			posRow += 2;
@@ -1260,79 +1241,66 @@ public class ReportHojaVida {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PLAN");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA LECTURA");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECTURA");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ROTACION");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONSUMO PROM MES");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROXIMA MANTENCION");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA ESTIMADA MANTENCION");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONSUMO ESTIMADO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DIFERENCIA");
 
 			for(PlanMantencion lista1: listaPlanes){
@@ -1343,66 +1311,56 @@ public class ReportHojaVida {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.equipoGrupo);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.equipoCodigo);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.equipoNombre);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.tipoPlanNombre);
 
 				Fechas auxFecha = Fechas.obtenerFechaDesdeStrDDMMAA(lista1.fechaReset);
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(fecha);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxFecha.getFechaUtil());
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista1.unidadMantencion);
 
 				Double auxActual = Double.parseDouble(lista1.estadoActual.replaceAll(",", ""));
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxActual);
 
 				Double auxNum = Double.parseDouble(lista1.cadaNEstimado.replaceAll(",", ""));
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxNum);
 
 				Double auxRotacion = Double.parseDouble(lista1.consumoEstimadoPorMes.replaceAll(",", ""));
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxRotacion);
 
 				Double auxProxima = Double.parseDouble(lista1.proximaMantencion.replaceAll(",", ""));
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxProxima);
 
 				Fechas auxEstimada = hoy;
@@ -1416,21 +1374,18 @@ public class ReportHojaVida {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(fecha);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxEstimada.getFechaUtil());
 
 				auxNum = Double.parseDouble(lista1.consumoEstimadoAHoy.replaceAll(",", ""));
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxNum);
 
 				auxNum = Double.parseDouble(lista1.diferencia.replaceAll(",", ""));
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(auxNum);
 
 			}
@@ -1438,10 +1393,9 @@ public class ReportHojaVida {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 

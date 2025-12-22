@@ -65,7 +65,10 @@ public class GeneraQr {
            String path = db+"/"+nombreArchivo;
            
            
-           File tmp = TempFile.createTempFile("tmp","null");
+           File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
            ImageIO.write(image,"png", tmp);
            Archivos.grabarArchivo(tmp, path);
            

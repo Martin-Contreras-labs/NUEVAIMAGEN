@@ -9,18 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.utilities.Archivos;
@@ -34,7 +27,10 @@ public class OtListaRevisarEnExcel {
 	
 	
 	public static File otListaRevisarExcel(String db, List<List<String>> listOt, Map<String,String> mapDiccionario) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -44,32 +40,32 @@ public class OtListaRevisarEnExcel {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             //titulos del archivo
             
@@ -82,19 +78,16 @@ public class OtListaRevisarEnExcel {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LISTADO DE ORDENES DE TRABAJO (confirmadas y pendientes de confirmar)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			//anchos de columnas
@@ -131,97 +124,81 @@ public class OtListaRevisarEnExcel {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro "+mapDiccionario.get("OT"));
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA "+mapDiccionario.get("OT"));
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONFIRMADA "+mapDiccionario.get("OT"));
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro COTI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA COTI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA")+"/PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OBSERVACIONES "+mapDiccionario.get("OT"));
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OBSERVACIONES COTI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ULTIMA ACTUALIZACION");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTIMACION DE ENTREGA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SALDO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO");
 			
 			
@@ -234,98 +211,82 @@ public class OtListaRevisarEnExcel {
 			        posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(15));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(16));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(2));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(Fechas.DDMMAA(listOt.get(i).get(3)));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(Fechas.DDMMAA(listOt.get(i).get(19)));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(4));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(Fechas.DDMMAA(listOt.get(i).get(5)));
 
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(14));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(6));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(7));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(8));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(9));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(Fechas.DDMMAA(listOt.get(i).get(17)));
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(Fechas.DDMMAA(listOt.get(i).get(18)));
 					
 					Double saldo = Double.parseDouble(listOt.get(i).get(20).replaceAll(",", ""));
 					posCell++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(saldo);
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listOt.get(i).get(12));
 					
 					
@@ -336,10 +297,9 @@ public class OtListaRevisarEnExcel {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
             
 			// Write the output to a file tmp

@@ -13,18 +13,11 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.forms.FormMantencion;
@@ -1015,7 +1008,10 @@ public class MantTransacReport {
 	
 	public static File exportaListaDeReportsExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado,
 			String desdeAAMMDD, String hastaAAMMDD) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -1025,58 +1021,58 @@ public class MantTransacReport {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle pie = libro.createCellStyle();
-            pie.setBorderBottom(CellStyle.BORDER_THIN);
-            pie.setBorderTop(CellStyle.BORDER_THIN);
-            pie.setBorderRight(CellStyle.BORDER_THIN);
-            pie.setBorderLeft(CellStyle.BORDER_THIN);
-            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setBorderBottom(BorderStyle.THIN);
+            pie.setBorderTop(BorderStyle.THIN);
+            pie.setBorderRight(BorderStyle.THIN);
+            pie.setBorderLeft(BorderStyle.THIN);
+            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             pie.setFillForegroundColor((short)19);
-            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            pie.setAlignment(HorizontalAlignment.RIGHT);
             
             
             
             CreationHelper creationHelper = libro.getCreationHelper();
             CellStyle hora = libro.createCellStyle();
             hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-            hora.setBorderBottom(CellStyle.BORDER_THIN);
-            hora.setBorderTop(CellStyle.BORDER_THIN);
-            hora.setBorderRight(CellStyle.BORDER_THIN);
-            hora.setBorderLeft(CellStyle.BORDER_THIN);
+            hora.setBorderBottom(BorderStyle.THIN);
+            hora.setBorderTop(BorderStyle.THIN);
+            hora.setBorderRight(BorderStyle.THIN);
+            hora.setBorderLeft(BorderStyle.THIN);
             
             CellStyle fecha = libro.createCellStyle();
             fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-            fecha.setBorderBottom(CellStyle.BORDER_THIN);
-            fecha.setBorderTop(CellStyle.BORDER_THIN);
-            fecha.setBorderRight(CellStyle.BORDER_THIN);
-            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+            fecha.setBorderBottom(BorderStyle.THIN);
+            fecha.setBorderTop(BorderStyle.THIN);
+            fecha.setBorderRight(BorderStyle.THIN);
+            fecha.setBorderLeft(BorderStyle.THIN);
 
 
             
@@ -1092,25 +1088,21 @@ public class MantTransacReport {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LISTA DE REPORT INGRESADOS");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + Fechas.DDMMAA(desdeAAMMDD)  + " hasta " + Fechas.DDMMAA(hastaAAMMDD));
 			
 			
@@ -1153,61 +1145,51 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ID");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("USER_MADA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERFIL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OPERADOR/MECANICO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TIPO MANTENCION");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FIRMA OPER/MEC");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FIRMA SUPERVISOR");
 			
 			
@@ -1219,7 +1201,6 @@ public class MantTransacReport {
 				cell = row.createCell(posCell);
 				Double valor = Double.parseDouble(list.get(0).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 				
 				posCell++;
@@ -1231,37 +1212,31 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(2));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(3));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(4));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(5));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(6));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(7));
 			
 				posCell++; 
@@ -1302,10 +1277,9 @@ public class MantTransacReport {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -1322,7 +1296,10 @@ public class MantTransacReport {
 	
 	public static File exportaHistorialDeReportsExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado,
 			String desdeAAMMDD, String hastaAAMMDD) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -1332,58 +1309,58 @@ public class MantTransacReport {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle pie = libro.createCellStyle();
-            pie.setBorderBottom(CellStyle.BORDER_THIN);
-            pie.setBorderTop(CellStyle.BORDER_THIN);
-            pie.setBorderRight(CellStyle.BORDER_THIN);
-            pie.setBorderLeft(CellStyle.BORDER_THIN);
-            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setBorderBottom(BorderStyle.THIN);
+            pie.setBorderTop(BorderStyle.THIN);
+            pie.setBorderRight(BorderStyle.THIN);
+            pie.setBorderLeft(BorderStyle.THIN);
+            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             pie.setFillForegroundColor((short)19);
-            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            pie.setAlignment(HorizontalAlignment.RIGHT);
             
             
             
             CreationHelper creationHelper = libro.getCreationHelper();
             CellStyle hora = libro.createCellStyle();
             hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-            hora.setBorderBottom(CellStyle.BORDER_THIN);
-            hora.setBorderTop(CellStyle.BORDER_THIN);
-            hora.setBorderRight(CellStyle.BORDER_THIN);
-            hora.setBorderLeft(CellStyle.BORDER_THIN);
+            hora.setBorderBottom(BorderStyle.THIN);
+            hora.setBorderTop(BorderStyle.THIN);
+            hora.setBorderRight(BorderStyle.THIN);
+            hora.setBorderLeft(BorderStyle.THIN);
             
             CellStyle fecha = libro.createCellStyle();
             fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-            fecha.setBorderBottom(CellStyle.BORDER_THIN);
-            fecha.setBorderTop(CellStyle.BORDER_THIN);
-            fecha.setBorderRight(CellStyle.BORDER_THIN);
-            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+            fecha.setBorderBottom(BorderStyle.THIN);
+            fecha.setBorderTop(BorderStyle.THIN);
+            fecha.setBorderRight(BorderStyle.THIN);
+            fecha.setBorderLeft(BorderStyle.THIN);
 
 
             
@@ -1399,25 +1376,21 @@ public class MantTransacReport {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HISTORIAL DE REPORT INGRESADOS");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + Fechas.DDMMAA(desdeAAMMDD)  + " hasta " + Fechas.DDMMAA(hastaAAMMDD));
 			
 			
@@ -1468,109 +1441,91 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ID");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("USER_MADA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERFIL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OPERADOR/MECANICO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TIPO MANTENCION");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECT_ANTERIOR");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECT_ACTUAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("USO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UBICACION");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO EN SITIO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO OPERACIONAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO EN TALLER");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMENTARIOS");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO FINAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OBSERVACIONES");
 			
 			
@@ -1583,7 +1538,6 @@ public class MantTransacReport {
 				cell = row.createCell(posCell);
 				Double valor = Double.parseDouble(list.get(0).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 				
 				posCell++;
@@ -1595,110 +1549,93 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(2));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(3));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(4));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(5));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(6));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(7));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				valor = Double.parseDouble(list.get(8).replaceAll(",", ""));
 				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				valor = Double.parseDouble(list.get(9).replaceAll(",", ""));
 				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				valor = Double.parseDouble(list.get(10).replaceAll(",", ""));
 				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(11));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(12));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(13));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(14));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(15));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(16));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(17));
 			}
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -2772,7 +2709,10 @@ public class MantTransacReport {
 	}
 	
 	public static File exportaControlMantencionesExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -2782,58 +2722,58 @@ public class MantTransacReport {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle pie = libro.createCellStyle();
-            pie.setBorderBottom(CellStyle.BORDER_THIN);
-            pie.setBorderTop(CellStyle.BORDER_THIN);
-            pie.setBorderRight(CellStyle.BORDER_THIN);
-            pie.setBorderLeft(CellStyle.BORDER_THIN);
-            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            pie.setBorderBottom(BorderStyle.THIN);
+            pie.setBorderTop(BorderStyle.THIN);
+            pie.setBorderRight(BorderStyle.THIN);
+            pie.setBorderLeft(BorderStyle.THIN);
+            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             pie.setFillForegroundColor((short)19);
-            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+            pie.setAlignment(HorizontalAlignment.RIGHT);
             
             
             
             CreationHelper creationHelper = libro.getCreationHelper();
             CellStyle hora = libro.createCellStyle();
             hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-            hora.setBorderBottom(CellStyle.BORDER_THIN);
-            hora.setBorderTop(CellStyle.BORDER_THIN);
-            hora.setBorderRight(CellStyle.BORDER_THIN);
-            hora.setBorderLeft(CellStyle.BORDER_THIN);
+            hora.setBorderBottom(BorderStyle.THIN);
+            hora.setBorderTop(BorderStyle.THIN);
+            hora.setBorderRight(BorderStyle.THIN);
+            hora.setBorderLeft(BorderStyle.THIN);
             
             CellStyle fecha = libro.createCellStyle();
             fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-            fecha.setBorderBottom(CellStyle.BORDER_THIN);
-            fecha.setBorderTop(CellStyle.BORDER_THIN);
-            fecha.setBorderRight(CellStyle.BORDER_THIN);
-            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+            fecha.setBorderBottom(BorderStyle.THIN);
+            fecha.setBorderTop(BorderStyle.THIN);
+            fecha.setBorderRight(BorderStyle.THIN);
+            fecha.setBorderLeft(BorderStyle.THIN);
 
 
             
@@ -2849,19 +2789,16 @@ public class MantTransacReport {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONTROL DE MANTENCIONES");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -2919,145 +2856,121 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO_EQUIPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE_EQUIPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UBICACION");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ID_REPORT OPER_CORR");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA_LECT");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OPER/CORR");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECT_ACTUAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO_OBRA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMENTARIO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ID_REPORT PREVENTIVO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA_MANT");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PLAN_MANT");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LECT_MANT");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FRECUENCIA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROXIMA_MANT");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FALTA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA_ESTIMADA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO_TALLER");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ESTADO_OPERACIONAL");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("USO ACUM");
 
 			for(List<String> list: listado){
@@ -3068,25 +2981,21 @@ public class MantTransacReport {
 		        posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(2));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(3));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(4));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				
 				posCell++;
@@ -3094,7 +3003,6 @@ public class MantTransacReport {
 				Double valor = Double.parseDouble(list.get(1).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
 				if(valor>0){
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(valor);
 				}
 
@@ -3107,38 +3015,32 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(23));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(22));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(7));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(8));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				
 				posCell++;
@@ -3146,7 +3048,6 @@ public class MantTransacReport {
 				valor = Double.parseDouble(list.get(0).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
 				if(valor>0){
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(valor);
 				}
 				
@@ -3159,20 +3060,17 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(21));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(19));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(10).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 				
 				posCell++;
@@ -3185,14 +3083,12 @@ public class MantTransacReport {
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(12).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(13).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 				
 				posCell++;
@@ -3204,30 +3100,26 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(15));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(16));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(20).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 			}
 			
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -3306,7 +3198,10 @@ public class MantTransacReport {
 
 	public static File mantCantOperacionalExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado,
 												String desde, String hasta) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -3316,59 +3211,59 @@ public class MantTransacReport {
 			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 			CellStyle titulo = libro.createCellStyle();
 			Font font = libro.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			font.setColor((short)4);
 			font.setFontHeight((short)(14*20));
 			titulo.setFont(font);
 
 			CellStyle subtitulo = libro.createCellStyle();
 			Font font2 = libro.createFont();
-			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
 			font2.setColor((short)0);
 			font2.setFontHeight((short)(12*20));
 			subtitulo.setFont(font2);
 
 			CellStyle encabezado = libro.createCellStyle();
-			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-			encabezado.setBorderTop(CellStyle.BORDER_THIN);
-			encabezado.setBorderRight(CellStyle.BORDER_THIN);
-			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			encabezado.setFillForegroundColor((short)19);
-			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
 			encabezado.setWrapText(true);
 
 			CellStyle detalle = libro.createCellStyle();
-			detalle.setBorderBottom(CellStyle.BORDER_THIN);
-			detalle.setBorderTop(CellStyle.BORDER_THIN);
-			detalle.setBorderRight(CellStyle.BORDER_THIN);
-			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle pie = libro.createCellStyle();
-			pie.setBorderBottom(CellStyle.BORDER_THIN);
-			pie.setBorderTop(CellStyle.BORDER_THIN);
-			pie.setBorderRight(CellStyle.BORDER_THIN);
-			pie.setBorderLeft(CellStyle.BORDER_THIN);
-			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setBorderBottom(BorderStyle.THIN);
+			pie.setBorderTop(BorderStyle.THIN);
+			pie.setBorderRight(BorderStyle.THIN);
+			pie.setBorderLeft(BorderStyle.THIN);
+			pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			pie.setFillForegroundColor((short)19);
-			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+			pie.setAlignment(HorizontalAlignment.RIGHT);
 
 
 
 			CreationHelper creationHelper = libro.getCreationHelper();
 			CellStyle hora = libro.createCellStyle();
 			hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-			hora.setBorderBottom(CellStyle.BORDER_THIN);
-			hora.setBorderTop(CellStyle.BORDER_THIN);
-			hora.setBorderRight(CellStyle.BORDER_THIN);
-			hora.setBorderLeft(CellStyle.BORDER_THIN);
+			hora.setBorderBottom(BorderStyle.THIN);
+			hora.setBorderTop(BorderStyle.THIN);
+			hora.setBorderRight(BorderStyle.THIN);
+			hora.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle fecha = libro.createCellStyle();
 			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-			fecha.setBorderBottom(CellStyle.BORDER_THIN);
-			fecha.setBorderTop(CellStyle.BORDER_THIN);
-			fecha.setBorderRight(CellStyle.BORDER_THIN);
-			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+			fecha.setBorderBottom(BorderStyle.THIN);
+			fecha.setBorderTop(BorderStyle.THIN);
+			fecha.setBorderRight(BorderStyle.THIN);
+			fecha.setBorderLeft(BorderStyle.THIN);
 
 
 
@@ -3384,25 +3279,21 @@ public class MantTransacReport {
 			row = hoja1.createRow(1);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDADES OPERACIONAL Y CORRECTIVO");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 
 			row = hoja1.createRow(3);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 
 			row = hoja1.createRow(5);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde "+Fechas.DDMMAA(desde)+" hasta "+Fechas.DDMMAA(hasta));
 
 
@@ -3444,13 +3335,11 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO_EQUIPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE_EQUIPO");
 
 			posCell++;
@@ -3460,13 +3349,11 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONSUMO\nREPORT OPER");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HORAS\nMECANICO");
 
 			posCell++;
@@ -3476,13 +3363,11 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONSUMO\nREPORT MEC");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HORAS\nOPERADOR");
 
 			for(List<String> list: listado){
@@ -3493,13 +3378,11 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(1));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(2));
 
 				posCell++;
@@ -3510,14 +3393,12 @@ public class MantTransacReport {
 				cell = row.createCell(posCell);
 				Double valor = Double.parseDouble(list.get(3).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(4).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 
 				posCell++;
@@ -3528,24 +3409,21 @@ public class MantTransacReport {
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(6).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 			}
 
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -3601,7 +3479,10 @@ public class MantTransacReport {
 
 	public static File mantCantMantencionExcel(String db, Map<String,String> mapDiccionario, List<List<String>> listado,
 												String desde, String hasta) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -3611,59 +3492,59 @@ public class MantTransacReport {
 			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 			CellStyle titulo = libro.createCellStyle();
 			Font font = libro.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			font.setColor((short)4);
 			font.setFontHeight((short)(14*20));
 			titulo.setFont(font);
 
 			CellStyle subtitulo = libro.createCellStyle();
 			Font font2 = libro.createFont();
-			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
 			font2.setColor((short)0);
 			font2.setFontHeight((short)(12*20));
 			subtitulo.setFont(font2);
 
 			CellStyle encabezado = libro.createCellStyle();
-			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-			encabezado.setBorderTop(CellStyle.BORDER_THIN);
-			encabezado.setBorderRight(CellStyle.BORDER_THIN);
-			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			encabezado.setFillForegroundColor((short)19);
-			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
 			encabezado.setWrapText(true);
 
 			CellStyle detalle = libro.createCellStyle();
-			detalle.setBorderBottom(CellStyle.BORDER_THIN);
-			detalle.setBorderTop(CellStyle.BORDER_THIN);
-			detalle.setBorderRight(CellStyle.BORDER_THIN);
-			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle pie = libro.createCellStyle();
-			pie.setBorderBottom(CellStyle.BORDER_THIN);
-			pie.setBorderTop(CellStyle.BORDER_THIN);
-			pie.setBorderRight(CellStyle.BORDER_THIN);
-			pie.setBorderLeft(CellStyle.BORDER_THIN);
-			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setBorderBottom(BorderStyle.THIN);
+			pie.setBorderTop(BorderStyle.THIN);
+			pie.setBorderRight(BorderStyle.THIN);
+			pie.setBorderLeft(BorderStyle.THIN);
+			pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			pie.setFillForegroundColor((short)19);
-			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+			pie.setAlignment(HorizontalAlignment.RIGHT);
 
 
 
 			CreationHelper creationHelper = libro.getCreationHelper();
 			CellStyle hora = libro.createCellStyle();
 			hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-			hora.setBorderBottom(CellStyle.BORDER_THIN);
-			hora.setBorderTop(CellStyle.BORDER_THIN);
-			hora.setBorderRight(CellStyle.BORDER_THIN);
-			hora.setBorderLeft(CellStyle.BORDER_THIN);
+			hora.setBorderBottom(BorderStyle.THIN);
+			hora.setBorderTop(BorderStyle.THIN);
+			hora.setBorderRight(BorderStyle.THIN);
+			hora.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle fecha = libro.createCellStyle();
 			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-			fecha.setBorderBottom(CellStyle.BORDER_THIN);
-			fecha.setBorderTop(CellStyle.BORDER_THIN);
-			fecha.setBorderRight(CellStyle.BORDER_THIN);
-			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+			fecha.setBorderBottom(BorderStyle.THIN);
+			fecha.setBorderTop(BorderStyle.THIN);
+			fecha.setBorderRight(BorderStyle.THIN);
+			fecha.setBorderLeft(BorderStyle.THIN);
 
 
 
@@ -3679,25 +3560,21 @@ public class MantTransacReport {
 			row = hoja1.createRow(1);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANTIDADES PREVENTIVO (MANTENCION)");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 
 			row = hoja1.createRow(3);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 
 			row = hoja1.createRow(5);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde "+Fechas.DDMMAA(desde)+" hasta "+Fechas.DDMMAA(hasta));
 
 
@@ -3738,13 +3615,11 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO_EQUIPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE_EQUIPO");
 
 			posCell++;
@@ -3754,25 +3629,21 @@ public class MantTransacReport {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PLAN_MANTENCION");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UNIDAD");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CONSUMO\nREPORT MEC");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HORAS\nOPERADOR");
 
 			for(List<String> list: listado){
@@ -3783,13 +3654,11 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(1));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(2));
 
 				posCell++;
@@ -3799,37 +3668,32 @@ public class MantTransacReport {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(3));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(list.get(6));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				Double valor = Double.parseDouble(list.get(5).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				valor = Double.parseDouble(list.get(4).replaceAll(",", ""));
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(valor);
 			}
 
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp

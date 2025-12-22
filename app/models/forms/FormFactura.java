@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -14,8 +15,8 @@ import java.util.Map;
 
 import models.tables.*;
 import org.apache.poi.util.TempFile;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -38,6 +39,9 @@ import models.utilities.Fechas;
 import models.xml.XMLFacturaArriendo;
 import models.xml.XmlFacturaReferencias;
 import models.xml.XmlFacturaVenta;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcMar;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import play.data.DynamicForm;
 import play.libs.ws.WSClient;
 
@@ -105,10 +109,10 @@ public class FormFactura {
 		
 			
 			
-			File tmp = TempFile.createTempFile("tmp","null");
+			File tmp = null;
 	       
     		try {
-    			
+				tmp = TempFile.createTempFile("tmp","null");
     			String path = db + "/formatos/proformaArriendo.docx";
     			if(conDetalle.equals("1")) {
     				path = db + "/formatos/proformaArriendoMasDetalle.docx";
@@ -833,19 +837,32 @@ public class FormFactura {
 		           
     				
     			}
-    			
-    		
-    			// Write the output to a file word
-	    	    FileOutputStream fileOut = new FileOutputStream(tmp);
-	    	    doc.write(fileOut);
+
+
+				// Write the output to a file word
+				FileOutputStream fileOut = new FileOutputStream(tmp);
+				doc.write(fileOut);
 				fileOut.close();
-				
 				// 1) Load DOCX into XWPFDocument
 				InputStream is = new FileInputStream(tmp);
 				XWPFDocument document = new XWPFDocument(is);
 				is.close();
+				for (XWPFTable table9 : document.getTables()) {
+					for (XWPFTableRow row9 : table9.getRows()) {
+						for (XWPFTableCell cell9 : row9.getTableCells()) {
+							cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+							CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+							CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+							BigInteger padding = BigInteger.valueOf(50);
+							if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+							tcMar.getBottom().setW(padding);
+							tcMar.getBottom().setType(STTblWidth.DXA);
+						}
+					}
+				}
 				// 2) Prepare Pdf options
-				PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+				PdfOptions options = PdfOptions.create();
+				options.fontEncoding("UTF-8");
 				// 3) Convert XWPFDocument to Pdf
 				OutputStream out = new FileOutputStream(tmp);
 				PdfConverter.getInstance().convert(document, out, options);
@@ -928,8 +945,9 @@ public class FormFactura {
 
 
 	public static String generaProformaH(String db, Proyecto proyecto, ProformaSimple proforma, Cliente cliente, BodegaEmpresa bodegaEmpresa, DynamicForm form) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/proformaArriendo.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -1012,13 +1030,26 @@ public class FormFactura {
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
 			// 1) Load DOCX into XWPFDocument
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);
@@ -1043,10 +1074,10 @@ public class FormFactura {
 		
 		BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, db, proforma.id_bodegaEmpresa);
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
        
 		try {
-			
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/proformaVenta.docx";
 			
 			InputStream formato = Archivos.leerArchivo(path);
@@ -1292,19 +1323,32 @@ public class FormFactura {
 			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(proforma.iva),false);
 			cell=table.getRow(4).getCell(2);
 			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(proforma.total),false);
-	            
-	            
+
+
 			// Write the output to a file word
-    	    FileOutputStream fileOut = new FileOutputStream(tmp);
-    	    doc.write(fileOut);
+			FileOutputStream fileOut = new FileOutputStream(tmp);
+			doc.write(fileOut);
 			fileOut.close();
-			
 			// 1) Load DOCX into XWPFDocument
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);
@@ -1364,10 +1408,10 @@ public class FormFactura {
 			BodegaEmpresa bodegaEmpresa, Proyecto proyecto, Cliente cliente, Long cantDec, List<List<String>> groupPorClaseServicioEquipo, List<List<String>> listaAjustes,
 			List<List<String>> agrupadoPorServicio) {
 		
-			File tmp = TempFile.createTempFile("tmp","null");
+			File tmp = null;
 	       
     		try {
-    			
+				tmp = TempFile.createTempFile("tmp","null");
     			String path = db + "/formatos/proformaOdo.docx";
     			InputStream formato = Archivos.leerArchivo(path);
     			XWPFDocument doc = new XWPFDocument(formato);
@@ -1616,19 +1660,32 @@ public class FormFactura {
 						
 		            	table.createRow();
 		            }
-		         
-    		
-    			// Write the output to a file word
-	    	    FileOutputStream fileOut = new FileOutputStream(tmp);
-	    	    doc.write(fileOut);
+
+
+				// Write the output to a file word
+				FileOutputStream fileOut = new FileOutputStream(tmp);
+				doc.write(fileOut);
 				fileOut.close();
-				
 				// 1) Load DOCX into XWPFDocument
 				InputStream is = new FileInputStream(tmp);
 				XWPFDocument document = new XWPFDocument(is);
 				is.close();
+				for (XWPFTable table9 : document.getTables()) {
+					for (XWPFTableRow row9 : table9.getRows()) {
+						for (XWPFTableCell cell9 : row9.getTableCells()) {
+							cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+							CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+							CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+							BigInteger padding = BigInteger.valueOf(50);
+							if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+							tcMar.getBottom().setW(padding);
+							tcMar.getBottom().setType(STTblWidth.DXA);
+						}
+					}
+				}
 				// 2) Prepare Pdf options
-				PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+				PdfOptions options = PdfOptions.create();
+				options.fontEncoding("UTF-8");
 				// 3) Convert XWPFDocument to Pdf
 				OutputStream out = new FileOutputStream(tmp);
 				PdfConverter.getInstance().convert(document, out, options);

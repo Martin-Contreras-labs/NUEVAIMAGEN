@@ -8,17 +8,26 @@ import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
 import models.xml.XmlFacturaReferencias;
 import models.xml.XmlFacturaVenta;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcMar;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -634,9 +643,10 @@ public class CobraArriendoEstados {
 	}
 
 	public static File estadosFacturaProyectoExcel(String db, Map<String,String> mapDiccionario, List<List<String>> lista, Fechas desde, Fechas hasta) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
 			Workbook libro = WorkbookFactory.create(formato);
@@ -645,41 +655,41 @@ public class CobraArriendoEstados {
 			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 			CellStyle titulo = libro.createCellStyle();
 			Font font = libro.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			font.setColor((short)4);
 			font.setFontHeight((short)(14*20));
 			titulo.setFont(font);
 
 			CellStyle subtitulo = libro.createCellStyle();
 			Font font2 = libro.createFont();
-			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
 			font2.setColor((short)0);
 			font2.setFontHeight((short)(12*20));
 			subtitulo.setFont(font2);
 
 			CellStyle encabezado = libro.createCellStyle();
-			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-			encabezado.setBorderTop(CellStyle.BORDER_THIN);
-			encabezado.setBorderRight(CellStyle.BORDER_THIN);
-			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			encabezado.setFillForegroundColor((short)19);
-			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
 
 			CellStyle detalle = libro.createCellStyle();
-			detalle.setBorderBottom(CellStyle.BORDER_THIN);
-			detalle.setBorderTop(CellStyle.BORDER_THIN);
-			detalle.setBorderRight(CellStyle.BORDER_THIN);
-			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle pie = libro.createCellStyle();
-			pie.setBorderBottom(CellStyle.BORDER_THIN);
-			pie.setBorderTop(CellStyle.BORDER_THIN);
-			pie.setBorderRight(CellStyle.BORDER_THIN);
-			pie.setBorderLeft(CellStyle.BORDER_THIN);
-			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setBorderBottom(BorderStyle.THIN);
+			pie.setBorderTop(BorderStyle.THIN);
+			pie.setBorderRight(BorderStyle.THIN);
+			pie.setBorderLeft(BorderStyle.THIN);
+			pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			pie.setFillForegroundColor((short)19);
-			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+			pie.setAlignment(HorizontalAlignment.RIGHT);
 
 
 			//titulos del archivo
@@ -693,25 +703,21 @@ public class CobraArriendoEstados {
 			row = hoja1.createRow(1);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LISTADO DE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO")+" POR DAÑOS");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 
 			row = hoja1.createRow(3);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 
 			row = hoja1.createRow(5);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + desde.getFechaStrDDMMAA()  + " hasta " + hasta.getFechaStrDDMMAA());
 
 
@@ -748,19 +754,16 @@ public class CobraArriendoEstados {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NOMBRE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL (en "+mapDiccionario.get("Pesos")+")");
 
 			Double totaltotal=(double)0;
@@ -772,20 +775,17 @@ public class CobraArriendoEstados {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(2));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				Double aux = Double.parseDouble(lista.get(i).get(3).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				totaltotal += aux;
 			}
@@ -797,29 +797,25 @@ public class CobraArriendoEstados {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(pie);
 			Double aux = totaltotal;
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(aux);
 
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 
@@ -839,8 +835,9 @@ public class CobraArriendoEstados {
 
 	public static File estadosFacturaProyectoDetExcel(String db, Map<String,String> mapDiccionario,
 				  List<List<String>> lista, Fechas desde, Fechas hasta, BodegaEmpresa bodegaEmpresa, Fechas hoy) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
 			Workbook libro = WorkbookFactory.create(formato);
@@ -849,41 +846,41 @@ public class CobraArriendoEstados {
 			// 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 			CellStyle titulo = libro.createCellStyle();
 			Font font = libro.createFont();
-			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
 			font.setColor((short)4);
 			font.setFontHeight((short)(14*20));
 			titulo.setFont(font);
 
 			CellStyle subtitulo = libro.createCellStyle();
 			Font font2 = libro.createFont();
-			font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
 			font2.setColor((short)0);
 			font2.setFontHeight((short)(12*20));
 			subtitulo.setFont(font2);
 
 			CellStyle encabezado = libro.createCellStyle();
-			encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-			encabezado.setBorderTop(CellStyle.BORDER_THIN);
-			encabezado.setBorderRight(CellStyle.BORDER_THIN);
-			encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-			encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			encabezado.setFillForegroundColor((short)19);
-			encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
 
 			CellStyle detalle = libro.createCellStyle();
-			detalle.setBorderBottom(CellStyle.BORDER_THIN);
-			detalle.setBorderTop(CellStyle.BORDER_THIN);
-			detalle.setBorderRight(CellStyle.BORDER_THIN);
-			detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			detalle.setBorderBottom(BorderStyle.THIN);
+			detalle.setBorderTop(BorderStyle.THIN);
+			detalle.setBorderRight(BorderStyle.THIN);
+			detalle.setBorderLeft(BorderStyle.THIN);
 
 			CellStyle pie = libro.createCellStyle();
-			pie.setBorderBottom(CellStyle.BORDER_THIN);
-			pie.setBorderTop(CellStyle.BORDER_THIN);
-			pie.setBorderRight(CellStyle.BORDER_THIN);
-			pie.setBorderLeft(CellStyle.BORDER_THIN);
-			pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			pie.setBorderBottom(BorderStyle.THIN);
+			pie.setBorderTop(BorderStyle.THIN);
+			pie.setBorderRight(BorderStyle.THIN);
+			pie.setBorderLeft(BorderStyle.THIN);
+			pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			pie.setFillForegroundColor((short)19);
-			pie.setAlignment(CellStyle.ALIGN_RIGHT);
+			pie.setAlignment(HorizontalAlignment.RIGHT);
 
 
 			//titulos del archivo
@@ -897,41 +894,36 @@ public class CobraArriendoEstados {
 			row = hoja1.createRow(1);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE EP ESTADO EQUIPO COBRAR "+mapDiccionario.get("ARRIENDO")+" POR DAÑOS");
 
 			row = hoja1.createRow(2);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 
 			row = hoja1.createRow(3);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+hoy.getFechaStrDDMMAA());
 
 			row = hoja1.createRow(6);
 			cell = row.createCell(1);
 			cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodegaEmpresa.getNombre().toUpperCase());
 
 			row = hoja1.createRow(7);
 			cell = row.createCell(1);
 			cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PERIODO: desde " + desde.getFechaStrDDMMAA()  + " hasta " + hasta.getFechaStrDDMMAA());
 
 			CreationHelper creationHelper = libro.getCreationHelper();
 
 			CellStyle fecha = libro.createCellStyle();
 			fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-			fecha.setBorderBottom(CellStyle.BORDER_THIN);
-			fecha.setBorderTop(CellStyle.BORDER_THIN);
-			fecha.setBorderRight(CellStyle.BORDER_THIN);
-			fecha.setBorderLeft(CellStyle.BORDER_THIN);
+			fecha.setBorderBottom(BorderStyle.THIN);
+			fecha.setBorderTop(BorderStyle.THIN);
+			fecha.setBorderRight(BorderStyle.THIN);
+			fecha.setBorderLeft(BorderStyle.THIN);
 
 			for(int i=1; i<15; i++){
 				hoja1.setColumnWidth(i, 4*1000);
@@ -964,67 +956,56 @@ public class CobraArriendoEstados {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COTI");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA MOVIM");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NRO MOVIM");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("REF CLIENTE");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DIAS");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PU "+mapDiccionario.get("ARR")+" X DIA");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CANT EQUIPOS");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL (en "+mapDiccionario.get("Pesos")+")");
 
 			Double totaltotal=(double)0;
@@ -1037,26 +1018,22 @@ public class CobraArriendoEstados {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				Double aux = Double.parseDouble(lista.get(i).get(2).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(3));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(4));
 
 				posCell++;
@@ -1069,34 +1046,29 @@ public class CobraArriendoEstados {
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				aux = Double.parseDouble(lista.get(i).get(6).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(7));
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				aux = Double.parseDouble(lista.get(i).get(8).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				aux = Double.parseDouble(lista.get(i).get(9).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				aux = Double.parseDouble(lista.get(i).get(10).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				totalCant += aux;
 
@@ -1104,7 +1076,6 @@ public class CobraArriendoEstados {
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
 				aux = Double.parseDouble(lista.get(i).get(11).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				totaltotal += aux;
 			}
@@ -1116,7 +1087,6 @@ public class CobraArriendoEstados {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(detalle);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
 
 			posCell++;
@@ -1154,22 +1124,19 @@ public class CobraArriendoEstados {
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(detalle);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(totalCant);
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(detalle);
-			cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 			cell.setCellValue(totaltotal);
 
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -1185,8 +1152,9 @@ public class CobraArriendoEstados {
 
 	public static ProformaEstado agregaTotalesYcreaPDF (Connection con, String db, Map<String,String> mapPermiso, Map<String,String> mapDiccionario,
 				   List<List<String>> lista, Fechas desde, Fechas hasta, BodegaEmpresa bodegaEmpresa, Fechas hoy, ProformaEstado proforma, Long nroDec) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/proformaVenta.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -1323,13 +1291,26 @@ public class CobraArriendoEstados {
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
 			// 1) Load DOCX into XWPFDocument
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);

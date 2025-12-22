@@ -11,18 +11,12 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.DataValidation;
-import org.apache.poi.ss.usermodel.DataValidationConstraint;
-import org.apache.poi.ss.usermodel.DataValidationHelper;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.util.TempFile;
 
@@ -439,7 +433,10 @@ public class IConstruyeProdDet {
 	
 	public static File detalleProductoDownloadMada(List<IConstruyeProdDet> listProdDetDepurado, List<Equipo> listEquipo, List<List<String>> listBodegas) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -450,32 +447,32 @@ public class IConstruyeProdDet {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             
             
@@ -489,23 +486,19 @@ public class IConstruyeProdDet {
             //agrega a segunda hoja solo como referencia
             row = hoja2.createRow(0);
         	cell = row.createCell(0);
-        	cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGOS");
             for(int i=0; i<listEquipo.size(); i++) {
             	row = hoja2.createRow(i+1);
             	cell = row.createCell(0);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
     			cell.setCellValue(listEquipo.get(i).getCodigo());
             }
             
             row = hoja2.getRow(0);
         	cell = row.createCell(2);
-        	cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("BODEGAS/CLIENTE");
             for(int i=0; i<listBodegas.size(); i++) {
             	row = hoja2.getRow(i+1);
             	cell = row.createCell(2);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
     			cell.setCellValue(listBodegas.get(i).get(5));
             }
             //fin agrega
@@ -530,119 +523,102 @@ public class IConstruyeProdDet {
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO_EQUIPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO_FAMILIA");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("BODEGA_CLIENTE");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("N_OC");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nombre_OC");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Fecha");
 						
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Obra");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Rut_Proveedor");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Proveedor");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Descripción");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Glosa");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Codigo_C_C");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Cuentas_de_Costo");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Moneda");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Sub_Total");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Facturado");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("id_interno");
 			
 			
@@ -656,91 +632,76 @@ public class IConstruyeProdDet {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getN_OC());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getNombre_OC());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(Fechas.DDMMAA(l.getFecha()));
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getObra());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getRut_Proveedor());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getProveedor());
 			
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getDescripción());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-	            cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getGlosa());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getCodigo_C_C());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getCuentas_de_Costo());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(l.getMoneda());
 				
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				Double costoNeto = (double)0;
 				try {
 					costoNeto = Double.parseDouble(l.getSub_Total().trim());
@@ -750,7 +711,6 @@ public class IConstruyeProdDet {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				Double facturado = (double)0;
 				try {
 					facturado = Double.parseDouble(l.getFacturado().trim());
@@ -760,7 +720,6 @@ public class IConstruyeProdDet {
 				posCell++; posColl++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(l.getId());
 				
 				posRow++;
@@ -789,10 +748,9 @@ public class IConstruyeProdDet {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper2.createHyperlink(0);
+			Hyperlink hiper = helper2.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			

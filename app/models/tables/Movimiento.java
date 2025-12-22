@@ -12,15 +12,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import controllers.HomeController;
 import models.calculo.Inventarios;
@@ -758,7 +757,7 @@ public class Movimiento {
 	}
 	
 	public static File plantillaMovimiento(Connection con, String db, String id_tipoUsuario, Long id_bodegaOrigen) {
-		File tmp = TempFile.createTempFile("tmp","null");
+
 		Map<String,String> mapeoPermiso = HomeController.mapPermisos(db, id_tipoUsuario);
 		BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, db, id_bodegaOrigen);
 		Long soloArriendo = (long) 1;
@@ -782,23 +781,25 @@ public class Movimiento {
 				}
 			}
 		});
+		File tmp = null;
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			InputStream formato = Archivos.leerArchivo("formatos/plantillaMovimiento.xlsx");
             Workbook libro = WorkbookFactory.create(formato);
             formato.close();
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
          
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
@@ -807,7 +808,6 @@ public class Movimiento {
             row = hoja1.getRow(1);
             cell = row.createCell(2);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(bodegaOrigen.getNombre().toUpperCase());
 			
 			
@@ -821,38 +821,32 @@ public class Movimiento {
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(1));
 				
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(2));
 				
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(listEquipBodOrigen.get(i).get(3));
 				
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
 	            aux = Double.parseDouble(listEquipBodOrigen.get(i).get(4).replaceAll(",", ""));
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(aux);
 				
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue((long)0);
 				
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue((long)0);
 				
 				posRow++;
@@ -1070,7 +1064,7 @@ public class Movimiento {
                 	cell = row.getCell(1);
             	}
             }
-		} catch (InvalidFormatException | IOException e1) {
+		} catch ( IOException e1) {
 		}
 		return(lista);
 	}

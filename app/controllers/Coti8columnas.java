@@ -9,17 +9,10 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-import models.utilities.DatabaseRead;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.Equipo;
@@ -27,7 +20,6 @@ import models.tables.Precio;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
 import play.data.FormFactory;
-import play.db.Database;
 import play.mvc.Controller;
 
 public class Coti8columnas extends Controller {
@@ -186,9 +178,10 @@ public class Coti8columnas extends Controller {
 	    public static File downloadPlantilla(String db, Map<String,String> mapDiccionario, List<Equipo> listEquipo, Map<Long,Precio> mapPrecio,  
 	    		Map<Long,Double> mapTasas, Map<Long,Double> equivTiempo) {
 			
-			File tmp = TempFile.createTempFile("tmp","null");
+			File tmp = null;
 			
 			try {
+				tmp = TempFile.createTempFile("tmp","null");
 				String path = "formatos/alzatecPlantillaCoti.xlsx";
 				InputStream formato = Archivos.leerArchivo(path);
 	            Workbook libro = WorkbookFactory.create(formato);
@@ -197,56 +190,56 @@ public class Coti8columnas extends Controller {
 	            // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
 	            CellStyle titulo = libro.createCellStyle();
 	            Font font = libro.createFont();
-	            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 	            font.setColor((short)4);
 	            font.setFontHeight((short)(14*20));
 	            titulo.setFont(font);
 	            
 	            CellStyle subtitulo = libro.createCellStyle();
 	            Font font2 = libro.createFont();
-	            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+				font2.setBold(true);
 	            font2.setColor((short)0);
 	            font2.setFontHeight((short)(12*20));
 	            subtitulo.setFont(font2);
 	            
 	            CellStyle encabezado = libro.createCellStyle();
-	            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-	            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-	            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-	            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-	            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+	            encabezado.setBorderBottom(BorderStyle.THIN);
+	            encabezado.setBorderTop(BorderStyle.THIN);
+	            encabezado.setBorderRight(BorderStyle.THIN);
+	            encabezado.setBorderLeft(BorderStyle.THIN);
+	            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	            encabezado.setFillForegroundColor((short)19);
-	            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+	            encabezado.setAlignment(HorizontalAlignment.LEFT);
 	            
 	            CellStyle detalle = libro.createCellStyle();
-	            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-	            detalle.setBorderTop(CellStyle.BORDER_THIN);
-	            detalle.setBorderRight(CellStyle.BORDER_THIN);
-	            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+	            detalle.setBorderBottom(BorderStyle.THIN);
+	            detalle.setBorderTop(BorderStyle.THIN);
+	            detalle.setBorderRight(BorderStyle.THIN);
+	            detalle.setBorderLeft(BorderStyle.THIN);
 	            
 	            CellStyle pie = libro.createCellStyle();
-	            pie.setBorderBottom(CellStyle.BORDER_THIN);
-	            pie.setBorderTop(CellStyle.BORDER_THIN);
-	            pie.setBorderRight(CellStyle.BORDER_THIN);
-	            pie.setBorderLeft(CellStyle.BORDER_THIN);
-	            pie.setFillPattern(CellStyle.SOLID_FOREGROUND);
+	            pie.setBorderBottom(BorderStyle.THIN);
+	            pie.setBorderTop(BorderStyle.THIN);
+	            pie.setBorderRight(BorderStyle.THIN);
+	            pie.setBorderLeft(BorderStyle.THIN);
+	            pie.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	            pie.setFillForegroundColor((short)19);
-	            pie.setAlignment(CellStyle.ALIGN_RIGHT);
+	            pie.setAlignment(HorizontalAlignment.RIGHT);
 	            
 	            CreationHelper creationHelper = libro.getCreationHelper();
 	            CellStyle hora = libro.createCellStyle();
 	            hora.setDataFormat(creationHelper.createDataFormat().getFormat("hh:mm"));
-	            hora.setBorderBottom(CellStyle.BORDER_THIN);
-	            hora.setBorderTop(CellStyle.BORDER_THIN);
-	            hora.setBorderRight(CellStyle.BORDER_THIN);
-	            hora.setBorderLeft(CellStyle.BORDER_THIN);
+	            hora.setBorderBottom(BorderStyle.THIN);
+	            hora.setBorderTop(BorderStyle.THIN);
+	            hora.setBorderRight(BorderStyle.THIN);
+	            hora.setBorderLeft(BorderStyle.THIN);
 	            
 	            CellStyle fecha = libro.createCellStyle();
 	            fecha.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-	            fecha.setBorderBottom(CellStyle.BORDER_THIN);
-	            fecha.setBorderTop(CellStyle.BORDER_THIN);
-	            fecha.setBorderRight(CellStyle.BORDER_THIN);
-	            fecha.setBorderLeft(CellStyle.BORDER_THIN);
+	            fecha.setBorderBottom(BorderStyle.THIN);
+	            fecha.setBorderTop(BorderStyle.THIN);
+	            fecha.setBorderRight(BorderStyle.THIN);
+	            fecha.setBorderLeft(BorderStyle.THIN);
 	            
 	           
 	            
@@ -268,19 +261,16 @@ public class Coti8columnas extends Controller {
 	            row = hoja1.createRow(1);
 	            cell = row.createCell(8);
 	            cell.setCellStyle(titulo);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("PLANTILLA ALZATEC IMPORTAR COTIZACIONES");
 				
 				row = hoja1.createRow(2);
 	            cell = row.createCell(8);
 	            cell.setCellStyle(subtitulo);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 				
 				row = hoja1.createRow(3);
 	            cell = row.createCell(8);
 	            cell.setCellStyle(subtitulo);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 				
 				
@@ -345,44 +335,37 @@ public class Coti8columnas extends Controller {
 		            // CODIGO
 		            cell = row.createCell(8);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listEquipo.get(i).getCodigo());
 					
 					// DESCRIPCION EQUIPOS
 					cell = row.createCell(9);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listEquipo.get(i).getNombre());
 					
 					// PESO en KG
 					cell = row.createCell(10);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(kg);
 					
 					// MONEDA
 					
 		            cell = row.createCell(11);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(moneda);
 					
 					// TASA CAMBIO
 					cell = row.createCell(12);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(tasa);
 					
 					// VALOR REPOSICION
 					cell = row.createCell(13);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(reposicion);
 					
 					// VALOR ARRIENDO MES/UNIT
 					cell = row.createCell(14);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(arriendoMes);
 					
 					// AJUSTE P.ARR MES/UNIT
@@ -394,48 +377,39 @@ public class Coti8columnas extends Controller {
 		            // unidad
 		            cell = row.createCell(16);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listEquipo.get(i).getUnidad());
 					
 					//cantidades
 					cell = row.createCell(17);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(18);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(19);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(20);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(21);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(22);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(23);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					cell = row.createCell(24);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 		            // fin cantidades
 		            
@@ -466,7 +440,6 @@ public class Coti8columnas extends Controller {
 		            // ES VENTA?
 		            cell = row.createCell(30);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue((double)0);
 					
 					//calculo totales
@@ -641,7 +614,7 @@ public class Coti8columnas extends Controller {
 	                	cell = row.getCell(1);
 	            	}
 	            }
-			} catch (InvalidFormatException | IOException e1) {
+			} catch (IOException e1) {
 			}
 			return(lista);
 		}

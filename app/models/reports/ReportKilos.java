@@ -13,19 +13,11 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.TempFile;
 
@@ -214,7 +206,10 @@ public class ReportKilos {
 	public static File reportGerenKGPorPeriodo1Excel(String db, Map<String,String> mapDiccionario, 
 			List<String> cabecera1, List<String> cabecera2, List<List<String>> datos, String desde, String hasta) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -225,39 +220,39 @@ public class ReportKilos {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             DataFormat format = libro.createDataFormat();
             CellStyle formatFecha = libro.createCellStyle();
-            formatFecha.setBorderBottom(CellStyle.BORDER_THIN);
-            formatFecha.setBorderTop(CellStyle.BORDER_THIN);
-            formatFecha.setBorderRight(CellStyle.BORDER_THIN);
-            formatFecha.setBorderLeft(CellStyle.BORDER_THIN);
+            formatFecha.setBorderBottom(BorderStyle.THIN);
+            formatFecha.setBorderTop(BorderStyle.THIN);
+            formatFecha.setBorderRight(BorderStyle.THIN);
+            formatFecha.setBorderLeft(BorderStyle.THIN);
             formatFecha.setDataFormat(format.getFormat("dd-mm-yyyy"));
             
             
@@ -273,19 +268,16 @@ public class ReportKilos {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TONELADAS MOVIDAS: PERIODO DE "+ Fechas.DDMMAA(desde) + " A "+ Fechas.DDMMAA(hasta));
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -323,14 +315,12 @@ public class ReportKilos {
 					posCell++;
 					cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(cabecera1.get(i));
 				}else{
 					posCell++;
 					int pos1 = posCell;
 					cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(cabecera1.get(i));
 					posCell++;
 					int pos2 = posCell;
@@ -349,7 +339,6 @@ public class ReportKilos {
 				posCell++;
 				cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(cabecera2.get(i));
 			}
 			
@@ -362,14 +351,12 @@ public class ReportKilos {
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(datos.get(i).get(j));
 					}else{
 						posCell++; 
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
 			            Double aux = Double.parseDouble(datos.get(i).get(j).replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(aux);
 					}
 				}
@@ -382,7 +369,6 @@ public class ReportKilos {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(detalle);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
 			
 			
@@ -393,7 +379,6 @@ public class ReportKilos {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				String de = mapColumn.get((long)posCell) + 11;
 				String a = mapColumn.get((long)posCell) + posRow;
 				cell.setCellFormula("SUM(" + de + ":" + a + ")");
@@ -403,10 +388,9 @@ public class ReportKilos {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 
 			// Write the output to a file tmp
@@ -433,7 +417,10 @@ public class ReportKilos {
 	public static File reporteGerencialKGExcel(String db, Map<String,String> mapDiccionario, 
 			List<List<String>> datosActual, List<List<String>> datosAnterior, List<List<String>> datosAnteriorAnterior, String anioActual, String anioAnterior, String anioAnteriorAnterior) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -444,32 +431,32 @@ public class ReportKilos {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             
             
@@ -481,19 +468,16 @@ public class ReportKilos {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("REPORTE TONELADAS MOVIDOS");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -509,7 +493,6 @@ public class ReportKilos {
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TONELADAS MOVIDAS AÑO " + anioActual);
 			
 			for(int i=0; i<25; i++) {
@@ -517,7 +500,6 @@ public class ReportKilos {
 				hoja1.setColumnWidth(posColl, 3*1000);
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-	            cell.setCellType(Cell.CELL_TYPE_STRING);
 	            String mes = "";
 	            switch (i) {
 	            	case 0:  mes = "ENERO"; break;
@@ -540,7 +522,6 @@ public class ReportKilos {
 			hoja1.setColumnWidth(posColl, 3*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			
 			row = hoja1.createRow(9);
 			posCell = 0;
@@ -587,7 +568,6 @@ public class ReportKilos {
 					cell.setCellStyle(detalle);
 					Double suma = (double)0;
 					if(j==0) {
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(datosActual.get(i).get(j));
 					}else {
 						Double aux = (double)0;
@@ -597,7 +577,6 @@ public class ReportKilos {
 							auxNum = "0";
 						}
 			            aux = Double.parseDouble(auxNum.replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(aux);
 						suma += aux;
 					}
@@ -609,7 +588,6 @@ public class ReportKilos {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
 			for(int j=1;j<datosActual.get(2).size();j++){
 				posCell++;
@@ -629,7 +607,6 @@ public class ReportKilos {
 				if(j==0) {
 					cell.setCellValue("TOTALES");
 				}else {
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(suma);
 				}
 			}
@@ -646,14 +623,12 @@ public class ReportKilos {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TONELADAS MOVIDAS AÑO " + anioAnterior);
 			
 			for(int i=0; i<25; i++) {
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-	            cell.setCellType(Cell.CELL_TYPE_STRING);
 	            String mes = "";
 	            switch (i) {
 		            case 0:  mes = "ENERO"; break;
@@ -675,7 +650,6 @@ public class ReportKilos {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			
 			posRow++;
 			row = hoja1.createRow(posRow);
@@ -705,7 +679,6 @@ public class ReportKilos {
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
 					if(j==0) {
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(datosAnterior.get(i).get(j));
 					}else {
 						Double aux = (double)0;
@@ -715,7 +688,6 @@ public class ReportKilos {
 							auxNum = "0";
 						}
 			            aux = Double.parseDouble(auxNum.replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(aux);
 					}
 				}
@@ -726,7 +698,6 @@ public class ReportKilos {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
 			for(int j=1;j<datosAnterior.get(2).size();j++){
 				posCell++;
@@ -746,7 +717,6 @@ public class ReportKilos {
 				if(j==0) {
 					cell.setCellValue("TOTALES");
 				}else {
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(suma);
 				}
 			}
@@ -762,14 +732,12 @@ public class ReportKilos {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TONELADAS MOVIDAS AÑO " + anioAnteriorAnterior);
 			
 			for(int i=0; i<25; i++) {
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-	            cell.setCellType(Cell.CELL_TYPE_STRING);
 	            String mes = "";
 	            switch (i) {
 		            case 0:  mes = "ENERO"; break;
@@ -791,7 +759,6 @@ public class ReportKilos {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			
 			posRow++;
 			row = hoja1.createRow(posRow);
@@ -821,7 +788,6 @@ public class ReportKilos {
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
 					if(j==0) {
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(datosAnteriorAnterior.get(i).get(j));
 					}else {
 						Double aux = (double)0;
@@ -831,7 +797,6 @@ public class ReportKilos {
 							auxNum = "0";
 						}
 			            aux = Double.parseDouble(auxNum.replaceAll(",", ""));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(aux);
 					}
 				}
@@ -842,7 +807,6 @@ public class ReportKilos {
 			posCell++;
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTALES");
 			for(int j=1;j<datosAnteriorAnterior.get(2).size();j++){
 				posCell++;
@@ -862,7 +826,6 @@ public class ReportKilos {
 				if(j==0) {
 					cell.setCellValue("TOTALES");
 				}else {
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(suma);
 				}
 			}
@@ -871,10 +834,9 @@ public class ReportKilos {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			

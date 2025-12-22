@@ -12,15 +12,12 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.BodegaEmpresa;
@@ -162,7 +159,10 @@ public class ReportHohe {
 	
 	public static File reporteHoheExcel(String desde, String hasta, List<List<String>> lista, InputStream formato) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			Workbook libro = WorkbookFactory.create(formato);
@@ -184,15 +184,15 @@ public class ReportHohe {
             	formatPorcentaje.setDataFormat(format.getFormat("#,##0.00%"));
             CellStyle negrita = libro.createCellStyle();
             	Font font = libro.createFont();
-            		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            		font.setBold(true);
             		negrita.setFont(font);
             CellStyle total = libro.createCellStyle();
-            	font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            	font.setBold(true);
             	total.setFont(font);
             	total.setDataFormat(format.getFormat("#,##0.00"));
             CellStyle fondoYellow = libro.createCellStyle();
             	fondoYellow.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-            	fondoYellow.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            	fondoYellow.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             
             // llena datos
             
@@ -213,16 +213,13 @@ public class ReportHohe {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("")) {aux="0";}
 						if(aux.equals("NA")) {
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 						}else {
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Long.parseLong(aux));
 						}
 					}else if(j<8) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("") || aux.equals("NA")) {aux="0";}
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(Double.parseDouble(aux));
 					}else if(j==10) {
 						String aux = lista.get(i).get(9).trim();
@@ -245,32 +242,26 @@ public class ReportHohe {
 						}else {
 							tipo = "Mov_Interno";
 						}
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(tipo);
 					}else if(j<13) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("")) {aux="NA";}
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}else if(j<16) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("") || aux.equals("NA")) {
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 						}else {
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Long.parseLong(aux));
 						}
 						
 					}else if(j<20) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("")) {aux="NA";}
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}else if(j<lista.get(i).size()-3){
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("") || aux.equals("NA")) {aux="0";}
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(Double.parseDouble(aux));
 					}
 					
@@ -279,23 +270,17 @@ public class ReportHohe {
 						String aux = lista.get(i).get(15).trim();
 						if(aux.equals("") || aux.equals("NA")) {
 							cell = row.createCell(j+1-3);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 							
 							cell = row.createCell(j+2-3);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 						}else {
 							cell = row.createCell(j+1-3);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellStyle(formatFecha);
 							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(15).trim()+"-"+lista.get(i).get(14).trim()+"-"+lista.get(i).get(13).trim());
 							cell.setCellValue(fechaGuia.getFechaUtil());
 							
 							cell = row.createCell(j+2-3);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellStyle(formatFecha);
 							cell.setCellValue(fechaGuia.getFechaUtil());
 						}
@@ -303,23 +288,19 @@ public class ReportHohe {
 						aux = lista.get(i).get(8).trim();
 						if(aux.equals("")) {aux="NA";}
 						cell = row.createCell(j+3-3);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 						
 						aux = lista.get(i).get(27).trim();
 						if(aux.equals("")) {aux="NA";}
 						cell = row.createCell(j+4-3);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 						
 						aux = lista.get(i).get(28).trim();
 						if(aux.equals("") || aux.equals("NA")) {
 							cell = row.createCell(j+5-3);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 						}else {
 							cell = row.createCell(j+5-3);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellStyle(formatFecha);
 							Fechas fechaFactura = Fechas.obtenerFechaDesdeStrAAMMDD(aux);
 							cell.setCellValue(fechaFactura.getFechaUtil());
@@ -327,7 +308,6 @@ public class ReportHohe {
 						aux = lista.get(i).get(29).trim();
 						if(aux.equals("")) {aux="NA";}
 						cell = row.createCell(j+6-3);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}
 					
@@ -453,7 +433,10 @@ public class ReportHohe {
 	
 	public static File reporteHoheResumenExcel(String desde, String hasta, List<List<String>> lista, InputStream formato) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			Workbook libro = WorkbookFactory.create(formato);
@@ -475,15 +458,15 @@ public class ReportHohe {
             	formatPorcentaje.setDataFormat(format.getFormat("#,##0.00%"));
             CellStyle negrita = libro.createCellStyle();
             	Font font = libro.createFont();
-            		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            		font.setBold(true);
             		negrita.setFont(font);
             CellStyle total = libro.createCellStyle();
-            	font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            	font.setBold(true);
             	total.setFont(font);
             	total.setDataFormat(format.getFormat("#,##0.00"));
             CellStyle fondoYellow = libro.createCellStyle();
             	fondoYellow.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-            	fondoYellow.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            	fondoYellow.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             
             // llena datos
             	
@@ -508,26 +491,21 @@ public class ReportHohe {
 					if(j<5) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("")) {aux="NA";}
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}else if(j<8) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("") || aux.equals("NA")) {
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 						}else {
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Long.parseLong(aux));
 						}
 					}else if(j<12 || j==18) {
 						String aux = lista.get(i).get(j).trim();
 						if(aux.equals("")) {aux="NA";}
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}else {
 							String aux = lista.get(i).get(j).trim();
 							if(aux.equals("") || aux.equals("NA")) {aux="0";}
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Double.parseDouble(aux));
 
 					}
@@ -537,23 +515,17 @@ public class ReportHohe {
 						String aux = lista.get(i).get(15).trim();
 						if(aux.equals("") || aux.equals("NA")) {
 							cell = row.createCell(j+1);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 							
 							cell = row.createCell(j+2);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("NA");
 						}else {
 							cell = row.createCell(j+1);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellStyle(formatFecha);
 							Fechas fechaGuia = Fechas.obtenerFechaDesdeStrAAMMDD(lista.get(i).get(7).trim()+"-"+lista.get(i).get(6).trim()+"-"+lista.get(i).get(5).trim());
 							cell.setCellValue(fechaGuia.getFechaUtil());
 							
 							cell = row.createCell(j+2);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellStyle(formatFecha);
 							cell.setCellValue(fechaGuia.getFechaUtil());
 						}
@@ -561,7 +533,6 @@ public class ReportHohe {
 						aux = lista.get(i).get(1).trim();
 						if(aux.equals("")) {aux="NA";}
 						cell = row.createCell(j+3);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(aux);
 					}
 					
@@ -1107,7 +1078,10 @@ public class ReportHohe {
 	
 	public static File estadoCotiOtExcel(List<List<String>> lista, InputStream formato) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		 try {
 			 Workbook libro = WorkbookFactory.create(formato);
@@ -1137,84 +1111,66 @@ public class ReportHohe {
 				
 				ent = Long.parseLong(lista.get(i).get(0));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(ent);
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 				
 				ent = Long.parseLong(lista.get(i).get(2));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(ent);
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(3));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(4));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(5));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(6));
 				
 				dec = Double.parseDouble(lista.get(i).get(7).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(8).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(9).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(10).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(11).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(12).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(13).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(14).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(17));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(15));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(16));
 			}
 				
@@ -1230,7 +1186,10 @@ public class ReportHohe {
 	
 public static File estadoCotiSinOtExcel(List<List<String>> lista, InputStream formato) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		 try {
 			 Workbook libro = WorkbookFactory.create(formato);
@@ -1260,51 +1219,40 @@ public static File estadoCotiSinOtExcel(List<List<String>> lista, InputStream fo
 				
 				ent = Long.parseLong(lista.get(i).get(0));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(ent);
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(2));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(3));
 				
 				dec = Double.parseDouble(lista.get(i).get(5).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(6).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(7).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				dec = Double.parseDouble(lista.get(i).get(8).replaceAll(",", ""));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(dec);
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(10));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(11));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(9));
 			}
 				
@@ -1496,7 +1444,10 @@ public static File estadoCotiSinOtExcel(List<List<String>> lista, InputStream fo
 	
 public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputStream formato) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		 try {
 		 	Workbook libro = WorkbookFactory.create(formato);
@@ -1510,15 +1461,12 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
             row = hoja1.getRow(0); 
             
             cell = row.getCell(13);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("p_repos");
 			
 			cell = row.getCell(14);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("p_arriendo");
 			
 			cell = row.createCell(15);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("num_coti");
 			
 			
@@ -1540,75 +1488,59 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 				int numCell = 0;
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(12));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(0));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(2));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(3));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(4));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(5));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(6));
 				
 				numero = Double.parseDouble(lista.get(i).get(7));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(8));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(9));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(10));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(11));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(15));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(16));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(13));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				
@@ -1628,7 +1560,10 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 	
 	public static File listaMatrizEquiposHOHE1(List<List<String>> lista, InputStream formato) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		 try {
 		 	Workbook libro = WorkbookFactory.create(formato);
@@ -1656,70 +1591,55 @@ public static File listaMatrizEquiposHOHE1Coti(List<List<String>> lista, InputSt
 				int numCell = 0;
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(12));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(0));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(1));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(2));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(3));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(4));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(5));
 				
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(lista.get(i).get(6));
 				
 				numero = Double.parseDouble(lista.get(i).get(7));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(8));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(9));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(10));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(11));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(13));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 				numero = Double.parseDouble(lista.get(i).get(14));
 				cell = row.createCell(numCell++);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(numero);
 				
 			}

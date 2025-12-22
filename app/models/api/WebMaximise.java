@@ -137,7 +137,10 @@ public class WebMaximise {
 			        		 List<String> aux = head.get("Content-Disposition");
 			        		 if(aux.get(0).trim().equals("attachment; filename= documento.pdf")) {
 			        			byte[] x = response.asByteArray();
-					        	File file = TempFile.createTempFile("tmp","null");
+					        	File file = null;
+								try{
+									file = TempFile.createTempFile("tmp","null");
+								}catch(Exception e){}
 					        	OutputStream os;
 								try {
 									os = new FileOutputStream(file);
@@ -607,7 +610,10 @@ public class WebMaximise {
 			        		 List<String> aux = head.get("Content-Disposition");
 			        		 if(aux.get(0).trim().equals("attachment; filename= documento.pdf")) {
 			        			byte[] x = response.asByteArray();
-					        	File file = TempFile.createTempFile("tmp","null");
+								 File file = null;
+								 try{
+									 file = TempFile.createTempFile("tmp","null");
+								 }catch(Exception e){}
 					        	OutputStream os;
 								try {
 									os = new FileOutputStream(file);

@@ -19,16 +19,17 @@ import com.google.protobuf.MapEntry;
 import models.calculo.*;
 import models.reports.*;
 import models.tables.*;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.util.TempFile;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.util.TempFile;
+
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10878,8 +10879,9 @@ public class MnuReportes extends Controller {
 			String className = this.getClass().getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			PDFMergerUtility merger = new PDFMergerUtility();
-			File outputFile = TempFile.createTempFile("tmp","null");
+			File outputFile =null;
 			try {
+				outputFile = TempFile.createTempFile("tmp","null");
 				String nros = "";
 				for (int i = desdeNro; i<(hastaNro+1); i++) {
 					String valida = map.get(i+"");
@@ -12903,7 +12905,10 @@ public class MnuReportes extends Controller {
 					aux.add(stockDispPtoV.toString());	// 11 N° 115 - Bodega Disponible Puerto Varas
 					datos.add(aux);
 				}
-				File tmp = TempFile.createTempFile("tmp","null");
+				File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 				String path = s.baseDato+"/formatos/DOM_Stock_Detallado.xlsx";
 				InputStream formato = Archivos.leerArchivo(path);
 				Workbook libro = WorkbookFactory.create(formato);
@@ -12914,65 +12919,50 @@ public class MnuReportes extends Controller {
 				Double auxDbl = (double) 0;
 				row = hoja1.getRow(0);
 				cell = row.getCell(116);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(fechaCorte);
 				cell.setCellValue(fecha.fechaUtil);
 				Fechas hoyChile = Fechas.hoyChile();
 				cell = row.getCell(118);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(hoyChile.fechaUtil);
 				for(int i=0;i<datos.size();i++){
 					row = hoja1.createRow(i+1);
 					cell = row.createCell(0);
 					try {
 						auxDbl = Double.parseDouble(datos.get(i).get(0));
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(auxDbl);
 					}catch(Exception e) {
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(datos.get(i).get(0));
 					}
 					cell = row.createCell(1);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(datos.get(i).get(1));
 					cell = row.createCell(51);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(2));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(62);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(3));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(97);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(4));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(100);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(5));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(101);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(6));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(107);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(7));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(111);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(8));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(112);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(9));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(113);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(10));
 					cell.setCellValue(auxDbl);
 					cell = row.createCell(114);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					auxDbl = Double.parseDouble(datos.get(i).get(11));
 					cell.setCellValue(auxDbl);
 				}
@@ -13408,19 +13398,22 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try {
-				File tmp = TempFile.createTempFile("tmp", "null");
+				File tmp = null;
+try{
+tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 				String path = "formatos/excel.xlsx";
 				InputStream formato = Archivos.leerArchivo(path);
 				Workbook libro = WorkbookFactory.create(formato);
 				formato.close();
 				CellStyle encabezado = libro.createCellStyle();
-				encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-				encabezado.setBorderTop(CellStyle.BORDER_THIN);
-				encabezado.setBorderRight(CellStyle.BORDER_THIN);
-				encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-				encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				encabezado.setBorderBottom(BorderStyle.THIN);
+				encabezado.setBorderTop(BorderStyle.THIN);
+				encabezado.setBorderRight(BorderStyle.THIN);
+				encabezado.setBorderLeft(BorderStyle.THIN);
+				encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				encabezado.setFillForegroundColor((short) 19);
-				encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+				encabezado.setAlignment(HorizontalAlignment.LEFT);
 				libro.setSheetName(0, "PLANTILLA");
 				Sheet hoja1 = libro.getSheetAt(0);
 				Row row = null;
@@ -13428,31 +13421,24 @@ public class MnuReportes extends Controller {
 				row = hoja1.createRow(0);
 				cell = row.createCell(1);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("FECHA");
 				cell = row.createCell(2);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("RUT CLIENTE");
 				cell = row.createCell(3);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("TOTAL NETO");
 				cell = row.createCell(4);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("CONCEPTO 1");
 				cell = row.createCell(5);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("CONCEPTO 2");
 				cell = row.createCell(6);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("ID_BODEGA");
 				cell = row.createCell(7);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("COD PRODUCTO");
 				hoja1.setColumnWidth(7, 4 * 1000);
 
@@ -13485,37 +13471,29 @@ public class MnuReportes extends Controller {
 				row = hoja2.getRow(0);
 				cell = row.createCell(0);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("RUT");
 				cell = row.createCell(1);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("CLIENTE");
 				for (int i = 0; i < listCliente.size(); i++) {
 					row = hoja2.getRow(i + 1);
 					cell = row.createCell(0);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listCliente.get(i).getRut());
 					cell = row.createCell(1);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listCliente.get(i).getNickName());
 				}
 				row = hoja2.getRow(0);
 				cell = row.createCell(3);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("ID_BODEGA");
 				cell = row.createCell(4);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("COMERCIAL");
 				cell = row.createCell(5);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("NOMBRE BODEGA");
 				cell = row.createCell(6);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("ID_BODEGA");
 				int cont = 1;
 				for (int i = 0; i < listBodegas.size(); i++) {
@@ -13526,16 +13504,12 @@ public class MnuReportes extends Controller {
 							row = hoja2.createRow(cont);
 						}
 						cell = row.createCell(3);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(listBodegas.get(i).getId());
 						cell = row.createCell(4);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(listBodegas.get(i).getComercial());
 						cell = row.createCell(5);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(listBodegas.get(i).getNombre());
 						cell = row.createCell(6);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(listBodegas.get(i).getId());
 						cont++;
 					}
@@ -13544,7 +13518,6 @@ public class MnuReportes extends Controller {
 				row = hoja2.getRow(0);
 				cell = row.createCell(8);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("COD_PRODUCTO");
 				try {
 					row = hoja2.getRow(1);
@@ -13552,7 +13525,6 @@ public class MnuReportes extends Controller {
 					row = hoja2.createRow(1);
 				}
 				cell = row.createCell(8);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("I001");
 				try {
 					row = hoja2.getRow(2);
@@ -13560,7 +13532,6 @@ public class MnuReportes extends Controller {
 					row = hoja2.createRow(2);
 				}
 				cell = row.createCell(8);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("I005");
 
 				// Write the output to a file tmp
@@ -14436,8 +14407,9 @@ public class MnuReportes extends Controller {
 			String className = this.getClass().getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			PDFMergerUtility merger = new PDFMergerUtility();
-			File outputFile = TempFile.createTempFile("tmp","null");
+			File outputFile = null;
 			try {
+				outputFile = TempFile.createTempFile("tmp","null");
 				String nros = "";
 				for (int i = desdeNro; i<(hastaNro+1); i++) {
 					String valida = map.get(i+"");

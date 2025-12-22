@@ -12,18 +12,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.BodegaEmpresa;
@@ -63,7 +56,10 @@ public class CotizacionEnExcel {
 		}
 		
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -74,32 +70,32 @@ public class CotizacionEnExcel {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
 		
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
@@ -109,51 +105,40 @@ public class CotizacionEnExcel {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COTIZACION");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
             
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NRO COTIZACION");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(cotizacion.numero.toString());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA COTIZACION");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(Fechas.DDMMAA(cotizacion.fecha));
 			
 			row = hoja1.createRow(7);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(nickCliente);
 			
 			row = hoja1.createRow(8);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROYECTO");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(nickProyecto);
             
             
@@ -168,105 +153,90 @@ public class CotizacionEnExcel {
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("GRUPO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CODIGO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("EQUIPO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 1*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("UN");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANT");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CONCEPTO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 1*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("MON");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.UNIT VTA/REPOS");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("UN "+mapDiccionario.get("ARR"));
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.UNIT "+mapDiccionario.get("ARR"));
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("PERM");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.TOTAL REPOS");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.TOTAL "+mapDiccionario.get("ARR"));
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.TOTAL VENTA");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("KG");
 						
 						if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
@@ -274,7 +244,6 @@ public class CotizacionEnExcel {
 							hoja1.setColumnWidth(posColl, 3*1000);
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(encabezado);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("M2");
 						}
 			
@@ -371,98 +340,82 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(detalleCoti.get(i).grupo);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(detalleCoti.get(i).codigo);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(detalleCoti.get(i).equipo);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(detalleCoti.get(i).unidad);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(cantidad);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(concepto);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(detalleCoti.get(i).moneda);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(precioReposicion);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(detalleCoti.get(i).unidadTiempo);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(precioArriendo);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(detalleCoti.get(i).permanencia);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totRep);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totArr);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totVta);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totKg);
 							
 							if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 								posCell++; posColl++;
 					            cell = row.createCell(posCell);
 					            cell.setCellStyle(detalle);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellValue(totM2);
 							}
 							
@@ -477,85 +430,71 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("SUBTOTAL");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalReposicion);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalArriendo);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalVenta);
 							
 							posCell++; posColl++;
@@ -577,85 +516,71 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("DESCUENTOS");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(cotizacion.getDctoArriendo());
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(cotizacion.getDctoVenta());
 							
 							posCell++; posColl++;
@@ -682,98 +607,82 @@ public class CotizacionEnExcel {
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totaCantidad);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("TOTAL");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalReposicion);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalArriendoConDcto);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalVentaConDcto);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalKG);
 						
 						if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalM2);
 						}
 						
@@ -789,67 +698,56 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("IVA");
 							
 							
@@ -877,19 +775,16 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalReposicion*tasaIva);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalArriendoConDcto*tasaIva);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalVentaConDcto*tasaIva);
 							
 							posCell++; posColl++;
@@ -912,85 +807,71 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("TOTAL CON IVA");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalReposicion*(1+tasaIva));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalArriendoConDcto*(1+tasaIva));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalVentaConDcto*(1+tasaIva));
 							
 							posCell++; posColl++;
@@ -1010,10 +891,9 @@ public class CotizacionEnExcel {
 						posRow = posRow + 5;
 						row = hoja1.createRow(posRow);
 						cell = row.createCell(1);
-						Hyperlink hiper = helper.createHyperlink(0);
+						Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 						hiper.setAddress("https://www.inqsol.cl");
 						cell.setHyperlink(hiper);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
             
 					// Write the output to a file tmp
@@ -1030,7 +910,10 @@ public class CotizacionEnExcel {
 	
 	
 	public static File reportOtSaldosExcel(String db, Map<String,String> mapDiccionario, Map<String,Double> mapAllPorDespachar, Map<String,Double> mapAllStockBodInt, List<List<String>> listaBodExternasVigentes, List<List<String>> listaBodInternas, List<Equipo> listaEquipos){
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -1040,50 +923,50 @@ public class CotizacionEnExcel {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle detallePintado = libro.createCellStyle();
-            detallePintado.setBorderBottom(CellStyle.BORDER_THIN);
-            detallePintado.setBorderTop(CellStyle.BORDER_THIN);
-            detallePintado.setBorderRight(CellStyle.BORDER_THIN);
-            detallePintado.setBorderLeft(CellStyle.BORDER_THIN);
-            detallePintado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            detallePintado.setBorderBottom(BorderStyle.THIN);
+            detallePintado.setBorderTop(BorderStyle.THIN);
+            detallePintado.setBorderRight(BorderStyle.THIN);
+            detallePintado.setBorderLeft(BorderStyle.THIN);
+            detallePintado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             detallePintado.setFillForegroundColor((short)19);
             
             CellStyle rotateText =  libro.createCellStyle();
 			rotateText.setRotation((short)90);
-			rotateText.setBorderBottom(CellStyle.BORDER_THIN);
-			rotateText.setBorderTop(CellStyle.BORDER_THIN);
-			rotateText.setBorderRight(CellStyle.BORDER_THIN);
-			rotateText.setBorderLeft(CellStyle.BORDER_THIN);
-            rotateText.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			rotateText.setBorderBottom(BorderStyle.THIN);
+			rotateText.setBorderTop(BorderStyle.THIN);
+			rotateText.setBorderRight(BorderStyle.THIN);
+			rotateText.setBorderLeft(BorderStyle.THIN);
+            rotateText.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             rotateText.setFillForegroundColor((short)19);
-            rotateText.setAlignment(CellStyle.ALIGN_CENTER);
+            rotateText.setAlignment(HorizontalAlignment.CENTER);
             
             
             Sheet hoja1 = libro.getSheetAt(0);
@@ -1094,19 +977,16 @@ public class CotizacionEnExcel {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SALDOS POR DESPACHAR (SOLO "+mapDiccionario.get("BODEGA")+" VIGENTES) VS STOCK EN "+mapDiccionario.get("BODEGA")+" INTERNAS");
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(4);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -1119,13 +999,11 @@ public class CotizacionEnExcel {
 			posCell = 4;
             cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("INTERNAS");
 			
 			posCell = posCell + listaBodInternas.size()+1;
             cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EXTERNAS");
 			
 			
@@ -1137,21 +1015,18 @@ public class CotizacionEnExcel {
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			for(List<String> x: listaBodInternas) {
@@ -1159,7 +1034,6 @@ public class CotizacionEnExcel {
 				hoja1.setColumnWidth(posColl, 1500);
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(rotateText);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(5));
 			}
 			
@@ -1167,7 +1041,6 @@ public class CotizacionEnExcel {
 			hoja1.setColumnWidth(posColl, 1500);
             cell = row.createCell(posCell);
             cell.setCellStyle(rotateText);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL STOCK");
 			
 			for(List<String> x: listaBodExternasVigentes) {
@@ -1175,7 +1048,6 @@ public class CotizacionEnExcel {
 				hoja1.setColumnWidth(posColl, 1500);
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(rotateText);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(1));
 			}
 			
@@ -1183,7 +1055,6 @@ public class CotizacionEnExcel {
 			hoja1.setColumnWidth(posColl, 1500);
             cell = row.createCell(posCell);
             cell.setCellStyle(rotateText);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PENDIENTE X DESPACHAR");
 			
 		
@@ -1210,47 +1081,40 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(2));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1261,47 +1125,40 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL");
 			
 			for(List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(16));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(3));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell = 0;
@@ -1311,47 +1168,40 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
 			
 			for(List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(11));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(4));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1364,19 +1214,16 @@ public class CotizacionEnExcel {
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getGrupo());
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getCodigo());
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getNombre());
 				
 				Double subTotalInt = (double)0;
@@ -1390,13 +1237,11 @@ public class CotizacionEnExcel {
 					posCell++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 				}
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detallePintado);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(subTotalInt);
 				
 				Double subTotalDesp = (double)0;
@@ -1410,13 +1255,11 @@ public class CotizacionEnExcel {
 					posCell++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 				}
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detallePintado);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(subTotalDesp);
 				
 				Double totalTotal = subTotalInt + subTotalDesp;
@@ -1430,10 +1273,9 @@ public class CotizacionEnExcel {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			
@@ -1449,7 +1291,10 @@ public class CotizacionEnExcel {
 	}
 	
 	public static File reportOtSaldosPorOtExcel(String db, Map<String,String> mapDiccionario, Map<String,Double> mapAllPorDespachar, Map<String,Double> mapAllStockBodInt, List<List<String>> listaBodExternasVigentes, List<List<String>> listaBodInternas, List<Equipo> listaEquipos){
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -1459,50 +1304,50 @@ public class CotizacionEnExcel {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle detallePintado = libro.createCellStyle();
-            detallePintado.setBorderBottom(CellStyle.BORDER_THIN);
-            detallePintado.setBorderTop(CellStyle.BORDER_THIN);
-            detallePintado.setBorderRight(CellStyle.BORDER_THIN);
-            detallePintado.setBorderLeft(CellStyle.BORDER_THIN);
-            detallePintado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            detallePintado.setBorderBottom(BorderStyle.THIN);
+            detallePintado.setBorderTop(BorderStyle.THIN);
+            detallePintado.setBorderRight(BorderStyle.THIN);
+            detallePintado.setBorderLeft(BorderStyle.THIN);
+            detallePintado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             detallePintado.setFillForegroundColor((short)19);
             
             CellStyle rotateText =  libro.createCellStyle();
 			rotateText.setRotation((short)90);
-			rotateText.setBorderBottom(CellStyle.BORDER_THIN);
-			rotateText.setBorderTop(CellStyle.BORDER_THIN);
-			rotateText.setBorderRight(CellStyle.BORDER_THIN);
-			rotateText.setBorderLeft(CellStyle.BORDER_THIN);
-            rotateText.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			rotateText.setBorderBottom(BorderStyle.THIN);
+			rotateText.setBorderTop(BorderStyle.THIN);
+			rotateText.setBorderRight(BorderStyle.THIN);
+			rotateText.setBorderLeft(BorderStyle.THIN);
+            rotateText.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             rotateText.setFillForegroundColor((short)19);
-            rotateText.setAlignment(CellStyle.ALIGN_CENTER);
+            rotateText.setAlignment(HorizontalAlignment.CENTER);
             
             
             Sheet hoja1 = libro.getSheetAt(0);
@@ -1513,19 +1358,16 @@ public class CotizacionEnExcel {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SALDOS POR DESPACHAR POR OT (SOLO "+mapDiccionario.get("BODEGA")+" VIGENTES) VS STOCK EN "+mapDiccionario.get("BODEGA")+" INTERNAS");
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(4);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -1538,13 +1380,11 @@ public class CotizacionEnExcel {
 			posCell = 5;
             cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("INTERNAS");
 			
 			posCell = posCell + listaBodInternas.size()+1;
             cell = row.createCell(posCell);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EXTERNAS");
 			
 			
@@ -1556,28 +1396,24 @@ public class CotizacionEnExcel {
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 10*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++; posColl++;
 			hoja1.setColumnWidth(posColl, 5*1000);
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("KG");
 			
 			for(List<String> x: listaBodInternas) {
@@ -1585,7 +1421,6 @@ public class CotizacionEnExcel {
 				hoja1.setColumnWidth(posColl, 1500);
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(rotateText);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(5));
 			}
 			
@@ -1593,7 +1428,6 @@ public class CotizacionEnExcel {
 			hoja1.setColumnWidth(posColl, 1500);
             cell = row.createCell(posCell);
             cell.setCellStyle(rotateText);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL STOCK");
 			
 			for(List<String> x: listaBodExternasVigentes) {
@@ -1601,7 +1435,6 @@ public class CotizacionEnExcel {
 				hoja1.setColumnWidth(posColl, 1500);
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(rotateText);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(1));
 			}
 			
@@ -1609,7 +1442,6 @@ public class CotizacionEnExcel {
 			hoja1.setColumnWidth(posColl, 1500);
             cell = row.createCell(posCell);
             cell.setCellStyle(rotateText);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PENDIENTE X DESPACHAR");
 			
 		
@@ -1636,53 +1468,45 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Cliente");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(2));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell = 0;
@@ -1692,53 +1516,45 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro_Coti");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(8));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1749,53 +1565,45 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro_OT");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(9));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1806,53 +1614,45 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Fecha Entrega");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(5));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1863,53 +1663,45 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Sucursal");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(6));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1920,53 +1712,45 @@ public class CotizacionEnExcel {
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Comercial");
 			
 			for(@SuppressWarnings("unused") List<String> x: listaBodInternas) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			for(List<String> x: listaBodExternasVigentes) {
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(x.get(7));
 			}
 			
 			posCell++; 
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("");
 			
 			
@@ -1981,25 +1765,21 @@ public class CotizacionEnExcel {
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getGrupo());
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getCodigo());
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getNombre());
 				
 				posCell++; 
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(q.getKg());
 				
 				Double subTotalInt = (double)0;
@@ -2013,13 +1793,11 @@ public class CotizacionEnExcel {
 					posCell++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 				}
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detallePintado);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(subTotalInt);
 				
 				Double subTotalDesp = (double)0;
@@ -2033,13 +1811,11 @@ public class CotizacionEnExcel {
 					posCell++;
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					cell.setCellValue(aux);
 				}
 				posCell++;
 	            cell = row.createCell(posCell);
 	            cell.setCellStyle(detallePintado);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(subTotalDesp);
 				
 				Double totalTotal = subTotalInt + subTotalDesp;
@@ -2053,10 +1829,9 @@ public class CotizacionEnExcel {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			
@@ -2074,7 +1849,10 @@ public class CotizacionEnExcel {
 	public static File cotizacionEnExcelResumen(Connection con, String db, List<List<String>> resumen, Cliente cliente, Map<String,String> mapDiccionario, 
 			Proyecto proyecto, Map<String,String> mapeoPermiso, EmisorTributario emisor){
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -2085,32 +1863,32 @@ public class CotizacionEnExcel {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
 		
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
@@ -2120,43 +1898,34 @@ public class CotizacionEnExcel {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("RESUMEN DE COTIZACION (CONSOLIDADO)");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
             
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("RUT") +" CLIENTE");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(cliente.getRut());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(cliente.getNickName());
 			
 			row = hoja1.createRow(7);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROYECTO");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(proyecto.getNickName());
 			
 			
@@ -2170,140 +1939,120 @@ public class CotizacionEnExcel {
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("SUCURSAL");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("COMERCIAL");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("NRO COTI");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("FECHA COTI");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("OBSERVACIONES");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CODIGO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("EQUIPO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 1*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("UN");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANTIDAD");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CONCEPTO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 1*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("MON");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.UNIT VTA/REPOS");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("UN "+mapDiccionario.get("ARR"));
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.UNIT "+mapDiccionario.get("ARR"));
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("PERM");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.TOTAL REPOS");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.TOTAL "+mapDiccionario.get("ARR"));
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("P.TOTAL VENTA");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 3*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("KG");
 						if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 							posCell++; posColl++;
 							hoja1.setColumnWidth(posColl, 3*1000);
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(encabezado);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("M2");
 						}
 			
@@ -2342,55 +2091,46 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(0));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(1));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(2));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(3));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(4));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(5));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(6));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(7));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							Double aux = Double.parseDouble(resumen.get(i).get(8).replaceAll(",", ""));
 							totalCant += aux;
 							cell.setCellValue(aux);
@@ -2398,43 +2138,36 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(9));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(10));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Double.parseDouble(resumen.get(i).get(11).replaceAll(",", "")));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(resumen.get(i).get(12));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Double.parseDouble(resumen.get(i).get(13).replaceAll(",", "")));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(Double.parseDouble(resumen.get(i).get(14).replaceAll(",", "")));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							aux = Double.parseDouble(resumen.get(i).get(15).replaceAll(",", ""));
 							totalRepos += aux;
 							cell.setCellValue(aux);
@@ -2442,7 +2175,6 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							aux = Double.parseDouble(resumen.get(i).get(16).replaceAll(",", ""));
 							totalArr += aux;
 							cell.setCellValue(aux);
@@ -2450,7 +2182,6 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							aux = Double.parseDouble(resumen.get(i).get(17).replaceAll(",", ""));
 							totalVta += aux;
 							cell.setCellValue(aux);
@@ -2458,7 +2189,6 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							aux = Double.parseDouble(resumen.get(i).get(18).replaceAll(",", ""));
 							totalKg += aux;
 							cell.setCellValue(aux);
@@ -2467,7 +2197,6 @@ public class CotizacionEnExcel {
 								posCell++; posColl++;
 					            cell = row.createCell(posCell);
 					            cell.setCellStyle(detalle);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								aux = Double.parseDouble(resumen.get(i).get(19).replaceAll(",", ""));
 								totalM2 += aux;
 								cell.setCellValue(aux);
@@ -2483,122 +2212,102 @@ public class CotizacionEnExcel {
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("Total cantidad");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalCant);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("TOTALES");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalRepos);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalArr);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalVta);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalKg);
 						
 						if( !(mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalM2);
 						}
 						
@@ -2613,49 +2322,41 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
@@ -2665,37 +2366,31 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("IVA");
 							
 							Double tasaIVA = emisor.getTasaIva()/100;
@@ -2713,19 +2408,16 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalRepos*tasaIVA);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalArr*tasaIVA);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalVta*tasaIVA);
 							
 							posCell++; posColl++;
@@ -2746,37 +2438,31 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
@@ -2786,7 +2472,6 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
@@ -2796,55 +2481,46 @@ public class CotizacionEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("TOTAL CON IVA");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalRepos*(1+tasaIVA));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalArr*(1+tasaIVA));
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalVta*(1+tasaIVA));
 							
 							posCell++; posColl++;
@@ -2863,10 +2539,9 @@ public class CotizacionEnExcel {
 						posRow = posRow + 5;
 						row = hoja1.createRow(posRow);
 						cell = row.createCell(1);
-						Hyperlink hiper = helper.createHyperlink(0);
+						Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 						hiper.setAddress("https://www.inqsol.cl");
 						cell.setHyperlink(hiper);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
             
 					// Write the output to a file tmp

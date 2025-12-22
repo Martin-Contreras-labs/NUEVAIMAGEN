@@ -150,13 +150,18 @@ public class FormCompra {
             }else {
             	return(null);
             }
-		} catch (InvalidFormatException | IOException e1) {
+		} catch ( IOException e1) {
 			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e1);
 			return(null);
-		}
-	}
+		} catch (Exception e) {
+			String className = FormCompra.class.getSimpleName();
+			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
+			return(null);
+        }
+    }
 	
 	public static List<String> compraValidarPlantillaExcel (Connection con, String db, File file) {
 		List<String> mensaje = new ArrayList<String>();
@@ -297,7 +302,7 @@ public class FormCompra {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
         	return (mensaje);
-        }
+		}
 		return(mensaje);
 	}
 	
@@ -355,7 +360,7 @@ public class FormCompra {
                 	cell = row.getCell(2);
             	}
             }
-		} catch (InvalidFormatException | IOException e1) {
+		} catch ( Exception e1) {
 			String className = FormCompra.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, "", e1);

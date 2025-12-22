@@ -14,14 +14,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.util.TempFile;
 
 import models.utilities.Archivos;
@@ -715,29 +709,29 @@ public class Precio {
 	
 	
 	public static File plantillaPrecios(Connection con, String db, Map<String,String> mapeoDiccionario, Long id_sucursal) {
-		File tmp = TempFile.createTempFile("tmp","null");
-		
-		
+		File tmp = null;
+
 		List<Precio> listPrecio = Precio.allSoloVigentes(con, db, mapeoDiccionario, id_sucursal);
 		Sucursal sucursal = Sucursal.find(con, db, id_sucursal.toString());
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			InputStream formato = Archivos.leerArchivo("formatos/plantillaPrecios.xlsx");
             Workbook libro = WorkbookFactory.create(formato);
             formato.close();
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
          
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
@@ -748,7 +742,6 @@ public class Precio {
             
             row = hoja1.getRow(1);
             cell = row.getCell(2);
-        	cell.setCellType(Cell.CELL_TYPE_STRING);
         	cell.setCellValue(sucursal.getNombre());
             
             int posRow = 4;
@@ -757,43 +750,34 @@ public class Precio {
             	row = hoja1.createRow(aux);
 
         		cell = row.createCell(1);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listPrecio.get(i).getNombreGrupo());
             	
             	cell = row.createCell(2);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listPrecio.get(i).getCodigoEquipo());
             	
             	cell = row.createCell(3);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listPrecio.get(i).getNombreEquipo());
             	
             	cell = row.createCell(4);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listPrecio.get(i).getNombreMoneda());
             	
             	cell = row.createCell(5);
             	Double precio = Double.parseDouble(listPrecio.get(i).precioVenta.replaceAll(",", ""));
-            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
             	cell.setCellValue(precio);
             	
             	cell = row.createCell(6);
             	precio = Double.parseDouble(listPrecio.get(i).precioArriendo.replaceAll(",", ""));
-            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
             	cell.setCellValue(precio);
             	
             	cell = row.createCell(7);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listPrecio.get(i).getNombreUnidadTiempo());
             	
             	cell = row.createCell(8);
             	precio = Double.parseDouble(listPrecio.get(i).precioMinimo.replaceAll(",", ""));
-            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
             	cell.setCellValue(precio);
             	
             	cell = row.createCell(9);
             	Long dias = Long.parseLong(listPrecio.get(i).getPermanenciaMinima().replaceAll(",", ""));
-            	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
             	cell.setCellValue(dias);
             	
             }
@@ -833,7 +817,7 @@ public class Precio {
             	return(null);
             }
             
-		} catch (InvalidFormatException | IOException e1) {
+		} catch (IOException e1) {
 			return(null);
 		}
 	}
@@ -1026,7 +1010,7 @@ public class Precio {
                 	cell = row.getCell(2);
             	}
             }
-		} catch (InvalidFormatException | IOException e1) {
+		} catch (IOException e1) {
 		}
 		return(lista);
 	}

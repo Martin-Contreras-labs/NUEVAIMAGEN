@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.util.Base64;
 import java.util.List;
@@ -14,8 +15,8 @@ import java.util.List;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.util.Units;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -45,6 +46,9 @@ import models.tables.Usuario;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcMar;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 
 public class FormMantencion {
 	public String cantidad_mec;
@@ -197,7 +201,10 @@ public class FormMantencion {
 
 	public static String pdfReportMantOperador(Connection con, String db, MantTransacReport mantTransacReport){
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = db+"/formatos/reportMantOperador.docx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -309,18 +316,31 @@ public class FormMantencion {
 			run2 = paragraph.createRun();
 			run2.addPicture(new ByteArrayInputStream(decodedStr), XWPFDocument.PICTURE_TYPE_PNG, "firma", Units.toEMU(120), Units.toEMU(60));
 			//FIN AGREGA FIRMAS
-			
+
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
 			// 1) Load DOCX into XWPFDocument
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);
@@ -340,7 +360,10 @@ public class FormMantencion {
 	
 	public static String pdfReportMantMecanico(Connection con, String db, MantTransacReport mantTransacReport){
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		try {
 			String path = db+"/formatos/reportMantMecanico.docx";
 			InputStream formato = Archivos.leerArchivo(path);
@@ -526,18 +549,31 @@ public class FormMantencion {
 			run2 = paragraph.createRun();
 			run2.addPicture(new ByteArrayInputStream(decodedStr), XWPFDocument.PICTURE_TYPE_PNG, "firma", Units.toEMU(120), Units.toEMU(60));
 			//FIN AGREGA FIRMAS
-			
+
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
 			// 1) Load DOCX into XWPFDocument
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);

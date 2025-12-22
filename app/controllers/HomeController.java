@@ -29,8 +29,8 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.util.Units;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -74,9 +74,8 @@ import play.libs.ws.WSResponse;
 import play.mvc.*;
 
 import views.html.*;
-import viewsMnuOdo.html.odoShowPDF;
+import viewsMnuOdo.html.*;
 import viewsMnuOdoAppWeb.html.*;
-import viewsMnuOdoAppWeb.html.odoAutorizaListarVentasWeb;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -671,9 +670,10 @@ public class HomeController extends Controller {
 
 
 	public static File reporteEnWordHome(String db, List<List<List<String>>> lista, Guia guia, VentaServicio ventaServicio) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = "formatos/listadoFOTOS.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -732,7 +732,7 @@ public class HomeController extends Controller {
 		} catch (InvalidFormatException | IOException e1) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", "HomeController", methodName, db, "", e1);
 		}
-		return(tmp);
+        return(tmp);
 	}
 	
 	public static void setCeldaHome (XWPFTableCell cell,String fontFamily,int fontSize,int alingH,String colorRGB,String text,boolean bold) {

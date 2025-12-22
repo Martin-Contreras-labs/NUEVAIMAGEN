@@ -15,18 +15,13 @@ import java.util.*;
 
 import controllers.HomeController;
 import models.tables.*;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.utilities.Archivos;
@@ -999,7 +994,10 @@ public class ReportEjecutivos {
 		tabla=tabla.replace("[[", "").replace("]]", "").replace("],[", ";;");
 		String[] aux = tabla.split(";;");
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/graficoInversion.xlsx";
@@ -1008,10 +1006,10 @@ public class ReportEjecutivos {
             formato.close();
 			
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             
@@ -1039,10 +1037,8 @@ public class ReportEjecutivos {
             
             row = hoja1.getRow(fila);
             cell = row.getCell(1);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO/FAMILIA");
 			cell = row.getCell(2);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("MONTOS");
 			
 			for(int i=0;i<aux.length;i++) {
@@ -1052,12 +1048,10 @@ public class ReportEjecutivos {
 				
 				cell = row.createCell(1);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(dato[0].replaceAll("'", ""));
 				
 				cell = row.createCell(2);
 				cell.setCellStyle(detalle);
-	            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(Long.parseLong(dato[1].trim()));
 			}
 			
@@ -1066,10 +1060,9 @@ public class ReportEjecutivos {
 			int posRow = fila + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 			
 			
@@ -1088,7 +1081,10 @@ public class ReportEjecutivos {
 	
 	public static File graficoOcupacion(String db, List<String> tabla, Map<String,String> mapDiccionario) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/graficoOcupacion.xlsx";
@@ -1097,10 +1093,10 @@ public class ReportEjecutivos {
             formato.close();
 			
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             
@@ -1132,7 +1128,6 @@ public class ReportEjecutivos {
             
             for(int i=0;i<meses.length;i++) {
 				cell = row.getCell(i+2);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				String mes = meses[i].replaceAll("'", "").replace("[", "").replace("]", "");
 				cell.setCellValue(mes);
 			}
@@ -1144,7 +1139,6 @@ public class ReportEjecutivos {
 				nomSerie = nomSerie.substring(0,nomSerie.indexOf("'"));
 				cell = row.createCell(1);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(nomSerie);
 				String datoSerie = auxSerie.substring(auxSerie.indexOf("["));
 				datoSerie = datoSerie.substring(1,datoSerie.indexOf("]"));
@@ -1152,7 +1146,6 @@ public class ReportEjecutivos {
 				for(int j=0;j<serie.length;j++) {
 					cell = row.createCell(j+2);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(Long.parseLong(serie[j].trim()));
 				}
 			}
@@ -1172,7 +1165,10 @@ public class ReportEjecutivos {
 	
 	public static File graficoValorizadoGrupo(String db, List<String> tabla, Map<String,String> mapDiccionario) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/graficoValorizadoGrupo.xlsx";
@@ -1181,19 +1177,19 @@ public class ReportEjecutivos {
             formato.close();
 			
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             
@@ -1221,12 +1217,10 @@ public class ReportEjecutivos {
 			String[] categorias = tabla.get(0).split(",");
 			cell = row.createCell(1);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Categorias");
 			for(int i=0;i<categorias.length;i++) {
 				cell = row.createCell(i+2);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				String categoria = categorias[i].replaceAll("'", "").replace("[", "").replace("]", "");
 				cell.setCellValue(categoria);
 			}
@@ -1239,7 +1233,6 @@ public class ReportEjecutivos {
 				nomSerie = nomSerie.substring(0,nomSerie.indexOf("'"));
 				cell = row.createCell(1);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(nomSerie);
 				div1[i]=auxSerie.substring(div1[i].indexOf("data")+5);
 				String[] div2 = div1[i].split("data");
@@ -1249,7 +1242,6 @@ public class ReportEjecutivos {
 					for(int k=0;k<serie.length;k++) {
 						cell = row.createCell(k+2);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(Long.parseLong(serie[k].trim()));
 					}
 			}
@@ -1269,7 +1261,10 @@ public class ReportEjecutivos {
 	
 	public static File graficoUnidades(String db, List<String> tabla, Map<String,String> mapDiccionario) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/graficoUnidades.xlsx";
@@ -1278,19 +1273,19 @@ public class ReportEjecutivos {
             formato.close();
 			
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             
@@ -1318,12 +1313,10 @@ public class ReportEjecutivos {
 			String[] categorias = tabla.get(0).split(",");
 			cell = row.createCell(1);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Categorias");
 			for(int i=0;i<categorias.length;i++) {
 				cell = row.createCell(i+2);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				String categoria = categorias[i].replaceAll("'", "").replace("[", "").replace("]", "");
 				cell.setCellValue(categoria);
 			}
@@ -1336,7 +1329,6 @@ public class ReportEjecutivos {
 				nomSerie = nomSerie.substring(0,nomSerie.indexOf("'"));
 				cell = row.createCell(1);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(nomSerie);
 				div1[i]=auxSerie.substring(div1[i].indexOf("data")+5);
 				String[] div2 = div1[i].split("data");
@@ -1346,7 +1338,6 @@ public class ReportEjecutivos {
 					for(int k=0;k<serie.length;k++) {
 						cell = row.createCell(k+2);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(Long.parseLong(serie[k].trim()));
 					}
 			}
@@ -1366,7 +1357,10 @@ public class ReportEjecutivos {
 	
 	public static File graficoValorizadoBodega(String db, List<String> tabla, Map<String,String> mapDiccionario) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/graficoValorizadoBodega.xlsx";
@@ -1375,19 +1369,19 @@ public class ReportEjecutivos {
             formato.close();
 			
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             
@@ -1415,12 +1409,10 @@ public class ReportEjecutivos {
 			String[] categorias = tabla.get(0).split(",");
 			cell = row.createCell(1);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Categorias");
 			for(int i=0;i<categorias.length;i++) {
 				cell = row.createCell(i+2);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				String categoria = categorias[i].replaceAll("'", "").replace("[", "").replace("]", "");
 				cell.setCellValue(categoria);
 			}
@@ -1433,7 +1425,6 @@ public class ReportEjecutivos {
 				nomSerie = nomSerie.substring(0,nomSerie.indexOf("'"));
 				cell = row.createCell(1);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(nomSerie);
 				div1[i]=auxSerie.substring(div1[i].indexOf("data")+5);
 				String[] div2 = div1[i].split("data");
@@ -1443,7 +1434,6 @@ public class ReportEjecutivos {
 					for(int k=0;k<serie.length;k++) {
 						cell = row.createCell(k+2);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(Long.parseLong(serie[k].trim()));
 					}
 			}
@@ -1463,7 +1453,10 @@ public class ReportEjecutivos {
 	
 	public static File graficoPotencial(String db, List<String> tabla, Map<String,String> mapDiccionario) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/graficoPotencial.xlsx";
@@ -1472,19 +1465,19 @@ public class ReportEjecutivos {
             formato.close();
 			
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja1 = libro.getSheetAt(0);
             
@@ -1512,12 +1505,10 @@ public class ReportEjecutivos {
 			String[] categorias = tabla.get(0).split(",");
 			cell = row.createCell(1);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Categorias");
 			for(int i=0;i<categorias.length;i++) {
 				cell = row.createCell(i+2);
 				cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				String categoria = categorias[i].replaceAll("'", "").replace("[", "").replace("]", "");
 				cell.setCellValue(categoria);
 			}
@@ -1530,7 +1521,6 @@ public class ReportEjecutivos {
 				nomSerie = nomSerie.substring(0,nomSerie.indexOf("'"));
 				cell = row.createCell(1);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(nomSerie);
 				div1[i]=auxSerie.substring(div1[i].indexOf("data")+5);
 				String[] div2 = div1[i].split("data");
@@ -1540,7 +1530,6 @@ public class ReportEjecutivos {
 					for(int k=0;k<serie.length;k++) {
 						cell = row.createCell(k+2);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(Long.parseLong(serie[k].trim()));
 					}
 			}

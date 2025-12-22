@@ -10,11 +10,12 @@ import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.BodegaEmpresa;
@@ -44,7 +45,10 @@ public class XLSX_GuiaSalida {
 		Cliente clienteDestino = Cliente.find(con, db, bodegaDestino.getId_cliente());
 		Proyecto proyectoDestino = Proyecto.find(con, db, bodegaDestino.getId_proyecto());
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = db + "/formatos/guiaDeRemisionExcel.xlsx";
@@ -57,26 +61,22 @@ public class XLSX_GuiaSalida {
             Cell cell = null;
             row = hoja1.getRow(7);
             cell = row.getCell(3);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(guia.getFecha());
 			
 			row = hoja1.getRow(7);
             cell = row.getCell(7);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(guia.getFecha());
 			
 			String dirOrigen = "";
 			if(clienteOrigen != null) dirOrigen = clienteOrigen.direccion;
 			row = hoja1.getRow(10);
             cell = row.getCell(0);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(dirOrigen);
 			
 			String dirDestino = "";
 			if(proyectoDestino != null) dirDestino = proyectoDestino.direccion;
 			row = hoja1.getRow(10);
             cell = row.getCell(6);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(dirDestino);
 			
 			String nombre = "", rut = "";
@@ -85,79 +85,63 @@ public class XLSX_GuiaSalida {
 			
 			row = hoja1.getRow(14);
             cell = row.getCell(0);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(nombre);
 			
 			row = hoja1.getRow(16);
             cell = row.getCell(0);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(rut);
 			
 			row = hoja1.getRow(13);
             cell = row.getCell(8);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(transporte.conductor);
 			
 			row = hoja1.getRow(14);
             cell = row.getCell(8);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(transporte.empresa);
 			
 			row = hoja1.getRow(15);
             cell = row.getCell(8);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(transporte.patente);
 			
 			row = hoja1.getRow(16);
             cell = row.getCell(8);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(transporte.licencia);
 			
 			for(int i=20;i<40;i++) {
 				row = hoja1.getRow(i);
 				cell = row.getCell(0);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(1);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(4);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(8);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 				cell = row.getCell(9);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("");
 			}
 			
 			for(int i=0;i<detalleGuia.size();i++) {
 				row = hoja1.getRow(i+20);
 				cell = row.getCell(0);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				cell.setCellValue(i+1);
 				
 				cell = row.getCell(1);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(5).trim());
 				
 				cell = row.getCell(4);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(6).trim());
 				
 				String cantidad = detalleGuia.get(i).get(8).replaceAll(",", "").trim();
    				Double cant = Double.parseDouble(cantidad);
 
 				cell = row.getCell(8);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatdouble.format(cant));
 				
 				Double kg = Double.parseDouble(detalleGuia.get(i).get(36));
 				Double totKg = kg * cant;
 				
 				cell = row.getCell(9);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(myformatdouble.format(totKg));
 			}
 			

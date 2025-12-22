@@ -16,18 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.tables.Sucursal;
@@ -170,7 +163,10 @@ public class ReportTrazabilidades {
 	
 	public static File trazaEquipoExcel(String db, List<List<String>> datos, Map<String,String> mapDiccionario) {
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -183,47 +179,47 @@ public class ReportTrazabilidades {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado1 = libro.createCellStyle();
             Font font3 = libro.createFont();
-            font3.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font3.setBold(true);
             encabezado1.setFont(font3);
-            encabezado1.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado1.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle encabezado2 = libro.createCellStyle();
             Font font4 = libro.createFont();
-            font3.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font3.setBold(true);
             encabezado2.setFont(font4);
-            encabezado2.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado2.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado2.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado2.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado2.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado2.setBorderBottom(BorderStyle.THIN);
+            encabezado2.setBorderTop(BorderStyle.THIN);
+            encabezado2.setBorderRight(BorderStyle.THIN);
+            encabezado2.setBorderLeft(BorderStyle.THIN);
+            encabezado2.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             CellStyle detalleFecha = libro.createCellStyle();
             CreationHelper createHelper = libro.getCreationHelper();
             detalleFecha.setDataFormat(createHelper.createDataFormat().getFormat("dd-MM-yyyy"));
-            detalleFecha.setBorderBottom(CellStyle.BORDER_THIN);
-            detalleFecha.setBorderTop(CellStyle.BORDER_THIN);
-            detalleFecha.setBorderRight(CellStyle.BORDER_THIN);
-            detalleFecha.setBorderLeft(CellStyle.BORDER_THIN);
+            detalleFecha.setBorderBottom(BorderStyle.THIN);
+            detalleFecha.setBorderTop(BorderStyle.THIN);
+            detalleFecha.setBorderRight(BorderStyle.THIN);
+            detalleFecha.setBorderLeft(BorderStyle.THIN);
 		
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
@@ -233,19 +229,16 @@ public class ReportTrazabilidades {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("TRAZABILIDAD POR EQUIPO"));
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
             
 			
@@ -260,56 +253,48 @@ public class ReportTrazabilidades {
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("FECHA");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("NRO COTI");
 
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 						cell = row.createCell(posCell);
 						cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("NRO MOV");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("NRO REF");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("TIPO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("SUCURSAL");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("DESDE");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("SUCURSAL");
 						
 						
@@ -317,28 +302,24 @@ public class ReportTrazabilidades {
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("HASTA");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CODIGO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("EQUIPO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANTIDAD");
 						
 			
@@ -368,74 +349,62 @@ public class ReportTrazabilidades {
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalleFecha);
-							//cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(Fechas.obtenerFechaDesdeStrDDMMAA(datos.get(i).get(0)).getFechaUtil());
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(11));
 
 							posCell++;
 							cell = row.createCell(posCell);
 							cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(6));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(8));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(datos.get(i).get(7));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(9));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(1));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(10));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(2));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(3));
 							
 							posCell++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue(datos.get(i).get(4));
 							
 							posCell++;
 							cell = row.createCell(posCell);
 							cell.setCellStyle(detalle);
 							Double aux = Double.parseDouble(datos.get(i).get(5).replaceAll(",", ""));
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(aux);
 							
 							posRow++;
@@ -446,10 +415,9 @@ public class ReportTrazabilidades {
 						posRow = posRow + 5;
 						row = hoja1.createRow(posRow);
 						cell = row.createCell(1);
-						Hyperlink hiper = helper.createHyperlink(0);
+						Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 						hiper.setAddress("https://www.inqsol.cl");
 						cell.setHyperlink(hiper);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 						
 						

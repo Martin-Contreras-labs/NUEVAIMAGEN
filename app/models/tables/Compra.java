@@ -12,13 +12,12 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.utilities.Archivos;
@@ -614,7 +613,10 @@ public class Compra {
 	}
 	
 	public static File plantillaCompras(Connection con, String db) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		
 		List<Moneda> listMonedas = Moneda.all(con,db);
@@ -631,16 +633,16 @@ public class Compra {
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
          
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             Sheet hoja2 = libro.getSheetAt(1);
             Row row = null;
@@ -657,7 +659,6 @@ public class Compra {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(1);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listMonedas.get(i).getNickName());
             }
 			
@@ -668,7 +669,6 @@ public class Compra {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(3);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listUnidades.get(i).getNombre());
             }
             
@@ -679,7 +679,6 @@ public class Compra {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(5);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listBodegas.get(i).get(5));
             }
             
@@ -690,10 +689,8 @@ public class Compra {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(7);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listEquipos.get(i).getCodigo());
             	cell = row.createCell(8);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listEquipos.get(i).getNombre());
             }
             
@@ -704,7 +701,6 @@ public class Compra {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(10);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listGrupos.get(i).getNombre());
             }
             
@@ -715,7 +711,6 @@ public class Compra {
             		row = hoja2.createRow(aux);
             	}
             	cell = row.createCell(12);
-            	cell.setCellType(Cell.CELL_TYPE_STRING);
             	cell.setCellValue(listProveedor.get(i).getNickName());
             }
 			

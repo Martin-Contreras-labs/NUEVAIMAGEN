@@ -1075,7 +1075,7 @@
 									@if(mapPermiso.get("proformaConsolidado")!=null && !mapDiccionario.get("nEmpresa").equals("SM8 DE MEXICO") && !mapDiccionario.get("nEmpresa").equals("ALZATEC")){
 										<li><a class="dropdown-item" href='/reportFactConsolconEquipos/'>Consolidado (detalle por equipos)</a></li>
 									}
-									@if(mapPermiso.get("proformaListado")!=null && userMnu.getId_tipoUsuario() != 7){
+									@if(mapPermiso.get("proformaListado")!=null && userMnu.getId_tipoUsuario().toInt != 7){
 										<div class="dropdown-divider" style="border-color:black"></div>
 										<li><a class="dropdown-item" href='/proformaListaPeriodo/'>Listado de @mapDiccionario.get("Proforma")s</a></li>
 										<li><a class="dropdown-item" href='/proformaListaHPeriodo/'>Listado de (Pre-Factura Simple)</a></li>
@@ -1285,7 +1285,7 @@
    		<div align="right">
     		<ul class="navbar-nav mr-auto">
 				<li class="nav-item ">
-					@if(userMnu.getId_usuario()==0){
+					@if(userMnu.getId_usuario().toInt==0){
 						<a class="nav-link" href="/cpanel/">@userMnu.getUserName()</a>
 					}else{
 						<a class="nav-link" href="#" onclick="formUsuarioSelect2('@userMnu.getId_usuario()');"> @userMnu.getUserName()</a>

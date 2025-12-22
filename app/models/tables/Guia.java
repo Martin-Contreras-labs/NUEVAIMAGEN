@@ -13,8 +13,15 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
+
+
+
 
 import controllers.HomeController;
 import models.utilities.Archivos;
@@ -2016,8 +2023,9 @@ public class Guia {
 	}
 	
 	public static File movimientoListarExcel(Map<String,String> mapPermiso, String db, List<Guia> listaGuias, Map<String,String> mapDiccionario) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
             Workbook libro = WorkbookFactory.create(formato);
@@ -2026,39 +2034,42 @@ public class Guia {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
+
+			//font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
+            //font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
-            encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
-            
-            CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+			encabezado.setBorderBottom(BorderStyle.THIN);
+			encabezado.setBorderTop(BorderStyle.THIN);
+			encabezado.setBorderRight(BorderStyle.THIN);
+			encabezado.setBorderLeft(BorderStyle.THIN);
+			encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+			encabezado.setFillForegroundColor((short)19);
+			encabezado.setAlignment(HorizontalAlignment.LEFT);
+
+			CellStyle detalle = libro.createCellStyle();
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
 
 			DataFormat format = libro.createDataFormat();
 			CellStyle formatFecha = libro.createCellStyle();
-			formatFecha.setBorderBottom(CellStyle.BORDER_THIN);
-			formatFecha.setBorderTop(CellStyle.BORDER_THIN);
-			formatFecha.setBorderRight(CellStyle.BORDER_THIN);
-			formatFecha.setBorderLeft(CellStyle.BORDER_THIN);
+			formatFecha.setBorderBottom(BorderStyle.THIN);
+			formatFecha.setBorderTop(BorderStyle.THIN);
+			formatFecha.setBorderRight(BorderStyle.THIN);
+			formatFecha.setBorderLeft(BorderStyle.THIN);
 			formatFecha.setDataFormat(format.getFormat("dd-mm-yyyy"));
             
             //titulos del archivo
@@ -2072,19 +2083,16 @@ public class Guia {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("LISTADO DE MOVIMIENTOS");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			//anchos de columnas
@@ -2120,86 +2128,72 @@ public class Guia {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TIPO");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("COMERCIAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro "+mapDiccionario.get("OT"));
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro COTI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro MOV");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro REF");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA MOV");
 
 			posCell++;
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA INI/TER");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL DESDE");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DESDE "+mapDiccionario.get("BODEGA")+"/PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SUCURSAL HASTA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("HASTA "+mapDiccionario.get("BODEGA")+"/PROYECTO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOTAL KG");
 			
 			if( ! (mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) ) {
 				posCell++;
 				cell = row.createCell(posCell);
 	            cell.setCellStyle(encabezado);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue("TOTAL M2");
 			}
 			
@@ -2212,19 +2206,16 @@ public class Guia {
 			        posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getTipoGuia());
 
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getNameComercial());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					if(listaGuias.get(i).getNumeroCotizacion() > 0){
 						cell.setCellValue(listaGuias.get(i).getNumeroOt());
 					}
@@ -2233,7 +2224,6 @@ public class Guia {
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					if(listaGuias.get(i).getNumeroCotizacion() > 0){
 						cell.setCellValue(listaGuias.get(i).getNumeroCotizacion());
 					}
@@ -2241,57 +2231,48 @@ public class Guia {
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getNumero());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getNumGuiaCliente());
 
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(formatFecha);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(i).getFecha());
 					cell.setCellValue(fecha.getFechaUtil());
 
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(formatFecha);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					fecha = Fechas.obtenerFechaDesdeStrAAMMDD(listaGuias.get(i).getFechaIniTerGuia());
 					cell.setCellValue(fecha.getFechaUtil());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getNameSucursalOrigen());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getBodegaOrigen());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getNameSucursalDestino());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(listaGuias.get(i).getBodegaDestino());
 					
 					posCell++;
 					cell = row.createCell(posCell);
 					cell.setCellStyle(detalle);
-					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 					Double totalKg = (double)0;
 					try {
 						totalKg = Double.parseDouble(listaGuias.get(i).getTotalKg().replaceAll(",", ""));
@@ -2302,7 +2283,6 @@ public class Guia {
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						Double totalM2 = (double)0;
 						try {
 							totalM2 = Double.parseDouble(listaGuias.get(i).getTotalM2().replaceAll(",", ""));
@@ -2315,10 +2295,9 @@ public class Guia {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
             
 			// Write the output to a file tmp
@@ -2333,8 +2312,9 @@ public class Guia {
 	}
 	
 	public static File detalleGuiaExcel(String db, Map<String,String> mapDiccionario, Map<String,String> mapeoPermiso, Guia guia, List<List<String>> detalleGuia, List<TipoEstado> listTipoEstado, BodegaEmpresa bodegaOrigen) {
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = "formatos/excel.xlsx";
 			InputStream formato = Archivos.leerArchivo(path);
             Workbook libro = WorkbookFactory.create(formato);
@@ -2343,32 +2323,34 @@ public class Guia {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 19 celeste
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font.setBold(true);
+			//font2.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			font2.setBold(true);
+			//font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado = libro.createCellStyle();
-            encabezado.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            encabezado.setBorderBottom(BorderStyle.THIN);
+            encabezado.setBorderTop(BorderStyle.THIN);
+            encabezado.setBorderRight(BorderStyle.THIN);
+            encabezado.setBorderLeft(BorderStyle.THIN);
+            encabezado.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             encabezado.setFillForegroundColor((short)19);
-            encabezado.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
             
             //titulos del archivo
             
@@ -2381,19 +2363,16 @@ public class Guia {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DETALLE DEL MOVIMIENTO");
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
 			
 			
@@ -2401,37 +2380,31 @@ public class Guia {
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("ORIGEN: "+guia.getBodegaOrigen().toUpperCase());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("DESTINO: "+guia.getBodegaDestino().toUpperCase());
 			
 			row = hoja1.createRow(7);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro MOV: "+guia.getNumero());
 			
 			row = hoja1.createRow(8);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro REF: "+guia.getNumGuiaCliente());
 			
 			row = hoja1.createRow(9);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.AAMMDD(guia.getFecha()));
 			
 			row = hoja1.createRow(10);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("OBSERVACIONES: "+guia.getObservaciones());
 			
 			
@@ -2470,91 +2443,76 @@ public class Guia {
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("GRUPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Nro COTI");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CODIGO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EQUIPO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("KG");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("M2");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("UN");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("SALIDA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("VTA");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EXCESO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("MON");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("P.UNITARIO");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("P.TOTAL");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOT.KG");
 			
 			posCell++;
 			cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("TOT.M2");
 			
 			if((long)bodegaOrigen.esInterna != (long)1){
@@ -2562,7 +2520,6 @@ public class Guia {
 					posCell++;
 					cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue(tipo.getSigla());
 				}
 				
@@ -2570,13 +2527,11 @@ public class Guia {
 					posCell++;
 					cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("cliente");
 					
 					posCell++;
 					cell = row.createCell(posCell);
 		            cell.setCellStyle(encabezado);
-					cell.setCellType(Cell.CELL_TYPE_STRING);
 					cell.setCellValue("diferen");
 				}
 			}
@@ -2592,13 +2547,11 @@ public class Guia {
 		        posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(4));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				Long auxLong = Long.parseLong(detalleGuia.get(i).get(24));
 				if(auxLong != 0) {
 					cell.setCellValue(auxLong);
@@ -2607,46 +2560,39 @@ public class Guia {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(5));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(6));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				Double auxDbl = Double.parseDouble(detalleGuia.get(i).get(25).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(26).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(7));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(8).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				auxLong = Long.parseLong(detalleGuia.get(i).get(20));
 				if(auxLong != 0) {
 					cell.setCellValue("SI"); // CHECK DE VTA
@@ -2655,41 +2601,35 @@ public class Guia {
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(18).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_STRING);
 				cell.setCellValue(detalleGuia.get(i).get(11));
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(9).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(33).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(27).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
 				posCell++;
 				cell = row.createCell(posCell);
 				cell.setCellStyle(detalle);
-				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 				auxDbl = Double.parseDouble(detalleGuia.get(i).get(28).replaceAll(",", ""));
 				cell.setCellValue(auxDbl);
 				
@@ -2707,20 +2647,17 @@ public class Guia {
 						posCell++;
 						cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(valor);
 					}
 					if(mapeoPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapeoPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						auxDbl = Double.parseDouble(detalleGuia.get(i).get(34).replaceAll(",", ""));
 						cell.setCellValue(auxDbl);
 						posCell++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						auxDbl = Double.parseDouble(detalleGuia.get(i).get(35).replaceAll(",", ""));
 						cell.setCellValue(auxDbl);
 					}
@@ -2731,10 +2668,9 @@ public class Guia {
 			posRow = posRow + 5;
 			row = hoja1.createRow(posRow);
 			cell = row.createCell(1);
-			Hyperlink hiper = helper.createHyperlink(0);
+			Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 			hiper.setAddress("https://www.inqsol.cl");
 			cell.setHyperlink(hiper);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
             
 			// Write the output to a file tmp

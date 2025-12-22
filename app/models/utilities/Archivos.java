@@ -63,8 +63,9 @@ public class Archivos{
 	}
 	
 	public static File parseInputStreamToFile(InputStream input){
-		File output = TempFile.createTempFile("tmp","tmp");
+		File output = null;
 		try {
+			output = TempFile.createTempFile("tmp","tmp");
 			FileUtils.copyInputStreamToFile(input, output);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -82,7 +83,10 @@ public class Archivos{
 			ext=ext.substring(fileName.indexOf("."));
 		}
 		TemporaryFile file = archivo.getRef();
-		File tmp = TempFile.createTempFile("tmp",ext);
+		File tmp = null;
+		try{
+			tmp = TempFile.createTempFile("tmp",ext);
+		}catch(Exception e){}
 		file.moveTo(tmp);
 		return tmp;
 	}
@@ -186,7 +190,10 @@ public class Archivos{
 	
 	public static String comprimirYgrabar(List<Http.MultipartFormData.FilePart<TemporaryFile>> FILES, String subCarpeta, String nombreArchivoSinExtencion) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+		try{
+			tmp = TempFile.createTempFile("tmp","null");
+		}catch(Exception e){}
         ZipOutputStream zos = new ZipOutputStream(baos);
         try (zos) {
             for (Http.MultipartFormData.FilePart<TemporaryFile> f : FILES) {

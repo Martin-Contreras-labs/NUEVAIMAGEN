@@ -10,18 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.Picture;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.util.TempFile;
 
 import models.forms.FormCotizaOdo;
@@ -74,7 +67,10 @@ public class OtOdoEnExcel {
 		BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, db, cotiOdo.getId_bodegaEmpresa());
 		
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
+try{
+	tmp = TempFile.createTempFile("tmp","null");
+}catch(Exception e){}
 		
 		try {
 			String path = "formatos/excel.xlsx";
@@ -85,39 +81,39 @@ public class OtOdoEnExcel {
             // 0 negro 1 blanco 2 rojo 3 verde 4 azul 5 amarillo 
             CellStyle titulo = libro.createCellStyle();
             Font font = libro.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font.setBold(true);
             font.setColor((short)4);
             font.setFontHeight((short)(14*20));
             titulo.setFont(font);
             
             CellStyle subtitulo = libro.createCellStyle();
             Font font2 = libro.createFont();
-            font2.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font2.setBold(true);
             font2.setColor((short)0);
             font2.setFontHeight((short)(12*20));
             subtitulo.setFont(font2);
             
             CellStyle encabezado1 = libro.createCellStyle();
             Font font3 = libro.createFont();
-            font3.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font3.setBold(true);
             encabezado1.setFont(font3);
-            encabezado1.setAlignment(CellStyle.ALIGN_LEFT);
+            encabezado1.setAlignment(HorizontalAlignment.LEFT);
             
             CellStyle encabezado2 = libro.createCellStyle();
             Font font4 = libro.createFont();
-            font3.setBoldweight(Font.BOLDWEIGHT_BOLD);
+            font3.setBold(true);
             encabezado2.setFont(font4);
-            encabezado2.setBorderBottom(CellStyle.BORDER_THIN);
-            encabezado2.setBorderTop(CellStyle.BORDER_THIN);
-            encabezado2.setBorderRight(CellStyle.BORDER_THIN);
-            encabezado2.setBorderLeft(CellStyle.BORDER_THIN);
-            encabezado2.setAlignment(CellStyle.ALIGN_CENTER);
+            encabezado2.setBorderBottom(BorderStyle.THIN);
+            encabezado2.setBorderTop(BorderStyle.THIN);
+            encabezado2.setBorderRight(BorderStyle.THIN);
+            encabezado2.setBorderLeft(BorderStyle.THIN);
+            encabezado2.setAlignment(HorizontalAlignment.CENTER);
             
             CellStyle detalle = libro.createCellStyle();
-            detalle.setBorderBottom(CellStyle.BORDER_THIN);
-            detalle.setBorderTop(CellStyle.BORDER_THIN);
-            detalle.setBorderRight(CellStyle.BORDER_THIN);
-            detalle.setBorderLeft(CellStyle.BORDER_THIN);
+            detalle.setBorderBottom(BorderStyle.THIN);
+            detalle.setBorderTop(BorderStyle.THIN);
+            detalle.setBorderRight(BorderStyle.THIN);
+            detalle.setBorderLeft(BorderStyle.THIN);
 		
             Sheet hoja1 = libro.getSheetAt(0);
             Row row = null;
@@ -127,73 +123,56 @@ public class OtOdoEnExcel {
             row = hoja1.createRow(1);
             cell = row.createCell(1);
             cell.setCellStyle(titulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("ORDEN_DE_TRABAJO"));
 			
 			row = hoja1.createRow(2);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("EMPRESA: "+mapDiccionario.get("nEmpresa"));
 			
 			row = hoja1.createRow(3);
             cell = row.createCell(1);
             cell.setCellStyle(subtitulo);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA: "+Fechas.hoy().getFechaStrDDMMAA());
             
 			row = hoja1.createRow(5);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NRO "+mapDiccionario.get("OT"));
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(otOdo.numero.toString());
 			
 			cell = row.createCell(4);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("NRO COTIZACION");
             cell = row.createCell(5);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(cotiOdo.numero.toString());
 			
 			row = hoja1.createRow(6);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA "+mapDiccionario.get("OT"));
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(Fechas.DDMMAA(otOdo.fecha));
 			
 			cell = row.createCell(4);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("FECHA COTIZACION");
             cell = row.createCell(5);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(Fechas.DDMMAA(cotiOdo.fecha));
 			
 			row = hoja1.createRow(7);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(mapDiccionario.get("BODEGA")+"/PROYECTO");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(bodega.nombre);
 			
 			row = hoja1.createRow(8);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("CLIENTE");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(bodega.getNickCliente());
 			
 			row = hoja1.createRow(9);
             cell = row.createCell(1);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue("PROYECTO");
             cell = row.createCell(2);
-			cell.setCellType(Cell.CELL_TYPE_STRING);
 			cell.setCellValue(bodega.getNickProyecto());
             
             
@@ -209,13 +188,11 @@ public class OtOdoEnExcel {
 						posCell++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado1);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("ORDEN ORIGINAL");
 						
 						posCell++;
 			            cell = row.createCell(posCell+3);
 			            cell.setCellStyle(encabezado1);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("VENTAS A LA FECHA");
 						
 						
@@ -226,91 +203,78 @@ public class OtOdoEnExcel {
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("FAMILIA");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CODIGO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 10*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("SERVICIO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 2*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("UN");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANTIDAD");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 2*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("MON");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("PRECIO UNITARIO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("TOTAL");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("APLICA MINIOM");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANTIDAD MINIMO");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("PRECIO ADICIONAL");
 						
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 4*1000);
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("CANTIDAD");
 
 						posCell++; posColl++;
 						hoja1.setColumnWidth(posColl, 13*1000);
 						cell = row.createCell(posCell);
 						cell.setCellStyle(encabezado2);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("EQUIPO ASOCIADO");
 	
 			
@@ -361,80 +325,67 @@ public class OtOdoEnExcel {
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(listadoServicios.get(i).get(1));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(listadoServicios.get(i).get(2));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(listadoServicios.get(i).get(3));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(listadoServicios.get(i).get(4));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(cantidad);
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(listadoServicios.get(i).get(6));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(Double.parseDouble(listadoServicios.get(i).get(7).replaceAll(",", "")));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(Double.parseDouble(listadoServicios.get(i).get(8).replaceAll(",", "")));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(aplicaMinimo);
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(Double.parseDouble(listadoServicios.get(i).get(10).replaceAll(",", "")));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(Double.parseDouble(listadoServicios.get(i).get(11).replaceAll(",", "")));
 								
 								posCell++;
 					            cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(cantVendida);
 								posRow++;
 
 								posCell++;
 								cell = row.createCell(posCell);
-								cell.setCellType(Cell.CELL_TYPE_STRING);
 								cell.setCellStyle(detalle);
 								cell.setCellValue(listadoServicios.get(i).get(15)+" - "+listadoServicios.get(i).get(16));
 							}
@@ -453,79 +404,66 @@ public class OtOdoEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("SUB-TOTALES");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(cant);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(total);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(totalCantVendida);
 
 							posCell++; posColl++;
 							cell = row.createCell(posCell);
 							cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posRow++;
@@ -536,79 +474,66 @@ public class OtOdoEnExcel {
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("DESCUENTO");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 							cell.setCellValue(dcto);
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 							
 							posCell++; posColl++;
 				            cell = row.createCell(posCell);
 				            cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 
 							posCell++; posColl++;
 							cell = row.createCell(posCell);
 							cell.setCellStyle(detalle);
-							cell.setCellType(Cell.CELL_TYPE_STRING);
 							cell.setCellValue("");
 
 						}
@@ -621,89 +546,75 @@ public class OtOdoEnExcel {
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("TOTALES");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(cant);
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(total*(1-dcto));
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						posCell++; posColl++;
 			            cell = row.createCell(posCell);
 			            cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 						cell.setCellValue(totalCantVendida);
 
 						posCell++; posColl++;
 						cell = row.createCell(posCell);
 						cell.setCellStyle(detalle);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("");
 						
 						
 						posRow = posRow + 5;
 						row = hoja1.createRow(posRow);
 						cell = row.createCell(1);
-						Hyperlink hiper = helper.createHyperlink(0);
+						Hyperlink hiper = helper.createHyperlink(HyperlinkType.URL);
 						hiper.setAddress("https://www.inqsol.cl");
 						cell.setHyperlink(hiper);
-						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue("Documento generado desde MADA propiedad de INQSOL");
 						
             

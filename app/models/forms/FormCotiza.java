@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,8 +22,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.util.TempFile;
-import org.apache.poi.xwpf.converter.pdf.PdfConverter;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -53,6 +54,9 @@ import models.tables.Usuario;
 import models.utilities.Archivos;
 import models.utilities.DecimalFormato;
 import models.utilities.Fechas;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcMar;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Files.TemporaryFile;
@@ -693,10 +697,11 @@ public class FormCotiza {
 			nickProyecto = proyecto.getNickName();
 		}
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/cotizaArriendo.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -1188,25 +1193,34 @@ public class FormCotiza {
 				doc.removeBodyElement(doc.getPosOfTable(table));
 			}
 			
-			
-			
-			
-			
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
-				// 1) Load DOCX into XWPFDocument
-				InputStream is = new FileInputStream(tmp);
-				XWPFDocument document = new XWPFDocument(is);
-				is.close();
-				// 2) Prepare Pdf options
-				PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
-				// 3) Convert XWPFDocument to Pdf
-				OutputStream out = new FileOutputStream(tmp);
-				PdfConverter.getInstance().convert(document, out, options);
-				out.close();
+			// 1) Load DOCX into XWPFDocument
+			InputStream is = new FileInputStream(tmp);
+			XWPFDocument document = new XWPFDocument(is);
+			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
+			// 2) Prepare Pdf options
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
+			// 3) Convert XWPFDocument to Pdf
+			OutputStream out = new FileOutputStream(tmp);
+			PdfConverter.getInstance().convert(document, out, options);
+			out.close();
 
 				String archivoPdf = "CotizaArriendo_"+cotizacion.numero+".pdf";
 				
@@ -1256,10 +1270,11 @@ public class FormCotiza {
 			nickProyecto = proyecto.getNickName();
 		}
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/cotizaVenta.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -1536,22 +1551,35 @@ public class FormCotiza {
 				table = doc.getTables().get(2);
 				doc.removeBodyElement(doc.getPosOfTable(table));
 			}
-			
+
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
-				// 1) Load DOCX into XWPFDocument
-				InputStream is = new FileInputStream(tmp);
-				XWPFDocument document = new XWPFDocument(is);
-				is.close();
-				// 2) Prepare Pdf options
-				PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
-				// 3) Convert XWPFDocument to Pdf
-				OutputStream out = new FileOutputStream(tmp);
-				PdfConverter.getInstance().convert(document, out, options);
-				out.close();
+			// 1) Load DOCX into XWPFDocument
+			InputStream is = new FileInputStream(tmp);
+			XWPFDocument document = new XWPFDocument(is);
+			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
+			// 2) Prepare Pdf options
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
+			// 3) Convert XWPFDocument to Pdf
+			OutputStream out = new FileOutputStream(tmp);
+			PdfConverter.getInstance().convert(document, out, options);
+			out.close();
 
 				String archivoPdf = "CotizaVenta_"+cotizacion.numero+".pdf";
 				path = db+"/"+archivoPdf;
@@ -1590,10 +1618,11 @@ public class FormCotiza {
 			nickProyecto = proyecto.getNickName();
 		}
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/cotizaArrVta.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -1936,23 +1965,36 @@ public class FormCotiza {
 				table = doc.getTables().get(2);
 				doc.removeBodyElement(doc.getPosOfTable(table));
 			}
-			
-			
+
+
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
-				// 1) Load DOCX into XWPFDocument
-				InputStream is = new FileInputStream(tmp);
-				XWPFDocument document = new XWPFDocument(is);
-				is.close();
-				// 2) Prepare Pdf options
-				PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
-				// 3) Convert XWPFDocument to Pdf
-				OutputStream out = new FileOutputStream(tmp);
-				PdfConverter.getInstance().convert(document, out, options);
-				out.close();
+			// 1) Load DOCX into XWPFDocument
+			InputStream is = new FileInputStream(tmp);
+			XWPFDocument document = new XWPFDocument(is);
+			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
+			// 2) Prepare Pdf options
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
+			// 3) Convert XWPFDocument to Pdf
+			OutputStream out = new FileOutputStream(tmp);
+			PdfConverter.getInstance().convert(document, out, options);
+			out.close();
 
 				String archivoPdf = "CotizaArrVta_"+cotizacion.numero+".pdf";
 				path = db+"/"+archivoPdf;
@@ -1988,10 +2030,11 @@ public class FormCotiza {
 		EmisorTributario emisorTributario = models.tables.EmisorTributario.find(con, db);
 		 
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/cotizaArrVta.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -2367,13 +2410,26 @@ public class FormCotiza {
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
 			// 1) Load DOCX into XWPFDocument
 			InputStream is = new FileInputStream(tmp);
 			XWPFDocument document = new XWPFDocument(is);
 			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
 			// 2) Prepare Pdf options
-			PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
 			// 3) Convert XWPFDocument to Pdf
 			OutputStream out = new FileOutputStream(tmp);
 			PdfConverter.getInstance().convert(document, out, options);
@@ -2482,10 +2538,11 @@ public class FormCotiza {
 		EmisorTributario emisorTributario = models.tables.EmisorTributario.find(con, db);
 		 
 		
-		File tmp = TempFile.createTempFile("tmp","null");
+		File tmp = null;
 		
 		
 		try {
+			tmp = TempFile.createTempFile("tmp","null");
 			String path = db + "/formatos/cotizaArrVtaResumen.docx";
 			InputStream formato = Archivos.leerArchivo(path);
 			XWPFDocument doc = new XWPFDocument(formato);
@@ -2748,24 +2805,37 @@ public class FormCotiza {
     		table = doc.getTables().get(0);
 			row=table.getRow(2);cell=row.getCell(2);
 			setCelda(cell,"Arial",10,2,"2b5079","Numeros: "+listNumerosCoti,false);
-			
-			
-			
+
+
+
 			// Write the output to a file word
 			FileOutputStream fileOut = new FileOutputStream(tmp);
 			doc.write(fileOut);
 			fileOut.close();
-
-				// 1) Load DOCX into XWPFDocument
-				InputStream is = new FileInputStream(tmp);
-				XWPFDocument document = new XWPFDocument(is);
-				is.close();
-				// 2) Prepare Pdf options
-				PdfOptions options = PdfOptions.create().fontEncoding("iso-8859-15");
-				// 3) Convert XWPFDocument to Pdf
-				OutputStream out = new FileOutputStream(tmp);
-				PdfConverter.getInstance().convert(document, out, options);
-				out.close();
+			// 1) Load DOCX into XWPFDocument
+			InputStream is = new FileInputStream(tmp);
+			XWPFDocument document = new XWPFDocument(is);
+			is.close();
+			for (XWPFTable table9 : document.getTables()) {
+				for (XWPFTableRow row9 : table9.getRows()) {
+					for (XWPFTableCell cell9 : row9.getTableCells()) {
+						cell9.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+						CTTcPr tcPr = cell9.getCTTc().isSetTcPr() ? cell9.getCTTc().getTcPr() : cell9.getCTTc().addNewTcPr();
+						CTTcMar tcMar = tcPr.isSetTcMar() ? tcPr.getTcMar() : tcPr.addNewTcMar();
+						BigInteger padding = BigInteger.valueOf(50);
+						if (!tcMar.isSetBottom()) tcMar.addNewBottom();
+						tcMar.getBottom().setW(padding);
+						tcMar.getBottom().setType(STTblWidth.DXA);
+					}
+				}
+			}
+			// 2) Prepare Pdf options
+			PdfOptions options = PdfOptions.create();
+			options.fontEncoding("UTF-8");
+			// 3) Convert XWPFDocument to Pdf
+			OutputStream out = new FileOutputStream(tmp);
+			PdfConverter.getInstance().convert(document, out, options);
+			out.close();
 				
 				return(tmp);
 				
@@ -2942,7 +3012,7 @@ public class FormCotiza {
                 	cell = row.getCell(2);
             	}
             }
-		} catch (InvalidFormatException | IOException e1) {
+		} catch ( IOException e1) {
 		}
 		return(lista);
 	}
