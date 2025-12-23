@@ -2120,6 +2120,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -2131,8 +2133,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
 				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
 				Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
@@ -2216,6 +2216,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -2228,8 +2230,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
 				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
 				List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDec);
@@ -2277,6 +2277,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -2289,8 +2291,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
 				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
 				List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDec);
@@ -2336,6 +2336,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbWrite.getConnection()){
 				String desdeAAMMDD = form.fechaDesde;
 				String hastaAAMMDD = form.fechaHasta;
@@ -2348,8 +2350,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
 				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
 				List<List<String>> detalleProformaPorServicio = ReportOdo.detalleProformaPorServicio(con, s.baseDato, listVentaServicio, tasas, mapDec);
@@ -2516,10 +2516,10 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega"));
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Fechas hoy = Fechas.hoy();
 				int diasMenos = (int) Long.parseLong(mapeoPermiso.get("parametro.diasMenosGuia"));
 				Fechas limitFecha = Fechas.addDias(hoy.getFechaCal(), - diasMenos);
@@ -2551,10 +2551,10 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega"));
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				Fechas hoy = Fechas.hoy();
 				List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
@@ -2650,10 +2650,10 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_ajuste = Long.parseLong(form.get("id_ajuste"));
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				AjustesEpOdo ajusteEp = AjustesEpOdo.find(con, s.baseDato, id_ajuste, s.aplicaPorSucursal, s.id_sucursal);
 				List<TipoAjustes> listAjustes = TipoAjustes.all(con, s.baseDato);
 				Long numDec = (long) Moneda.numeroDecimalxId(con, s.baseDato, "1");
@@ -2784,10 +2784,10 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodega = Long.parseLong(form.get("id_bodega"));
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<AjustesEpOdo> lista = AjustesEpOdo.allPorBodega(con, s.baseDato, id_bodega, s.aplicaPorSucursal, s.id_sucursal);
 				BodegaEmpresa bodegaEmpresa = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
 				return ok(ajustesEpRptDetalleOdo.render(mapeoDiccionario,mapeoPermiso,userMnu,lista,bodegaEmpresa));
@@ -2846,11 +2846,11 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<AjustesEpOdo> lista = AjustesEpOdo.allPorPeriodos(con, s.baseDato, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(ajustesPeriodoEpRpt2Odo.render(mapeoDiccionario,mapeoPermiso,userMnu,lista, Fechas.DDMMAA(fechaDesde), Fechas.DDMMAA(fechaHasta)));
 			} catch (SQLException e) {
@@ -3076,12 +3076,12 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Fechas fecha = Fechas.obtenerFechaDesdeStrAAMMDD(form.get("fecha"));
 				fecha = Fechas.obtenerFinMes(fecha.getFechaCal());
 				Long meses = Long.parseLong(form.get("cantMeses").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 				List<List<String>> datos = ReportOdoConsolidado.reportOdoConsolidadoRtp(con, s.baseDato, fecha, meses, permisoPorBodega, mapeoDiccionario.get("pais"), s.aplicaPorSucursal, s.id_sucursal);
 				List<String> categorias = new ArrayList<String>();
@@ -3190,6 +3190,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
@@ -3201,8 +3203,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
 				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, s.baseDato, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
 				Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, fechaDesde, fechaHasta, s.aplicaPorSucursal, s.id_sucursal);
@@ -3239,12 +3239,12 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodega").trim());
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> datos = ReportOdoMovimientos.movimientoOdoCantidad(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				return ok(reporteMovOdoCantDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,fechaDesde,fechaHasta));
@@ -3343,6 +3343,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -3354,8 +3356,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Map<Long,Long> mapDec = Moneda.numeroDecimal(con, s.baseDato);
 				List<VentaServicio> listVentaServicio = VentaServicio.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
 				Map<Long,Double> mapTotalAjustePorBodega = Calc_AjustesEpOdo.mapTotalAjustePorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
@@ -3391,6 +3391,8 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
@@ -3403,8 +3405,6 @@ public class MnuOdo extends Controller {
 				tasas.put((long)2, usd); 			// 'Dólar', 'USD', '2'
 				tasas.put((long)3, eur); 			// 'Euro', 'EUR', '3'
 				tasas.put((long)4, uf); 			// 'Unidad Fomento', 'UF', '4'
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> datos = ReportOdoMovimientos.movimientoOdoCantidad(con, s.baseDato, id_bodegaEmpresa, desdeAAMMDD, hastaAAMMDD);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				List<List<String>> listaAjustes = Calc_AjustesEpOdo.listaEntreFechasPorBodega(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, id_bodegaEmpresa);
@@ -3669,11 +3669,11 @@ public class MnuOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<VentaServicio> vtas = VentaServicio.allEntreFechas(con, s.baseDato, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
 				List<List<String>> plantilla2 = ReportOdoOperadores.reportOperadorConsol1(desdeAAMMDD, hastaAAMMDD, vtas);
 				return ok(reportOperadorConsol1.render(mapeoDiccionario,mapeoPermiso,userMnu,desdeAAMMDD,hastaAAMMDD, plantilla2));

@@ -530,6 +530,8 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbWrite.getConnection()){
 				Long id_grupo = Long.parseLong(form.get("id_grupo").trim());
 				String nombreAtributo = form.get("nombreAtributo").trim();
@@ -543,8 +545,6 @@ public class MnuTablas extends Controller {
 					if(Atributo.create(con, s.baseDato, atributo)) {
 						Grupo grupo = Grupo.find(con, s.baseDato, id_grupo);
 						Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "atributo", (long)0, "create", "agrega nuevo atributo: "+atributo+" a grupo: "+grupo.getNombre());
-						Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-						Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 						List<Atributo> listAtributosGrupo = Atributo.allXGrupo(con, s.baseDato, id_grupo);
 						return ok(grupoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,grupo,listAtributosGrupo));
 					}else {
@@ -3001,9 +3001,9 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_proveedor = Long.parseLong(form.get("id_proveedor").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("proveedorMantencion")==null) {
 					logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
@@ -3386,10 +3386,10 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_tipoReparacion = Long.parseLong(form.get("id_tipoReparacion").trim());
 				Long id_tipoEstado = Long.parseLong(form.get("id_tipoEstado").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("tipoEstado")==null) {
 					logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
@@ -3469,9 +3469,9 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_tipoEstado = Long.parseLong(form.get("id_tipoEstado").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("tipoEstado")==null) {
 					logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
@@ -3697,10 +3697,10 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()) {
 				Long id_usuario = Long.parseLong(form.get("id_usuario").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Usuario usuario = Usuario.findXIdUser(con, s.baseDato, id_usuario);
 				List<UsuarioTipo> listTipoUsuario = UsuarioTipo.all(con, s.baseDato);
 				List<List<String>> listPermisoBodPorUsuario = UsuarioPermiso.listaPermisoBodPorUsuario(con, s.baseDato, id_usuario);
@@ -3801,9 +3801,9 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_usuario = Long.parseLong(form.get("id_usuario").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("usuarioMantencion")==null) {
 					logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/",msgSinPermiso));
@@ -3991,14 +3991,14 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 				Long id_usuario = Long.parseLong(form.get("id_usuario").trim());
 				if(UsuarioPermiso.asignaPermisoPorBodega(con, s.baseDato, id_usuario, id_bodegaEmpresa)) {
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "permisoPorBodegaEmpresa", (long)0, "create",
 							"asigna permiso a id_bodega:"+id_bodegaEmpresa+" para id_usuario:"+id_usuario);
-					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 					Usuario usuario = Usuario.findXIdUser(con, s.baseDato, id_usuario);
 					List<UsuarioTipo> listTipoUsuario = UsuarioTipo.all(con, s.baseDato);
 					List<List<String>> listPermisoBodPorUsuario = UsuarioPermiso.listaPermisoBodPorUsuario(con, s.baseDato, id_usuario);
@@ -4039,13 +4039,13 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 				Long id_usuario = Long.parseLong(form.get("id_usuario").trim());
 				if(UsuarioPermiso.eliminaPermisoPorBodega(con, s.baseDato, id_usuario, id_bodegaEmpresa)) {
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "permisoPorBodegaEmpresa", (long)0, "delete", "elimina permiso a id_bodega:"+id_bodegaEmpresa+" para id_usuario:"+id_usuario);
-					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 					Usuario usuario = Usuario.findXIdUser(con, s.baseDato, id_usuario);
 					List<UsuarioTipo> listTipoUsuario = UsuarioTipo.all(con, s.baseDato);
 					List<List<String>> listPermisoBodPorUsuario = UsuarioPermiso.listaPermisoBodPorUsuario(con, s.baseDato, id_usuario);
@@ -4318,10 +4318,10 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()) {
 				Long id_dibujante = Long.parseLong(form.get("id_dibujante").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Dibujante dibujante = Dibujante.find(con, s.baseDato, id_dibujante);
 				return ok(dibujanteModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,dibujante));
 			} catch (SQLException e) {
@@ -4506,10 +4506,10 @@ public class MnuTablas extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()) {
 				Long id_propiedad = Long.parseLong(form.get("id_propiedad").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Propiedad propiedad = Propiedad.find(con, s.baseDato, id_propiedad);
 				return ok(propiedadModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,propiedad));
 			} catch (SQLException e) {

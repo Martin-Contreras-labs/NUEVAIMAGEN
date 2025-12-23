@@ -72,10 +72,14 @@ public class MnuOdoAppWeb extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/odo", msgErrorFormulario));
 		}else {
-			try (Connection con = dbWrite.getConnection()){
-				String userName = form.get("userName");
-				String empresa = form.get("empresa");
-				String userKey = form.get("userKey");
+			Inicio inicio = null;
+			String userName = "";
+			String empresa = "";
+			String userKey = "";
+			try (Connection con = dbRead.getConnection()){
+				userName = form.get("userName");
+				empresa = form.get("empresa");
+				userKey = form.get("userKey");
 				String pais = form.get("pais");
 				String gRecaptchaResponse = form.get("gRecaptchaResponse");
 				if(!empresa.equals("ALTRAD RMDK CHILE")) {
@@ -90,7 +94,17 @@ public class MnuOdoAppWeb extends Controller {
 						return ok(mensajes.render("/",mensaje));
 					}
 				}
-				Inicio inicio = Inicio.findXempresaVigente(con,userName,empresa,pais);
+				inicio = Inicio.findXempresaVigente(con,userName,empresa,pais);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+				return ok(mensajes.render("/odo", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+				return ok(mensajes.render("/odo", msgReport));
+			}
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(inicio.getBaseDato(), inicio.getId_tipoUsuario().toString());
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(inicio.getBaseDato());
+			try (Connection con = dbWrite.getConnection()){
 				if(inicio.getId()==-1){
 					String msg = "La empresa no esta disponible, si desea acceder, pongase en contacto con soporte pbarros@inqsol.com";
 					return ok(mensajes.render("/odo",msg));
@@ -111,9 +125,6 @@ public class MnuOdoAppWeb extends Controller {
 					return ok(mensajes.render("/odo",msg));
 				}else {
 					Registro.accesos(con, inicio.getBaseDato(), userName);
-					Map<String,String> mapeoPermiso = HomeController.mapPermisos(inicio.getBaseDato(), inicio.getId_tipoUsuario().toString());
-					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(inicio.getBaseDato());
-
 					boolean esPorSucursal = Sucursal.esPorSucursal(mapeoPermiso, inicio.getId_tipoUsuario().toString());
 					String aplicaPorSucursal = "0";
 					if(esPorSucursal) {
@@ -1064,12 +1075,12 @@ public class MnuOdoAppWeb extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/odo", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String fechaDesde = form.get("fechaDesde").trim();
 				String fechaHasta = form.get("fechaHasta").trim();
 				Long id_bodegaEmpresa = UsuarioPermiso.permisoSoloABodega(con, s.baseDato, s.id_usuario);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> datos = ReportOdoMovimientos.movimientoOdoCantidad(con, s.baseDato, id_bodegaEmpresa, fechaDesde, fechaHasta);
 				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				return ok(reporteMovOdoAutorizadorDetalle.render(mapeoDiccionario,mapeoPermiso,userMnu,datos,bodega,fechaDesde,fechaHasta));

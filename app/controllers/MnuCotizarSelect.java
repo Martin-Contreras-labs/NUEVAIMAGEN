@@ -207,6 +207,8 @@ public class MnuCotizarSelect extends Controller {
 			Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
 			Http.MultipartFormData.FilePart<TemporaryFile> archivo = body.getFile("archivoXLSX");
 			if (archivo != null) {
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				try (Connection con = dbRead.getConnection()){
 					File file = Archivos.parseMultipartFormDatatoFile(archivo);
 					Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
@@ -224,8 +226,6 @@ public class MnuCotizarSelect extends Controller {
 						}
 						if(mapListaExcel.size() == listaExcel.size()) {
 							Long id_cotizacion = (long) 0;
-							Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-							Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 							Long numeroCoti = Cotizacion.findNuevoNumero(con, s.baseDato);
 							String fecha = Fechas.hoy().getFechaStrAAMMDD();
 							FormCotiza formCotiza = new FormCotiza();
@@ -430,10 +430,10 @@ public class MnuCotizarSelect extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<CotizaDetalle> detalleCoti = CotizaDetalle.allPorIdCotizacion(con, s.baseDato,id_cotizacion);
 				Map<String,CotiJsonA> mapListaCoti = new HashMap<String,CotiJsonA>();
 				Long id_bodegaEmpresa = (long)0;

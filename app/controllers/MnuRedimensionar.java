@@ -180,8 +180,8 @@ public class MnuRedimensionar extends Controller {
 		}else {
 			Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
 			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(ActaRedimensionar.existeNumero(con, s.baseDato, form.numero)) {
 					String msg = "El numero de acta redimensionar ya fue utilizado, debe volver a preparar una nueva acta redimensionar";
 					return ok(mensajes.render("/home/",msg));
@@ -347,10 +347,10 @@ public class MnuRedimensionar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbWrite.getConnection()){
 				Long id_actaRedimensionar = Long.parseLong(form.get("id_actaRedimensionar").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				ActaRedimensionar acta = ActaRedimensionar.find(con, s.baseDato, id_actaRedimensionar);
 				FormRedimensionar.redimensionar (con, s.baseDato, mapeoPermiso, mapeoDiccionario,
 						id_actaRedimensionar, acta.getNumero(), s.id_usuario, s.userName);

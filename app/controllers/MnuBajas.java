@@ -93,8 +93,8 @@ public class MnuBajas extends Controller {
 		}else {
 			Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
 			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(ActaBaja.existeNumero(con, s.baseDato, form.numero)) {
 					String msg = "El numero de acta de baja ya fue utilizado, debe volver a ingresar el acta de baja";
 					return ok(mensajes.render("/home/",msg));
@@ -282,8 +282,8 @@ public class MnuBajas extends Controller {
 		}else {
 			Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
 			Http.MultipartFormData.FilePart<TemporaryFile> docAdjunto = body.getFile("docAdjunto");
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(Baja.deleteNoConfirmadas(con, s.baseDato, form.id_actaBaja)) {
 					FormBaja.update(con, s.baseDato, mapeoPermiso, form, docAdjunto);
 					Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "baja", form.id_actaBaja, "update", "modifica acta de baja id: "+form.id_actaBaja);

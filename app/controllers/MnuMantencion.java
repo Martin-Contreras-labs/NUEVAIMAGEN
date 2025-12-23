@@ -954,9 +954,9 @@ public class MnuMantencion extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
 				Long id_mantActorPersonal = form.id_mantActorPersonal; //1 operador 2 mecanico
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(id_mantActorPersonal == (long)1) {
 					Long id_mantTransacReport = MantTransacReport.newReportOperador(con, s.baseDato, form);
 					if(id_mantTransacReport > 0) {
@@ -1982,9 +1982,9 @@ public class MnuMantencion extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
 				Long id_estado = Long.parseLong(form.get("id_estado").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("mantTblEstadoEnObraMant")==null) {
 					logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "");
 			return ok(mensajes.render("/report", msgErrorFormulario));
@@ -2521,10 +2521,10 @@ public class MnuMantencion extends Controller {
 		if (form.hasErrors()) {
 			return ok("error");
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_operadorMecanico = Long.parseLong(form.get("id_operadorMecanico").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				MantOperadorMecanico operadorMecanico = MantOperadorMecanico.findXIdUser(con, s.baseDato, id_operadorMecanico);
 				List<MantActorPersonal> listActorPersonal = MantActorPersonal.all(con, s.baseDato);
 				List<MantTipoPersonal> listTipoPersonal = MantTipoPersonal.all(con, s.baseDato);
@@ -2815,9 +2815,9 @@ public class MnuMantencion extends Controller {
 			return ok(mensajes.render("/report", msgErrorFormulario));
 		}else {
 			Long id_mantTransacReport = Long.parseLong(form.get("id_mantTransacReport"));
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				MantTransacReport mantTransacReport = MantTransacReport.find(con, s.baseDato, id_mantTransacReport);
 				if(mantTransacReport.getId_mantActorPersonal() == (long)1) {
 					return ok(mantReportOperador.render(mapeoDiccionario,mapeoPermiso,userMnu,mantTransacReport));

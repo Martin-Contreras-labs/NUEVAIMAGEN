@@ -227,10 +227,10 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
 		}else {
+			Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String vistaHTML = FormCotiza.vistaInvPorEquipoAjax(con, s.baseDato, id_equipo, mapeoPermiso, mapeoDiccionario);
 				return ok(vistaHTML);
 			} catch (SQLException e) {
@@ -1556,10 +1556,10 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				File file = CotizacionEnExcel.cotizacionEnExcel(con, s.baseDato, id_cotizacion, mapeoDiccionario, mapeoPermiso);
 				return ok(file,false,Optional.of("Cotizacion.xlsx"));
 			} catch (SQLException e) {
@@ -1738,9 +1738,9 @@ public class MnuCotizar extends Controller {
 		}else {
 			String id_cliente = form.get("id_cliente").trim();
 			UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> listProyectos = Cotizacion.listCotiAllProyectoSelect(con, s.baseDato, id_cliente, s.aplicaPorSucursal, s.id_sucursal);
 				return ok(cotizaListaResumen00.render(mapeoDiccionario, mapeoPermiso, userMnu, listProyectos, id_cliente));
 			} catch (SQLException e) {
@@ -1767,12 +1767,12 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String id_cliente = form.get("id_cliente").trim();
 				String id_proyecto = form.get("id_proyecto").trim();
 				UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> listCoti = Cotizacion.listCotiAllCotiPorCliente(con, s.baseDato, s.aplicaPorSucursal, s.id_sucursal, id_cliente, id_proyecto);
 				Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 				Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
@@ -1801,6 +1801,8 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String listadoIdCoti = form.get("cambiosDeEstados").trim();
 				String id_cliente = form.get("id_cliente").trim();
@@ -1808,8 +1810,6 @@ public class MnuCotizar extends Controller {
 				UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 				if(listadoIdCoti.length()>0) {
 					listadoIdCoti = "("+listadoIdCoti.substring(0,listadoIdCoti.length()-1)+")";
-					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 					List<List<String>> resumen = Cotizacion.listCotiDetallePorCotiSelect(con, s.baseDato, mapeoDiccionario, listadoIdCoti);
 					Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 					Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
@@ -1842,12 +1842,12 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbWrite.getConnection()) {
 				String listadoIdCoti = form.get("listadoIdCoti").trim();
 				String id_cliente = form.get("id_cliente").trim();
 				String id_proyecto = form.get("id_proyecto").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> resumen = Cotizacion.listCotiDetallePorCotiSelect(con, s.baseDato, mapeoDiccionario, listadoIdCoti);
 				Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 				Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
@@ -1898,12 +1898,12 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String listadoIdCoti = form.get("listadoIdCoti").trim();
 				String id_cliente = form.get("id_cliente").trim();
 				String id_proyecto = form.get("id_proyecto").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<List<String>> resumen = Cotizacion.listCotiDetallePorCotiSelect(con, s.baseDato, mapeoDiccionario, listadoIdCoti);
 				Cliente cliente = Cliente.find(con, s.baseDato, Long.parseLong(id_cliente));
 				Proyecto proyecto = Proyecto.find(con, s.baseDato, Long.parseLong(id_proyecto));
@@ -2050,13 +2050,13 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
 				Long id_comercial = Long.parseLong(form.get("id_comercial").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
@@ -2178,12 +2178,12 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
 				if(id_sucursal != 0) {
@@ -2221,12 +2221,12 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
 				if(id_sucursal != 0) {
@@ -2356,13 +2356,13 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
 				Long id_comercial = Long.parseLong(form.get("id_comercial").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
 				if(id_sucursal != 0) {
@@ -2513,16 +2513,13 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
-
 				Long id_sucursal = (long) 0;
 				Long id_comercial = (long) 0;
-
-
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
 				if(id_sucursal != 0) {
@@ -2952,9 +2949,9 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("otIngreso")==null) {
 					return ok(mensajes.render("/",msgSinPermiso));
 				}
@@ -3579,13 +3576,13 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				Long id_sucursal = Long.parseLong(form.get("id_sucursal").trim());
 				Long id_comercial = Long.parseLong(form.get("id_comercial").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				String nameSucursal = "TODAS";
 				String condSucursal = "";
@@ -4567,10 +4564,10 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_ot = Long.parseLong(form.get("id_ot").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Ot ot = Ot.find(con, s.baseDato, id_ot);
 				Cotizacion coti = Cotizacion.find(con, s.baseDato, ot.getId_cotizacion());
 				String cabezeraOt = Ot.vistaCabezeraOt(con, s.baseDato, ot, coti, mapeoDiccionario);
@@ -4731,9 +4728,9 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok("error");
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbRead.getConnection()){
 				Long id_bodegaOrigen = Long.parseLong(form.get("id_bodegaOrigen").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<Long,Grupo> mapGrupo = Grupo.mapAll(con, s.baseDato);
 				Map<Long,Equipo> mapEquipo = Equipo.mapAllVigentes(con, s.baseDato);
 				Map<Long,Cotizacion> mapCotizacion = Cotizacion.mapAll(con, s.baseDato);
@@ -4983,10 +4980,10 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_guia = Long.parseLong(form.get("id_guia").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				if(guia == null || guia.getId_ot() == null) {
 					return redirect("/home/");
@@ -5515,10 +5512,10 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_guia = Long.parseLong(form.get("id_guia").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
 				List<List<String>> detalleGuia = new ArrayList<List<String>>();
@@ -5635,10 +5632,10 @@ public class MnuCotizar extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_guia = Long.parseLong(form.get("id_guia").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
 				List<List<String>> detalleGuia = new ArrayList<List<String>>();
@@ -6065,6 +6062,8 @@ public class MnuCotizar extends Controller {
 			Http.MultipartFormData.FilePart<TemporaryFile> archivo = body.getFile("archivoXLSX");
 			if (archivo != null) {
 				File file = Archivos.parseMultipartFormDatatoFile(archivo);
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				try (Connection con = dbWrite.getConnection()){
 					Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 					String id_sucursal = form.get("id_sucursal").trim();
@@ -6223,8 +6222,6 @@ public class MnuCotizar extends Controller {
 						smt3.close();
 					}
 					Long id_cotizacion = (long) 0;
-					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 					Long numeroCoti = Cotizacion.findNuevoNumero(con, s.baseDato);
 					String fecha = Fechas.hoy().getFechaStrAAMMDD();
 					BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
@@ -6470,6 +6467,8 @@ public class MnuCotizar extends Controller {
 			Http.MultipartFormData.FilePart<TemporaryFile> archivo = body.getFile("archivoXLSX");
 			if (archivo != null) {
 				File file = Archivos.parseMultipartFormDatatoFile(archivo);
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				try (Connection con = dbRead.getConnection()){
 					Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 					String id_sucursal = form.get("id_sucursal").trim();
@@ -6486,8 +6485,6 @@ public class MnuCotizar extends Controller {
 						}
 						if(mapListaExcel.size() == listaExcel.size()) {
 							Long id_cotizacion = (long) 0;
-							Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-							Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 							Long numeroCoti = Cotizacion.findNuevoNumero(con, s.baseDato);
 							String fecha = Fechas.hoy().getFechaStrAAMMDD();
 							BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);

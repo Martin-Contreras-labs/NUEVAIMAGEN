@@ -815,11 +815,11 @@ public class MnuCotiOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				Map<String,Double> map = ReportCotiOdo.calculoCotiOdo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD,  mapeoDiccionario.get("pais"));
 				Double val_Confirmadas = map.get("val_Confirmadas");
@@ -1531,9 +1531,9 @@ public class MnuCotiOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()) {
 				Long id_otOdo = Long.parseLong(form.get("id_otOdo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				if(mapeoPermiso.get("otOdoIngreso")==null) {
 					return ok(mensajes.render("/",msgSinPermiso));
 				}
@@ -1944,11 +1944,11 @@ public class MnuCotiOdo extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				DecimalFormat myformaNumber = new DecimalFormat("0",symbols);
 				Map<String,Double> map = ReportCotiOdo.calculoOtOdo(con, s.baseDato, desdeAAMMDD, hastaAAMMDD,  mapeoDiccionario.get("pais"));
 				Double val_ConOt = map.get("val_ConOt");
@@ -2387,9 +2387,9 @@ public class MnuCotiOdo extends Controller {
 			if (archivo != null) {
 				File file = Archivos.parseMultipartFormDatatoFile(archivo);
 				try (Connection con = dbRead.getConnection()){
-					Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 					Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 					Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+					Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
 					mensaje = FormCotizaOdo.cotiOdoValidarPlantillaExcel(con, s.baseDato, file);
 					if(mensaje.get(0).equals("true")) {
 						List<List<String>> listaExcel = FormCotizaOdo.llenaListaDesdeExcel(file);

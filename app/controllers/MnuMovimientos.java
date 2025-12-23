@@ -761,9 +761,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			return ok("error");
 		}else {
 			Long id_cotizacion = Long.parseLong(form.get("id_cotizacion").trim());
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Cotizacion coti = Cotizacion.find(con, s.baseDato, id_cotizacion);
 				String tabla = Cotizacion.vistaModalVerCotizacion(con, s.baseDato, coti, mapeoDiccionario, mapeoPermiso);
 				return ok(tabla);
@@ -1187,9 +1187,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		try {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("movimientoListar")==null) {
 				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/",msgSinPermiso));
@@ -1627,9 +1627,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}else {
 			Long id_guia = Long.parseLong(form.get("id_guia").trim());
 			Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
 				List<List<String>> detalleGuia = new ArrayList<List<String>>();
@@ -1685,9 +1685,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}else {
 			Long id_guia = Long.parseLong(form.get("id_guia").trim());
 			Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Guia guiaFinal = Guia.find(con, s.baseDato, id_guia);
 				Transportista transp = Transportista.find(con, s.baseDato, id_transportista);
 				Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
@@ -1762,9 +1762,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}else {
 			Long id_guia = Long.parseLong(form.get("id_guia").trim());
 			Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, guia.getId_bodegaOrigen());
 				List<List<String>> detalleGuia = new ArrayList<List<String>>();
@@ -1895,9 +1895,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}else {
 			Long id_guia = Long.parseLong(form.get("id_guia").trim());
 			Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				Transportista transporte = Transportista.find(con, s.baseDato, id_transportista);
 				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
@@ -2450,9 +2450,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
 				Long soloArriendo = (long) 1;
@@ -2631,9 +2631,9 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Long id_bodegaEmpresa = Long.parseLong(form.get("id_bodegaEmpresa").trim());
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				BodegaEmpresa bodegaOrigen = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodegaEmpresa);
 				List<List<String>> listEquipBodOrigen = new ArrayList<List<String>>();
 				Long soloArriendo = (long) 1;

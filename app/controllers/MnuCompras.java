@@ -103,6 +103,8 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
 		if (form.hasErrors()) {
@@ -113,8 +115,6 @@ public class MnuCompras extends Controller {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				String idOrgc = form.get("idOrgc").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 				String token = ApiIConstruyeOC.obtieneToken(emisor, ws);
 				List<List<String>> listaOC = new ArrayList<List<String>>();
@@ -146,6 +146,8 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
 		if (form.hasErrors()) {
@@ -154,8 +156,6 @@ public class MnuCompras extends Controller {
 		}else {
 			try (Connection con = dbWrite.getConnection()){
 				String idDocumento = form.get("idDocumento").trim();
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 				String token = ApiIConstruyeOC.obtieneToken(emisor, ws);
 				List<List<String>> detalleOC = ApiIConstruyeOC.obtieneDetalleOC(emisor, ws, token, idDocumento);
@@ -1280,14 +1280,14 @@ public class MnuCompras extends Controller {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("compraListado")==null) {
 				logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 				return ok(mensajes.render("/",msgSinPermiso));
@@ -1350,13 +1350,13 @@ public class MnuCompras extends Controller {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
 		if (form.hasErrors()) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbRead.getConnection()){
 				Long id_factura = Long.parseLong(form.get("id_factura").trim());
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
@@ -1511,6 +1511,7 @@ public class MnuCompras extends Controller {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
 		if (form.hasErrors()) {
@@ -1518,8 +1519,10 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Long id_factura = Long.parseLong(form.get("id_factura").trim());
+				Long id_factura = 0L;
+				if(form.get("id_factura")!=null){
+					id_factura = Long.parseLong(form.get("id_factura").trim());
+				}
 				Factura factura = Factura.find(con, s.baseDato, id_factura);
 				String aplicaSucursal = s.aplicaPorSucursal;
 				if(mapeoPermiso.get("cambiarSucursal")!=null) {
@@ -1600,6 +1603,8 @@ public class MnuCompras extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
 		if (form.hasErrors()) {
@@ -1624,8 +1629,6 @@ public class MnuCompras extends Controller {
 				if(id_proveedor > 0) {
 					filtroPorProveedor = " and proveedor.id = " + id_proveedor;
 				}
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Map<Long,List<String>> mapUltimoPrecio = Compra.ultimoPrecioMasFactura(con,s.baseDato);
 				List<List<String>> datos = ReportMovCompras.movComprasPeriodo(con, s.baseDato, fechaDesde, fechaHasta, filtroPorProveedor,
 						mapUltimoPrecio, tasas);

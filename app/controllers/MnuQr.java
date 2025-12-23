@@ -187,10 +187,10 @@ public class MnuQr extends Controller {
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Equipo equipo = Equipo.find(con, s.baseDato, id_equipo);
 				List<List<String>> listAtribEquipo = MnuQr.atributosPorEquipo(con, s.baseDato, equipo.id_grupo, id_equipo);
 				List<List<String>> listaFiltrada = new ArrayList<List<String>>();
@@ -420,10 +420,10 @@ public class MnuQr extends Controller {
 		if (form.hasErrors()) {
 			return ok(mensajes.render("/",msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				QrEquipo qrEquipo = QrEquipo.find(con, s.baseDato, id_equipo);
 				List<QrTransacEquipo> listaTransac = QrTransacEquipo.allPorIdEquipo(con, s.baseDato, id_equipo);
 				List<QrAtributoEquipo> listaCampos = QrAtributoEquipo.all(con, s.baseDato);

@@ -437,8 +437,8 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<Long,Long> mapId_iConstruyeProdDet = HojaVida.mapId_iConstruyeProdDet(con, s.baseDato);
 				List<Equipo> listEquipo = Equipo.allVigentes(con, s.baseDato);
 				List<IConstruyeProdDet> listProdDet = IConstruyeProdDet.all(con, s.baseDato);
@@ -706,10 +706,10 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_tipo = Long.parseLong(form.get("id_tipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				TipoTrabajo tipoTrabajo = TipoTrabajo.find(con, s.baseDato, id_tipo);
 				return ok(tipoTrabajoModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,tipoTrabajo));
 			} catch (SQLException e) {
@@ -895,9 +895,9 @@ public class MnuPlanes extends Controller {
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			Long id_tipo = Long.parseLong(form.get("id_tipo").trim());
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				TipoPlan tipoPlan = TipoPlan.find(con, s.baseDato, id_tipo);
 				return ok(tipoPlanModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,tipoPlan));
 			} catch (SQLException e) {
@@ -1104,10 +1104,10 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()) {
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, s.baseDato, id_equipo);
 				List<String> listAtributos = HojaVida.atributosEquipo(con, s.baseDato, id_equipo);
 				List<String> listCompra = HojaVida.ultimaFacturaCompra(con, s.baseDato, id_equipo);
@@ -1145,9 +1145,9 @@ public class MnuPlanes extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		try (Connection con = dbRead.getConnection()) {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, s.baseDato, id_equipo);
 			List<String> listAtributos = HojaVida.atributosEquipo(con, s.baseDato, id_equipo);
 			List<String> listCompra = HojaVida.ultimaFacturaCompra(con, s.baseDato, id_equipo);
@@ -1248,9 +1248,9 @@ public class MnuPlanes extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		try (Connection con = dbRead.getConnection()) {
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			List<Equipo> listEquipos = PlanMantencion.allSinPlanMantencionConStock(con, s.baseDato);
 			return ok(hojaVidaPlanCrear.render(mapeoDiccionario,mapeoPermiso,userMnu,listEquipos));
 		} catch (SQLException e) {
@@ -1390,13 +1390,13 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()) {
 				String desdeAAMMDD = form.get("fechaDesde").trim();
 				String hastaAAMMDD = form.get("fechaHasta").trim();
 				String idOrgc = form.get("idOrgc").trim();
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 				String token = ApiIConstruyeOC.obtieneToken(emisor, ws);
 				List<List<String>> listaOC = new ArrayList<List<String>>();
@@ -1627,10 +1627,10 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, s.baseDato, id_equipo);
 				List<String> listAtributos = HojaVida.atributosEquipo(con, s.baseDato, id_equipo);
 				List<String> listCompra = HojaVida.ultimaFacturaCompra(con, s.baseDato, id_equipo);
@@ -1695,10 +1695,10 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, s.baseDato, id_equipo);
 				List<String> listAtributos = HojaVida.atributosEquipo(con, s.baseDato, id_equipo);
 				List<String> listCompra = HojaVida.ultimaFacturaCompra(con, s.baseDato, id_equipo);
@@ -1900,10 +1900,10 @@ public class MnuPlanes extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
 				Long id_equipo = Long.parseLong(form.get("id_equipo").trim());
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<PlanMantencion> allPlan = PlanMantencion.allTipoPlanPorId_equipo(con, s.baseDato, id_equipo);
 				List<String> listAtributos = HojaVida.atributosEquipo(con, s.baseDato, id_equipo);
 				List<String> listCompra = HojaVida.ultimaFacturaCompra(con, s.baseDato, id_equipo);

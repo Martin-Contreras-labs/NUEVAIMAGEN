@@ -195,13 +195,18 @@ public class AppCPanel extends Controller {
    			return ok(mensajes.render("/cpanel",msgErrorFormulario));
        	}else {
        		Long id_cPanel = Long.parseLong(form.get("id_cPanel"));
+			CPanel empresa = null;
 			try (Connection con = dbWrite.getConnection()){
-				CPanel empresa = CPanel.findEmpresa(con, id_cPanel);
+				empresa = CPanel.findEmpresa(con, id_cPanel);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(empresa.baseDato);
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(empresa.baseDato, "1");
+			try (Connection con = dbWrite.getConnection()){
 				if(request.session().get("userNameAdmin").get()==null || empresa.id_cPanel==null) {
 					return ok(mensajes.render("/cpanel",msgError));
 				}
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(empresa.baseDato);
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(empresa.baseDato, "1");
 				String userName = request.session().get("usuario").get();
 				UserMnu userMnu = new UserMnu(userName, "0", "1", empresa.baseDato,"1","0","0");
 				Long esMoroso = (long)0;

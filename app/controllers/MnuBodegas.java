@@ -1680,6 +1680,7 @@ public class MnuBodegas extends Controller {
 			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
 		DynamicForm form = formFactory.form().bindFromRequest(request);
 		form.get("dummy");
@@ -1689,7 +1690,6 @@ public class MnuBodegas extends Controller {
 		}else {
 			Long id_rubro = Long.parseLong(form.get("id_rubro").trim());
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				Rubro rubro = Rubro.find(con, s.baseDato, id_rubro);
 				return ok(rubroModifica.render(mapeoDiccionario,mapeoPermiso,userMnu,rubro));

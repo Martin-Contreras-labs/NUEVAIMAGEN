@@ -75,7 +75,9 @@ import play.mvc.*;
 
 import views.html.*;
 import viewsMnuOdo.html.*;
+import viewsMnuOdo.html.odoShowPDF;
 import viewsMnuOdoAppWeb.html.*;
+import viewsMnuOdoAppWeb.html.odoAutorizaListarVentasWeb;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -792,9 +794,9 @@ public class HomeController extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		try (Connection con = dbRead.getConnection()){
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(mapeoPermiso.get("odoVentasAppWeb")!=null) {
 				return redirect("/homeOdoVentasWeb/");
 			} else if(mapeoPermiso.get("odoAutorizadorAppWeb")!=null) {
@@ -838,38 +840,49 @@ public class HomeController extends Controller {
         			return ok(mensajes.render("/",mensaje));
                 }
        		}
-       		try (Connection con = dbWrite.getConnection()){
-				Inicio inicio = Inicio.findXempresaVigente(con,userName,empresa,pais);
-				if(inicio.getId()==-1){
-					String msg = "La empresa no esta disponible, si desea acceder, pongase en contacto con soporte pbarros@inqsol.com";
-					return ok(mensajes.render("/",msg));
-				}
-				if(inicio.getId()==-2){
-					String msg = "Los datos ingresados de empresa, no corresponden, vuelva a ingresarlos. En caso de continuar " +
-								"este problema, por favor contactar con soporte pbarros@inqsol.com";
-					return ok(mensajes.render("/",msg));
-				}
-				if(inicio.getId()==-3){
-					String msg = "El usuario no esta vigente o no existe en la empresa, vuelva a ingresar. En caso de continuar " +
-								"este problema, por favor contactar con soporte pbarros@inqsol.com";
-					return ok(mensajes.render("/",msg));
-				}
-				if(!(inicio.getUserKey().equals(userKey) && inicio.getEmpresa().toLowerCase().equals(empresa.toLowerCase()))){
-					String msg = "La clave ingresada no corresponde, vuelva a ingresar. En caso de continuar " +
+
+			Inicio inicio = null;
+       		try (Connection con = dbRead.getConnection()){
+				inicio = Inicio.findXempresaVigente(con,userName,empresa,pais);
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+			   
+			if(inicio.getId()==-1){
+				String msg = "La empresa no esta disponible, si desea acceder, pongase en contacto con soporte pbarros@inqsol.com";
+				return ok(mensajes.render("/",msg));
+			}
+			if(inicio.getId()==-2){
+				String msg = "Los datos ingresados de empresa, no corresponden, vuelva a ingresarlos. En caso de continuar " +
 							"este problema, por favor contactar con soporte pbarros@inqsol.com";
-					return ok(mensajes.render("/",msg));
-				}else {
-					Map<String,String> mapeoPermiso = HomeController.mapPermisos(inicio.getBaseDato(), inicio.getId_tipoUsuario().toString());
-					boolean esPorSucursal = Sucursal.esPorSucursal(mapeoPermiso, inicio.getId_tipoUsuario().toString());
-	    			String aplicaPorSucursal = "0";
-	    			if(esPorSucursal) {
-	    				aplicaPorSucursal = "1";
-	    			}
+				return ok(mensajes.render("/",msg));
+			}
+			if(inicio.getId()==-3){
+				String msg = "El usuario no esta vigente o no existe en la empresa, vuelva a ingresar. En caso de continuar " +
+							"este problema, por favor contactar con soporte pbarros@inqsol.com";
+				return ok(mensajes.render("/",msg));
+			}
+			if(!(inicio.getUserKey().equals(userKey) && inicio.getEmpresa().toLowerCase().equals(empresa.toLowerCase()))){
+				String msg = "La clave ingresada no corresponde, vuelva a ingresar. En caso de continuar " +
+						"este problema, por favor contactar con soporte pbarros@inqsol.com";
+				return ok(mensajes.render("/",msg));
+			}else {
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(inicio.getBaseDato(), inicio.getId_tipoUsuario().toString());
+				boolean esPorSucursal = Sucursal.esPorSucursal(mapeoPermiso, inicio.getId_tipoUsuario().toString());
+				String aplicaPorSucursal = "0";
+				if(esPorSucursal) {
+					aplicaPorSucursal = "1";
+				}
+				try (Connection con = dbWrite.getConnection()){
 					if(mapeoPermiso.get("odoVentasAppWeb")!=null) {
 						Registro.accesos(con, inicio.getBaseDato(), userName);
 						if(mapeoPermiso.get("odoVentas")==null && mapeoPermiso.get("odoVentasAppWeb")==null) {
-		    				return ok(mensajes.render("/odo",msgSinPermiso));
-		    			}
+							return ok(mensajes.render("/odo",msgSinPermiso));
+						}
 						return redirect("/homeOdoVentasWeb/")
 								.addingToSession(request, "userName", inicio.getUserName())
 								.addingToSession(request, "id_usuario", inicio.getId().toString())
@@ -888,25 +901,26 @@ public class HomeController extends Controller {
 								.addingToSession(request, "porProyecto", inicio.getPorProyecto().toString())
 								.addingToSession(request, "id_sucursal", inicio.getId_sucursal().toString())
 								.addingToSession(request, "aplicaPorSucursal", aplicaPorSucursal);
-	    			}else {
-	    				Registro.accesos(con, inicio.getBaseDato(), userName);
-	    				return redirect("/home/")
-	    						.addingToSession(request, "userName", inicio.getUserName())
+					}else {
+						Registro.accesos(con, inicio.getBaseDato(), userName);
+						return redirect("/home/")
+								.addingToSession(request, "userName", inicio.getUserName())
 								.addingToSession(request, "id_usuario", inicio.getId().toString())
 								.addingToSession(request, "baseDato", inicio.getBaseDato())
 								.addingToSession(request, "id_tipoUsuario", inicio.getId_tipoUsuario().toString())
 								.addingToSession(request, "porProyecto", inicio.getPorProyecto().toString())
 								.addingToSession(request, "id_sucursal", inicio.getId_sucursal().toString())
 								.addingToSession(request, "aplicaPorSucursal", aplicaPorSucursal);
-	    			}
+					}
+				} catch (SQLException e) {
+					logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+					return ok(mensajes.render("/home/", msgReport));
+				} catch (Exception e) {
+					logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+					return ok(mensajes.render("/home/", msgReport));
 				}
-			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
-				return ok(mensajes.render("/home/", msgReport));
-			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
-				return ok(mensajes.render("/home/", msgReport));
 			}
+			
        	}
     }
     
@@ -1013,9 +1027,9 @@ public class HomeController extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, userMnu.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				List<VentaServicio> listVentas = VentaServicio.allPorBodegas(con, s.baseDato, mapeoPermiso, s.aplicaPorSucursal,s.id_sucursal,
 						Long.parseLong(s.id_usuario));
 				File file = MnuOdoAppWeb.exportaExcelOdoListarVentasWeb(s.baseDato, mapeoDiccionario, listVentas);
@@ -1085,13 +1099,22 @@ public class HomeController extends Controller {
     public Result inicio2Admin(String baseDato, Http.Request request) {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		Usuario usuario = null;
+		try (Connection con = dbWrite.getConnection()){
+			usuario = Usuario.findXIdUser(con, baseDato, (long) 1);
+		}catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato, "", e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, baseDato,"", e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(baseDato, usuario.getId().toString());
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
     	try (Connection con = dbWrite.getConnection()){
     		String administrador = request.session().get("administrador").get();
     		if(administrador.equals("esAdmin")) {
-        		Usuario usuario = Usuario.findXIdUser(con, baseDato, (long) 1);
         		Long esMoroso = Registro.esMoroso(con, baseDato);
-    			Map<String,String> mapeoPermiso = HomeController.mapPermisos(baseDato, usuario.getId().toString());
-    			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(baseDato);
     			boolean esPorSucursal = Sucursal.esPorSucursal(mapeoPermiso, usuario.getId_tipoUsuario().toString());
     			String aplicaPorSucursal = "0";
     			if(esPorSucursal) {

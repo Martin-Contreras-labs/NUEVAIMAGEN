@@ -154,9 +154,9 @@ public class MnuDisponibilidad extends Controller {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			try (Connection con = dbRead.getConnection()){
-				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				boolean esPorSucursal = Sucursal.esPorSucursal(mapeoPermiso, s.id_tipoUsuario);
 				List<Cronograma> listaDisponibilidad = Cronograma.all(con, s.baseDato, esPorSucursal, s.id_sucursal);
 				File file = Cronograma.reportDisponibilidadAllExcel(s.baseDato, mapeoDiccionario, listaDisponibilidad);

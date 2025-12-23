@@ -53,9 +53,9 @@ public class MnuToolsAdmin extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		try (Connection con = dbRead.getConnection()){
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(userMnu.getUserName().equals("Admin") || userMnu.getUserName().equals("PBA")) {
 				List<Parametros> lista = Parametros.all(con, s.baseDato);
 				return ok(administraModulos.render(mapeoDiccionario,mapeoPermiso,userMnu,lista));
@@ -109,9 +109,9 @@ public class MnuToolsAdmin extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 		try (Connection con = dbRead.getConnection()){
-			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			if(userMnu.getUserName().equals("Admin") || userMnu.getUserName().equals("PBA")) {
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 				return ok(administrarEmisor.render(mapeoDiccionario,mapeoPermiso,userMnu,emisor));
