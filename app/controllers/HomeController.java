@@ -1062,27 +1062,34 @@ public class HomeController extends Controller {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
 			return ok("SE PRESENTO UN ERROR");
 		}
+		System.out.println("URL LOGIN COGNITO: "+url);
     	return redirect(url);
     }
-    
-    public Result callback(Http.Request request, String code, String state ) {
-		String className = this.getClass().getSimpleName();
-		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-    	String secret = config.getString("com.inqsol.cognito.secret");
-    	String client_id = config.getString("com.inqsol.cognito.client_id");
-    	String redirect = config.getString("com.inqsol.cognito.redirect");
-    	String login_url = config.getString("com.inqsol.cognito.login_url");
-    	try {
-			String dataPost = "grant_type=authorization_code&client_id="+client_id+"&client_secret="+secret+"&code="+code+"&redirect_uri="+redirect;
-			return ws.url(login_url+"/oauth2/token").setContentType("application/x-www-form-urlencoded").post(dataPost).thenApply(
-			(WSResponse response) -> {
-				return redirect("/vistaAdminCallback").addingToSession(request, "administrator", "1");
-        }).toCompletableFuture().get();
+
+	public Result callback(Http.Request request, String code, String state) {
+		String client_id = "TU_CLIENT_ID";
+		String secret = "TU_CLIENT_SECRET";
+		String redirect = "http://localhost:9001/callback";
+		String login_url = "https://adminmada.auth.us-east-2.amazoncognito.com";
+
+		try {
+			String dataPost = "grant_type=authorization_code&client_id=" + client_id
+					+ "&client_secret=" + secret
+					+ "&code=" + code
+					+ "&redirect_uri=" + redirect;
+
+			WSResponse response = ws.url(login_url + "/oauth2/token")
+					.setContentType("application/x-www-form-urlencoded")
+					.post(dataPost)
+					.toCompletableFuture().get();
+
+			return redirect("/vistaAdminCallback").addingToSession(request, "administrator", "1");
+
 		} catch (Exception e) {
-			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
+			e.printStackTrace();
 			return ok("SE PRESENTO UN ERROR");
 		}
-    }
+	}
 
     public Result vistaAdminCallback(Http.Request request) {
 		String className = this.getClass().getSimpleName();

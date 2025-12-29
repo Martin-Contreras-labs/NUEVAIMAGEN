@@ -227,7 +227,8 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								@if(mapPermiso.get("parametro.movimientoListar-llenarApiNubox").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
 									<td style="text-align:center;">
 										@if(lista1.getTipoGuia().equals(mapDiccionario.get("Despacho"))){
-											@if(lista1.getResponse().equals("0") || lista1.getResponse().length()>50){
+
+											@if(lista1.getLinkFolio.equals("0")){
 												<a href="#" onclick= "llenarApiNubox('@lista1.getId()','@lista1.getId_transportista()')">
 													<kbd style="background-color: #C39BD3">enviar</kbd>
 												</a>

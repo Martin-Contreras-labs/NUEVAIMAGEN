@@ -93,6 +93,7 @@ public class ApiNuboxDocDoc {
 						        	  }
 						        	  if((long) id_guia > (long) 0) {
 						        		  Guia.modificaPorCampo(con, db, "response", id_guia, jsonNode2.toString());
+										  Guia.modificaPorCampo(con, db, "linkFolio", id_guia, "999");
 						        	  }
 						        	  return(respuesta);
 						          }

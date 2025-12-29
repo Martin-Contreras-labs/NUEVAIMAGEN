@@ -48,21 +48,27 @@ public class Proforma {
 	public String tipo; // arriendo o venta
 	public String proformaXml;
 	public Long xmlEnviado;
-	public String jsonGenerado;
+	//public String jsonGenerado;
 	
 	public Double netoSinAjustes;
 	public Double netoSoloAjustes;
 	
-	public String response;
+	//public String response;
 	
 	public String nroFiscal;
 	public String comentarios;
 	
+	/*
+	/*public Proforma(Long id, String fecha, String desde, String hasta, Long id_cliente, Long id_bodegaEmpresa,
+			Long id_proyecto, String docRef, String epExcelMov, String epExcelEp, String proformaPdf, String docAnexo,
+			Double descuento, Double neto, Double iva, Double total, Long esEliminable, String tipo, String proformaXml,
+			Long xmlEnviado, String jsonGenerado, Double netoSinAjustes, Double netoSoloAjustes, String response, String nroFiscal, String comentarios) {
+	 */
 
 	public Proforma(Long id, String fecha, String desde, String hasta, Long id_cliente, Long id_bodegaEmpresa,
 			Long id_proyecto, String docRef, String epExcelMov, String epExcelEp, String proformaPdf, String docAnexo,
 			Double descuento, Double neto, Double iva, Double total, Long esEliminable, String tipo, String proformaXml,
-			Long xmlEnviado, String jsonGenerado, Double netoSinAjustes, Double netoSoloAjustes, String response, String nroFiscal, String comentarios) {
+			Long xmlEnviado, Double netoSinAjustes, Double netoSoloAjustes, String nroFiscal, String comentarios) {
 		super();
 		this.id = id;
 		this.fecha = fecha;
@@ -84,10 +90,10 @@ public class Proforma {
 		this.tipo = tipo;
 		this.proformaXml = proformaXml;
 		this.xmlEnviado = xmlEnviado;
-		this.jsonGenerado = jsonGenerado;
+		//this.jsonGenerado = jsonGenerado;
 		this.netoSinAjustes = netoSinAjustes;
 		this.netoSoloAjustes = netoSoloAjustes;
-		this.response = response;
+		//this.response = response;
 		this.nroFiscal = nroFiscal;
 		this.comentarios = comentarios;
 	}
@@ -159,21 +165,21 @@ public class Proforma {
 		this.xmlEnviado = xmlEnviado;
 	}
 
-	public String getJsonGenerado() {
-		return jsonGenerado;
-	}
+//	public String getJsonGenerado() {
+//		return jsonGenerado;
+//	}
+//
+//	public void setJsonGenerado(String jsonGenerado) {
+//		this.jsonGenerado = jsonGenerado;
+//	}
 
-	public void setJsonGenerado(String jsonGenerado) {
-		this.jsonGenerado = jsonGenerado;
-	}
-
-	public String getResponse() {
-		return response;
-	}
-
-	public void setResponse(String response) {
-		this.response = response;
-	}
+//	public String getResponse() {
+//		return response;
+//	}
+//
+//	public void setResponse(String response) {
+//		this.response = response;
+//	}
 
 	public String getNroFiscal() {
 		return nroFiscal;
@@ -205,7 +211,7 @@ public class Proforma {
 			PreparedStatement smt = con
 					.prepareStatement(" select  id, fecha, desde, hasta, id_cliente, id_bodegaEmpresa,"
 							+ " id_proyecto, docRef, epExcelMov, epExcelEp, proformaPdf, docAnexo, descuento, neto, iva, total, esEliminable, tipo, proformaXml, xmlEnviado, "
-							+ " jsonGenerado, ifnull(response,0), ifnull(nroFiscal,0), ifnull(comentarios,'') "
+							+ " ifnull(nroFiscal,0), ifnull(comentarios,'') "
 							+ " from `"+db+"`.proforma"
 							+ " order by fecha desc,id desc");
 			ResultSet rs = smt.executeQuery();
@@ -215,8 +221,8 @@ public class Proforma {
 				String hasta = null;	if (rs.getString(4) != null) {hasta = myformatfecha.format(rs.getDate(4));}
 				lista.add(new Proforma(rs.getLong(1),fecha,desde,hasta,rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getString(8),rs.getString(9),
 						rs.getString(10),rs.getString(11),rs.getString(12),rs.getDouble(13),rs.getDouble(14),rs.getDouble(15),rs.getDouble(16),
-						rs.getLong(17),rs.getString(18),rs.getString(19),rs.getLong(20),rs.getString(21),(double)0,(double)0,rs.getString(22)
-						,rs.getString(23),rs.getString(24)));
+						rs.getLong(17),rs.getString(18),rs.getString(19),rs.getLong(20),(double)0,(double)0,
+						rs.getString(21),rs.getString(22)));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
@@ -360,13 +366,13 @@ public class Proforma {
 	   			 aux.add(rs.getString(18));		//16 arriendo o venta
 	   			 aux.add(rs.getString(19));		//17 xml factura
 	   			 aux.add(rs.getString(20));		//18 xml enviado
-	   			 aux.add(rs.getString(21));		//19 api manager
-	   			 aux.add(rs.getString(22));		//20 response si es 0 no enviado y distinto enviado
-	   			 aux.add(rs.getString(23));		//21 nro fiscal
+				aux.add(rs.getString(21));		//19 api manager
+				aux.add(rs.getString(22));		//20 response si es 0 no enviado y distinto enviado
+	   			 aux.add(rs.getString(21));		//21 nro fiscal
 	   			 aux.add(nameSucursal);			//22 nameSucursal
 	   			 aux.add(nameComercial);		//23 nameComercial
-	   			 aux.add(rs.getString(24));		//24 comentarios
-				 aux.add(rs.getString(25));		//25 rubro
+	   			 aux.add(rs.getString(22));		//24 comentarios
+				 aux.add(rs.getString(23));		//25 rubro
 	   			 
 	   			 if(esPorSucursal.equals("1")) {
 	   				 if(auxIdSucursal.equals(id_sucursal)) {
@@ -390,7 +396,7 @@ public class Proforma {
 			PreparedStatement smt = con
 					.prepareStatement("select  id,fecha,desde,hasta,id_cliente,id_bodegaEmpresa," + 
 							" id_proyecto,docRef,epExcelMov,epExcelEp,proformaPdf,docAnexo,descuento,neto,iva,total,"+
-							" esEliminable,tipo,proformaXml,xmlEnviado,jsonGenerado, ifnull(response,0), "
+							" esEliminable,tipo,proformaXml,xmlEnviado, "
 							+ " ifnull(nroFiscal,0), ifnull(comentarios,0) from `"+db+"`.proforma WHERE id = ?" );
 			smt.setLong(1, id);
 			ResultSet rs = smt.executeQuery();
@@ -400,12 +406,46 @@ public class Proforma {
 				String hasta = null;	if (rs.getString(4) != null) {hasta = myformatfecha.format(rs.getDate(4));}
 				aux = new Proforma(rs.getLong(1),fecha,desde,hasta,rs.getLong(5),rs.getLong(6),rs.getLong(7),rs.getString(8),rs.getString(9),
 						rs.getString(10),rs.getString(11),rs.getString(12),rs.getDouble(13),rs.getDouble(14),rs.getDouble(15),rs.getDouble(16),
-						rs.getLong(17), rs.getString(18), rs.getString(19),rs.getLong(20), rs.getString(21),(double)0,(double)0,rs.getString(22),
-						rs.getString(23),rs.getString(24));
+						rs.getLong(17), rs.getString(18), rs.getString(19),rs.getLong(20), (double)0,(double)0,
+						rs.getString(21),rs.getString(22));
 			}
 			rs.close();smt.close();
 		} catch (SQLException e) {
     			e.printStackTrace();
+		}
+		return (aux);
+	}
+
+	public static String findJsonGenerado(Connection con, String db, Long id) {
+		String aux = "";
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select  jsonGenerado from `"+db+"`.proforma WHERE id = ?" );
+			smt.setLong(1, id);
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {
+				aux = rs.getString(1);
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return (aux);
+	}
+
+	public static String findResponse(Connection con, String db, Long id) {
+		String aux = "";
+		try {
+			PreparedStatement smt = con
+					.prepareStatement("select  response from `"+db+"`.proforma WHERE id = ?" );
+			smt.setLong(1, id);
+			ResultSet rs = smt.executeQuery();
+			if (rs.next()) {
+				aux = rs.getString(1);
+			}
+			rs.close();smt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return (aux);
 	}
@@ -471,20 +511,20 @@ public class Proforma {
 		return (flag);
 	}
 	
-	public static boolean updateXmlEnviado(Connection con, String db, Long idProforma) {
-		Boolean flag = true;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.proforma set xmlEnviado=1 WHERE id = ?");
-			smt.setLong(1, idProforma);
-			smt.executeUpdate();
-			smt.close();
-		} catch (SQLException e) {
-    			e.printStackTrace();
-			flag=false;
-		}
-		return (flag);
-	}
+//	public static boolean updateXmlEnviado(Connection con, String db, Long idProforma) {
+//		Boolean flag = true;
+//		try {
+//			PreparedStatement smt = con
+//					.prepareStatement("update `"+db+"`.proforma set xmlEnviado=1 WHERE id = ?");
+//			smt.setLong(1, idProforma);
+//			smt.executeUpdate();
+//			smt.close();
+//		} catch (SQLException e) {
+//    			e.printStackTrace();
+//			flag=false;
+//		}
+//		return (flag);
+//	}
 	
 	public static boolean updateJsonApi(Connection con, String db, Long id_proforma, String jsonApi) {
 		Boolean flag = true;
@@ -549,21 +589,21 @@ public class Proforma {
 		return (flag);
 	}
 	
-	public static boolean updateProformaXML(Connection con, String db, Long id_proforma, String nroFiscal) {
-		Boolean flag = true;
-		try {
-			PreparedStatement smt = con
-					.prepareStatement("update `"+db+"`.proforma set proformaXML=? WHERE id = ?");
-			smt.setString(1, nroFiscal);
-			smt.setLong(2, id_proforma);
-			smt.executeUpdate();
-			smt.close();
-		} catch (SQLException e) {
-    			e.printStackTrace();
-			flag=false;
-		}
-		return (flag);
-	}
+//	public static boolean updateProformaXML(Connection con, String db, Long id_proforma, String nroFiscal) {
+//		Boolean flag = true;
+//		try {
+//			PreparedStatement smt = con
+//					.prepareStatement("update `"+db+"`.proforma set proformaXML=? WHERE id = ?");
+//			smt.setString(1, nroFiscal);
+//			smt.setLong(2, id_proforma);
+//			smt.executeUpdate();
+//			smt.close();
+//		} catch (SQLException e) {
+//    			e.printStackTrace();
+//			flag=false;
+//		}
+//		return (flag);
+//	}
 	
 	public static File listadoPorAnioExcel(String db, Map<String,String> mapDiccionario, List<List<String>> lista) {
 		

@@ -839,8 +839,8 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 
-			Map<String,String> mapeoPermiso = new HashMap<String,String>();
-			Map<String,String> mapeoDiccionario = new HashMap<String,String>();
+			Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+			Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 			String permisoPorBodega = "";
 			String tipo = form.get("tipo").trim();
 			String fechaCorte = form.get("fechaCorte").trim();
@@ -848,28 +848,11 @@ public class MnuReportes extends Controller {
 			List<List<String>> listaBodegas = new ArrayList<List<String>>();
 
 			try (Connection con = dbRead.getConnection()){
-				mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
-				mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
 				permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 				listaBodegas = Inventarios.listaBodegasConStock(con, s.baseDato, fechaCorte,
 						permisoPorBodega, "1", id_sucursal, tipo);
-				if(tipo.equals("VENTA")) {
-					List<List<String>> aux = new ArrayList<List<String>>();
-					for(List<String> l: listaBodegas) {
-						if(!l.get(2).equals("1")) {
-							aux.add(l);
-						}
-					}
-					listaBodegas = aux;
-				}
-				List<List<String>> aux = new ArrayList<List<String>>();
-				for(List<String> l: listaBodegas) {
-					if(l.get(3).equals("1")) {
-						aux.add(l);
-					}
-				}
-				listaBodegas = aux;
-				aux = null;
+
 
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -878,6 +861,24 @@ public class MnuReportes extends Controller {
 				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
 			}
+
+			if(tipo.equals("VENTA")) {
+				List<List<String>> aux = new ArrayList<List<String>>();
+				for(List<String> l: listaBodegas) {
+					if(!l.get(2).equals("1")) {
+						aux.add(l);
+					}
+				}
+				listaBodegas = aux;
+			}
+			List<List<String>> aux = new ArrayList<List<String>>();
+			for(List<String> l: listaBodegas) {
+				if(l.get(3).equals("1")) {
+					aux.add(l);
+				}
+			}
+			listaBodegas = aux;
+			aux = null;
 
 			Sucursal sucursal = new Sucursal();
 			List<List<String>> datos = new ArrayList<List<String>>();
@@ -11237,8 +11238,8 @@ public class MnuReportes extends Controller {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-				String rs = ApiManagerDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma);
+				String jsonGenerado = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
+				String rs = ApiManagerDocDoc.genera(con, s.baseDato, jsonGenerado, ws, id_proforma);
 				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, "API Manager enviada: " + rs));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -11268,10 +11269,10 @@ public class MnuReportes extends Controller {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 				Long id_guia = (long) 0;
-				String rs = ApiNuboxDocDoc.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API NUBOX nro: " + proforma.getId());
+				String jsonGenerado = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
+				String rs = ApiNuboxDocDoc.genera(con, s.baseDato, jsonGenerado, ws, id_proforma, id_guia);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API NUBOX nro: " + id_proforma);
 				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, rs));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -11301,10 +11302,10 @@ public class MnuReportes extends Controller {
 				Long id_proforma = Long.parseLong(form.get("id_proforma"));
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 				Long id_guia = (long)0;
-				String rs = ApiSapConconcreto.genera(con, s.baseDato, proforma.jsonGenerado, ws, id_proforma, id_guia);
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API SAP Conconcreto nro: "+proforma.getId());
+				String jsonGenerado = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
+				String rs = ApiSapConconcreto.genera(con, s.baseDato, jsonGenerado, ws, id_proforma, id_guia);
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura API SAP Conconcreto nro: "+id_proforma);
 				rs = rs.replace("\r", "").replace("\n", "");
 				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs ));
 			} catch (SQLException e) {
@@ -11347,9 +11348,8 @@ public class MnuReportes extends Controller {
 					part_code = "VT-002";
 					desc_text = "Arriendo Encofrados";
 				}
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
-				String xmlEncode = proforma.getJsonGenerado();
+				String xmlEncode = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
 				xmlEncode = xmlEncode.replace("colocaPartCode", part_code);
 				xmlEncode = xmlEncode.replace("colocaWareCode", ware_code);
 				xmlEncode = xmlEncode.replace("colocaDescText", desc_text);
@@ -11357,7 +11357,7 @@ public class MnuReportes extends Controller {
 				String rs = WebMaximise.generaFactura(con, s.baseDato, xmlEncode, ws, emisorTributario, id_proforma);
 				Long nroInterno = Long.parseLong(rs);
 				Proforma.updateNroFiscal(con, s.baseDato, id_proforma, nroInterno.toString());
-				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura  WS MAXIMISE nro: " + proforma.getId());
+				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de factura  WS MAXIMISE nro: " + id_proforma);
 				rs = "Orden enviada a Maximise";
 				rs = rs.replace("\r", "").replace("\n", "");
 				return ok(mensajes.render("/proformaListaGet/" + desde + "," + hasta, rs));
@@ -11426,8 +11426,7 @@ public class MnuReportes extends Controller {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-				String xml = proforma.getJsonGenerado();
+				String xml = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
 				String rs = WebIConstruye.generaDte(con, s.baseDato, xml, ws, (long)0, id_proforma);
 				Registro.modificaciones(con, s.baseDato, s.id_usuario, s.userName, "proforma", id_proforma, "update", "hace envio de proforma nro: "+id_proforma+" a IConstruye folio: " + rs);
 				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta,rs));
@@ -11458,7 +11457,7 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbRead.getConnection()) {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-				String rsBody = proforma.getResponse();
+				String rsBody = Proforma.findResponse(con, s.baseDato, id_proforma);
 				int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
 				int finpdf64 = rsBody.indexOf("</a:PdfDte>");
 				String pdf64 = rsBody.substring(inipdf64,finpdf64);
@@ -11501,8 +11500,7 @@ public class MnuReportes extends Controller {
 				String hasta = form.get("fechaHasta");
 				Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
-				String json = proforma.getJsonGenerado();
+				String json = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
 				Map<String, String> mapReferencias = TipoReferencia.mapAllCodVsConcep(con, s.baseDato);
 				ObjectMapper objectMapper = new ObjectMapper();
 				String jsonRefer = objectMapper.writeValueAsString(mapReferencias);
@@ -11531,8 +11529,8 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/home/", msgErrorFormulario));
 		}else {
 			try (Connection con = dbWrite.getConnection()) {
-				Proforma proforma = Proforma.find(con, s.baseDato, form.id_proforma);
-				String json = proforma.getJsonGenerado();
+				Long id_proforma = form.id_proforma;
+				String json = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
 				ObjectMapper objectMapper = new ObjectMapper();
 				JsonNode jsonNode = objectMapper.readTree(json);
 				ArrayNode newReferences = objectMapper.createArrayNode();
@@ -11564,7 +11562,7 @@ public class MnuReportes extends Controller {
 				String comentarios = form.sol_observaciones;
 				comentarios = comentarios.replace("\r", "\\r").replace("\n", "\\n");
 				((ObjectNode) jsonNode).put("comment", comentarios);
-				if (Proforma.updateJsonApi(con, s.baseDato, proforma.id, jsonNode.toString())) {
+				if (Proforma.updateJsonApi(con, s.baseDato, id_proforma, jsonNode.toString())) {
 					EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
 					int folio_dte = ApiRelBase.generaDTE(con, s.baseDato, emisor, json, ws, (long) 0, form.id_proforma);
 					String desdeAAMMDD = Fechas.AAMMDD(form.fechaDesde);
@@ -11648,10 +11646,9 @@ public class MnuReportes extends Controller {
 				Long id_proforma = Long.parseLong(form.get("id_proforma").trim());
 				String desde = form.get("fechaDesde");
 				String hasta = form.get("fechaHasta");
-				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
 				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
-				String json = proforma.getJsonGenerado();
-				String rs = ApiSapSchwager.generaDteFactura(con, s.baseDato, emisor, json, ws, proforma.getId());
+				String json = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
+				String rs = ApiSapSchwager.generaDteFactura(con, s.baseDato, emisor, json, ws, id_proforma);
 				if( ! rs.contains("ERROR:")) {
 					String folioNumber = rs;
 					Proforma.updateNroFiscal(con, s.baseDato, id_proforma, "Fact: "+folioNumber);

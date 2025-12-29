@@ -1937,8 +1937,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}else {
 			try (Connection con = dbRead.getConnection()){
 				Long id_guia = Long.parseLong(form.get("id_guia").trim());
-				Guia guia = Guia.find(con, s.baseDato, id_guia);
-				String rsBody = guia.getResponse();
+				String rsBody = Guia.findResponse(con, s.baseDato, id_guia);
 				int inipdf64 = rsBody.indexOf("<a:PdfDte>") + 10;
 				int finpdf64 = rsBody.indexOf("</a:PdfDte>");
 				String pdf64 = rsBody.substring(inipdf64,finpdf64);
@@ -1949,6 +1948,7 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				Guia guia = Guia.find(con, s.baseDato, id_guia);
 				return ok(file,false,Optional.of("guia_"+guia.getLinkFolio()+".pdf"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);

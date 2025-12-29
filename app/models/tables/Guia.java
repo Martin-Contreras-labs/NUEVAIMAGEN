@@ -38,9 +38,6 @@ public class Guia {
 	public String guiaXml;
 	public String observaciones;
 	public String numGuiaCliente;
-	public String jsonGenerado;
-	
-	
 	public Long id_bodegaOrigen;
 	public Long id_bodegaDestino; // bodegaDestino es equiv a bodegaEmpresa
 	public String bodegaOrigen;
@@ -48,41 +45,28 @@ public class Guia {
 	public Long numeroCotizacion;
 	public String tipoGuia;
 	public Long numeroOt;
-	
 	public Long id_ot;
-	
 	public String linkFolio;
-	
-	public String response;
-	
 	public Long id_transportista;
-	
 	public String fotos;
-	
 	public Long id_userCrea;
 	public Long id_userModifica;
 	public String fechaUserModifica;
-	
 	public Long id_sucursalOrigen;
 	public Long id_sucursalDestino;
 	public String nameSucursalOrigen;
 	public String nameSucursalDestino;
-	
 	public String nameComercial;
-	
 	public String fechaActualizacion;
 	public String fechaEnvio;
-	
 	public String totalKg;
 	public String totalM2;
-
 	public String fechaIniTerGuia;
 	
-	
 	public Guia(Long id, Long id_cotizacion, Long numero, String fecha, String docAnexo, String guiaPDF, String guiaXml,
-			String observaciones, String numGuiaCliente, String jsonGenerado, Long id_bodegaOrigen,
+			String observaciones, String numGuiaCliente, Long id_bodegaOrigen,
 			Long id_bodegaDestino, String bodegaOrigen, String bodegaDestino, Long numeroCotizacion, String tipoGuia,
-			Long numeroOt, Long id_ot, String linkFolio, String response, Long id_transportista, String fotos,
+			Long numeroOt, Long id_ot, String linkFolio, Long id_transportista, String fotos,
 			Long id_userCrea, Long id_userModifica, String fechaUserModifica, Long id_sucursalOrigen,
 			Long id_sucursalDestino, String nameSucursalOrigen, String nameSucursalDestino, String nameComercial,
 			String fechaActualizacion, String fechaEnvio, String totalKg, String totalM2,String fechaIniTerGuia) {
@@ -96,7 +80,6 @@ public class Guia {
 		this.guiaXml = guiaXml;
 		this.observaciones = observaciones;
 		this.numGuiaCliente = numGuiaCliente;
-		this.jsonGenerado = jsonGenerado;
 		this.id_bodegaOrigen = id_bodegaOrigen;
 		this.id_bodegaDestino = id_bodegaDestino;
 		this.bodegaOrigen = bodegaOrigen;
@@ -106,7 +89,6 @@ public class Guia {
 		this.numeroOt = numeroOt;
 		this.id_ot = id_ot;
 		this.linkFolio = linkFolio;
-		this.response = response;
 		this.id_transportista = id_transportista;
 		this.fotos = fotos;
 		this.id_userCrea = id_userCrea;
@@ -200,14 +182,6 @@ public class Guia {
 		this.numGuiaCliente = numGuiaCliente;
 	}
 
-	public String getJsonGenerado() {
-		return jsonGenerado;
-	}
-
-	public void setJsonGenerado(String jsonGenerado) {
-		this.jsonGenerado = jsonGenerado;
-	}
-
 	public Long getId_bodegaOrigen() {
 		return id_bodegaOrigen;
 	}
@@ -278,14 +252,6 @@ public class Guia {
 
 	public void setLinkFolio(String linkFolio) {
 		this.linkFolio = linkFolio;
-	}
-
-	public String getResponse() {
-		return response;
-	}
-
-	public void setResponse(String response) {
-		this.response = response;
 	}
 
 	public Long getId_transportista() {
@@ -558,23 +524,21 @@ public class Guia {
 							+ "guia.fecha, "
 							+ "guia.docAnexo, "
 					/*5*/	+ "guia.guiaPDF, "
-							+ "guia.guiaXml, "
+							//+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, " 
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
 							+ "'', " 
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), "
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -591,8 +555,8 @@ public class Guia {
 			
 			if (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 				
 				String nameSucursalOrigen = "Sin Sucursal";
 				Long id_sucursalOrigen = (long)0;
@@ -610,7 +574,7 @@ public class Guia {
 					id_sucursalDestino = bodegaDestino.getId_sucursal();
 				}
 				
-				Ot ot = ots.get(rs.getLong(13));
+				Ot ot = ots.get(rs.getLong(12));
 				Long numeroOt = (long)0; 
 				if(ot!=null) { 
 					numeroOt = ot.numero; 
@@ -642,27 +606,27 @@ public class Guia {
 				
     			String fechaActualizacion = "";
     			String fechaEnvio = "";
-    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
     			if(auxFecha!=null) {
     				fechaActualizacion = auxFecha.get(0);
     				fechaEnvio = auxFecha.get(1);
     			}
     			
     			Long numCoti = (long)0;
-    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
     			if(auxNumCotiSucur!=null) {
     				numCoti = auxNumCotiSucur.get(0);
     			}
     			
-    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
     			
-				aux = new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-						numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24) );
+				aux = new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+						numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+						rs.getLong(18),rs.getString(19),
+						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22) );
 			}
-			
 			rs.close();
 			smt.close();
 		} catch (SQLException e) {
@@ -671,6 +635,25 @@ public class Guia {
 		return (aux);
 	}
 	
+	
+	public static String findResponse (Connection con, String db, Long id_guia) {
+		String response = "";
+		try (PreparedStatement smt = con
+				.prepareStatement(" select  "
+						+ " response "
+						+ " from `"+db+"`.guia "
+						+ " where guia.id = ?;" )){
+			smt.setLong(1, id_guia);
+			try (ResultSet rs = smt.executeQuery()){
+				if(rs.next()) {
+					response = rs.getString(1);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
 	
 	
 	public static Guia find(Connection con, String db, Long id_guia) {
@@ -686,20 +669,18 @@ public class Guia {
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -715,8 +696,8 @@ public class Guia {
 			
 			if (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 				
 				String nameSucursalOrigen = "Sin Sucursal";
 				Long id_sucursalOrigen = (long)0;
@@ -734,7 +715,7 @@ public class Guia {
 					id_sucursalDestino = bodegaDestino.getId_sucursal();
 				}
 				
-				Ot ot = ots.get(rs.getLong(13));
+				Ot ot = ots.get(rs.getLong(12));
 				Long numeroOt = (long)0; 
 				if(ot!=null) { 
 					numeroOt = ot.numero; 
@@ -766,25 +747,26 @@ public class Guia {
 				
     			String fechaActualizacion = "";
     			String fechaEnvio = "";
-    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
     			if(auxFecha!=null) {
     				fechaActualizacion = auxFecha.get(0);
     				fechaEnvio = auxFecha.get(1);
     			}
     			
     			Long numCoti = (long)0;
-    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
     			if(auxNumCotiSucur!=null) {
     				numCoti = auxNumCotiSucur.get(0);
     			}
     			
-    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
     			
-				aux = new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-						numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2,rs.getString(24));
+				aux = new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+						numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+						rs.getLong(18),rs.getString(19),
+						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22));
 			}
 			rs.close();
 			smt.close();
@@ -807,20 +789,18 @@ public class Guia {
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -836,8 +816,8 @@ public class Guia {
 			
 			if (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 				
 				String nameSucursalOrigen = "Sin Sucursal";
 				Long id_sucursalOrigen = (long)0;
@@ -855,7 +835,7 @@ public class Guia {
 					id_sucursalDestino = bodegaDestino.getId_sucursal();
 				}
 				
-				Ot ot = ots.get(rs.getLong(13));
+				Ot ot = ots.get(rs.getLong(12));
 				Long numeroOt = (long)0; 
 				if(ot!=null) { 
 					numeroOt = ot.numero; 
@@ -887,25 +867,26 @@ public class Guia {
     			
     			String fechaActualizacion = "";
     			String fechaEnvio = "";
-    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
     			if(auxFecha!=null) {
     				fechaActualizacion = auxFecha.get(0);
     				fechaEnvio = auxFecha.get(1);
     			}
     			
     			Long numCoti = (long)0;
-    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
     			if(auxNumCotiSucur!=null) {
     				numCoti = auxNumCotiSucur.get(0);
     			}
     			
-    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
 				
-				aux = new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-						numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24));
+				aux = new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+						numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+						rs.getLong(18),rs.getString(19),
+						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22));
 			}
 			rs.close();
 			smt.close();
@@ -948,22 +929,20 @@ public class Guia {
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
-							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) "
+							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " 
 							+ " from `"+db+"`.guia " +
 							" where guia.numero > 0 and (guia.fecha between ? and ?) "+ permisoPorBodega +
 							" order by guia.fecha desc, guia.id desc;" );
@@ -980,8 +959,8 @@ public class Guia {
 			
 			while (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 				
 				String nameSucursalOrigen = "Sin Sucursal";
 				Long id_sucursalOrigen = (long)0;
@@ -1003,7 +982,7 @@ public class Guia {
 					id_sucursalDestino = bodegaDestino.getId_sucursal();
 				}
 				
-				Ot ot = ots.get(rs.getLong(13));
+				Ot ot = ots.get(rs.getLong(12));
 				Long numeroOt = (long)0; 
 				if(ot!=null) { 
 					numeroOt = ot.numero; 
@@ -1034,43 +1013,46 @@ public class Guia {
     			
     			String fechaActualizacion = "";
     			String fechaEnvio = "";
-    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
     			if(auxFecha!=null) {
     				fechaActualizacion = auxFecha.get(0);
     				fechaEnvio = auxFecha.get(1);
     			}
     			
     			Long numCoti = (long)0;
-    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
     			if(auxNumCotiSucur!=null) {
     				numCoti = auxNumCotiSucur.get(0);
     			}
     			
-    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
     			
 				if(bodegaOrigen!=null && bodegaDestino!=null && esPorSucursal.equals("1")) {
 					if(paraModificar) {
 						if(bodegaOrigen.getId_sucursal().toString().equals(id_sucursal) && bodegaDestino.getId_sucursal().toString().equals(id_sucursal)) {
-							aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-									rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-									numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+							aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+									rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+									numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+									rs.getLong(18),rs.getString(19),
+									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 						}
 					}else {
 						if(bodegaOrigen.getId_sucursal().toString().equals(id_sucursal) || bodegaDestino.getId_sucursal().toString().equals(id_sucursal)) {
-							aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-									rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-									numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+							aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+									rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+									numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+									rs.getLong(18),rs.getString(19),
+									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 						}
 					}
 					
 				}else {
-					aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-							rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-							numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-							id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+					aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+							rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+							numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+							rs.getLong(18),rs.getString(19),
+							id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 				}
 				
 			}
@@ -1092,24 +1074,22 @@ public class Guia {
 							+ "guia.numero, "
 							+ "guia.fecha, "
 							+ "guia.docAnexo, "
-					/*5*/	+ "guia.guiaPDF, "
+                    /*5*/	+ "guia.guiaPDF, "
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) "
 							+ " from `"+db+"`.guia " +
@@ -1123,8 +1103,8 @@ public class Guia {
 			
 			while (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 				
 				if(bodegaOrigen!=null && bodegaDestino!=null && bodegaOrigen.getClienteVigente()==(long)1 && bodegaDestino.getClienteVigente()==(long)1) {
 					String nameSucursalOrigen = "Sin Sucursal";
@@ -1147,7 +1127,7 @@ public class Guia {
 						id_sucursalDestino = bodegaDestino.getId_sucursal();
 					}
 					
-					Ot ot = ots.get(rs.getLong(13));
+					Ot ot = ots.get(rs.getLong(12));
 					Long numeroOt = (long)0; 
 					if(ot!=null) { 
 						numeroOt = ot.numero; 
@@ -1178,43 +1158,46 @@ public class Guia {
 	    			
 	    			String fechaActualizacion = "";
 	    			String fechaEnvio = "";
-	    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+	    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
 	    			if(auxFecha!=null) {
 	    				fechaActualizacion = auxFecha.get(0);
 	    				fechaEnvio = auxFecha.get(1);
 	    			}
 	    			
 	    			Long numCoti = (long)0;
-	    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+	    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
 	    			if(auxNumCotiSucur!=null) {
 	    				numCoti = auxNumCotiSucur.get(0);
 	    			}
 	    			
-	    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-	    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+	    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+	    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
 	    			
 					if(bodegaOrigen!=null && bodegaDestino!=null && esPorSucursal.equals("1")) {
 						if(paraModificar) {
 							if(bodegaOrigen.getId_sucursal().toString().equals(id_sucursal) && bodegaDestino.getId_sucursal().toString().equals(id_sucursal)) {
-								aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-										rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-										numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+								aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+										rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+										numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+										rs.getLong(18),rs.getString(19),
+										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 							}
 						}else {
 							if(bodegaOrigen.getId_sucursal().toString().equals(id_sucursal) || bodegaDestino.getId_sucursal().toString().equals(id_sucursal)) {
-								aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-										rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-										numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+								aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+										rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+										numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+										rs.getLong(18),rs.getString(19),
+										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 							}
 						}
 						
 					}else {
-						aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-								rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-								numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-								id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+						aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+								rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+								numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+								rs.getLong(18),rs.getString(19),
+								id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 					}
 				}
 				
@@ -1243,20 +1226,18 @@ public class Guia {
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -1271,7 +1252,7 @@ public class Guia {
 			
 			while (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
 				
 				String nameSucursalOrigen = "Sin Sucursal";
 				Long id_sucursalOrigen = (long)0;
@@ -1287,7 +1268,7 @@ public class Guia {
 					id_comercialOrigen = bodegaOrigen.getId_comercial();
 				}
 				
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 				
 				String nameSucursalDestino = "Sin Sucursal";
 				Long id_sucursalDestino = (long)0;
@@ -1302,7 +1283,7 @@ public class Guia {
 					id_comercialDestino = bodegaDestino.getId_comercial();
 				}
 				
-				Ot ot = ots.get(rs.getLong(13));
+				Ot ot = ots.get(rs.getLong(12));
 				Long numeroOt = (long)0; 
 				if(ot!=null) { 
 					numeroOt = ot.numero; 
@@ -1334,25 +1315,26 @@ public class Guia {
     			
     			String fechaActualizacion = "";
     			String fechaEnvio = "";
-    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
     			if(auxFecha!=null) {
     				fechaActualizacion = auxFecha.get(0);
     				fechaEnvio = auxFecha.get(1);
     			}
     			
     			Long numCoti = (long)0;
-    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
     			if(auxNumCotiSucur!=null) {
     				numCoti = auxNumCotiSucur.get(0);
     			}
     			
-    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
 				
-				aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-						numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+				aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+						numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+						rs.getLong(18),rs.getString(19),
+						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 			}
 			rs.close();
 			smt.close();
@@ -1371,24 +1353,22 @@ public class Guia {
 							+ "guia.numero, "
 							+ "guia.fecha, "
 							+ "guia.docAnexo, "
-							/*5*/	+ "guia.guiaPDF, "
+					/*5*/	+ "guia.guiaPDF, "
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-							/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, "
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-							/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
 							+ "'', "
 							+ "guia.id_userCrea, "
-							/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), "
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -1406,7 +1386,7 @@ public class Guia {
 
 			while (rs.next()) {
 
-				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
+				BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
 
 				String nameSucursalOrigen = "Sin Sucursal";
 				Long id_sucursalOrigen = (long)0;
@@ -1422,7 +1402,7 @@ public class Guia {
 					id_comercialOrigen = bodegaOrigen.getId_comercial();
 				}
 
-				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+				BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 
 				String nameSucursalDestino = "Sin Sucursal";
 				Long id_sucursalDestino = (long)0;
@@ -1437,7 +1417,7 @@ public class Guia {
 					id_comercialDestino = bodegaDestino.getId_comercial();
 				}
 
-				Ot ot = ots.get(rs.getLong(13));
+				Ot ot = ots.get(rs.getLong(12));
 				Long numeroOt = (long)0;
 				if(ot!=null) {
 					numeroOt = ot.numero;
@@ -1469,25 +1449,26 @@ public class Guia {
 
 				String fechaActualizacion = "";
 				String fechaEnvio = "";
-				List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+				List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
 				if(auxFecha!=null) {
 					fechaActualizacion = auxFecha.get(0);
 					fechaEnvio = auxFecha.get(1);
 				}
 
 				Long numCoti = (long)0;
-				List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+				List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
 				if(auxNumCotiSucur!=null) {
 					numCoti = auxNumCotiSucur.get(0);
 				}
 
-				String totalKg = myformatdouble2.format(rs.getDouble(22));
-				String totalM2 = myformatdouble2.format(rs.getDouble(23));
+				String totalKg = myformatdouble2.format(rs.getDouble(20));
+				String totalM2 = myformatdouble2.format(rs.getDouble(21));
 
-				aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-						rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-						numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+				aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+						rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+						numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+						rs.getLong(18),rs.getString(19),
+						id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 			}
 			rs.close();
 			smt.close();
@@ -1511,20 +1492,18 @@ public class Guia {
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -1550,8 +1529,8 @@ public class Guia {
 			
 			while (rs.next()) {
 				
-					BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-					BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+					BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+					BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 					
 					if(bodegaOrigen!=null && bodegaDestino!=null) {
 						String nameSucursalOrigen = "Sin Sucursal";
@@ -1570,7 +1549,7 @@ public class Guia {
 							id_sucursalDestino = bodegaDestino.getId_sucursal();
 						}
 						
-						Ot ot = ots.get(rs.getLong(13));
+						Ot ot = ots.get(rs.getLong(12));
 						Long numeroOt = (long)0; 
 						if(ot!=null) { 
 							numeroOt = ot.numero; 
@@ -1605,7 +1584,7 @@ public class Guia {
 		    			
 		    			String fechaActualizacion = "";
 		    			String fechaEnvio = "";
-		    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+		    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
 		    			if(auxFecha!=null) {
 		    				fechaActualizacion = auxFecha.get(0);
 		    				fechaEnvio = auxFecha.get(1);
@@ -1613,27 +1592,29 @@ public class Guia {
 		    			
 		    			Long numCoti = (long)0;
 		    			Long idSucursal = (long)0;
-		    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+		    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
 		    			if(auxNumCotiSucur!=null) {
 		    				numCoti = auxNumCotiSucur.get(0);
 		    				idSucursal = auxNumCotiSucur.get(1);
 		    			}
 		    			
-		    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-		    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+		    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+		    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
 					
 						if(condicionadoPorSucursal) {
 							if(idSucursal.toString().equals(id_sucursal)) {
-								aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-										rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-										numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+								aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+										rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+										numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+										rs.getLong(18),rs.getString(19),
+										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 							}
 						}else {
-							aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-									rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-									numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+							aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+									rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+									numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+									rs.getLong(18),rs.getString(19),
+									id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 						}
 					}
 				}
@@ -1660,20 +1641,18 @@ public class Guia {
 							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
-							+ "guia.jsonGenerado, "
-					/*10*/	+ "guia.id_bodegaOrigen, "
-							+ "guia.id_bodegaDestino, " 
+					/*9*/	+ "guia.id_bodegaOrigen, "
+					/*10*/	+ "guia.id_bodegaDestino, "
 							+ "guia.id_cotizacion, "
 							+ "guia.id_ot, "
 							+ "guia.linkFolio, "
-					/*15*/	+ "ifnull(guia.response,0), "
-							+ "guia.id_transportista, "
-							+ "guia.fotos, "
-							+ "'', " 
+					/*14*/	+ "guia.id_transportista, "
+					/*15*/	+ "guia.fotos, "
+							+ "'', "
 							+ "guia.id_userCrea, "
-					/*20*/	+ "guia.id_userModifica, "
-							+ "ifnull(guia.fechaUserModifica,''), " 
-							+ "guia.totalKg, "
+					/*18*/	+ "guia.id_userModifica, "
+					/*19*/	+ "ifnull(guia.fechaUserModifica,''), "
+					/*20*/	+ "guia.totalKg, "
 							+ "guia.totalM2, "
 							+ "ifnull(guia.fechaIniTerGuia,guia.fecha) " +
 							" from `"+db+"`.guia " +
@@ -1699,8 +1678,8 @@ public class Guia {
 			
 			while (rs.next()) {
 				
-					BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(10));
-					BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(11));
+					BodegaEmpresa bodegaOrigen = bodegas.get(rs.getLong(9));
+					BodegaEmpresa bodegaDestino = bodegas.get(rs.getLong(10));
 					
 					if(bodegaOrigen!=null && bodegaDestino!=null && bodegaOrigen.getClienteVigente()==(long)1 && bodegaDestino.getClienteVigente()==(long)1) {
 						String nameSucursalOrigen = "Sin Sucursal";
@@ -1719,7 +1698,7 @@ public class Guia {
 							id_sucursalDestino = bodegaDestino.getId_sucursal();
 						}
 						
-						Ot ot = ots.get(rs.getLong(13));
+						Ot ot = ots.get(rs.getLong(12));
 						Long numeroOt = (long)0; 
 						if(ot!=null) { 
 							numeroOt = ot.numero; 
@@ -1754,7 +1733,7 @@ public class Guia {
 			    			
 			    			String fechaActualizacion = "";
 			    			String fechaEnvio = "";
-			    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(13));
+			    			List<String> auxFecha = mapIdvsFechActEnvio.get(rs.getLong(12));
 			    			if(auxFecha!=null) {
 			    				fechaActualizacion = auxFecha.get(0);
 			    				fechaEnvio = auxFecha.get(1);
@@ -1762,27 +1741,29 @@ public class Guia {
 			    			
 			    			Long numCoti = (long)0;
 			    			Long idSucursal = (long)0;
-			    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(12));
+			    			List<Long> auxNumCotiSucur = mapIdvsNumCotiSucur.get(rs.getLong(11));
 			    			if(auxNumCotiSucur!=null) {
 			    				numCoti = auxNumCotiSucur.get(0);
 			    				idSucursal = auxNumCotiSucur.get(1);
 			    			}
 			    			
-			    			String totalKg = myformatdouble2.format(rs.getDouble(22));
-			    			String totalM2 = myformatdouble2.format(rs.getDouble(23));
+			    			String totalKg = myformatdouble2.format(rs.getDouble(20));
+			    			String totalM2 = myformatdouble2.format(rs.getDouble(21));
 						
 							if(condicionadoPorSucursal) {
 								if(idSucursal.toString().equals(id_sucursal)) {
-									aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-											rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-											numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-											id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+									aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+											rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+											numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+											rs.getLong(18),rs.getString(19),
+											id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 								}
 							}else {
-								aux.add(new Guia(rs.getLong(1),rs.getLong(12),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
-										rs.getString(7),rs.getString(8),rs.getString(9),rs.getLong(10),rs.getLong(11),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
-										numeroOt, rs.getLong(13), rs.getString(14), rs.getString(15), rs.getLong(16), rs.getString(17),rs.getLong(19),rs.getLong(20),rs.getString(21),
-										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(24)));
+								aux.add(new Guia(rs.getLong(1),rs.getLong(11),rs.getLong(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),
+										rs.getString(7),rs.getString(8), rs.getLong(9),rs.getLong(10),nombreBodegaOrigen,nombreBodegaDestino,numCoti,tipoGuia,
+										numeroOt, rs.getLong(12), rs.getString(13), rs.getLong(14), rs.getString(15), rs.getLong(17),
+										rs.getLong(18),rs.getString(19),
+										id_sucursalOrigen,id_sucursalDestino,nameSucursalOrigen,nameSucursalDestino,nameComercial, fechaActualizacion, fechaEnvio, totalKg, totalM2, rs.getString(22)));
 							}
 							
 						}

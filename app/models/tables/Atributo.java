@@ -300,8 +300,12 @@ public class Atributo{
 	public static boolean modifyAtributoEquipo(Connection con, String db, Long id_atributo, Long id_equipo, String valor, Long esNumero) {
 		Double numAtributo = (double) 0;
 		String strAtributo = "";
-		if(esNumero == (long)1 && !valor.equals("")){
-			numAtributo = Double.parseDouble(valor);
+		if(esNumero == (long)1){
+			try {
+				numAtributo = Double.parseDouble(valor.replaceAll(",","").trim());
+			} catch (NumberFormatException e) {
+				numAtributo = (double) 0;
+			}
 		}else{
 			strAtributo = valor.trim();
 		}
@@ -349,7 +353,12 @@ public class Atributo{
 		String strValor = " ";
 		String numValor = "0";
 		if(Atributo.esNumerico(con, db, id_atributo)){
-			numValor = valor.replaceAll("\\,","").trim();
+			numValor = valor.replaceAll(",","").trim();
+			try {
+				Double.parseDouble(numValor);
+			} catch (NumberFormatException e) {
+				numValor = "0";
+			}
 			strValor = " ";
 		}else{
 			strValor=valor;
