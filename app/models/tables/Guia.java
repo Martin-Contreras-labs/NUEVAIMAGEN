@@ -467,6 +467,7 @@ public class Guia {
 				smt.setString(11, aux.getFotos());
 				smt.setString(12, id_userCrea);
 				smt.setString(13, aux.getFechaIniTerGuia());
+				
 				smt.executeUpdate();
 				smt.close();
 			}else {
@@ -524,7 +525,7 @@ public class Guia {
 							+ "guia.fecha, "
 							+ "guia.docAnexo, "
 					/*5*/	+ "guia.guiaPDF, "
-							//+ "guia.guiaXml, "
+							+ "guia.guiaXml, "
 							+ "guia.observaciones, "
 							+ "guia.numGuiaCliente, "
 					/*9*/	+ "guia.id_bodegaOrigen, "
