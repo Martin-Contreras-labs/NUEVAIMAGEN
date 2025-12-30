@@ -2950,6 +2950,7 @@ public class FormCotiza {
             	mensaje.set(0,"true");
             }
         } catch (Exception e) {
+			e.printStackTrace();
 			mensaje.set(0,"ARCHIVO NO CORRESPONDE A LA PLANTILLA");
         	return (mensaje);
         }

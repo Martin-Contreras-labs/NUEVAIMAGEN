@@ -1572,7 +1572,7 @@ listDibujantes: List[tables.Dibujante], listPlazoProbable: List[tables.PlazoProb
 						rsGlobal = rs;
 						$("#msgNuevosCodigos").modal('show');
 					}else{
-						alertify.alert("SE PRESENTO UN PROBLEMA", function () { 
+						alertify.alert("SE PRESENTO UN PROBLEMA: "+rs, function () {
 							location.reload();
 						});
 					}

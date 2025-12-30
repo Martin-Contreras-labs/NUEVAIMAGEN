@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -63,35 +65,44 @@ public class Archivos{
 	}
 	
 	public static File parseInputStreamToFile(InputStream input){
+		if (input == null) return null;
 		File output = null;
-		try {
-			output = TempFile.createTempFile("tmp","tmp");
-			FileUtils.copyInputStreamToFile(input, output);
-		} catch (IOException e) {
+		try (InputStream autoCloseInput = input) {
+			output = TempFile.createTempFile("stream_upload", ".tmp");
+			FileUtils.copyInputStreamToFile(autoCloseInput, output);
+		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
-		return (output);
+		return output;
 	}
 
 
 	
 	public static File parseMultipartFormDatatoFile(Http.MultipartFormData.FilePart<TemporaryFile> archivo) {
+		if (archivo == null) return null;
 		String fileName = archivo.getFilename();
-		String ext = fileName.substring(fileName.lastIndexOf("."));
-		while(ext.substring(1).indexOf(".")>0) {
-			ext=ext.substring(1);
-			ext=ext.substring(fileName.indexOf("."));
+		String ext = "";
+		int i = fileName.lastIndexOf('.');
+		if (i > 0) {
+			ext = fileName.substring(i);
 		}
-		TemporaryFile file = archivo.getRef();
+		TemporaryFile tempRef = archivo.getRef();
 		File tmp = null;
-		try{
-			tmp = TempFile.createTempFile("tmp",ext);
-		}catch(Exception e){}
-		file.moveTo(tmp);
+		try {
+			tmp = TempFile.createTempFile("upload", ext);
+			tempRef.atomicMoveWithFallback(tmp.toPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 		return tmp;
 	}
 
 	public static InputStream parseFileToInputStream(File file) {
+		if (file == null || !file.exists() || !file.isFile()) {
+			return null;
+		}
 		try {
 			return new FileInputStream(file);
 		} catch (Exception e) {
@@ -102,138 +113,123 @@ public class Archivos{
 	public static InputStream leerArchivo(String path){
 		String bucket = HomeController.config.getString("bucket");
 		Region region = Region.US_EAST_2;
-		S3Client s3 = S3Client.builder().region(region).build();
-		ResponseBytes<GetObjectResponse> file = s3.getObjectAsBytes(GetObjectRequest.builder().bucket(bucket).key(path).build());
-		s3.close();
-		InputStream archivo = file.asInputStream();
-		return(archivo);
+		try (S3Client s3 = S3Client.builder().region(region).build()) {
+			GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+					.bucket(bucket)
+					.key(path)
+					.build();
+			ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(getObjectRequest);
+			return objectBytes.asInputStream();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	public static List<List<String>> listaDeObjetos(String base, String carpeta){
-		List<List<String>> lista = new ArrayList<List<String>>();
-		List<String> listAux = new ArrayList<String>();
+		List<List<String>> listaFinal = new ArrayList<>();
+		List<String> nombresArchivos = new ArrayList<>();
 		String bucket = HomeController.config.getString("bucket");
 		Region region = Region.US_EAST_2;
-		S3Client s3 = S3Client.builder().region(region).build();
-		try {
-            ListObjectsRequest listObjects = ListObjectsRequest
-                .builder()
-                .bucket(bucket)
-                .prefix(base+"/"+carpeta)
-                .build();
-
-            ListObjectsResponse res = s3.listObjects(listObjects);
-            
-            List<S3Object> objects = res.contents();
-            for (S3Object myValue : objects) {
-            	String[] aux = myValue.key().split("/");
-            	if(aux.length==3) {
-            		listAux.add(aux[2]);
-            	}
-            }
-        } catch (S3Exception e) {
-            System.err.println(e.awsErrorDetails().errorMessage());
-        }
-		
-		//ORDENA LA LISTA
-		for(int j=0;j<listAux.size();j++) {
-	        for(int i=0;i<listAux.size()-j;i++) {
-	            if (i+1!=listAux.size() && listAux.get(i).toLowerCase().compareTo(listAux.get(i+1).toLowerCase()) > 0) {
-	                String aux = listAux.get(i);
-	                listAux.set(i,listAux.get(i+1));
-	                listAux.set(i+1, aux);
-	            }
-	        }
-	    }
-		
-		
-		
-		for(int i=0; i<listAux.size(); i++) {
-			
-			List<String> aux = new ArrayList<String>();
-			for(int j=0; j<6 && i<listAux.size(); j++) {
-				aux.add(listAux.get(i));
-				i++;
+		try (S3Client s3 = S3Client.builder().region(region).build()) {
+			ListObjectsRequest listObjects = ListObjectsRequest.builder()
+					.bucket(bucket)
+					.prefix(base + "/" + carpeta + "/")
+					.build();
+			ListObjectsResponse res = s3.listObjects(listObjects);
+			for (S3Object myValue : res.contents()) {
+				String key = myValue.key();
+				// Extraer solo el nombre del archivo (después de la última "/")
+				String[] partes = key.split("/");
+				if (partes.length > 0) {
+					String nombreArchivo = partes[partes.length - 1];
+					if (!nombreArchivo.isEmpty()) {
+						nombresArchivos.add(nombreArchivo);
+					}
+				}
 			}
-			i--;
-			lista.add(aux);
+		} catch (S3Exception e) {
+			return listaFinal;
 		}
-		return(lista);
+		Collections.sort(nombresArchivos, String.CASE_INSENSITIVE_ORDER);
+		for (int i = 0; i < nombresArchivos.size(); i += 6) {
+			int fin = Math.min(i + 6, nombresArchivos.size());
+			listaFinal.add(new ArrayList<>(nombresArchivos.subList(i, fin)));
+		}
+		return listaFinal;
 	}
 
 	public static void grabarArchivo(File file, String path){
+		if (file == null || !file.exists()) {
+			return;
+		}
 		String bucket = HomeController.config.getString("bucket");
 		Region region = Region.US_EAST_2;
-		S3Client s3 = S3Client.builder().region(region).build();
-		s3.putObject(PutObjectRequest.builder().bucket(bucket).key(path).build(), RequestBody.fromFile(file));
-		s3.close();
+		try (S3Client s3 = S3Client.builder().region(region).build()) {
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+					.bucket(bucket)
+					.key(path)
+					.build();
+			s3.putObject(putObjectRequest, RequestBody.fromFile(file));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static String grabarArchivos(Http.MultipartFormData.FilePart<TemporaryFile> archivo, String subCarpeta, String nombreArchivoSinExtencion) {
-		 	String fileName = archivo.getFilename();
-         	fileName = fileName.substring(fileName.indexOf("."));
-			while(fileName.substring(1).indexOf(".")>0) {
-				fileName=fileName.substring(1);
-				fileName=fileName.substring(fileName.indexOf("."));
-			}
-			String ext = fileName;
-			String path = subCarpeta+"/"+nombreArchivoSinExtencion + ext;
-			String bucket = HomeController.config.getString("bucket");
-			
-			TemporaryFile file = archivo.getRef();
-			Region region = Region.US_EAST_2;
-			S3Client s3 = S3Client.builder().region(region).build();
-			s3.putObject(PutObjectRequest.builder().bucket(bucket).key(path).build(),RequestBody.fromFile(file.path()));
-			s3.close();
-         return (nombreArchivoSinExtencion + ext);
+		if (archivo == null) return null;
+		String fileNameOriginal = archivo.getFilename();
+		String ext = "";
+		int lastDotIndex = fileNameOriginal.lastIndexOf('.');
+		if (lastDotIndex >= 0) {
+			ext = fileNameOriginal.substring(lastDotIndex);
+		}
+		String nombreFinalConExt = nombreArchivoSinExtencion + ext;
+		String pathS3 = subCarpeta + "/" + nombreFinalConExt;
+		String bucket = HomeController.config.getString("bucket");
+		Region region = Region.US_EAST_2;
+		try (S3Client s3 = S3Client.builder().region(region).build()) {
+			TemporaryFile tempFile = archivo.getRef();
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+					.bucket(bucket)
+					.key(pathS3)
+					.build();
+			s3.putObject(putObjectRequest, RequestBody.fromFile(tempFile.path()));
+			return nombreFinalConExt;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	public static String comprimirYgrabar(List<Http.MultipartFormData.FilePart<TemporaryFile>> FILES, String subCarpeta, String nombreArchivoSinExtencion) throws Exception {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		File tmp = null;
-		try{
-			tmp = TempFile.createTempFile("tmp","null");
-		}catch(Exception e){}
-        ZipOutputStream zos = new ZipOutputStream(baos);
-        try (zos) {
-            for (Http.MultipartFormData.FilePart<TemporaryFile> f : FILES) {
-            	
-            	String fileName = f.getFilename();
-        		String ext = fileName.substring(fileName.lastIndexOf("."));
-        		while(ext.substring(1).indexOf(".")>0) {
-        			ext=ext.substring(1);
-        			ext=ext.substring(fileName.indexOf("."));
-        		}
-        		
-            	TemporaryFile file = f.getRef();
-        		File auxTmp = TempFile.createTempFile("tmp",ext);
-        		file.moveTo(auxTmp);
-                
-                zos.putNextEntry(new ZipEntry(fileName));
-                try (FileInputStream fileInputStream = new FileInputStream(auxTmp)) {
-					byte[] buf = new byte[1024];
-					int bytesRead;
-
-					while ((bytesRead = fileInputStream.read(buf)) > 0) {
-						zos.write(buf, 0, bytesRead);
-					}
-				}
-                zos.closeEntry();
-            }
-        }
-
-        try (FileOutputStream outputStream = new FileOutputStream(tmp)) {
-			outputStream.write(baos.toByteArray());
-		}
-		
-        String ext = ".zip";
-		String path = subCarpeta+"/"+ nombreArchivoSinExtencion + ext;
+		if (FILES == null || FILES.isEmpty()) return null;
+		String extZip = ".zip";
+		String nombreFinal = nombreArchivoSinExtencion + extZip;
+		String pathS3 = subCarpeta + "/" + nombreFinal;
 		String bucket = HomeController.config.getString("bucket");
 		Region region = Region.US_EAST_2;
-		S3Client s3 = S3Client.builder().region(region).build();
-		s3.putObject(PutObjectRequest.builder().bucket(bucket).key(path).build(),RequestBody.fromFile(tmp));
-		s3.close();
-		return (nombreArchivoSinExtencion + ext);
+		File zipFile = TempFile.createTempFile("compress", ".zip");
+		try (FileOutputStream fos = new FileOutputStream(zipFile);
+			 ZipOutputStream zos = new ZipOutputStream(fos)) {
+			for (Http.MultipartFormData.FilePart<TemporaryFile> f : FILES) {
+				String fileName = f.getFilename();
+				TemporaryFile tempRef = f.getRef();
+				zos.putNextEntry(new ZipEntry(fileName));
+				Files.copy(tempRef.path(), zos);
+				zos.closeEntry();
+			}
+		} catch (IOException e) {
+			if (zipFile.exists()) zipFile.delete();
+			throw e;
+		}
+		try (S3Client s3 = S3Client.builder().region(region).build()) {
+			s3.putObject(PutObjectRequest.builder().bucket(bucket).key(pathS3).build(),
+					RequestBody.fromFile(zipFile));
+		} finally {
+			if (zipFile.exists()) zipFile.delete();
+		}
+		return nombreFinal;
     }
 	
 

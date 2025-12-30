@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -575,51 +576,42 @@ public class HomeController extends Controller {
 		String className = this.getClass().getSimpleName();
 		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 		if (!s.isValid()) {
-			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
 			return ok(mensajes.render("/", msgError));
 		}
-    	DynamicForm form = formFactory.form().bindFromRequest(request);
-		form.get("dummy");
-   		if (form.hasErrors()) {
-			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		String carpeta = form.get("carpeta");
+		if (form.hasErrors() || carpeta == null || carpeta.isEmpty()) {
 			return ok(mensajes.render("/", msgError));
-       	}else {
-			try (Connection con = dbRead.getConnection()){
-       			String carpeta = form.get("carpeta");
-        		List<List<String>> listado = Archivos.listaDeObjetos(s.baseDato, carpeta);
-        		List<List<List<String>>> lista = new ArrayList<List<List<String>>>();
-        		for(int i=0; i<listado.size(); i++) {
-        			List<List<String>> aux = new ArrayList<List<String>>();
-        			for(int j=0; j<listado.get(i).size(); j++) {
-        				List<String> aux2 = new ArrayList<String>();
-        				aux2.add(carpeta+"/"+listado.get(i).get(j));
-        				aux2.add(listado.get(i).get(j));
-        				aux.add(aux2);
-        			}
-        			lista.add(aux);
-        		}
-				String aux[] = carpeta.split("_");
-				String origen = aux[1];
-				File file = null;
-				if(origen.equals("Mov")) {
-					Guia guia = Guia.findPorAlbum(con,  s.baseDato, carpeta);
-					VentaServicio ventaServicio = null;
-					file = HomeController.reporteEnWordHome(s.baseDato, lista, guia, ventaServicio);
-				}else if(origen.equals("Report")){
-					Guia guia = null;
-					VentaServicio ventaServicio = VentaServicio.findPorAlbum(con, s.baseDato, carpeta);
-					file = HomeController.reporteEnWordHome(s.baseDato, lista, guia, ventaServicio);
-				}
-				return ok(file,false,Optional.of("Imagenes_"+carpeta+".docx"));
-			} catch (SQLException e) {
-				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
-			} catch (Exception e) {
-				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
-				return ok(mensajes.render("/home/", msgReport));
+		}
+		try (Connection con = dbRead.getConnection()) {
+			List<List<String>> listadoS3 = Archivos.listaDeObjetos(s.baseDato, carpeta);
+			List<List<List<String>>> listaParaWord = listadoS3.stream()
+					.map(subLista -> subLista.stream()
+							.map(nombreArchivo -> List.of(carpeta + "/" + nombreArchivo, nombreArchivo))
+							.collect(Collectors.toList()))
+					.collect(Collectors.toList());
+			String[] partesCarpeta = carpeta.split("_");
+			String origen = partesCarpeta.length > 1 ? partesCarpeta[1] : "";
+			File file = null;
+			Guia guia = null;
+			VentaServicio ventaServicio = null;
+			if ("Mov".equals(origen)) {
+				guia = Guia.findPorAlbum(con, s.baseDato, carpeta);
+			} else if ("Report".equals(origen)) {
+				ventaServicio = VentaServicio.findPorAlbum(con, s.baseDato, carpeta);
 			}
-       	}
-   		
+			file = HomeController.reporteEnWordHome(s.baseDato, listaParaWord, guia, ventaServicio);
+			if (file == null || !file.exists()) {
+				return ok(mensajes.render("/home/", "No se pudo generar el archivo Word."));
+			}
+			return ok(file, false, Optional.of("Imagenes_" + carpeta + ".docx"));
+		} catch (SQLException e) {
+			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
 	}
 
 	public static File muestraGuiaMasAlbum(Guia guia, String db) {
@@ -677,64 +669,57 @@ public class HomeController extends Controller {
 		try {
 			tmp = TempFile.createTempFile("tmp","null");
 			String path = "formatos/listadoFOTOS.docx";
-			InputStream formato = Archivos.leerArchivo(path);
-			XWPFDocument doc = new XWPFDocument(formato);
-			if(guia!=null) {
-				XWPFParagraph p1 = doc.getParagraphArray(0);
-				p1.setAlignment(ParagraphAlignment.LEFT);
-				XWPFRun r1 = p1.createRun();
-				r1.setBold(true);
-				r1.setText("Movimiento Nro: " + guia.getNumero() + " de fecha " + Fechas.DDMMAA(guia.getFecha()) );
-				p1 = doc.getParagraphArray(1);
-				r1 = p1.createRun();
-				r1.setText("Referencia: " + guia.getNumGuiaCliente());
-				p1 = doc.getParagraphArray(2);
-				r1 = p1.createRun();
-				r1.setText("Origen: " + guia.getBodegaOrigen());
-				p1 = doc.getParagraphArray(3);
-				r1 = p1.createRun();
-				r1.setText("Destino: " + guia.getBodegaDestino());
-				p1 = doc.getParagraphArray(4);
-				r1 = p1.createRun();
-				r1.setText("Observaciones: " + guia.getObservaciones());
-			}else if(ventaServicio!=null) {
-				XWPFParagraph p1 = doc.getParagraphArray(0);
-				p1.setAlignment(ParagraphAlignment.LEFT);
-				XWPFRun r1 = p1.createRun();
-				r1.setBold(true);
-				r1.setText("Report Id: " + ventaServicio.getId() + " de fecha " + Fechas.DDMMAA(ventaServicio.getFecha()) );
-				p1 = doc.getParagraphArray(1);
-				r1 = p1.createRun();
-				r1.setText("Servicio: " + ventaServicio.getNomServicio());
-				p1 = doc.getParagraphArray(2);
-				r1 = p1.createRun();
-				r1.setText("Destino: " + ventaServicio.getNomBodegaEmpresa());
+			try (InputStream formato = Archivos.leerArchivo(path);
+				 XWPFDocument doc = new XWPFDocument(formato);
+				 FileOutputStream fileOut = new FileOutputStream(tmp)) {
+					if (guia != null) {
+						escribirEncabezado(doc, 0, "Movimiento Nro: " + guia.getNumero() + " de fecha " + Fechas.DDMMAA(guia.getFecha()), true);
+						escribirEncabezado(doc, 1, "Referencia: " + guia.getNumGuiaCliente(), false);
+						escribirEncabezado(doc, 2, "Origen: " + guia.getBodegaOrigen(), false);
+						escribirEncabezado(doc, 3, "Destino: " + guia.getBodegaDestino(), false);
+						escribirEncabezado(doc, 4, "Observaciones: " + guia.getObservaciones(), false);
+					} else if (ventaServicio != null) {
+						escribirEncabezado(doc, 0, "Report Id: " + ventaServicio.getId() + " de fecha " + Fechas.DDMMAA(ventaServicio.getFecha()), true);
+						escribirEncabezado(doc, 1, "Servicio: " + ventaServicio.getNomServicio(), false);
+						escribirEncabezado(doc, 2, "Destino: " + ventaServicio.getNomBodegaEmpresa(), false);
+					}
+					XWPFTable table = doc.getTables().get(0);
+					XWPFTableCell cell = null;
+					for (int i = 0; i < lista.size(); i++) {
+						for (int j = 0; j < lista.get(i).size(); j++) {
+							cell = table.getRow(i).getCell(j);
+							String ruta = db + "/" + lista.get(i).get(j).get(0);
+							try (InputStream inputStream = Archivos.leerArchivo(ruta)) {
+								byte[] qr = IOUtils.toByteArray(inputStream);
+								inputStream.close();
+								XWPFParagraph paragraph = cell.addParagraph();
+								paragraph.setAlignment(ParagraphAlignment.CENTER);
+								XWPFRun run2 = paragraph.createRun();
+								run2.addPicture(new ByteArrayInputStream(qr), XWPFDocument.PICTURE_TYPE_PNG, "firma", Units.toEMU(60), Units.toEMU(60));
+								HomeController.setCeldaHome(cell, "Arial", 6, 2, "000000", lista.get(i).get(j).get(1), false);
+							} catch (Exception e) {
+								logger.error("Error cargando imagen S3: " + ruta);
+							}
+						}
+						table.createRow();
+					}
+					// Write the output to a file word
+					doc.write(fileOut);
 			}
-			XWPFTable table = doc.getTables().get(0);
-			XWPFTableCell cell = null;
-			for (int i=0; i<lista.size(); i++) {
-				for (int j=0; j<lista.get(i).size(); j++) {
-					cell=table.getRow(i).getCell(j);
-					String ruta = db+"/"+lista.get(i).get(j).get(0);
-					InputStream inputStream = Archivos.leerArchivo(ruta);
-					byte[] qr = IOUtils.toByteArray(inputStream);
-					inputStream.close();
-					XWPFParagraph paragraph = cell.addParagraph();
-					paragraph.setAlignment(ParagraphAlignment.CENTER);
-					XWPFRun run2 = paragraph.createRun();
-					run2.addPicture(new ByteArrayInputStream(qr), XWPFDocument.PICTURE_TYPE_PNG, "firma", Units.toEMU(60), Units.toEMU(60));
-					HomeController.setCeldaHome(cell,"Arial",6,2,"000000",lista.get(i).get(j).get(1),false);
-				}
-				table.createRow();
-			}
-			// Write the output to a file word
-			FileOutputStream fileOut = new FileOutputStream(tmp);
-			doc.write(fileOut);
-			fileOut.close();
-		} catch (InvalidFormatException | IOException e1) {
+		} catch (Exception e1) {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", "HomeController", methodName, db, "", e1);
 		}
         return(tmp);
+	}
+
+	private static void escribirEncabezado(XWPFDocument doc, int index, String texto, boolean negrita) {
+		if (doc.getParagraphs().size() > index) {
+			XWPFParagraph p = doc.getParagraphArray(index);
+			p.setAlignment(ParagraphAlignment.LEFT);
+			XWPFRun r = p.createRun();
+			r.setBold(negrita);
+			r.setText(texto);
+		}
 	}
 	
 	public static void setCeldaHome (XWPFTableCell cell,String fontFamily,int fontSize,int alingH,String colorRGB,String text,boolean bold) {
