@@ -9,7 +9,7 @@ lista: List[List[String]], fechaCorte: String, tipo:String)
 	@modalEquipoDescripcion()
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "INVENTARIO - "+tipo+" - POR EQUIPO (valorizado a precio compra y lista)","FECHA DE CORTE: " + utilities.Fechas.DDMMAA(fechaCorte))
+		@barraTitulo(mapDiccionario, "INVENTARIO - "+tipo+" - POR EQUIPO (valorizado con precios de lista)","FECHA DE CORTE: " + utilities.Fechas.DDMMAA(fechaCorte))
 		
 		<div class="noprint">
 			<table class="table table-sm table-condensed table-fluid">

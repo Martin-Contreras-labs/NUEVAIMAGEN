@@ -1143,6 +1143,22 @@ public class FormMovimiento {
 			    				cell = row.getCell(4);
 			    				texto = detalleGuia.get(i).get(27).trim();
 			    				setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+							}else if(db.equals("madaPeruSse")) {
+//								cell = row.getCell(4);
+//								texto = puStr;
+//								setCelda(cell,"Arial",8,3,"2b5079","",false);
+//
+//								cell = row.getCell(5);
+//								texto = myformatdouble.format(totalPrecio);
+//								setCelda(cell,"Arial",8,3,"2b5079","",false);
+
+								cell = row.getCell(6);
+								texto = detalleGuia.get(i).get(27).trim();
+								setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+
+								cell = row.getCell(7);
+								texto = m2;
+								setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 		    				}else {
 								cell = row.getCell(4);
 								texto = puStr;
@@ -1387,9 +1403,20 @@ public class FormMovimiento {
 		    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 
 	    			}else if(db.equals("madaParaguayArmaq")) {
-		    			cell=row.getCell(4);
-		    			texto = myformatdouble0.format(granTotalPeso);
-		    			setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+						cell = row.getCell(4);
+						texto = myformatdouble0.format(granTotalPeso);
+						setCelda(cell, "Arial", 8, 3, "2b5079", texto, false);
+					}else if(db.equals("madaPeruSse")) {
+						cell=row.getCell(6);
+						texto = myformatdouble0.format(granTotalPeso);
+						setCelda(cell,"Arial",8,3,"2b5079",texto,false);
+
+						cell=row.getCell(7);
+						texto = myformatdouble0.format(granTotalM2);
+						if( mapeoPermiso.get("parametro.escondeLosM2")!=null && mapeoPermiso.get("parametro.escondeLosM2").equals("1")) {
+							texto = "";
+						}
+						setCelda(cell,"Arial",8,3,"2b5079",texto,false);
 	    			}else {
 						cell = row.getCell(5);
 						texto = myformatdouble.format(granTotalPrecio);

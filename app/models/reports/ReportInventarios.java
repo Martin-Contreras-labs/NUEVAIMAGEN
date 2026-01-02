@@ -780,6 +780,12 @@ public class ReportInventarios {
 							}
 							
 						}
+//
+//					auxMap = mapPLista.get(equipo.getId());
+//					if(auxMap != null) {
+//						idMonedaVentaArr = auxMap.get(3).longValue();
+//						precioVenta = auxMap.get(0);
+//					}
 						
 					Double tasaCompra = tasasCorte.get(idMonedaCompra);
 					if(tasaCompra==null||tasaCompra==0) {

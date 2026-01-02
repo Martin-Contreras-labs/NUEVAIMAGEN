@@ -2466,10 +2466,13 @@ public class FormCotiza {
 		
 		Map<String,List<Double>> mapSinDetalle = new HashMap<String,List<Double>>();
 		Map<String,List<String>> mapComercial = new HashMap<String,List<String>>();
+		
+		Double permMaxCant = (double)0;
+		String permMaxUnidad = "";
 
 		for(List<String> l: resumen) {
 			String key = l.get(2)+"_&&_"+l.get(4)+"_&&_"+l.get(10)+"_&&_"+l.get(20)+"_&&_"+l.get(22);
-			
+			System.out.println(Double.parseDouble(l.get(14).replaceAll(",", "")));
 			List<Double> x = mapSinDetalle.get(key);
 			if(x == null ) {
 				List<Double> aux = new ArrayList<Double>();
@@ -2479,6 +2482,9 @@ public class FormCotiza {
 				aux.add(Double.parseDouble(l.get(19).replaceAll(",", ""))); // 3 M2
 				aux.add(Double.parseDouble(l.get(15).replaceAll(",", ""))); // 4 reposicion
 				mapSinDetalle.put(key, aux);
+				permMaxCant = Double.parseDouble(l.get(14).replaceAll(",", ""));
+				permMaxUnidad = l.get(12);
+
 			}else {
 				List<Double> aux = new ArrayList<Double>();
 				aux.add(x.get(0) + Double.parseDouble(l.get(17).replaceAll(",", "")));	// 0 venta
@@ -2487,6 +2493,10 @@ public class FormCotiza {
 				aux.add(x.get(3) + Double.parseDouble(l.get(19).replaceAll(",", "")));	// 3 M2
 				aux.add(x.get(4) + Double.parseDouble(l.get(15).replaceAll(",", "")));	// 4 reposicion
 				mapSinDetalle.put(key, aux);
+				if(Double.parseDouble(l.get(14).replaceAll(",", "")) > permMaxCant) {
+					permMaxCant = Double.parseDouble(l.get(14).replaceAll(",", ""));
+					permMaxUnidad = l.get(12);
+				}
 			}
 
 			List<String> aux1 = new ArrayList<String>();
@@ -2793,10 +2803,18 @@ public class FormCotiza {
 	 	                    text = text.replace("nameSucursal", " " + nameSucursal);
 	 	                    r.setText(text, 0); 
 		 	           }
-		 	           if (text.contains("formaDePago"))   {
+					   if (text.contains("formaDePago"))   {
 	 	                    text = text.replace("formaDePago", " " + formaDePago);
 	 	                    r.setText(text, 0); 
 		 	           }
+						if (text.contains("permanenciaMaxima"))   {
+							if(permMaxCant > 0){
+								text = text.replace("permanenciaMaxima", "La presente cotización considera un período de arriendo de: "+permMaxCant+" "+" "+permMaxUnidad);
+							}else{
+								text = text.replace("permanenciaMaxima", " ");
+							}
+							r.setText(text, 0);
+						}
 	 	             
 	 	            }
 	             }

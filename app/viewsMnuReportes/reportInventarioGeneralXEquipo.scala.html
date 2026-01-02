@@ -10,7 +10,7 @@ lista: List[List[String]], fechaCorte: String, tipo:String)
 	@modalContactoBodega(mapDiccionario)
 	
 	<div id="mostrarmostrar" style="display:none;">
-		@barraTitulo(mapDiccionario, "INVENTARIO - "+tipo+" - POR EQUIPO (valorizado a precio compra y lista)","FECHA DE CORTE: "+ utilities.Fechas.DDMMAA(fechaCorte))
+		@barraTitulo(mapDiccionario, "INVENTARIO - "+tipo+" - POR EQUIPO (valorizado con precios cliente y/o lista)","FECHA DE CORTE: "+ utilities.Fechas.DDMMAA(fechaCorte))
 		
 		<div class="noprint">
 			<table class="table table-sm table-condensed table-fluid">
@@ -199,11 +199,11 @@ lista: List[List[String]], fechaCorte: String, tipo:String)
 		var sumaTotalesV= 0;
 		var numero = new DecimalFormat("#,##0.00");
 		for (var i = 1; i < tabla.rows.length; i++) { 
-			var aux = tabla.rows[i].cells[12].textContent;
+			var aux = tabla.rows[i].cells[13].textContent;
 			sumaCantidades = parseFloat(sumaCantidades) + parseFloat(numero.formatBack(aux));
-			aux = tabla.rows[i].cells[15].textContent;
+			aux = tabla.rows[i].cells[14].textContent;
 			sumaTotalesC = parseFloat(sumaTotalesC) + parseFloat(numero.formatBack(aux));
-			aux = tabla.rows[i].cells[16].textContent;
+			aux = tabla.rows[i].cells[15].textContent;
 			sumaTotalesV = parseFloat(sumaTotalesV) + parseFloat(numero.formatBack(aux));
 		}
 		$("#totalCantidad").val(formatStandar(sumaCantidades,0));
