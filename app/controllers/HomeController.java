@@ -1047,7 +1047,6 @@ public class HomeController extends Controller {
 			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, "", "", e);
 			return ok("SE PRESENTO UN ERROR");
 		}
-		System.out.println("URL LOGIN COGNITO: "+url);
     	return redirect(url);
     }
 

@@ -3455,7 +3455,6 @@ try{
 					" group by id_equipo, id_tipoPlan;");
 			smt.setString(1, desde);
 			smt.setString(2, hasta);
-			System.out.println(smt.toString());
 			ResultSet rs = smt.executeQuery();
 			Map<Long,String> mapTipo = TipoPlan.mapAll(con,db);
 			while(rs.next()){

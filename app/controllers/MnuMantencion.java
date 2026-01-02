@@ -919,7 +919,6 @@ public class MnuMantencion extends Controller {
 			}
 			List<List<String>> listEquipos = new ArrayList<List<String>>();
 			mapEquipos.forEach((k,v) -> {
-				System.out.println("k = "+v.toString());
 				listEquipos.add(v);
 			});
 			List<TipoMantencion> listTipoMantencion = TipoMantencion.all(con, s.baseDato);

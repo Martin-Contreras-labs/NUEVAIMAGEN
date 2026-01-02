@@ -2472,7 +2472,6 @@ public class FormCotiza {
 
 		for(List<String> l: resumen) {
 			String key = l.get(2)+"_&&_"+l.get(4)+"_&&_"+l.get(10)+"_&&_"+l.get(20)+"_&&_"+l.get(22);
-			System.out.println(Double.parseDouble(l.get(14).replaceAll(",", "")));
 			List<Double> x = mapSinDetalle.get(key);
 			if(x == null ) {
 				List<Double> aux = new ArrayList<Double>();
