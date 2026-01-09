@@ -1048,7 +1048,7 @@ public class FormCotiza {
 			cell=table.getRow(2).getCell(2);
 			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalNeto),false);
 			
-			if(!db.equals("madaAndinaMontajes")) {
+			if( ! db.equals("madaAndinaMontajes")) {
 				
 				cell = table.getRow(3).getCell(1);
 				String aux = cell.getText() +" "+auxTasaIva;
@@ -1073,18 +1073,23 @@ public class FormCotiza {
 				cell=table.getRow(4).getCell(0);
 				setCelda(cell,"Arial",10,3,"2b5079","",false);
 			}
-			
-			
-			
-			
-			
-			cell=table.getRow(0).getCell(0);
-			setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
-			
+
+			if (db.equals("madaMexicoSM8deMexico")) {
+				table = doc.getTables().get(3);
+				cell=table.getRow(0).getCell(0);
+				setCelda(cell,"Arial",10,1,"2b5079","",false);
+				table = doc.getTables().get(4);
+				cell=table.getRow(0).getCell(0);
+				setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+			}else{
+				table = doc.getTables().get(3);
+				cell=table.getRow(0).getCell(0);
+				setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+			}
+
 			Double dblCFI = Double.parseDouble(cfi.replaceAll("%", "").trim().replaceAll(",",""))/100;
     		Double totalCFI = dblCFI * totalPrecioVenta;
-    		
-    		
+			
     		Usuario comercial = Usuario.findXIdUser(con, db, cotizacion.getId_comercial());
     		String nombreComercial = comercial.getNombre();
     		String telefonosComercial = comercial.getFono();
@@ -1240,7 +1245,7 @@ public class FormCotiza {
 				
 				return(archivoPdf);
 				
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -1448,9 +1453,9 @@ public class FormCotiza {
 			setCelda(cell,"Arial",10,3,"2b5079",myformatdouble.format(totalNeto),false);
 			
 			
-			if(!db.equals("madaMontax")) {
+			if( ! db.equals("madaMontax")) {
 				
-				if(!db.equals("madaAndinaMontajes")) {
+				if( ! db.equals("madaAndinaMontajes")) {
 					
 					cell=table.getRow(3).getCell(1);
 					String aux = cell.getText()+" "+auxTasaIva;
@@ -1475,8 +1480,18 @@ public class FormCotiza {
 					setCelda(cell,"Arial",10,3,"2b5079","",false);
 				}
 				
-				cell=table.getRow(0).getCell(0);
-    			setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+				if (db.equals("madaMexicoSM8deMexico")) {
+					table = doc.getTables().get(3);
+					cell=table.getRow(0).getCell(0);
+					setCelda(cell,"Arial",10,1,"2b5079","",false);
+					table = doc.getTables().get(4);
+					cell=table.getRow(0).getCell(0);
+					setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+				}else{
+					table = doc.getTables().get(3);
+					cell=table.getRow(0).getCell(0);
+					setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+				}
     			
 			}else {
 				
@@ -1588,7 +1603,7 @@ public class FormCotiza {
 				
 				return(archivoPdf);
 				
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -1893,10 +1908,19 @@ public class FormCotiza {
 				cell=table.getRow(3).getCell(2);setCelda(cell,"Arial",10,3,"2b5079","",false);
 				cell=table.getRow(4).getCell(2);setCelda(cell,"Arial",10,3,"2b5079","",false);
 			}
-			
-			
-			cell=table.getRow(0).getCell(0);
-			setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+
+			if (db.equals("madaMexicoSM8deMexico")) {
+				table = doc.getTables().get(3);
+				cell=table.getRow(0).getCell(0);
+				setCelda(cell,"Arial",10,1,"2b5079","",false);
+				table = doc.getTables().get(5);
+				cell=table.getRow(0).getCell(0);
+				setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+			}else{
+				table = doc.getTables().get(3);
+				cell=table.getRow(0).getCell(0);
+				setCelda(cell,"Arial",10,1,"2b5079","NOTAS:\n"+cotizacion.getObservaciones(),false);
+			}
 			
 			
 			

@@ -1,6 +1,6 @@
 @(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
 lista: List[List[String]], desde: String, hasta: String )
-    	
+
 @main("") {
 
 	@menues(mapDiccionario, mapPermiso, userMnu, " ")
@@ -11,7 +11,7 @@ lista: List[List[String]], desde: String, hasta: String )
 			<div class="row">
 				<div class="col-1"></div>
 			  	<div class="col-2">
-						<button type="button"  id="btnEnvioMasivo" class="btn btn-sm btn-warning" 
+						<button type="button"  id="btnEnvioMasivo" class="btn btn-sm btn-warning"
 							onclick="$('#modalGeneraUnPdf').modal('show');">
 							Genera un PDF multiple
 						</button>
@@ -21,17 +21,17 @@ lista: List[List[String]], desde: String, hasta: String )
 					&& mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1")
 					&& mapPermiso.get("enviarApiFactura")!=null){
 						<div class="col-2">
-							<button type="button"  id="btnEnvioNotasVenta" class="btn btn-sm btn-info" 
+							<button type="button"  id="btnEnvioNotasVenta" class="btn btn-sm btn-info"
 								onclick="$('#modalNotasVenta').modal('show');">
 								Notas de Venta desde Excel
 							</button>
 				  		</div>
 				}
-		
+
 			</div>
 		</div>
-		
-			
+
+
 			<div id='modalGeneraUnPdf' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 				<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
 					<div class='modal-content'>
@@ -88,8 +88,8 @@ lista: List[List[String]], desde: String, hasta: String )
 					</div>
 				</div>
 			</div>
-	
-	
+
+
 			<table class="table table-sm table-condensed table-fluid">
 				<tr>
 					<td width="25%">
@@ -112,7 +112,7 @@ lista: List[List[String]], desde: String, hasta: String )
 								Imprimir
 							</button>
 							&nbsp;&nbsp;&nbsp;
-							<button type="button"  class="btn btn-sm btn-success" 
+							<button type="button"  class="btn btn-sm btn-success"
 								onclick="location.href = '/home/'">
 								Volver
 							</button>
@@ -122,17 +122,17 @@ lista: List[List[String]], desde: String, hasta: String )
 				</tr>
 			</table>
 		</div>
-		
+
 		<form id="excel" class="formulario" method="post" action="/proformaListaExcel/">
 			<input type="hidden" name="fechaDesde" value="@desde">
 			<input type="hidden" name="fechaHasta" value="@hasta">
 		</form>
-			
-		
+
+
 		<div class="table-responsive">
 			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
 		        <thead style="background-color: #eeeeee">
-					<TR> 
+					<TR>
 						<TH>TIPO</TH>
 				        <TH>NUMERO</TH>
 						<TH>FECHA</TH>
@@ -180,9 +180,12 @@ lista: List[List[String]], desde: String, hasta: String )
 						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 							<TH>API<br>SAP</TH>
 						}
-						
-						
-						
+						@if(mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+							<TH>WEB<br>SOFTLAND</TH>
+						}
+
+
+
 					</TR>
 				</thead>
 				<tbody>
@@ -247,7 +250,7 @@ lista: List[List[String]], desde: String, hasta: String )
 									--
 								}
 							</td> -->
-					
+
 							@if(mapPermiso.get("parametro.proformaLista-descargarXLM")!=null && mapPermiso.get("parametro.proformaLista-descargarXLM").equals("1")){
 								<td style="text-align:center;">
 									@if(lista1.get(17)!="0"){
@@ -263,7 +266,7 @@ lista: List[List[String]], desde: String, hasta: String )
 									}
 								</td>
 							}
-					
+
 							@if(mapPermiso.get("parametro.proformaListar-llenarApiManager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiManager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 								<td style="text-align:center;">
 									@if(lista1.get(17)!="0"){
@@ -350,10 +353,10 @@ lista: List[List[String]], desde: String, hasta: String )
 										--
 									}
 								</td>
-								
+
 							}
-							
-							
+
+
 						@if(mapPermiso.get("parametro.proformaListar-llenarWebMaximise")!=null && mapPermiso.get("parametro.proformaListar-llenarWebMaximise").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 							<td style="text-align:center;">
 								@if(lista1.get(16).equals(mapDiccionario.get("Arriendo"))){
@@ -366,7 +369,7 @@ lista: List[List[String]], desde: String, hasta: String )
 											<kbd style="background-color: #85C1E9">reenviar</kbd>
 										</a>
 									}
-									
+
 								}else{
 									--
 								}
@@ -374,9 +377,9 @@ lista: List[List[String]], desde: String, hasta: String )
 							<td style="text-align:center;">
 								@if(lista1.get(16).equals(mapDiccionario.get("Arriendo"))){
 									@if(!lista1.get(21).equals("0")){
-										<a href="/downFacturaMaximise/@lista1.get(21)@desde,@hasta" > 
+										<a href="/downFacturaMaximise/@lista1.get(21)@desde,@hasta" >
 										<kbd style="background-color: rgb(50, 215, 75)">@lista1.get(21)</kbd>
-									</a> 
+									</a>
 									}else{
 										--
 									}
@@ -385,8 +388,8 @@ lista: List[List[String]], desde: String, hasta: String )
 								}
 							</td>
 						}
-						
-						
+
+
 						@if(mapPermiso.get("proformaListadoEliminar")!=null) {
 							<td style="text-align:center;">
 								<a href="#" onclick="eliminaProforma('@lista1.get(0)');">
@@ -394,7 +397,7 @@ lista: List[List[String]], desde: String, hasta: String )
 								</a>
 							</td>
 						}
-						
+
 						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapConconcreto").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 								<td style="text-align:center;">
 									@if(lista1.get(17)!="0"){
@@ -423,9 +426,9 @@ lista: List[List[String]], desde: String, hasta: String )
 									}
 								</td>
 						}
-						
-						
-						
+
+
+
 						@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 								<td style="text-align:center;">
 									@if(lista1.get(21).equals("0")){
@@ -445,7 +448,7 @@ lista: List[List[String]], desde: String, hasta: String )
 									}
 								</td>
 						}
-						
+
 						@if(mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager")!=null && mapPermiso.get("parametro.proformaListar-llenarApiSapSchwager").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
 								<td style="text-align:center;">
 									@if(lista1.get(21).equals("0")){
@@ -457,6 +460,19 @@ lista: List[List[String]], desde: String, hasta: String )
 									}
 								</td>
 						}
+							@if(mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
+								<td style="text-align:center;">
+									@if(lista1.get(21).equals("-1") || lista1.get(16).equals("Venta")){
+										---
+									}else if(lista1.get(21).equals("0")){
+										<a href="#" onclick="document.getElementById('bloquear2').style.display='block'; enviarWebSoftland('@lista1.get(0)')">
+											<kbd style="background-color: #C39BD3">enviar</kbd>
+										</a>
+									}else{
+										@lista1.get(21)
+									}
+								</td>
+							}
 					</tr>
 	 			}
 				</tbody>
@@ -484,68 +500,68 @@ lista: List[List[String]], desde: String, hasta: String )
 			</div>
 		</div>
 	</div>
-	
-	<form class="formulario" id="formEnviarXml" method="post" action="/generaProformaXml/">	
+
+	<form class="formulario" id="formEnviarXml" method="post" action="/generaProformaXml/">
 		<input type="hidden" id="id_proformaXml" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="formEnviaApiManager" method="post" action="/generaProformaApiManager/">	
+
+	<form class="formulario" id="formEnviaApiManager" method="post" action="/generaProformaApiManager/">
 		<input type="hidden" id="id_proformaManager" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="formEnviaApiNubox" method="post" action="/generaProformaApiNubox/">	
+
+	<form class="formulario" id="formEnviaApiNubox" method="post" action="/generaProformaApiNubox/">
 		<input type="hidden" id="id_proformaNubox" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="formEnviaApiSapConconcreto" method="post" action="/generaProformaApiSapConconcreto/">	
+
+	<form class="formulario" id="formEnviaApiSapConconcreto" method="post" action="/generaProformaApiSapConconcreto/">
 		<input type="hidden" id="id_proformaSapConconcreto" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
 
-	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaFacturaIConstruye/">	
+	<form class="formulario" id="formEnviaWebIConstruye" method="post" action="/generaFacturaIConstruye/">
 		<input type="hidden" id="id_proformaWebIConstruye" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="downFacturaIconstruye" method="post" action="/downFacturaIconstruye/">	
+
+	<form class="formulario" id="downFacturaIconstruye" method="post" action="/downFacturaIconstruye/">
 		<input type="hidden" id="id_facturaIConstruye2" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaProformaWebMaximise/">	
+
+	<form class="formulario" id="formEnviaWebMaximise" method="post" action="/generaProformaWebMaximise/">
 		<input type="hidden" id="id_proformaWebMaximise" name="id_proforma">
 		<input type="hidden" id="sucursalMaximise" name="sucursalMaximise">
 		<input type="hidden" id="codigoMaximise" name="codigoMaximise">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="formEnviaApiRelBase" method="post" action="/generaProformaApiRelBase/">	
+
+	<form class="formulario" id="formEnviaApiRelBase" method="post" action="/generaProformaApiRelBase/">
 		<input type="hidden" id="id_proformaApiRelBase" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	<form class="formulario" id="formEnviaApiSapSchwager" method="post" action="/generaProformaApiSapSchwager/">	
+
+	<form class="formulario" id="formEnviaApiSapSchwager" method="post" action="/generaProformaApiSapSchwager/">
 		<input type="hidden" id="id_proformaSapSchwager" name="id_proforma">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
-	
-	
-	
-	
-	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+
+
+
+
+
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">
 		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
@@ -556,7 +572,7 @@ lista: List[List[String]], desde: String, hasta: String )
 		<input type="hidden" name="fechaDesde" value="@desde">
 		<input type="hidden" name="fechaHasta" value="@hasta">
 	</form>
-	
+
 	<div id='selectSucursal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable modal-sm' role='document'>
 			<div class='modal-content'>
@@ -571,7 +587,7 @@ lista: List[List[String]], desde: String, hasta: String )
 			</div>
 		</div>
 	</div>
-	
+
 	<div id='selectCodigo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 		<div class='modal-dialog modal-dialog-scrollable modal-sm' role='document'>
 			<div class='modal-content'>
@@ -586,7 +602,7 @@ lista: List[List[String]], desde: String, hasta: String )
 			</div>
 		</div>
 	</div>
-	
+
 	<div id="modalNotasVenta" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
 	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
 	    <div class="modal-content">
@@ -597,7 +613,7 @@ lista: List[List[String]], desde: String, hasta: String )
 	        </button>
 	      </div>
 	      <div class="modal-body">
-	        
+
 			<div class="row">
 				<div class="col-sm-12" style="text-align:center">
 					<form action="/hohePlantillaNV/" method="POST"  onsubmit="return validarForm2();">
@@ -617,7 +633,7 @@ lista: List[List[String]], desde: String, hasta: String )
 	    </div>
 	  </div>
 	</div>
-	
+
 }
 
 

@@ -282,7 +282,7 @@ public class Proforma {
 							+ " proforma.tipo,"
 							+ " proforma.proformaXml,"
 							+ " proforma.xmlEnviado,"
-							+ " proforma.jsonGenerado, "
+							+ " ifnull(proforma.jsonGenerado,0), "
 							+ " ifnull(proforma.response,0), "
 							+ " ifnull(proforma.nroFiscal,0),"
 							+ " ifnull(proforma.comentarios,0),"

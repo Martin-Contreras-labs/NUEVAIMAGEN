@@ -12,18 +12,13 @@ import java.util.*;
 
 import javax.inject.Inject;
 
+import models.api.*;
 import models.tables.*;
 import models.utilities.*;
+import models.xml.XmlFacturaReferencias;
 import org.apache.poi.util.TempFile;
 
 import controllers.HomeController.Sessiones;
-import models.api.ApiManagerDocDoc;
-import models.api.ApiNuboxDocDoc;
-import models.api.ApiRelBase;
-import models.api.ApiSapSchwager;
-import models.api.WebFacturacion;
-import models.api.WebIConstruye;
-import models.api.WebMaximise;
 import models.calculo.Inventarios;
 import models.forms.FormMovimiento;
 import models.xlsx.MovimHojaChequeo;
@@ -2209,6 +2204,86 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 			}
 		}
    	}
+	
+	public Result generaGuiaWebSoftland(Http.Request request){
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			Long id_guia = Long.parseLong(form.get("id_guia").trim());
+			Long id_transportista = Long.parseLong(form.get("id_transportista").trim());
+			String desdeAAMMDD = form.get("fechaDesde").trim();
+			String hastaAAMMDD = form.get("fechaHasta").trim();
+			try (Connection con = dbWrite.getConnection()){
+				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Guia guia = Guia.find(con, s.baseDato, id_guia);
+				Long id_bodegaOrigen = guia.getId_bodegaOrigen();
+				Long id_bodegaDestino = guia.getId_bodegaDestino();
+				Transportista transportista = Transportista.find(con, s.baseDato, id_transportista);
+
+				EmisorTributario emisorTributario = EmisorTributario.find(con, s.baseDato);
+				Map<String,String> mapCampos = new HashMap<String,String>();
+				mapCampos.put("Concepto_de_Salida_a_Bodega",form.get("Concepto_de_Salida_a_Bodega").trim());
+				mapCampos.put("Codigo_Condicion_de_Pago",form.get("Codigo_Condicion_de_Pago").trim());
+				mapCampos.put("Bodega_Origen_de_los_Productos",form.get("Bodega_Origen_de_los_Productos").trim());
+				mapCampos.put("Codigo_Centro_de_Costo",form.get("Codigo_Centro_de_Costo").trim());
+
+				File csv = WebSoftlandDesk.generaCsvGuia(con, s.baseDato, guia, transportista, mapeoDiccionario,
+						emisorTributario, mapCampos);
+				return ok(csv,false,Optional.of("guia.csv"));
+				
+				
+				
+				
+				
+				
+//				Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
+//				Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, json);
+//				String rs = ApiSapSchwager.generaDteGuia(con, s.baseDato, emisor, json, ws, id_guia);
+//				if( ! rs.contains("ERROR")) {
+//					String folioNumber = rs;
+//					Guia.modificaPorCampo(con, s.baseDato, "linkFolio", id_guia, "Guia: "+folioNumber);
+//					String numGuiaCliente = "FolioNumber: " + folioNumber +"\r\n"+guia.getNumGuiaCliente();
+//					Guia.modificaPorCampo(con, s.baseDato, "numGuiaCliente", id_guia, ""+numGuiaCliente);
+//					rs = "DTE enviado a SAP con exito";
+//				}
+//				String retorno = "/movimientoListarGet/"+desdeAAMMDD+","+hastaAAMMDD;
+				//return ok(mensajes.render(retorno,rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result jsonVariablesGuiaSoftlandDesk(Http.Request request){
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok("ERROR");
+		}
+		try (Connection con = dbWrite.getConnection()){
+			String csvString = WebSoftlandDesk.mapVariablesGuiaSoftlandDesk(con, s.baseDato);
+			return ok(csvString).as("application/json");
+		} catch (Exception e) {
+			return ok("ERROR");
+		}
+
+	}
 
 	
 	//======================================================================

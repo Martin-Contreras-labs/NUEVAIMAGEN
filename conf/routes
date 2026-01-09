@@ -843,6 +843,8 @@ POST    /downGuiaIconstruye/						controllers.MnuMovimientos.downGuiaIconstruye(
 POST    /generaGuiaApiRelBase/						controllers.MnuMovimientos.generaGuiaApiRelBase(request: Request)
 POST    /buscaCotiSolucionAjax/						controllers.MnuMovimientos.buscaCotiSolucionAjax(request: Request)
 POST    /generaGuiaSapSchwager/						controllers.MnuMovimientos.generaGuiaSapSchwager(request: Request)
+POST    /generaGuiaWebSoftland/						controllers.MnuMovimientos.generaGuiaWebSoftland(request: Request)
+POST    /jsonVariablesGuiaSoftlandDesk/				controllers.MnuMovimientos.jsonVariablesGuiaSoftlandDesk(request: Request)
 
 GET		/movimientoListarImgPeriodo/				controllers.MnuMovimientos.movimientoListarImgPeriodo(request: Request)
 POST	/movimientoListarImg/						controllers.MnuMovimientos.movimientoListarImg(request: Request)

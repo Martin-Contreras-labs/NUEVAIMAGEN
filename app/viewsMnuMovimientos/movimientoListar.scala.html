@@ -99,6 +99,10 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 								<TH>API<br>SAP</TH>
 								<TH>Folio</TH>
 							}
+							@if(mapPermiso.get("parametro.movimientoListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebSoftlandDesk").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+								<TH>WEB<br>SOFTLAND</TH>
+								<TH>Folio</TH>
+							}
 						</TR>
 					</thead>
 					<tbody>
@@ -360,6 +364,27 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 										}
 									</td>
 								}
+
+								@if(mapPermiso.get("parametro.movimientoListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebSoftlandDesk").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
+									<td style="text-align:center;">
+									@if(lista1.getLinkFolio().equals("0")){
+										<a href="#" onclick= "llenarWebSoftlandDesk('@lista1.getId()','@lista1.getId_transportista()')">
+											<kbd style="background-color: #C39BD3">enviar</kbd>
+										</a>
+									}else{
+										<a href="#" onclick= "llenarWebSoftlandDesk('@lista1.getId()','@lista1.getId_transportista()')">
+											<kbd style="background-color: #85C1E9">reenviar</kbd>
+										</a>
+									}
+									</td>
+									<td style="text-align:center;">
+									@if(!lista1.getLinkFolio().equals("0")){
+										@lista1.getLinkFolio()
+									}else{
+										--
+									}
+									</td>
+								}
 							</TR>
 			 			}
 					</tbody>
@@ -452,6 +477,60 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 			</div>
 		</div>
 	</div>
+
+	<div id='modalSoftlandDesk' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Seleccione Valores</h5>
+				</div>
+				<div class='modal-body'>
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<tbody>
+							<tr>
+								<td>
+									<label>Concepto de Salida a Bodega</label>
+								</td>
+								<td>
+									<div id="sel_Concepto_de_Salida_a_Bodega"></div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Codigo Condicion de Pago</label>
+								</td>
+								<td>
+									<div id="sel_Codigo_Condicion_de_Pago"></div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Bodega Origen de los Productos</label>
+								</td>
+								<td>
+									<div id="sel_Bodega_Origen_de_los_Productos"></div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Codigo Centro de Costo</label>
+								</td>
+								<td>
+									<div id="sel_Codigo_Centro_de_Costo"></div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class='modal-foot'>
+					<div style="text-align: center;">
+						<button type='button' class='btn btn-sm btn-light' style='font-size: 10px;' data-dismiss='modal' onclick="limpiarTransportista()">Cancelar</button>
+						<button type='button' class='btn btn-sm  btn-success' onclick="document.getElementById('formEnviaWebSoftland').submit();" style='font-size: 10px;' data-dismiss='modal'>ENVIAR</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	
 	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
 		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
@@ -517,6 +596,20 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		<input type="hidden" name="fechaDesde" value="@fechaDesde">
 		<input type="hidden" name="fechaHasta" value="@fechaHasta">
 	</form>
+
+	<form class="formulario" id="formEnviaWebSoftland" method="post" action="/generaGuiaWebSoftland/">
+		<input type="hidden" id="id_guiaWebSoftland" name="id_guia">
+		<input type="hidden" id="id_transportistaWebSoftland" name="id_transportista" value="0">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+
+		<input type="hidden" id="Concepto_de_Salida_a_Bodega" name="Concepto_de_Salida_a_Bodega" value="16">
+		<input type="hidden" id="Codigo_Condicion_de_Pago" name="Codigo_Condicion_de_Pago" value="3">
+		<input type="hidden" id="Bodega_Origen_de_los_Productos" name="Bodega_Origen_de_los_Productos" value="02">
+		<input type="hidden" id="Codigo_Centro_de_Costo" name="Codigo_Centro_de_Costo" value="01-000">
+
+	</form>
+
 	
 	@modalListaTransportistas(mapDiccionario, mapPermiso, listaTransporte);
 
@@ -675,6 +768,14 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		transportistaSeleccionado();
 		$('#modalListaTransporte').modal('show');
 	}
+
+	const llenarWebSoftlandDesk = (id_guia, id_transportista) => {
+		auxId_guia = id_guia;
+		auxLlenarTransportista = 10;
+		auxId_transportista = id_transportista;
+		transportistaSeleccionado();
+		$('#modalListaTransporte').modal('show');
+	}
 	
 	
 	
@@ -737,6 +838,14 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 			$('#id_transportistaSapSchwager').val(id_transportista);
 			document.getElementById('formEnviaSapSchwager').submit();
 		}
+
+		if(auxLlenarTransportista==10){
+			$('#id_guiaWebSoftland').val(auxId_guia);
+			$('#id_transportistaWebSoftland').val(id_transportista);
+			$('#modalListaTransporte').modal('hide');
+			openModalSoftlandDesk();
+			//document.getElementById('formEnviaWebSoftland').submit();
+		}
 		
 	}
 	
@@ -781,7 +890,62 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 		$('#id_guiaIConstruye2').val(id_guia);
 		document.getElementById('downGuiaIconstruye').submit();
 	}
-	
+
+
+	const openModalSoftlandDesk = () =>{
+		$.ajax({
+			url: "/jsonVariablesGuiaSoftlandDesk/",
+			type: "POST",
+			method: "POST",
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(rs){
+
+				let datos = rs["conceptoDeSalidaABodega"];
+				let Concepto_de_Salida_a_Bodega =
+						"<select  onchange='$(\"#Concepto_de_Salida_a_Bodega\").val(value)'>"+
+						"<option value='16'>16 : Despacho No Constituye Venta</option>";
+				for(var i in datos){
+					Concepto_de_Salida_a_Bodega += "<option value='"+datos[i][0]+"'>"+datos[i][0]+" : "+datos[i][1]+"</option>";
+				}
+				Concepto_de_Salida_a_Bodega += "</select>";
+				document.getElementById('sel_Concepto_de_Salida_a_Bodega').innerHTML = Concepto_de_Salida_a_Bodega;
+
+				datos = rs["codigoCondicionDePagoGuia"];
+				let Codigo_Condicion_de_Pago =
+						"<select  onchange='$(\"#Codigo_Condicion_de_Pago\").val(value)'>"+
+						"<option value='3'>3 : Sin costo</option>";
+				for(var i in datos){
+					Codigo_Condicion_de_Pago += "<option value='"+datos[i][0]+"'>"+datos[i][0]+" : "+datos[i][1]+"</option>";
+				}
+				Codigo_Condicion_de_Pago += "</select>";
+				document.getElementById('sel_Codigo_Condicion_de_Pago').innerHTML = Codigo_Condicion_de_Pago;
+
+				datos = rs["bodegaOrigenDeLosProductos"];
+				let Bodega_Origen_de_los_Productos =
+						"<select  onchange='$(\"#Bodega_Origen_de_los_Productos\").val(value)'>"+
+						"<option value='02'>02 : BODEGA DISPONIBLE</option>";
+				for(var i in datos){
+					Bodega_Origen_de_los_Productos += "<option value='"+datos[i][0]+"'>"+datos[i][0]+" : "+datos[i][1]+"</option>";
+				}
+				Bodega_Origen_de_los_Productos += "</select>";
+				document.getElementById('sel_Bodega_Origen_de_los_Productos').innerHTML = Bodega_Origen_de_los_Productos;
+
+
+				datos = rs["codigoCentroDeCosto"];
+				let Codigo_Centro_de_Costo =
+						"<select  onchange='$(\"#Codigo_Centro_de_Costo\").val(value)'>"+
+						"<option value='01-000'>01-000 : Administración Gral.</option>";
+				for(var i in datos){
+					Codigo_Centro_de_Costo += "<option value='"+datos[i][0]+"'>"+datos[i][0]+" : "+datos[i][1]+"</option>";
+				}
+				Codigo_Centro_de_Costo += "</select>";
+				document.getElementById('sel_Codigo_Centro_de_Costo').innerHTML = Codigo_Centro_de_Costo;
+			}
+		});
+		$('#modalSoftlandDesk').modal('show');
+	}
 	
 </script>
 

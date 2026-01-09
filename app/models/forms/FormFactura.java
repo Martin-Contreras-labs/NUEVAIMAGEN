@@ -6,13 +6,17 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import models.api.*;
 import models.tables.*;
 import org.apache.poi.util.TempFile;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
@@ -26,13 +30,6 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 
-import models.api.ApiManagerDocDoc;
-import models.api.ApiNuboxDocDoc;
-import models.api.ApiRelBase;
-import models.api.ApiSapConconcreto;
-import models.api.ApiSapSchwager;
-import models.api.WebIConstruye;
-import models.api.WebMaximise;
 import models.reports.ReportMovimientos;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
@@ -931,9 +928,24 @@ public class FormFactura {
 					String jsonApi = ApiSapSchwager.generaJsonFactARR(cliente, proforma.getId(), referencias, detalleAjuste, 
 							inicioPer, guiasPer, mapReportPorGuia10);
  	            	Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
-				} 
-				
-				
+				}
+
+				if(mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk").equals("1")){
+					Map<String,String> mapCampos = new HashMap<String,String>();
+					File csv = WebSoftlandDesk.generaCsvFacturaArr(con, db, resumenSubtotales, cliente, proforma, mapPermiso, detalleAjuste, referencias,
+							comentarios,  mapCampos);
+
+					String jsonApi = "";
+					try {
+						jsonApi = new String(Files.readAllBytes(csv.toPath()), StandardCharsets.UTF_8);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+				}
+
+
 				return(archivoPdf);
     	    
         } catch (Throwable e) {

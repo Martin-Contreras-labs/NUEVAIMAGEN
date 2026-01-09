@@ -989,7 +989,7 @@ public class Cotizacion {
 							+ " listadoPlanos, fechaPlanos, nomRepresEmpresa, rutRepresEmpresa, direccionObra, id_userCrea, id_userModifica, ifnull(fechaUserModifica,''), "
 							+ " id_sucursal, id_comercial, id_cotizaSolucion, notaCotizaEstado, id_dibujante, fechaProbable "
 							+ " from `"+db+"`.cotizacion "
-							+ " where id>0 and esModificable=1 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1);");
+							+ " where id>0 and esModificable=1 and (cotizacion.id_cotizaEstado = 1 or cotizacion.id_cotizaEstado = -1) limit 15000;");
 			ResultSet rs = smt.executeQuery();
 			Map<Long,Sucursal> mapSucursal = Sucursal.mapAllSucursales(con, db);
 			Map<Long,Comercial> mapComercial = Comercial.mapAllComerciales(con, db);

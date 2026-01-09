@@ -58,7 +58,12 @@ libraryDependencies ++= Seq(
  "fr.opensagres.xdocreport" % "fr.opensagres.poi.xwpf.converter.pdf" % "2.0.4",
  "fr.opensagres.xdocreport" % "fr.opensagres.poi.xwpf.converter.core" % "2.0.4",
 
-
+ // --- DOCX4J ---
+ "org.docx4j" % "docx4j-JAXB-ReferenceImpl" % "11.4.9",
+ "org.docx4j" % "docx4j-export-fo" % "11.4.9",
+ "jakarta.activation" % "jakarta.activation-api" % "2.1.2",
+ "com.sun.activation" % "jakarta.activation" % "2.0.1",
+ "javax.activation" % "activation" % "1.1.1",
 
 
  // PDF y relacionados

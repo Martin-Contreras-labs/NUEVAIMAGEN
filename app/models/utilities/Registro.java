@@ -68,7 +68,7 @@ public class Registro {
 					.prepareStatement("select fecha," +
 							" userName,tabla,accion,descripcion, id_tabla" +
 							" from `"+db+"`.registroModificaciones where fecha> DATE_SUB(NOW(),INTERVAL 180 DAY)" +
-							" order by fecha desc;");
+							" order by fecha desc  limit 15000;");
 			ResultSet rs = smt.executeQuery();
 			while (rs.next()) {
 				List<String> aux = new ArrayList<String>();
