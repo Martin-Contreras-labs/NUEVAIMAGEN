@@ -3903,7 +3903,190 @@ try{
 		}
 		return (lista);
 	}
-	
+
+	public static List<List<String>> reportInventarioProyectoDetalleSoloArr(
+			Connection con, String db, Long id_bodegaEmpresa,
+			Map<String,String> mapDiccionario) {
+
+		List<List<String>> lista = new ArrayList<List<String>>();
+		Map<String,Long> idMoneda = new HashMap<String,Long>();
+		Map<String,String> moneda = new HashMap<String,String>();
+		Map<String,Double> precioVenta = new HashMap<String,Double>();
+		Map<String,Double> precioReposicion = new HashMap<String,Double>();
+		Map<String,Double> precioArriendo = new HashMap<String,Double>();
+		Map<String,String> unidadTiempo = new HashMap<String,String>();
+		Map<Long,Long> dec = Moneda.numeroDecimal(con, db);
+
+		try {
+			PreparedStatement smt5 = con.prepareStatement(
+					" select " +
+							" listaPrecio.id_bodegaEmpresa, " +
+							" listaPrecio.id_equipo, " +
+							" listaPrecio.id_moneda, " +
+							" moneda.nickName, " +
+							" listaPrecio.precioVenta, " +
+							" listaPrecio.precioReposicion, " +
+							" listaPrecio.precioArriendo, " +
+							" unidadTiempo.nombre, " +
+							" listaPrecio.id_cotizacion " +
+							" from `"+db+"`.listaPrecio " +
+							" left join `"+db+"`.moneda on moneda.id = listaPrecio.id_moneda " +
+							" left join `"+db+"`.unidadTiempo on unidadTiempo.id = listaPrecio.id_unidadTiempo " +
+							" where id_bodegaEmpresa = ?;"
+			);
+			smt5.setLong(1, id_bodegaEmpresa);
+			ResultSet rs5 = smt5.executeQuery();
+
+			while (rs5.next()) {
+				idMoneda.put(rs5.getString(2)+"-"+rs5.getString(9), rs5.getLong(3));
+				moneda.put(rs5.getString(2)+"-"+rs5.getString(9), rs5.getString(4));
+				precioVenta.put(rs5.getString(2)+"-"+rs5.getString(9), rs5.getDouble(5));
+				precioReposicion.put(rs5.getString(2)+"-"+rs5.getString(9), rs5.getDouble(6));
+				precioArriendo.put(rs5.getString(2)+"-"+rs5.getString(9), rs5.getDouble(7));
+				unidadTiempo.put(rs5.getString(2)+"-"+rs5.getString(9), rs5.getString(8));
+			}
+			rs5.close();
+			smt5.close();
+
+			String agruparPor = ",movimiento.id_cotizacion";
+			if (BodegaEmpresa.esInterna(con, db, id_bodegaEmpresa)) agruparPor = "";
+
+			PreparedStatement smt6 = con.prepareStatement(
+					" select " +
+							" movimiento.id_bodegaEmpresa, " +
+							" movimiento.id_equipo, " +
+							" if(sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)=-0,0," +
+							"    sum(if(movimiento.id_tipoMovimiento=1,1,-1)*movimiento.cantidad)), " +
+							" ifnull(movimiento.id_cotizacion,0) " +
+							" from `"+db+"`.movimiento " +
+							" where movimiento.id_bodegaEmpresa = ? " +
+							"   and movimiento.esVenta = 0 " +      
+							" group by movimiento.id_bodegaEmpresa, movimiento.id_equipo" + agruparPor + ";"
+			);
+			smt6.setLong(1, id_bodegaEmpresa);
+			ResultSet rs6 = smt6.executeQuery();
+
+			Map<Long,Equipo> mapEquipo = Equipo.mapAllAll(con, db);
+			Map<Long, BodegaEmpresa> mapBodega = BodegaEmpresa.mapAll(con, db);
+			Map<Long,Proyecto> mapProyecto = Proyecto.mapAllProyectos(con, db);
+			Map<Long, Cotizacion> mapCotizacion = Cotizacion.mapAll(con, db);
+
+			while (rs6.next()) {
+
+				Double cantidad = rs6.getDouble(3);
+				if (cantidad > 0) {
+
+					BodegaEmpresa bodega = mapBodega.get(id_bodegaEmpresa);
+					if (bodega != null) {
+
+						Long id_equipo = rs6.getLong(2);
+						Long id_cotizacion = rs6.getLong(4);
+
+						try {
+							Long monId = idMoneda.get(id_equipo + "-" + id_cotizacion);
+							Long nDec = 2L;
+							if (monId != null) {
+								Long tmp = dec.get(monId);
+								if (tmp != null) nDec = tmp;
+							}
+							switch (String.valueOf(nDec)) {
+								case "0": myformatdouble = new DecimalFormat("#,##0", symbols); break;
+								case "2": myformatdouble = new DecimalFormat("#,##0.00", symbols); break;
+								case "4": myformatdouble = new DecimalFormat("#,##0.0000", symbols); break;
+								case "6": myformatdouble = new DecimalFormat("#,##0.000000", symbols); break;
+								default: myformatdouble = new DecimalFormat("#,##0.00", symbols); break;
+							}
+						} catch (Exception e) {
+							myformatdouble = new DecimalFormat("#,##0.00", symbols);
+						}
+
+						Long id_grupo = 0L;
+						Long id_proyecto = 0L;
+
+						String nomGrupo = "SIN GRUPO";
+						String nomProyecto = "";
+						String codEquipo = "";
+						String nomEquipo = "";
+						String unidad = "";
+
+						Equipo equipo = mapEquipo.get(id_equipo);
+						if (equipo != null) {
+							id_equipo = equipo.getId();
+							id_grupo = equipo.getId_grupo();
+							nomGrupo = equipo.getGrupo();
+							codEquipo = equipo.getCodigo();
+							nomEquipo = equipo.getNombre();
+							unidad = equipo.getUnidad();
+						}
+
+						Proyecto proyecto = mapProyecto.get(bodega.getId_proyecto());
+						if (proyecto != null) {
+							nomProyecto = proyecto.getNickName();
+							id_proyecto = proyecto.getId();
+						}
+
+						String auxNickMoneda = moneda.get(id_equipo+"-"+id_cotizacion);
+						if (auxNickMoneda == null) auxNickMoneda = mapDiccionario.get("CLP");
+
+						Double auxPrecioVenta = precioVenta.get(id_equipo+"-"+id_cotizacion);
+						if (auxPrecioVenta == null) auxPrecioVenta = 0d;
+
+						Double totalVta = cantidad * auxPrecioVenta;
+
+						Double auxPrecioArriendo = precioArriendo.get(id_equipo+"-"+id_cotizacion);
+						if (auxPrecioArriendo == null) auxPrecioArriendo = 0d;
+
+						Double tasaArriendo = 0d;
+						if (auxPrecioArriendo > 0 && auxPrecioVenta > 0) {
+							tasaArriendo = auxPrecioArriendo / auxPrecioVenta;
+						}
+
+						String unTiempo = unidadTiempo.get(id_equipo+"-"+id_cotizacion);
+						if (unTiempo == null) unTiempo = "";
+
+						Double totalArr = cantidad * auxPrecioArriendo;
+
+						Long numCotizacion = 0L;
+						Cotizacion coti = mapCotizacion.get(id_cotizacion);
+						if (coti != null) numCotizacion = coti.getNumero();
+
+						List<String> aux = new ArrayList<String>();
+						aux.add(id_bodegaEmpresa.toString());                    // 0
+						aux.add(id_grupo.toString());                           // 1
+						aux.add(id_equipo.toString());                          // 2
+						aux.add(id_proyecto.toString());                        // 3
+						aux.add(nomGrupo);                                      // 4
+						aux.add(nomProyecto);                                   // 5
+						aux.add(codEquipo);                                     // 6
+						aux.add(nomEquipo);                                     // 7
+						aux.add(unidad);                                        // 8
+						aux.add(myformatdouble2.format(cantidad));              // 9
+						aux.add(auxNickMoneda);                                 // 10
+						aux.add(myformatdouble.format(auxPrecioVenta));         // 11
+						aux.add(myformatdouble.format(totalVta));               // 12
+						aux.add(myformatdouble2.format(tasaArriendo*100)+" %"); // 13
+						aux.add(unTiempo);                                      // 14
+						aux.add(myformatdouble.format(auxPrecioArriendo));      // 15
+						aux.add(myformatdouble.format(totalArr));               // 16
+						aux.add(id_cotizacion.toString());                      // 17
+						aux.add(numCotizacion.toString());                      // 18
+						lista.add(aux);
+					}
+				}
+			}
+
+			rs6.close();
+			smt6.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return lista;
+	}
+
+
+
 	public static File exportaReportInventarioProyectoDetalle(String db, List<List<String>> lista, Map<String,String> mapDiccionario, BodegaEmpresa bodega) {
 		
 		File tmp = null;

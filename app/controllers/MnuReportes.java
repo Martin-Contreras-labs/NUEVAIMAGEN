@@ -1225,6 +1225,58 @@ public class MnuReportes extends Controller {
 
 
 	//====================================================================================
+	// MNU reportInventarioProyecto   Reportes/Solo Arriendo
+	//====================================================================================
+
+
+
+	public Result reportInventarioProyectoDetalleSoloArr(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+		if (!s.isValid()) {
+			return ok(mensajes.render("/", msgError));
+		}
+
+		UserMnu userMnu = new UserMnu(s.userName, s.id_usuario, s.id_tipoUsuario, s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal);
+		DynamicForm form = formFactory.form().bindFromRequest(request);
+		form.get("dummy");
+
+		Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+		if (form.hasErrors()) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",
+					className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		} else {
+			try (Connection con = dbRead.getConnection()) {
+				Long id_bodega = Long.parseLong(form.get("id_bodega").trim());
+				BodegaEmpresa bodega = BodegaEmpresa.findXIdBodega(con, s.baseDato, id_bodega);
+
+				// ✅ acá está el cambio: llamamos la función SOLO ARRIENDO
+				List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalleSoloArr(
+						con, s.baseDato, bodega.getId(), mapeoDiccionario
+				);
+
+				// ✅ puedes reutilizar la MISMA vista
+				return ok(reportInventarioProyectoDetalle.render(mapeoDiccionario, mapeoPermiso, userMnu, bodega, datos));
+
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",
+						className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",
+						className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+
+	//====================================================================================
 	// MNU reportInventarioProyecto   Reportes/Existencias Mailing
 	//====================================================================================
 

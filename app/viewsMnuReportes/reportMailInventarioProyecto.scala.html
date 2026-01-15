@@ -91,21 +91,18 @@
                                         @lista1.get(9)
                                         </td>
 
-                                            <!-- ✅ Botón SELECT que postea a /reportInventarioProyectoDetalle/ sin form anidado -->
                                         <td class="col-select" style="text-align:center;vertical-align:middle;">
-                                            <button
-                                            type="submit"
-                                            class="btn btn-link p-0"
-                                            name="id_bodega"
-                                            value="@lista1.get(1)"
-                                            formaction="/reportInventarioProyectoDetalle/"
-                                            formmethod="post"
-                                            style="text-decoration:none;"
-                                            title="Ver detalle"
-                                            >
-                                                <kbd style="background-color: #73C6B6">select</kbd>
-                                            </button>
+                                            <form id="formArr_@lista1.get(1)" method="post" action="/reportInventarioProyectoDetalleSoloArr">
+                                                <input type="hidden" name="id_bodega" value="@lista1.get(1)">
+                                                <button type="submit"
+                                                class="btn btn-sm"
+                                                style="background-color:#5DADE2; color:white; font-weight:600;"
+                                                title="Ver inventario solo arriendo">
+            Select
+                                                </button>
+                                            </form>
                                         </td>
+
 
                                         <td class="col-seleccionar">
                                             <div class="sel-cell">
@@ -223,7 +220,6 @@
             $('#selectAll').prop('checked', total > 0 && total === seleccionados);
         });
 
-        // ✅ evitar doble envío por doble click (solo cuando es ENVIAR)
         $('.formulario').on('submit', function(e) {
             // si el submit viene desde el botón ENVIAR, deshabilitamos
             if (document.activeElement && document.activeElement.id === 'btnEnviarMail') {
