@@ -3410,7 +3410,7 @@ try{
 		return (lista);
 	}
 	
-	public static File estadosExcelPeriodo(String db, Map<String,String> mapDiccionario, String desdeAAMMDD, String hastaAAMMDD, List<List<String>> listado) {
+	public static File estadosExcelPeriodo(String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso, String desdeAAMMDD, String hastaAAMMDD, List<List<String>> listado) {
 		
 		File tmp = null;
 try{
@@ -3568,11 +3568,13 @@ try{
             cell = row.createCell(posCell);
             cell.setCellStyle(encabezado);
 			cell.setCellValue("FECHA");
-			
-			
-			
-			
-			
+
+			if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+				posCell++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellValue("Cobra "+mapDiccionario.get("ARR"));
+			}
 			
 		
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
@@ -3688,8 +3690,17 @@ try{
 		            cell = row.createCell(posCell);
 		            cell.setCellStyle(detalle);
 					cell.setCellValue(listado.get(i).get(13));
-					
-					
+
+					if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+						posCell++; 
+						cell = row.createCell(posCell);
+						cell.setCellStyle(detalle);
+						if(listado.get(i).get(19).equals("1")){
+							if(listado.get(i).get(17).equals("1")){
+								cell.setCellValue("checked");
+							}
+						}
+					}
 					
 					
 				posRow++;

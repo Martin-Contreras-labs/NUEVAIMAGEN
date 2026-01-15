@@ -67,10 +67,20 @@ public class FormFactura {
 	public String sol_observaciones;
 	public Long id_proforma;
 
-	public FormFactura(String idBodega, String fechaDesde, String fechaHasta, String uf, String usd, String eur,
-			List<String> tpoDocRef, List<String> folioRef, List<String> fchRef, List<String> razonRef, String oc,
-			String comentarios, Long id_cotizaSolucion, String sol_description, String sol_observaciones, Long id_proforma) {
-		super();
+	public String Tipo_de_Transaccion;
+	public String Observacion;
+	public String Forma_Pago_SII;
+	public String Bodega_Origen_de_los_Productos;
+	public String Codigo_Centro_de_Costo;
+	public String Codigo_Condicion_de_Pago;
+	public String Concepto_del_Documento;
+
+
+	public FormFactura(String idBodega, String fechaDesde, String fechaHasta, String uf, String usd, String eur, List<String> tpoDocRef, List<String> folioRef, 
+					   List<String> fchRef, List<String> razonRef, String oc, String comentarios, Long id_cotizaSolucion, String sol_description, String sol_observaciones, 
+					   Long id_proforma, String tipo_de_Transaccion, String observacion, 
+					   String forma_Pago_SII, String bodega_Origen_de_los_Productos, String codigo_Centro_de_Costo, String codigo_Condicion_de_Pago, 
+					   String concepto_del_Documento) {
 		this.idBodega = idBodega;
 		this.fechaDesde = fechaDesde;
 		this.fechaHasta = fechaHasta;
@@ -87,6 +97,13 @@ public class FormFactura {
 		this.sol_description = sol_description;
 		this.sol_observaciones = sol_observaciones;
 		this.id_proforma = id_proforma;
+		Tipo_de_Transaccion = tipo_de_Transaccion;
+		Observacion = observacion;
+		Forma_Pago_SII = forma_Pago_SII;
+		Bodega_Origen_de_los_Productos = bodega_Origen_de_los_Productos;
+		Codigo_Centro_de_Costo = codigo_Centro_de_Costo;
+		Codigo_Condicion_de_Pago = codigo_Condicion_de_Pago;
+		Concepto_del_Documento = concepto_del_Documento;
 	}
 
 	public FormFactura() {
@@ -931,20 +948,19 @@ public class FormFactura {
 				}
 
 				if(mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.proformaListar-llenarWebSoftlandDesk").equals("1")){
-					Map<String,String> mapCampos = new HashMap<String,String>();
+					
 					File csv = WebSoftlandDesk.generaCsvFacturaArr(con, db, resumenSubtotales, cliente, proforma, mapPermiso, detalleAjuste, referencias,
-							comentarios,  mapCampos);
+							comentarios);
 
-					String jsonApi = "";
+					String cvsString = "";
 					try {
-						jsonApi = new String(Files.readAllBytes(csv.toPath()), StandardCharsets.UTF_8);
+						cvsString = new String(Files.readAllBytes(csv.toPath()), StandardCharsets.UTF_8);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 
-					Proforma.updateJsonApi(con, db, proforma.id, jsonApi);
+					Proforma.updateJsonApi(con, db, proforma.id, cvsString);
 				}
-
 
 				return(archivoPdf);
     	    

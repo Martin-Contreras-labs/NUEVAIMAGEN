@@ -532,7 +532,7 @@ POST    /generaProformaApiSapSchwager/			controllers.MnuReportes.generaProformaA
 POST    /generaProformaApiRelBase/				controllers.MnuReportes.generaProformaApiRelBase(request: Request)
 POST    /generaProformaApiRelBase2/				controllers.MnuReportes.generaProformaApiRelBase2(request: Request)
 POST    /validarClienteAjax/					controllers.MnuReportes.validarClienteAjax(request: Request)
-
+POST    /generaProformaWebSoftlandDesk/			controllers.MnuReportes.generaProformaWebSoftlandDesk(request: Request)
 
 
 POST    /proformaElimina/					controllers.MnuReportes.proformaElimina(request: Request)
@@ -845,6 +845,7 @@ POST    /buscaCotiSolucionAjax/						controllers.MnuMovimientos.buscaCotiSolucio
 POST    /generaGuiaSapSchwager/						controllers.MnuMovimientos.generaGuiaSapSchwager(request: Request)
 POST    /generaGuiaWebSoftland/						controllers.MnuMovimientos.generaGuiaWebSoftland(request: Request)
 POST    /jsonVariablesGuiaSoftlandDesk/				controllers.MnuMovimientos.jsonVariablesGuiaSoftlandDesk(request: Request)
+POST    /jsonVariablesFactSoftlandDesk/				controllers.MnuMovimientos.jsonVariablesFactSoftlandDesk(request: Request)
 
 GET		/movimientoListarImgPeriodo/				controllers.MnuMovimientos.movimientoListarImgPeriodo(request: Request)
 POST	/movimientoListarImg/						controllers.MnuMovimientos.movimientoListarImg(request: Request)

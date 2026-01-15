@@ -76,6 +76,7 @@ oc: String, listSol: List[tables.CotizaSolucion])
 		<input type="hidden" name="usd" value="@tasaCambio.get(1)">
 		<input type="hidden" name="eur" value="@tasaCambio.get(2)">
 		<input type="hidden" id="esVenta" name="esVenta">
+
 		<div id='modalAgregaReferencias' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
 			<div class='modal-dialog modal-dialog-scrollable' style="max-width: 50% !important;" role='document'>
 			   	<div class='modal-content'>
@@ -83,7 +84,7 @@ oc: String, listSol: List[tables.CotizaSolucion])
 						<h5 class='modal-title'>REFERENCIAS</h5>
 						<div align="right">
 							@if(mapPermiso.get("parametro.proformaListar-llenarApiRelBase")!=null && mapPermiso.get("parametro.proformaListar-llenarApiRelBase").equals("1") && mapPermiso.get("enviarApiFactura")!=null){
-								<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' 
+								<button class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal'
 									onclick="$('#modalAdicRelBase').modal('show');">
 									GENERAR @mapDiccionario.get("PROFORMA")
 								</button>
@@ -92,8 +93,8 @@ oc: String, listSol: List[tables.CotizaSolucion])
 									GENERAR @mapDiccionario.get("PROFORMA")
 								</button>
 							}
-							
-					        <button type='button' class='close' data-dismiss='modal' aria-label='Close' 
+
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'
 									onclick='document.getElementById("btnArr").disabled=false; document.getElementById("btnVta").disabled=false;'>
 					          	<span aria-hidden='true'>&times;</span>
 					        </button>
@@ -123,7 +124,7 @@ oc: String, listSol: List[tables.CotizaSolucion])
 							<div class="mb-3">
 							  <label for="comentarios" class="form-label">COMENTARIOS:</label>
 							  <textarea class="form-control" id="comentarios" rows="2"
-												name="comentarios" 
+												name="comentarios"
 		  										autocomplete="off"></textarea>
 							</div>
 						}else{
@@ -133,8 +134,14 @@ oc: String, listSol: List[tables.CotizaSolucion])
 			   	</div>
 			</div>
 		</div>
+
+
 	</form>
-	
+
+
+
+
+
 	<script>
 	
 			let validarCliente = (id_cliente) =>{
@@ -1140,8 +1147,9 @@ oc: String, listSol: List[tables.CotizaSolucion])
 						$("#totPvtaInvFin").text(formatStandar(totVtaFin, cantDec));
 						
 			   });
-				
-				
+
+
+			  
 				
 				
 			

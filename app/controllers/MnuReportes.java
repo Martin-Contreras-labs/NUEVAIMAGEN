@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import com.google.protobuf.MapEntry;
+import models.api.*;
 import models.calculo.*;
 import models.reports.*;
 import models.tables.*;
@@ -38,14 +39,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import controllers.HomeController.Sessiones;
-import models.api.ApiManagerDocDet;
-import models.api.ApiManagerDocDoc;
-import models.api.ApiNuboxDocDoc;
-import models.api.ApiRelBase;
-import models.api.ApiSapConconcreto;
-import models.api.ApiSapSchwager;
-import models.api.WebIConstruye;
-import models.api.WebMaximise;
 import models.forms.FormFactura;
 import models.forms.FormGrafico;
 import models.utilities.Archivos;
@@ -3168,6 +3161,7 @@ public class MnuReportes extends Controller {
 			try (Connection con = dbRead.getConnection()) {
 				String desdeAAMMDD = form.get("desdeAAMMDD").trim();
 				String hastaAAMMDD = form.get("hastaAAMMDD").trim();
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
 				String permisoPorBodega = null;
 				List<List<String>> datos = null;
@@ -3175,7 +3169,7 @@ public class MnuReportes extends Controller {
 				permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 				datos = ReportInventarios.reportInventarioPorEstadosPorPeriodo(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD, s.aplicaPorSucursal, s.id_sucursal);
 				listado = ReportMovimientos.movGuiasPorEstadoPeriodo(con, s.baseDato, datos);
-				File file = ReportMovimientos.estadosExcelPeriodo(s.baseDato, mapeoDiccionario, desdeAAMMDD, hastaAAMMDD, listado);
+				File file = ReportMovimientos.estadosExcelPeriodo(s.baseDato, mapeoDiccionario, mapeoPermiso, desdeAAMMDD, hastaAAMMDD, listado);
 				return ok(file,false,Optional.of("EstadosPorPeriodo.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -3374,9 +3368,10 @@ public class MnuReportes extends Controller {
 				String desdeAAMMDD = form.get("desdeAAMMDD").trim();
 				String hastaAAMMDD = form.get("hastaAAMMDD").trim();
 				Map<String,String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+				Map<String,String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 				String permisoPorBodega = UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
 				List<List<String>> datos = ReportInventarios.reportInventarioEstadosPorPer(con, s.baseDato, permisoPorBodega, desdeAAMMDD, hastaAAMMDD);
-				File file = ReportInventarios.reportInventarioEstadosPorPerExcel(s.baseDato, mapeoDiccionario, datos, desdeAAMMDD, hastaAAMMDD);
+				File file = ReportInventarios.reportInventarioEstadosPorPerExcel(s.baseDato, mapeoDiccionario, mapeoPermiso, datos, desdeAAMMDD, hastaAAMMDD);
 				return ok(file,false,Optional.of("ReporteEstadosPorPeriodo.xlsx"));
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
@@ -5146,7 +5141,7 @@ public class MnuReportes extends Controller {
 					}
 				}
 				proyectosAuxMs2 = null;
-				for(List<String> lista1: proyectosMs2){
+				for(List<String> lista1: proyectosMs2.subList(0, Math.min(proyectosMs2.size(), 20))){
 					for(List<String> total: resumenTotalesMs2){
 						if(lista1.get(1).equals(total.get(0))){
 							Double valorArr = Double.parseDouble((total.get(1)).replaceAll(",", ""));
@@ -5705,6 +5700,7 @@ public class MnuReportes extends Controller {
 		}
 		DynamicForm formEsVenta = formFactory.form().bindFromRequest(request);
 		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+
 		if (formEsVenta.hasErrors() || form.idBodega==null) {
 			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
 			return ok(mensajes.render("/home/",msgErrorFormulario));
@@ -11655,6 +11651,42 @@ public class MnuReportes extends Controller {
 					rs = "DTE enviado a SAP con exito";
 				}
 				return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta, rs));
+			} catch (SQLException e) {
+				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			} catch (Exception e) {
+				logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
+				return ok(mensajes.render("/home/", msgReport));
+			}
+		}
+	}
+
+	public Result generaProformaWebSoftlandDesk(Http.Request request){
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok(mensajes.render("/", msgError));
+		}
+		FormFactura form = formFactory.form(FormFactura.class).withDirectFieldAccess(true).bindFromRequest(request).get();
+		if (form.id_proforma == null) {
+			logger.error("FORM ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}else {
+			try (Connection con = dbWrite.getConnection()){
+				Long id_proforma = form.id_proforma;
+				String desde = form.fechaDesde;
+				String hasta = form.fechaHasta;
+				EmisorTributario emisor = EmisorTributario.find(con, s.baseDato);
+				String cvsString = Proforma.findJsonGenerado(con, s.baseDato, id_proforma);
+				Proforma proforma = Proforma.find(con, s.baseDato, id_proforma);
+				String rs = WebSoftlandDesk.generaFactura(con, s.baseDato, cvsString, ws, emisor, proforma, form);
+				if( rs.contains("Se genera DTE:")) {
+					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta, rs));
+				}else{
+					return ok(mensajes.render("/proformaListaGet/"+desde+","+hasta, "ERROR DTE NO GENERADO: "+rs));
+				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));

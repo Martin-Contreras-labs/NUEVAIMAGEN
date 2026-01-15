@@ -282,7 +282,7 @@ public class Proforma {
 							+ " proforma.tipo,"
 							+ " proforma.proformaXml,"
 							+ " proforma.xmlEnviado,"
-							+ " ifnull(proforma.jsonGenerado,0), "
+							+ " proforma.jsonGenerado, "
 							+ " ifnull(proforma.response,0), "
 							+ " ifnull(proforma.nroFiscal,0),"
 							+ " ifnull(proforma.comentarios,0),"
@@ -366,13 +366,13 @@ public class Proforma {
 	   			 aux.add(rs.getString(18));		//16 arriendo o venta
 	   			 aux.add(rs.getString(19));		//17 xml factura
 	   			 aux.add(rs.getString(20));		//18 xml enviado
-				aux.add(rs.getString(21));		//19 api manager
+				aux.add(rs.getString(21));		//19 json generado
 				aux.add(rs.getString(22));		//20 response si es 0 no enviado y distinto enviado
-	   			 aux.add(rs.getString(21));		//21 nro fiscal
-	   			 aux.add(nameSucursal);			//22 nameSucursal
-	   			 aux.add(nameComercial);		//23 nameComercial
-	   			 aux.add(rs.getString(22));		//24 comentarios
-				 aux.add(rs.getString(23));		//25 rubro
+	   			 aux.add(rs.getString(23));		//21 nro fiscal
+	   			 aux.add(nameSucursal);						//22 nameSucursal
+	   			 aux.add(nameComercial);					//23 nameComercial
+	   			 aux.add(rs.getString(24));		//24 comentarios
+				 aux.add(rs.getString(25));		//25 rubro
 	   			 
 	   			 if(esPorSucursal.equals("1")) {
 	   				 if(auxIdSucursal.equals(id_sucursal)) {
@@ -526,12 +526,12 @@ public class Proforma {
 //		return (flag);
 //	}
 	
-	public static boolean updateJsonApi(Connection con, String db, Long id_proforma, String jsonApi) {
+	public static boolean updateJsonApi(Connection con, String db, Long id_proforma, String jsonGenerado) {
 		Boolean flag = true;
 		try {
 			PreparedStatement smt = con
 					.prepareStatement("update `"+db+"`.proforma set jsonGenerado=? WHERE id = ?");
-			smt.setString(1, jsonApi);
+			smt.setString(1, jsonGenerado);
 			smt.setLong(2, id_proforma);
 			smt.executeUpdate();
 			smt.close();

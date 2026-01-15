@@ -4,6 +4,7 @@ package models.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.HomeController;
+import models.forms.FormFactura;
 import models.tables.*;
 import models.utilities.Archivos;
 import models.utilities.Fechas;
@@ -55,86 +56,79 @@ public class WebSoftlandDesk {
 //**************************************************************
 // CONSUME LOS SERVICIOS EN SOFTLAND DE ESCRITORIO GUIA:
 //**************************************************************
-	public static String generaGuia(Connection con, String db, File cvs, WSClient ws, EmisorTributario emisorTributario, Guia guia) {
+	public static String generaGuia(Connection con, String db, String cvsString, WSClient ws, EmisorTributario emisorTributario, Guia guia) {
 		try {
-			byte[] csvBytes = Files.readAllBytes(cvs.toPath());
+			int ultimoFolio = WebSoftlandDesk.ultimoFolioGuia(con,db);
+			int folioNew = ultimoFolio + 1; // tabla numeroFolioGuia
+			cvsString = cvsString.replace("folioNew", String.valueOf(folioNew));
+			byte[] csvBytes = cvsString.getBytes(StandardCharsets.UTF_8);
 			String base64String = Base64.getEncoder().encodeToString(csvBytes);
-			try {
-				Files.delete(cvs.toPath());
-			} catch (IOException e) {
-				System.err.println("No se pudo eliminar el archivo temporal inmediatamente.");
-			}
 			String webUser = emisorTributario.getApiUser();
 			String webClave = emisorTributario.getApiKey();
 			String webUrl = emisorTributario.getApiUrl();
-			String areaDeDatos = "\\\\Softland\\erp\\SOFTLAND\\DATOS\\ALZATEC\\";
+			String areaDeDatos = emisorTributario.getApiCompany();
 
-			String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-					+ "		<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\n"
-					+ "			<soapenv:Header/>\n"
-					+ "			<soapenv:Body>\n"
-					+ "		    	<tem:CaptudaGuiaSalida>\n"
-					+ "		      		<tem:base64File>\n"
-					+ "		      			<UserName>webservice</UserName>\n"
-					+ "		      			<Password>"+webClave+"</Password>\n"
-					+ "		      			<Data>\n"
-					+							base64String
-					+ "						</Data>\n"
-					+ "    			    </tem:base64File>\n"
-					+ "    				<tem:extensionArchivo>txt</tem:extensionArchivo>\n"
-					+ "    				<tem:areaDeDatos>"+areaDeDatos+"</tem:areaDeDatos>\n"
-					+ "    				<tem:usuario>"+webUser+"</tem:usuario>\n"
-					+ "    				<tem:nombreCertificadoDigital>"+webClave+"</tem:nombreCertificadoDigital>\n"
-					+ "		    	</tem:CaptudaGuiaSalida>\n"
-					+ "			</soapenv:Body>\n"
-					+ "		</soapenv:Envelope>\n";
+			String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+					+ "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">"
+					+ "<soapenv:Header/>"
+					+ "<soapenv:Body>"
+					+ "<tem:CaptudaGuiaSalida>" 
+					+ "<tem:base64File>" + base64String + "</tem:base64File>"
+					+ "<tem:extensionArchivo>txt</tem:extensionArchivo>"
+					+ "<tem:areaDeDatos>" + areaDeDatos + "</tem:areaDeDatos>"
+					+ "<tem:usuario>" + webUser + "</tem:usuario>"
+					+ "<tem:nombreCertificadoDigital>" + webClave + "</tem:nombreCertificadoDigital>"
+					+ "</tem:CaptudaGuiaSalida>"
+					+ "</soapenv:Body>"
+					+ "</soapenv:Envelope>";
 
 			Guia.modificaPorCampo(con, db, "jsonGenerado", guia.getId(), data);
 
 			String rs = ws.url(webUrl)
 					.addHeader("Content-Type","text/xml")
-					.addHeader("SOAPAction","http://tempuri.org/ICapturaDteExterno/CapturaGuiaSalida")
+					.addHeader("SOAPAction","\"http://tempuri.org/ICapturaDteExterno/CaptudaGuiaSalida\"")
 					.post(data)
 					.thenApply(
 			          (WSResponse response) -> {
-			        	  String rsBody = "response.getBody() = \n"+response.getBody();
-						  
+			        	  String rsBody = response.getBody();
 						  Guia.modificaPorCampo(con, db, "response", guia.getId(), rsBody);
-						  
-			        	  if(rsBody.contains("<a:Descripcion>")) {
-			        		  	int ini = rsBody.indexOf("<a:Descripcion>");
-					       		int fin = rsBody.indexOf("</a:Descripcion>");
-					       		rsBody = rsBody.substring(ini+15,fin);
-					       		rsBody = rsBody.replaceAll("(\\n|\\r)", "");
-							  if(!rsBody.contains("<a:Error>")) {
-								  ini = rsBody.indexOf("<a:FolioDte>");
-								  fin = rsBody.indexOf("</a:FolioDte>");
-								  String folio = rsBody.substring(ini+12,fin);
-								  rsBody += "DTE: " + folio;
-								  
-								  Guia.modificaPorCampo(con, db, "numGuiaCliente", guia.getId(), "DTE_GUIA: "+folio+" - "+guia.getNumGuiaCliente());
-								  Guia.modificaPorCampo(con, db, "linkFolio", guia.getId(), folio);
-								  
-								  ini = rsBody.indexOf("<a:PdfenBase64>");
-								  fin = rsBody.indexOf("</a:PdfenBase64>");
-								  String pdfBase64 = rsBody.substring(ini+15,fin);
-                                  try {
-                                      File tmp = TempFile.createTempFile("tmp", ".pdf");
-									  byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64.trim());
-									  Files.write(tmp.toPath(), pdfBytes);
-									  String path = db+"/DTE_GUIA_"+folio + ".pdf";
-									  Archivos.grabarArchivo(tmp,path);
-                                  } catch (IOException e) {
-                                      throw new RuntimeException(e);
-                                  }
+						  if(rsBody.contains("<a:Error>")) {
+							  int ini = rsBody.indexOf("<a:Descripcion>");
+							  int fin = rsBody.indexOf("</a:Descripcion>");
+							  rsBody = rsBody.substring(ini+15,fin);
+							  rsBody = rsBody.replaceAll("(\\n|\\r)", "");
+							  return rsBody;
+						  }
+						  if(rsBody.contains("<a:FolioDte>")) {
+							  int ini = rsBody.indexOf("<a:FolioDte>");
+							  int fin = rsBody.indexOf("</a:FolioDte>");
+							  String folio = rsBody.substring(ini+12,fin);
+							  rsBody += "DTE: " + folio;
+							  Guia.modificaPorCampo(con, db, "numGuiaCliente", guia.getId(), "DTE_GUIA: "+folio+" - "+guia.getNumGuiaCliente());
+							  Guia.modificaPorCampo(con, db, "linkFolio", guia.getId(), folio);
 
-                              }
-			        	  }
+							  ini = rsBody.indexOf("<a:PdfenBase64>");
+							  fin = rsBody.indexOf("</a:PdfenBase64>");
+							  String pdfBase64 = rsBody.substring(ini+15,fin);
+
+							  try {
+								  File tmp = TempFile.createTempFile("tmp", ".pdf");
+								  byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64.trim());
+								  Files.write(tmp.toPath(), pdfBytes);
+								  String path = db+"/DTE_GUIA_" + folio + ".pdf";
+								  Archivos.grabarArchivo(tmp,path);
+								  WebSoftlandDesk.updateFolioGuia(con, db, folioNew);
+								  return "Se genera DTE: "+folio;
+							  } catch (Exception e) {}
+						  }
+						  if (rsBody.trim().startsWith("<!DOCTYPE") || rsBody.trim().startsWith("<html")) {
+							  return "El servidor devolvió una página de error (404/500) en lugar de datos.";
+						  }
 				       	  return rsBody;
 			           }
-			         ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
+				    ).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
-		} catch (InterruptedException | java.util.concurrent.ExecutionException | TimeoutException | IOException e) {
+		} catch (Exception e) {
 			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
@@ -146,84 +140,112 @@ public class WebSoftlandDesk {
 // CONSUME LOS SERVICIOS EN SOFTLAND DE ESCRITORIO FACTURA:
 //**************************************************************
 
-	public static String generaFactura(Connection con, String db, File cvs, WSClient ws, EmisorTributario emisorTributario, Proforma proforma) {
+	public static String generaFactura(Connection con, String db, String cvsString, WSClient ws, EmisorTributario emisorTributario, Proforma proforma, FormFactura form) {
 		try {
-			byte[] csvBytes = Files.readAllBytes(cvs.toPath());
-			String base64String = Base64.getEncoder().encodeToString(csvBytes);
-			try {
-				Files.delete(cvs.toPath());
-			} catch (IOException e) {
-				System.err.println("No se pudo eliminar el archivo temporal inmediatamente.");
+			int ultimoNumeroFactura = WebSoftlandDesk.ultimoNumeroFactura(con,db);
+			int nroDocNew = ultimoNumeroFactura + 1;
+			
+			final String auxError = cvsString;
+			
+			cvsString = cvsString.replace("numeroDocNew", String.valueOf(nroDocNew));
+
+			cvsString = cvsString.replace("TipodeTransaccion", String.valueOf(form.Tipo_de_Transaccion));
+			cvsString = cvsString.replace("ObservacionesSoftland", String.valueOf(form.Observacion));
+			cvsString = cvsString.replace("CodigoFormaPagoSII", String.valueOf(form.Forma_Pago_SII));
+			cvsString = cvsString.replace("BodegaOrigendelosProductos", String.valueOf(form.Bodega_Origen_de_los_Productos));
+			cvsString = cvsString.replace("CodigoCentrodeCosto", String.valueOf(form.Codigo_Centro_de_Costo));
+			cvsString = cvsString.replace("CodigoCondiciondePago", String.valueOf(form.Codigo_Condicion_de_Pago));
+			cvsString = cvsString.replace("ConceptodelDocumento", String.valueOf(form.Concepto_del_Documento));
+			
+			int Dias_Forma_Pago_SII = 0;
+			String Codigo_Condicion_de_Pago = form.Codigo_Condicion_de_Pago;
+			if(Codigo_Condicion_de_Pago !=null){
+				String query = String.format( "select dias from `%s`.codigoCondicionDePagoFact where codigo=?;", db);
+				try (PreparedStatement smt = con.prepareStatement(query)) {
+					smt.setString(1, form.Codigo_Condicion_de_Pago);
+					try (ResultSet rs = smt.executeQuery()) {
+						if (rs.next()) {
+							Dias_Forma_Pago_SII = rs.getInt(1);
+						}
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
+
+			Fechas venc = Fechas.obtenerFechaDesdeStrDDMMAA(proforma.getFecha());
+			venc = Fechas.addDias(venc.getFechaCal(), Dias_Forma_Pago_SII);
+			String fechaVencimiento = venc.getFechaStrDDMMAA();
+			fechaVencimiento = fechaVencimiento.replaceAll("-","/");
+
+			cvsString = cvsString.replace("fechaDeVencimiento", fechaVencimiento);
+
+			byte[] csvBytes = cvsString.getBytes(StandardCharsets.UTF_8);
+			String base64String = Base64.getEncoder().encodeToString(csvBytes);
 			String webUser = emisorTributario.getApiUser();
 			String webClave = emisorTributario.getApiKey();
 			String webUrl = emisorTributario.getApiUrl();
-			String areaDeDatos = "\\\\Softland\\erp\\SOFTLAND\\DATOS\\ALZATEC\\";
+			String areaDeDatos = emisorTributario.getApiCompany();
 
-			String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-					+ "		<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">\n"
-					+ "			<soapenv:Header/>\n"
-					+ "			<soapenv:Body>\n"
-					+ "		    	<tem:CapturarDte>\n"
-					+ "		      		<tem:base64File>\n"
-					+ "		      			<UserName>webservice</UserName>\n"
-					+ "		      			<Password>"+webClave+"</Password>\n"
-					+ "		      			<Data>\n"
-					+							base64String
-					+ "						</Data>\n"
-					+ "    			    </tem:base64File>\n"
-					+ "    				<tem:extensionArchivo>txt</tem:extensionArchivo>\n"
-					+ "    				<tem:areaDeDatos>"+areaDeDatos+"</tem:areaDeDatos>\n"
-					+ "    				<tem:usuario>"+webUser+"</tem:usuario>\n"
-					+ "    				<tem:nombreCertificadoDigital>"+webClave+"</tem:nombreCertificadoDigital>\n"
-					+ "		    	</tem:CapturarDte>\n"
-					+ "			</soapenv:Body>\n"
-					+ "		</soapenv:Envelope>\n";
-
-			Guia.modificaPorCampo(con, db, "jsonGenerado", proforma.getId(), data);
-
+			String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+					+ "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\">"
+					+ "<soapenv:Header/>"
+					+ "<soapenv:Body>"
+					+ "<tem:CapturarDte>"
+					+ "<tem:base64File>" + base64String + "</tem:base64File>"
+					+ "<tem:extensionArchivo>txt</tem:extensionArchivo>"
+					+ "<tem:areaDeDatos>" + areaDeDatos + "</tem:areaDeDatos>"
+					+ "<tem:usuario>" + webUser + "</tem:usuario>"
+					+ "<tem:nombreCertificadoDigital>" + webClave + "</tem:nombreCertificadoDigital>"
+					+ "</tem:CapturarDte>"
+					+ "</soapenv:Body>"
+					+ "</soapenv:Envelope>";
+			Proforma.updateJsonApi(con, db, proforma.getId(), data);
 			String rs = ws.url(webUrl)
 					.addHeader("Content-Type","text/xml")
-					.addHeader("SOAPAction","http://tempuri.org/ICapturaDteExterno/CapturarDte")
+					.addHeader("SOAPAction","\"http://tempuri.org/ICapturaDteExterno/CapturarDte\"")
 					.post(data)
 					.thenApply(
 							(WSResponse response) -> {
-								String rsBody = "response.getBody() = \n"+response.getBody();
-
-								Guia.modificaPorCampo(con, db, "response", proforma.getId(), rsBody);
-
-								if(rsBody.contains("<a:Descripcion>")) {
+								String rsBody = response.getBody();
+								Proforma.updateResponse(con, db, proforma.getId(), rsBody);
+								if(rsBody.contains("<a:Error>")) {
 									int ini = rsBody.indexOf("<a:Descripcion>");
 									int fin = rsBody.indexOf("</a:Descripcion>");
 									rsBody = rsBody.substring(ini+15,fin);
 									rsBody = rsBody.replaceAll("(\\n|\\r)", "");
-									if(!rsBody.contains("<a:Error>")) {
-										ini = rsBody.indexOf("<a:FolioDte>");
-										fin = rsBody.indexOf("</a:FolioDte>");
-										String nroFiscal = rsBody.substring(ini+12,fin);
-										rsBody += "DTE: " + nroFiscal;
-
-										Guia.modificaPorCampo(con, db, "nroFiscal", proforma.getId(), nroFiscal);
-
-										ini = rsBody.indexOf("<a:PdfenBase64>");
-										fin = rsBody.indexOf("</a:PdfenBase64>");
-										String pdfBase64 = rsBody.substring(ini+15,fin);
-										try {
-											File tmp = TempFile.createTempFile("tmp", ".pdf");
-											byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64.trim());
-											Files.write(tmp.toPath(), pdfBytes);
-											String path = db+"/DTE_FACT_"+nroFiscal + ".pdf";
-											Archivos.grabarArchivo(tmp,path);
-										} catch (IOException e) {
-											throw new RuntimeException(e);
-										}
-									}
+									Proforma.updateJsonApi(con, db, proforma.getId(), auxError);
+									return rsBody;
 								}
+								if(rsBody.contains("<a:FolioDte>")) {
+									int ini = rsBody.indexOf("<a:FolioDte>");
+									int fin = rsBody.indexOf("</a:FolioDte>");
+									String folio = rsBody.substring(ini+12,fin);
+									rsBody += "DTE: " + folio;
+									Proforma.updateNroFiscal(con, db, proforma.getId(), folio);
+									ini = rsBody.indexOf("<a:PdfenBase64>");
+									fin = rsBody.indexOf("</a:PdfenBase64>");
+									String pdfBase64 = rsBody.substring(ini+15,fin);
+									try {
+										File tmp = TempFile.createTempFile("tmp", ".pdf");
+										byte[] pdfBytes = Base64.getDecoder().decode(pdfBase64.trim());
+										Files.write(tmp.toPath(), pdfBytes);
+										String path = db+"/DTE_FACT_" + folio + ".pdf";
+										Archivos.grabarArchivo(tmp,path);
+										WebSoftlandDesk.updateNumeroFactura(con, db, nroDocNew);
+										return "Se genera DTE: "+folio;
+									} catch (Exception e) {}
+								}
+								if (rsBody.trim().startsWith("<!DOCTYPE") || rsBody.trim().startsWith("<html")) {
+									Proforma.updateJsonApi(con, db, proforma.getId(), auxError);
+									return "El servidor devolvió una página de error (404/500) en lugar de datos.";
+								}
+								Proforma.updateJsonApi(con, db, proforma.getId(), auxError);
 								return rsBody;
 							}
 					).toCompletableFuture().get(600000,TimeUnit.MILLISECONDS);
 			return(rs);
-		} catch (InterruptedException | java.util.concurrent.ExecutionException | TimeoutException | IOException e) {
+		} catch (Exception  e) {
 			String className = ApiSapConconcreto.class.getSimpleName();
 			String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
@@ -262,6 +284,16 @@ public class WebSoftlandDesk {
 		return ultimoFolioGuia;
 	}
 
+	public static boolean updateFolioGuia(Connection con, String db, int numero) {
+		String query = String.format("update %s.numeroFolioGuia set numero = %d;", db, numero);
+		try (PreparedStatement smt = con.prepareStatement(query)){
+			smt.executeUpdate();
+			return true;
+		}catch(Exception e){
+			return false;
+		}
+	}
+
 	public static int ultimoNumeroFactura(Connection con, String db) {
 		int ultimoNumeroFactura = 0;
 		String query = String.format("select numero from %s.numeroDocumentoFactura;", db);
@@ -272,6 +304,16 @@ public class WebSoftlandDesk {
 			}
 		}catch(Exception e){}
 		return ultimoNumeroFactura;
+	}
+
+	public static boolean updateNumeroFactura(Connection con, String db, int numero) {
+		String query = String.format("update %s.numeroDocumentoFactura set numero = %d;", db, numero);
+		try (PreparedStatement smt = con.prepareStatement(query)){
+			smt.executeUpdate();
+			return true;
+		}catch(Exception e){
+			return false;
+		}
 	}
 	
 	public static File generaCsvGuia(Connection con, String db, Guia guia, Transportista transportista, Map<String,String> mapDiccionario,
@@ -340,12 +382,8 @@ public class WebSoftlandDesk {
 				Cliente aux = Cliente.find(con, db, bodegaDestino.getId_cliente());
 				if(aux!=null) {
 					direccionDestino = aux.getDireccion();
-					comunaDestino = aux.getCod_comuna();
-					Comunas comuna = Comunas.findPorNombre(con, db, aux.getComuna());
-					if(comuna != null) {
-						Long cod_ciudad = Long.parseLong(comuna.codigo); //se elimina el 0 antepuesto en comuna
-						ciudadDestino = cod_ciudad.toString();
-					}
+					comunaDestino = aux.getComuna();
+					ciudadDestino = aux.getCiudad();
 					if((long) bodegaOrigen.getEsInterna() == (long) 1){
 						direccionCliente = direccionDestino;
 						comunaCliente = comunaDestino;
@@ -354,27 +392,18 @@ public class WebSoftlandDesk {
 						Cliente aux2 = Cliente.find(con, db, bodegaOrigen.getId_cliente());
 						if(aux2!=null) {
 							direccionCliente = aux2.getDireccion();
-							comunaCliente = aux2.getCod_comuna();
-							Comunas comuna2 = Comunas.findPorNombre(con, db, aux2.getComuna());
-							if(comuna2 != null) {
-								Long cod_ciudad = Long.parseLong(comuna2.codigo); //se elimina el 0 antepuesto en comuna
-								ciudadCliente = cod_ciudad.toString();
-							}
+							comunaCliente = aux2.getComuna();
+							ciudadCliente = aux2.getCiudad();
 						}
 					}
-
 				}
 				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaOrigen(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
 			}else {
 				Proyecto aux = Proyecto.find(con, db, bodegaDestino.id_proyecto);
 				if(aux!=null) {
 					direccionDestino = aux.getDireccion();
-					comunaDestino = aux.getCod_comuna();
-					Comunas comuna = Comunas.findPorNombre(con, db, aux.getComuna());
-					if(comuna != null) {
-						Long cod_ciudad = Long.parseLong(comuna.codigo);
-						ciudadDestino = cod_ciudad.toString();
-					}
+					comunaDestino = aux.getComuna();
+					ciudadDestino = aux.getCiudad();
 				}
 				detalleGuia = Guia.findDetalleGuiaOrigenDestinoYPrecios(con, db, guia.getId(), guia.getId_bodegaDestino(), mapDiccionario.get("pais"), guia.getId_bodegaOrigen());
 			}
@@ -392,8 +421,6 @@ public class WebSoftlandDesk {
 			Map<Long,Double> tasaCambio = TasasCambio.mapTasasPorFecha(con, db, auxFecha.getFechaStrAAMMDD(), mapDiccionario.get("pais"));
 			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 			DecimalFormat myformat = new DecimalFormat("0",symbols);
-			int ultimoFolio = WebSoftlandDesk.ultimoFolioGuia(con,db);
-			int folioNew = ultimoFolio + 1; // tabla numeroFolioGuia
 			String Concepto_de_Salida_a_Bodega = "";
 			String Codigo_Condicion_de_Pago = "";
 			String Bodega_Origen_de_los_Productos = "";
@@ -407,6 +434,7 @@ public class WebSoftlandDesk {
 			String aux = rutCliente.replaceAll("-","");
 			String codCliente = rutCliente.substring(0,aux.length()-1);
 			String fechaGuia = Fechas.DDMMAA(guia.getFecha());
+			fechaGuia = fechaGuia.replaceAll("-","/");
 			String observaciones = "MOV."+guia.getNumero()+": "+guia.getObservaciones();
 
 			for(int i=0;i<detalleGuia.size();i++) {
@@ -435,7 +463,17 @@ public class WebSoftlandDesk {
 				if(nombreEquipo.length()>35) {
 					nombreEquipo = nombreEquipo.substring(0,35);
 				}
-				lineasCsv.add(Bodega_Origen_de_los_Productos+";"+folioNew+";S;T;"+fechaGuia+";"+Concepto_de_Salida_a_Bodega+";"+observaciones+";"+codCliente+";"+nombCliente+";" +
+
+				rutCliente = rutCliente.replaceAll("-","");
+				rutTransp = rutCliente.replaceAll("-","");
+
+				observaciones = "";
+
+				direccionDestino="";
+				comunaDestino="";
+				ciudadDestino="";
+						
+				lineasCsv.add(Bodega_Origen_de_los_Productos+";"+"folioNew"+";S;T;"+fechaGuia+";"+Concepto_de_Salida_a_Bodega+";"+observaciones+";"+codCliente+";"+nombCliente+";" +
 						rutCliente+";"+giroCliente+";"+direccionCliente+";"+comunaCliente+";"+ciudadCliente+";"+Codigo_Centro_de_Costo+";;;;;;;;;;;" +
 						Codigo_Condicion_de_Pago+";Independencia;"+direccionDestino+";"+comunaDestino+";"+ciudadDestino+";;;;;;;;"+nomTransp+";"+patTransp+";;"+rutTransp+";;;;;;;;;;;;;;;;;;"+
 						auxPTotal+";"+codigoEquipo+";"+nombreEquipo+";"+nombreEquipo+";;"+cantidad+";"+precioUnitario+";;;;;;;;;;;;;;;;;N;" +
@@ -457,7 +495,7 @@ public class WebSoftlandDesk {
 	public static File generaCsvFacturaArr(Connection con, String db,
 										List<List<String>> resumenSubtotales, Cliente cliente, Proforma proforma,
 										Map<String,String> mapPermiso, List<List<String>> detalleAjuste,
-										XmlFacturaReferencias referencias, String comentarios, Map<String,String> mapCampos) {
+										XmlFacturaReferencias referencias, String comentarios) {
 		File tmp = null;
 		try {
 			tmp = TempFile.createTempFile("tmp", ".csv");
@@ -541,28 +579,9 @@ public class WebSoftlandDesk {
 				}
 			}
 
-			int ultimoNumeroFactura = WebSoftlandDesk.ultimoNumeroFactura(con,db);
-			int nroDocNew = ultimoNumeroFactura + 1; // tabla numeroDocumentoFactura
-			String Tipo_de_Transaccion = "";
-			String ObservacionesSoftland = "";
-			String Codigo_Forma_Pago_SII = "";
-			int Dias_Forma_Pago_SII = 0;
-			String Bodega_Origen_de_los_Productos = "";
-			String Codigo_Centro_de_Costo = "";
-			String Codigo_Condicion_de_Pago = "";
-			String Concepto_del_Documento = "";
 
-			if(mapCampos!=null && mapCampos.size()>0){
-				Tipo_de_Transaccion = mapCampos.get("Tipo_de_Transaccion");
-				ObservacionesSoftland = mapCampos.get("ObservacionesSoftland");
-				Codigo_Forma_Pago_SII = mapCampos.get("Codigo_Forma_Pago_SII");
-				Dias_Forma_Pago_SII = Integer.parseInt(mapCampos.get("Dias_Forma_Pago_SII"));
-				Bodega_Origen_de_los_Productos = mapCampos.get("Bodega_Origen_de_los_Productos");
-				Codigo_Centro_de_Costo = mapCampos.get("Codigo_Centro_de_Costo");
-				Codigo_Condicion_de_Pago = mapCampos.get("Codigo_Condicion_de_Pago");
-				Concepto_del_Documento = mapCampos.get("Concepto_del_Documento");
-			}
 			String fechaFactura = Fechas.DDMMAA(proforma.getFecha());
+			fechaFactura = fechaFactura.replaceAll("-","/");
 			String observaciones = "PROF."+proforma.getId()+" PERIODO: desde "+valPeriodoDesde+" hasta "+valPeriodoHasta+
 					" --- PROYECTO: "+nombreBodegaProyecto.toUpperCase();
 			if(comentarios!=null && comentarios.trim().length()>1) {
@@ -573,10 +592,7 @@ public class WebSoftlandDesk {
 			}
 			rutCliente = rutCliente.replaceAll("-","");
 			String codCliente = rutCliente.substring(0,rutCliente.length()-1);
-
-			Fechas venc = Fechas.obtenerFechaDesdeStrAAMMDD(proforma.getFecha());
-			venc = Fechas.addDias(venc.getFechaCal(), Dias_Forma_Pago_SII);
-			String fechaVencimiento = venc.getFechaStrDDMMAA();
+			
 
 			for(int i=0;i<resumenSubtotales.size();i++) {
 				Long idGrupo = Grupo.findIdXnombre(con,db, resumenSubtotales.get(i).get(0));
@@ -607,11 +623,31 @@ public class WebSoftlandDesk {
 				String valMontoItem = auxPrecioRound.toString();
 
 				if( !(valPrcItem.equals("0") && valMontoItem.equals("0")) ) {
-					lineasCsv.add("F;T;V;"+Bodega_Origen_de_los_Productos+";"+nroDocNew+";"+fechaFactura+";"+Concepto_del_Documento+";"+fechaVencimiento+";"+ObservacionesSoftland+";;;;;;;;;;"+codCliente+";"+nomCliente+";" +
-							rutCliente+";"+giroCliente+";"+cliente.getMailFactura()+";"+direccionCliente+";;" +
-							comunaCliente+";"+ciudadCliente+";;;;;;;;;"+Codigo_Centro_de_Costo+";"+Codigo_Condicion_de_Pago+";;;;;;;;;;;;;;;;;;;;;;;001;"+valMontoItem+";"+valVlrCodigo+";"+valUnmdItem+";"+valNmbItem+";;"+
-							valQtyItem+";"+valQtyItem+";"+valPrcItem+";"+valPrcItem+
-							";;;;;;;;;;;;;;;;;;;;;N;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;");
+
+					lineasCsv.add("F;T;V;BodegaOrigendelosProductos;"+"numeroDocNew"+";"+fechaFactura+";ConceptodelDocumento;" +
+							"fechaDeVencimiento;ObservacionesSoftland;;;;;" +
+							";;;;;"+codCliente+";"+nomCliente+";"+rutCliente+";" +
+							""+giroCliente+";"+cliente.getMailFactura()+";"+direccionCliente+";;"+comunaCliente+";"+ciudadCliente+";;;;" +
+							";;;;;CodigoCentrodeCosto;CodigoCondiciondePago;;" +
+							";;;;;;;;;" +
+							";;;;;;;;" +
+							";;;;001;"+valMontoItem+";"+valVlrCodigo+";"+valUnmdItem+";"+valNmbItem+";;" +
+							""+valQtyItem+";"+valQtyItem+";"+valPrcItem+";"+valPrcItem+";;;" +
+							";;;;;;" +
+							";;;;;" +
+							";;;;;;;" +
+							"N;;;;;;" +
+							";;;;;;;" +
+							";;;;;;;" +
+							";;;;;;;" +
+							";;;;;;" +
+							";;;;;TipodeTransaccion;CodigoFormaPagoSII;;" +
+							";;;;;;" +
+							";;;;;" +
+							";;;;;;" +
+							";;;;;;" +
+							";;;;;;;;" +
+							";;;;;");
 				}
 			}
 			String xmlAjustes = "";
@@ -638,11 +674,30 @@ public class WebSoftlandDesk {
 					String valPrcItem = auxPrecioRound.toString();
 					String valMontoItem = auxPrecioRound.toString();
 
-					lineasCsv.add("F;T;V;"+Bodega_Origen_de_los_Productos+";"+nroDocNew+";"+fechaFactura+";"+Concepto_del_Documento+";"+fechaVencimiento+";"+ObservacionesSoftland+";;;;;;;;;;"+codCliente+";"+nomCliente+";" +
-							rutCliente+";"+giroCliente+";"+cliente.getMailFactura()+";"+direccionCliente+";;" +
-							comunaCliente+";"+ciudadCliente+";;;;;;;;;"+Codigo_Centro_de_Costo+";"+Codigo_Condicion_de_Pago+";;;;;;;;;;;;;;;;;;;;;;;001;"+valMontoItem+";"+valVlrCodigo+";"+valUnmdItem+";"+valNmbItem+";;"+
-							valQtyItem+";"+valQtyItem+";"+valPrcItem+";"+valPrcItem+
-							";;;;;;;;;;;;;;;;;;;;;N;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;");
+					lineasCsv.add("F;T;V;BodegaOrigendelosProductos;"+"numeroDocNew"+";"+fechaFactura+";ConceptodelDocumento;" +
+							"fechaDeVencimiento;ObservacionesSoftland;;;;;" +
+							";;;;;"+codCliente+";"+nomCliente+";"+rutCliente+";" +
+							""+giroCliente+";"+cliente.getMailFactura()+";"+direccionCliente+";;"+comunaCliente+";"+ciudadCliente+";;;;" +
+							";;;;;CodigoCentrodeCosto;CodigoCondiciondePago;;" +
+							";;;;;;;;;" +
+							";;;;;;;;" +
+							";;;;001;"+valMontoItem+";"+valVlrCodigo+";"+valUnmdItem+";"+valNmbItem+";;" +
+							""+valQtyItem+";"+valQtyItem+";"+valPrcItem+";"+valPrcItem+";;;" +
+							";;;;;;" +
+							";;;;;" +
+							";;;;;;;" +
+							"N;;;;;;" +
+							";;;;;;;" +
+							";;;;;;;" +
+							";;;;;;;" +
+							";;;;;;" +
+							";;;;;TipodeTransaccion;CodigoFormaPagoSII;;" +
+							";;;;;;" +
+							";;;;;" +
+							";;;;;;" +
+							";;;;;;" +
+							";;;;;;;;" +
+							";;;;;");
 				}
 			}
 //			String xmlReferencias = "";

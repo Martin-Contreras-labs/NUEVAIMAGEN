@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -24,14 +25,7 @@ import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.S3Object;
-
+import software.amazon.awssdk.services.s3.model.*;
 
 
 public class Archivos{
@@ -199,6 +193,45 @@ public class Archivos{
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public static void eliminarSubCarpeta(String subCarpeta) {
+		String bucket = HomeController.config.getString("bucket");
+		Region region = Region.US_EAST_2;
+
+		// Aseguramos que el prefijo termine en '/' para no borrar carpetas con nombres similares
+		String prefix = subCarpeta.endsWith("/") ? subCarpeta : subCarpeta + "/";
+
+		try (S3Client s3 = S3Client.builder().region(region).build()) {
+			// 1. Listar todos los objetos dentro de la "subcarpeta"
+			ListObjectsRequest listRequest = ListObjectsRequest.builder()
+					.bucket(bucket)
+					.prefix(prefix)
+					.build();
+
+			ListObjectsResponse listResponse = s3.listObjects(listRequest);
+			List<S3Object> objetos = listResponse.contents();
+
+			if (objetos.isEmpty()) {
+				return; // No hay nada que borrar
+			}
+
+			// 2. Preparar la lista de identificadores para borrar
+			List<ObjectIdentifier> identifiers = objetos.stream()
+					.map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
+					.collect(Collectors.toList());
+
+			// 3. Ejecutar la eliminación por lotes
+			DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+					.bucket(bucket)
+					.delete(Delete.builder().objects(identifiers).build())
+					.build();
+
+			s3.deleteObjects(deleteRequest);
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

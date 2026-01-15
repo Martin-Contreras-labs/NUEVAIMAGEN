@@ -367,22 +367,24 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 
 								@if(mapPermiso.get("parametro.movimientoListar-llenarWebSoftlandDesk")!=null && mapPermiso.get("parametro.movimientoListar-llenarWebSoftlandDesk").equals("1") && mapPermiso.get("enviarApiGuia")!=null){
 									<td style="text-align:center;">
-									@if(lista1.getLinkFolio().equals("0")){
-										<a href="#" onclick= "llenarWebSoftlandDesk('@lista1.getId()','@lista1.getId_transportista()')">
-											<kbd style="background-color: #C39BD3">enviar</kbd>
-										</a>
-									}else{
-										<a href="#" onclick= "llenarWebSoftlandDesk('@lista1.getId()','@lista1.getId_transportista()')">
-											<kbd style="background-color: #85C1E9">reenviar</kbd>
-										</a>
-									}
+										@if(lista1.getLinkFolio().equals("0")){
+											<a href="#" onclick= "llenarWebSoftlandDesk('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #C39BD3">enviar</kbd>
+											</a>
+										}else{
+											<a href="#" onclick= "llenarWebSoftlandDesk('@lista1.getId()','@lista1.getId_transportista()')">
+												<kbd style="background-color: #85C1E9">reenviar</kbd>
+											</a>
+										}
 									</td>
-									<td style="text-align:center;">
-									@if(!lista1.getLinkFolio().equals("0")){
-										@lista1.getLinkFolio()
-									}else{
-										--
-									}
+									<td style="vertical-align: middle; text-align: center">
+										@if(!lista1.getLinkFolio().equals("0")){
+											<a href="#" onclick="mostrarPDF('@("DTE_GUIA_" + lista1.getLinkFolio() + ".pdf")')">
+												<kbd style="background-color:#85C1E9">@lista1.getLinkFolio()</kbd>
+											</a>
+										}else{
+											--
+										}
 									</td>
 								}
 							</TR>
@@ -685,6 +687,11 @@ listaGuias: List[tables.Guia], listaTransporte: List[tables.Transportista], fech
 	const mostrarPDFmasAlbum = (id_guia, nombrePDF) => {
 		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdfmasAlbum/"+id_guia+","+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
 		  $('#muestraPDF').modal('show');
+	}
+
+	const mostrarPDF = (nombrePDF) => {
+		document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		$('#muestraPDF').modal('show');
 	}
 	
 	const descargaDocumento = (nombreDOC) => {

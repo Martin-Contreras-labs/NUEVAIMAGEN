@@ -4595,7 +4595,7 @@ try{
 		return (lista);
 	}
 	
-	public static File reportInventarioEstadosPorPerExcel(String db, Map<String,String> mapDiccionario, List<List<String>> datos, String desde, String hasta) {
+	public static File reportInventarioEstadosPorPerExcel(String db, Map<String,String> mapDiccionario, Map<String,String> mapPermiso, List<List<String>> datos, String desde, String hasta) {
 		
 		File tmp = null;
 try{
@@ -4801,6 +4801,16 @@ try{
 			cell = row.createCell(posCell);
 			cell.setCellStyle(encabezado);
 			cell.setCellValue("Total Reparacion");
+
+
+			if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+				posCell++; posColl++;
+				hoja1.setColumnWidth(posColl, 4*1000);
+				cell = row.createCell(posCell);
+				cell.setCellStyle(encabezado);
+				cell.setCellValue("Cobra "+mapDiccionario.get("ARR"));
+			}
+			
 		
 			//INSERTA LOGO DESPUES DE ANCHOS DE COLUMNAS
 			InputStream x = Archivos.leerArchivo(db+"/"+mapDiccionario.get("logoEmpresa"));
@@ -4955,6 +4965,17 @@ try{
 				cell.setCellValue(cant * pu);
 				granTotal += cant * pu;
 
+				if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+					posCell++; posColl++;
+					cell = row.createCell(posCell);
+					cell.setCellStyle(detalle);
+					if(datos.get(i).get(21).equals("1")){
+						if(datos.get(i).get(19).equals("1")){
+							cell.setCellValue("checked");
+						}
+					}
+				}
+
 				posRow++;
 			}
 
@@ -5063,6 +5084,12 @@ try{
 			cell = row.createCell(posCell);
 			cell.setCellStyle(detalle);
 			cell.setCellValue(granTotal);
+
+			if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+				posCell++; posColl++;
+				cell = row.createCell(posCell);
+				cell.setCellStyle(detalle);
+			}
 
 
 			posRow = posRow + 5;

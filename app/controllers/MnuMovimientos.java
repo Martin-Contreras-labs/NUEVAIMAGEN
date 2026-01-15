@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -2239,25 +2241,21 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 
 				File csv = WebSoftlandDesk.generaCsvGuia(con, s.baseDato, guia, transportista, mapeoDiccionario,
 						emisorTributario, mapCampos);
-				return ok(csv,false,Optional.of("guia.csv"));
+				String cvsString = "";
+				try {
+					cvsString = new String(Files.readAllBytes(csv.toPath()), StandardCharsets.UTF_8);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
+				String rs = WebSoftlandDesk.generaGuia (con, s.baseDato, cvsString, ws, emisorTributario, guia);
+				String retorno = "/movimientoListarGet/"+desdeAAMMDD+","+hastaAAMMDD;
 				
-				
-				
-				
-				
-				
-//				Guia.modificaPorCampo(con, s.baseDato, "id_transportista", id_guia, id_transportista.toString());
-//				Guia.modificaPorCampo(con, s.baseDato, "jsonGenerado", id_guia, json);
-//				String rs = ApiSapSchwager.generaDteGuia(con, s.baseDato, emisor, json, ws, id_guia);
-//				if( ! rs.contains("ERROR")) {
-//					String folioNumber = rs;
-//					Guia.modificaPorCampo(con, s.baseDato, "linkFolio", id_guia, "Guia: "+folioNumber);
-//					String numGuiaCliente = "FolioNumber: " + folioNumber +"\r\n"+guia.getNumGuiaCliente();
-//					Guia.modificaPorCampo(con, s.baseDato, "numGuiaCliente", id_guia, ""+numGuiaCliente);
-//					rs = "DTE enviado a SAP con exito";
-//				}
-//				String retorno = "/movimientoListarGet/"+desdeAAMMDD+","+hastaAAMMDD;
-				//return ok(mensajes.render(retorno,rs));
+				if( rs.contains("Se genera DTE:")) {
+					return ok(mensajes.render(retorno,rs));
+				}else{
+					return ok(mensajes.render(retorno,"ERROR DTE NO GENERADO: "+rs));
+				}
 			} catch (SQLException e) {
 				logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]", className, methodName, s.baseDato, s.userName, e);
 				return ok(mensajes.render("/home/", msgReport));
@@ -2284,6 +2282,25 @@ public class MnuMovimientos extends Controller implements WSBodyReadables, WSBod
 		}
 
 	}
+
+	public Result jsonVariablesFactSoftlandDesk(Http.Request request){
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+		if (!s.isValid()) {
+			// logger.error("SESSION INVALIDA. [CLASS: {}. METHOD: {}.]", className, methodName);
+			return ok("ERROR");
+		}
+		try (Connection con = dbWrite.getConnection()){
+			String csvString = WebSoftlandDesk.mapVariablesFactSoftlandDesk(con, s.baseDato);
+			return ok(csvString).as("application/json");
+		} catch (Exception e) {
+			return ok("ERROR");
+		}
+
+	}
+	
+	
 
 	
 	//======================================================================
