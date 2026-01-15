@@ -1,0 +1,103 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[tables.Equipo])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "TRAZABILIDAD DE EQUIPOS","(SELECCION DE EQUIPOS)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+							<td width="25%">
+							</div>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR>
+								<TH style= "text-align: center;">GRUPO</TH>
+						        <TH style= "text-align: center;">CODIGO</TH>
+								<TH style= "text-align: center;">EQUIPO</TH>
+								<TH style= "text-align: center;">DETALLE</TH>	
+							</TR>
+						</thead>
+						<tbody>
+						@for(lista1 <- lista){
+							<TR>
+								<td style="text-align: left;">@lista1.getGrupo()</td>
+								<td style="text-align: left;"><a href="#" onclick="equipoDescripcion('@lista1.getId()');">@lista1.getCodigo()</a></td>
+								<td style="text-align: left;"><a href="#" onclick="equipoDescripcion('@lista1.getId()');">@lista1.getNombre()</a></td>
+								<td style="text-align:center;vertical-align:middle;">
+									<form id="form1_@lista1.getId()" class="formulario" method="post" action="/reportTrazaEquipo2/">
+										<input type="hidden" name="id_equipo" value="@lista1.getId()">
+										<a href="#" onclick="document.getElementById('form1_@lista1.getId()').submit()">
+											<kbd style="background-color: #73C6B6">Select</kbd>
+										</a>
+									</form>
+								</td>
+							</TR>
+			 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

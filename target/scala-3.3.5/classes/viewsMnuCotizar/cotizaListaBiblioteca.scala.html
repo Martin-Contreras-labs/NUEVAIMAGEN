@@ -1,0 +1,170 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listBiblioteca: List[tables.CotiBiblioteca])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "RESUMEN DE COTIZACIONES HECHAS","")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>ID</TH>
+								<TH style="min-width:100px;">FECHA DE CAMBIO<br>Universal Time Coordinated (UTC)</TH>
+								<TH>SUCURSAL</TH>
+								<TH>CLIENTE</TH>
+								<TH>PROYECTO</TH>
+								<TH>COTIZACIONES</TH>
+								<TH>NETO</TH>
+								<TH>IVA</TH>
+								<TH>TOTAL</TH>
+								<TH>PDF CON<br>DETALLE</TH>
+								<TH>PDF SIN<br>DETALLE</TH>
+								<TH>EXCEL</TH>
+								<TH>Del</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listBiblioteca){
+								<TR>
+									<td style="text-align:center;vertical-align:middle;">@lista1.getId()</td>
+									<td style="text-align:center;vertical-align:middle;">@lista1.getDateCreate()</td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.getNameSucursal()</td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.getCliente()</td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.getProyecto()</td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.getNumCotizaciones()</td>
+									<td style="text-align:right;vertical-align:middle;">@lista1.getNeto()</td>
+									<td style="text-align:right;vertical-align:middle;">@lista1.getIva()</td>
+									<td style="text-align:right;vertical-align:middle;">@lista1.getTotal</td>
+									<td style="text-align:center;vertical-align:middle;">
+										@if(lista1.getPdfConDetalle.equals("0")){
+											--
+										}else{
+											<a href="#" onclick="mostrarPDF('@lista1.getPdfConDetalle()')">
+												<kbd style="background-color: #73C6B6">PDF</kbd>
+											</a>
+										}
+										
+									</td>
+									<td style="text-align:center;vertical-align:middle;">
+										@if(lista1.getPdfSinDetalle.equals("0")){
+											--
+										}else{
+											<a href="#" onclick="mostrarPDF('@lista1.getPdfSinDetalle()')">
+												<kbd style="background-color: #73C6B6">PDF</kbd>
+											</a>
+										}
+										
+									</td>
+									<td style="text-align:center;vertical-align:middle;">
+										@if(lista1.xlsConDetalle.equals("0")){
+											--
+										}else{
+											<a href="#" onclick= "descargaDocumento('@lista1.getXlsConDetalle()')">
+												<kbd style="background-color: #85C1E9">xls</kbd>
+											</a>
+										}
+										
+									</td>
+									<td style="text-align:center;">
+										<a href="#" onclick="eliminaBiblioteca('@lista1.getId()');">
+											<kbd style="background-color: red">X</kbd>
+										</a>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+				</div>
+			</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>DETALLE</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+
+	<form id="form_eliminar" method="post" action="/routes2/cotiBibliotecaElimina/">
+		<input type="hidden" id="form_id_cotiBiblioteca" name="id_cotiBiblioteca">
+	</form>
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 1, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const eliminaBiblioteca = (id_cotiBiblioteca) => {
+		alertify.confirm('Esta seguro de eliminar este resumen id: '+id_cotiBiblioteca, function (e) {
+			if (e) {
+				$("#form_id_cotiBiblioteca").val(id_cotiBiblioteca);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

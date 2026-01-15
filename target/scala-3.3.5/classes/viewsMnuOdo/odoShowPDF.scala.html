@@ -1,0 +1,22 @@
+@(fileNamePdf: String, volver: String)
+
+
+
+
+@main("") {
+
+
+	<div id="ocultar" style="display:none;">
+		<div class="container" style="border-color:lightblue;padding-top: 25px;padding-left: 25px; text-align:center">
+			<button class="btn btn-sm  btn-success" type="button" style="font-size: 10px;" onclick="location.href = '@volver'">LISTO</button>
+			<br><br>
+			<object data='@routes.HomeController.showPdf(fileNamePdf)' type='application/pdf' width='80%' height='700px'></object> 
+		</div> 
+	</div> 
+}
+
+<script>
+    $(document).ready(function() {
+		document.getElementById('ocultar').style.display="block"; 
+	} );
+</script>

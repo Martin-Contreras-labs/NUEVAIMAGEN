@@ -1,0 +1,132 @@
+@(nEmpresa: String, base: String, equipo: tables.Equipo, stock: Double, ubicacion: String, cantTransacEquipo: Long, conBtnMantencion: Long)
+
+@mainQR("MADA_QR") {
+
+	
+	
+	<div class="container">
+	  	
+	  	
+	  	<br><br><br><br>
+	  	
+	  	<form>
+	  		<div class="form-group row">
+	    		<label for="inputEmpresa" class="col-sm-3 col-form-label"  style="font-size:30px">Propietario:</label>
+			    <div class="col-sm-9">
+			      <input type="text" class="form-control font-weight-bold" id="inputEmpresa" style="font-size:30px;color:blue" value="@nEmpresa.toUpperCase()" disabled>
+			    </div>
+	  		</div>
+	  		<br>
+	  		<div class="form-group row">
+	    		<label for="inputCodigo" class="col-sm-3 col-form-label"  style="font-size:30px">Código:</label>
+			    <div class="col-sm-9">
+			      <input type="text" class="form-control font-weight-bold" id="inputCodigo" style="font-size:30px;color:blue" value="@equipo.codigo.toUpperCase()" disabled>
+			    </div>
+	  		</div>
+	  		<br>
+	  		<div class="form-group row">
+	    		<label for="textAreaDecripcion" class="col-sm-3 col-form-label"  style="font-size:30px">Descripción:</label>
+			    <div class="col-sm-9">
+			      <textarea class="form-control font-weight-bold" id="textAreaDecripcion" rows="2" style="font-size:30px;color:blue" disabled>@equipo.nombre.toUpperCase()</textarea>
+			    </div>
+	  		</div>
+	  		<br>
+	  		<div class="form-group row">
+	    		<label for="textAreaGrupo" class="col-sm-3 col-form-label"  style="font-size:30px">Grupo:</label>
+			    <div class="col-sm-9">
+			      <textarea class="form-control font-weight-bold" id="textAreaGrupo" rows="2" style="font-size:30px;color:blue" disabled>@equipo.grupo.toUpperCase()</textarea>
+			    </div>
+	  		</div>
+	  		<br>
+	  		@if(stock<2){
+		  		<div class="form-group row">
+		    		<label for="textAreaUbicacion" class="col-sm-3 col-form-label"  style="font-size:30px">Ubicación:</label>
+				    <div class="col-sm-9">
+				      <textarea class="form-control font-weight-bold" id="textAreaUbicacion" rows="2" style="font-size:30px;color:blue" disabled>@ubicacion.toUpperCase()</textarea>
+				    </div>
+		  		</div>
+	  		}
+	</form>
+	  	
+	  	
+	  	<br><br>
+	  	<form id="form" action="/qrImagen/" method="POST">
+	  		<input type="hidden" name="nEmpresa" value="@nEmpresa">
+	  		<input type="hidden" name="base" value="@base">
+	  		<input type="hidden" name="id_equipo" value="@equipo.id">
+	  		<input type="hidden" name="stock" value="@stock">
+	  		<input type="hidden" name="ubicacion" value="@ubicacion">
+			<button type="submit" class="btn btn-warning btn-lg btn-block" style="font-size:40px">IMAGEN</button>
+		</form>
+		<br><br>
+		<form id="form" action="/qrAtributo/" method="POST">
+			<input type="hidden" name="nEmpresa" value="@nEmpresa">
+	  		<input type="hidden" name="base" value="@base">
+	  		<input type="hidden" name="id_equipo" value="@equipo.id">
+	  		<input type="hidden" name="stock" value="@stock">
+	  		<input type="hidden" name="ubicacion" value="@ubicacion">
+			<button type="submit" class="btn btn-primary btn-lg btn-block" style="font-size:40px">ATRIBUTOS</button>
+		</form>
+		<br><br>
+		@if(stock>1){
+			<form id="form" action="/qrUbicacion/" method="POST">
+				<input type="hidden" name="nEmpresa" value="@nEmpresa">
+		  		<input type="hidden" name="base" value="@base">
+		  		<input type="hidden" name="id_equipo" value="@equipo.id">
+		  		<input type="hidden" name="stock" value="@stock">
+	  			<input type="hidden" name="ubicacion" value="@ubicacion">
+				<button type="submit" class="btn btn-success btn-lg btn-block" style="font-size:40px">UBICACION</button>
+			</form>
+			<br><br>
+		}
+		@if(stock<2){
+			<form id="form" action="/qrTrazabilidad/" method="POST">
+				<input type="hidden" name="nEmpresa" value="@nEmpresa">
+		  		<input type="hidden" name="base" value="@base">
+		  		<input type="hidden" name="id_equipo" value="@equipo.id">
+		  		<input type="hidden" name="stock" value="@stock">
+	  			<input type="hidden" name="ubicacion" value="@ubicacion">
+				<button type="submit" class="btn btn-success btn-lg btn-block" style="font-size:40px">TRAZABILIDAD</button>
+			</form>
+			<br><br>
+		}
+		<form id="form" action="/qrHistoria/" method="POST">
+			<input type="hidden" name="nEmpresa" value="@nEmpresa">
+	  		<input type="hidden" name="base" value="@base">
+	  		<input type="hidden" name="id_equipo" value="@equipo.id">
+	  		<input type="hidden" name="stock" value="@stock">
+	  		<input type="hidden" name="ubicacion" value="@ubicacion">
+			<button type="submit" class="btn btn-info btn-lg btn-block" style="font-size:40px">HOJA DE VIDA</button>
+		</form>
+		<br><br>
+		@if(cantTransacEquipo>0){
+			<form id="form" action="/qrAtributosQr/" method="POST">
+				<input type="hidden" name="nEmpresa" value="@nEmpresa">
+		  		<input type="hidden" name="base" value="@base">
+		  		<input type="hidden" name="id_equipo" value="@equipo.id">
+		  		<input type="hidden" name="stock" value="@stock">
+		  		<input type="hidden" name="ubicacion" value="@ubicacion">
+				<button type="submit" class="btn btn-info btn-lg btn-block" style="font-size:40px">OTROS</button>
+			</form>
+			<br><br>
+		}
+
+		@if(conBtnMantencion > 0){
+			<button type="button" class="btn btn-warning btn-lg btn-block" style="font-size:40px" onclick="location.href='https://madainqsol.com/report?id_equipo=@equipo.getId()'">
+				Ingresar Nuevos Report
+			</button>
+		}
+
+		
+	</div>
+	
+	
+
+
+
+
+
+
+
+
+}

@@ -1,0 +1,118 @@
+2026-01-14 14:33:39 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [default] initialized
+2026-01-14 14:33:39 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'default'
+2026-01-14 14:33:39 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Starting...
+2026-01-14 14:33:39 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Start completed.
+2026-01-14 14:33:39 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [read] initialized
+2026-01-14 14:33:39 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'read'
+2026-01-14 14:33:39 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Starting...
+2026-01-14 14:33:39 [34mINFO [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Added connection com.mysql.cj.jdbc.ConnectionImpl@f3e7bb0
+2026-01-14 14:33:39 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Start completed.
+2026-01-14 14:33:39 [34mINFO [0;39m [36mplay.api.http.EnabledFilters[0;39m [35m[0;39m Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
+
+
+2026-01-14 14:33:39 [34mINFO [0;39m [36mplay.api.Play[0;39m [35m[0;39m Application started (Dev) (no global state)
+2026-01-14 16:22:54 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-14 16:22:54 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown initiated...
+2026-01-14 16:22:54 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown completed.
+2026-01-14 16:22:54 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-14 16:22:54 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown initiated...
+2026-01-14 16:22:54 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown completed.
+2026-01-14 16:22:55 [34mINFO [0;39m [36mp.a.http.HttpErrorHandlerExceptions[0;39m [35m[0;39m Registering exception handler: guice-provision-exception-handler
+2026-01-14 16:22:55 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [default] initialized
+2026-01-14 16:22:55 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'default'
+2026-01-14 16:22:55 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Starting...
+2026-01-14 16:22:55 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Start completed.
+2026-01-14 16:22:55 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [read] initialized
+2026-01-14 16:22:55 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'read'
+2026-01-14 16:22:55 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Starting...
+2026-01-14 16:22:55 [34mINFO [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Added connection com.mysql.cj.jdbc.ConnectionImpl@ae7889c
+2026-01-14 16:22:55 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Start completed.
+2026-01-14 16:22:55 [34mINFO [0;39m [36mplay.api.http.EnabledFilters[0;39m [35m[0;39m Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
+
+
+2026-01-14 16:22:55 [34mINFO [0;39m [36mplay.api.Play[0;39m [35m[0;39m Application started (Dev) (no global state)
+2026-01-14 16:36:12 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-14 16:36:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown initiated...
+2026-01-14 16:36:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown completed.
+2026-01-14 16:36:12 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-14 16:36:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown initiated...
+2026-01-14 16:36:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown completed.
+2026-01-14 16:36:12 [34mINFO [0;39m [36mp.a.http.HttpErrorHandlerExceptions[0;39m [35m[0;39m Registering exception handler: guice-provision-exception-handler
+2026-01-14 16:36:12 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [default] initialized
+2026-01-14 16:36:13 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'default'
+2026-01-14 16:36:13 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Starting...
+2026-01-14 16:36:13 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Start completed.
+2026-01-14 16:36:13 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [read] initialized
+2026-01-14 16:36:13 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'read'
+2026-01-14 16:36:13 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Starting...
+2026-01-14 16:36:13 [34mINFO [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Added connection com.mysql.cj.jdbc.ConnectionImpl@12e32b0f
+2026-01-14 16:36:13 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Start completed.
+2026-01-14 16:36:13 [34mINFO [0;39m [36mplay.api.http.EnabledFilters[0;39m [35m[0;39m Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
+
+
+2026-01-14 16:36:13 [34mINFO [0;39m [36mplay.api.Play[0;39m [35m[0;39m Application started (Dev) (no global state)
+2026-01-14 16:41:09 [31mWARN [0;39m [36mc.MnuReportes$MailInventarioExcel0[0;39m [35m[0;39m EMAIL INVALIDO (email_ccopia) en bodega 'aa': 'tupapito39peja.cl'
+2026-01-14 16:53:11 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-14 16:53:11 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown initiated...
+2026-01-14 16:53:11 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown completed.
+2026-01-14 16:53:11 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-14 16:53:11 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown initiated...
+2026-01-14 16:53:11 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown completed.
+2026-01-14 16:53:11 [34mINFO [0;39m [36mp.a.http.HttpErrorHandlerExceptions[0;39m [35m[0;39m Registering exception handler: guice-provision-exception-handler
+2026-01-14 16:53:12 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [default] initialized
+2026-01-14 16:53:12 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'default'
+2026-01-14 16:53:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Starting...
+2026-01-14 16:53:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Start completed.
+2026-01-14 16:53:12 [34mINFO [0;39m [36mplay.api.db.DefaultDBApi[0;39m [35m[0;39m Database [read] initialized
+2026-01-14 16:53:12 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Creating Pool for datasource 'read'
+2026-01-14 16:53:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Starting...
+2026-01-14 16:53:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Added connection com.mysql.cj.jdbc.ConnectionImpl@628a7fd5
+2026-01-14 16:53:12 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Start completed.
+2026-01-14 16:53:12 [34mINFO [0;39m [36mplay.api.http.EnabledFilters[0;39m [35m[0;39m Enabled Filters (see <https://www.playframework.com/documentation/latest/Filters>):
+
+
+2026-01-14 16:53:12 [34mINFO [0;39m [36mplay.api.Play[0;39m [35m[0;39m Application started (Dev) (no global state)
+2026-01-14 16:54:04 [31mWARN [0;39m [36mc.MnuReportes$MailInventarioExcel0[0;39m [35m[0;39m EMAIL INVALIDO (email_ccopia) en bodega 'aa': 'tupapito39peja.cl'
+2026-01-14 17:06:46 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=5m33s717ms).
+2026-01-14 17:06:46 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=5m33s717ms).
+2026-01-14 17:09:03 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=2m17s108ms).
+2026-01-14 17:09:03 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=2m17s98ms).
+2026-01-14 17:26:48 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=17m45s785ms).
+2026-01-14 17:26:48 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=17m45s778ms).
+2026-01-14 17:30:33 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=3m14s126ms).
+2026-01-14 17:30:33 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=3m14s124ms).
+2026-01-14 18:16:35 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=46m2s463ms).
+2026-01-14 18:16:35 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=46m2s461ms).
+2026-01-14 19:02:02 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=45m26s521ms).
+2026-01-14 19:02:02 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=45m26s521ms).
+2026-01-14 20:03:00 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=1h58s841ms).
+2026-01-14 20:03:00 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=1h58s869ms).
+2026-01-14 21:04:02 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=1h1m1s964ms).
+2026-01-14 21:04:02 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=1h1m1s964ms).
+2026-01-14 22:00:29 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=55m57s69ms).
+2026-01-14 22:00:29 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=55m57s76ms).
+2026-01-15 01:31:37 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=1h59m37s306ms).
+2026-01-15 01:31:37 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=1h59m37s310ms).
+2026-01-15 02:29:54 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=35m46s965ms).
+2026-01-15 02:29:54 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=35m46s966ms).
+2026-01-15 03:54:56 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=1h25m1s813ms).
+2026-01-15 03:54:56 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=1h25m1s813ms).
+2026-01-15 06:54:25 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=2h59m28s722ms).
+2026-01-15 06:54:25 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=2h59m28s727ms).
+2026-01-15 07:46:38 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=51m43s206ms).
+2026-01-15 07:46:38 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=51m43s199ms).
+2026-01-15 09:47:11 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=2h32s96ms).
+2026-01-15 09:47:11 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=2h32s126ms).
+2026-01-15 09:59:31 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-default - Thread starvation or clock leap detected (housekeeper delta=11m50s57ms).
+2026-01-15 09:59:31 [31mWARN [0;39m [36mcom.zaxxer.hikari.pool.HikariPool[0;39m [35m[0;39m HikariPool-read - Thread starvation or clock leap detected (housekeeper delta=11m50s57ms).
+2026-01-15 10:05:26 [34mINFO [0;39m [36mp.a.i.l.c.CoordinatedShutdownSupport[0;39m [35m[0;39m Starting synchronous coordinated shutdown with ServerStoppedReason reason and 40000 milliseconds timeout
+2026-01-15 10:05:26 [34mINFO [0;39m [36mplay.core.server.PekkoHttpServer[0;39m [35m[0;39m Stopping Pekko HTTP server...
+2026-01-15 10:05:26 [34mINFO [0;39m [36mplay.core.server.PekkoHttpServer[0;39m [35m[0;39m Unbinding /[0:0:0:0:0:0:0:0]:9001
+2026-01-15 10:05:26 [34mINFO [0;39m [36mplay.core.server.PekkoHttpServer[0;39m [35m[0;39m Terminating server binding for /[0:0:0:0:0:0:0:0]:9001
+2026-01-15 10:05:26 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-15 10:05:26 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown initiated...
+2026-01-15 10:05:26 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-default - Shutdown completed.
+2026-01-15 10:05:26 [34mINFO [0;39m [36mplay.api.db.HikariCPConnectionPool[0;39m [35m[0;39m Shutting down connection pool.
+2026-01-15 10:05:26 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown initiated...
+2026-01-15 10:05:26 [34mINFO [0;39m [36mcom.zaxxer.hikari.HikariDataSource[0;39m [35m[0;39m HikariPool-read - Shutdown completed.
+2026-01-15 10:05:26 [34mINFO [0;39m [36mplay.core.server.PekkoHttpServer[0;39m [35m[0;39m Running provided shutdown stop hooks

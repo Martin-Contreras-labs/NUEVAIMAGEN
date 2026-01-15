@@ -1,0 +1,146 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], titulos1: List[String], titulos2: List[String], tipo: String, fechaCorte: String, sucursal: tables.Sucursal)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	@modalContactoBodega(mapDiccionario)
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MATRIZ DE INVENTARIO - "+tipo+" - (SOLO EQUIPOS Y " + mapDiccionario.get("BODEGA") + "/PROYECTO CON STOCK)",
+			"FECHA DE CORTE: " + utilities.Fechas.DDMMAA(fechaCorte) + " -- (SUCURSAL: " + sucursal.getNombre().toUpperCase() + ")")
+		
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch3('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+ 						<TR>
+				        	<th></th>
+				        	<th></th>
+				        	<th></th>
+							<th></th>
+				        	<th>PESO</th>
+				        	<th>SUP.</th>
+				        	<th>CANT</th>
+				        	@for(lista1 <- titulos1){
+								@Html(lista1)
+							}
+							@if(titulos2.size()>1){
+								<th></th>
+							}
+						</TR>
+						<TR>
+				        	<th>GRUPO</th>
+							<th>PROPIEDAD</th>
+				        	<th>CODIGO</th>
+				        	<th>EQUIPO</th>
+				        	<th>KG</th>
+				        	<th>M2</th>
+				        	<th>TOTAL</th>
+				        	@for(lista2 <- titulos2){
+				        		<th style="text-align:center; white-space: nowrap;vertical-align: middle">
+									<div style="display: flex;flex-direction: row;">
+										<span style="writing-mode: vertical-lr;transform: rotate(180deg);width: 23px;">
+											@if(lista2.length>25){
+												<a href="#" onclick="buscaBodega('@lista2')">@lista2.substring(0,25)</a>
+											}else{
+												<a href="#" onclick="buscaBodega('@lista2')">@lista2</a>
+											}
+				        					
+										</span>
+									</div>
+				        		</th>
+							}
+							<th>TOTAL</th>
+						</TR>
+				</thead>
+				<tbody>
+					@for(lista3 <- lista){
+						<TR>
+							<td style="text-align:left;min-width:150px">@lista3.get(0)</td>
+							<td style="text-align:left;min-width:150px">@lista3.get(1)</td>
+							<td style="text-align:left;min-width:80px"><a href="#" onclick="buscaEquipo('@lista3.get(2)');">@lista3.get(2)</a></td>
+							<td style="text-align:left;min-width:300px"><a href="#" onclick="buscaEquipo('@lista3.get(2)');">@lista3.get(3)</a></td>
+							@for(lista4 <- lista3.tail.tail.tail.tail){
+								@if(lista4.equals("0") || lista4.trim().equals("")){
+									<td style="text-align:center">@lista4</td>
+								}else{
+									<td style="text-align:center; background-color: #ABEBC6">@lista4</td>
+								}
+								
+							}
+						</TR>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<form id="excel" class="formulario" method="post" action="/reportInventarioMatrizExcel/">
+		<input type="hidden" name="fechaCorte" value="@fechaCorte">
+		<input type="hidden" name="tipo" value="@tipo">
+		<input type="hidden" name="id_sucursal" value="@sucursal.getId()">
+	</form>
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	$('#tablaPrincipal').DataTable({
+    	"fixedHeader": true,
+    	"paging": false,
+		"info": false,
+		"searching": false,
+    	"order": [[ 2, "asc" ]],
+    	"language": {
+        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+        }
+  } );
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

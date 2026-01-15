@@ -1,0 +1,266 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, idTipoUsuario: String,
+datos: List[List[String]], bodega: tables.BodegaEmpresa, esVenta: String, fechaDesde: String, fechaHasta: String,
+usd: Double, eur: Double, uf: Double,
+cliente: tables.Cliente, proyecto: tables.Proyecto, oc: String,
+nroDecimales: Long, mon: String, tasaIva: Double)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE EP/FACTURA PROFORMA SIMPLE " + mapDiccionario.get("BODEGA") + "/PROYECTO: " + bodega.getNombre(),
+			"PERIODO: desde " + utilities.Fechas.DDMMAA(fechaDesde) +" --- hasta: " +  utilities.Fechas.DDMMAA(fechaHasta))
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td style="width: 25%">
+@*								<div class="input-group">*@
+@*							  		<div class="input-group-prepend">*@
+@*							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>*@
+@*							  		</div>*@
+@*							  		<input type="text" class="form-control left"*@
+@*										id="searchTermtablaPrincipal"*@
+@*										onkeyup="doSearch3('tablaPrincipal');">*@
+@*								</div>*@
+							</td>
+							<td>
+								<div style="text-align: center;">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+							<td width="25%">
+								HACER @mapDiccionario.get("PROFORMA"):
+								<button id="btnArr" type="button" class="btn btn-mini btn-info" tabindex="-1"
+								onclick=" this.disabled = true;
+								if(parseFloat(neto) > 0){
+									document.getElementById('formProforma').submit();
+								}else{
+									alertify.alert('No hay valor de venta a emitir', function () {});
+								}">
+									VENTAS
+								</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<TR>
+						<td style= "text-align: left; vertical-align:top; width: 44%;">
+							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								@if(!cliente.rut.equals(null)){
+									<tr style= "background-color: #F2F5A9;">
+										<th style="text-align:left;">CLIENTE</th>
+										<th style="text-align:left;">@cliente.rut -- @cliente.nombre</th>
+									</tr>
+								}
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">@mapDiccionario.get("BODEGA")</th>
+									<TH style="text-align:left;">@bodega.nombre.toUpperCase()</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">PROYECTO</th>
+									<th style="text-align:left;">@proyecto.nickName.toUpperCase()</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">PERIODO</th>
+									<th style="text-align:left;">desde @utilities.Fechas.DDMMAA(fechaDesde) hasta @utilities.Fechas.DDMMAA(fechaHasta)</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">COMERCIAL</th>
+									<th style="text-align:left;">@bodega.comercial</TH>
+								</tr>
+							</table>
+
+						</td>
+						<td>&nbsp;</td>
+						<td colspan="7" style= "text-align: left;  width: 34%;">
+							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<thead style="background-color: #dddddd">
+									<th colspan="2">TOTALES</th>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="text-align:left;">NETO:</td>
+										<td style="text-align:right;" id="NETO">445555</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">@mapDiccionario.get("IVA") @(tasaIva*100)%:</td>
+										<td style="text-align:right;" id="IVA">232323</td>
+									</tr>
+									<tr>
+										<th style="text-align:left;">TOTAL:</th>
+										<th style="text-align:right;" id="TOTAL">232323</th>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</TR>
+				</table>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #dddddd">
+							<TR>
+								<th>GRUPO</th>
+								<th>COTI</th>
+								<th>CODIGO</th>
+								<th>EQUIPO</th>
+								<th>MON</th>
+								<th>PRECIO<br>UNITARIO</th>
+								<th>UN</th>
+								<th>CANT</th>
+								<th>TOTAL MON<br>ORIGEN</th>
+								<th>TOTAL EN<br>@mon</th>
+								<th>Nro GUIA</th>
+								<th style="min-width: 80px">FECHA</th>
+							</TR>
+						</thead>
+						<tbody>
+							@for((nivel1,index1) <- datos.zipWithIndex) {
+								<TR>
+									@for((nivel2,index2) <- nivel1.drop(1).zipWithIndex) {
+										@if(index2<4){
+											<td style="text-align: left;">@nivel2</td>
+										}else if(index2==4 || index2==6 || index2==10 || index2==11){
+											<td style="text-align: center;">@nivel2</td>
+										}else if(index2==7){
+											<td class="cantidades" style="text-align: right;">@nivel2</td>
+										}else if(index2==9 ){
+											<td class="totales" style="text-align: right;">@nivel2</td>
+										}else{
+											<td style="text-align: right;">@nivel2</td>
+										}
+									}
+								</TR>
+							 }
+						</tbody>
+						<tfoot>
+							<TR>
+								<th style="background-color: #eeeeee">TOTALES</th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="text-align: right;background-color: #eeeeee""><div id="cant"></div></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="text-align: right;background-color: #eeeeee""><div id="tot"></div></th>
+								<th style="background-color: #eeeeee"></th>
+								<th style="background-color: #eeeeee"></th>
+							</TR>
+						</tfoot>
+
+					</table>
+				</div>
+			</div>
+
+	
+	<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoDetalleHVtaExcel/">
+		<input type="hidden" name="id_bodega" value="@bodega.getId()">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+		<input type="hidden" name="esVenta" value="@esVenta">
+		<input type="hidden" name="uf" value="@uf">
+		<input type="hidden" name="usd" value="@usd">
+		<input type="hidden" name="eur" value="@eur">
+	</form>
+
+	<form id="formProforma" class="formulario" method="post" action="/reportFacturaProyectoDetalleHVtaProforma/">
+		<input type="hidden" name="id_bodega" value="@bodega.getId()">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+		<input type="hidden" name="esVenta" value="@esVenta">
+		<input type="hidden" name="uf" value="@uf">
+		<input type="hidden" name="usd" value="@usd">
+		<input type="hidden" name="eur" value="@eur">
+		<input type="hidden" name="tipo" value="VENTAS">
+		<input type="hidden" id="profneto" name="neto">
+		<input type="hidden" id="profiva" name="iva">
+		<input type="hidden" id="proftotal" name="total">
+
+		<input type="hidden" id="profAlq" name="alq" value="0">
+		<input type="hidden" id="profVta" name="vta">
+		<input type="hidden" id="profServ" name="serv" value="0">
+
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+		let neto = 0;
+	$(document).ready(function() {
+		let suma = 0;
+		document.querySelectorAll('td.cantidades').forEach(td => {
+			const valor = parseFloat(td.textContent.replace(/,/g, ''));
+			if (!isNaN(valor)) {
+				suma += valor;
+			}
+		});
+		$("#cant").text(formatStandar(suma,2));
+
+		suma = 0;
+		document.querySelectorAll('td.totales').forEach(td => {
+			const valor = parseFloat(td.textContent.replace(/,/g, ''));
+			if (!isNaN(valor)) {
+				suma += valor;
+			}
+		});
+		$("#tot").text(formatStandar(suma,"@nroDecimales"));
+
+		neto = suma;
+		let iva = neto * parseFloat("@tasaIva");
+		let total = parseFloat(neto) + parseFloat(iva);
+		$("#NETO").text(formatStandar(neto,"@nroDecimales"));
+		$("#IVA").text(formatStandar(iva,"@nroDecimales"));
+		$("#TOTAL").text(formatStandar(total,"@nroDecimales"));
+
+		$("#profneto").val(formatStandar(neto,"@nroDecimales"));
+		$("#profiva").val(formatStandar(iva,"@nroDecimales"));
+		$("#proftotal").val(formatStandar(total,"@nroDecimales"));
+
+		$("#profVta").val(formatStandar(neto,"@nroDecimales"));
+
+		if ($('#tablaPrincipal tbody tr').length > 1) {
+			$('#tablaPrincipal').DataTable({
+				"fixedHeader": true,
+				"paging": false,
+				"info": false,
+				"searching": false,
+				"order": false,
+				"language": {
+					"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				}
+			});
+		}
+
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+
+</script>
+
+
+
+
+		
+		
+	

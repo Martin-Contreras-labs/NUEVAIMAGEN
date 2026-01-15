@@ -1,0 +1,64 @@
+
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+<script type="text/javascript">
+
+	const modalVerCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	const buscaCotizacion = (numero) =>{
+		var formData = new FormData();
+		formData.append('numero', numero);
+	  	$.ajax({
+            url: "/cotizacionFindIdForNumAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(data){
+	     		if(data!="error"){
+	     			modalVerCotizacion(data);
+	     		}
+	     	}
+        });
+	}
+
+</script>
+

@@ -1,0 +1,162 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listRegiones: List[tables.Regiones])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR NUEVO PROYECTO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/proyectoGraba/">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">NOMBRE LARGO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="nombre"
+									onkeydown="return sinReservados(window.event)"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NOMBRE CORTO (*): </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									id="nickName"
+									name="nickName"
+									onkeydown="return sinReservados(window.event)"
+									autocomplete="off"
+									maxlength="50"
+									required
+									onchange="value = value.trim();verificaNick(value);">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">DIRECCION: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="direccion"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("Region"): </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="cod_region" 
+									onchange="actualizaComunas(value);">
+									@for(lista <- listRegiones){
+										<option value="@lista.codigo">@lista.nombre</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("Comuna"): </td>
+							<td style="text-align:left;">
+								<div id="selectComuna">
+									<select class="custom-select" 
+										name="cod_comuna" >
+										<option value="0"> </option>
+									</select>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Ciudad: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="ciudad"
+									autocomplete="off"
+									maxlength="30"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit"  value="GRABAR PROYECTO" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/proyectoMantencion/';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const actualizaComunas = (cod_region) => {
+		var formData = new FormData();
+		formData.append('cod_region', cod_region);
+	  	$.ajax({
+            url: "/selComuna1Ajax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(data){
+	     		if(data=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}else{
+	     			data = data.replace(/&lt;/g,"<");
+					data = data.replace(/&gt;/g,">");
+					data = data.replace(/&#x27;/g,"\"");
+	     			document.getElementById('selectComuna').innerHTML = data;
+	     		}
+	     	}
+        });
+	}
+	
+	const verificaNick = (nickName) => {
+		var formData = new FormData();
+	  	formData.append('nickName',nickName);
+        $.ajax({
+            url: "/verificaNickProyectoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El nombre corto (nickName) del proyecto ya existe, intente con otro', function () {
+	     				$("#nickName").val("");
+		     		});
+	     		}
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+
+</script>
+
+		
+	

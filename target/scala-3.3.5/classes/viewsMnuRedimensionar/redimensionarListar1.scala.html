@@ -1,0 +1,243 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+acta: tables.ActaRedimensionar, detalle: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "ACTA REDIMENSIONAR CONFIRMADA","")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="300px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro ACTA REDIMENSIONAR</span>
+								  		</div>
+								  		<input type="hidden" name="id_actaRedimensionar" value="@acta.getId">
+	  									<input type="text" class="form-control center"
+	  										value="@acta.getNumero()"
+	  										readonly>
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Fecha Acta</span>
+								  		</div>
+								  		<input type="date" class="form-control center"
+								  			value="@acta.getFecha()"
+						        			readonly>
+									</div>
+								</td>
+								<td width="300px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Fecha Confirmada</span>
+								  		</div>
+								  		<input type="date" class="form-control center"
+								  			value="@acta.getFechaConfirma()"
+						        			readonly>
+									</div>
+								</td>
+								<td>
+									@if(acta.getActaPDF().equals("0")){
+											--
+									}else{
+										<a href="#" onclick="descargaDocumento('@acta.getActaPDF()')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td colspan="3">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
+								  		</div>
+	  									<textarea class="form-control"
+	  										readonly>@acta.getObservaciones</textarea>
+									</div>
+								</td>
+							</tr>
+						</thead>
+					</table>
+					<hr>
+					
+					<table id="detalle" class="table table-sm table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<th width="50%" colspan="7" style="text-align:center;">EQUIPOS PARA REDIMENSIONAR</th>
+								<th width="5%"></th>
+								<th width="45%" colspan="7" style="text-align:center;">DETALLE A REDIMENSIONAR</th>
+							</tr>
+							<tr> 
+								<TH width="7%">CODIGO</TH>
+								<TH width="17%">EQUIPO</TH>
+						        <TH width="3%">UN</TH>
+								<TH width="5%" style="background-color: rgb(192, 192, 192); max-width:120px">CANTIDAD<br>A REDIMENS</TH>
+								<TH width="3%">MONEDA</TH>
+								<TH width="7%">P.UNITARIO<br>COMPRA</TH>
+								<TH width="7%">TOTAL</TH>
+								<TH width="5%"></TH>
+								<TH width=7%>CODIGO</TH>
+								<TH width=17%>EQUIPO</TH>
+								<TH width=3%>UN</TH>
+								<TH width=5% style="background-color: rgb(192, 192, 192);">CANTIDAD<br>REDIMENS</TH>
+								<TH width=13%>DESTINO</TH>
+							</tr>
+						</thead>
+						
+						<tbody>
+							<tr>
+								@for((lista1, index) <- detalle.zipWithIndex){
+									<TR>
+										<td  style="text-align:center;" class="codOrigen">
+											@lista1.get(2)
+										</td>
+										<td  style="text-align:left;">
+											@lista1.get(3)
+										</td>
+										<td  style="text-align:center;">
+											@lista1.get(4)
+										</td>
+										<td  style="text-align:right; background-color: rgb(192, 192, 192);" class="cantidad">
+											@lista1.get(5)
+										</td>
+										<td  style="text-align:center;">
+											@lista1.get(6)
+										</td>
+										<td  style="text-align:right;">
+											@lista1.get(7)
+										</td>
+										<td  style="text-align:right;" class="total">
+											@lista1.get(8)
+										</td>
+										
+										
+										
+										<td></td>
+										
+										
+										<td  style="text-align:center;">
+											@lista1.get(9)
+										</td>
+										<td  style="text-align:left;">
+											@lista1.get(10)
+										</td>
+										<td  style="text-align:center;">
+											@lista1.get(11)
+										</td>
+										<td  style="text-align:right; background-color: rgb(192, 192, 192);" class="cantRedimensionar">
+											@lista1.get(12)
+										</td>
+										
+										<td  style="text-align:left;">
+											@lista1.get(13)
+										</td>
+									</TR>
+					 			}
+						</tbody>
+						<tfoot>
+							<tr> 
+								<th></th>
+								<th style="text-align:left;">TOTALES</th>
+								<th></th>
+								<th style="text-align:right; background-color: rgb(192, 192, 192);"><div id="totalCantidad" align="right">0.00</div></th>
+								<th></th>
+								<th></th>
+								<th><div id="totalTotal" align="right">0.00</div></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th></th>
+								<th style="text-align:right; background-color: rgb(192, 192, 192);"><div id="totalRedimensionar" align="right">0.00</div></th>
+								<th></th>
+							</tr>
+						</tfoot>
+					</table>
+					
+					
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  value="Listo" class="btn btn-primary btn-sm rounded-pill btn-block" onclick="window.history.back();">
+					</div>
+				</div>
+			</div>
+		</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		sumaTotales();
+		document.getElementById('mostrarmostrar').style.display="block";
+		
+		
+		$('#tablaListadoEquipos').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 0, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+			} );
+	});
+	
+	const sumaTotales = () => {
+		
+		 	let sum = 0;
+			$(".cantidad").each(function() {
+				let aux = $(this).text();
+				aux = aux.trim();
+				if(aux.length > 0){
+					let val = aux.replace(/,/g,'');
+					sum += parseFloat(val);
+				}
+			}); 
+			$("#totalCantidad").text(formatStandar(sum,2));
+		
+			sum = 0;
+			$(".total").each(function() {
+				let aux = $(this).text();
+				aux = aux.trim();
+				if(aux.length > 0){
+					let val = $(this).text().replace(/,/g,'');
+					sum += parseFloat(val);
+				}
+			}); $("#totalTotal").text(formatStandar(sum,0));
+			
+			sum = 0;
+			$(".cantRedimensionar").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); 
+			$("#totalRedimensionar").text(formatStandar(sum,2));
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+
+
+	
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,80 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listAtributos: List[qr.QrAtributoEquipo])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "ATRIBUTOS PARA ASOCIAR AL QR -- CODIFICACION QR","CREAR/MODIFICAR/ELIMINAR")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<th style= "text-align: center;">CAMPO</th>
+							<th style= "text-align: center;">TIPO</th>
+							<th style= "text-align: center;">OBSERVACIONES</th>
+							<th style= "text-align: center;">EDIT</th>
+							<th style= "text-align: center;">DEL</th>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista <- listAtributos){
+							<TR>
+								<td style="text-align: left;">@lista.nombre</td>
+								<td style="text-align: center;">@lista.tipoContenido</td>
+						        <td style="text-align:left">@lista.observaciones</td>
+								<td style="text-align:center;">
+									<a href="/qrEditarAtributoEquipo/@lista.id">
+										<kbd style="background-color: #73C6B6">Edit</kbd>
+									</a>
+								</td>
+								<td style="text-align:center;">
+									<a href="/qrDeleteAtributoEquipo/@lista.id">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							</TR>
+						}
+					</tbody>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-4 col-md-4 col-lg-4">
+							<input type="button"  value="AGREGAR NUEVO ATRIBUTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/qrAgregaAtributoEquipo/';">
+						</div>
+						<div class="col-xs-5 col-sm-3 col-md-3 col-lg-3">
+							<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[10, 50, 100, 200, -1], [10, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+</script>
+
+
+		
+		
+	

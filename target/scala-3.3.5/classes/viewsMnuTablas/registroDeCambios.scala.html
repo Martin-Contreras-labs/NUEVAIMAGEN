@@ -1,0 +1,70 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listHistorial: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "HISTORIAL DE CAMBIOS (ULTIMOS 180 DIAS)", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH>Nro</TH>
+							<TH style="min-width:100px;">FECHA DE CAMBIO<br>Universal Time Coordinated (UTC)</TH>
+							<TH>USUARIO</TH>
+					        <TH>TABLA</TH>
+							<TH>ID_TABLA</TH>
+					        <TH>ACCION</TH>
+					        <TH>DESCRIPCION</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for((lista1,index) <- listHistorial.zipWithIndex){
+							<TR>
+								<td  style="text-align:right;">@(index+1)</td>
+								<td  style="text-align:center;">@lista1.get(0)</td>
+								<td  style="text-align:left;">@lista1.get(1)</td>
+								<td  style="text-align:left;">@lista1.get(2)</td>
+								<td  style="text-align:center;">@lista1.get(5)</td>
+								<td  style="text-align:left;">@lista1.get(3)</td>
+								<td  style="text-align:left;">@lista1.get(4)</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 0, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+</script>
+
+
+		
+		
+	

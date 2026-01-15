@@ -1,0 +1,194 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String,
+id_mantActorPersonal: Long, id_operMec: Long, id_tipoMantencion: Long, id_equipo: Long)
+
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
+	
+	<form id="excel" class="formulario" method="post" action="/routes3/mantHistorialReports1Excel/">
+		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
+		<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+		<input type="hidden" name="id_mantActorPersonal" value="@id_mantActorPersonal">
+		<input type="hidden" name="id_operMec" value="@id_operMec">
+		<input type="hidden" name="id_tipoMantencion" value="@id_tipoMantencion">
+		<input type="hidden" name="id_equipo" value="@id_equipo">
+		
+	</form>
+	
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "HISTORIAL DE REPORT INGRESADOS", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+				<div align="center">
+					<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+						Exportar a Excel
+					</button>
+				</div>
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>ID</TH>
+							<TH style="min-width:80px;">FECHA</TH>
+							<TH>USER_MADA</TH>
+							<TH>PERFIL</TH>
+							<TH>OPERADOR<br>MECANICO</TH>
+							<TH>TIPO<br>MANTENCION</TH>
+							<TH>CODIGO</TH>
+							<TH>EQUIPO</TH>
+							
+							<TH>LECTURA<br>ANTERIOR</TH>
+							<TH>LECTURA<br>ACTUAL</TH>
+							<TH>USO</TH>
+							<TH>UBICACION</TH>
+							
+							<TH>ESTADO<br>EN SITIO</TH>
+							<TH>ESTADO<br>OPERACIONAL</TH>
+							<TH>ESTADO<br>EN TALLER</TH>
+							<TH>COMENTARIOS</TH>
+							<TH>ESTADO FINAL</TH>
+							<TH>OBSERVACIONES</TH>
+							
+							<TH>REPORT</TH>
+							<TH>DETALLE</TH>
+							<TH>ANEXO</TH>
+							
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listado){
+							<TR>
+								<td  style="text-align:center;">@lista1.get(0)</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(1))</div>
+									@utilities.Fechas.DDMMAA(lista1.get(1))
+								</td>
+								<td  style="text-align:center;">@lista1.get(2)</td>
+								<td  style="text-align:left;">@lista1.get(3)</td>
+								<td  style="text-align:left;">@lista1.get(4)</td>
+								<td  style="text-align:left;">@lista1.get(5).toUpperCase()</td>
+								<td  style="text-align:left;">@lista1.get(6)</td>
+								<td  style="text-align:left;">@lista1.get(7)</td>
+								
+								<td  style="text-align:right;">@lista1.get(8)</td>
+								<td  style="text-align:right;">@lista1.get(9)</td>
+								<td  style="text-align:right;">@lista1.get(10)</td>
+								<td  style="text-align:left;">@lista1.get(11)</td>
+								<td  style="text-align:left;">@lista1.get(12)</td>
+								<td  style="text-align:left;">@lista1.get(13)</td>
+								<td  style="text-align:left;">@lista1.get(14)</td>
+								<td  style="text-align:left;">@lista1.get(15)</td>
+								<td  style="text-align:left;">@lista1.get(16)</td>
+								<td  style="text-align:left;">@lista1.get(17)</td>
+								
+								<td  style="text-align:center;">
+									@if(lista1.get(18).equals("0")){
+										--
+									}else{
+										<a href="#" onclick="mostrarPDF('@lista1.get(18)')">
+											<kbd style="background-color: #85C1E9">pdf</kbd>
+										</a>
+									}
+								</td>
+								<td style="text-align:center;">
+									<form id="mantReportDetalle_@lista1.get(0)" action="/routes3/mantReportDetalle/" method="POST">
+										<input type="hidden" name="id_mantTransacReport" value="@lista1.get(0)">
+										<input type="hidden" name="desdeAAMMDD" value="@desdeAAMMDD">
+										<input type="hidden" name="hastaAAMMDD" value="@hastaAAMMDD">
+									</form>
+									<a href="#" onclick='$("#mantReportDetalle_@lista1.get(0)").submit();'>
+										<kbd style="background-color: #73C6B6">detalle</kbd>
+									</a>
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.get(19).equals("0")){
+										---
+									}else{
+										<a href="#" onclick="descargaDocumento('@lista1.get(19)')">
+											<kbd style="background-color: #7F8C8D">docum</kbd>
+										</a>
+									}
+								</td>
+								
+								
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>REPORT</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "desc" ],[ 0, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	
+	
+</script>
+
+
+		
+	

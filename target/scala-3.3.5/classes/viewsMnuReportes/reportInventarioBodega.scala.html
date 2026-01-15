@@ -1,0 +1,129 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], fechaCorte: String, tipo:String)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO - "+tipo,"FECHA DE CORTE: " + utilities.Fechas.DDMMAA(fechaCorte))
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div>
+					ALTERNAR COLUMNAS: 
+						<a class="toggle-vis" href="#" data-column="0"><kbd id="kdb0" style="background-color: #73C6B6">TIPO</kbd></a>
+						<a class="toggle-vis" href="#" data-column="1"><kbd id="kdb1" style="background-color: #73C6B6">SUCURSAL</kbd></a> 
+						<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">@mapDiccionario.get("BODEGA")/PROYECTO</kbd></a> 
+						<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">NOMBRE CLIENTE</kbd></a> 
+						<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">NOMBRE PROYECTO</kbd></a> 
+						<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">@mapDiccionario.get("COMUNA") PROYECTO</kbd></a> 
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR> 
+						        <TH style= "text-align: center;vertical-align: top;">TIPO</TH>
+								<TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+						        <TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE<BR>CLIENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE<br>PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("COMUNA")<BR>PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;width:4%">SELECT</TH>
+							</TR>
+						</thead>
+						<tbody>
+						@for(lista1 <- lista){
+							<TR>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(4)</td>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(10)</td>
+								<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoBodega('@lista1.get(1)');">@lista1.get(5)</a></td>
+								<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoCliente('@lista1.get(2)');">@lista1.get(7)</a></td>
+								<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoProyecto('@lista1.get(3)');">@lista1.get(8)</a></td>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(9)</td>
+								<td style="text-align:left;vertical-align:middle;">
+									<form id="form_@lista1.get(1)" class="formulario" method="post" action="/reportInventarioSelectivoXBodega/">
+										<input type="hidden" name="id_bodega" value="@lista1.get(1)">
+										<input type="hidden" name="fechaCorte" value="@fechaCorte">
+										<input type="hidden" name="tipo" value="@tipo">
+										<a href="#" onclick="document.getElementById('form_@lista1.get(1)').submit()">
+											<kbd style="background-color: #73C6B6">select</kbd>
+										</a>
+									</form>
+								</td>
+							</TR>
+			 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 0, "asc" ], [ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  
+		  $('a.toggle-vis').on('click', function (e) {
+		        e.preventDefault();
+		        // Get the column API object
+		        let col = $(this).attr('data-column');
+		        var column = $('#tablaPrincipal').DataTable().column(col);
+		        // Toggle the visibility
+		        column.visible(!column.visible());
+		        if(column.visible()){
+					document.getElementById('kdb'+col).style.backgroundColor = "#73C6B6";
+				}else{
+					document.getElementById('kdb'+col).style.backgroundColor = "#D6DBDF";
+				}
+		  });
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

@@ -1,0 +1,392 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+guia: tables.Guia, detalleMovimiento: List[List[String]], bodegaOrigen: tables.BodegaEmpresa, listTipoEstado: List[tables.TipoEstado], listTipoReparacion: List[tables.TipoReparacion],
+nickCliente: String)
+    			
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE DE MOVIMIENTO CON IMAGEN","")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Origen</span>
+							  		</div>
+  									<input type="text" class="form-control" 
+  										value="@guia.getBodegaOrigen().toUpperCase" 
+  										readonly>
+								</div>
+							</td>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Destino</span>
+							  		</div>
+										<input type="text" class="form-control left"
+											value="@guia.getBodegaDestino().toUpperCase" 
+											readonly>
+								</div>
+							</td>
+							<td>
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+											value = "@guia.getNumero()"
+											readonly>
+								</div>
+							</td>
+							<td>
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+							  				value="@guia.getNumGuiaCliente()"
+							  				readonly>
+								</div>
+							</td>
+							<td style="width: 1px; min-width: 1px; max-width: 1px; text-align: center; vertical-align: middle">
+							<td style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+								@if(guia.getDocAnexo().equals("0")){
+									--
+								}else{
+									<a href="#" onclick="document.getElementById('formDescargaDocumento').submit();">
+										<kbd style="background-color: #7F8C8D">DOC</kbd>
+									</a>
+								}
+							</td>
+						</tr>
+						<tr>
+							<td align="center">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+							  		</div>
+										<input type="text" class="form-control left"
+											value = "@guia.getNameSucursalOrigen()"
+											readonly>
+								</div>
+							</td>
+							<td align="center">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+							  		</div>
+										<input type="text" class="form-control left"
+											value = "@guia.getNameSucursalDestino()"
+											readonly>
+								</div>
+							</td>
+
+							<td width="230px">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFecha())"
+									readonly>
+								</div>
+							</td>
+							<td width="230px">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+									</div>
+									<input type="date" class="form-control center"
+									value="@utilities.Fechas.AAMMDD(guia.getFechaIniTerGuia())"
+									readonly>
+								</div>
+							</td>
+							<td style="width: 1px; min-width: 1px; max-width: 1px; text-align: center; vertical-align: middle">
+							<td style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle"></td>
+						</tr>
+						<tr>
+							<td align="center">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Comercial</span>
+							  		</div>
+										<input type="text" class="form-control left"
+											value = "@guia.getNameComercial()"
+											readonly>
+								</div>
+							</td>
+							<td align="center">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Cliente</span>
+							  		</div>
+										<input type="text" class="form-control left"
+											value = "@nickCliente"
+											readonly>
+								</div>
+							</td>
+							<td colspan="2">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Observaciones</span>
+									</div>
+									<textarea class="form-control" rows="2" onchange="$('#seModifico').val(1);"
+									name="observaciones"
+									autocomplete="off">@guia.getObservaciones()</textarea>
+								</div>
+							</td>
+							<td style="width: 1px; min-width: 1px; max-width: 1px; text-align: center; vertical-align: middle">
+							<td  style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+								@if(guia.getFotos().equals("0")){
+									<div id="cargadasFotos">--</div>
+								}else{
+									<a href="/muestraAlbumFotos/@guia.getFotos()">
+										<kbd style="background-color: #7F8C8D">Ver Album</kbd>
+									</a>
+								}
+							</td>
+						</tr>
+					</thead>
+				</table>
+				<hr>
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>IMG</TH>
+							<TH>GRUPO</TH>
+							<TH>Nro.COTI</TH>
+							<TH>CODIGO</TH>
+							<TH>EQUIPO</TH>
+							<TH>KG</TH>
+					        <TH>M2</TH>
+					        <TH>UN</TH>
+							<TH>SALIDA</TH>
+							<TH>VTA</TH>
+							<TH>EXCESO</TH>
+							<TH>MON</TH>
+							<TH>P.Repos<br>Unitario</TH>
+							<TH>P.Repos<br>Total</TH>
+							<TH>TOT.KG</TH>
+							<TH>TOT.M2</TH>
+							@if(bodegaOrigen.esInterna!=1){
+								@for(titEstado <- listTipoEstado){
+									<TH style="font-size:10px; vertical-align:middle">
+										@titEstado.getSigla()
+									</TH>
+								}
+								@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+									<TH style="text-align:center; vertical-align:top">cliente</TH>
+									<TH style="text-align:center; vertical-align:top">fiferen</TH>
+								}
+							}
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- detalleMovimiento){
+							<TR>
+								<td  style="text-align:center;">
+									@if(!lista1.get(22).equals("0")){
+											<img src='/viewImg/@lista1.get(22)' style="width:auto; max-height:60px">
+									}
+								</td>
+								<td  style="text-align:left;">@lista1.get(4)</td>
+								@if(lista1.get(24).equals("0") || lista1.get(24).equals("")){
+									<td style="text-align: center;">--</td>
+								}else{
+									<td style="text-align: center;">@lista1.get(24)</td>
+								}
+								
+								<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista1.get(5)');">@lista1.get(5)</a></td>
+								<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista1.get(5)');">@lista1.get(6)</a></td>
+								
+								<td  style="text-align:right;">@lista1.get(25)</td>
+								<td  style="text-align:right;">@lista1.get(26)</td>
+								<td  style="text-align:center;">@lista1.get(7)</td>
+								<td  style="text-align:right;">@lista1.get(8)</td>
+								<td  style="text-align:center;">
+									@if(lista1.get(20).equals("1")){
+										<input type="checkbox" checked disabled>
+									}else{
+										<input type="checkbox" disabled>
+									}
+								</td>
+								<td  style="text-align:center;">@lista1.get(18)</td>
+								<td  style="text-align:center;">@lista1.get(11)</td>
+								<td  style="text-align:right;">@lista1.get(9)</td>
+								<td  style="text-align:right;">@lista1.get(33)</td>
+								
+								<td  style="text-align:right;">@lista1.get(27)</td>
+								<td  style="text-align:right;">@lista1.get(28)</td>
+								
+								@if(bodegaOrigen.esInterna!=1){
+										<td style="display:none">
+											<input type="hidden" value="@lista1.get(16)" id="estados_@lista1.get(2)_@lista1.get(23)">
+											<input type="hidden" value="@lista1.get(32)" id="reparaciones_@lista1.get(2)_@lista1.get(23)">
+										</td>
+									@for((est,index) <- listTipoEstado.zipWithIndex){
+										<td style="font-size:10px; vertical-align:middle">
+											<input type="text" class="form-control height23px right width40px"
+												style="font-size:10px; vertical-align:middle"
+												id="estado_@lista1.get(2)_@lista1.get(23)_@index"
+												value="0.00"
+												onfocus="value=value.replace(/,/g,'')" 
+												onkeydown="return ingresoInt(window.event)"
+												autocomplete="off"
+												ondblclick = "if(value>0 && '@est.getReparable()'=='1') editaReparaciones('@index','@listTipoEstado.size()','@lista1.get(2)','@lista1.get(23)',value,'@est.getReparable()','@est.getId()')"
+												readonly>
+
+												<script>
+													niv = "@lista1.get(31)";
+													niv1 = niv.split(";");
+													for(let i=0; i<niv1.length && niv1.length>1; i++){
+														let niv2 = niv1[i].split(":");
+														if(niv2[0]=="@est.getId()"){
+															$("#estado_@lista1.get(2)_@lista1.get(23)_@index").val(formatStandar(niv2[1],2));
+														}
+													}
+												</script>
+												
+										</td>
+									}
+									@if(mapPermiso.get("parametro.movimiento-devolucion-cantCliente")!=null && mapPermiso.get("parametro.movimiento-devolucion-cantCliente").equals("1")){
+										<td  style="text-align: right; vertical-align: middle;">@lista1.get(34)</td>
+										<td style="text-align: right; vertical-align: middle;">@lista1.get(35)</td>
+									}
+								}
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+			<input type="hidden" id="descargaDocumento" name="nombreArchivo" value="@guia.getDocAnexo()">
+		</form>
+		
+		
+		
+		<div class="noprint" align="left">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/movimientoListarImgPeriodo/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id='modalReparaciones'></div>
+	
+	
+	
+	
+	
+				
+				
+	
+}
+
+
+<style>
+	#tablaPrincipal td:nth-child(2) { text-align: center; }
+	#tablaPrincipal td:nth-child(3) { text-align: center; }
+	#tablaPrincipal td:nth-child(5) { text-align: right; }
+	#tablaPrincipal td:nth-child(6) { text-align: right; }
+	#tablaPrincipal td:nth-child(7) { text-align: center; }
+	#tablaPrincipal td:nth-child(8) { text-align: right; }
+	#tablaPrincipal td:nth-child(9) { text-align: right; }
+	#tablaPrincipal td:nth-child(10) { text-align: center; }
+	#tablaPrincipal td:nth-child(11) { text-align: center; }
+	#tablaPrincipal td:nth-child(12) { text-align: right; }
+	#tablaPrincipal td:nth-child(13) { text-align: right; }
+	#tablaPrincipal td:nth-child(14) { text-align: right; }
+	@if(bodegaOrigen.esInterna!=1){
+		@for((est,index) <- listTipoEstado.zipWithIndex){
+			#tablaPrincipal td:nth-child(@(index+16)) { vertical-align: middle; }
+		}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+16)) { text-align: right; vertical-align: middle;}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+17)) { text-align: right; vertical-align: middle;}
+		#tablaPrincipal td:nth-child(@(listTipoEstado.size()+18)) { text-align: right; vertical-align: middle;}
+	}
+</style>
+
+<script type="text/javascript">
+	let tblPrincipal;
+	let listReparaNiv1;
+	$(document).ready(function() {
+		  let repAux = ""
+		  @for(r <- listTipoReparacion){
+				repAux += "@r.getId():&&:@r.id_tipoEstado:&&:@r.getSigla():&&:@r.getNombre():&&:@r.getMoneda():&&:@r.getPrecio();&&;"
+		  }
+		  listReparaNiv1 = repAux.split(";&&;");
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+	const editaReparaciones = (index, largo, id_equipo, id_cotizacion, cantEstado, esReparable, id_tipoEstado) =>{
+		let modalReparaciones="<div id='reparaciones' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>"+
+			"<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'><div class='modal-content'><div class='modal-header'>"+
+			"<h5 class='modal-title'>SELECCIONAR REPARACIONES</h5><button type='button' class='close' data-dismiss='modal' aria-label='Close'>"+
+	        "<span aria-hidden='true'>&times;</span></button></div><div class='modal-body'>"+
+			"<table id='tablaListaReparaciones' class='table table-sm table-bordered table-condensed table-hover table-fluid'>"+
+			"<thead style='background-color: #eeeeee'><TR><TH>SIGLA</TH><TH>REPARACION</TH><TH>MONEDA</TH><TH>PRECIO</TH><TH>CANTIDAD</TH></TR></thead>"+
+			"<tbody>";
+			let repar = $("#reparaciones_"+id_equipo+"_"+id_cotizacion).val();
+			let reparNiv1 = repar.split(";");
+			for(let j=0; j<reparNiv1.length; j++){
+				let reparNiv2 = reparNiv1[j].split(":");
+				if(reparNiv2.length>0 && reparNiv2[0]==id_tipoEstado){
+					for(i=0;i<listReparaNiv1.length;i++){
+				    	let listReparaNiv2 = listReparaNiv1[i].split(":&&:");
+				    	if(listReparaNiv2[1]==id_tipoEstado){
+				    		//  0=getId()   1=id_tipoEstado   2=getSigla() 3=getNombre()   4=getMoneda()   5=getPrecio()
+				    		if(listReparaNiv2[0]==reparNiv2[1]){
+				    			modalReparaciones += "<tr>"+
+				    				"<td style='text-align:left;'>"+listReparaNiv2[2]+"</td>"+
+				    				"<td style='text-align:left;'>"+listReparaNiv2[3]+"</td>"+
+				    				"<td style='text-align:center;'>"+listReparaNiv2[4]+"</td>"+
+				    				"<td style='text-align:right;'>"+listReparaNiv2[5]+"</td>"+
+				    				"<td class='width80px' style='text-align:center;'>"+
+					    				"<input type='text' class='form-control right width80px' "+
+										" value='"+reparNiv2[2]+"' "+ 
+										" onfocus=\"value=value.replace(/,/g,'')\"  "+
+										" onkeydown='return ingresoInt(window.event)' "+
+										" autocomplete='off' "+
+										" readonly>"+
+				    				"</td></tr>";
+				    		}
+				    	}
+				    }
+				}
+			}
+			modalReparaciones += "<TR><td  colspan='6'><div class='row justify-content-md-left'><div class='col-xs-12 col-sm-6 col-md-6 col-lg-6'>"+
+				"</div></div></TR></tbody></table><div class='row'><div class='col-sm-12' style='text-align:center'>"+
+				"<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Listo</button></div></div></div></div></div></div>";
+		    document.getElementById("modalReparaciones").innerHTML = modalReparaciones;
+		    $("#reparaciones").modal("show");
+	}
+
+	
+	
+	
+	
+	
+
+
+	
+</script>
+
+
+		
+		
+	

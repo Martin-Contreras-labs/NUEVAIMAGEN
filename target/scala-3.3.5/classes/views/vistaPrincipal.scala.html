@@ -1,0 +1,58 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, moroso: Long)
+
+
+@main("") {
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	@barraTitulo(mapDiccionario, "SISTEMA: MADA - EMPRESA: "+mapDiccionario.get("nEmpresa"), "Manejo y Administracion de Activos")
+	<style>
+		.fondo1{
+		   background: url('/assets/images/area5-fondo.jpg') no-repeat center center;
+		   background-size: cover;
+		   width: 100% ;
+		   text-align: center;
+		 
+		}
+		.fondo2{
+		   background: url('/assets/images/fondoOpera.jpg') no-repeat center center;
+		   background-size: cover;
+		   width: 100% ;
+		   text-align: center;
+		 
+		}
+	</style>
+	@if(mapDiccionario("nEmpresa").equals("OLA")||mapDiccionario("nEmpresa").equals("OLA TENERIFE")){
+		<body class="fondo2"></body>
+	}else{
+		<body class="fondo1"></body>
+	}
+	<div id='cobranza' class="modal" role="dialog" data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+				   	<h5 id="nombreEquipo" class="modal-title">
+			           RECORDATORIO
+			        </h5>
+			        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+			        	<span aria-hidden='true'>&times;</span>
+			        </button>
+				</div>
+	     		<div class="modal-body">
+		     		<div align="center">
+		     			<h5>ACTUALMENTE PRESENTA FACTURAS IMPAGAS CON INQSOL SPA, POR FAVOR REGULARIZAR</h5>
+		     			<button type="button" class="btn btn-success btn-sm rounded-pill btn-block" data-dismiss="modal" >
+							CERRAR
+						</button>
+					</div>
+				</div>
+	   		</div>
+		</div>
+	</div>
+}
+
+<script type="text/javascript" charset="utf-8">
+	  $(document).ready(function () {
+	        	if('@moroso'=='1'){
+	        		$('#cobranza').modal('show');
+	        	}
+	   });
+</script>

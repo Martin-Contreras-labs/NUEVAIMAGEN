@@ -1,0 +1,189 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, lista: List[List[String]])
+
+    	
+@main("") {
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, bodega.nombreTipoBodega + ": " + bodega.nombre.toUpperCase() + " - PROYECTO: "+bodega.nickProyecto, 
+			"EXISTENCIAS POR "+mapDiccionario.get("BODEGA")+"/PROYECTO")
+		
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch3('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+					<td width="25%">
+						
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+					<TR> 
+							<TH rowspan="2" style= "text-align: center;">GRUPO/FAMILIA</TH>
+							<TH rowspan="2" style= "text-align: center;">Nro.Coti</TH>
+							<TH rowspan="2" style= "text-align: center;">CODIGO</TH>
+							<TH rowspan="2" style= "text-align: center;">EQUIPO</TH>
+							<TH rowspan="2" style= "text-align: center;">UNIDAD</TH>
+							<TH rowspan="2" style= "text-align: center;">CANTIDAD</TH>
+							<TH rowspan="2" style= "text-align: center;">MONEDA</TH>
+							<TH colspan="2" style= "text-align: center;">PRECIO<br>REPOSICION</TH>
+							<TH colspan="3" style= "text-align: center;">PRECIO<br>@mapDiccionario.get("ARRIENDO")</TH>
+							<TH rowspan="2" style= "text-align: center;vertical-align: top;width:4%">VER</TH>
+					</TR>
+					<TR> 
+							<TH style= "text-align: center;">P.UNITARIO</TH>
+							<TH style= "text-align: center;">P.TOTAL</TH>
+							<TH style= "text-align: center;">UNIDAD</TH>
+							<TH style= "text-align: center;">P.UNITARIO</TH>
+							<TH style= "text-align: center;">P.TOTAL</TH>
+					</TR>
+				</thead>
+				<tbody>
+					@for(lista1 <- lista){
+						<TR>
+							<td style="text-align:left; vertical-align:middle;">@lista1.get(4)</td>
+							<td style="text-align:center; vertical-align:middle;">
+								@if(lista1.get(18).equals("0")){
+									@lista1.get(18)
+								}else{
+									<a href="#" onclick="verCotizacion('@lista1.get(17)')">
+											<kbd style="background-color: rgb(90, 200, 245)">
+												<font color="green">@lista1.get(18)</font>
+											</kbd>
+									</a>
+								}
+							</td>
+							<td style="text-align:center; vertical-align:middle;"><a href="#" onclick="equipoDescripcion('@lista1.get(2)');">@lista1.get(6)</a></td>
+							<td style="text-align:left; vertical-align:middle; max-width:250px"><a href="#" onclick="equipoDescripcion('@lista1.get(2)');">@lista1.get(7)</a></td>
+							<td style="text-align:center; vertical-align:middle;">@lista1.get(8)</td>
+							<td style="text-align:right; vertical-align:middle;">@lista1.get(9)</td>
+							<td style="text-align:center; vertical-align:middle;">@lista1.get(10)</td>
+							<td style="text-align:right; vertical-align:middle;">@lista1.get(11)</td>
+							<td style="text-align:right; vertical-align:middle;">@lista1.get(12)</td>
+							
+							<td style="text-align:right; vertical-align:middle;">@lista1.get(14)</td>
+							<td style="text-align:right; vertical-align:middle;">@lista1.get(15)</td>
+							<td style="text-align:right; vertical-align:middle;">@lista1.get(16)</td>
+							<td style="text-align:center; vertical-align:middle;">
+								<form id="form_@lista1.get(2)_@lista1.get(17)" class="formulario" method="post" action="/reportInventProyectoTrazaEquipoEnBod/">
+									<input type="hidden" name="id_bodega" value="@bodega.getId()">
+									<input type="hidden" name="id_equipo" value="@lista1.get(2)">
+									<input type="hidden" name="id_cotizacion" value="@lista1.get(17)">
+									<input type="hidden" name="tipo" value="TODO">
+									<a href="#" onclick="document.getElementById('form_@lista1.get(2)_@lista1.get(17)').submit()">
+										<kbd style="background-color: #73C6B6">select</kbd>
+									</a>
+								</form>
+							</td>
+						</TR>
+		 			}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<form id="excel" class="formulario" method="post" action="/reportInventarioProyectoDetalleExcel/">
+		<input type="hidden" name="id_bodega" value="@bodega.getId()">
+	</form>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+<script type="text/javascript">
+
+	let flag = true;
+	
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 3, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const verCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+</script>
+
+
+
+
+		
+		
+	

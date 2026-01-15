@@ -1,0 +1,193 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listServicios: List[List[String]], hoy: utilities.Fechas)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+	<form id="excel" class="formulario" method="post" action="/servicioMantencionExcel/"></form>
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SERVICIOS (CREAR/MODIFICAR/ELIMINAR)", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+			
+				<div align="center">
+					<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+						Exportar a Excel
+					</button>
+				</div>
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH style="vertical-align: top;">FAMILIA</TH>
+							<TH>CODIGO</TH>
+							<TH>SERVICIO</TH>
+							<TH>UNIDAD</TH>
+							<TH>MON</TH>
+							<TH>PRECIO</TH>
+							<TH style="min-width:80px;">Fecha Precio</TH>
+							<TH>CANT<br>MINIMO</TH>
+							<TH>PRECIO<br>ADICIONAL</TH>
+							<TH>EDIT</TH>
+							<TH>DEL</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listServicios){
+							<TR>
+								<td style="text-align:left;">@lista1.get(0)</td>
+								<td style="text-align:center;">@lista1.get(1)</td>
+								<td style="text-align:left;"><div id="@lista1.get(8)">@lista1.get(2)</div></td>
+								<td style="text-align:center;">@lista1.get(3)</td>
+								<td style="text-align:center;">@lista1.get(4)</td>
+								<td style="text-align:right; max-width:50px !important">
+								
+									<div style="display:none">@lista1.get(5)</div>
+									
+									<input type="text" class="form-control right width80"
+										id="precio_@lista1.get(8)"
+										onfocus="value=value.replace(/,/g,'')" 
+										onfocusout = "if(value.trim()=='') value=0; formateaPrecio(id, '@lista1.get(7)');"
+										onkeydown="return ingresoDouble(window.event)"
+										value = "@lista1.get(5)"
+										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.get(8)',id, value, 'precio'); formateaPrecio(id,'@lista1.get(7)');">
+										
+								</td>
+								<td style="text-align:center;">
+									<div id="fechaAAMMDD_@lista1.get(8)" style="display:none">@utilities.Fechas.AAMMDD(lista1.get(6))</div>
+									<div id="fechaDDMMAA_@lista1.get(8)">@utilities.Fechas.DDMMAA(lista1.get(6))</div>
+								</td>
+								
+								<td style="text-align:right; max-width:50px !important">
+								
+									<div style="display:none">@lista1.get(5)</div>
+									
+									<input type="text" class="form-control right width80"
+										id="cantMinimo_@lista1.get(8)"
+										onfocus="value=value.replace(/,/g,'')" 
+										onfocusout = "if(value.trim()=='') value=0; formateaPrecio(id, '2');"
+										onkeydown="return ingresoDouble(window.event)"
+										value = "@lista1.get(9)"
+										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.get(8)',id, value, 'cantMinimo'); formateaPrecio(id,'2');">
+										
+								</td>
+								<td style="text-align:right; max-width:50px !important">
+								
+									<div style="display:none">@lista1.get(5)</div>
+									
+									<input type="text" class="form-control right width80"
+										id="precioAdicional_@lista1.get(8)"
+										onfocus="value=value.replace(/,/g,'')" 
+										onfocusout = "if(value.trim()=='') value=0; formateaPrecio(id, '@lista1.get(7)');"
+										onkeydown="return ingresoDouble(window.event)"
+										value = "@lista1.get(10)"
+										onchange="if(value.trim()=='') value=0; cambiaPrecio('@lista1.get(8)',id, value, 'precioAdicional'); formateaPrecio(id,'@lista1.get(7)');">
+										
+								</td>
+								
+								<td style="text-align:center;">
+									<a href="/servicioModifica/@lista1.get(8)">
+										<kbd style="background-color: #73C6B6">E</kbd>
+									</a>
+								</td>
+								<td style="text-align:center;">
+									<a href="#" onclick= "eliminarServicio('@lista1.get(8)')">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="AGREGAR NUEVO SERVICIO" class="btn btn-info btn-sm rounded-pill btn-block" onclick="location.href='/servicioNuevo/1';">
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="form_eliminar" method="post" action="/servicioElimina/">
+		<input type="hidden" id="form_id_servicio" name="id_servicio">
+	</form>
+}
+
+
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+			"loadingRecords":		"Cargando...",
+
+				"processing":			"Procesando...",
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 3, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        },
+				
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const eliminarServicio = (id_servicio) => {
+		let nombre = $("#"+id_servicio).text();
+		alertify.confirm("Esta seguro de eliminar el servicio: "+nombre, function (e) {
+			if (e) {
+				$("#form_id_servicio").val(id_servicio);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	
+	const formateaPrecio = (id, nroDec) => {
+		$("#"+id).val(formatStandar($("#"+id).val(), nroDec));
+	}
+	
+	const cambiaPrecio = (auxId, id, valor, concepto) => {
+		let fechaAAMMDD = '@hoy.getFechaStrAAMMDD()';
+		let fechaDDMMAA = '@hoy.getFechaStrDDMMAA()';
+		$("#fechaAAMMDD_"+auxId).text(fechaAAMMDD);
+		$("#fechaDDMMAA_"+auxId).text(fechaDDMMAA);
+		
+		var formData = new FormData();
+	  	formData.append('id_servicio',auxId);
+		formData.append('valor',valor);
+		formData.append('fecha',fechaAAMMDD);
+		formData.append('concepto',concepto);
+        $.ajax({
+            url: "/modPrecioServicioAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	
+	
+</script>
+
+
+		
+		
+	

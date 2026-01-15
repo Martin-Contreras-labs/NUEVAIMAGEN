@@ -1,0 +1,6 @@
+[0m[[0m[0mdebug[0m] [0m[0mCopy resource mappings: [0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/pedro/Documents/workspace/mada_aws/conf/logback.xml,/Users/pedro/Documents/workspace/mada_aws/target/scala-3.3.5/classes/logback.xml)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/pedro/Documents/workspace/mada_aws/conf/routes2.routes,/Users/pedro/Documents/workspace/mada_aws/target/scala-3.3.5/classes/routes2.routes)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/pedro/Documents/workspace/mada_aws/conf/application.conf,/Users/pedro/Documents/workspace/mada_aws/target/scala-3.3.5/classes/application.conf)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/pedro/Documents/workspace/mada_aws/conf/routes3.routes,/Users/pedro/Documents/workspace/mada_aws/target/scala-3.3.5/classes/routes3.routes)[0m
+[0m[[0m[0mdebug[0m] [0m[0m	(/Users/pedro/Documents/workspace/mada_aws/conf/routes,/Users/pedro/Documents/workspace/mada_aws/target/scala-3.3.5/classes/routes)[0m

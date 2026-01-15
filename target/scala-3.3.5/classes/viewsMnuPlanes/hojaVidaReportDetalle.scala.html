@@ -1,0 +1,284 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: List[String], listDetalle: List[tables.HojaVida])
+
+<!-- ANCLA CABECERAS DE TABLAS -->
+	<style type="text/css"> 
+        thead tr th { 
+            position: sticky;
+			background-color: #eeeeee;
+            top: 0;
+        }
+    </style>
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "HOJA DE VIDA POR EQUIPO: "+allPlan.get(0).equipoCodigo+" - "+allPlan.get(0).equipoNombre,"")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="2">
+							<b>DETALLE DEL EQUIPO</b>
+						</td>
+						<td colspan="6">
+							<b>ULTIMA COMPRA</b>
+						</td>
+					</tr>
+					<tr>
+						<td>GRUPO:</td>
+						<td>@allPlan.get(0).equipoGrupo</td>
+						<td>@mapDiccionario.get("RUT")-PROV:</td>
+						<td>@listCompra.get(0)</td>
+						<td>FECHA:</td>
+						<td>@listCompra.get(3)</td>
+						<td>MONEDA:</td>
+						<td>@listCompra.get(5)</td>
+					</tr>
+					<tr>
+						<td>CODIGO EQUIPO:</td>
+						<td>@allPlan.get(0).equipoCodigo</td>
+						<td>PROVEEDOR:</td>
+						<td>@listCompra.get(1)</td>
+						<td>PDF:</td>
+						<td>
+							@if(listCompra.get(4)!="0"){
+								<a href="#" onclick="mostrarPDF('@listCompra.get(4)')">
+									<kbd style="background-color: #85C1E9">pdf</kbd>
+								</a>
+							}else{
+							---
+							}
+						</td>
+						<td>PRECIO:</td>
+						<td>@listCompra.get(6)</td>
+					</tr>
+					<tr>
+						<td>NOMBRE EQUIPO:</td>
+						<td>@allPlan.get(0).equipoNombre</td>
+						<td>FACTURA:</td>
+						<td>@listCompra.get(2)</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td colspan="20">
+							<b>ATRIBUTOS DEL EQUIPO</b>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="20">
+							@for(lista <- listAtributos){
+									@lista|
+								}
+						</td>
+					</tr>
+				</table>
+				<table id="planes" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="20">
+							<b>PLAN DE MANTENCION</b>
+						</td>
+					</tr>
+					<tr>
+						<TH style="text-align:center">Plan</TH>
+						<TH style="text-align:center">Fecha<br>Lectura</TH>
+						<TH style="text-align:center">Unidad</TH>
+						<TH style="text-align:center">Cantidad<br>Lectura</TH>
+						<TH style="text-align:center">Rotación (Cada X Cantidad<br>Correspone Mantención)</TH>
+						<TH style="text-align:center">Consumo Promedio<br>Mensual Estimado</TH>
+						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
+						<TH style="text-align:center">Fecha Estimada<br>Mantencion</TH>
+					</tr>
+					@for(lista <- allPlan){
+						<tr>
+							<td style="text-align:center">@lista.tipoPlanNombre</td>
+							<td style="text-align:center">
+								<input type="hidden" class="fechaReset" value="@lista.fechaReset">
+								@lista.fechaReset
+							</td>
+							<td style="text-align:center">@lista.unidadMantencion</td>
+							<td style="text-align:right">
+								<input type="hidden" class="estadoActual" value="@lista.estadoActual">
+								@lista.estadoActual
+							</td>
+							<td style="text-align:center">@lista.cadaNEstimado</td>
+							<td style="text-align:center">
+								<input type="hidden" class="consumoEstimadoPorMes" value="@lista.consumoEstimadoPorMes">
+								@lista.consumoEstimadoPorMes
+							</td>
+							<td style="text-align:right">
+								<input type="hidden" class="proximaMantencion" value="@lista.proximaMantencion">
+								@lista.proximaMantencion
+							</td>
+							<td style="text-align:center">
+								<input type="date" class="fechaEstimada form-control center" disabled>
+							</td>
+						</tr>
+					}
+				</table>
+				
+				<br>
+				
+				<table id="detalle" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead>
+						<tr>
+							<td colspan="12">
+								<h5><b><font color="#008000"> REGISTRO DE GASTOS Y OTROS ASOCIADOS</font></b></h5>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:center">Tipo<br>Mantención</th>
+							<th style="text-align:center">Tipo<br>Plan</th>
+							<th style="text-align:center">Fecha<br>Inicio</th>
+							<th style="text-align:center">Tipo<br>Trabajo</th>
+							<th style="text-align:center">Moneda<br></th>
+							<th style="text-align:center">Costo<br>Neto</th>
+							<th style="text-align:center">Prestador<br>Servicio</th>
+							<th style="text-align:center">Número<br>Documento</th>
+							<th style="text-align:center">Fecha<br>Documento</th>
+							<th style="text-align:center">Archivo<br></th>
+							<th style="text-align:center">Fecha<br>Termino</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for(det <- listDetalle){
+							<tr>
+								<td style="text-align:center">@det.tipoMantencionNombre</td>
+								<td style="text-align:center">@det.tipoPlanNombre</td>
+								<td style="text-align:center">@utilities.Fechas.DDMMAA(det.fechaInicio)</td>
+								<td style="text-align:center">@det.tipoTrabajoNombre</td>
+								<td style="text-align:center">@det.monedaNickName</td>
+								<td style="text-align:right">@det.costoNeto</td>
+								<td style="text-align:center">@det.proveedorNickName</td>
+								<td style="text-align:right">@det.numeroDocumento</td>
+								<td style="text-align:center">
+									@if(det.fechaDocumento != null){
+										@utilities.Fechas.DDMMAA(det.fechaDocumento)
+									}
+								</td>
+								<td style="text-align:center;">
+									@if(!det.documentoPDF.equals("0")){
+										<a href="#" onclick="mostrarPDF('@det.documentoPDF')">
+											<kbd style="background-color: #85C1E9">VER</kbd>
+										</a>
+									}else{
+										---
+									}
+								</td>
+								<td style="text-align:center">@utilities.Fechas.DDMMAA(det.fechaTermino)</td>
+							</tr>
+							<tr>
+								<td style="text-align:left">Trabajo hecho:<br>.</TH>
+								<td colspan="10" style="text-align:left">@det.trabajoHecho</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'></h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="excel" class="formulario" method="post" action="/hojaVidaReportDetalleExcel/">
+		<input type="hidden" name="id_equipo" value="@allPlan.get(0).id_equipo">
+	</form>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		calcFechaProxima();
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const calcFechaProxima = () => {
+	    let filas = $(".estadoActual").length;
+	    let hoy = new Date();
+	
+	    for (let i = 0; i < filas; i++) {
+	        let fecha = $(".fechaReset")[i]?.value;
+	        let proxima = parseFloat($(".proximaMantencion")[i]?.value.replace(/,/g, '') || 0);
+	        let actual = parseFloat($(".estadoActual")[i]?.value.replace(/,/g, '') || 0);
+	        let rotacion = parseFloat($(".consumoEstimadoPorMes")[i]?.value.replace(/,/g, '') || 0);
+	
+	        let dif = proxima - actual;
+	
+	        if (dif <= 0 || rotacion <= 0) {
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+	        } else {
+	            let diasASumar = (dif / rotacion) * 30;
+	            let auxFecha;
+	            try {
+	                let aux = fecha.split("-");
+	                auxFecha = new Date(aux[2], parseInt(aux[1]) - 1, aux[0]);
+	                auxFecha.setDate(auxFecha.getDate() + diasASumar);
+	            } catch (error) {
+	                auxFecha = hoy;
+	            }
+	
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+	        }
+	    }
+	}
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	
+</script>
+
+
+		
+		
+	

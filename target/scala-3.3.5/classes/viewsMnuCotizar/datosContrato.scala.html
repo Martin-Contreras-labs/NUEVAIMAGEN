@@ -1,0 +1,508 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: forms.FormContrato, region: tables.Regiones, comuna: tables.Comunas, listRegiones: List[tables.Regiones], listComunas: List[tables.Comunas],
+listBodegas: List[List[String]], listProyectos: List[tables.Proyecto])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DATOS PARA HACER CONTRATO", "")
+		<form id='listaForm' method='post' action='/routes2/hacerContrato/' onsubmit="return validarForm();">
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">NOMBRE CLIENTE:</td>
+							<td style="text-align:left;">
+								<input type="hidden" name="id_cotizacion" value="@datos.id_cotizacion">
+								<input type="hidden" name="id_cliente" value="@datos.id_cliente">
+								<input type="text" class="form-control left"
+									name="clienteNombre"
+									autocomplete="off"
+									value="@datos.clienteNombre"
+									maxlength="100"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("RUT") CLIENTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteRut"
+									autocomplete="off"
+									value="@datos.clienteRut"
+									maxlength="50"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">GIRO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteGiro"
+									autocomplete="off"
+									value="@datos.clienteGiro"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">DIRECCION:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteDireccion"
+									autocomplete="off"
+									value="@datos.clienteDireccion"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NOMBRE REPRESENTANTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteRepresentante1"
+									autocomplete="off"
+									value="@datos.clienteRepresentante1"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("RUT") REPRESENTANTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteRutRepresentante1"
+									autocomplete="off"
+									value="@datos.clienteRutRepresentante1"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">CARGO REPRESENTANTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteCargoRepresentante1"
+									autocomplete="off"
+									value="@datos.clienteCargoRepresentante1"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">FECHA DE CONTRATO:</td>
+							<td style="text-align:left;">
+								@if(datos.fechaContrato==null){
+									<input type="date" class="form-control left"
+							  			name="fechaContrato"
+					        			required>
+								}else{
+									<input type="date" class="form-control left"
+							  			name="fechaContrato"
+							  			value="@utilities.Fechas.AAMMDD(datos.fechaContrato)"
+					        			required>
+								}
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NUMERO CONTRATO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="numeroContrato"
+									autocomplete="off"
+									value="@datos.numeroContrato"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">E-MAIL:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteEMail"
+									autocomplete="off"
+									value="@datos.clienteEMail"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">TELEFONO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteFono"
+									autocomplete="off"
+									value="@datos.clienteFono"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Notas adicionales<br>(Se agregan al final del contrato):</td>
+							<td style="text-align:left;">
+								<textarea class="form-control" rows="5"
+									name="notasAlContrato" 
+									autocomplete="off">@datos.notasAlContrato</textarea>
+							</td>
+						</tr>
+						
+						<!-- NEGACION -->
+						@if(!(mapDiccionario.get("nEmpresa").equals("MONTAX") || mapDiccionario.get("nEmpresa").equals("ARRIVECO") )){
+							<input type="hidden" name="clienteRegion" value="@datos.clienteRegion">
+							<input type="hidden" name="clienteComuna" value="@datos.clienteComuna">
+							<input type="hidden" name="clienteContacto" value="@datos.clienteContacto">
+							<input type="hidden" name="clienteCargoContacto" value="@datos.clienteCargoContacto">
+							<input type="hidden" name="usadosEn" value="@datos.usadosEn">
+							<input type="hidden" name="clienteOC" value="@datos.clienteOC">
+							@if(datos.clienteFechaOC==null){
+								<input type="hidden" name="clienteFechaOC" value="">
+							}else{
+								<input type="hidden" name="clienteFechaOC" value="@utilities.Fechas.AAMMDD(datos.clienteFechaOC)">
+							}
+							<input type="hidden" name="garantiaDoc" value="@datos.garantiaDoc">
+							<input type="hidden" name="garantiaDet" value="@datos.garantiaDet">
+							<input type="hidden" name="garantiaEquiv" value="@datos.garantiaEquiv">
+							@if(datos.garantiaVenc==null){
+								<input type="hidden" name="garantiaVenc" value="">
+							}else{
+								<input type="hidden" name="garantiaVenc" value="@utilities.Fechas.AAMMDD(datos.garantiaVenc)">
+							}
+							
+						}
+						
+						
+						<input type="hidden" id="nomRepresEmpresa" name="nomRepresEmpresa" value="@datos.nomRepresEmpresa">
+						<input type="hidden" id="rutRepresEmpresa" name="rutRepresEmpresa" value="@datos.rutRepresEmpresa">
+						<input type="hidden" id="listadoPlanos" name="listadoPlanos" value="@datos.listadoPlanos">
+						<input type="hidden" id="fechaPlanos" name="fechaPlanos" value="@datos.fechaPlanos">
+						<input type="hidden" id="direccionObra" name="direccionObra" value="@datos.direccionObra">
+						
+						
+						@if(mapDiccionario.get("nEmpresa").equals("CONCONCRETO ENCOFRADOS")){
+							<tr>
+								<td style="text-align:left;">Representante Conconcreto:</td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										autocomplete="off"
+										value="@datos.nomRepresEmpresa"
+										onchange = "$('#nomRepresEmpresa').val(value)"
+										maxlength="250">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">Cédula Representante:</td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										autocomplete="off"
+										value="@datos.rutRepresEmpresa"
+										onchange = "$('#rutRepresEmpresa').val(value)"
+										maxlength="50">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">Lista de Planos:</td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										autocomplete="off"
+										value="@datos.listadoPlanos"
+										onchange = "$('#listadoPlanos').val(value)"
+										maxlength="250">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">Fecha de Planos:</td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										autocomplete="off"
+										value="@datos.fechaPlanos"
+										onchange = "$('#fechaPlanos').val(value)"
+										maxlength="50">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">Dirección Obra:</td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										autocomplete="off"
+										value="@datos.direccionObra"
+										onchange = "$('#direccionObra').val(value)"
+										maxlength="250">
+								</td>
+							</tr>
+							
+						}
+						
+						
+						
+						
+						@if(mapDiccionario.get("nEmpresa").equals("ARRIVECO")){
+							<tr>
+								<td style="text-align: left;">@mapDiccionario.get("Region"): </td>
+								<td style="text-align: left;">
+									<input type="hidden" id="clienteRegion" name="clienteRegion" value="@datos.clienteRegion">
+									<select class="input-large" id="selectRegion" style="text-align:left;width:100%" 
+												onchange="actualizaComunas(value,'cod_comuna');">
+										<option value="@region.codigo">@region.nombre</option>
+										@for(lista <- listRegiones){
+									     	<option value="@lista.codigo">@lista.nombre</option>
+										}
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align: left;">@mapDiccionario.get("Comuna"): </td>
+								<td style="text-align: left;">
+									<input type="hidden" id="clienteComuna" name="clienteComuna" value="@datos.clienteComuna">
+									<div id="selectComuna">
+										<select class="input-large" style="text-align:left;width:100%">
+											<option value="@comuna.codigo">@comuna.nombre</option>
+											@for(lista <- listComunas){
+										     	<option value="@lista.nombre">@lista.nombre</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>	
+							<input type="hidden" name="clienteContacto" value="@datos.clienteContacto">
+							<input type="hidden" name="clienteCargoContacto" value="@datos.clienteCargoContacto">
+							<input type="hidden" name="usadosEn" value="@datos.usadosEn">
+							<tr>
+								<td style="text-align: left;">NUMERO O.COMPRA:</td>
+								<td style="text-align: left;">
+								  	<input type="text"   name="clienteOC" 	value="@datos.clienteOC" autocomplete="off"
+								  		class="input-large" onkeydown="return sinReservados(window.event)" style="text-align:left;width:100%" maxlength="50">
+							    </td>
+							</tr>
+							<tr>
+								<td style="text-align: left;">FECHA O.COMPRA:</td>
+								<td style="text-align: left;">
+									@if(datos.clienteFechaOC==null || datos.clienteFechaOC.equals("")){
+										<input type="date" name="clienteFechaOC" class="input-large" style="text-align:left;width:100%">
+									}else{
+										<input type="date" name="clienteFechaOC" 
+								  		value="@datos.clienteFechaOC"
+								  		class="input-large" style="text-align:left;width:100%">
+									}
+							    </td>
+							</tr>
+							<input type="hidden" name="garantiaDoc" value="@datos.garantiaDoc">
+							<tr>
+								<td style="text-align: left;">DETALLE GARANTIA:</td>
+								<td style="text-align: left;">
+								  	<textarea name="garantiaDet" rows="5" style="width:100%">@datos.garantiaDet</textarea>
+							    </td>
+							</tr>
+							<input type="hidden" name="garantiaEquiv" value="@datos.garantiaEquiv">
+							@if(datos.garantiaVenc==null || datos.garantiaVenc.equals("")){
+								<input type="hidden" name="garantiaVenc" value="">
+							}else{
+								<input type="hidden" name="garantiaVenc" value="@datos.garantiaVenc.substring(6)-@datos.garantiaVenc.substring(3,5)-@datos.garantiaVenc.substring(0,2)">
+							}
+						}
+						
+						
+						
+						
+						@if(mapDiccionario.get("nEmpresa").equals("MONTAX")){
+							<tr>
+								<td style="text-align:left;">@mapDiccionario.get("Region"): </td>
+								<td style="text-align:left;">
+									<input type="hidden" id="clienteRegion" name="clienteRegion" value="@datos.clienteRegion">
+									<select class="custom-select" 
+										id="cod_region" 
+										onchange="modificarCliente(id); actualizaComunas(value);">
+										@for(lista <- listRegiones){
+											<option value="@lista.codigo">@lista.nombre</option>
+										}
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">@mapDiccionario.get("Comuna"): </td>
+								<td style="text-align:left;">
+									<input type="hidden" id="clienteComuna" name="clienteComuna" value="@datos.clienteComuna">
+									<div id="selectComuna">
+										<select class="custom-select" 
+											id="cod_comuna" 
+											onchange="modificarCliente(id);">
+											@for(lista <- listComunas){
+												<option value="@lista.codigo">@lista.nombre</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">CONTACTO CLIENTE: </td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										name="clienteContacto"
+										autocomplete="off"
+										value="@datos.clienteContacto"
+										maxlength="50">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">CARGO CONTACTO: </td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										name="clienteCargoContacto"
+										autocomplete="off"
+										value="@datos.clienteCargoContacto"
+										maxlength="100">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">PARA USO EN: </td>
+								<td style="text-align:left;">
+									<textarea class="form-control" rows="1"
+										name="usadosEn" 
+										autocomplete="off">@datos.usadosEn</textarea>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">NUMERO O.COMPRA: </td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										name="clienteOC"
+										autocomplete="off"
+										value="@datos.clienteOC"
+										maxlength="50">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">FECHA O.COMPRA:</td>
+								<td style="text-align:left;">
+									@if(datos.clienteFechaOC==null){
+										<input type="date" class="form-control center"
+								  			name="clienteFechaOC">
+									}else{
+										<input type="date" class="form-control center"
+								  			name="clienteFechaOC"
+								  			value="@utilities.Fechas.AAMMDD(datos.clienteFechaOC)">
+									}
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">DOCUMENTO GARANTIA: </td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										name="garantiaDoc"
+										autocomplete="off"
+										value="@datos.garantiaDoc"
+										maxlength="50">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">DETALLE GARANTIA: </td>
+								<td style="text-align:left;">
+									<textarea class="form-control" rows="1"
+										name="garantiaDet" 
+										autocomplete="off">@datos.garantiaDet</textarea>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">EQUIVALENTE A: </td>
+								<td style="text-align:left;">
+									<input type="text" class="form-control left"
+										name="garantiaEquiv"
+										autocomplete="off"
+										value="@datos.garantiaEquiv"
+										maxlength="50">
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left;">VENCIMIENTO GARANTIA:</td>
+								<td style="text-align:left;">
+									@if(datos.garantiaVenc==null){
+										<input type="date" class="form-control center"
+								  			name="garantiaVenc">
+									}else{
+										<input type="date" class="form-control center"
+								  			name="garantiaVenc"
+								  			value="@utilities.Fechas.AAMMDD(datos.garantiaVenc)">
+									}
+								</td>
+							</tr>
+						}
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="submit" id="btnSubmit"  value="GENERAR CONTRATO" class="btn btn-success btn-sm rounded-pill btn-block">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	let id_cliente = "@datos.id_cliente";
+
+	$(document).ready(function() {
+		  $('#cod_region > option[value="@region.codigo"]').attr('selected', 'selected');
+		  $('#cod_comuna > option[value="@comuna.codigo"]').attr('selected', 'selected');
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const actualizaComunas = (cod_region) => {
+		
+		var elt = document.getElementById("selectRegion");
+		var region = elt.options[elt.selectedIndex].text;
+		$("#clienteRegion").val(region);
+		
+		var formData = new FormData();
+		formData.append('cod_region', cod_region);
+		formData.append('id_cliente',id_cliente);
+	  	$.ajax({
+            url: "/selComuna3Ajax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(data){
+	     		if(data=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}else{
+	     			data = data.replace(/&lt;/g,"<");
+					data = data.replace(/&gt;/g,">");
+					data = data.replace(/&#x27;/g,"\"");
+	     			document.getElementById('selectComuna').innerHTML = data;
+	     		}
+	     	}
+        });
+	}
+	
+	const modificarCliente = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_cliente',id_cliente);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaClientePorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){}
+        });
+	}
+	
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		return(true);
+	}
+	
+
+</script>
+
+		
+	

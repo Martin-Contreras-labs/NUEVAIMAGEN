@@ -1,0 +1,299 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+series: List[String], titulo: String)
+
+    	
+@main("") {
+	
+	<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "REPORTE GERENCIAL - VENTAS NETAS",titulo)
+		
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<table id="ESQUEMAGENERAL" class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<TD  id="ventasAnioAnterior" style="width:50%; height: auto; margin: 0 auto"></TD>
+						<TD  id="ventasAnioActual" style="width:50%; height: auto; margin: 0 auto"></TD>	
+					</tr>
+					<tr>
+						<TD id="colocacionArriendo" style="width:50%; height: auto; margin: 0 auto"></TD>
+						<TD id="colocacionInventarios" style="width:50%; height: auto; margin: 0 auto"></TD>
+					</tr>
+			  	</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		
+		Highcharts.chart('colocacionInventarios',{
+            chart: {
+	            type: 'column'
+	        },
+	        title: {
+	            text: 'PRECIO COMPRA VS PRECIO REPOSICION REAL'
+	        },
+	        subtitle: {
+	            text: '(en @mapDiccionario.get("PESOS"))'
+	        },
+	        xAxis: {
+	            categories: @Html(series.get(6)),
+	            labels: {
+	                rotation: -45
+	            }
+	        },
+	        yAxis: {
+	            min: 0,
+	            
+	            title: {
+	                text: ''
+	            },
+	            stackLabels: {
+	                enabled: true,
+	                style: {
+	                    fontWeight: 'bold',
+	                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                }
+	            }
+	        }, 
+	        series: [{
+	        	name: 'a Precio Compra',
+	        	data: @Html(series.get(10)),
+				tooltip: {
+					valuePrefix: '@mapDiccionario.get("CLP") ',
+				}
+	        },{
+	        	name: 'a Precio Reposición',
+	        	data: @Html(series.get(9)),
+				tooltip: {
+					valuePrefix: '@mapDiccionario.get("CLP") ',
+				}
+	        }]
+        });
+
+		Highcharts.chart('colocacionArriendo',{
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'PRECIO REAL VS PRECIO LISTA'
+            },
+            subtitle: {
+                text: '(en @mapDiccionario.get("PESOS"))'
+            },
+            xAxis: {
+                categories: @Html(series.get(6)),
+                labels: {
+                    rotation: -45
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: ''
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                    }
+                }
+            }, 
+            series: [{
+            	name: 'a Precio Real',
+            	data: @Html(series.get(7)),
+    			tooltip: {
+    				valuePrefix: '@mapDiccionario.get("CLP") ',
+    			}
+            },{
+            	name: 'a Precio Lista',
+            	data: @Html(series.get(8)),
+    			tooltip: {
+    				valuePrefix: '@mapDiccionario.get("CLP") ',
+    			}
+            }]
+        });
+
+		Highcharts.chart('ventasAnioActual',{
+            chart: {
+                zoomType: 'xy'
+            },
+            title: {
+                text: 'INGRESOS AÑO ACTUAL'
+            },
+            subtitle: {
+                text: '(en @mapDiccionario.get("PESOS"))'
+            },
+            xAxis: [{
+                categories:  @Html(series.get(3)),
+                labels: {
+                    rotation: -45
+                }
+            }],
+            yAxis: [{ // Primary yAxis
+            	min: 0,
+                labels: {
+                //	format: "{value:point.y:,.0f} ",
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'Acumulado',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }, { // Secondary yAxis
+            	min: 0,
+                title: {
+                    text: 'Parcial',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    //format: "{value:point.y:,.0f} ",
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true,		                
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 80,
+                verticalAlign: 'top',
+                y: 20,
+                floating: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            series: [{
+                name: 'parcial',
+                type: 'column',
+                yAxis: 1,
+                data: @Html(series.get(4)),
+                tooltip: {
+                	valuePrefix: '@mapDiccionario.get("CLP") ',
+                }		    
+            }, {
+                name: 'acumulado',
+                type: 'spline',
+                data: @Html(series.get(5)),
+                tooltip: {
+                	valuePrefix: '@mapDiccionario.get("CLP") ',
+                }
+            }]
+        });
+
+		Highcharts.chart('ventasAnioAnterior',{
+            chart: {
+                zoomType: 'xy'
+            },
+            title: {
+                text: 'INGRESOS AÑO ANTERIOR'
+            },
+            subtitle: {
+                text: '(en @mapDiccionario.get("PESOS"))'
+            },
+            xAxis: [{
+                categories:  @Html(series.get(0)),
+                labels: {
+                    rotation: -45
+                }
+            }],
+            yAxis: [{ // Primary yAxis
+            	min: 0,
+                labels: {
+                //	format: "{value:point.y:,.0f} ",
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'Acumulado',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }, { // Secondary yAxis
+            	min: 0,
+                title: {
+                    text: 'Parcial',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    //format: "{value:point.y:,.0f} ",
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }],
+            tooltip: {
+                shared: true,
+                
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                x: 80,
+                verticalAlign: 'top',
+                y: 20,
+                floating: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            series: [{
+                name: 'parcial',
+                type: 'column',
+                yAxis: 1,
+                //data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: @Html(series.get(1)),
+                tooltip: {
+                	valuePrefix: '@mapDiccionario.get("CLP") ',
+                }
+    
+            }, {
+                name: 'acumulado',
+                type: 'spline',
+                data: @Html(series.get(2)),
+                tooltip: {
+                	valuePrefix: '@mapDiccionario.get("CLP") ',
+                }
+            }]
+        });
+
+		document.getElementById('mostrarmostrar').style.display="block";
+	  });
+
+</script>
+
+
+		
+		
+	

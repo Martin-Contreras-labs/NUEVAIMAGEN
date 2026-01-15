@@ -1,0 +1,173 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listComercial: List[tables.Comercial], listUsuario: List[tables.Usuario])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "COMERCIALES: AGREGAR/MODIFICAR", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-10 col-sm-8 col-md-8 col-lg-8">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH>COMERCIAL</TH>
+							<TH>SUCURSAL</TH>
+							<TH>VIGENTE</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listComercial){
+							<TR>
+								<td  style="text-align:left;">@lista1.getNameUsuario()</td>
+								<td  style="text-align:left;">@lista1.getNameSucursal()</td>
+								<td  style="text-align:center;">
+									<input type="hidden" id="vigente_@lista1.getId()" value="@lista1.getVigente()">
+									@if(lista1.getVigente()==1){
+										<input type="checkbox" checked onchange="modificaVigente('@lista1.getId()');">
+									}else{
+										<input type="checkbox" onchange="modificaVigente('@lista1.getId()');">
+									}
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="AGREGAR" class="btn btn-success btn-sm rounded-pill btn-block" onclick='$("#modalAgregaComercial").modal("show");'>
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalAgregaComercial' class="modal" role="dialog" data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+				   	<h5 class="modal-title">Seleccionar Usuario</h5>
+			        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+			        	<span aria-hidden='true'>&times;</span>
+			        </button>
+				</div>
+	     		<div class="modal-body">
+		     		<table id="tablaAgregaComercial" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>Nombre (fullName)</TH>
+						        <TH>Cargo/Funci&oacute;n</TH>
+						        <TH>Tipo Usuario</TH>
+								<TH>Sucursal</TH>
+								<TH>SELECT</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listUsuario){
+								<TR>
+									<td  style="text-align:left;">@lista1.getNombre()</td>
+									<td  style="text-align:left;">@lista1.getCargo()</td>
+									<td  style="text-align:left;">@lista1.getTipoUsuario()</td>
+									<td  style="text-align:left;">@lista1.getNameSucursal</td>
+									<td  style="text-align:center;">
+										<a href="#" onclick="agregaComercial('@lista1.getId()');" data-dismiss="modal">
+											<kbd style="background-color: #73C6B6">SEL</kbd>
+										</a>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+					<div align="center">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<button type="button" class="btn btn-success btn-sm rounded-pill btn-block" data-dismiss="modal">
+									CERRAR
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+	   		</div>
+		</div>
+	</div>
+	
+	<form id="formAgregaComercial" method="post" action="/routes2/comercialAgrega/">
+		<input type="hidden" id="id_usuario" name="id_usuario">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  
+		  $('#tablaAgregaComercial').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificaVigente = (id_comercial) => {
+		let vigente = $("#vigente_"+id_comercial).val();
+		if(vigente==1){
+			modificaVigencia(id_comercial, 0);
+			$("#vigente_"+id_comercial).val(0);
+		}else{
+			modificaVigencia(id_comercial, 1);
+			$("#vigente_"+id_comercial).val(1);
+		}
+	}
+	
+	const modificaVigencia = (id_comercial, valor) => {
+		let formData = new FormData();
+		formData.append('id_comercial',id_comercial);
+		formData.append('valor',valor);
+		$.ajax({
+            url: "/routes2/modVigComercialAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	const agregaComercial = (id_usuario) =>{
+		$("#id_usuario").val(id_usuario);
+		document.getElementById("formAgregaComercial").submit();
+		
+	}
+</script>
+
+
+		
+		
+	

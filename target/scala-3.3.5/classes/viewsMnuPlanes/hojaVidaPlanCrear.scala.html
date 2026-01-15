@@ -1,0 +1,73 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listEquipos: List[tables.Equipo])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION DE EQUIPOS (CREAR PLAN DE MANTENCION)", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							 <TH style= "text-align: center;">GRUPO</TH>
+					        <TH style= "text-align: center;">CODIGO</TH>
+							<TH style= "text-align: center;">EQUIPO</TH>
+							<TH style= "text-align: center;">UNIDAD</TH>
+							<TH style= "text-align: center;">SEL</TH>
+					</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listEquipos){
+							<TR>
+								<td style="text-align:left;">@lista1.getGrupo()</td>
+								<td style="text-align:center;">@lista1.getCodigo()</td>
+								<td style="text-align:left;">@lista1.getNombre()</td>
+								<td style="text-align:center;">@lista1.getUnidad()</td>
+								<td style="text-align:center;">
+									<form id="form_@lista1.getId()" method="post" action="/hojaVidaPlanCrear2/">
+										<input type="hidden" name="id_equipo" value="@lista1.getId()">
+										<a href="#" onclick='document.getElementById("form_@lista1.getId()").submit();'>
+											<kbd style="background-color: #73C6B6">select</kbd>
+										</a>
+									</form>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center">
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/hojaVidaPlanMantencion/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,397 @@
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MODULO DE USO GENERAL
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET     /viewImg/:img						controllers.HomeController.viewImg(img:String, request: Request)
+GET     /showPdf/:fileNamePdf 				controllers.HomeController.showPdf(fileNamePdf: String, request: Request)
+GET     /showPdfManuales/:fileNamePdf 		controllers.HomeController.showPdfManuales(fileNamePdf: String, request: Request)
+POST    /downloadPDF/						controllers.HomeController.downloadPDF(request: Request)
+POST    /tasasDeFechaAjax/					controllers.HomeController.tasasDeFechaAjax(request: Request)
+POST	/sendEmail/							controllers.HomeController.sendEmail(request: Request)
+
+GET     /redirShowPDF/:fileNamePdf,:titulo,:url 				controllers.HomeController.redirShowPDF(fileNamePdf: String, titulo: String, url: String, request: Request)
+
+GET     /redirOdoShowPDF/:fileNamePdf,:desde,:hasta,:url 				controllers.HomeController.redirOdoShowPDF(fileNamePdf: String, desde: String, hasta: String, url: String, request: Request)
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU BAJA - redimensionar
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/redimensionarAsignaBodega/				controllers.MnuRedimensionar.redimensionarAsignaBodega(request: Request)
+POST    /redimensionarAsignaBodegaUpdate/       controllers.MnuRedimensionar.redimensionarAsignaBodegaUpdate(request: Request)
+
+GET		/redimensionarPrepara/				controllers.MnuRedimensionar.redimensionarPrepara(request: Request)
+POST	/redimensionarNuevo/				controllers.MnuRedimensionar.redimensionarNuevo(request: Request)
+GET		/redimensionarConfirmar0/			controllers.MnuRedimensionar.redimensionarConfirmar0(request: Request)
+POST	/redimensionarConfirmar1/			controllers.MnuRedimensionar.redimensionarConfirmar1(request: Request)
+POST	/redimensionarConfirmar2/			controllers.MnuRedimensionar.redimensionarConfirmar2(request: Request)
+
+GET		/redimensionarEliminar0/			controllers.MnuRedimensionar.redimensionarEliminar0(request: Request)
+POST	/redimensionarEliminar1/			controllers.MnuRedimensionar.redimensionarEliminar1(request: Request)
+POST	/redimensionarEliminar2/			controllers.MnuRedimensionar.redimensionarEliminar2(request: Request)
+
+GET		/redimensionarListar0/				controllers.MnuRedimensionar.redimensionarListar0(request: Request)
+POST	/redimensionarListar1/				controllers.MnuRedimensionar.redimensionarListar1(request: Request)
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU MOVIMIENTOS - Ingresar nuevo
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST	/movValySubePlantilla/				controllers.MnuMovimientos.movValySubePlantilla(request: Request)
+POST	/movPlantilla/						controllers.MnuMovimientos.movPlantilla(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU COTI ODO
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST    /cotiOdoModifyXCampo/           controllers.MnuCotiOdo.cotiOdoModifyXCampo(request: Request)
+GET		/cotiOdoIngreso/				controllers.MnuCotiOdo.cotiOdoIngreso(request: Request)
+POST	/cotiOdoNuevo/					controllers.MnuCotiOdo.cotiOdoNuevo(request: Request)
+POST	/existeNumeroCotiOdoAjax/		controllers.MnuCotiOdo.existeNumeroCotiOdoAjax(request: Request)
+POST	/cotiOdoModificaJson/			controllers.MnuCotiOdo.cotiOdoModificaJson(request: Request)
+ 
+GET		/cotiOdoListaModifica/				controllers.MnuCotiOdo.cotiOdoListaModifica(request: Request)
+POST	/cotiOdoElimina/					controllers.MnuCotiOdo.cotiOdoElimina(request: Request)
+POST	/cotiOdoModifica/					controllers.MnuCotiOdo.cotiOdoModifica(request: Request)
+POST	/cotiOdoUpdate/						controllers.MnuCotiOdo.cotiOdoUpdate(request: Request)
+POST	/verCotiOdoAjax/					controllers.MnuCotiOdo.verCotiOdoAjax(request: Request)
+
+GET		/cotiOdoListaCambiaEstado/			controllers.MnuCotiOdo.cotiOdoListaCambiaEstado(request: Request)
+POST	/cambiarCotiOdoEstadoAjax/			controllers.MnuCotiOdo.cambiarCotiOdoEstadoAjax(request: Request)
+
+GET		/cotiOdoListaImprimir/				controllers.MnuCotiOdo.cotiOdoListaImprimir(request: Request)
+GET		/cotiOdoImprimir/:id_cotiOdo		controllers.MnuCotiOdo.cotiOdoImprimir(request: Request, id_cotiOdo: Long)
+POST	/cotiOdoExcel/						controllers.MnuCotiOdo.cotiOdoExcel(request: Request)
+POST	/pdfCotiOdoVta/						controllers.MnuCotiOdo.pdfCotiOdoVta(request: Request)
+ 
+GET		/reportCotiOdoSel/					controllers.MnuCotiOdo.reportCotiOdoSel(request: Request)
+POST	/reportCotiOdoRpt/					controllers.MnuCotiOdo.reportCotiOdoRpt(request: Request)
+
+GET		/cotiOdoListaConfirma/				controllers.MnuCotiOdo.cotiOdoListaConfirma(request: Request)
+POST	/cotiOdoConfirma/					controllers.MnuCotiOdo.cotiOdoConfirma(request: Request)
+
+GET		/otOdoListaCotizaSinOt/				controllers.MnuCotiOdo.otOdoListaCotizaSinOt(request: Request)
+POST	/otOdoHacer/						controllers.MnuCotiOdo.otOdoHacer(request: Request)
+POST	/otOdoGrabar/						controllers.MnuCotiOdo.otOdoGrabar(request: Request)
+
+GET		/otOdoListaEliminar/					controllers.MnuCotiOdo.otOdoListaEliminar(request: Request)
+POST	/verOtOdoAjax/							controllers.MnuCotiOdo.verOtOdoAjax(request: Request)
+POST	/actualFechaEnvioOtOdoAjax/				controllers.MnuCotiOdo.actualFechaEnvioOtOdoAjax(request: Request)
+POST	/actualOperServOtOdoAjax/				controllers.MnuCotiOdo.actualOperServOtOdoAjax(request: Request)
+
+POST	/otOdoElimina/							controllers.MnuCotiOdo.otOdoElimina(request: Request)
+ 
+GET		/otOdoListaCambiarEstado/				controllers.MnuCotiOdo.otOdoListaCambiarEstado(request: Request)
+POST	/cambiarOtOdoEstadoAjax/				controllers.MnuCotiOdo.cambiarOtOdoEstadoAjax(request: Request)
+
+GET		/otOdoListaRevisar/					controllers.MnuCotiOdo.otOdoListaRevisar(request: Request)
+POST	/revisarOtOdo/						controllers.MnuCotiOdo.revisarOtOdo(request: Request)
+POST	/trazaServicioOtOdoAjax/						controllers.MnuCotiOdo.trazaServicioOtOdoAjax(request: Request)
+POST	/otOdoRevisarExcel/					controllers.MnuCotiOdo.otOdoRevisarExcel(request: Request)
+
+GET		/reportOtOdoSel/					controllers.MnuCotiOdo.reportOtOdoSel(request: Request)
+POST	/reportOtOdoRpt/					controllers.MnuCotiOdo.reportOtOdoRpt(request: Request)
+
+GET		/otOdoListaConfirma/					controllers.MnuCotiOdo.otOdoListaConfirma(request: Request)
+POST	/otOdoConfirma/						controllers.MnuCotiOdo.otOdoConfirma(request: Request)
+
+GET		/otOdoListaAgregarOC/:year				controllers.MnuCotiOdo.otOdoListaAgregarOC(request: Request, year: Long)
+POST	/grabarOcOdoPdf/:id_otOdo				controllers.MnuCotiOdo.grabarOcOdoPdf(request: Request, id_otOdo: Long)
+POST	/oc_cotiOdoClienteAjax/					controllers.MnuCotiOdo.oc_cotiOdoClienteAjax(request: Request)
+
+GET		/otOdoGenerarContrato/:year				controllers.MnuCotiOdo.otOdoGenerarContrato(request: Request, year: Long)
+POST	/grabarContratoPdfOdo/:id_cotiOdo		controllers.MnuCotiOdo.grabarContratoPdfOdo(request: Request, id_cotiOdo: Long)
+POST	/datosContratoOdo/						controllers.MnuCotiOdo.datosContratoOdo(request: Request)
+POST	/hacerContratoOdo/						controllers.MnuCotiOdo.hacerContratoOdo(request: Request)
+
+POST	/cotiOdoPlantilla/						controllers.MnuCotiOdo.cotiOdoPlantilla(request: Request)
+POST	/cotiOdoValidarPlantilla/				controllers.MnuCotiOdo.cotiOdoValidarPlantilla(request: Request)
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MNU cotizaReporte   Cotizar/Cotizar/Saldos de OT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/reportOtSaldos/				controllers.MnuCotizar.reportOtSaldos(request: Request)
+POST	/reportOtSaldosExcel/			controllers.MnuCotizar.reportOtSaldosExcel(request: Request)
+POST	/listadoOTAjax/					controllers.MnuCotizar.listadoOTAjax(request: Request)
+GET		/reportOtSaldosPorOt/			controllers.MnuCotizar.reportOtSaldosPorOt(request: Request)
+POST	/reportOtSaldosPorOtExcel/		controllers.MnuCotizar.reportOtSaldosPorOtExcel(request: Request)
+
+GET		/otAdminPrecios0/				controllers.MnuCotizar.otAdminPrecios0(request: Request)
+POST	/otAdminPrecios1/				controllers.MnuCotizar.otAdminPrecios1(request: Request)
+
+POST	/otCambiarEstadoTerminadas/				controllers.MnuCotizar.otCambiarEstadoTerminadas(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MNU cotizaReporte   Cotizar/Cotizaciones/Resumen Cotizacion
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/cotizaListaResumen0/			controllers.MnuCotizar.cotizaListaResumen0(request: Request)
+POST	/cotizaListaResumen00/			controllers.MnuCotizar.cotizaListaResumen00(request: Request)
+POST	/cotizaListaResumen1/			controllers.MnuCotizar.cotizaListaResumen1(request: Request)
+POST	/cotizaListaResumen2/			controllers.MnuCotizar.cotizaListaResumen2(request: Request)
+POST	/cotizaListaResumen2Excel/		controllers.MnuCotizar.cotizaListaResumen2Excel(request: Request)
+POST	/cotizaListaResumen3/			controllers.MnuCotizar.cotizaListaResumen3(request: Request)
+GET		/cotizaListaBiblioteca/			controllers.MnuCotizar.cotizaListaBiblioteca(request: Request)
+POST	/cotiBibliotecaElimina/			controllers.MnuCotizar.cotiBibliotecaElimina(request: Request)
+
+
+GET		/reportOtPrecios0/				controllers.MnuCotizar.reportOtPrecios0(request: Request)
+POST	/reportOtPrecios1/				controllers.MnuCotizar.reportOtPrecios1(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# comercial sucursal TABLAS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/comercialMantencion/			controllers.MnuTablas.comercialMantencion(request: Request)
+POST	/modVigComercialAjax/			controllers.MnuTablas.modVigComercialAjax(request: Request)
+POST	/comercialAgrega/				controllers.MnuTablas.comercialAgrega(request: Request)
+GET 	/precioMantSelSucursal/			controllers.MnuTablas.precioMantSelSucursal(request: Request)
+
+POST	/equipoMantencionExcel/			controllers.MnuTablas.equipoMantencionExcel(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Dibujantes TABLAS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/dibujanteMantencion/			            controllers.MnuTablas.dibujanteMantencion(request: Request)
+GET 	/dibujanteAgrega/			                controllers.MnuTablas.dibujanteAgrega(request: Request)
+POST 	/dibujanteGraba/			                controllers.MnuTablas.dibujanteGraba(request: Request)
+POST 	/propiedadElimina/			                controllers.MnuTablas.propiedadElimina(request: Request)
+POST 	/dibujanteModifica/			                controllers.MnuTablas.dibujanteModifica(request: Request)
+POST 	/modificaDibujantePorCampoAjax/			    controllers.MnuTablas.modificaDibujantePorCampoAjax(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# PROPIEDAD TABLAS (propios, alquilados)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/propiedadMantencion/			            controllers.MnuTablas.propiedadMantencion(request: Request)
+GET 	/propiedadAgrega/			                controllers.MnuTablas.propiedadAgrega(request: Request)
+POST 	/propiedadGraba/			                controllers.MnuTablas.propiedadGraba(request: Request)
+POST 	/propiedadModifica/			                controllers.MnuTablas.propiedadModifica(request: Request)
+POST 	/modificaPropiedadPorCampoAjax/			    controllers.MnuTablas.modificaPropiedadPorCampoAjax(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Dibujantes BODEGA EMPRESA
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/rubroMantencion/			            controllers.MnuBodegas.rubroMantencion(request: Request)
+GET 	/rubroAgrega/			                controllers.MnuBodegas.rubroAgrega(request: Request)
+POST 	/rubroGraba/			                controllers.MnuBodegas.rubroGraba(request: Request)
+POST 	/rubroModifica/			                controllers.MnuBodegas.rubroModifica(request: Request)
+POST 	/modificaRubroPorCampoAjax/			    controllers.MnuBodegas.modificaRubroPorCampoAjax(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# compras
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET 	/movCompras0/			controllers.MnuCompras.movCompras0(request: Request)
+POST	/movCompras1/			controllers.MnuCompras.movCompras1(request: Request)
+POST	/movCompras1Excel/		controllers.MnuCompras.movCompras1Excel(request: Request)
+
+
+POST	/compraVistaSelBodDestAjax/			controllers.MnuCompras.compraVistaSelBodDestAjax(request: Request)
+POST	/compraVistaSelBodDestAjax2/		controllers.MnuCompras.compraVistaSelBodDestAjax2(request: Request)
+
+POST	/compraPlantilla/				controllers.MnuCompras.compraPlantilla(request: Request)
+POST	/compraCargaPlantilla/			controllers.MnuCompras.compraCargaPlantilla(request: Request)
+POST	/compraValidarPlantilla/		controllers.MnuCompras.compraValidarPlantilla(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# precios maestro
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST	/precioPlantilla/				controllers.MnuTablas.precioPlantilla(request: Request)
+POST	/precioCargaPlantilla/			controllers.MnuTablas.precioCargaPlantilla(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# excedentes por equipo
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET 	/reporteExcedentesListaEquipos/				controllers.MnuReportes.reporteExcedentesListaEquipos(request: Request)
+POST	/reporteExcedentesDetalleEquipo/			controllers.MnuReportes.reporteExcedentesDetalleEquipo(request: Request)
+POST	/reporteExcedentesDetalleEquipoExcel/		controllers.MnuReportes.reporteExcedentesDetalleEquipoExcel(request: Request)
+
+POST	/proyectoMantencionExcel/					controllers.MnuTablas.proyectoMantencionExcel(request: Request)
+POST	/equipoCambiaEstado/						controllers.MnuTablas.equipoCambiaEstado(request: Request)
+POST	/equipoCambiaPropiedad/						controllers.MnuTablas.equipoCambiaPropiedad(request: Request)
+
+POST	/homeOdoAutorizaVentasWebExcel/				controllers.HomeController.homeOdoAutorizaVentasWebExcel(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU COTIZAR
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+GET		/coti8columnas/				controllers.MnuCotizar.coti8columnas(request: Request)
+POST	/coti8columnasValida/		controllers.MnuCotizar.coti8columnasValida(request: Request)
+
+
+GET		/cotizaIngresoSelect/			controllers.MnuCotizarSelect.cotizaIngresoSelect(request: Request)
+POST	/cotizaSeleccionados/			controllers.MnuCotizarSelect.cotizaSeleccionados(request: Request)
+POST	/cotiValidarPlantillaSel/		controllers.MnuCotizarSelect.cotiValidarPlantillaSel(request: Request)
+POST	/cotizaModificaJsonSel/			controllers.MnuCotizarSelect.cotizaModificaJsonSel(request: Request)
+POST	/actualizaListaCotiSelAjax/		controllers.MnuCotizarSelect.actualizaListaCotiSelAjax(request: Request)
+
+
+GET		/cotizaListaModificaSelPeriodo/		controllers.MnuCotizarSelect.cotizaListaModificaSelPeriodo(request: Request)
+POST	/cotizaListaModificaSel/			controllers.MnuCotizarSelect.cotizaListaModificaSel(request: Request)
+POST	/cotizaModificaSel/					controllers.MnuCotizarSelect.cotizaModificaSel(request: Request)
+
+GET		/reportPipelineSelRes/				controllers.MnuCotizar.reportPipelineSelRes(request: Request)
+POST	/reportPipelineRptRes/				controllers.MnuCotizar.reportPipelineRptRes(request: Request)
+POST	/reportPipelineDetalle/				controllers.MnuCotizar.reportPipelineDetalle(request: Request)
+POST	/reportPipelineRptResExcel/			controllers.MnuCotizar.reportPipelineRptResExcel(request: Request)
+
+GET		/reportPipelineSelDet/				controllers.MnuCotizar.reportPipelineSelDet(request: Request)
+POST	/reportPipelineRptDet/				controllers.MnuCotizar.reportPipelineRptDet(request: Request)
+POST	/reportPipelineRptDetExcel/			controllers.MnuCotizar.reportPipelineRptDetExcel(request: Request)
+
+GET		/reportPipelineSelComercial/				controllers.MnuCotizar.reportPipelineSelComercial(request: Request)
+POST	/reportPipelineRptComercial/				controllers.MnuCotizar.reportPipelineRptComercial(request: Request)
+POST	/reportPipelineRptComercialExcel/			controllers.MnuCotizar.reportPipelineRptComercialExcel(request: Request)
+
+
+GET		/otListarDespachosPeriodo/			controllers.MnuCotizar.otListarDespachosPeriodo(request: Request)
+POST	/otListarDespachos/					controllers.MnuCotizar.otListarDespachos(request: Request)
+POST	/otDetalleDespacho/					controllers.MnuCotizar.otDetalleDespacho(request: Request)
+
+GET		/otListarDespachosImgPeriodo/		controllers.MnuCotizar.otListarDespachosImgPeriodo(request: Request)
+POST	/otListarDespachosImg/				controllers.MnuCotizar.otListarDespachosImg(request: Request)
+POST	/otDetalleDespachoImg/				controllers.MnuCotizar.otDetalleDespachoImg(request: Request)
+
+GET		/otListaRevisarPeriodo/				controllers.MnuCotizar.otListaRevisarPeriodo(request: Request)
+POST	/otListaRevisar/					controllers.MnuCotizar.otListaRevisar(request: Request)
+POST	/otListaRevisarExcel/				controllers.MnuCotizar.otListaRevisarExcel(request: Request)
+POST	/revisarOt/							controllers.MnuCotizar.revisarOt(request: Request)
+POST	/trazaEqOtAjax/						controllers.MnuCotizar.trazaEqOtAjax(request: Request)
+POST	/otRevisarExcel/					controllers.MnuCotizar.otRevisarExcel(request: Request)
+
+GET		/reportOtSel/					controllers.MnuCotizar.reportOtSel(request: Request)
+POST	/reportOtRpt/					controllers.MnuCotizar.reportOtRpt(request: Request)
+
+GET		/otGenerarContratoPeriodo/			controllers.MnuCotizar.otGenerarContratoPeriodo(request: Request)
+POST	/otGenerarContrato/					controllers.MnuCotizar.otGenerarContrato(request: Request)
+POST	/grabarContratoPdf/:id_coti			controllers.MnuCotizar.grabarContratoPdf(request: Request, id_coti: Long)
+POST	/datosContrato/						controllers.MnuCotizar.datosContrato(request: Request)
+POST	/hacerContrato/						controllers.MnuCotizar.hacerContrato(request: Request)
+
+GET		/otListaAgregarOCPeriodo/			controllers.MnuCotizar.otListaAgregarOCPeriodo(request: Request)
+POST	/otListaAgregarOC/					controllers.MnuCotizar.otListaAgregarOC(request: Request)
+POST	/grabarOcPdf/:id_ot,:de,:a			controllers.MnuCotizar.grabarOcPdf(request: Request, id_ot: Long, de: String, a: String)
+POST	/oc_cotiClienteAjax/				controllers.MnuCotizar.oc_cotiClienteAjax(request: Request)
+
+
+
+GET		/cotizaSolucionMantencion/				controllers.MnuCotizar.cotizaSolucionMantencion(request: Request)
+POST	/cotizaSolucionElimina/					controllers.MnuCotizar.cotizaSolucionElimina(request: Request)
+POST	/cotizaSolucionModifica/				controllers.MnuCotizar.cotizaSolucionModifica(request: Request)
+POST	/modificaCotizaSolucionPorCampoAjax/	controllers.MnuCotizar.modificaCotizaSolucionPorCampoAjax(request: Request)
+GET		/cotizaSolucionAgrega/					controllers.MnuCotizar.cotizaSolucionAgrega(request: Request)
+POST	/cotizaSolucionNuevo/					controllers.MnuCotizar.cotizaSolucionNuevo(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU ODO APP WEB
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/reporteMovOdoAutorizador/				controllers.MnuOdoAppWeb.reporteMovOdoAutorizador(request: Request)
+POST	/reporteMovOdoAutorizadorDetalle/		controllers.MnuOdoAppWeb.reporteMovOdoAutorizadorDetalle(request: Request)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU ODO
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET		/servicioPreciosServicio/					controllers.MnuOdo.servicioPreciosServicio(request: Request)
+GET     /servicioListaPreciosServicio/:id_serv		controllers.MnuOdo.servicioListaPreciosServicio(id_serv: Long, request: Request)
+POST	/servicioAgregaPrecioServicio/				controllers.MnuOdo.servicioAgregaPrecioServicio(request: Request)
+
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU REPORTES
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET     /reportePorProyectoAgrupado/				controllers.MnuReportes.reportePorProyectoAgrupado(request: Request)
+POST    /reportePorProyectoListaAgrupado/			controllers.MnuReportes.reportePorProyectoListaAgrupado(request: Request)
+POST    /reportePorProyectoDetalleAgrupado/			controllers.MnuReportes.reportePorProyectoDetalleAgrupado(request: Request)
+POST    /reportePorProyectoDetalleAgrupadoExcel/	controllers.MnuReportes.reportePorProyectoDetalleAgrupadoExcel(request: Request)
+
+GET     /reportEstadoBodegas/				controllers.MnuReportes.reportEstadoBodegas(request: Request)
+POST	/reportEstadoBodegasExcel/			controllers.MnuReportes.reportEstadoBodegasExcel(request: Request)
+
+
+POST	/envioMasivoListadoProforma2/			controllers.MnuReportes.envioMasivoListadoProforma2(request: Request)
+POST	/proformaListaPdf/						controllers.MnuReportes.proformaListaPdf(request: Request)
+
+
+GET     /reportGerenKGPorPeriodo0/					controllers.MnuReportes.reportGerenKGPorPeriodo0(request: Request)
+POST    /reportGerenKGPorPeriodo1/					controllers.MnuReportes.reportGerenKGPorPeriodo1(request: Request)
+POST    /reportGerenKGPorPeriodo1Excel/				controllers.MnuReportes.reportGerenKGPorPeriodo1Excel(request: Request)
+
+GET     /reportVentasPorPeriodo0/					controllers.MnuReportes.reportVentasPorPeriodo0(request: Request)
+POST    /reportVentasPorPeriodo1/					controllers.MnuReportes.reportVentasPorPeriodo1(request: Request)
+POST    /reportVentasPorPeriodo1Excel/				controllers.MnuReportes.reportVentasPorPeriodo1Excel(request: Request)
+
+GET     /reporteEstadosPer0/				controllers.MnuReportes.reporteEstadosPer0(request: Request)
+POST    /reporteEstadosPer1/				controllers.MnuReportes.reporteEstadosPer1(request: Request)
+POST    /reporteEstadosPer1Excel/			controllers.MnuReportes.reporteEstadosPer1Excel(request: Request)
+
+
+GET     /reportePorProyectoValorizado/					controllers.MnuReportes.reportePorProyectoValorizado(request: Request)
+POST    /reportePorProyectoListaValorizado/				controllers.MnuReportes.reportePorProyectoListaValorizado(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# MENU BODEGA
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GET		/sucursalAdministrar/							controllers.MnuBodegas.sucursalAdministrar(request: Request)
+POST	/sucursalElimina/								controllers.MnuBodegas.sucursalElimina(request: Request)
+POST	/sucursalModifica/								controllers.MnuBodegas.sucursalModifica(request: Request)
+GET		/sucursalAgrega/								controllers.MnuBodegas.sucursalAgrega(request: Request)
+POST	/sucursalNuevo/									controllers.MnuBodegas.sucursalNuevo(request: Request)
+POST	/modificaSucursalPorCampoAjax/					controllers.MnuBodegas.modificaSucursalPorCampoAjax(request: Request)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# AJAX JSON VISTAS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+POST	/movimientoSelectModificar2/		controllers.MnuMovimientos.movimientoSelectModificar2(request: Request)
+POST	/clienteMantencion2/				controllers.MnuTablas.clienteMantencion2(request: Request)
+POST	/clienteCambiaEstado/				controllers.MnuTablas.clienteCambiaEstado(request: Request)
+
+
+# SOLO DOM:
+GET     /domStockDiarioExcel0/					controllers.MnuReportes.domStockDiarioExcel0(request: Request)
+POST    /domStockDiarioExcel1/					controllers.MnuReportes.domStockDiarioExcel1(request: Request)
+
+
+
+
+
+
+
+
+
+
+
+
+
+

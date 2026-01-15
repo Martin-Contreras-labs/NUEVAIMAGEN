@@ -1,0 +1,85 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+coti: tables.CotizaEstado)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR/ELIMINAR ESTADOS COTIZACION", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td>
+							<div class="row">
+								<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+									<b><font color="#008000">ESTADO:</font></b>
+								</div>
+								<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+									<input type="hidden" name="id_cotizaEstado" value="@coti.getId()">
+									<input type="text" class="form-control"
+										id="estado"
+										maxlength="50"
+										onkeydown="return sinReservados(window.event)"
+										value="@coti.getEstado()"
+										onchange="value = value.trim(); modificarEstado(id)">
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/cotizaEstadoMantencion/';">
+				</div>
+			</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarEstado = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_cotizaEstado','@coti.getId()');
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaCotizaEstadoPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El nombre de estado ya existe, intente con otro', function () {
+	     				$("#estado").val("@coti.getEstado()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+</script>
+
+
+		
+		
+	

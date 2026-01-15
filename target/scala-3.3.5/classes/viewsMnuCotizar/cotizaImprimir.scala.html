@@ -1,0 +1,449 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+id_cotizacion: Long, tabla: String, listGrupos: List[tables.Grupo], tasaIva: String )
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+		
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "COTIZACION", "")
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  
+							value="Imprimir" class="btn btn-primary btn-sm rounded-pill btn-block" 
+							onclick="window.print(); return false;">
+					</div>
+					<div class="col-xs-5 col-sm-4 col-md-3 col-lg-2">
+						<input type="button"  
+							value='PDF @mapDiccionario.get("Arriendo")' class="btn btn-secondary btn-sm rounded-pill btn-block" 
+							onclick='$("#modalCFI").modal("show")'>
+					</div>
+					<div class="col-xs-5 col-sm-4 col-md-3 col-lg-2">
+						<input type="button"  
+							value="PDF Venta" class="btn btn-secondary btn-sm rounded-pill btn-block" 
+							onclick="tipoCambio();">
+					</div>
+					<div class="col-xs-5 col-sm-4 col-md-3 col-lg-2">
+						<form id='formArrVta' method='post' action='/pdfCotizaArrVta/' onsubmit="return validarForm();">
+							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
+							<input type="hidden" id="sinDetCotArrVta" name="sinDetalle" value="0">
+							<input type="hidden" id="selectGrupos" name="selectGrupos" value="">
+							<input type="hidden" id="tasaIvaArrVta" name="tasaIva" value="@tasaIva">
+							
+							@if(mapPermiso.get("parametro.cotizaCon_o_sinDetalle")!=null && mapPermiso.get("parametro.cotizaCon_o_sinDetalle").equals("1")){
+								<input type="button"  value="PDF @mapDiccionario.get("Arriendo") y Venta" class="btn btn-secondary btn-sm rounded-pill btn-block" 
+									onclick="$('#modalArrVta').modal('show');">
+							}else{
+								<input type="submit" id="btnSubmit1"  
+									value="PDF @mapDiccionario.get("Arriendo") y Venta" class="btn btn-secondary btn-sm rounded-pill btn-block">
+							}
+						</form>
+					</div>
+					<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1">
+						<form action="/cotizaExcel/" method="POST" onsubmit="return validarForm();">
+							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
+							<input type="submit" id="btnSubmit2" class="btn btn-info btn-sm rounded-pill btn-block" value="Excel">
+						</form>
+						
+					</div>
+				</div>
+				<br><br>
+			</div>
+			
+			<div id="element">
+				<div class="row  justify-content-md-center">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						@Html(tabla)
+					</div>
+				</div>
+			</div>
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" 
+							onclick="location.href='/cotizaListaImprimirPeriodo/';">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id='modalCFI' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+						<form id='formCFI' method='post' action='/pdfCotizaArriendo/' onsubmit="return validarForm();">
+							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
+							<input type="hidden" id="sinDetCotArr" name="sinDetalle" value="0">
+							<input type="hidden" id="noSeConsidera" name="selectGrupos" value="">
+							
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">COSTO FIJO INICIAL</span>
+						  		</div>
+						  		<input type="text" class="form-control center"
+									name="cfi"
+									value="0.00 %"
+									onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
+									onkeydown="return ingresoDouble(window.event)"
+									autocomplete="off"
+									onchange="value = formatPorcentaje(value);">
+							</div>
+							
+							@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")){
+								<br>
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">TASA IMPUESTO IVA</span>
+							  		</div>
+							  		<input type="text" class="form-control center"
+										name="tasaIva"
+										value="@tasaIva"
+										onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
+										onkeydown="return ingresoDouble(window.event)"
+										autocomplete="off"
+										onchange="value = formatPorcentaje(value);">
+								</div>
+							}else{
+								<input type="hidden" name="tasaIva" value=@tasaIva>
+							}
+							
+							<br>
+								@if(mapPermiso.get("parametro.cotizaCon_o_sinDetalle")!=null && mapPermiso.get("parametro.cotizaCon_o_sinDetalle").equals("1")){
+									<div class="form-check" onchange="$('#sinDetCotArr').val('0');">
+	  									<input type="radio" class="form-check-input" id="radio1b" name="optradioB" value="option1" checked>CON DETALLE
+	  									<label class="form-check-label" for="radio1b"></label>
+									</div>
+									<div class="form-check" onchange="$('#sinDetCotArr').val('1');">
+	  									<input type="radio" class="form-check-input" id="radio2b" name="optradioB" value="option2">SIN DETALLE
+	  									<label class="form-check-label" for="radio2b"></label>
+									</div>
+									
+									<br>
+								}
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="submit" id="btnSubmit3" class="btn btn-sm btn-primary" value='Generar' onclick='$("#modalCFI").modal("hide")'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id='modalTipoCambio' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+						<form id='formTipoCambio' method='post' action='/pdfCotizaVenta/' onsubmit="return validarForm();">
+							<input type="hidden" name="id_cotizacion" value="@id_cotizacion">
+							<input type="hidden" id="sinDetCotVta" name="sinDetalle" value="0">
+							<input type="hidden" id="tasaIvaVta" name="tasaIva" value="@tasaIva">
+							
+							<div class="input-group">
+						  		<div class="input-group-prepend">
+						    		<span class="input-group-text" id="basic-addon1">TIPO DE CAMBIO</span>
+						  		</div>
+						  		<input type="text" class="form-control center"
+									name="tipoCambio"
+									value="1.00"
+									onfocus="value = value.replace(/,/g,'').trim()"
+									onkeydown="return ingresoDouble(window.event)"
+									autocomplete="off"
+									onchange="value = formatStandar(value, 2);">
+							</div>
+							<br>
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="submit" id="btnSubmit4" class="btn btn-sm btn-primary" value='Generar' onclick='$("#modalCFI").modal("hide")'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<div id='modalArrVta' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+					
+								@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")){
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">TASA IMPUESTO IVA</span>
+								  		</div>
+								  		<input type="text" class="form-control center"
+											value="@tasaIva"
+											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
+											onkeydown="return ingresoDouble(window.event)"
+											autocomplete="off"
+											onchange="value = formatPorcentaje(value); $('#tasaIvaArrVta').val(value);">
+									</div>
+									<br>
+								}else{
+									<input type="hidden" name="tasaIva" value=@tasaIva>
+								}
+							
+						  		<div class="form-check" onchange="$('#sinDetCotArrVta').val('0');">
+  									<input type="radio" class="form-check-input" id="radio1c" name="optradioC" value="option1" checked>CON DETALLE
+  									<label class="form-check-label" for="radio1c"></label>
+								</div>
+								<div class="form-check" onchange="$('#sinDetCotArrVta').val('1');">
+  									<input type="radio" class="form-check-input" id="radio2c" name="optradioC" value="option2">SIN DETALLE
+  									<label class="form-check-label" for="radio2c"></label>
+								</div>
+								<div class="form-check" onchange="$('#sinDetCotArrVta').val('2'); ">
+	  									<input type="radio" class="form-check-input" id="radio3c" name="optradioC" value="option3" 
+											onclick='$("#modalArrVta").modal("hide"); $("#modalSelectGrupos").modal("show")'>POR GRUPO (selectivo)
+	  									<label class="form-check-label" for="radio2b"></label>
+								</div>
+									
+								<br>
+							
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="button" class="btn btn-sm btn-primary" value='Generar' onclick='$("#modalArrVta").modal("hide");$("#formArrVta").submit();'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id='modalVta' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+					
+								@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")){
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">TASA IMPUESTO IVA</span>
+								  		</div>
+								  		<input type="text" class="form-control center"
+											value="@tasaIva"
+											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
+											onkeydown="return ingresoDouble(window.event)"
+											autocomplete="off"
+											onchange="value = formatPorcentaje(value); $('#tasaIvaVta').val(value);">
+									</div>
+									<br>
+								}else{
+									<input type="hidden" name="tasaIva" value=@tasaIva>
+								}
+								
+						  		<div class="form-check" onchange="$('#sinDetCotVta').val('0');">
+  									<input type="radio" class="form-check-input" id="radio1a" name="optradioA" value="option1" checked>CON DETALLE
+  									<label class="form-check-label" for="radio1a"></label>
+								</div>
+								<div class="form-check" onchange="$('#sinDetCotVta').val('1');">
+  									<input type="radio" class="form-check-input" id="radio2a" name="optradioA" value="option2">SIN DETALLE
+  									<label class="form-check-label" for="radio2a"></label>
+								</div>
+								<br>
+							
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="button" class="btn btn-sm btn-primary" value='Generar' onclick='$("#modalVta").modal("hide");$("#formTipoCambio").submit();'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id='modalSelectGrupos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+			<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+				<div class='modal-content'>
+					<div class='modal-header'>
+					        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					        </button>
+					</div>
+					<div class='modal-body'>
+							<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>
+										<TH>GRUPO</TH>
+										<th></th>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista <- listGrupos){
+										<tr>
+											<td>
+												@lista.getNombre()
+											</td>
+											<td  style="text-align:center;">
+												<input type="checkbox" id="check_@lista.getId()" value ="0" 
+													onchange="cambiaEstado(id, value, '@lista.getId()')"></td>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						  		
+							
+							
+							<div class='row'>
+								<div class='col-sm-12' style='text-align:center'>
+									<input type="button" class="btn btn-sm btn-primary" value='Seleccionar' onclick='$("#modalSelectGrupos").modal("hide"); $("#modalArrVta").modal("show")'>
+									<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	function tipoCambio(){
+		if('@mapDiccionario.get("nEmpresa")' == 'MONTAX'){
+			$('#modalTipoCambio').modal('show');
+		}else{
+			if('@mapPermiso.get("parametro.cotizaCon_o_sinDetalle")'!=null && '@mapPermiso.get("parametro.cotizaCon_o_sinDetalle")' == 1){
+				$('#modalVta').modal('show');
+			}else{
+				$("#formTipoCambio").submit();
+			}
+		}
+	}
+	
+	
+	const cambiaEstado = (auxId, valor, id_grupo) => {
+		if(valor==0) {
+			$("#"+auxId).val("1");
+			let aux = ""+$("#selectGrupos").val()+ id_grupo + ";"
+			$("#selectGrupos").val(aux);
+		}else{
+			$("#"+auxId).val("0");
+			let aux = ""+ id_grupo + ";"
+			$("#selectGrupos").val($("#selectGrupos").val().replace(aux,""));
+		}
+	}
+	
+	
+	function exportarExcel(element, filename){
+	    var html = document.getElementById(element).innerHTML;
+	
+	    var blob = new Blob(['ufeff', html], {
+	        type: 'application/msexcel'
+	    });
+	    
+	    // Specify link url
+	    var url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
+	    
+	    // Specify file name
+	    filename = filename?filename+'.xls':filename;
+	    
+	    // Create download link element
+	    var downloadLink = document.createElement("a");
+	
+	    document.body.appendChild(downloadLink);
+	    
+	    if(navigator.msSaveOrOpenBlob ){
+	        navigator.msSaveOrOpenBlob(blob, filename);
+	    }else{
+	        // Create a link to the file
+	        downloadLink.href = url;
+	        
+	        // Setting the file name
+	        downloadLink.download = filename;
+	        
+	        //triggering the function
+	        downloadLink.click();
+	    }
+	    
+	    document.body.removeChild(downloadLink);
+	}
+	
+	function exportarWord(element, filename){
+	    var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+	    var postHtml = "</body></html>";
+	    var html = preHtml+document.getElementById(element).innerHTML+postHtml;
+	
+	    var blob = new Blob(['ufeff', html], {
+	        type: 'application/msword'
+	    });
+	    
+	    // Specify link url
+	    var url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+	    
+	    // Specify file name
+	    filename = filename?filename+'.doc':filename;
+	    
+	    // Create download link element
+	    var downloadLink = document.createElement("a");
+	
+	    document.body.appendChild(downloadLink);
+	    
+	    if(navigator.msSaveOrOpenBlob ){
+	        navigator.msSaveOrOpenBlob(blob, filename);
+	    }else{
+	        // Create a link to the file
+	        downloadLink.href = url;
+	        
+	        // Setting the file name
+	        downloadLink.download = filename;
+	        
+	        //triggering the function
+	        downloadLink.click();
+	    }
+	    
+	    document.body.removeChild(downloadLink);
+	}
+	
+	const validarForm = () =>{
+		$("#btnSubmit1").attr('disabled',true);
+		$("#btnSubmit2").attr('disabled',true);
+		$("#btnSubmit3").attr('disabled',true);
+		$("#btnSubmit4").attr('disabled',true);
+		return(true);
+	}
+	
+
+
+	
+</script>
+
+
+		
+		
+	

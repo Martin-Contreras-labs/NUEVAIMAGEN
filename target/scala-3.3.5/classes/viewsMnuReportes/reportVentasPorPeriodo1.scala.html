@@ -1,0 +1,183 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: List[List[String]], fechaDesde: String, fechaHasta: String, usd: Double, eur: Double, uf: Double, 
+desdeDDMMAA: String, hastaDDMMAA: String)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera1"></div><div id="msgEspera2"></div></h1></div>
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "REPORTE VENTAS POR PERIODO","(SOLO CLIENTES)")
+			<div class="noprint">
+				<div class="row">
+					<div class="col-1"></div>
+				  	<div class="col-5">
+				  	</div>
+				  	<div class="col-6">
+						<table class="table table-sm table-condensed table-fluid">
+							<tr>
+								<td>
+										<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+											Exportar a Excel
+										</button>
+										<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+											Imprimir
+										</button>
+										<button type="button"  class="btn btn-sm btn-success" 
+											onclick="history.go(-1);return false;">
+											Volver
+										</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/routes2/reportVentasPorPeriodo1Excel/">
+				<input type="hidden" name="fechaDesde" value="@fechaDesde">
+				<input type="hidden" name="fechaHasta" value="@fechaHasta">
+				<input type="hidden" name="uf" value="@uf">
+				<input type="hidden" name="usd" value="@usd">
+				<input type="hidden" name="eur" value="@eur">
+			</form>
+			
+			
+			
+			
+			
+		<div class="row  justify-content-md-center">
+			
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<h5>Período desde @desdeDDMMAA a @hastaDDMMAA</h5>
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR> 
+								<TH style= "text-align: center;vertical-align: top;">FECHA</TH>
+						        <TH style= "text-align: center;vertical-align: top;">NRO. MOV</TH>
+						        <TH style= "text-align: center;vertical-align: top;">NRO. REF</TH>
+ 								<TH style= "text-align: center;vertical-align: top;">GUIA<br>PDF</TH>
+								<TH style= "text-align: center;vertical-align: top;">PATENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">CONDUCTOR</TH>
+							 	<TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+						        <TH style= "text-align: center;vertical-align: top;">@mapDiccionario("BODEGA") DESTINO</TH>
+								<TH style= "text-align: center;vertical-align: top;">CONCEPTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">TOTAL<br>NETO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- datos){
+								<TR>
+									<td style= "text-align: center;">
+										<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(0))</div>
+										@utilities.Fechas.DDMMAA(lista1.get(0))
+									</td>
+									<td style= "text-align: center;">@lista1.get(1)</td>
+									<td style= "text-align: center;">@lista1.get(2)</td>
+									<td style= "text-align: center;">
+										@if(lista1.get(3).equals("0")){
+											--
+										}else{
+											<a href="#" onclick="mostrarPDF('@lista1.get(3)')">
+												<kbd style="background-color: #85C1E9">pdf</kbd>
+											</a>
+										}
+									</td>
+									<td style= "text-align: left;">@lista1.get(4)</td>
+									<td style= "text-align: left;">@lista1.get(5)</td>
+									<td style= "text-align: center;">@lista1.get(9)</td>
+									<td style= "text-align: left;">@lista1.get(6)</td>
+									<td style= "text-align: left;">@lista1.get(7)</td>
+									<td style= "text-align: right;">@lista1.get(8)</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>MOVIMIENTO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 0, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+		document.getElementById('mostrarmostrar').style.display="block";
+			
+			
+	});
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	
+</script>
+
+
+
+
+		
+		
+	

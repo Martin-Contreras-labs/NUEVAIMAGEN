@@ -1,0 +1,332 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: List[List[String]], bodegaEmpresa: tables.BodegaEmpresa)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "TODO EL DETALLE POR ESTADO Y REPARACIONES",bodegaEmpresa.getNombre())
+		
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		
+		<div>
+			ALTERNAR COLUMNAS: 
+				<a class="toggle-vis" href="#" data-column="0"><kbd id="kdb0" style="background-color: #73C6B6">@mapDiccionario.get("Bodega")</kbd></a>
+				<a class="toggle-vis" href="#" data-column="1"><kbd id="kdb1" style="background-color: #73C6B6">Cliente</kbd></a>
+				<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">Nro Mov</kbd></a>
+				<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">Ref Clie</kbd></a>
+				<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">Fecha Guia</kbd></a>
+				<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">Codigo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">Equipo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">Cant Equipo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">Mon Equip</kbd></a>
+				<a class="toggle-vis" href="#" data-column="9"><kbd id="kdb9" style="background-color: #73C6B6">P.U. Equipo</kbd></a>
+				<a class="toggle-vis" href="#" data-column="10"><kbd id="kdb10" style="background-color: #73C6B6">KG</kbd></a>
+				<a class="toggle-vis" href="#" data-column="11"><kbd id="kdb11" style="background-color: #73C6B6">M2</kbd></a>
+				<a class="toggle-vis" href="#" data-column="12"><kbd id="kdb12" style="background-color: #73C6B6">Estado</kbd></a>
+				<a class="toggle-vis" href="#" data-column="13"><kbd id="kdb13" style="background-color: #73C6B6">Cant Estado</kbd></a>
+				<a class="toggle-vis" href="#" data-column="14"><kbd id="kdb14" style="background-color: #73C6B6">Sigla</kbd></a>
+				<a class="toggle-vis" href="#" data-column="15"><kbd id="kdb15" style="background-color: #73C6B6">Reparacion</kbd></a>
+				<a class="toggle-vis" href="#" data-column="16"><kbd id="kdb16" style="background-color: #73C6B6">Cant Repar</kbd></a>
+				<a class="toggle-vis" href="#" data-column="17"><kbd id="kdb17" style="background-color: #73C6B6">Mon Repar</kbd></a>
+				<a class="toggle-vis" href="#" data-column="18"><kbd id="kdb18" style="background-color: #73C6B6">P.U. Reparacion</kbd></a>
+		</div>
+    				
+    				
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+					<TR> 
+					        <TH style= "text-align: center; vertical-align: top;">@mapDiccionario.get("Bodega")</TH>
+							<TH style= "text-align: center; vertical-align: top;">Cliente</TH>
+					        <TH style= "text-align: center; vertical-align: top;">Nro Mov</TH>
+							<TH style= "text-align: center; vertical-align: top;">Ref Clie</TH>
+					        <TH style= "text-align: center; vertical-align: top;">Fecha Guia</TH>
+							@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+								<TH style= "text-align: center; vertical-align: top;">COBRA @mapDiccionario("ARR")</TH>
+							}else{
+								<TH style= "display:none"></TH>
+							}
+							<TH style= "text-align: center; vertical-align: top;">Codigo</TH>
+							<TH style= "text-align: center; vertical-align: top;">Equipo</TH>
+							<TH style= "text-align: center; vertical-align: top;">Cant Equipo</TH>
+							<TH style= "text-align: center; vertical-align: top;">Mon Equip</TH>
+							<TH style= "text-align: center; vertical-align: top;">P.U.<br>Equipo</TH>
+							<TH style= "text-align: center; vertical-align: top;">KG</TH>
+							<TH style= "text-align: center; vertical-align: top;">M2</TH>
+							<TH style= "text-align: center; vertical-align: top;">Estado</TH>
+							<TH style= "text-align: center; vertical-align: top;">Cant Estado</TH>
+							<TH style= "text-align: center; vertical-align: top;">Sigla</TH>
+							<TH style= "text-align: center; vertical-align: top;">Reparacion</TH>
+							<TH style= "text-align: center; vertical-align: top;">Cant Repar</TH>
+							<TH style= "text-align: center; vertical-align: top;">Mon Repar</TH>
+							<TH style= "text-align: center; vertical-align: top;">P.U.<br>Reparacion</TH>
+							<TH style= "text-align: center; vertical-align: top;">Total<br>Reparacion</TH>
+					</TR>
+				</thead>
+				<tbody>
+				@for(lista1 <- datos){
+					<TR>
+						<td style="text-align: left; vertical-align:middle;">@lista1.get(0)</td>
+						<td style="text-align: left; vertical-align:middle;">@lista1.get(18)</td>
+						<td style="text-align: center; vertical-align:middle;">@lista1.get(1)</td>
+						<td style="text-align: center; vertical-align:middle;">@lista1.get(17)</td>
+						<td style="text-align: center; vertical-align:middle;">
+							<span style="display:none">@lista1.get(2)</span>
+							@utilities.Fechas.DDMMAA(lista1.get(2))
+						</td>
+						@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+							<td  style="text-align:center;">
+								@if(lista1.get(21).equals("1")){
+									<div style="display: none">@lista1.get(19)</div>
+									<input type="hidden" id="select_@lista1.get(20)" value="@lista1.get(19)">
+									@if(lista1.get(19).equals("1")){
+										<input type="checkbox" id="selectCheck_@lista1.get(20)" checked onchange="modificaSelect('@lista1.get(20)');">
+									}else{
+										<input type="checkbox" id="selectCheck_@lista1.get(20)" onchange="modificaSelect('@lista1.get(20)');">
+										}
+								}
+							</td>
+						}else{
+							<td style= "display:none"></td>
+						}
+						<td style="text-align: left; vertical-align:middle;">@lista1.get(3)</td>
+						<td style="text-align: left; vertical-align:middle;">@lista1.get(4)</td>
+						<td style="text-align: right; vertical-align:middle;">@lista1.get(5)</td>
+						<td style="text-align: center; vertical-align:middle;">@lista1.get(6)</td>
+						<td style="text-align: right; vertical-align:middle;">@lista1.get(7)</td>
+						<td style="text-align: right; vertical-align:middle;">@lista1.get(15)</td>
+						<td style="text-align: right; vertical-align:middle;">@lista1.get(16)</td>
+						<td style="text-align: center; vertical-align:middle;">@lista1.get(8)</td>
+						<td style="text-align: right; vertical-align:middle;">@lista1.get(9)</td>
+						<td style="text-align: center; vertical-align:middle;">@lista1.get(10)</td>
+						<td style="text-align: left; vertical-align:middle;">@lista1.get(11)</td>
+						<td class="cant" style="text-align: right; vertical-align:middle;">@lista1.get(12)</td>
+						<td style="text-align: center; vertical-align:middle;">@lista1.get(13)</td>
+						<td class="pu" style="text-align: right; vertical-align:middle;">@lista1.get(14)</td>
+						<td class="total" style="text-align: right; vertical-align:middle;">suma</td>
+					</TR>
+	 			}
+				</tbody>
+				<tfoot style="background-color: #eeeeee">
+					<TR>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						@if(mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo")!=null && mapPermiso.get("parametro.cobraArriendoPorEstadoEquipo").equals("1")){
+							<TH></TH>
+						}else{
+							<TH style= "display:none"></TH>
+						}
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH></TH>
+						<TH style= "text-align: left; vertical-align: top;">TOTAL</TH>
+						<TH style= "text-align: right; vertical-align: top;" id="granTotal">total</TH>
+					</TR>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+	
+	<form id="excel" class="formulario" method="post" action="/reporteEstadosAll1Excel/">
+		<input type="hidden" name="id_bodegaEmpresa" value="@bodegaEmpresa.getId()">
+	</form>
+
+}
+
+
+<script>
+
+	$(document).ready(function() {
+		
+		$('#tablaPrincipal thead tr')
+        .clone(true)
+        .addClass('filters')
+        .appendTo('#tablaPrincipal thead');
+
+		 $('#tablaPrincipal').DataTable({
+				"orderCellsTop": true,
+		    	"fixedHeader": true,
+			 	"lengthMenu": [[-1, 20, 50, 100, 200], ["All",20, 50, 100, 200]],
+		    	"paging": true,
+		    	"order": [[ 0, "asc" ],[ 4, "asc" ],[ 2, "asc" ]],
+				"info": true,
+				"searching": true,
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        },
+		        initComplete: function () {
+	            var api = this.api();
+
+	            // For each column
+	            api
+	                .columns()
+	                .eq(0)
+	                .each(function (colIdx) {
+	                    // Set the header cell to contain the input element
+	                    var cell = $('.filters th').eq(
+	                        $(api.column(colIdx).header()).index()
+	                    );
+	                    var title = $(cell).text();
+	                    $(cell).html('<input type="text" class="form-control form-control-sm" placeholder="' + title + '" />');
+	 
+	                    // On every keypress in this input
+	                    $(
+	                        'input',
+	                        $('.filters th').eq($(api.column(colIdx).header()).index())
+	                    )
+	                        .off('keyup change')
+	                        .on('change', function (e) {
+	                            // Get the search value
+	                            $(this).attr('title', $(this).val());
+	                            var regexr = '({search})'; //$(this).parents('th').find('select').val();
+	 
+	                            var cursorPosition = this.selectionStart;
+	                            // Search the column for that value
+	                            api
+	                                .column(colIdx)
+	                                .search(
+	                                    this.value != ''
+	                                        ? regexr.replace('{search}', '(((' + this.value + ')))')
+	                                        : '',
+	                                    this.value != '',
+	                                    this.value == ''
+	                                )
+	                                .draw();
+	                        })
+	                        .on('keyup', function (e) {
+	                            e.stopPropagation();
+	 
+	                            $(this).trigger('change');
+	                            $(this)
+	                                .focus()[0]
+	                                .setSelectionRange(cursorPosition, cursorPosition);
+	                        });
+	                });
+	        	}
+		 } );
+		  
+	   $('a.toggle-vis').on('click', function (e) {
+			e.preventDefault();
+			// Get the column API object
+			let col = $(this).attr('data-column');
+			var column = $('#tablaPrincipal').DataTable().column(col);
+			// Toggle the visibility
+			column.visible(!column.visible());
+			if(column.visible()){
+				document.getElementById('kdb'+col).style.backgroundColor = "#73C6B6";
+			}else{
+				document.getElementById('kdb'+col).style.backgroundColor = "#D6DBDF";
+			}
+		});
+		let granTotal = 0;
+		document.querySelectorAll('#tablaPrincipal tr').forEach(fila => {
+			const cantElement = fila.querySelector('.cant');
+			const puElement = fila.querySelector('.pu');
+			const totalElement = fila.querySelector('.total');
+			if (cantElement && puElement && totalElement) {
+				// Limpiar el texto de cualquier formato previo
+				const cant = parseFloat(cantElement.textContent.replace(/[^\d.-]/g, '')) || 0;
+				const pu = parseFloat(puElement.textContent.replace(/[^\d.-]/g, '')) || 0;
+				// Calcular y formatear el resultado
+				const resultado = cant * pu;
+				granTotal += resultado;
+				totalElement.textContent = formatStandar(resultado,0);
+			}
+		});
+		$("#granTotal").text(formatStandar(granTotal,0));
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+	const modificaSelect = (id_movimiento) => {
+		let select = $("#select_"+id_movimiento).val();
+		if(select == 1){
+			modificaSelect2(id_movimiento, 0);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(0);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', false);
+			});
+		}else{
+			modificaSelect2(id_movimiento, 1);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(1);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', true);
+			});
+		}
+	}
+
+	const modificaSelect2 = (id_movimiento, valor) => {
+		let formData = new FormData();
+		formData.append('id_movimiento',id_movimiento);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/routes3/modCobraArriendoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
+	}
+	
+</script>
+
+
+
+
+		
+		
+	

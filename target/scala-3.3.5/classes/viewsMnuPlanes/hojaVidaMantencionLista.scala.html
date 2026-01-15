@@ -1,0 +1,376 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listaPlanes: List[tables.PlanMantencion], fecha: String, flagModal: Long)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "PLANES DE MANTENCION EQUIPOS","CREAR/MODIFICAR")
+		<div class="row  justify-content-md-center">
+			@if(mapPermiso.get("planHojaVida")!=null && mapPermiso.get("importaHojaVidaIconstruye")!=null){
+				<button type="button" class="btn btn-sm  btn-info" style="font-size: 10px; width: 250px" onclick="$('#modalCargaMasiva').modal('show')">CARGA MASIVA</button>
+			}
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<div align="center">
+									<button type="button" class="btn btn-sm btn-success" onclick="window.print(); return false;">
+										Imprimir
+									</button>
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button"  class="btn btn-sm btn-success"
+									onclick="location.href='/home/';">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<form id="excel" class="formulario" method="post" action="/hojaVidaMantencionListaExcel/"></form>
+
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH  style= "text-align: center;">GRUPO</TH>
+					        <TH  style= "text-align: center;">CODIGO</TH>
+							<TH  style= "text-align: center;">EQUIPO</TH>
+							
+							<TH  style= "text-align: center;">PLAN</TH>
+							<TH style="text-align:center">FECHA<BR>LECTURA</TH>
+							<TH style="text-align:center">UN</TH>
+							<TH style="text-align:center">LECTURA</TH>
+							<TH style="text-align:center">ROTACION</TH>
+							<TH style="text-align:center">CONSUMO<BR>PROM MES</TH>
+							<TH style="text-align:center">PROXIMA<br>MANTENCION</TH>
+							<TH style="text-align:center">FECHA ESTIMADA<br>MANTENCION</TH>
+							
+							<TH style="text-align:center">CONSUMO<BR>ESTIMADO</TH>
+							
+							<TH style="text-align:center" title="Verde al día. Amarillo esta entre el 25% y 10% de la rotación. Rojo se debe hacer mantención.">DIFERENCIA</TH>
+								
+							<TH style="text-align:center">PLAN</TH>
+							<TH style="text-align:center">HOJA</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listaPlanes){
+							<TR>
+								<td style="text-align:left;">@lista1.equipoGrupo</td>
+								<td style="text-align:center;">@lista1.equipoCodigo</td>
+								<td style="text-align:left;">@lista1.equipoNombre</td>
+								
+								<td style="text-align:left;">@lista1.tipoPlanNombre</td>
+								<td style="text-align:center">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.fechaReset)</div>
+									<input type="hidden" class="fechaReset" value="@utilities.Fechas.AAMMDD(lista1.fechaReset)">
+									@lista1.fechaReset
+								</td>
+								<td style="text-align:center">@lista1.unidadMantencion</td>
+								<td style="text-align:right">
+									<input type="hidden" class="estadoActual" value="@lista1.estadoActual">
+									@lista1.estadoActual
+								</td>
+								<td style="text-align:right">@lista1.cadaNEstimado</td>
+								<td style="text-align:right">
+									<input type="hidden" class="consumoEstimadoPorMes" value="@lista1.consumoEstimadoPorMes">
+									@lista1.consumoEstimadoPorMes
+								</td>
+								
+								
+								<td style="text-align:right;">
+									<input type="hidden" class="proximaMantencion" value="@lista1.proximaMantencion">
+									@lista1.proximaMantencion
+								</td>
+								
+								<td style="text-align:center">
+									<div class="auxFechaEstimada" style="display: none"></div>
+									<input type="date" class="fechaEstimada form-control center" disabled>
+								</td>
+								
+								<td style="text-align:right;">@lista1.consumoEstimadoAHoy</td>
+								
+								@if(MnuPlanes.esMayor(lista1.consumoEstimadoAHoy,lista1.proximaMantencion)){
+									<td style="text-align:right; background-color:red" title="Falta Mantención Urgente">@lista1.diferencia</td>
+								}else{
+									@if(MnuPlanes.pintaColor(lista1.consumoEstimadoAHoy,lista1.proximaMantencion,lista1.cadaNEstimado).equals("verde")){
+										<td style="text-align:right; background-color:green" title="Mantención al Día">@lista1.diferencia</td>
+									}else{
+										@if(MnuPlanes.pintaColor(lista1.consumoEstimadoAHoy,lista1.proximaMantencion,lista1.cadaNEstimado).equals("amarillo")){
+											<td style="text-align:right; background-color:yellow" title="Próximo a requerir Mantención">@lista1.diferencia</td>
+										}else{
+											<td style="text-align:right; background-color:red" title="Requiere Mantención">@lista1.diferencia</td>
+										}
+									}
+								}
+								
+								<td  style="text-align:center;">
+									<form id="formplan_@lista1.id_tipoPlan&@lista1.id_equipo" method="post" action="/hojaVidaMantencionPlan/">
+										<input type="hidden" name="id_equipo" value="@lista1.id_equipo">
+										<a href="#" onclick='document.getElementById("formplan_@lista1.id_tipoPlan&@lista1.id_equipo").submit();'>
+											<kbd style="background-color: #73C6B6">Mant_PLAN</kbd>
+										</a>
+									</form>
+								</td>
+								<td  style="text-align:center;">
+									<form id="formhoja_@lista1.id_tipoPlan&@lista1.id_equipo" method="post" action="/hojaVidaMantencionHoja/">
+										<input type="hidden" name="id_equipo" value="@lista1.id_equipo">
+										<a href="#" onclick='document.getElementById("formhoja_@lista1.id_tipoPlan&@lista1.id_equipo").submit();'>
+											<kbd style="background-color: rgb(50, 215, 75)">Mant_HOJA_VIDA</kbd>
+										</a>
+									</form>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>	
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="modalCargaMasiva" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+		      <!--
+		        <h5 class="modal-title">Carga masiva desde IConstruye</h5>
+		       -->
+		       
+	         <h5 class="modal-title">CARGA MASIVA</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        
+			<div class="row">
+				<div class="col-sm-12" style="text-align:center">
+
+					<form id="importPlantilla" action="/detalleProductoUploadIConstruye/" method="POST" enctype="multipart/form-data">
+						<span class="btn btn-primary btn-lg btn-file" style="font-size: 8px;">
+							<div>PASO 1: SUBIR PROD_DET (IConstruye)</div>
+							<input type="file" id="archivoXLSX" name="archivoXLSX" value="" onchange="subirArchivo(this.form, this.form.archivoXLSX.value)">
+						</span>
+					</form>
+					
+					<br>
+					
+					<form action="/detalleProductoDownloadMada/" method="POST">
+						<input type="submit" class="btn btn-secondary btn-lg btn-file" style="font-size: 8px;" value="PASO 2: BAJAR PLANTILLA (Mada)">
+						
+					</form>
+					
+					<br>
+					
+					<form id="importPlantilla2" action="/detalleProductoUploadMada/" method="POST" enctype="multipart/form-data">
+						<span class="btn btn-success btn-lg btn-file" style="font-size: 8px;">
+							<div>PASO 3: SUBIR PLANTILLA (Mada)</div>
+							<input type="file" id="archivoXLSX2" name="archivoXLSX" value="" onchange="subirArchivo2(this.form, this.form.archivoXLSX2.value)">
+						</span>
+					</form>
+
+					
+					
+					<br>
+					<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+				</div>
+			</div>
+			<br>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	
+	
+	
+	
+	<div id="modalBajarArchivo" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+	  <div class="modal-dialog modal-sm modal-dialog-scrollable" role="document">
+	    <div class="modal-content">
+	    	<div class="modal-header">
+		        <h5 class="modal-title">Enviar Excel de IConstruye por eMail</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		    </div>
+		    <div class="modal-body">
+	    
+				<form action="/plantillaIConstruyeDownload/" method="POST" onsubmit="return validarForm();">
+			
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH colspan="2">PERIODO A CONSIDERAR<br>(no mayor a 31 días)</TH>
+							</TR>
+							<TR>
+								<TH>FECHA DESDE:</TH>
+								<td>
+									<input type="date" class="form-control center"
+										id="fechaDesde"
+							  			name="fechaDesde"
+							  			value="@fecha"
+					        			required>
+								</td>
+							</TR>
+							<TR>
+								<TH>FECHA HASTA:</TH>
+								<td>
+									<input type="date" class="form-control center"
+										id="fechaHasta"
+							  			name="fechaHasta"
+							  			value="@fecha"
+					        			required>
+								</td>
+							</TR>
+							<TR>
+								<TH>ENVIAR A EMAIL:</TH>
+								<td>
+									<input type="email" class="form-control center"
+										id="sendToEmail"
+							  			name="sendToEmail"
+					        			required>
+								</td>
+							</TR>
+						</thead>
+					</table>
+					<div class="row  justify-content-md-center">
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+							<input type="submit" value='Obtener OC' class="btn btn-primary btn-sm rounded-pill btn-block">
+						</div>
+					</div>
+					
+				</form>
+			</div>
+		 </div>
+	  </div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  calcFechaProxima();
+		$('#tablaPrincipal').DataTable({
+			"fixedHeader": true,
+			"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+			"order": [[ 0, "asc" ],[ 1, "asc" ],[ 3, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		});
+
+		document.getElementById('mostrarmostrar').style.display="block";
+		  if('@flagModal'=='1'){
+			$('#modalCargaMasiva').modal('show');
+		  }
+	});
+	
+	const calcFechaProxima = () =>{
+		let filas = $(".estadoActual").length;
+			let hoy = new Date();
+			
+			for(let i=0; i<filas; i++){
+				let fecha = $(".fechaReset")[i].value;
+				let proxima =  $(".proximaMantencion")[i].value;
+				proxima = proxima.replace(/,/g,'');
+				let actual =  $(".estadoActual")[i].value;
+				actual = actual.replace(/,/g,'');
+				let rotacion =  $(".consumoEstimadoPorMes")[i].value;
+				rotacion = rotacion.replace(/,/g,'');
+				let dif = parseFloat(proxima) - parseFloat(actual);
+				if(dif <= 0 || parseFloat(rotacion) <= 0){
+					$(".auxFechaEstimada")[i].innerText = fechaAAMMDD(hoy);
+					$(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+				}else{
+					let diasASumar = dif/rotacion * 30;
+					let aux = fecha.split("-");
+					let auxFecha = new Date(aux[0],parseInt(aux[1])-1,aux[2]);
+					auxFecha.setDate(auxFecha.getDate() + diasASumar);
+					$(".auxFechaEstimada")[i].innerText = fechaAAMMDD(auxFecha);
+					$(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+				}
+			}
+	}
+	
+	const validarForm = () =>{
+		let flag = true;
+		var desde = Date.parse(document.getElementById('fechaDesde').value);
+		var hasta = Date.parse(document.getElementById('fechaHasta').value);
+		var diffDias = Math.floor((hasta - desde)/(1000 * 60 * 60 * 24))+1;
+		
+		if(desde > hasta){
+			flag = false;
+			alertify.alert('LA FECHA INICIAL NO PUEDE SER MAYOR A LA FECHA FINAL', function () {
+				return(flag);
+     		});
+		}
+		
+		if(diffDias > 31){
+			flag = false;
+			alertify.alert('EL PERIODO NO PUEDE SER MAYOR A 31 DIAS', function () {
+				return(flag);
+     		});
+		}
+		
+		return(flag);
+	}
+	
+	let extArray2 = new Array(".xls", ".xlsx");
+	function subirArchivo(form, file) {
+		allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1)
+			file = file.slice(file.indexOf("\\") + 1);
+		ext = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray2.length; i++) {
+			if (extArray2[i] == ext) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			$("#importPlantilla").submit();
+		}else{
+			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
+			+ (extArray2.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.archivoXLSX.value="";
+		}
+	}
+	function subirArchivo2(form, file) {
+		allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1)
+			file = file.slice(file.indexOf("\\") + 1);
+		ext = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray2.length; i++) {
+			if (extArray2[i] == ext) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			$("#importPlantilla2").submit();
+		}else{
+			alertify.alert("Se permiten &uacute;nicamente archivos con la extenci&oacute;n: " 
+			+ (extArray2.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.archivoXLSX2.value="";
+		}
+	}
+</script>
+
+
+		
+		
+	

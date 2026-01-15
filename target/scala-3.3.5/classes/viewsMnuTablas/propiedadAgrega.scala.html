@@ -1,0 +1,60 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR NUEVA PROPIEDAD EQUIPO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/routes2/propiedadGraba/">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">NOMBRE: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="nombre"
+									autocomplete="off"
+									maxlength="100"
+								    required
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<div id="mensajePorProyecto" align="center"></div>
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit"  value="GRABAR PROPIEDAD" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/routes2/propiedadMantencion/';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+	  	document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+
+
+</script>
+
+		
+	

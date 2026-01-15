@@ -1,0 +1,679 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodegaOrigen: tables.BodegaEmpresa, listEquipBodOrigen: List[List[String]], bodegaDestino: tables.BodegaEmpresa,
+nuevoNumeroGuia: Long, hoy: String, listEquipNoEnBodOrigen: List[List[String]], listTipoEstado: List[tables.TipoEstado], listTipoReparacion: List[tables.TipoReparacion],
+listaTransporte: List[tables.Transportista], 
+sucursal: tables.Sucursal, comercial: tables.Comercial,
+sinVenta: String)
+
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>Ahora se esta cargando.....</h1></div>
+
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+
+	<script>
+		let auxBueno = -1;
+		let auxIndex = -1;
+	</script>
+
+	<form action="/cierreAplicar/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
+		<div id="mostrarmostrar" style="display:none;">
+
+			@barraTitulo(mapDiccionario, mapDiccionario.get("BODEGA")+"/PROYECTO PARA CIERRE", "(este proceso permite vender o pasar a baja todo el saldo de stock)")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="50%" colspan="2">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Origen</span>
+								  		</div>
+								  		<input type="hidden" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
+	  									<input type="text" class="form-control"
+	  										value="@bodegaOrigen.getNombre().toUpperCase"
+	  										readonly>
+									</div>
+									<input type="hidden" name="id_bodegaDestino" id="id_bodegaDestino" value="@bodegaDestino.getId()">
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
+								  		</div>
+											@if(mapPermiso.get("parametro.bloqueoNrosMovimientos")!=null && mapPermiso.get("parametro.bloqueoNrosMovimientos").equals("1")){
+												<input type="text" class="form-control left"
+									  				name="numeroGuia"
+													id="numeroGuia"
+													value = "@nuevoNumeroGuia"
+													readonly
+													required>
+											}else{
+												<input type="text" class="form-control left"
+									  				name="numeroGuia"
+													id="numeroGuia"
+													value = "@nuevoNumeroGuia"
+													onkeydown="return ingresoInt(window.event)"
+													onchange="verificarNumeroGuia(value)"
+													autocomplete="off"
+													required>
+											}
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
+								  		</div>
+								  		<input type="text" class="form-control left"
+								  				name="numGuiaCliente"
+								  				autocomplete="off"
+								  				maxlength="50">
+									</div>
+								</td>
+								<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 10px; display: inline-block">
+										<input type="hidden" name="docAnexo" value="0">
+										<div id="txtBtn">Subir Documento</div>
+										<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos"
+											onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
+									</span>
+								</td>
+							</tr>
+
+
+							<tr>
+								<td align="center">
+									<input type="hidden" id="id_sucursalOrigen" name="id_sucursalOrigen" value="@sucursal.getId()">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+								  		</div>
+											<input type="text" class="form-control left"
+												value = "@sucursal.getNombre()"
+												readonly>
+									</div>
+								</td>
+								<td align="center">
+									<input type="hidden" id="id_sucursalDestino" name="id_sucursalDestino">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+								  		</div>
+											<input type="text" id="nameSucursalDestino" class="form-control left"
+											    value="@bodegaDestino.getNameSucursal()"
+												readonly>
+									</div>
+								</td>
+
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaGuia"
+										id="fechaGuia"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),@mapPermiso.get("parametro.diasMasGuia"))) {value='@hoy';$('#fechaIniTerGuia').val(value);} else {$('#fechaIniTerGuia').val(value);}"
+										value="@hoy"
+										required>
+									</div>
+								</td>
+
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaIniTerGuia"
+										id="fechaIniTerGuia"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosIniTer"),@mapPermiso.get("parametro.diasMasIniTer"))) value='@hoy';"
+										value="@hoy"
+										required>
+									</div>
+								</td>
+
+							</tr>
+							<tr>
+								<td align="center">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Comercial</span>
+								  		</div>
+											<input type="text" class="form-control left"
+												id = "nameComercial"
+												value = "@comercial.getNameUsuario()"
+												readonly>
+									</div>
+								</td>
+								<td align="center">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Cliente</span>
+								  		</div>
+											<input type="text" class="form-control left"
+												id = "nickCliente"
+												value = ""
+												readonly>
+									</div>
+								</td>
+								<td colspan="20" rowspan="3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Observaciones</span>
+										</div>
+										<textarea class="form-control" rows="2"
+										name="observaciones"
+										autocomplete="off"></textarea>
+									</div>
+								</td>
+							</tr>
+
+
+
+						</thead>
+					</table>
+
+
+					@if(bodegaOrigen.esInterna == 1){
+						<div class="noprint" align="center">
+							<div class="row justify-content-md-center" >
+								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+									<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block"
+										onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
+								</div>
+							</div>
+						</div>
+					}
+
+
+
+
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>GRUPO</TH>
+								<TH>Nro.@mapDiccionario.get("OT")</TH>
+								<TH with="80px">Fecha<br>@mapDiccionario.get("OT")</TH>
+								<TH>Nro.COTI</TH>
+								<TH>CODIGO</TH>
+								<TH>EQUIPO</TH>
+								<TH>KG</TH>
+						        <TH>M2</TH>
+						        <TH>UN</TH>
+								<TH>STOCK</TH>
+								<TH>SALIDA</TH>
+								<TH>TOT.KG</TH>
+								<TH>TOT.M2</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listEquipBodOrigen){
+								<TR>
+									<td  style="text-align:left;">
+										<input type="hidden" name="id_equipo[]" value="@lista1.get(0)">
+										<input type="hidden" name="id_cotizacion[]" value="@lista1.get(1)">
+										@lista1.get(2)
+									</td>
+
+									@if(lista1.get(10).equals("0") || lista1.get(10).equals("")){
+										<td style="text-align: center;">--</td>
+									}else{
+										<td style="text-align:center;" class="sorting_2">
+											<a href="#" onclick="verOt('@lista1.get(10)')">
+												<kbd style="background-color: rgb(90, 200, 245)">
+													<font color="green">@lista1.get(11)</font>
+												</kbd>
+											</a>
+										</td>
+									}
+
+									<td style="text-align: center;">
+										<div style="display: none;"> @utilities.Fechas.AAMMDD(lista1.get(12))</div>
+										@lista1.get(12)
+									</td>
+
+									@if(lista1.get(3).equals("0") || lista1.get(3).equals("")){
+										<td style="text-align: center;">--</td>
+									}else{
+										<td style="text-align: center;">@lista1.get(3)</td>
+									}
+
+									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');"><div class="codigo">@lista1.get(4)</div></a></td>
+									<td  style="text-align:left;"><a href="#" onclick="equipoDescripcion('@lista1.get(0)');">@lista1.get(5)</a></td>
+									<td  class="kgUnit" style="text-align:right;">@lista1.get(6)</td>
+									<td  class="m2Unit" style="text-align:right;">@lista1.get(7)</td>
+									<td  style="text-align:center;">@lista1.get(8)</td>
+									<td  style="text-align:right;">
+										<div class="verificaStock" id="stock_@lista1.get(0)_@lista1.get(1)">@lista1.get(9)</div>
+									</td>
+									<td  style="text-align:center;">
+										<div align="center">
+											<input type="text" class="cantidad form-control height23px right width80px"
+												name="cantidad[]"
+												id="cantidad_@lista1.get(0)_@lista1.get(1)"
+												value="@lista1.get(9)"
+												onfocus="value=value.replace(/,/g,''); cantAux = value;"
+												onkeydown="return ingresoDouble(window.event)"
+												autocomplete="off"
+												onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)',value,'@lista1.get(6)','@lista1.get(7)','@listTipoEstado.size()');">
+										</div>
+									</td>
+
+
+									<td style="text-align:right;"><div class="KG" id="KG_@lista1.get(0)_@lista1.get(1)">0.00</div></td>
+									<td style="text-align:right;">
+										<div class="M2" id="M2_@lista1.get(0)_@lista1.get(1)">0.00</div>
+										<input type="hidden" name="exceso[]"   id="exceso_@lista1.get(0)_@lista1.get(1)" value="0">
+										<input type="hidden" name="estados[]"   id="estados_@lista1.get(0)_@lista1.get(1)">
+										<input type="hidden" name="reparaciones[]"   id="reparaciones_@lista1.get(0)_@lista1.get(1)">
+										<input type="hidden" name="cantCliente[]"   id="cantCliente_@lista1.get(0)_@lista1.get(1)" value="0">
+										<input type="hidden" name="esVenta[]"   id="esVenta_@lista1.get(0)_@lista1.get(1)" value="0">
+										<input type="hidden" name="esNuevo[]"   id="esNuevo_@lista1.get(0)_@lista1.get(1)" value="0">
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+
+					<input type="hidden" id="cierreVentaBaja" name="cierreVentaBaja" value="">
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="submit"  value='Hacer Venta' onclick="$('#cierreVentaBaja').val('VENTA')" class="btn btn-info btn-sm rounded-pill btn-block" >
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input id="cancelar" type="button"  value="Cancelar" class="btn btn-warning btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="submit"  value='Enviar a Baja' onclick="$('#cierreVentaBaja').val('BAJA')" class="btn btn-info btn-sm rounded-pill btn-block">
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</form>
+
+
+
+
+	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>@mapDiccionario.get("ORDEN_DE_TRABAJO")</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaOt'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+}
+
+
+<style>
+	#tablaPrincipal td:nth-child(2) { text-align: center; }
+	#tablaPrincipal td:nth-child(3) { text-align: center; }
+	#tablaPrincipal td:nth-child(4) { text-align: center; }
+	#tablaPrincipal td:nth-child(5) { text-align: left; }
+	#tablaPrincipal td:nth-child(7) { text-align: right; }
+	#tablaPrincipal td:nth-child(8) { text-align: right; }
+	#tablaPrincipal td:nth-child(9) { text-align: center; }
+	#tablaPrincipal td:nth-child(10) { text-align: right; }
+	#tablaPrincipal td:nth-child(11) { text-align: right; }
+	#tablaPrincipal td:nth-child(12) { text-align: center; }
+	#tablaPrincipal td:nth-child(13) { text-align: center; }
+</style>
+
+<script type="text/javascript">
+
+		let auxId_guia = 0;
+		let auxId_transportista = 0;
+		
+		let esInterna = "@bodegaOrigen.esInterna";
+	
+
+
+		
+
+	let tblPrincipal;
+	let listReparaNiv1;
+	
+	$(document).ready(function() {
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+		    	"order": [[ 4, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		} );
+		agregaComercialYcliente();
+		calcular();
+		document.getElementById('mostrarmostrar').style.display="block";
+		if(esInterna != "1"){
+			let verifica = document.querySelectorAll(".verificaStock");
+			let sinNegativos = 0;
+			for (let i = 0; i < verifica.length; i++) {
+				let aux = verifica[i].textContent.replace(/,/g,'')
+				if(parseFloat(aux) < 0){
+					sinNegativos = 1;
+				}
+			}
+			if(sinNegativos>0){
+				alertify.alert('El estado de los stock de @mapDiccionario.get("BODEGA"): @bodegaOrigen.getNombre().- '
+					+'Presenta dificultades, favor contactar a soporte Inqsol indicando el nombre de @mapDiccionario.get("BODEGA") y que es un movimiento', function () {
+			     			location.href = "/home/";
+			     	});
+			}
+		}
+	});
+
+		const agregaComercialYcliente = () =>{
+			let formData = new FormData();
+			formData.append('id_bodegaOrigen','@bodegaOrigen.getId()');
+			formData.append('id_bodegaDestino','@bodegaDestino.getId()');
+
+			if("@comercial.getId()" == "-1"){
+				$.ajax({
+					url: "/nameComercialAjax/",
+					type: "POST",
+					method: "POST",
+					data: formData,
+					cache: false,
+					contentType: false,
+					processData: false,
+					success: function(respuesta){
+						$("#nameComercial").val(respuesta);
+					}
+				});
+			}
+
+			$.ajax({
+				url: "/nickNameClienteAjax/",
+				type: "POST",
+				method: "POST",
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function(respuesta){
+					$("#nickCliente").val(respuesta);
+				}
+			});
+		}
+
+	const verificarNumeroGuia = (value) =>{
+		if(value.trim()==""){
+			$("#numeroGuia").val("@nuevoNumeroGuia");
+		}else{
+			let aux = '@nuevoNumeroGuia';
+			var formData = new FormData();
+		  	formData.append('numeroGuia',value);
+	        $.ajax({
+	            url: "/verificaNumeroGuiaAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="existe"){
+		     			alertify.alert('El número de movimiento ya existe, intente con otro', function () {
+		     				$("#numeroGuia").val("@nuevoNumeroGuia");
+		     			});
+		     		}
+		     		if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}
+		     	}
+	        });
+		}
+	}
+	
+	const validarForm = () =>{
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let tabla = document.getElementById("tablaPrincipal");
+		let validaCantidades = 0;
+		for(i=1; i<tabla.rows.length; i++){
+			let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+			cantidad = cantidad.replace(/,/g,'');
+			validaCantidades += parseFloat(cantidad);
+		}
+		if(validaCantidades > 0){
+			for(i=1; i<tabla.rows.length-1; i++){
+				let cantidad = $(".cantidad",tabla.rows[i].cells[10]).val();
+				cantidad = cantidad.replace(/,/g,'');
+				let total = parseFloat(cantidad);
+				if(total <= 0 ){
+					tabla.deleteRow(i);
+					i--;
+				}
+			}
+			document.getElementById('enCarga').style.display="block";
+			return(true);
+		}else{
+			alertify.alert('NO PUEDE GRABAR UN MOVIMIENTO SIN MOVER EQUIPOS', function () {
+				return(false);
+			});
+		}
+	}
+	
+	let cantAux = 0;
+	const verificaCantidad = (id_equipo, id_cotizacion, stock, cantidad, KG, M2, largo) =>{
+		let acum = 0;
+		let exce = $("#exceso_"+id_equipo+"_"+id_cotizacion).val();
+		exce = exce.replace(/,/g,'');
+		
+		if(auxBueno == 999){
+			for(let i=0; i<largo; i++){
+				if( ! (i == auxIndex && auxBueno == 999)){
+					let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+					auxAcum = auxAcum.replace(/,/g,'');
+					acum += parseFloat(auxAcum);
+				}
+			}
+		}else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+			for(let i=0; i<largo; i++){
+				if( ! (i == auxIndex && (auxBueno == 2 || auxBueno == 3 ))){
+					let auxAcum = $("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val();
+					auxAcum = auxAcum.replace(/,/g,'');
+					acum += parseFloat(auxAcum);
+				}
+			}
+		
+		}else{
+			for(let i=0; i<largo; i++){
+				acum += parseFloat($("#estado_"+id_equipo+"_"+id_cotizacion+"_"+i).val());
+			}
+		}
+		
+		if(parseFloat(acum) > (parseFloat(cantidad))){
+			let auxCant1 = cantAux;
+			alertify.alert('La cantidad no puede ser menor a la suma de estados, modifique primero los estados', function () {
+				$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(auxCant1,2));
+     		});
+		}else{
+			stock = stock.replace(/,/g,'');
+			KG = KG.replace(/,/g,'');
+			M2 = M2.replace(/,/g,'');
+			let saldo = parseFloat(stock)-parseFloat(cantidad);
+			
+			if(saldo >= 0){
+				$("#stock_"+id_equipo+"_"+id_cotizacion).text(formatStandar(saldo,2));
+				$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(cantidad,2));
+				$("#exceso_"+id_equipo+"_"+id_cotizacion).val(formatStandar("0"));
+			}else{
+				if('@bodegaOrigen.getEsInterna()' == '1'){
+					let auxCant2 = cantAux;
+					alertify.alert('La cantidad no puede ser mayor que el stock disponible', function () {
+						$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(auxCant2,2));
+		     		});
+				}else{
+					$("#stock_"+id_equipo+"_"+id_cotizacion).text(formatStandar(0,2));
+					$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(stock,2));
+					$("#exceso_"+id_equipo+"_"+id_cotizacion).val(formatStandar(saldo*-1,2));
+					cantidad = stock;
+				}
+			}
+			
+			if(auxBueno == 999){
+				let difB = parseFloat(cantidad) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar, auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
+				
+			} else if('@mapDiccionario.get("nEmpresa")' == "HOHE" && ( auxBueno == 2 || auxBueno == 3 ) ){
+				let difB = parseFloat(cantidad) - parseFloat(acum);
+				$("#estado_"+id_equipo+"_"+id_cotizacion+"_"+auxIndex).val(formatStandar(difB,2));
+				
+				let aux = $("#estados_"+id_equipo+"_"+id_cotizacion).val();
+				let niv1 = aux.split(";");
+				let flag = true;
+				let buscar = "";
+				for(i=0; i<niv1.length && flag; i++){
+					let niv2 = niv1[i].split(":");
+					if(niv2[0] == auxBueno){
+						buscar = auxBueno+":"+niv2[1]+";";
+						flag = false;
+					}
+				}
+				
+				if(flag){
+					aux += auxBueno+":"+parseFloat(difB)+";";
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}else{
+					aux = aux.replace(buscar, auxBueno+":"+parseFloat(difB)+";");
+					$("#estados_"+id_equipo+"_"+id_cotizacion).val(aux);
+				}
+			}
+			
+			let totKg = parseFloat(KG) * parseFloat(cantidad);
+			let totM2 = parseFloat(M2) * parseFloat(cantidad);
+			$("#KG_"+id_equipo+"_"+id_cotizacion).text(formatStandar(totKg,2));
+			$("#M2_"+id_equipo+"_"+id_cotizacion).text(formatStandar(totM2,2));
+
+		}
+	}
+
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		if (!file) return;
+		const $inputArchivos = document.querySelector("#docAdjunto");
+		const archivosParaSubir = $inputArchivos.files;
+		let tamanio = 0;
+		let allowSubmit = false;
+		for(let i=0; i<archivosParaSubir.length; i++){
+			tamanio += archivosParaSubir[i].size;
+			let nombre = archivosParaSubir[i].name;
+			let extencion = nombre.substring(nombre.lastIndexOf(".")).toLowerCase();
+			for (let j = 0; j < extArray.length; j++) {
+				if (extArray[j] == extencion) { 
+					allowSubmit = true;
+				}
+			}
+			if(allowSubmit && i < archivosParaSubir.length -1){
+				allowSubmit = false;
+			}
+		}
+		if (allowSubmit) {
+			if(tamanio > 200000000){
+				alert("Se permite máximo subir 200 MB,"
+				+" lo que se intenta subir pesa: "+Math.round(tamanio/10000)/100+" MB");
+				form.docAdjunto.value="";
+			}else{
+				alert("Documento subido con éxito");
+				$("#txtBtn").text("Cambiar Documento");
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extensión: "
+			+ (extArray.join("  ")) + "\nPor favor, seleccione solo archivos con extensiones permitidas "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+
+	function calcular() {
+		let codigos = document.querySelectorAll(".codigo");
+		let cantidades = document.querySelectorAll(".cantidad");
+		let kgs = document.querySelectorAll(".kgUnit");
+		let m2s = document.querySelectorAll(".m2Unit");
+		let KGs = document.querySelectorAll(".KG");
+		let M2s = document.querySelectorAll(".M2");
+		for (let i = 0; i < codigos.length; i++) {
+			let cant = cantidades[i].value.replace(/,/g,'');
+			let kg = kgs[i].textContent.replace(/,/g,'');
+			let m2 = m2s[i].textContent.replace(/,/g,'');
+			KGs[i].textContent = formatStandar(parseFloat(cant)*parseFloat(kg),2);
+			M2s[i].textContent = formatStandar(parseFloat(cant)*parseFloat(m2),2);
+		}
+	}
+	
+	const verOt = (id_ot) => {
+		var formData = new FormData();
+	  	formData.append('id_ot',id_ot);
+        $.ajax({
+            url: "/verOtAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaOt').innerHTML = respuesta;
+	     		$('#modalVerOt').modal('show');
+	     	}
+        });
+	}
+
+	
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d3245798-53a6-4960-bad9-1d474ffa0ba3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../app/controllers/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/controllers/HomeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/controllers/MnuRedimensionar.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/controllers/MnuRedimensionar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/controllers/MnuReportes.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/controllers/MnuReportes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/api/ApiNuboxDocDoc.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/api/ApiNuboxDocDoc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/forms/FormBaja.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/forms/FormBaja.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/forms/FormRedimensionar.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/forms/FormRedimensionar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/tables/ActaBaja.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/tables/ActaBaja.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/tables/Cotizacion.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/tables/Cotizacion.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/tables/Grupo.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/tables/Grupo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/utilities/DatabaseExecutionContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/utilities/DatabaseExecutionContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/models/utilities/DatabaseRead.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/models/utilities/DatabaseRead.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/views/menues.scala.html" beforeDir="false" afterPath="$PROJECT_DIR$/../app/views/menues.scala.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarConfirmar1.scala.html" beforeDir="false" afterPath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarConfirmar1.scala.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarEliminar1.scala.html" beforeDir="false" afterPath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarEliminar1.scala.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarListar1.scala.html" beforeDir="false" afterPath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarListar1.scala.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarPrepara.scala.html" beforeDir="false" afterPath="$PROJECT_DIR$/../app/viewsMnuRedimensionar/redimensionarPrepara.scala.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../build.sbt" beforeDir="false" afterPath="$PROJECT_DIR$/../build.sbt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conf/application.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../conf/application.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conf/logback.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../conf/logback.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conf/routes2.routes" beforeDir="false" afterPath="$PROJECT_DIR$/../conf/routes2.routes" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2vEzQyz1xMOd6abzqX2EnUQTFN4" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "/Users/pedro/Documents/workspace/mada_aws/mada_aws2/src/Main.java",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d3245798-53a6-4960-bad9-1d474ffa0ba3" name="Changes" comment="" />
+      <created>1743725009457</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743725009457</updated>
+      <workItem from="1743725011080" duration="83000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Main.java</url>
+          <line>11</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

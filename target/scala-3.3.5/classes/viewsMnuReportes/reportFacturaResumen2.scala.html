@@ -1,0 +1,220 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+tabla: String, desdeDDMMAA: String, hastaDDMMAA: String, id_proyecto: String,
+uf: Double, usd: Double, eur: Double, desdeAAMMDD: String, hastaAAMMDD: String, nroDec: Long, archivoPDF: String,
+mapResumen: Map[String,List[Double]])
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+	
+	<div id="mostrarmostrar" style="display:none;">
+
+		@barraTitulo(mapDiccionario, "RESUMEN DE EP/FACTURACION PROFORMA (POR COMERCIAL)","(SOLO CLIENTES)")
+
+		<div class="noprint">
+			<div class="row">
+				<div class="col-1"></div>
+				<div class="col-5"></div>
+				<div class="col-6">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success"
+								onclick="history.go(-1);return false;">
+									Volver
+								</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<form id="excel" class="formulario" method="post" action="/reportFacturaResumenExcel2/">
+			<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
+			<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+			<input type="hidden" name="uf" value="@uf">
+			<input type="hidden" name="usd" value="@usd">
+			<input type="hidden" name="eur" value="@eur">
+		</form>
+
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<h5>Período desde @desdeDDMMAA a @hastaDDMMAA</h5>
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+									</div>
+									<input type="text" class="form-control left"
+									id="searchTermtablaResumen"
+									onkeyup="doSearch2('tablaResumen');
+									$('#searchTermtablaResumen').attr('id','searchTermtablaPrincipal');
+									doSearch2('tablaPrincipal');
+									$('#searchTermtablaPrincipal').attr('id','searchTermtablaResumen');">
+								</div>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="col-xs-9 col-sm-8 col-md-7 col-lg-6">
+					<h4>RESUMEN:</h4>
+					<div class="table-responsive">
+						<table id="tablaResumen" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+							<thead style="background-color: #eeeeee">
+								<tr>
+									<TH style= "text-align: center;vertical-align:top;">COMERCIAL</TH>
+									<TH style= "text-align:center;vertical-align:top;">CFI (en @mapDiccionario.get("PESOS"))</TH>
+									<TH style= "text-align:center;vertical-align:top;">SubTotal<br>@mapDiccionario.get("ARRIENDO")</TH>
+									<TH style= "text-align:center;vertical-align:top;">SubTotal<br>VENTA</TH>
+									<TH style= "text-align:center;vertical-align:top;">Ajustes<BR>(@mapDiccionario.get("ARRIENDO"))</TH>
+									<TH style= "text-align:center;vertical-align:top;">Ajustes<BR>(VENTA)</TH>
+									<TH style= "text-align:center;vertical-align:top;">TOTAL<BR>(en @mapDiccionario.get("PESOS"))</TH>
+								</tr>
+							</thead>
+							<tbody>
+								@for(key <- mapResumen.keys) {
+									<tr>
+										<td>@key</td>
+										@for(i <- 0 until mapResumen(key).size) {
+											<td class="resumen@i" style="text-align:right;">@mapResumen(key)(i)</td>
+										}
+									</tr>
+								}
+							</tbody>
+							<tfoot>
+								<tr>
+									<TH style="text-align: left;">TOTALES</TH>
+									<TH id="resumen0" style="text-align:right;"></TH>
+									<TH id="resumen1" style="text-align:right;"></TH>
+									<TH id="resumen2" style="text-align:right;"></TH>
+									<TH id="resumen3" style="text-align:right;"></TH>
+									<TH id="resumen4" style="text-align:right;"></TH>
+									<TH id="resumen5" style="text-align:right;"></TH>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+<br>
+
+				<h4>DETALLE:</h4>
+				<div class="table-responsive">
+					@Html(tabla)
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+		$('#tablaResumen').DataTable({
+			"fixedHeader": true,
+			"paging": false,
+			"info": false,
+			"searching": false,
+			"order": [[ 0, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		} );
+
+		for(i=0; i<6; i++){
+			let totVal = 0;
+			$(".resumen"+i).each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				totVal += parseFloat(val);
+				$(this).text(formatStandar(val,"@nroDec"));
+			});
+			$("#resumen"+i).text(formatStandar(totVal,"@nroDec"));
+		}
+
+		let cfi = 0;
+		$(".cfi").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			cfi += parseFloat(val);
+		});
+		$("#cfi").text(formatStandar(cfi,"@nroDec"));
+		
+		let arr = 0;
+		$(".arr").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			arr += parseFloat(val);
+		});
+		$("#arr").text(formatStandar(arr,"@nroDec"));
+		
+		let vta = 0;
+		$(".vta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			vta += parseFloat(val);
+		});
+		$("#vta").text(formatStandar(vta,"@nroDec"));
+		
+		let ajustArr = 0;
+		$(".ajustArr").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajustArr += parseFloat(val);
+		});
+		$("#ajustArr").text(formatStandar(ajustArr,"@nroDec"));
+		
+		let ajustVta = 0;
+		$(".ajustVta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			ajustVta += parseFloat(val);
+		});
+		$("#ajustVta").text(formatStandar(ajustVta,"@nroDec"));
+		
+		let granTotal = 0;
+		$(".granTotal").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			granTotal += parseFloat(val);
+		});
+		$("#granTotal").text(formatStandar(granTotal,"@nroDec"));
+
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

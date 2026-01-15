@@ -1,0 +1,646 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], listTipoBodega: List[tables.TipoBodega], listRegiones: List[tables.Regiones],
+listSucursal: List[tables.Sucursal], sucursal: tables.Sucursal, esPorSucursal: String, listMon: List[tables.Moneda], listRubro: List[tables.Rubro])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+	<!-- MODAL CREA CLIENTES -->
+		@modalClienteNuevo(mapDiccionario, listRegiones)
+		<script>
+			const clienteGrabaAjax = (id_cliente) =>{
+				$('#id_cliente').val(id_cliente);
+				$('#rutCliente').val($("#clienteRut").val());
+				$('#nombreCliente').val($("#clienteNickName").val());
+				let tabla = document.getElementById('tablaListaCliente');
+				let row = tabla.insertRow(tabla.rows.length);
+				let cell = row.insertCell(0);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#clienteRut").val();
+				cell = row.insertCell(1);
+				cell.style.textAlign = "left";
+				cell.innerHTML = "<div id='cliente_" + id_cliente + "'>" + $("#clienteNickName").val() + "</div>";
+				cell = row.insertCell(2);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#clienteNombre").val();
+				row.setAttribute("onClick", "seleccionaCliente('" + id_cliente + "')");
+				row.setAttribute("data-dismiss", "modal");
+				$("#nickNameCliente").val($("#clienteNickName").val());
+			}
+		</script>
+	<!-- FIN MODAL CREA CLIENTES -->
+	
+	<!-- MODAL CREA PROYECTOS -->
+		@modalProyectoNuevo(mapDiccionario, listRegiones)
+		<script>
+			const proyectoGrabaAjax = (id_proyecto) =>{
+				$('#id_proyecto').val(id_proyecto);
+				$('#nombreProyecto').val($("#proyectoNickName").val());
+				let tabla = document.getElementById('tablaListaProyecto');
+				let row = tabla.insertRow(tabla.rows.length);
+				let cell = row.insertCell(0);
+				cell.style.textAlign = "left";
+				cell.innerHTML = "<div id='proyecto_" + id_proyecto + "'>" + $("#proyectoNickName").val() + "</div>";
+				cell = row.insertCell(1);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#proyectoNombre").val();
+				cell = row.insertCell(2);
+				cell.style.textAlign = "left";
+				cell.innerHTML = "";
+				row.setAttribute("onClick", "seleccionaProyecto('" + id_proyecto + "')");
+				row.setAttribute("data-dismiss", "modal");
+				$("#nickNameProyecto").val($("#proyectoNickName").val());
+			}
+		</script>
+	<!-- FIN MODAL CREA PROYECTOS -->
+	
+	<!-- MODAL CREA PROPIETARIOS -->
+		@modalPropietarioNuevo(mapDiccionario, listRegiones)
+		<script>
+			const propietarioGrabaAjax = (id_propietario) =>{
+				$('#id_propietario').val(id_propietario);
+				$('#rutPropietario').val($("#propietarioRut").val());
+				$('#nombrePropietario').val($("#propietarioNickName").val());
+				let tabla = document.getElementById('tablaListaPropietario');
+				let row = tabla.insertRow(tabla.rows.length);
+				let cell = row.insertCell(0);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#propietarioRut").val();
+				cell = row.insertCell(1);
+				cell.style.textAlign = "left";
+				cell.innerHTML = "<div id='propietario_" + id_propietario + "'>" + $("#propietarioNickName").val() + "</div>";
+				cell = row.insertCell(2);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#propietarioNombre").val();
+				row.setAttribute("onClick", "seleccionaPropietario('" + id_propietario + "')");
+				row.setAttribute("data-dismiss", "modal");
+				$("#nickNamePropietario").val($("#propietarioNickName").val());
+			}
+		</script>
+	<!-- FIN MODAL CREA CLIENTES -->
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "AGREGAR "+mapDiccionario.get("BODEGA")+"/PROYECTO", "(CREAR)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/bodegaGraba/" onsubmit="return validarForm();">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">NOMBRE @mapDiccionario.get("BODEGA")/PROYECTO: </td>
+							<td style="text-align:left;">
+								<input type="hidden" name="id_bodegaEmpresa" value="0">
+								<input type="text" class="form-control left"
+									id="nombre"
+									name="nombre"
+									autocomplete="off"
+									onkeydown="return sinReservados(window.event)"
+									maxlength="100"
+									onchange="value = value.trim(); verificaNombre(value);"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">SUCURSAL: </td>
+							<td style="text-align:left;">
+								@if(esPorSucursal.equals("1")){
+									<select class="custom-select" 
+										name="id_sucursal" 
+										required>
+										<option value="@sucursal.getId()">@sucursal.getNombre()</option>
+									</select>
+									
+								}else{
+									<select class="custom-select" 
+										name="id_sucursal" 
+										onchange="vistaSelectComercial(value)"
+										required>
+										<option value=""></option>
+										@for(lista <- listSucursal){
+											<option value="@lista.getId()">@lista.getNombre()</option>
+										}
+									</select>
+								}
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">TIPO DE @mapDiccionario.get("BODEGA"): </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="id_tipoBodega" 
+									onchange='cambiaDatos(value); if("@esPorSucursal" == "1"){vistaSelectComercial("@sucursal.getId()")}'
+									required>
+									<option value=""></option>
+									@for(lista <- listTipoBodega){
+										<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">RUBRO: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" id="id_rubro" name="id_rubro" required>"
+									<option value="0"></option>
+									@for(lista <- listRubro) {
+									<option value="@lista.getId()">@lista.getNombre()</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">CORREO ENVÍO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+								name="email_envio"
+								id="email_envio"
+								autocomplete="off"
+								maxlength="1000"
+								onchange="value = value.trim();">
+								<small class="text-muted">
+									Puedes ingresar varios.
+								</small>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="text-align:left;">CORREO CC:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+								name="email_ccopia"
+								id="email_ccopia"
+								autocomplete="off"
+								maxlength="1000"
+								onchange="value = value.trim();">
+								<small class="text-muted">
+									Copia visible para el receptor.
+								</small>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<table id="datosInterna" class="table table-sm table-bordered table-condensed table-fluid" hidden>
+									<tr>
+										<td style="text-align:left;">PROPIETARIO: </td>
+										<td style="text-align:left;">
+											<input type="hidden" name="id_propietario" id="id_propietario" value="0">
+											<input type="text" class="form-control left"
+												id="nickNamePropietario"
+												onclick='$("#listaPropietario").modal("show")'
+												style="background:white"
+												readonly>
+										</td>
+									</tr>
+								</table>
+								<table id="datosExterna" class="table table-sm table-bordered table-condensed table-fluid" hidden>
+									<tr>
+										<td style="text-align:left;">CLIENTE: </td>
+										<td style="text-align:left;">
+											<input type="hidden" name="id_cliente" id="id_cliente" value="0">
+											<input type="text" class="form-control left"
+												id="nickNameCliente"
+												onclick='$("#listaCliente").modal("show")'
+												style="background:white"
+												readonly>
+										</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">PROYECTO/OBRA: </td>
+										<td style="text-align:left;">
+											<input type="hidden" name="id_proyecto" id="id_proyecto" value="0">
+											<input type="text" class="form-control left"
+												id="nickNameProyecto"
+												onclick='$("#listaProyecto").modal("show")'
+												style="background:white"
+												readonly>
+										</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">COMERCIAL: </td>
+										<td style="text-align:left;">
+											<div id="selectComercial">
+												<input type="hidden" name="id_comercial" value="0">
+												<select class="custom-select" readonly>
+													<option value="0">Sin Comercial</option>
+												</select>
+											</div>
+										</td>
+									</tr>
+
+
+									<tr>
+										<td style="text-align:left;">Cargo fijo inicial (CFI): </td>
+										<td style="text-align:left;">
+											<input type="text" class="form-control left"
+												name="cfi"
+												autocomplete="off"
+												value="0.00 %"
+												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
+												onblur = "value = formatPorcentaje(value);"
+												onkeydown="return ingresoDouble(window.event)">
+										</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">Se cobra el d&iacute;a de despacho: </td>
+										<td style="text-align:left;">
+											<select class="custom-select" 
+												name="cobraDiaDespacho">
+												<option value="1">SI</option>
+												<option value="0">NO</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">Base de C&aacute;lculo: </td>
+										<td style="text-align:left;">
+											<select class="custom-select" 
+												name="baseCalculo">
+												<option value='1'>DIARIO (por d&iacute;a exacto de cada mes)</option>
+												<option value='2'>MENSUAL (meses de 30 d&iacute;as)</option>
+											</select>
+										</td>
+									</tr>
+									
+									
+									@if(mapPermiso.get("parametro.fijaTasas")!=null && mapPermiso.get("parametro.fijaTasas").equals("1")) {
+										<tr>
+											<td style="text-align:left;">Fijar tasas de cambio: </td>
+											<td style="text-align:left;">
+												<table id="fijaTasas" class="table table-sm table-bordered table-condensed table-fluid">
+													<thead>
+														<tr>
+															<th width="30%">Mon</th>
+															<th>Tasa</th>
+															<th width="10%">Del</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>
+																<select class="custom-select" name="id_moneda[]" onchange="selMon(value)">
+																	<option value='0'></option>
+																	@for(lista <- listMon){
+																		<option value="@lista.id _ @lista.nickName">@lista.nickName</option>
+																	}
+																</select>
+															</td>
+															<td></td>
+															<td></td>
+														</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									}
+									
+									@if(mapPermiso.get("parametro.ivaPorBodega")!=null && mapPermiso.get("parametro.ivaPorBodega").equals("1")) {
+	    								<tr>
+											<td style="text-align:left;">PEP: </td>
+											<td style="text-align:left;">
+												<input type="text" class="form-control left"
+													name="pep"
+													autocomplete="off"
+													maxlength="50"
+													onchange="value = value.trim();">
+											</td>
+										</tr>
+										<tr>
+											<td style="text-align:left;">IVA: </td>
+											<td style="text-align:left;">
+												<input type="text" class="form-control left"
+													name="ivaBodega"
+													autocomplete="off"
+													value="0.00 %"
+													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
+													onblur = "value = formatPorcentaje(value);"
+													onkeydown="return ingresoDouble(window.event)">
+											</td>
+										</tr>
+    								}
+									<tr>
+										<td style="text-align:left;">Trato de Devoluciones: </td>
+										<td style="text-align:left;">
+											<select class="custom-select" 
+												name="tratoDevoluciones">
+												<option value='1'>A partir del 1er d&iacute;a</option>
+												<option value='2'>A partir del 2do d&iacute;a</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">D&iacute;as de gracia en el env&iacute;o: </td>
+										<td style="text-align:left;">
+											<input type="text" class="form-control left"
+												name="nDiasEnvio"
+												autocomplete="off"
+												value="0"
+												onkeydown="return ingresoInt(window.event)"
+												onchange="if(value=='') value=0;">
+										</td>
+									</tr>
+									<tr>
+										<td style="text-align:left;">D&iacute;as de gracia al regreso: </td>
+										<td style="text-align:left;">
+											<input type="text" class="form-control left"
+												name="nDiasRegreso"
+												autocomplete="off"
+												value="0"
+												onkeydown="return ingresoInt(window.event)"
+												onchange="if(value=='') value=0;">
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit" id="btnSubmit"  value='GRABAR @mapDiccionario.get("BODEGA")/PROYECTO' class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/bodegaAdministrar/';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div id='listaCliente' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Lista de selecci&oacute;n cliente</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaCliente').modal('hide'); $('#modalClienteNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaCliente" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>NOMBRE CORTO (NICK NAME)</TH>
+						        <TH>@mapDiccionario.get("Region")</TH>
+						        <TH>@mapDiccionario.get("Comuna")</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listClientes){
+								<TR onClick="seleccionaCliente(@lista1.getId())" data-dismiss="modal">
+									<td  style="text-align:left;"><a href="#"><div id="cliente_@lista1.getId()">@lista1.getNickName()</div></a></td>
+									<td  style="text-align:left;"><a href="#">@lista1.getRegion()</a></td>
+									<td  style="text-align:left;"><a href="#">@lista1.getComuna()</a></td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='listaPropietario' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Lista de selecci&oacute;n propietario</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaPropietario').modal('hide'); $('#modalPropietarioNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaPropietario" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>NOMBRE CORTO (NICK NAME)</TH>
+						        <TH>@mapDiccionario.get("Region")</TH>
+						        <TH>@mapDiccionario.get("Comuna")</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listClientes){
+								<TR onClick="seleccionaPropietario(@lista1.getId())" data-dismiss="modal">
+									<td  style="text-align:left;"><a href="#"><div id="propietario_@lista1.getId()">@lista1.getNickName()</div></a></td>
+									<td  style="text-align:left;"><a href="#">@lista1.getRegion()</a></td>
+									<td  style="text-align:left;"><a href="#">@lista1.getComuna()</a></td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='listaProyecto' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>Lista de selecci&oacute;n proyecto</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaProyecto').modal('hide'); $('#modalProyectoNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaProyecto" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>NOMBRE CORTO (NICK NAME)</TH>
+						        <TH>@mapDiccionario.get("Region")</TH>
+						        <TH>@mapDiccionario.get("Comuna")</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listProyectos){
+								<TR onClick="seleccionaProyecto(@lista1.getId())" data-dismiss="modal">
+									<td  style="text-align:left;"><a href="#"><div id="proyecto_@lista1.getId()">@lista1.getNickName()</div></a></td>
+									<td  style="text-align:left;"><a href="#">@lista1.getRegion()</a></td>
+									<td  style="text-align:left;"><a href="#">@lista1.getComuna()</a></td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		$('#tablaListaPropietario').DataTable({
+		   	"fixedHeader": true,
+		   	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		   	"language": {
+		       	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		       }
+		 } );
+		 $('#tablaListaCliente').DataTable({
+		   	"fixedHeader": true,
+		   	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		   	"language": {
+		       	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		       }
+		 } );
+		 $('#tablaListaProyecto').DataTable({
+		   	"fixedHeader": true,
+		   	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		   	"language": {
+		       	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		       }
+		 } );
+		 document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const cambiaDatos = (id_tipoBodega) => {
+		if(id_tipoBodega==1){
+			document.getElementById("datosInterna").removeAttribute("hidden");
+			document.getElementById("datosExterna").setAttribute("hidden","true");
+	  	}else{
+	  		document.getElementById("datosExterna").removeAttribute("hidden");
+	  		document.getElementById("datosInterna").setAttribute("hidden","true");
+	  	}
+	}
+	
+	const verificaNombre = (nombreBodega) => {
+		var formData = new FormData();
+	  	formData.append('nombreBodega',nombreBodega);
+        $.ajax({
+            url: "/verificaNombreBodegaAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El nombre de bodega ya existe, intente con otro', function () {
+	     				$("#nombre").val("");
+		     		});
+	     		}
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	};
+	
+	const seleccionaCliente = (id) => {
+		$("#nickNameCliente").val($("#cliente_"+id).text());
+		$("#id_cliente").val(id);
+	}
+	
+	const seleccionaPropietario = (id) => {
+		$("#nickNamePropietario").val($("#propietario_"+id).text());
+		$("#id_propietario").val(id);
+	}
+	
+	const seleccionaProyecto = (id) => {
+		$("#nickNameProyecto").val($("#proyecto_"+id).text());
+		$("#id_proyecto").val(id);
+	}
+	
+	const vistaSelectComercial = (id_sucursal) =>{
+		var formData = new FormData();
+		formData.append('id_sucursal',id_sucursal);
+        $.ajax({
+            url: "/vistaSelectComercialAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+				document.getElementById('selectComercial').innerHTML = respuesta;
+	     	}
+        });	
+	}
+	
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		return(true);
+	}
+	
+	const selMon = (idMon_mon) => {
+		
+		let aux = idMon_mon.split(" _ ");
+		let id = aux[0];
+		let mon = aux[1];
+	
+		let tabla = document.getElementById("fijaTasas");
+		let row = tabla.insertRow(tabla.rows.length-1);
+		let cell;
+		
+		cell = row.insertCell(0);
+		cell.style.textAlign = "left";
+		cell.innerHTML = "<input type=\"hidden\" name=\"idsMoneda[]\" value=\""+id+"\">"+mon;
+		
+		cell = row.insertCell(1);
+		cell.style.textAlign = "left";
+		cell.innerHTML = "<input type=\"text\" class=\"form-control right\" "+
+			"name=\"tasaCambio[]\" "+
+			"value=\"0\" "+
+			"onkeydown=\"return ingresoDouble(window.event)\" "+
+			"onchange=\"if(value.trim() == '') value='0';\" "+
+			"autocomplete=\"off\" \">";
+		
+		cell = row.insertCell(2);
+		cell.style.textAlign = "center";
+		cell.innerHTML = "<a href=\"#\" onclick= \"eliminarFila(this)\"><kbd style=\"background-color: red\">X</kbd></a>";
+		
+	}
+	
+	const eliminarFila = (nodo) =>{
+		let nodoTd = nodo.parentNode.parentNode; 
+		$(nodoTd).remove();
+	}
+	
+	
+
+</script>
+
+		
+	

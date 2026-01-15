@@ -1,0 +1,88 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, listado: List[List[String]], carpeta: String, titulo: String)
+
+
+@main("") {
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	@barraTitulo(mapDiccionario, "IMAGENES: "+titulo+carpeta, "Manejo y Administracion de Activos")
+	
+	<div class="row  justify-content-md-center">
+		<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+			<div class="noprint">
+				<input type="button" class="btn btn-primary btn-sm rounded-pill btn-block" onclick="window.print(); return false;" value="Imprimir">
+			</div>
+			<br>
+		</div>
+		<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+			<div class="noprint">
+				<form action="/muestraAlbumFotosWord/" method="POST" onsubmit="return validarForm();">
+					<input type="hidden" name="carpeta" value="@carpeta">
+					<input type="submit" id="btnSubmit" class="btn btn-info btn-sm rounded-pill btn-block" value="Exportar a Word">
+				</form>
+			</div>
+			<br>
+		</div>
+	</div>
+			
+
+	<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		<tbody>
+				@for(lista1 <- listado){
+					<TR>
+						@for(lista2 <- lista1){
+							<td style="text-align:center">
+								<a href="#" onclick="selectModal('@lista2','@carpeta')">
+									<img src='/viewImgAlbum/@lista2,@carpeta' style="max-height:150px;max-width:100%">
+									<br>
+									@lista2
+								</a>
+							</td>
+						}
+					</TR>
+				}
+		</tbody>
+	</table>
+	<div class="noprint">
+		<div class="row justify-content-md-center" >
+			<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+				<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalFoto' class="modal" role="dialog" data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+			        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+			        	<span aria-hidden='true'>&times;</span>
+			        </button>
+				</div>
+	     		<div class="modal-body">
+		     		<div align="center">
+		     			<div id="imagenFoto"></div>
+		     			<div id="nombreFoto"></div>
+						<button type="button" class="btn btn-success btn-sm rounded-pill btn-block" data-dismiss="modal" >
+							CERRAR
+						</button>
+					</div>
+				</div>
+	   		</div>
+		</div>
+	</div>
+	
+	
+}
+
+<script type="text/javascript">
+	const selectModal = (archivo,carpeta) =>{
+		  var qr = "/viewImg/"+qr;
+		  document.getElementById('imagenFoto').innerHTML = "<label><img src='/viewImgAlbum/"+archivo+","+carpeta+"' style='max-height:400%;max-width:100%'></label>";
+	    document.getElementById('nombreFoto').innerHTML = "<h5>"+archivo+"</h5>";
+	    $("#modalFoto").modal("show");
+	}
+	
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		return(true);
+	}
+</script>

@@ -1,0 +1,201 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+desdeAAMMDD: String, hastaAAMMDD: String, lista: List[List[String]])
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "REPORTE POR ESTADOS DE EQUIPOS (DEVOLUCIONES)","PERIODO DESDE " + utilities.Fechas.DDMMAA(desdeAAMMDD) + " HASTA " + utilities.Fechas.DDMMAA(hastaAAMMDD))
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR> 
+						        <TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+								<TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+						        <TH style= "text-align: center;vertical-align: top;">ESTADO</TH>
+								<TH style= "text-align: center;vertical-align: top;">GRUPO</TH>
+								<TH style= "text-align: center;vertical-align: top;">CODIGO</TH>
+								<TH style= "text-align: center;vertical-align: top;">EQUIPO</TH>
+								<TH style= "text-align: center;vertical-align: top;">UN</TH>
+								<TH style= "text-align: center;vertical-align: top;">CANTIDAD<br>ESTADO</TH>
+								<TH style= "text-align: center;vertical-align: top;">MON</TH>
+								<TH style= "text-align: center;vertical-align: top;">PRECIO<br>REPOSICION</TH>
+								<TH style= "text-align: center;vertical-align: top;">UNIDAD<br>TIEMPO</TH>
+								<TH style= "text-align: center;vertical-align: top;">PRECIO<br>@mapDiccionario.get("ARRIENDO")</TH>
+								<TH style= "text-align: center;vertical-align: top;">COTI</TH>
+								<TH style= "text-align: center;vertical-align: top;">NRO.MOV</TH>
+								<TH style= "text-align: center;vertical-align: top;">REF.CLIE</TH>
+								<TH style= "text-align: center;vertical-align: top; width: 80px">FECHA</TH>
+								<TH>COBRA @mapDiccionario("ARR")</TH>
+							</TR>
+						</thead>
+						<tbody>
+						@for(lista1 <- lista){
+							<TR>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(15)</td>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(0)</td>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(1)</td>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(2)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(3)</td>
+								<td style="text-align:left;vertical-align:middle;">@lista1.get(4)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(5)</td>
+								<td style="text-align:right;vertical-align:middle;">@lista1.get(6)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(7)</td>
+								<td style="text-align:right;vertical-align:middle;">@lista1.get(8)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(9)</td>
+								<td style="text-align:right;vertical-align:middle;">@lista1.get(10)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(14)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(11)</td>
+								<td style="text-align:center;vertical-align:middle;">@lista1.get(16)</td>
+								<td style="text-align:center;vertical-align:middle;">
+									<div style="display:none">@lista1.get(12)</div>
+									@lista1.get(13)
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.get(19).equals("1")){
+										<div style="display: none">@lista1.get(17)</div>
+										<input type="hidden" id="select_@lista1.get(18)" value="@lista1.get(17)">
+										@if(lista1.get(17).equals("1")){
+											<input type="checkbox" id="selectCheck_@lista1.get(18)" checked onchange="modificaSelect('@lista1.get(18)');">
+										}else{
+											<input type="checkbox" id="selectCheck_@lista1.get(18)" onchange="modificaSelect('@lista1.get(18)');">
+										}
+									}
+								</td>
+							</TR>
+			 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="excel" class="formulario" method="post" action="/reporteEstadosPeriodo1Excel/">
+		<input type="hidden" name="desdeAAMMDD" value="@desdeAAMMDD">
+		<input type="hidden" name="hastaAAMMDD" value="@hastaAAMMDD">
+	</form>
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 1, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  
+		  
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+	const modificaSelect = (id_movimiento) => {
+		let select = $("#select_"+id_movimiento).val();
+		if(select == 1){
+			modificaSelect2(id_movimiento, 0);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(0);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', false);
+			});
+		}else{
+			modificaSelect2(id_movimiento, 1);
+			const elementIdDet = "select_" + id_movimiento;
+			$(`[id='${elementIdDet}']`).each(function() {
+				$(this).val(1);
+			});
+			const selectCheck = "selectCheck_" + id_movimiento;
+			$(`[id='${selectCheck}']`).each(function() {
+				$(this).prop('checked', true);
+			});
+		}
+	}
+
+	const modificaSelect2 = (id_movimiento, valor) => {
+		let formData = new FormData();
+		formData.append('id_movimiento',id_movimiento);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/routes3/modCobraArriendoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
+	}
+	
+</script>
+
+
+
+
+		
+		
+	

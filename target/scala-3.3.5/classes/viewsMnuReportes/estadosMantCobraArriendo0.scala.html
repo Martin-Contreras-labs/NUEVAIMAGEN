@@ -1,0 +1,74 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "ESTADO EQUIPO COBRAR "+mapDiccionario("ARRIENDO")+" POR DAÑOS: MODIFICAR", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-9 col-sm-7 col-md-7 col-lg-7">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH>SUCURSAL</TH>
+							<TH>@mapDiccionario.get("BODEGA")</TH>
+							<TH>EDIT</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- lista){
+							<TR>
+								<td  style="text-align:left;">@lista1.get(1)</td>
+								<td  style="text-align:left;">@lista1.get(2)</td>
+								<td  style="text-align:center;">
+									<a href="#" onclick="modificar('@lista1.get(0)');">
+										<kbd style="background-color: #73C6B6">E</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="modificar" method="post" action="/routes3/estadosMantCobraArriendo1/">
+		<input type="hidden" id="mod_idBodega" name="id_bodegaEmpresa">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[-1, 20, 50, 100, 200], ["ALL", 20, 50, 100, 200]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificar = (id_bodegaEmpresa) => {
+		$("#mod_idBodega").val(id_bodegaEmpresa);
+		document.getElementById("modificar").submit();
+	}
+</script>
+
+
+		
+		
+	

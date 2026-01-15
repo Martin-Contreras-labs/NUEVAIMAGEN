@@ -1,0 +1,69 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listServicios: List[tables.Servicio])
+
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MANTENCION PRECIOS EN "+mapDiccionario.get("BODEGA")+"S/PROYECTOS POR SERVICIO", "(SELECCIONAR)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>FAMILIA</TH>
+							<TH>CODIGO</TH>
+							<TH>SERVICIO</TH>
+							<TH>SELECT</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listServicios){
+							<TR>
+								<td  style="text-align:left;">@lista1.getNombreClase()</td>
+								<td  style="text-align:left;">@lista1.getCodigo()</td>
+								<td  style="text-align:left;">@lista1.getNombre()</td>
+								<td  style="text-align:center;">
+									<a href="/routes2/servicioListaPreciosServicio/@lista1.getId()">
+										<kbd style="background-color: #73C6B6">select</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[1,"asc"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+</script>
+
+
+		
+		
+	

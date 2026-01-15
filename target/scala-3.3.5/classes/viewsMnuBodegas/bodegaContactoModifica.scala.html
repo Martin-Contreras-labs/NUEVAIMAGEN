@@ -1,0 +1,128 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+contacto: tables.ContactoBodegaEmpresa, bodega: tables.BodegaEmpresa)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR CONTACTO DE "+mapDiccionario.get("BODEGA")+"/PROYECTO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="2" style="text-align: left;">
+							<input type="hidden" name="id_bodega" value="@bodega.getId()">
+							<h5>@mapDiccionario.get("BODEGA")/PROYECTO: @bodega.getNombre()</h5>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">NOMBRE: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="nombre"
+								autocomplete="off"
+								maxlength="100"
+								onkeydown="return sinReservados(window.event)"
+								value = "@contacto.getNombre()"
+								onchange="modificarContacto(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">CARGO: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="cargo"
+								autocomplete="off"
+								onkeydown="return sinReservados(window.event)"
+								maxlength="100"
+								value = "@contacto.getCargo()"
+								onchange="modificarContacto(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">TELEFONO FIJO: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="fijo"
+								autocomplete="off"
+								maxlength="100"
+								value = "@contacto.getFijo()"
+								onchange="modificarContacto(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">TELEFONO MOVIL: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="movil"
+								autocomplete="off"
+								maxlength="100"
+								value = "@contacto.getMovil()"
+								onchange="modificarContacto(id)">
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:left;">E-MAIL: </td>
+						<td style="text-align:left;">
+							<input type="text" class="form-control left"
+								id="mail"
+								autocomplete="off"
+								maxlength="100"
+								value = "@contacto.getMail()"
+								onchange="modificarContacto(id)">
+						</td>
+					</tr>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/bodegaModificaContacto/@bodega.getId()';">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	let id_contacto = "@contacto.getId()";
+
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarContacto = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_contacto',id_contacto);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaContactoBodegaPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	
+</script>
+
+		
+	

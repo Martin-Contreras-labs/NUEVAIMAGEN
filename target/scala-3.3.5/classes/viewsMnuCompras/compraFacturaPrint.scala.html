@@ -1,0 +1,201 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+factura: tables.Factura, detalleFactura: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE DE LA COMPRA","")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+			<div class="noprint">
+				<table class="table table-sm table-condensed table-fluid">
+					<tr>
+						<td>
+							<div align="center">
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/compraFacturaPrintExcel/">
+				<input type="hidden" name="id_factura" value="@factura.getId()">
+			</form>
+			
+				<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<tr>
+							<td  width="350px">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">@mapDiccionario.get("RUT") PROVEEDOR</span>
+							  		</div>
+  									<input type="text" class="form-control"
+  										value="@factura.getRut()" 
+  										readonly>
+								</div>
+							</td>
+							<td>
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Nombre Proveedor</span>
+							  		</div>
+										<input type="text" class="form-control left"
+											value="@factura.getNickNameProveedor()"
+											readonly>
+								</div>
+							</td>
+							<td width="250px">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Nro.Documento</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+											value = "@factura.getNumero()"
+											readonly>
+								</div>
+							</td>
+							<td width="230px">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Fecha</span>
+							  		</div>
+							  		<input type="date" class="form-control center"
+							  			value="@utilities.Fechas.AAMMDD(factura.getFecha())"
+										readonly>
+								</div>
+							</td>
+							<td>
+								
+							</td>
+						</tr>
+						<tr>
+							<td colspan="6">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
+							  		</div>
+  									<textarea class="form-control" 
+  										name="observaciones" readonly>@factura.getObservaciones()</textarea>
+								</div>
+							</td>
+						</tr>
+					</thead>
+				</table>
+				<hr>
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH width="10%">CODIGO</TH>
+							<TH width="20%">EQUIPO</TH>
+							<TH width="4%">KG</TH>
+					        <TH width="4%">M2</TH>
+					        <TH width="3%">UN</TH>
+							<TH width="8%">CANT</TH>
+							<TH width="3%">MON</TH>
+							<TH width="10%">P.UNITARIO<br>COMPRA</TH>
+							<TH width="10%">TOTAL</TH>
+							<TH width="15%">DESTINO</TH>
+							<TH width="4%">TOT.KG</TH>
+							<TH width="4%">TOT.M2</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for((lista1, index) <- detalleFactura.zipWithIndex){
+							<TR>
+								<td  style="text-align:left;">@lista1.get(1)</td>
+								<td  style="text-align:left;">@lista1.get(2)</td>
+								<td  style="text-align:right;">@lista1.get(14)</td>
+								<td  style="text-align:right;">@lista1.get(15)</td>
+								<td  style="text-align:center;">@lista1.get(3)</td>
+								<td  style="text-align:center;">
+									<input type="text" class="cantidad form-control right"
+										value="@lista1.get(4)"
+										readonly>
+								</td>
+								<td  style="text-align:center;">@lista1.get(6)</td>
+								<td  style="text-align:center;">@lista1.get(7)</td>
+								<td  style="text-align:center;">
+									<div class="total" id="total_index" align="right">@lista1.get(8)</div>
+								</td>
+								<td  style="text-align:left;">@lista1.get(12)</td>
+								<td><div class="kg" id="totKG_index" align="right">@lista1.get(16)</div></td>
+								<td><div class="m2" id="totM2_index" align="right">@lista1.get(17)</div></td>
+							</TR>
+			 			}
+						<TR style="background-color: #eeeeee">
+					        <td></td>
+							<td>TOTALES</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td><div id="totalCantidad" align="right">0.00</div></td>
+							<td></td>
+							<td></td>
+							<td><div id="totalTotal" align="right">0.00</div></td>
+							<td></td>
+							<td><div id="totalKG" align="right">0.00</div></td>
+							<td><div id="totalM2" align="right">0.00</div></td>
+						</TR>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint" align="left">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+					<input type="button"  value="Volver" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/listComprasPorCompra/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		  sumaTotales();
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const sumaTotales = () => {
+		 let sum = 0;
+			$(".cantidad").each(function() {
+				let val = $(this).val().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalCantidad").text(formatStandar(sum,2));
+			sum = 0;
+			$(".total").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalTotal").text(formatStandar(sum,2));
+			sum = 0;
+			$(".kg").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalKG").text(formatStandar(sum,2));
+			sum = 0;
+			$(".m2").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalM2").text(formatStandar(sum,2));
+	 }
+
+
+	
+</script>
+
+
+		
+		
+	

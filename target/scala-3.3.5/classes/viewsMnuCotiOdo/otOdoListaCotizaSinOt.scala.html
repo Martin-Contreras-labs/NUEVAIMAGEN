@@ -1,0 +1,156 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listCotizaciones: List[List[String]])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTADO DE COTIZACIONES ODO","(SIN "+mapDiccionario.get("ORDEN_DE_TRABAJO")+")")
+			<input type="hidden" id="cambiosDeEstados" name="cambiosDeEstados">
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-11 col-sm-9 col-md-9 col-lg-9">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>Nro.COTI</TH>
+								<TH style="min-width:80px;">FECHA<br>COTIZACION</TH>
+								<TH>CLIENTE</TH>
+								<TH>PROYECTO</TH>
+								<TH>OBSERVACIONES</TH>
+								<TH>DOC<br>ADJ</TH>
+								<TH>SELECT</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listCotizaciones){
+								<TR>
+									<td style="text-align:center;">
+										<a href="#" onclick="verCotizacion('@lista1.get(0)')">
+											<kbd style="background-color: rgb(90, 200, 245)">
+												<font color="green">@lista1.get(1)</font>
+											</kbd>
+										</a>
+									</td>
+									<td style="text-align:center;">
+										<div style="display:none">@lista1.get(2)</div>
+										@utilities.Fechas.DDMMAA(lista1.get(2))
+									</td>
+									<td style="text-align:left;"><a href="#" onclick="buscaCliente('@lista1.get(3)')">@lista1.get(3)</a></td>
+									<td style="text-align:left;"><a href="#" onclick="buscaProyecto('@lista1.get(6)')">@lista1.get(6)</a></td>
+									<td style="text-align:left;">@lista1.get(4)</td>
+									<td style="text-align:center;">
+										@if(lista1.get(5).equals("0")){
+											--
+										}else{
+											<a href="#" onclick="descargaDocumento('@lista1.get(5)')">
+												<kbd style="background-color: #7F8C8D">doc</kbd>
+											</a>
+										}
+									</td>
+									<td  style="text-align:center;">
+										<form id="otHacer_@lista1.get(0)" method="post" action="/routes2/otOdoHacer/">
+											<input type="hidden" name="id_cotiOdo" value="@lista1.get(0)">
+											<a href="#" onclick='document.getElementById("otHacer_@lista1.get(0)").submit();'>
+												<kbd style="background-color: #73C6B6">select</kbd>
+											</a>
+										</form>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+				</div>
+			</div>
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 1, "desc" ],[ 0, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const verCotizacion = (id_cotiOdo) => {
+		var formData = new FormData();
+	  	formData.append('id_cotiOdo',id_cotiOdo);
+        $.ajax({
+            url: "/routes2/verCotiOdoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+		
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

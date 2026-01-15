@@ -1,0 +1,125 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+cabecera1: List[String], cabecera2: List[String], datos: List[List[String]], desde: String, hasta: String)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "TONELADAS MOVIDAS POR PERIODO","(Corresponde a toneladas movidas desde y hacia "+mapDiccionario("BODEGAS")+" externas/clientes)")
+
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td>
+						NOTA: 
+						<br>Si traslada desde @mapDiccionario("Bodega") interna a @mapDiccionario("Bodega") cliente, 
+						queda registrado como una SALIDA en la sucursal de @mapDiccionario("Bodega") cliente.
+						<br>Si el traslado es a la inversa queda registrado como una ENTRADA en la sucursal de @mapDiccionario("Bodega") cliente.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<br>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				<thead>
+					<tr>
+						<th colspan="50"><h5>TONELADAS MOVIDAS: PERIODO DE @utilities.Fechas.DDMMAA(desde) A @utilities.Fechas.DDMMAA(hasta)</h5></th>
+					</tr>
+					<tr>
+						@for((lista,index) <- cabecera1.zipWithIndex){
+							@if(index == 0){
+								<th style="text-align:center">@lista</th>
+							}else{
+								<th colspan="2" style="text-align:center">@lista</th>
+							}
+						}
+					</tr>
+					<tr>
+						@for((lista,index) <- cabecera2.zipWithIndex){
+							<th style="text-align:center">@lista</th>
+						}
+					</tr>
+				</thead>
+				<tbody>
+					@for(lista <- datos){
+						<tr>
+							@for((lista2,index2) <- lista.zipWithIndex){
+								@if(index2 == 0){
+									<td style="text-align:left">@lista2</td>
+								}else{
+									<td style="text-align:right">@lista2</td>
+								}
+							}
+						</tr>
+					}
+				</tbody>
+				<tfoot>
+					@for((lista,index) <- cabecera2.zipWithIndex){
+						@if(index == 0){
+							<th style="text-align:left">TOTALES</th>
+						}else{
+							<th style="text-align:right"></th>
+						}
+					}
+				</tfoot>
+			</table>
+		</div>
+	
+	<form id="excel" class="formulario" method="post" action="/routes2/reportGerenKGPorPeriodo1Excel/">
+		<input type="hidden" name="desde" value="@desde">
+		<input type="hidden" name="hasta" value="@hasta">
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		var tablaPrincipal = document.getElementById('tablaPrincipal');
+		  
+		for (var i=1; i<tablaPrincipal.rows[2].cells.length; i++){
+			let suma = 0;
+		  	for (var j=3; j<tablaPrincipal.rows.length-1; j++){
+				let valor = tablaPrincipal.rows[j].cells[i].innerHTML;
+				suma += parseFloat(valor);
+		  	}
+			tablaPrincipal.rows[tablaPrincipal.rows.length-1].cells[i].innerHTML = formatStandar2(suma);
+		}
+	
+	  	document.getElementById('mostrarmostrar').style.display="block";
+
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

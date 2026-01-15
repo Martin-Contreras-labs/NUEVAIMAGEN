@@ -1,0 +1,88 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listActividad: List[tables.MantActividad])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "ACTIVIDADES: CREAR/MODIFICAR/ELIMINAR", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH style="vertical-align: top;">NOMBRE DE ACTIVIDAD</TH>
+							<TH>EDIT</TH>
+							<TH>DEL</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listActividad){
+							<TR>
+								<td  style="text-align:left;"><div id="@lista1.getId()">@lista1.getNombre()</div></td>
+								<td  style="text-align:center;">
+									<form id="form_@lista1.getId()" method="post" action="/routes3/mantTblActividadUpdate/">
+										<input type="hidden" name="id_actividad" value="@lista1.getId()">
+										<a href="#" onclick='document.getElementById("form_@lista1.getId()").submit();'>
+											<kbd style="background-color: #73C6B6">E</kbd>
+										</a>
+									</form>
+								</td>
+								<td  style="text-align:center;">
+									<a href="#" onclick= "eliminarActividad('@lista1.getId()')">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>	
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="AGREGAR" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes3/mantTblActividadNew/';">
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="form_eliminar" method="post" action="/routes3/mantTblActividadDel/">
+		<input type="hidden" id="form_id_actividad" name="id_actividad">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	const eliminarActividad = (id_actividad) => {
+		let nombre = $("#"+id_actividad).text();
+		alertify.confirm("Esta seguro de eliminar la actividad: "+nombre, function (e) {
+			if (e) {
+				$("#form_id_actividad").val(id_actividad);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+</script>
+
+
+		
+		
+	

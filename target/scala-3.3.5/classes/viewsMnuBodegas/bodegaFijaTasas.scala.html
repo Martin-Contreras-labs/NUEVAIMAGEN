@@ -1,0 +1,574 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, listTasaGrupo: List[tables.TasaGrupo], listTasaEquipo: List[tables.TasaEquipo],
+listGrupos: List[tables.Grupo], listEquipos: List[tables.Equipo])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "ASIGNAR TASAS DE "+mapDiccionario.get("ARRIENDO")+" SOBRE PRECIOS DE VENTA", "("+bodega.getNombre().toUpperCase()+")")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td width="50%">
+							<b><font color="#008000">TASA GLOBAL</font></b>
+							<table class="table table-sm table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>
+										<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+										<TH>CLIENTE</TH>
+								        <TH>PROYECTO</TH>
+										<TH>TASA @mapDiccionario.get("ARRIENDO")</TH>
+									</TR>
+								</thead>
+								<tbody>
+									<TR>
+										<td style="text-align:left;">@bodega.getNombre()</td>
+										<td style="text-align:left;">@bodega.getNickCliente()</td>
+										<td style="text-align:left;">@bodega.getNickProyecto()</td>
+										<td style="text-align:center;">
+											<input type="text" class="form-control center"
+												id="tasaGlobal"
+												onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
+												onblur = "value = formatPorcentaje(value);"
+												onkeydown="return ingresoDouble(window.event)"
+												onchange="modificarTasaGlobal(value)">
+										</td>
+									</TR>
+								</tbody>
+							</table>
+						</td>
+						<td style="text-align:center;" width="50%">
+							<h5><b><font color="red">IMPORTANTE, LAS TASAS A INGRESAR SON MENSUALES (FIJA EL PRECIO DE ARRIENDO SOLO LA PRIMERA VEZ QUE SE ENTREGA UN EQUIPO).</font></b></h5>
+						</td>
+					</tr>
+					<tr>
+						<td style="vertical-align:top">
+							<b><font color="#008000">TASAS POR GRUPO</font></b>
+							<table id="tblTasaGrupo" class="table table-sm table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>
+										<TH>GRUPO</TH>
+										<TH>TASA @mapDiccionario.get("ARRIENDO")</TH>
+								        <TH>DEL</TH>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista <- listTasaGrupo){
+										<tr>
+											<td style="text-align:left;">@lista.getNombreGrupo()</td>
+											<td style="text-align:center;">
+												<input type="text" class="form-control center"
+													id="tasaGrupo_@lista.getId_grupo()"
+													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
+													onblur = "value = formatPorcentaje(value);"
+													onkeydown="return ingresoDouble(window.event)"
+													onchange="modificarTasaGrupo(@lista.getId_grupo(), value)">
+											</td>
+											<td  style="text-align:center;">
+												<a href="#" onclick= "eliminarTasaGrupo(this, @lista.getId_grupo())">
+													<kbd style="background-color: red">X</kbd>
+												</a>
+											</td>
+										</tr>
+									}
+									<tr>
+										<td colspan="3" style="text-align:center;">
+											<input type="button"  value="agregar grupo" class="btn btn-light btn-sm rounded-pill btn-block" onclick="$('#listaGrupos').modal('show');">
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td style="vertical-align:top">
+							<b><font color="#008000">TASAS POR EQUIPO</font></b>
+							<table id="tblTasaEquipo" class="table table-sm table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>
+										<TH>CODIGO</TH>
+										<TH>EQUIPO</TH>
+										<TH>TASA</TH>
+								        <TH>DEL</TH>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista <- listTasaEquipo){
+										<tr>
+											<td style="text-align:left;">@lista.getCodigoEquipo()</td>
+											<td style="text-align:left;">@lista.getNombreEquipo()</td>
+											<td style="text-align:center;">
+												<input type="text" class="form-control center"
+													id="tasaEquipo_@lista.getId_equipo()"
+													onfocus="value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')" 
+													onblur = "value = formatPorcentaje(value);"
+													onkeydown="return ingresoDouble(window.event)"
+													onchange="modificarTasaEquipo(@lista.getId_equipo(),@lista.getId_cotizacion(), value)">
+											</td>
+											<td  style="text-align:center;">
+												<a href="#" onclick= "eliminarTasaEquipo(this, @lista.getId_equipo(),@lista.getId_cotizacion())">
+													<kbd style="background-color: red">X</kbd>
+												</a>
+											</td>
+										</tr>
+									}
+									<tr>
+										<td colspan="4" style="text-align:center;">
+											<input type="button"  value="agregar equipo" class="btn btn-light btn-sm rounded-pill btn-block" onclick="$('#listaEquipo').modal('show');">
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</table>
+				
+				@if(mapDiccionario("nEmpresa").equals("BI")){
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:center;">
+								<b><font color="#008000">130.1 EQUIPOS ANTI CAIDAS ST. BI</font></b>
+							</td>
+							<td style="text-align:center;">
+								<b><font color="#008000">114.2 IF BASE ST. BI</font></b>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table class="table table-sm table-bordered table-condensed table-fluid">
+									<tr style="background-color: #eeeeee">
+										<th colspan="5">Meses</th>
+									</tr>
+									<tr style="background-color: #eeeeee">
+										<th>0 a 3</th>
+										<th>4 a 5</th>
+										<th>6 a 7</th>
+										<th>8 a 9</th>
+										<th>10 o +</th>
+									</tr>
+									<tr>
+										<td>11.67 %</td>
+										<td>9.00 %</td>
+										<td>8.33 %</td>
+										<td>6.88 %</td>
+										<td>7.00 %</td>
+									</tr>
+								</table>		
+							</td>
+							<td>
+								<table class="table table-sm table-bordered table-condensed table-fluid">
+									<tr style="background-color: #eeeeee">
+										<th colspan="5">Meses</th>
+									</tr>
+									<tr style="background-color: #eeeeee">
+										<th>0 a 6</th>
+										<th>7 a 9</th>
+										<th>10 a 12</th>
+										<th>13 a 15</th>
+										<th>15 o +</th>
+									</tr>
+									<tr>
+										<td>5.83 %</td>
+										<td>5.00 %</td>
+										<td>4.58 %</td>
+										<td>4.33 %</td>
+										<td>4.17 %</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				}
+				
+			</div>
+		</div>
+				
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	<div id='listaGrupos' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR GRUPO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<table id="tablaListaGrupos" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>GRUPO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listGrupos){
+								<TR onClick="seleccionaGrupo(@lista1.getId())" data-dismiss="modal">
+									<td style="text-align:left;"><div id="selectGrupo_@lista1.getId()">@lista1.getNombre()</div></td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='listaEquipo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR EQUIPO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<table id="tablaListaEquipos" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>CODIGO</TH>
+								<TH>EQUIPO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listEquipos){
+								<TR onClick="seleccionaEquipo(@lista1.getId())" data-dismiss="modal">
+									<td style="text-align:left;"><div id="selectEquipoCod_@lista1.getId()">@lista1.getCodigo()</div></td>
+									<td style="text-align:left;"><div id="selectEquipoNom_@lista1.getId()">@lista1.getNombre()</div></td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#tasaGlobal").val(formatPorcentaje("@(bodega.getTasaArriendo()*100)"));
+		@for(lista <- listTasaGrupo){
+			$("#tasaGrupo_@lista.getId_grupo()").val(formatPorcentaje("@(lista.getTasaArriendo()*100)"));
+		}
+		@for(lista <- listTasaEquipo){
+			$("#tasaEquipo_@lista.getId_equipo()").val(formatPorcentaje("@(lista.getTasaArriendo()*100)"));
+		}
+		
+		$('#tablaListaGrupos').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	 	} );
+		$('#tablaListaEquipos').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	 	 } );
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarTasaGlobal = (tasa) => {
+		var formData = new FormData();
+		formData.append('modifica','tasaGlobal');
+		formData.append('id_bodegaEmpresa',@bodega.getId());
+	  	formData.append('tasa',tasa);
+        $.ajax({
+            url: "/modificarTasaArriendoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	const modificarTasaGrupo = (id_grupo, tasa) => {
+		var formData = new FormData();
+		formData.append('modifica','tasaGrupo');
+		formData.append('id_bodegaEmpresa',@bodega.getId());
+		formData.append('id_grupo',id_grupo);
+	  	formData.append('tasa',tasa);
+        $.ajax({
+            url: "/modificarTasaArriendoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	const modificarTasaEquipo = (id_equipo, id_cotizacion, tasa) => {
+		var formData = new FormData();
+		formData.append('modifica','tasaEquipo');
+		formData.append('id_bodegaEmpresa',@bodega.getId());
+		formData.append('id_equipo',id_equipo);
+		formData.append('id_cotizacion',id_cotizacion);
+	  	formData.append('tasa',tasa);
+        $.ajax({
+            url: "/modificarTasaArriendoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+	const eliminarTasaGrupo = (nodo, id_grupo) => {
+		alertify.confirm("Esta seguro de eliminar tasa de grupo", function (e) {
+			if (e) {
+				var formData = new FormData();
+				formData.append('elimina','tasaGrupo');
+				formData.append('id_bodegaEmpresa',@bodega.getId());
+				formData.append('id_grupo',id_grupo);
+		        $.ajax({
+		            url: "/eliminarTasaArriendoAjax/",
+		            type: "POST",
+		            method: "POST",
+		            data: formData,
+		            cache: false,
+		            contentType: false,
+			     	processData: false,
+			     	success: function(respuesta){
+			     		if(respuesta=="error"){
+			     			alertify.alert(msgError, function () {
+				     			location.href = "/";
+				     		});
+			     		}else{
+			     			nodo.parentNode.parentNode.remove();
+			     		}
+			     	}
+		        });
+			}
+		});
+		
+	}
+	
+	const eliminarTasaEquipo = (nodo, id_equipo, id_cotizacion) => {
+		alertify.confirm("Esta seguro de eliminar tasa de equipo", function (e) {
+			if (e) {
+				var formData = new FormData();
+				formData.append('elimina','tasaEquipo');
+				formData.append('id_bodegaEmpresa',@bodega.getId());
+				formData.append('id_equipo',id_equipo);
+				formData.append('id_cotizacion',id_cotizacion);
+		        $.ajax({
+		            url: "/eliminarTasaArriendoAjax/",
+		            type: "POST",
+		            method: "POST",
+		            data: formData,
+		            cache: false,
+		            contentType: false,
+			     	processData: false,
+			     	success: function(respuesta){
+			     		if(respuesta=="error"){
+			     			alertify.alert(msgError, function () {
+				     			location.href = "/";
+				     		});
+			     		}else{
+			     			nodo.parentNode.parentNode.remove();
+			     		}
+			     	}
+		        });
+			}
+		});
+		
+	}
+	
+	const seleccionaGrupo = (id_grupo) => {
+		let grupo = $("#selectGrupo_"+id_grupo).text();
+		let tblTasaGrupo = document.getElementById("tblTasaGrupo");
+		let flag = true;
+		for(let i=1; i<tblTasaGrupo.rows.length; i++){
+			let valor1 = tblTasaGrupo.rows[i].cells[0].textContent;
+			if(valor1==grupo){
+				flag=false;
+			}
+		}
+		if(flag){
+			let tr, td, tabla;
+			tabla = document.getElementById("tblTasaGrupo");
+			tr = tabla.insertRow(tabla.rows.length-1);
+			td = tr.insertCell(tr.cells.length);
+			td.setAttribute ('style', 'text-align:left' );
+		  	td.innerHTML = grupo;
+		  	td = tr.insertCell(tr.cells.length);
+		  	td.setAttribute ('style', 'text-align:center' );
+		  	td.innerHTML = 	" <input type='text' class='form-control center'" +
+		  		" value = '0.00 %'"+
+		  		" id='tasaGrupo_"+id_grupo+"'"+
+				" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+ 
+				" onblur = 'value = formatPorcentaje(value);'"+
+				" onkeydown='return ingresoDouble(window.event)'"+
+				" onchange='modificarTasaGrupo("+id_grupo+", value)'>";
+			td = tr.insertCell(tr.cells.length);
+			td.setAttribute ('style', 'text-align:center' );
+		  	td.innerHTML = 	" <a href='#' onclick= 'eliminarTasaGrupo(this, "+id_grupo+")'>"+
+				" <kbd style='background-color: red'>X</kbd></a>";
+		  	var formData = new FormData();
+			formData.append('graba','tasaGrupo');
+			formData.append('id_bodegaEmpresa',@bodega.getId());
+			formData.append('id_grupo',id_grupo);
+	        $.ajax({
+	            url: "/grabaTasaArriendoAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}
+		     	}
+	        });
+		}else{
+			alertify.alert("El grupo ya esta incorporado");
+		}
+	}
+	
+	const seleccionaEquipo = (id_equipo) => {
+		let cod_equipo = $("#selectEquipoCod_"+id_equipo).text();
+		let nom_equipo = $("#selectEquipoNom_"+id_equipo).text();
+		let tblTasaEquipo = document.getElementById("tblTasaEquipo");
+		let flag = true;
+		for(let i=1; i<tblTasaEquipo.rows.length; i++){
+			let valor1 = tblTasaEquipo.rows[i].cells[0].textContent;
+			if(valor1==cod_equipo){
+				flag=false;
+			}
+		}
+		if(flag){
+			let tr, td, tabla;
+			tabla = document.getElementById("tblTasaEquipo");
+			
+			tr = tabla.insertRow(tabla.rows.length-1);
+			
+			td = tr.insertCell(tr.cells.length);
+			td.setAttribute ('style', 'text-align:left' );
+		  	td.innerHTML = cod_equipo;
+		  	
+		  	td = tr.insertCell(tr.cells.length);
+			td.setAttribute ('style', 'text-align:left' );
+		  	td.innerHTML = nom_equipo;
+		  	
+		  	td = tr.insertCell(tr.cells.length);
+		  	td.setAttribute ('style', 'text-align:center' );
+		  	td.innerHTML = 	" <input type='text' class='form-control center'" +
+		  		" value = '0.00 %'"+
+		  		" id='tasaEquipo_"+id_equipo+"'"+
+				" onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""+ 
+				" onblur = 'value = formatPorcentaje(value);'"+
+				" onkeydown='return ingresoDouble(window.event)'"+
+				" onchange='modificarTasaEquipo("+id_equipo+",0, value)'>";
+				
+			td = tr.insertCell(tr.cells.length);
+			td.setAttribute ('style', 'text-align:center' );
+		  	td.innerHTML = 	" <a href='#' onclick= 'eliminarTasaEquipo(this, "+id_equipo+",0)'>"+
+				" <kbd style='background-color: red'>X</kbd></a>";
+		  	var formData = new FormData();
+			formData.append('graba','tasaEquipo');
+			formData.append('id_bodegaEmpresa',@bodega.getId());
+			formData.append('id_equipo',id_equipo);
+			formData.append('id_cotizacion','0');
+	        $.ajax({
+	            url: "/grabaTasaArriendoAjax/",
+	            type: "POST",
+	            method: "POST",
+	            data: formData,
+	            cache: false,
+	            contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		if(respuesta=="error"){
+		     			alertify.alert(msgError, function () {
+			     			location.href = "/";
+			     		});
+		     		}
+		     	}
+	        });
+		}else{
+			alertify.alert("El equipo ya esta incorporado");
+		}
+	}
+	
+	
+	
+	
+	
+</script>
+
+
+		
+		
+	

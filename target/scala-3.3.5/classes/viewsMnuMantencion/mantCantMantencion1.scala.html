@@ -1,0 +1,90 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, listado: List[List[String]], desdeAAMMDD: String, hastaAAMMDD: String)
+
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>En proceso.....<div id="msgEspera"></div></h1></div>
+	
+	<form id="excel" class="formulario" method="post" action="/routes3/mantCantMantencion1Excel/">
+		<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
+		<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+		
+	</form>
+	
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "CANTIDADES PREVENTIVO (MANTENCION)","DESDE: "+utilities.Fechas.DDMMAA(desdeAAMMDD)+" HASTA: "+utilities.Fechas.DDMMAA(hastaAAMMDD))
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+				<div align="center">
+					<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+						Exportar a Excel
+					</button>
+				</div>
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>CODIGO</TH>
+							<TH>EQUIPO</TH>
+							<TH></TH>
+							<TH>PLAN MANTENCION</TH>
+							<TH>UNIDAD</TH>
+							<TH>CONSUMO<BR>REPORT MEC</TH>
+							<TH>HORAS<BR>MECANICO</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listado){
+							<TR>
+								<td  style="text-align:left;">@lista1.get(1)</td>
+								<td  style="text-align:left;">@lista1.get(2)</td>
+								<td></td>
+								<td  style="text-align:left;">@lista1.get(3)</td>
+								<td  style="text-align:center;">@lista1.get(6)</td>
+								<td  style="text-align:right;">@lista1.get(5)</td>
+								<td  style="text-align:right;">@lista1.get(4)</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "asc" ],[ 0, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+	
+	
+	
+</script>
+
+
+		
+	

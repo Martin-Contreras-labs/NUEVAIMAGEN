@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- https://www.playframework.com/documentation/latest/SettingsLogger -->
+
+<!DOCTYPE configuration>
+
+<configuration>
+
+  <!-- Importaciones necesarias (opcional en versiones recientes) -->
+  <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+  <import class="ch.qos.logback.classic.AsyncAppender"/>
+  <import class="ch.qos.logback.core.FileAppender"/>
+  <import class="ch.qos.logback.core.ConsoleAppender"/>
+
+  <!-- Appender para archivos rotativos por defecto -->
+  <appender name="FILE" class="FileAppender">
+    <file>${application.home:-.}/logs/application.log</file>
+    <encoder class="PatternLayoutEncoder">
+      <charset>UTF-8</charset>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %cyan(%logger{36}) %magenta(%X{pekkoSource}) %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Appender para consola -->
+  <appender name="STDOUT" class="ConsoleAppender">
+    <encoder class="PatternLayoutEncoder">
+      <charset>UTF-8</charset>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %cyan(%logger{36}) %magenta(%X{pekkoSource}) %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Asíncronos para rendimiento -->
+  <appender name="ASYNCFILE" class="AsyncAppender">
+    <appender-ref ref="FILE"/>
+    <queueSize>512</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+  </appender>
+
+  <appender name="ASYNCSTDOUT" class="AsyncAppender">
+    <appender-ref ref="STDOUT"/>
+    <queueSize>512</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+  </appender>
+
+  <!-- Loggers específicos por paquete -->
+  <!-- Play Framework general -->
+  <logger name="play" level="INFO"/>
+  <!-- Mi aplicación -->
+  <logger name="application" level="DEBUG"/>
+  <!-- Pekko y actor system -->
+  <logger name="pekko" level="INFO"/>
+  <logger name="pekko.http" level="INFO"/>
+  <logger name="org.apache.pekko.actor.ActorSystemImpl" level="ERROR"/>
+  <!-- Base de datos: HikariCP -->
+  <logger name="com.zaxxer.hikari" level="INFO"/>
+
+  <!-- Nivel por defecto para lo no especificado -->
+  <root level="WARN">
+    <appender-ref ref="ASYNCFILE"/>
+    <appender-ref ref="ASYNCSTDOUT"/>
+  </root>
+
+</configuration>

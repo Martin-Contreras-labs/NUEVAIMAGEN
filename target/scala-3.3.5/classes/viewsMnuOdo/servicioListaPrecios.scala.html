@@ -1,0 +1,305 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, listPrecio: List[tables.ListaPrecioServicio], listMoneda: List[tables.Moneda], listServicioNoBod: List[tables.Servicio])
+
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MANTENCION PRECIOS DE SERVICIOS POR "+mapDiccionario.get("BODEGA")+"S/PROYECTOS", mapDiccionario.get("BODEGA")+": "+bodega.getNombre().toUpperCase())
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-10 col-lg-11">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH>VIGENTE</TH>
+							<TH>FAMILIA</TH>
+							<TH>NRO.COTI</TH>
+							<TH>CODIGO</TH>
+							<TH>SERVICIO</TH>
+							<TH>UNIDAD</TH>
+							<TH>MONEDA</TH>
+							<TH>PRECIO</TH>
+							<TH>APLICA<br>MINIMO</TH>
+							<TH>CANT<br>MINIMO</TH>
+							<TH>PRECIO<br>ADICIONAL</TH>
+							<TH>VARIABLE</TH>
+							<TH style="min-width:80px;">FECHA PRECIO</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista2 <- listPrecio){
+							<tr class="align-middle">
+								<td  style="text-align:center;">
+									<input type="hidden" id="vigente_@lista2.getId_servicio()_@lista2.getId_cotiOdo" value="@lista2.getVigente()">
+									@if(lista2.getVigente()==1){
+										<input type="checkbox" checked onchange="modificaVigente('@lista2.getId_servicio()','@lista2.getId_cotiOdo');">
+									}else{
+										<input type="checkbox" onchange="modificaVigente('@lista2.getId_servicio()','@lista2.getId_cotiOdo');">
+									}
+								</td>
+								<td>@lista2.getNomClaseServicio()</td>
+								<td style="text-align: center;">@lista2.getNumeroCotiOdo()</td>
+								<td style="text-align: center">@lista2.getCodServicio()</td>
+								<td>@lista2.getNomServicio()</td>
+								<td style="text-align: center">@lista2.getNomUnidad()</td>
+								<td>
+									<select class="custom-select" style="text-align-last:center;"
+										id="idmoneda_@lista2.getId_servicio()_@lista2.getId_cotiOdo" 
+										onchange="modificaPorCampo('@lista2.getId_servicio()', 'id_moneda', value, '@lista2.getId_cotiOdo');">
+										<option value="@lista2.getId_moneda()">@lista2.getNickMoneda()</option>
+										@for(lista <- listMoneda){
+											<option value="@lista.id">@lista.nickName</option>
+										}
+									</select>
+								</td>
+								<td>
+								
+									<div style="display:none">@lista2.getPrecioStr()</div>
+								
+									<input type="text" class="form-control right"
+										id="precio_@lista2.getId_servicio()_@lista2.getId_cotiOdo"
+										value="@lista2.getPrecioStr()"
+										onfocus="value=value.replace(/,/g,'')" 
+										onkeydown="return ingresoDouble(window.event)"
+										onchange="modificaPorCampo('@lista2.getId_servicio()', 'precio', value, '@lista2.getId_cotiOdo');">
+										
+								</td>
+								
+								
+								<td  style="text-align:center;">
+									<input type="hidden" id="aplicaMinimo_@lista2.getId_servicio()_@lista2.getId_cotiOdo" value="@lista2.getAplicaMinimo()">
+									@if(lista2.getAplicaMinimo()==1){
+										<input type="checkbox" checked onchange="modificaAplicaMinimo('@lista2.getId_servicio()','@lista2.getId_cotiOdo');">
+									}else{
+										<input type="checkbox" onchange="modificaAplicaMinimo('@lista2.getId_servicio()','@lista2.getId_cotiOdo');">
+									}
+								</td>
+								<td>
+								
+									<div style="display:none">@lista2.getCantMinimoStr()</div>
+									
+									@if(lista2.getAplicaMinimo()==1){
+										<input type="text" class="form-control right"
+											id="cantMinimo_@lista2.getId_servicio()_@lista2.getId_cotiOdo"
+											value="@lista2.getCantMinimoStr()"
+											onfocus="value=value.replace(/,/g,'')" 
+											onkeydown="return ingresoDouble(window.event)"
+											onchange="modificaPorCampo('@lista2.getId_servicio()', 'cantMinimo', value, '@lista2.getId_cotiOdo');">
+									}else{
+										<input type="text" class="form-control right"
+											id="cantMinimo_@lista2.getId_servicio()_@lista2.getId_cotiOdo"
+											value="@lista2.getCantMinimoStr()"
+											onfocus="value=value.replace(/,/g,'')" 
+											onkeydown="return ingresoDouble(window.event)"
+											onchange="modificaPorCampo('@lista2.getId_servicio()', 'cantMinimo', value, '@lista2.getId_cotiOdo');"
+											disabled>
+									}
+								</td>
+								<td>
+								
+									<div style="display:none">@lista2.getPrecioAdicionalStr()</div>
+									
+									@if(lista2.getAplicaMinimo()==1){
+										<input type="text" class="form-control right"
+											id="precioAdicional_@lista2.getId_servicio()_@lista2.getId_cotiOdo"
+											value="@lista2.getPrecioAdicionalStr()"
+											onfocus="value=value.replace(/,/g,'')" 
+											onkeydown="return ingresoDouble(window.event)"
+											onchange="modificaPorCampo('@lista2.getId_servicio()', 'precioAdicional', value, '@lista2.getId_cotiOdo');">
+									}else{
+										<input type="text" class="form-control right"
+											id="precioAdicional_@lista2.getId_servicio()_@lista2.getId_cotiOdo"
+											value="@lista2.getPrecioAdicionalStr()"
+											onfocus="value=value.replace(/,/g,'')" 
+											onkeydown="return ingresoDouble(window.event)"
+											onchange="modificaPorCampo('@lista2.getId_servicio()', 'precioAdicional', value, '@lista2.getId_cotiOdo');"
+											disabled>
+									}
+										
+								</td>
+								
+								
+								<td  style="text-align:center;">
+									<input type="hidden" id="esVariable_@lista2.getId_servicio()_@lista2.getId_cotiOdo" value="@lista2.getEsVariable()">
+									@if(lista2.getEsVariable()==1){
+										<input type="checkbox" checked onchange="modificaVariable('@lista2.getId_servicio()', '@lista2.getId_cotiOdo');">
+									}else{
+										<input type="checkbox" onchange="modificaVariable('@lista2.getId_servicio()', '@lista2.getId_cotiOdo');">
+									}
+								</td>
+								<td style="text-align:center;">
+									<div id="fechaAAMMDD_@lista2.getId_servicio()_@lista2.getId_cotiOdo" style="display:none">@utilities.Fechas.AAMMDD(lista2.getFecha())</div>
+									<div id="fechaDDMMAA_@lista2.getId_servicio()_@lista2.getId_cotiOdo">@utilities.Fechas.DDMMAA(lista2.getFecha())</div>
+								</td>
+							</tr>
+						 }
+					</tbody>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="AGREGAR SERVICIO" class="btn btn-info btn-sm rounded-pill btn-block" onclick='$("#serviciosNoEnBod").modal("show")'>
+						</div>
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/servicioPrecios/'">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='serviciosNoEnBod' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR SERVICIO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<table id="tablaListaServicioNoEnBod" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>FAMILIA</TH>
+								<TH>CODIGO</TH>
+								<TH>NOMBRE</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listServicioNoBod){
+								<TR onClick="$('#id_servicio').val('@lista1.getId()'); document.getElementById('formAgregaServicio').submit();" data-dismiss="modal">
+									<td  style="text-align:left;">@lista1.getNombreClase()</td>
+									<td  style="text-align:left;">@lista1.getCodigo()</td>
+									<td  style="text-align:left;">@lista1.getNombre()</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formAgregaServicio" method="post" action="/servicioAgregaPrecio/">	
+		<input type="hidden" id="id_servicio" name="id_servicio">
+		<input type="hidden" name="id_bodegaEmpresa" value="@bodega.getId()">
+		<input type="hidden" name="id_cotiOdo" value="0">
+	</form>
+	
+}
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 0, "asc" ],[ 3, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+		  $('#tablaListaServicioNoEnBod').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificaVariable = (id_servicio, id_cotiOdo) => {
+		let esVariable = $("#esVariable_"+id_servicio+"_"+id_cotiOdo).val();
+		if(esVariable==1){
+			modificaPorCampo(id_servicio, "esVariable", 0, id_cotiOdo);
+			$("#esVariable_"+id_servicio+"_"+id_cotiOdo).val(0);
+		}else{
+			modificaPorCampo(id_servicio, "esVariable", 1, id_cotiOdo);
+			$("#esVariable_"+id_servicio+"_"+id_cotiOdo).val(1);
+		}
+	}
+	
+	const modificaAplicaMinimo = (id_servicio, id_cotiOdo) => {
+		let esVariable = $("#aplicaMinimo_"+id_servicio+"_"+id_cotiOdo).val();
+		if(esVariable==1){
+			modificaPorCampo(id_servicio, "aplicaMinimo", 0, id_cotiOdo);
+			$("#aplicaMinimo_"+id_servicio+"_"+id_cotiOdo).val(0);
+			$("#cantMinimo_"+id_servicio+"_"+id_cotiOdo).attr("disabled",true);
+			$("#precioAdicional_"+id_servicio+"_"+id_cotiOdo).attr("disabled",true);
+		}else{
+			modificaPorCampo(id_servicio, "aplicaMinimo", 1, id_cotiOdo);
+			$("#aplicaMinimo_"+id_servicio+"_"+id_cotiOdo).val(1);
+			$("#cantMinimo_"+id_servicio+"_"+id_cotiOdo).attr("disabled",false);
+			$("#precioAdicional_"+id_servicio+"_"+id_cotiOdo).attr("disabled",false);
+		}
+	}
+	
+	
+	const modificaVigente = (id_servicio, id_cotiOdo) => {
+		let vigente = $("#vigente_"+id_servicio+"_"+id_cotiOdo).val();
+		if(vigente==1){
+			modificaPorCampo(id_servicio, "vigente", 0, id_cotiOdo);
+			$("#vigente_"+id_servicio+"_"+id_cotiOdo).val(0);
+		}else{
+			modificaPorCampo(id_servicio, "vigente", 1, id_cotiOdo);
+			$("#vigente_"+id_servicio+"_"+id_cotiOdo).val(1);
+		}
+	}
+	
+
+	const modificaPorCampo = (id_servicio, campo, valor, id_cotiOdo) => {
+		let precio = $("#precio_"+id_servicio+"_"+id_cotiOdo).val();
+		precio = precio.replace(/,/g,'');
+		let cantMinimo = $("#cantMinimo_"+id_servicio+"_"+id_cotiOdo).val();
+		cantMinimo = cantMinimo.replace(/,/g,'');
+		let precioAdicional = $("#precioAdicional_"+id_servicio+"_"+id_cotiOdo).val();
+		precioAdicional = precioAdicional.replace(/,/g,'');
+		
+		let formData = new FormData();
+		formData.append('id_bodegaEmpresa','@bodega.getId');
+		formData.append('id_servicio',id_servicio);
+		formData.append('campo',campo);
+		formData.append('valor',valor);
+		formData.append('id_cotiOdo',id_cotiOdo);
+		$.ajax({
+            url: "/modPorCampoListaPServicioAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}else{
+					let rs = respuesta.split("-");
+					$("#fechaAAMMDD_"+id_servicio+"_"+id_cotiOdo).text(rs[0]+"-"+rs[1]+"-"+rs[1]);
+					$("#fechaDDMMAA_"+id_servicio+"_"+id_cotiOdo).text(rs[2]+"-"+rs[1]+"-"+rs[0]);
+					$("#precio_"+id_servicio+"_"+id_cotiOdo).val(formatStandar(precio,rs[3]));
+					$("#cantMinimo_"+id_servicio+"_"+id_cotiOdo).val(formatStandar(cantMinimo,"2"));
+					$("#precioAdicional_"+id_servicio+"_"+id_cotiOdo).val(formatStandar(precioAdicional,rs[3]));
+				}
+	     	}
+        });
+	}
+</script>
+
+
+		
+		
+	

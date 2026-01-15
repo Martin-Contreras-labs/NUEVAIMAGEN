@@ -1,0 +1,129 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+tipoEstado: tables.TipoEstado, listMonedas: List[tables.Moneda])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "NUEVO TIPO REPARACION DEL TIPO ESTADO", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/tipoReparacionGraba/">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td colspan="2" style="text-align: left;">
+								<input type="hidden" name="id_tipoEstado" value="@tipoEstado.getId()">
+							<h5>TIPO ESTADO: @tipoEstado.getSigla() - @tipoEstado.getNombre()</h5>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">SIGLA: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									id="sigla"
+									name="sigla"
+									autocomplete="off"
+									maxlength="5"
+									onkeydown="return sinReservados(window.event)"
+									onchange="value = value.trim();verificaSigla(value, @tipoEstado.getId());"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NOMBRE: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="nombre"
+									onkeydown="return sinReservados(window.event)"
+									autocomplete="off"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+						<td style="text-align:left;">MONEDA: </td>
+							<td style="text-align:left;">
+								<select class="custom-select" 
+									name="id_moneda" 
+									onchange="modificarTipoReparacion(id)">
+									@for(lista <- listMonedas){
+										<option value="@lista.getId()">@lista.getNickName()</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">PRECIO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="precio"
+									value="0"
+									onchange="if(value.trim()=='') value=0"
+									onkeydown="return ingresoDouble(window.event)">	
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">DESCRIPCION: </td>
+							<td style="text-align:left;">
+								<textarea 
+									class="form-control form-control-sm" 
+									rows="3" id="descripcion" 
+									name="descripcion" 
+									autocomplete="off"></textarea>
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit"  value="GRABAR REPARACION" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/tipoEstadoModifica/@tipoEstado.getId()';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const verificaSigla = (sigla, id_tipoEstado) => {
+		var formData = new FormData();
+	  	formData.append('sigla',sigla);
+	  	formData.append('id_tipoEstado',id_tipoEstado);
+        $.ajax({
+            url: "/verificaSiglaTipoReparacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('La sigla de tipo reparación asociada a este tipo de estado ya existe, intente con otra', function () {
+	     				$("#sigla").val("");
+		     		});
+	     		}
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+</script>
+
+		
+	

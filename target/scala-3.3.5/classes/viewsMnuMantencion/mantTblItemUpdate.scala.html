@@ -1,0 +1,85 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+item: tables.MantItemIntervenido)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR/ELIMINAR ITEM", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<table class="table table-sm table-bordered table-condensed table-fluid">
+					<tr>
+						<td>
+							<div class="row">
+								<div class="col-xs-6 col-sm-2 col-md-2 col-lg-2">
+									<b><font color="#008000">ITEM:</font></b>
+								</div>
+								<div class="col-xs-6 col-sm-10 col-md-10 col-lg-10">
+									<input type="hidden" name="id_item" value="@item.getId()">
+									<input type="text" class="form-control"
+										id="nombre"
+										maxlength="50"
+										onkeydown="return sinReservados(window.event)"
+										value="@item.getNombre()"
+										onchange="value = value.trim(); modificarItem(id)">
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes3/mantTblItemMant/';">
+				</div>
+			</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificarItem = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_item','@item.getId()');
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/routes3/modificaItemPorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="existe"){
+	     			alertify.alert('El nombre de item ya existe, intente con otro', function () {
+	     				$("#nombre").val("@item.getNombre()");
+		     		});
+	     		}else if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+	
+</script>
+
+
+		
+		
+	

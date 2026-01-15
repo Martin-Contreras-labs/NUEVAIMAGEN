@@ -1,0 +1,263 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodegaOrigen: tables.BodegaEmpresa, listBodegasDestino: List[List[String]],
+nuevoNumeroGuia: Long, hoy: String)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: none;"><br><br><br><br><br><br><h1>Ahora se esta cargando.....</h1></div>
+	
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+	
+	<script>
+		let auxBueno = -1;
+		let auxIndex = -1;
+	</script>
+	
+	<form id="enviarForm" action="/movimientoOrigenDestinoMultiple1/" enctype="multipart/form-data" method="POST">
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "MOVIMIENTOS ENTRE "+mapDiccionario.get("BODEGA")+" Y/O PROYECTOS", "")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="25%">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Origen</span>
+								  		</div>
+								  		<input type="hidden" name="id_bodegaOrigen" value="@bodegaOrigen.getId()">
+	  									<input type="text" class="form-control" 
+	  										value="@bodegaOrigen.getNombre().toUpperCase" 
+	  										readonly>
+									</div>
+								</td>
+								<td width="25%">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Destino</span>
+								  		</div>
+	  										<input type="hidden" name="id_bodegaDestino" id="id_bodegaDestino">
+											<input type="text" class="form-control left"
+												id="nombreBodegaDestino"
+												onclick='$("#listaBodegasDestino").modal("show")'
+												style="background:white"
+												required
+												readonly>
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Mov</span>
+								  		</div>
+											<input type="text" class="form-control left"
+									  				name="numeroGuia"
+													id="numeroGuia"
+													value = "@nuevoNumeroGuia"
+													readonly
+													required>
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Ref</span>
+								  		</div>
+								  		<input type="text" class="form-control left"
+								  				name="numGuiaCliente"
+								  				autocomplete="off"
+								  				maxlength="50"
+												readonly>
+									</div>
+								</td>
+
+
+								<td rowspan="2" style="width: 50px; min-width: 50px; max-width: 50px; text-align: center; vertical-align: middle">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 10px; display: inline-block">
+										<input type="hidden" name="docAnexo" value="0">
+										<div id="txtBtn">Subir Documento</div>
+										<input type="file" multiple id="docAdjunto" name="docAdjunto[]" title="Adjuntar documentos"
+											onchange="LimitAttach(this.form, this.form.docAdjunto.value);" disabled>
+									</span>
+								</td>
+
+							</tr>
+
+
+							<tr>
+								<td align="center">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Sucursal</span>
+										</div>
+										<input type="text" class="form-control left"
+											   value = "@bodegaOrigen.getNameSucursal()"
+											   readonly>
+									</div>
+								</td>
+								<td align="center">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Sucursal</span>
+										</div>
+										<input type="text" id="nameSucursalDestino" class="form-control left" readonly>
+									</div>
+								</td>
+
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Movimiento</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaGuia"
+										id="fechaGuia"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),@mapPermiso.get("parametro.diasMasGuia"))) value='@hoy';"
+										value="@hoy"
+										readonly
+										required>
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Ini/Ter</span>
+										</div>
+										<input type="date" class="form-control center"
+										name="fechaIniTerGuia"
+										id="fechaIniTerGuia"
+										onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosIniTer"),@mapPermiso.get("parametro.diasMasIniTer"))) value='@hoy';"
+										value="@hoy"
+										readonly
+										required>
+									</div>
+								</td>
+
+
+
+							</tr>
+							<tr>
+								<td align="center">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Comercial</span>
+										</div>
+										<input type="text" class="form-control left"
+											   id = "nameComercial"
+											   value = "@bodegaOrigen.getNameComercial()"
+											   readonly>
+									</div>
+								</td>
+								<td align="center">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Cliente</span>
+										</div>
+										<input type="text" class="form-control left"
+											   id = "nickCliente"
+											   value = ""
+											   readonly>
+									</div>
+								</td>
+								<td colspan="20" rowspan="3">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Observaciones</span>
+										</div>
+										<textarea class="form-control" rows="2"
+										name="observaciones"
+										autocomplete="off" readonly></textarea>
+									</div>
+								</td>
+							</tr>
+
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+	</form>
+	
+	<div id='listaBodegasDestino' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR @mapDiccionario.get("BODEGA")/PROYECTO DE DESTINO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<table id="tablaListaBodegasDestino" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>SUCURSAL</TH>
+								<TH>TIPO</TH>
+								<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+								<TH>NOMBRE CLIENTE O PROPIETARIO</TH>
+					        	<TH>NOMBRE DEL PROYECTO</TH>
+					        	<TH>@mapDiccionario.get("COMUNA") PROYECTO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listBodegasDestino){
+								<TR onClick="seleccionaBodegaDestino('@lista1.get(1)','@lista1.get(17)')" data-dismiss="modal">
+									<td  style="text-align:left;"><div id="sucursal_@lista1.get(1)">@lista1.get(16)</div></td>
+									<td  style="text-align:left;">@lista1.get(4)</td>
+									<td  style="text-align:left;"><div id="bodega_@lista1.get(1)">@lista1.get(5).toUpperCase()</div></td>
+									<td  style="text-align:left;">@lista1.get(7)</td>
+									<td  style="text-align:left;">@lista1.get(8)</td>
+									<td  style="text-align:left;">@lista1.get(9)</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		  $('#tablaListaBodegasDestino').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const seleccionaBodegaDestino = (id_bodegaDestino, id_sucursal) =>{
+		let nameBodega = $("#bodega_"+id_bodegaDestino).text();
+		$("#nombreBodegaDestino").val(nameBodega);
+		$("#id_bodegaDestino").val(id_bodegaDestino);
+		document.getElementById('enviarForm').submit();
+
+	}
+	
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,153 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+id_ot: Long, tabla: String)
+
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE Y ESTADO DE "+mapDiccionario.get("ORDEN_DE_TRABAJO").toUpperCase(), "")
+		<div class="noprint" align="left">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1">
+					<input type="button"  value="Imprimir" class="btn btn-primary btn-sm rounded-pill btn-block" onclick="window.print(); return false;">
+				</div>
+				<div class="col-xs-3 col-sm-1 col-md-1 col-lg-1" onsubmit="return validarForm();">
+					<form action="/routes2/otRevisarExcel/" method="POST">
+						<input type="hidden" name="id_ot" value="@id_ot">
+						<input type="submit" id="btnSubmit" class="btn btn-info btn-sm rounded-pill btn-block" value="Excel">
+					</form>
+					
+				</div>
+			</div>
+			<br><br>
+		</div>
+		
+		<div id="element">
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					@Html(tabla)
+				</div>
+			</div>
+		</div>
+		<div class="noprint" align="left">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back();">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerTrazaOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>TRAZABILIDAD DEL DESPACHO<div id="detOrigen"></div></h5>
+						<input type="button"  value="Imprimir" class="btn btn-primary btn-sm rounded-pill" onclick="document.getElementById('mostrarmostrar').style.display='none'; window.print(); return false;">
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close' onclick="document.getElementById('mostrarmostrar').style.display='block'">
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarTrazaOt'></div>
+					<div class="noprint">
+		   				<div class='row'>
+							<div class='col-sm-12' style='text-align:center'>
+								<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal' onclick="document.getElementById('mostrarmostrar').style.display='block'">Listo</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+	<div id="modalStockPorEquipo" class="modal" role="dialog" data-backdrop="static" data-keyboard="false">
+		<div class='modal-dialog modal-dialog-scrollable' style='max-width: 80% !important;' role='document'>
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">STOCK DISPONIBLE</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				</div>
+				<div class="modal-body">
+					<div id="stockPorEquipo"></div>
+	   				<div class="row">
+						<div class="col-sm-12" style="text-align:center">
+							<button type="button" class="btn btn-sm  btn-warning" style="font-size: 10px;" data-dismiss="modal">Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const trazaOt = (id_ot, id_equipoOrigen) =>{
+		var formData = new FormData();
+	  	formData.append('id_ot',id_ot);
+		formData.append('id_equipoOrigen',id_equipoOrigen);
+        $.ajax({
+            url: "/routes2/trazaEqOtAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarTrazaOt').innerHTML = respuesta;
+				let codOrigen = $("#codEq_"+id_equipoOrigen).text();
+				let nomOrigen = $("#nomEq_"+id_equipoOrigen).text();
+				document.getElementById('detOrigen').innerHTML = "Equipo de origen: "+ codOrigen + " - " +nomOrigen;
+
+
+
+	     		$('#modalVerTrazaOt').modal('show');
+	     	}
+        });
+	}
+	
+	const vistaStockPorEquipo = (id_equipo) =>{
+		var formData = new FormData();
+		formData.append('id_equipo',id_equipo);
+        $.ajax({
+            url: "/tablaInvPorEquipoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+				document.getElementById('stockPorEquipo').innerHTML = respuesta;
+				$('#modalStockPorEquipo').modal('show');
+	     	}
+        });
+	}
+	
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		return(true);
+	}
+
+
+	
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,358 @@
+@(mapDiccionario: Map[String,String], listaTransporte: List[tables.Transportista])
+	
+<div id="modalListaTransporte" class="modal" data-backdrop="static" data-keyboard="false">
+   	<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+	   	<div class='modal-content'>
+	   		<div class='modal-header'>
+				<h5 class="modal-title">LISTA DE SELECCION DE TRANSPORTISTAS</h5>
+			    <div align="center">
+			           	<button type="button" class='btn btn-sm btn-success' data-dismiss="modal" onclick="$('#modalNuevoTransportista').modal('show');">AGREGAR TRANSPORTISTA</button>
+			    </div>
+			</div>
+		     <div class="modal-body">
+		     
+				<div id="detalleTablaListaTransportista">
+			     	<table id="tablaListaTransporte" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								   <th>id</th>
+							       <th>@mapDiccionario.get("RUT") Conductor</th>
+							       <th>Conductor</th>
+							       <th>@mapDiccionario.get("RUT") Empresa</th>
+							       <th>Empresa</th>
+							       <th>Vehiculo</th>
+							       <th>@mapDiccionario.get("Patente")</th>
+							       <th>Nro Inscripcion</th>
+							       <th>Nro Licencia</th>
+							       <th>Fono Contacto</th>
+							       <th>SELECT</th>
+							       <th>EDIT</th>
+							       <th>DEL</th>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista <- listaTransporte){
+								<TR>
+									<td style="text-align:left;">@lista.getId()</td>
+									<td style="text-align:left;">@lista.getRutConductor()</td>
+									<td style="text-align:left;">@lista.getConductor()</td>
+									<td style="text-align:left;">@lista.getRutEmpresa()</td>
+									<td style="text-align:left;">@lista.getEmpresa()</td>
+									<td style="text-align:left;">@lista.getVehiculo()</td>
+									<td style="text-align:left;">@lista.getPatente()</td>
+									<td style="text-align:left;">@lista.getInscripcion()</td>
+									<td style="text-align:left;">@lista.getLicencia()</td>
+									<td style="text-align:left;">@lista.getFonoContacto()</td>
+									<td style='text-align:center;'>
+										<a href='#' onclick="seleccionaTransportista('@lista.id')">
+											<kbd style="background-color: green">SELECT</kbd>
+										</a>
+									</td>
+									<td style='text-align:center;'>
+										<a href='#' onclick="editaTransportista('@lista.getId()')">
+											<kbd style="background-color: #73C6B6">edit</kbd>
+										</a>
+									</td>
+									<td style='text-align:center;'>
+										<a href='#' onclick="eliminaTransportista('@lista.id')">
+											<kbd style="background-color: red">X</kbd>
+										</a>
+									</td>
+								</TR>
+							}
+						</tbody>
+					</table>
+				</div>
+				<div align="center">
+					<button type='button' class='btn btn-sm btn-light' style='font-size: 10px;' data-dismiss='modal' onclick="limpiarTransportista()">Cancelar</button>
+				</div>
+		   	</div>
+		</div>
+	</div>
+</div>
+
+	
+<div id='modalNuevoTransportista' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+	<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+		<div class='modal-content'>
+		   	<div class="modal-header">
+		           <h5 class="modal-title">NUEVO TRANSPORTISTA</h5>
+			</div>
+	     	<div class="modal-body">
+	     		<form id="formNuevoTransportista" method="post" action="/nuevoTransportistaAjax/">
+		     		<table class="table table-sm table-bordered table-condensed table-fluid">
+		     			<tr>
+							<td style="text-align:left;">@mapDiccionario.get("RUT") Conductor: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="rutConductor"
+									id="nuevoRutConductor"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Nombre Conductor: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="conductor"
+									id="nuevoNombreConductor"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("RUT") Empresa: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="rutEmpresa"
+									id="nuevoRutEmpresa"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+		     			<tr>
+							<td style="text-align:left;">Nombre Empresa: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="empresa"
+									id="nuevoNombreEmpresa"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Veh&iacute;culo: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="vehiculo"
+									id="nuevoVehiculo"
+									autocomplete="off"
+									maxlength="100"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("Patente"): </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="patente"
+									id="nuevoPatente"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Nro Inscripci&oacute;n: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="inscripcion"
+									id="nuevoInscripcion"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Nro Licencia: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="licencia"
+									id="nuevoLicencia"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Fono Contacto: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="fonoContacto"
+									id="nuevoFonoContacto"
+									autocomplete="off"
+									maxlength="50"
+									onchange="value = value.trim();">
+							</td>
+						</tr>
+					</table>
+					<div align="center">
+						<button type='button' class='btn btn-sm btn-light' style='font-size: 10px;' data-dismiss='modal' onclick="limpiarTransportista()">Cancelar</button>
+						<button type='button' class='btn btn-sm btn-success' style='font-size: 10px;' data-dismiss='modal' onClick="grabarTransportista()">Grabar</button>
+					</div>
+				</form>
+	   		</div>
+	   	</div>
+	</div>
+</div>
+
+<div id='modalEditaTransportista' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+	<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+		<div class='modal-content'>
+			<div class="modal-header">
+				<h5 class='modal-title'>MODIFICAR TRANSPORTISTA</h5>
+			</div>
+		   	<div class="modal-body">
+		   		<div id="vistaEditaTransp"></div>
+		   	</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	$(document).ready(function() {
+		$('#tablaListaTransporte').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"order": [[ 4, "desc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+		} );
+	});
+	
+	const limpiarTransportista = () => {
+		$('#nuevoRutConductor').val("");
+		$('#nuevoNombreConductor').val("");
+		$('#nuevoRutEmpresa').val("");
+		$('#nuevoNombreEmpresa').val("");
+		$('#nuevoVehiculo').val("");
+		$('#nuevoPatente').val("");
+		$('#nuevoInscripcion').val("");
+		$('#nuevoLicencia').val("");
+		$('#nuevoFonoContacto').val("");
+	}
+	
+	const editaTransportista = (id_transportista) => {
+		$('#modalListaTransporte').modal('hide');
+		let formData = new FormData();
+	  	formData.append('id_transportista',id_transportista);
+        $.ajax({
+            url: "/editaTransportistaAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(vista){
+	     		document.getElementById('vistaEditaTransp').innerHTML = vista;
+	     		$('#modalEditaTransportista').modal('show');
+	     	}
+        });
+	}
+
+	const grabarTransportista = () => {
+		var formElement = document.getElementById("formNuevoTransportista");
+		formData = new FormData(formElement);
+		$.ajax({
+            url: $("#formNuevoTransportista").attr("action"),
+            type: $("#formNuevoTransportista").attr("method"),
+            method: $("#formNuevoTransportista").attr("method"),
+            data:formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(vista){
+	     		document.getElementById('detalleTablaListaTransportista').innerHTML = vista;
+	     		$('#tablaListaTransporte').DataTable({
+	    	    	"fixedHeader": true,
+	    	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	    	"order": [[ 4, "desc" ]],
+	    	    	"language": {
+	    	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	    	        }
+	    		} );
+	    		transportistaSeleccionado();
+				$('#modalListaTransporte').modal('show');
+	     	}
+        });
+		limpiarTransportista();
+	}
+	
+	const modificarTransportista = () => {
+		var formElement = document.getElementById("formModificaTransportista");
+		formData = new FormData(formElement);
+		$.ajax({
+            url: $("#formModificaTransportista").attr("action"),
+            type: $("#formModificaTransportista").attr("method"),
+            method: $("#formModificaTransportista").attr("method"),
+            data:formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(vista){
+	     		document.getElementById('detalleTablaListaTransportista').innerHTML = vista;
+	     		$('#tablaListaTransporte').DataTable({
+	    	    	"fixedHeader": true,
+	    	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	    	"order": [[ 4, "desc" ]],
+	    	    	"language": {
+	    	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	    	        }
+	    		} );
+	    		transportistaSeleccionado();
+				$('#modalListaTransporte').modal('show');
+	     	}
+        });
+		limpiarTransportista();
+	}
+	
+	const eliminaTransportista = (id_transportista) => {
+		alertify.confirm("Esta seguro de eliminar el transportista", function (e) {
+			if (e) {
+				var formData = new FormData();
+				formData.append('id_transportista', id_transportista);
+				$.ajax({
+					url: "/eliminaTransportistaAjax/",
+		            type: "POST",
+		            method: "POST",
+		            data: formData,
+		            cache: false,
+		            contentType: false,
+			     	processData: false,
+			     	success: function(vista){
+						if(vista=="FALSO"){
+							alertify.alert('No es posible eliminar, esta en uso', function () {
+			     				$('#modalListaTransporte').modal('show');
+			     			});
+						}else{
+							document.getElementById('detalleTablaListaTransportista').innerHTML = vista;
+				     		$('#tablaListaTransporte').DataTable({
+				    	    	"fixedHeader": true,
+				    	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				    	    	"order": [[ 4, "desc" ]],
+				    	    	"language": {
+				    	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				    	        }
+				    		} );
+				    		transportistaSeleccionado();
+				    		$('#modalListaTransporte').modal('show');
+						}
+			     	}
+		        });
+				limpiarTransportista();
+			}
+		});
+	}
+	
+</script>
+
+
+
+
+
+
+
+
+
+
+
+		
+		

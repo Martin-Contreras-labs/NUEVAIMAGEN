@@ -1,0 +1,252 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: forms.FormContratoOdo, region: tables.Regiones, comuna: tables.Comunas, listRegiones: List[tables.Regiones], listComunas: List[tables.Comunas],
+listBodegas: List[List[String]], listProyectos: List[tables.Proyecto])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DATOS PARA HACER CONTRATO ODO", "")
+		<form id='listaForm' method='post' action='/routes2/hacerContratoOdo/'>
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td style="text-align:left;">NOMBRE CLIENTE:</td>
+							<td style="text-align:left;">
+								<input type="hidden" name="id_cotiOdo" value="@datos.id_cotiOdo">
+								<input type="hidden" name="id_cliente" value="@datos.id_cliente">
+								<input type="text" class="form-control left"
+									name="clienteNombre"
+									autocomplete="off"
+									value="@datos.clienteNombre"
+									maxlength="100"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("RUT") CLIENTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteRut"
+									autocomplete="off"
+									value="@datos.clienteRut"
+									maxlength="50"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">GIRO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteGiro"
+									autocomplete="off"
+									value="@datos.clienteGiro"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">DIRECCION:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteDireccion"
+									autocomplete="off"
+									value="@datos.clienteDireccion"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">@mapDiccionario.get("Region"): </td>
+							<td style="text-align: left;">
+								<input type="hidden" id="clienteRegion" name="clienteRegion" value="@datos.clienteRegion">
+								<select class="input-large form-control" id="selectRegion" style="text-align:left;width:100%" 
+											onchange="actualizaComunas(value,'cod_comuna');">
+									<option value="@region.codigo">@region.nombre</option>
+									@for(lista <- listRegiones){
+								     	<option value="@lista.codigo">@lista.nombre</option>
+									}
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">@mapDiccionario.get("Comuna"): </td>
+							<td style="text-align: left;">
+								<input type="hidden" id="clienteComuna" name="clienteComuna" value="@datos.clienteComuna">
+								<div id="selectComuna">
+									<select class="input-large form-control" style="text-align:left;width:100%">
+										<option value="@comuna.codigo">@comuna.nombre</option>
+										@for(lista <- listComunas){
+									     	<option value="@lista.nombre">@lista.nombre</option>
+										}
+									</select>
+								</div>
+							</td>
+						</tr>	
+						<tr>
+							<td style="text-align:left;">NOMBRE REPRESENTANTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteRepresentante1"
+									autocomplete="off"
+									value="@datos.clienteRepresentante1"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">@mapDiccionario.get("RUT") REPRESENTANTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteRutRepresentante1"
+									autocomplete="off"
+									value="@datos.clienteRutRepresentante1"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">CARGO REPRESENTANTE:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteCargoRepresentante1"
+									autocomplete="off"
+									value="@datos.clienteCargoRepresentante1"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">FECHA DE CONTRATO:</td>
+							<td style="text-align:left;">
+								@if(datos.fechaContrato==null){
+									<input type="date" class="form-control left"
+							  			name="fechaContrato"
+					        			required>
+								}else{
+									<input type="date" class="form-control left"
+							  			name="fechaContrato"
+							  			value="@utilities.Fechas.AAMMDD(datos.fechaContrato)"
+					        			required>
+								}
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NUMERO CONTRATO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="numeroContrato"
+									autocomplete="off"
+									value="@datos.numeroContrato"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">E-MAIL:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteEMail"
+									autocomplete="off"
+									value="@datos.clienteEMail"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">TELEFONO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="clienteFono"
+									autocomplete="off"
+									value="@datos.clienteFono"
+									maxlength="50">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">Notas adicionales<br>(Se agregan al final del contrato):</td>
+							<td style="text-align:left;">
+								<textarea class="form-control" rows="5"
+									name="notasAlContrato" 
+									autocomplete="off">@datos.notasAlContrato</textarea>
+							</td>
+						</tr>
+						
+						
+					</table>
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="submit"  value="GENERAR CONTRATO" class="btn btn-success btn-sm rounded-pill btn-block">
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	let id_cliente = "@datos.id_cliente";
+
+	$(document).ready(function() {
+		  $('#cod_region > option[value="@region.codigo"]').attr('selected', 'selected');
+		  $('#cod_comuna > option[value="@comuna.codigo"]').attr('selected', 'selected');
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const actualizaComunas = (cod_region) => {
+		
+		var elt = document.getElementById("selectRegion");
+		var region = elt.options[elt.selectedIndex].text;
+		$("#clienteRegion").val(region);
+		
+		var formData = new FormData();
+		formData.append('cod_region', cod_region);
+		formData.append('id_cliente',id_cliente);
+	  	$.ajax({
+            url: "/selComuna3Ajax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(data){
+	     		if(data=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}else{
+	     			data = data.replace(/&lt;/g,"<");
+					data = data.replace(/&gt;/g,">");
+					data = data.replace(/&#x27;/g,"\"");
+	     			document.getElementById('selectComuna').innerHTML = data;
+	     		}
+	     	}
+        });
+	}
+	
+	const modificarCliente = (campo) => {
+		let valor = $("#"+campo).val();
+		var formData = new FormData();
+	  	formData.append('campo',campo);
+	  	formData.append('id_cliente',id_cliente);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/modificaClientePorCampoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){}
+        });
+	}
+	
+
+</script>
+
+		
+	

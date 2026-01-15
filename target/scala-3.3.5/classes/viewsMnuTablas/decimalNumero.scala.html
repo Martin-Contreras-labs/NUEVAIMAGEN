@@ -1,0 +1,88 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listMonedas: List[tables.Moneda])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "NUMERO DE DECIMALES POR MONEDA (MODIFICAR)", "")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-8 col-sm-4 col-md-4 col-lg-4">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH style="vertical-align: top;">MONEDA</TH>
+								<TH>SIGLA</TH>
+								<TH>NRO DECIMALES</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista <- listMonedas){
+								<TR>
+									<td style="text-align:left;">@lista.getNombre()</td>
+									<td style="text-align:center;">@lista.getNickName()</td>
+									<td style="text-align:left;">
+										<select class="custom-select"
+											onchange="modificadecimal(value,'@lista.getId()')">
+											<option value=@lista.numeroDecimales>@lista.numeroDecimales</option>
+						        			<option value=0>0</option>
+						        			<option value=2>2</option>
+						        			<option value=4>4</option>
+						        			<option value=6>6</option>
+										</select>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				
+				
+				</div>
+			</div>
+			<div class="noprint">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+						<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+				</div>
+			</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificadecimal = (numeroDecimales, id_moneda) => {
+		var formData = new FormData();
+	  	formData.append('id_moneda',id_moneda);
+	  	formData.append('numeroDecimales',numeroDecimales);
+        $.ajax({
+            url: "/decimalModificaAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+</script>
+
+
+		
+		
+	

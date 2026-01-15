@@ -1,0 +1,272 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, lista: List[List[String]], fechaDesde: String, fechaHasta: String, id_proveedor: Long, moneda: tables.Moneda, uf: Double, usd: Double, eur: Double)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE MOVIMIENTOS DE COMPRAS","MONEDA "+moneda.getNombre().toUpperCase())
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch5('tablaPrincipal');">
+								</div>
+							</td>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+					        @for((nivel1,index1) <- lista.zipWithIndex) {
+								@if(index1 > 0 && index1 < 4){
+									<TR>
+										@for((nivel2,index2) <- nivel1.zipWithIndex) {
+											<th style="textAlign: center">@nivel2</th>
+										}
+									</TR>
+								}
+							}
+						</thead>
+						<tbody>
+							@for((nivel1,index1) <- lista.zipWithIndex) {
+								@if(index1 > 3){
+									<TR>
+										@for((nivel2,index2) <- nivel1.zipWithIndex) {
+											@if(index2 < 4){
+												<td>@nivel2</td>
+											}else if(index2 == 3){
+												<td>
+													<div style="display:none">@utilities.Fechas.AAMMDD(nivel2)</div>
+													@nivel2
+												</td>
+											}else{
+												@if( index2 == 6 || index2 == nivel1.size-3){
+													<td style="background-color: #eeeeee">
+														@nivel2
+													</td>
+												}else{
+													<td>
+														@nivel2
+													</td>
+												}
+											}
+										}
+									</TR>
+								}
+							 }
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+	
+	<form id="excel" class="formulario" method="post" action="/routes2/movCompras1Excel/">
+		<input type="hidden" name="fechaDesde" value="@fechaDesde">
+		<input type="hidden" name="fechaHasta" value="@fechaHasta">
+		<input type="hidden" id="id_proveedor" name="id_proveedor" value="@id_proveedor">
+		<input type="hidden" name="uf" value="@uf">
+		<input type="hidden" name="usd" value="@usd">
+		<input type="hidden" name="eur" value="@eur">
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		var tabla = document.getElementById("tablaPrincipal");
+
+		for (var i = 3; i < tabla.rows.length; i++) {
+			tabla.rows[i].cells[0].style.textAlign="center";
+			tabla.rows[i].cells[1].style.textAlign="left";
+			for(var k=2;k<tabla.rows[0].cells.length;k++){
+				tabla.rows[i].cells[k].style.textAlign="center";
+			}
+		}
+
+		let footer = tabla.createTFoot();
+		let newRow = footer.insertRow(0);
+		let cellsOfRow = tabla.rows[0].getElementsByTagName('th');
+		for (var i = 0; i < cellsOfRow.length; i++) {
+			newRow.insertCell(i);
+			newRow.cells[i].style.backgroundColor="#eeeeee";
+			if(i<2){
+				newRow.cells[i].style.textAlign="left";
+			}else {
+				newRow.cells[i].style.textAlign="center";
+			}
+			if(i==0){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="TOTALES";
+			}
+			if(i==1){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="POR COLUMNA";
+			}
+			if(i==2){
+				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
+			}
+		}
+
+		newRow = footer.insertRow(1);
+		cellsOfRow = tabla.rows[0].getElementsByTagName('th');
+		for (var i = 0; i < cellsOfRow.length; i++) {
+			newRow.insertCell(i);
+			newRow.cells[i].style.backgroundColor="#eeeeee";
+			if(i<2){
+				newRow.cells[i].style.textAlign="left";
+			}else {
+				newRow.cells[i].style.textAlign="center";
+			}
+			if(i==0){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="TOTAL";
+			}
+			if(i==1){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="PRECIOS";
+			}
+			if(i==2){
+				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
+			}
+		}
+
+		newRow = footer.insertRow(1);
+		cellsOfRow = tabla.rows[0].getElementsByTagName('th');
+		for (var i = 0; i < cellsOfRow.length; i++) {
+			newRow.insertCell(i);
+			newRow.cells[i].style.backgroundColor="#eeeeee";
+			if(i<2){
+				newRow.cells[i].style.textAlign="left";
+			}else {
+				newRow.cells[i].style.textAlign="center";
+			}
+			if(i==0){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="TOTAL";
+			}
+			if(i==1){
+				newRow.cells[i].style.textAlign="left";
+				newRow.cells[i].innerHTML="KG";
+			}
+			if(i==2){
+				newRow.cells[i].innerHTML="<div style='display:none'>ZZZZZZZZZZZZZZZZZZZZZZZ</div>";
+			}
+		}
+
+		var numero0 = new DecimalFormat("#,##0");
+		for (var i = 6; i < cellsOfRow.length; i++) {
+			let cant = 0;
+			let kg = 0;
+			let precio = 0;
+			for (var j = 3; j < tabla.rows.length-3; j++) {
+				cellsOfRow = tabla.rows[j].getElementsByTagName('td');
+				let auxCant = cellsOfRow[i].innerHTML;
+
+				let auxPrecio = cellsOfRow[5].innerHTML;
+				auxPrecio = auxPrecio.replace(",", "").replace(",", "").replace(",", "");
+				auxCant = auxCant.replace(",", "").replace(",", "").replace(",", "");
+				cant = parseFloat(cant) + parseFloat(auxCant);
+				precio = parseFloat(precio) + parseFloat(auxPrecio * parseFloat(auxCant));
+
+				let auxKg = cellsOfRow[4].innerHTML;
+				auxKg = auxKg.replace(",", "").replace(",", "").replace(",", "");
+				kg = parseFloat(kg) + parseFloat(auxKg * parseFloat(auxCant));
+			}
+			//if(i != cellsOfRow.length-2 && i != cellsOfRow.length-1){
+				cellsOfRow = tabla.rows[tabla.rows.length-3].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = numero0.format(cant);
+			//}
+
+			if(i != cellsOfRow.length-2 && i != cellsOfRow.length-1){
+				cellsOfRow = tabla.rows[tabla.rows.length-2].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = numero0.format(kg);
+			}
+
+			if(i != cellsOfRow.length-2 && i != cellsOfRow.length-1){
+				cellsOfRow = tabla.rows[tabla.rows.length-1].getElementsByTagName('td');
+				cellsOfRow[i].innerHTML = formatStandar(precio,"@moneda.getNumeroDecimales()");
+			}
+
+		}
+
+		let col = [];
+		for(let i = 4; i < @lista.get(0).size; i++) {
+			col.push(i);
+		}
+
+
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [],
+				"scrollX": true,
+			"columnDefs": [
+				{
+					"targets": col,
+					"orderDataType": "dom-text",
+					"type": "num-fmt",
+					"render": function(data, type, row) {
+						if (type === 'sort') {
+							// Remover cualquier formato de número (comas, espacios)
+							return parseFloat(data.toString().replace(/[^\d.-]/g, '')) || 0;
+						}
+						return data;
+					}
+				}
+			],
+
+
+
+			"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		} );
+
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

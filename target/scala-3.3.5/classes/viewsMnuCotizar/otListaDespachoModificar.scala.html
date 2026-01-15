@@ -1,0 +1,307 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listaGuias: List[tables.Guia])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTA DE DESPACHOS","MODIFICAR y/o ELIMINAR (SOLO DESPACHOS DESDE "+mapDiccionario.get("OT")+")")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>TIPO</TH>
+							<TH>SUCURSAL</TH>
+							<TH>Nro<br>@mapDiccionario.get("OT")</TH>
+							<TH>Nro<br>COTI</TH>
+							<TH>Nro<br>MOV</TH>
+							<TH>Nro<br>REF</TH>
+							<TH>EDIT</TH>
+							<TH style="min-width:80px;">FECHA<br>MOV</TH>
+							<TH style="min-width:80px;">FECHA<br>INI/TER</TH>
+							<TH>DESDE<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+							<TH>HASTA<br>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+							<TH>ULTIMA<br>ACTUALIZACION</TH>
+							<TH>ESTIMACION<br>DE ENTREGA</TH>
+							<TH>EDIT</TH>
+							<TH>OBSERVACIONES</TH>
+							<TH>GUIA</TH>
+							<TH>ANEXO</TH>
+							<TH>ALBUM</TH>
+							<TH>DEL</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listaGuias){
+							<TR>
+								<td  style="text-align:left;">@lista1.getTipoGuia()</td>
+								<td  style="text-align:left;">@lista1.getNameSucursalDestino</td>
+								<td  style="text-align:center;">
+									@if(lista1.getNumeroOt()!=0){
+										<a href="#" onclick="verOt('@lista1.getId_ot()')">
+											<kbd style="background-color: #73C6B6">@lista1.getNumeroOt()</kbd>
+										</a>
+									}else{
+										--
+									}
+								</td>
+								<td  style="text-align:center;">@lista1.getNumeroCotizacion()</td>
+								<td  style="text-align:center;">@lista1.getNumero()</td>
+								<td  style="text-align:center;">@lista1.getNumGuiaCliente()</td>
+								<td  style="text-align:center;">
+									@if(lista1.getNumeroCotizacion()>0){
+										<form id="form_@lista1.getId()" method="post" action="/otDespachoModificar/">
+											<input type="hidden" name="id_guia" value="@lista1.getId()">
+											<a href="#" onclick='document.getElementById("form_@lista1.getId()").submit();'>
+												<kbd style="background-color: #73C6B6">edit</kbd>
+											</a>
+										</form>
+									}else{
+										--
+									}
+								</td>
+								
+								<td  style="min-width: 80px; text-align:center;">
+									<div style="display:none">@lista1.getFecha()</div>
+									@utilities.Fechas.DDMMAA(lista1.getFecha())
+								</td>
+								<td  style="min-width: 80px; text-align:center;">
+									<div style="display:none">@lista1.getFechaIniTerGuia()</div>
+									@utilities.Fechas.DDMMAA(lista1.getFechaIniTerGuia())
+								</td>
+								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaOrigen()')">@lista1.getBodegaOrigen()</a></td>
+								<td style="text-align:left;"><a href="#" onclick="buscaBodega('@lista1.getBodegaDestino()')">@lista1.getBodegaDestino()</a></td>
+								<td style="min-width: 80px; text-align:center;">
+									<div style="display: none;">@utilities.Fechas.AAMMDD(lista1.getFechaActualizacion())</div>
+									@lista1.getFechaActualizacion()
+								</td>
+								<td style="min-width: 80px; text-align:center;">
+									<div style="display: none;">@utilities.Fechas.AAMMDD(lista1.getFechaEnvio())</div>
+									@lista1.getFechaEnvio()
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.getNumeroCotizacion()>0){
+										<form id="form_@lista1.getId()" method="post" action="/otDespachoModificar/">
+											<input type="hidden" name="id_guia" value="@lista1.getId()">
+											<a href="#" onclick='document.getElementById("form_@lista1.getId()").submit();'>
+												<kbd style="background-color: #73C6B6">edit</kbd>
+											</a>
+										</form>
+									}else{
+										--
+									}
+								</td>
+								@if(lista1.getObservaciones().length()>61){
+									<td style="text-align:left;">@lista1.getObservaciones().substring(0,60)</td>
+								}else{
+									<td style="text-align:left;">@lista1.getObservaciones()</td>
+								}
+								<td  style="text-align:center;">
+									@if(lista1.getGuiaPDF().equals("0")){
+										--
+									}else{
+										<a href="#" onclick="mostrarPDF('@lista1.getGuiaPDF()')">
+											<kbd style="background-color: #85C1E9">pdf</kbd>
+										</a>
+									}
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.getDocAnexo().equals("0")){
+										--
+									}else{
+										<a href="#" onclick="descargaDocumento('@lista1.getDocAnexo()')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+								<td style="text-align:center;">
+									@if(lista1.getFotos().equals("0")){
+										--
+									}else{
+										<a href="/muestraAlbumFotos/@lista1.getFotos()">
+											<kbd style="background-color: #7F8C8D">Ver</kbd>
+										</a>
+									}
+								</td>
+								<td  style="text-align:center;">
+									@if(lista1.getNumeroCotizacion()>0){
+										<a href="#" onclick="eliminarDespacho('@lista1.getNumero()', '@lista1.getId_ot()','@lista1.getId()');">
+											<kbd style="background-color: red">X</kbd>
+										</a>
+									}else{
+										--
+									}
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class="modal-title">@mapDiccionario.get("ORDEN_DE_TRABAJO")</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">×</span>
+				        </button>
+			</div>
+			<div class="modal-body">
+				<div id="mostrarLaOt"></div>
+   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>MOVIMIENTO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+	<form id="form_eliminar" method="post" action="/otDespachoElimina/">
+		<input type="hidden" id="form_id_guia" name="id_guia">
+		<input type="hidden" id="form_id_ot" name="id_ot">
+	</form>
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 7, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const verCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	const verOt = (id_ot) => {
+		var formData = new FormData();
+	  	formData.append('id_ot',id_ot);
+        $.ajax({
+            url: "/verOtAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaOt').innerHTML = respuesta;
+	     		$('#modalVerOt').modal('show');
+	     	}
+        });
+	}
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const eliminarDespacho = (numGuia, id_ot, id_guia) => {
+		alertify.confirm("Esta seguro de eliminar el despacho con movimiento nro: "+numGuia, function (e) {
+			if (e) {
+				$("#form_id_guia").val(id_guia);
+				$("#form_id_ot").val(id_ot);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	
+	
+</script>
+
+
+		
+		
+	

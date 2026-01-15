@@ -1,0 +1,143 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listVentas: List[tables.VentaServicio])
+
+
+@main("") {
+
+
+	<form id="excel" class="formulario" method="post" action="/routes2/homeOdoAutorizaVentasWebExcel/"></form>
+	
+	<!-- menues(mapDiccionario, mapPermiso, userMnu, " ") -->
+	<div id="mostrarmostrar" style="display:none;">
+		<!-- barraTitulo(mapDiccionario, "LISTA DE REPORT DIARIO PARA AUTORIZAR", "(AUTORIZAR)") -->
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+			
+				<div align="center">
+					<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+						Exportar a Excel
+					</button>
+					
+					
+					@if(mapPermiso.get("reporteMovOdo0")!=null) {
+						<button type="button"  class="btn btn-sm btn-info" onclick='window.location="/routes2/reporteMovOdoAutorizador/"'>
+							Reporte Movimientos
+						</button>
+					}
+					
+				</div>
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>ID</TH>
+							<TH style="min-width:80px;">FECHA</TH>
+							<TH>OPERADOR</TH>
+							<TH>@mapDiccionario.get("BODEGA")</TH>
+							<TH>COTI</TH>
+							<TH>CODIGO</TH>
+							<TH>SERVICIO</TH>
+							<TH>EQUIPO</TH>
+							<TH>UN</TH>
+							<TH>CANTIDAD</TH>
+							<TH>DETALLE</TH>
+							<TH>OPERADOR</TH>
+							<TH>AUTORIZADOR</TH>
+							@if(mapPermiso.get("odoVentasEliminar")!=null) {
+								<TH>DEL</TH>
+							}
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listVentas){
+							<TR>
+								<td  style="text-align:center;">@lista1.getId()</td>
+								<td  style="text-align:center; min-width:80px;">
+									<div style="display:none">@utilities.Fechas.AAMMDD(lista1.getFecha())</div>
+									@utilities.Fechas.DDMMAA(lista1.getFecha())
+								</td>
+								<td  style="text-align:left;">@lista1.getNomOperador()</td>
+								<td  style="text-align:left;">@lista1.getNomBodegaEmpresa()</td>
+								<td  style="text-align:center;">@lista1.getNroCotiOdo()</td>
+								<td  style="text-align:center;">@lista1.getCodServicio()</td>
+								<td  style="text-align:left;">@lista1.getNomServicio()</td>
+								<td  style="text-align:left;">@lista1.getNomEquipo()</td>
+								<td  style="text-align:center;">@lista1.getUnidadServicio()</td>
+								<td  style="text-align:right;">@lista1.getCantidad()</td>
+								<td style="text-align:center;">
+									<a href="/odoAutorizaDetalleVentaWeb/@lista1.getId()">
+										<kbd style="background-color: #73C6B6">detalle</kbd>
+									</a>
+								</td>
+								<td style="text-align:center;">
+									<img src="data:image/jpeg;base64, @lista1.getFirmaPDFoperador()" height="10px" />
+								</td>
+								<td style="text-align:center;">
+									<a href="/odoAutorizaFirmaWeb/@lista1.getId()">
+										<kbd style="background-color: #F7DC6F">FIR</kbd>
+									</a>
+									<img src="data:image/jpeg;base64, @lista1.getFirmaPDFautorizador()" height="10px" />
+								</td>
+								@if(mapPermiso.get("odoVentasEliminar")!=null) {
+									<td  style="text-align:center;">
+										@if(lista1.getId()!=1){
+											<a href="#" onclick= "eliminarVentaServicio('@lista1.getId()')">
+												<kbd style="background-color: red">X</kbd>
+											</a>
+										}
+									</td>
+								}
+								
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="SALIR" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href = '/odo'";">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+	<form id="form_eliminar" method="post" action="/odoVentaServicioEliminaWeb/">
+		<input type="hidden" id="form_id_ventaServicio" name="id_ventaServicio">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+				"order": [[ 1, "desc" ],[ 0, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const eliminarVentaServicio = (id_ventaServicio) => {
+		alertify.confirm("Esta seguro de eliminar este report ID: "+id_ventaServicio, function (e) {
+			if (e) {
+				$("#form_id_ventaServicio").val(id_ventaServicio);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	
+</script>
+
+
+		
+		
+	

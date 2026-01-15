@@ -1,0 +1,270 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+actaBaja: tables.ActaBaja, detalleBaja: List[List[String]])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<form action="/bajaModificaGraba/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "MODIFICAR ACTA DE BAJA","(no incluye bajas confirmadas)")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="300px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro ACTA DE BAJA</span>
+								  		</div>
+								  		<input type="hidden" name="id_actaBaja" value="@actaBaja.getId()">
+	  									<input type="text" class="form-control center"
+	  										name="numero"
+	  										value="@actaBaja.getNumero()"
+	  										readonly>
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
+								  		</div>
+								  		<input type="date" class="form-control center"
+								  			name="fecha"
+								  			onblur="if(!limitaFecha(value,720,10)) value=''"
+								  			value="@utilities.Fechas.AAMMDD(actaBaja.getFecha())"
+						        			required>
+									</div>
+								</td>
+								<td style="text-align:center;" width="70px">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+										@if(actaBaja.getActaBajaPDF().equals("0")){
+											<div id="txtBtn">Adjuntar</div>
+										}else{
+											<div id="txtBtn">Cambiar</div>
+										}
+				    					<input type="file" id="docAdjunto" name="docAdjunto" onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
+									</span>
+								</td>
+								<td style="text-align:left;">
+									@if(actaBaja.getActaBajaPDF().equals("0")){
+										--
+									}else{
+										<a href="#" onclick="descargaDocumento('@actaBaja.getActaBajaPDF()')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
+								  		</div>
+	  									<textarea class="form-control" 
+	  										name="observaciones" 
+	  										autocomplete="off">@actaBaja.getObservaciones()</textarea>
+									</div>
+								</td>
+							</tr>
+						</thead>
+					</table>
+					<hr>
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH width="10%">CODIGO</TH>
+								<TH width="20%">EQUIPO</TH>
+						        <TH width="3%">UN</TH>
+								<TH width="8%">STOCK</TH>
+								<TH width="3%">MONEDA</TH>
+								<TH width="10%">P.UNITARIO<br>COMPRA</TH>
+								<TH width="10%">TOTAL</TH>
+								<TH width="8%">CANTIDAD<BR>(dar de baja)</TH>
+								<TH width="28%">MOTIVO DE BAJA</TH>
+							</TR>
+						</thead>
+						<tbody>
+				 			@for(lista1 <- detalleBaja){
+								<TR>
+									<td  style="text-align:left;">
+										<input type="hidden" name="id_equipo[]" value="@lista1.get(0)">
+										@lista1.get(4)
+									</td>
+									
+									<td  style="text-align:left;">@lista1.get(5)</td>
+									<td  style="text-align:center;">@lista1.get(8)</td>
+									<td  style="text-align:right;" class="stock">@lista1.get(9)</td>
+									<td  style="text-align:center;">@lista1.get(10)</td>
+									<td  style="text-align:right;">@lista1.get(11)</td>
+									<td  style="text-align:right;" class="total">@lista1.get(12)</td>
+									<td  style="text-align:center;">
+										<div style="display: none"><script>@lista1.get(13).replaceAll(",","")</script></div>
+										<input type="text" class="cantidad form-control right"
+											name="cantidad[]"
+											id="cantidad_@lista1.get(0)_@lista1.get(1)"
+											value="@lista1.get(13)"
+											onfocus="value=value.replace(/,/g,''); cantAux = value;"
+											onkeydown="return ingresoDouble(window.event)"
+											autocomplete="off"
+											onchange="if(value=='') value=0; verificaCantidad('@lista1.get(0)','@lista1.get(1)','@lista1.get(9)', value);">
+									</td>
+									<td  style="text-align:center;">
+										<input type="text" class="form-control left"
+											name="motivo[]"
+											value="@lista1.get(14)"
+											autocomplete="off">
+									</td>
+								</TR>
+				 			}
+				 			<TR style="background-color: #eeeeee">
+						        <td></td>
+								<td><div style="display: none">Zzzzzzzzzzzz</div> TOTALES</td>
+								<td></td>
+								<td><div id="totalStock" align="right">0.00</div></td>
+								<td></td>
+								<td></td>
+								<td><div id="totalTotal" align="right">0.00</div></td>
+								<td><div id="totalCantidad" align="right">0.00</div></td>
+								<td></td>
+							</TR>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="submit"  id="aplica" value='Grabar' class="btn btn-primary btn-sm rounded-pill btn-block">
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+}
+
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		sumaTotales();
+		$(document).ready(function() {
+			$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+				"lengthMenu": [[-1], [ "All"]],
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	let cantAux = 0;
+	const verificaCantidad = (id_equipo, id_cotizacion, stock, cantidad) =>{
+		stock = stock.replace(/,/g,'');
+		if(parseFloat(cantidad) > parseFloat(stock)){
+			alertify.alert('La cantidad no puede ser mayor al stock disponible para dar de baja', function () {
+				$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(cantAux,2));
+     		});
+		}else{
+			$("#cantidad_"+id_equipo+"_"+id_cotizacion).val(formatStandar(cantidad,2));
+		}
+		sumaTotales();
+	}
+	
+	let revisaTotal = 0;
+	const sumaTotales = () => {
+		 let sum = 0;
+			$(".stock").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalStock").text(formatStandar(sum,2));
+			sum = 0;
+			$(".total").each(function() {
+				let val = $(this).text().replace(/,/g,'');
+				sum += parseFloat(val);
+			}); $("#totalTotal").text(formatStandar(sum,2));
+			sum = 0;
+			$(".cantidad").each(function() {
+				let val = $(this).val().replace(/,/g,'');
+				sum += parseFloat(val);
+			});
+			revisaTotal = sum;
+			$("#totalCantidad").text(formatStandar(sum,2));
+	}
+	
+	const validarForm = () =>{
+		$("#aplica").attr('disabled',true);
+		let flag = false;
+		let cantTotal = $("#totalCantidad").text().replace(/,/g,'');
+		if(revisaTotal>0){
+			let table = $('#tablaPrincipal').DataTable();
+			table.destroy();
+			return(true);
+		}else{
+			flag = false;
+			alertify.alert('PARA GRABAR UNA BAJA AL MENOS DEBE CONSIDERAR UN EQUIPO PARA BAJA', function () {
+				$("#aplica").attr('disabled',false);
+				return(flag);
+     		});
+		}
+		return(flag);
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		let allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1){
+			file = file.slice(file.indexOf("\\") + 1);
+		}
+		let extencion = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray.length; i++) {
+			if (extArray[i] == extencion) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var file = $("#docAdjunto")[0].files[0];
+			var fileSize = file.size; //tamaño del archivo
+			if(fileSize>100000000){
+				alert("Se permiten únicamente archivos que no superen los 100 MB,"
+				+" el que se intenta subir pesa: "+Math.round(file.size/10)/100+" KB");
+				form.docAdjunto.value="";
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+	
+	
+
+
+	
+</script>
+
+
+		
+		
+	

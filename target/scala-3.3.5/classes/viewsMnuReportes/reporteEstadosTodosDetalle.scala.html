@@ -1,0 +1,133 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listTipoEstados: List[tables.TipoEstado], mapDatos: Map[Long,List[List[String]]], bodega: tables.BodegaEmpresa)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	@modalVerCotizacion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DETALLE POR ESTADOS DE EQUIPOS (DEVOLUCIONES)", mapDiccionario.get("BODEGA")+"/PROYECTO: "+bodega.getNombre().toUpperCase)
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td>
+								<div align="center">
+									<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+									<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+										Imprimir
+									</button>
+									
+									<button type="button"  class="btn btn-sm btn-success" 
+										onclick="history.go(-1);return false;">
+										Volver
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						@for(tipoEstado <- listTipoEstados){
+							<div class="container-fluid">
+								<h5><b><font color="#008000">@tipoEstado.nombre.toUpperCase()</font></b></h5>
+								<div class="table-responsive">
+								  	<table id="@tipoEstado.nombre" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+										@if( mapDatos.get(tipoEstado.getId()) != null){
+											@for( (datos,nivel1) <- mapDatos.get(tipoEstado.getId()).zipWithIndex ) {
+												<TR>
+													@for((nivel2,index2) <- datos.zipWithIndex) {
+														@if(index2 == 1){
+															@if(nivel2.equals("0") || nivel2.equals("")){
+																<td style="text-align: center;">--</td>
+															}else{
+																<td style="text-align: center;"><a href="#" onclick="buscaCotizacion('@nivel2')">@nivel2</td>
+															}
+														}else{
+															@if(index2 == 2 || index2 ==3){
+																@if(nivel1 > 3){
+																	<td><a href="#" onclick="buscaEquipo('@datos.get(2)');">@nivel2</a></td>
+																}else{
+																	<td>@nivel2</td>
+																}
+															}else{
+																<td>@nivel2</td>
+															}
+														}
+													}
+												</TR>
+											 }
+										}
+							
+										
+									</table>
+								</div>
+							</div>
+						}
+					</table>
+				</div>
+			</div>
+
+	
+	<form id="excel" class="formulario" method="post" action="/reporteEstadosTodosDetalleExcel/">
+		<input type="hidden" name="id_bodegaEmpresa" value="@bodega.getId()">
+	</form>
+
+
+}
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		@for(tipoEstado <- listTipoEstados){
+			var tabla = document.getElementById("@tipoEstado.nombre");
+			for (var i = 0; i < tabla.rows[0].cells.length; i++) { 	
+				tabla.rows[0].cells[i].style.backgroundColor="#F8E6E0" ;
+				tabla.rows[1].cells[i].style.backgroundColor="#F8E6E0" ;
+				tabla.rows[2].cells[i].style.backgroundColor="#F8E6E0" ;
+				tabla.rows[3].cells[i].style.backgroundColor="#F8E6E0" ;
+				tabla.rows[4].cells[i].style.backgroundColor="#F8E6E0" ;
+				
+				if(i>7){
+					tabla.rows[0].cells[i].style.textAlign="center" ;
+					tabla.rows[1].cells[i].style.textAlign="center" ;
+					tabla.rows[2].cells[i].style.textAlign="center" ;
+					tabla.rows[3].cells[i].style.textAlign="center" ;
+					tabla.rows[4].cells[i].style.textAlign="center" ;
+				}	
+			}
+			for (var i = 5; i < tabla.rows.length; i++) {
+				for (var j = 4; j < tabla.rows[i].cells.length; j++) {
+					if(j==4 || j>7){
+						tabla.rows[i].cells[j].style.textAlign="center" ;
+					}else{
+						tabla.rows[i].cells[j].style.textAlign="right" ;
+					}
+				}
+			}
+			
+		}
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

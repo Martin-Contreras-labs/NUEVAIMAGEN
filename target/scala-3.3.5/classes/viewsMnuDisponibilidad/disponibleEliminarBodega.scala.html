@@ -1,0 +1,77 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listadoInscritosBod: List[tables.Cronograma])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DISPONIBILIDAD "+mapDiccionario.get("BODEGAS")+"/PROYECTOS","DES-INCRIBIR PROYECTOS (SUSPENDER)")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>SUCURSAL</TH>
+							<TH>@mapDiccionario.get("BODEGAS")/PROYECTOS</TH>
+							<TH>SELECCIONAR</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listadoInscritosBod){
+							<TR>
+								<TD style= "text-align: left;">@lista1.nameSucursal</TD>
+								<TD style= "text-align: left;">@lista1.nombreBodega</TD>
+								<td style= "text-align: center;">
+									<form id="form_@lista1.id_bodegaEmpresa" method="post" action="/disponibleEliminarBodega2/">
+										<input type="hidden" name="id_bodegaEmpresa" value="@lista1.id_bodegaEmpresa">
+										<a href="#" onclick="document.getElementById('form_@lista1.id_bodegaEmpresa').submit()">
+											<kbd style="background-color:red">suspender</kbd>
+										</a>
+									</form>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+<script type="text/javascript">
+	let fechaAux = "";
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+		
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

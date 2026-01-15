@@ -1,0 +1,117 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[tables.CobraArriendoEstados], bodegaEmpresa: tables.BodegaEmpresa)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "ESTADO EQUIPO COBRAR "+mapDiccionario("ARRIENDO")+" POR DAÑOS: MODIFICAR", bodegaEmpresa.getNameSucursal +" - "+ bodegaEmpresa.getNombre())
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+					        <TH>GRUPO</TH>
+					        <TH>COTI</TH>
+							<TH>CODIGO</TH>
+					        <TH>EQUIPO</TH>
+							<TH>FECHA</TH>
+					        <TH>NRO MOVIM</TH>
+							<TH>REF CLIENTE</TH>
+							<TH>COBRA @mapDiccionario("ARR")</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- lista){
+							<TR>
+								<td  style="text-align:left;">@lista1.getNombreGrupo</td>
+								<td  style="text-align:center;">@lista1.getNroCoti</td>
+								<td  style="text-align:left;">@lista1.getCodigo</td>
+								<td  style="text-align:left;">@lista1.getNombreEquipo</td>
+								<td  style="text-align:center; min-width: 80px; max-width: 80px;">
+									<div style="display: none">@lista1.getFecha</div>
+									@utilities.Fechas.DDMMAA(lista1.getFecha)
+								</td>
+								<td  style="text-align:center;">@lista1.getNumGuia</td>
+								<td  style="text-align:center;">@lista1.getNumGuiaCliente</td>
+								<td  style="text-align:center;">
+									<div style="display: none">@lista1.getCobraArriendo</div>
+									<input type="hidden" id="select_@lista1.getId_movimiento" value="@lista1.getCobraArriendo">
+									@if(lista1.getCobraArriendo==1){
+										<input type="checkbox" checked onchange="modificaSelect('@lista1.getId_movimiento');">
+									}else{
+										<input type="checkbox" onchange="modificaSelect('@lista1.getId_movimiento');">
+									}
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/routes3/estadosMantCobraArriendo0/';">
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificaSelect = (id_movimiento) => {
+		let select = $("#select_"+id_movimiento).val();
+		if(select == 1){
+			modificaSelect2(id_movimiento, 0);
+			$("#select_"+id_movimiento).val(0);
+		}else{
+			modificaSelect2(id_movimiento, 1);
+			$("#select_"+id_movimiento).val(1);
+		}
+	}
+	
+	const modificaSelect2 = (id_movimiento, valor) => {
+		let formData = new FormData();
+		formData.append('id_movimiento',id_movimiento);
+		formData.append('valor',valor);
+		$.ajax({
+            url: "/routes3/modCobraArriendoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(respuesta=="error"){
+	     			alertify.alert(msgError, function () {
+		     			location.href = "/";
+		     		});
+	     		}
+	     	}
+        });
+	}
+
+</script>
+
+
+		
+		
+	

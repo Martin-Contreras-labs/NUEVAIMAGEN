@@ -1,0 +1,121 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listDibujante: List[tables.Dibujante])
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DIBUJANTES/PROYECTISTAS: CREAR/MODIFICAR", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-10 col-sm-8 col-md-8 col-lg-8">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH>NOMBRE</TH>
+							<TH>OBSERVACIONES</TH>
+							<TH style="width: 10px">EDIT</TH>
+							<TH style="width: 10px">VIGENTE</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listDibujante){
+							<TR>
+								<td  style="text-align:left;">@lista1.getNombre()</td>
+								<td  style="text-align:left;">@lista1.getObservaciones()</td>
+								<td  style="text-align:center;">
+									<a href="#" onclick="dibujanteModifica('@lista1.getId()');">
+										<kbd style="background-color: #73C6B6">E</kbd>
+									</a>
+								</td>
+								<td  style="text-align:center;">
+									<input type="hidden" id="vigente_@lista1.getId()" value="@lista1.getVigente()">
+									@if(lista1.getVigente()==1){
+										<input type="checkbox" checked onchange="modificaVigente('@lista1.getId()');">
+									}else{
+										<input type="checkbox" onchange="modificaVigente('@lista1.getId()');">
+									}
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="AGREGAR" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/routes2/dibujanteAgrega/';">
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="dibujanteModifica" method="post" action="/routes2/dibujanteModifica/">
+		<input type="hidden" id="mod_idDibujante" name="id_dibujante">
+	</form>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const modificaVigente = (id_dibujante) => {
+		let vigente = $("#vigente_"+id_dibujante).val();
+		if(vigente==1){
+			modificaVigencia(id_dibujante, 0);
+			$("#vigente_"+id_dibujante).val(0);
+		}else{
+			modificaVigencia(id_dibujante, 1);
+			$("#vigente_"+id_dibujante).val(1);
+		}
+	}
+
+	const modificaVigencia = (id_dibujante, valor) => {
+		var formData = new FormData();
+		formData.append('campo',"vigente");
+		formData.append('id_dibujante',id_dibujante);
+		formData.append('valor',valor);
+		$.ajax({
+			url: "/routes2/modificaDibujantePorCampoAjax/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if(respuesta=="error"){
+					alertify.alert(msgError, function () {
+						location.href = "/";
+					});
+				}
+			}
+		});
+	}
+	
+	const dibujanteModifica = (id_dibujante) => {
+		let nombre = $("#"+id_dibujante).text();
+				$("#mod_idDibujante").val(id_dibujante);
+				document.getElementById("dibujanteModifica").submit();
+	}
+</script>
+
+
+		
+		
+	

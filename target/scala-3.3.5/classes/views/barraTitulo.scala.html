@@ -1,0 +1,35 @@
+@(mapDiccionario: Map[String,String], titulo: String, subtitulo: String)
+
+<div style="line-height:0.2;background-color:white;"><br></div>
+<div class="container" style="max-width:100%;background-color: #e3f2fd; ">
+	<div class="container" style="max-width:100%; background-color: #e3f2fd; display: flex; align-items: center; justify-content: space-between; padding: 5px 15px;">
+
+			<!-- Izquierda -->
+		<div style="font-weight: bold;">
+			@Html(mapDiccionario.get("nEmpresa")+"<br>"+mapDiccionario.get("pais"))
+		</div>
+
+			<!-- Centro -->
+		<div style="flex-grow: 1; text-align: center; font-weight: bold; font-size: 14px; color: blue;">
+			@Html(titulo + "<br>" + subtitulo)
+		</div>
+
+			<!-- Derecha -->
+		<div>
+			<img src="/viewImg/@mapDiccionario.get("logoEmpresa")" height="40px">
+		</div>
+	</div>
+
+</div>
+
+
+<!--
+<p class="text-uppercase font-weight-bold" style="float: right"><img src='/viewImg/@mapDiccionario.get("logoEmpresa")' width="auto" height="40px"></p>
+<p class="font-weight-bold" align="center" style="font-size:14px;color:blue; height:42px;">@Html(titulo+"<br>"+subtitulo)</p>
+-->
+
+
+
+		
+
+

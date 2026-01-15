@@ -1,0 +1,116 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], fechaDesde: String, fechaHasta: String)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoBodega(mapDiccionario)
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","REPORTE DETALLE DE MOVIMIENTOS")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+							  		<div class="input-group-prepend">
+							    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+							  		</div>
+							  		<input type="text" class="form-control left"
+										id="searchTermtablaPrincipal"
+										onkeyup="doSearch2('tablaPrincipal');">
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<div class="table-responsive">
+					<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				        <thead style="background-color: #eeeeee">
+					        <TR> 
+								<TH style= "text-align: center;vertical-align: top;">SUCURSAL</TH>
+						        <TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE<BR>CLIENTE</TH>
+								<TH style= "text-align: center;vertical-align: top;">NOMBRE<br>PROYECTO</TH>
+								<TH style= "text-align: center;vertical-align: top;">@mapDiccionario.get("COMUNA")<BR>PROYECTO</TH>
+								<TH width="5%" >@mapDiccionario.get("ARRIENDO")<BR></TH>
+								<TH width="5%" >VENTA<BR></TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- lista){
+								<TR>
+									<td style="text-align:left;vertical-align:middle;">@lista1.get(11)</td>
+									<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoBodega('@lista1.get(1)');">@lista1.get(5)</a></td>
+									<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoCliente('@lista1.get(2)');">@lista1.get(7)</a></td>
+									<td style="text-align:left;vertical-align:middle;"><a href="#" onclick="modalContactoProyecto('@lista1.get(3)');">@lista1.get(8)</a></td>
+									<td style="text-align:left;vertical-align:middle;">@lista1.get(9)</td>
+									<td style="text-align:center;vertical-align:middle;">
+										<form id="form0_@lista1.get(1)" class="formulario" method="post" action="/reporteMovimientosDetalleAgrupado/">
+											<input type="hidden" name="id_bodega" value="@lista1.get(1)">
+											<input type="hidden" name="fechaDesde" value="@fechaDesde">
+											<input type="hidden" name="fechaHasta" value="@fechaHasta">
+											<input type="hidden" name="esVenta" value="0">
+											<a href="#" onclick="document.getElementById('form0_@lista1.get(1)').submit()">
+												<kbd style="background-color: #73C6B6">@mapDiccionario.get("Arriendos")</kbd>
+											</a>
+										</form>
+									</td>
+									<td style="text-align:center;vertical-align:middle;">
+										<form id="form1_@lista1.get(1)" class="formulario" method="post" action="/reporteMovimientosDetalleAgrupado/">
+											<input type="hidden" name="id_bodega" value="@lista1.get(1)">
+											<input type="hidden" name="fechaDesde" value="@fechaDesde">
+											<input type="hidden" name="fechaHasta" value="@fechaHasta">
+											<input type="hidden" name="esVenta" value="1">
+											<a href="#" onclick="document.getElementById('form1_@lista1.get(1)').submit()">
+												<kbd style="background-color: #73C6B6">Ventas</kbd>
+											</a>
+										</form>
+									</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+}
+
+
+<script type="text/javascript">
+	let flag = true;
+	$(document).ready(function() {
+
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

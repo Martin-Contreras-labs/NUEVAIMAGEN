@@ -1,0 +1,284 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, 
+fechas: List[String], tasaCambio: List[Double],
+bodega: tables.BodegaEmpresa, proyecto: tables.Proyecto, cliente: tables.Cliente, cantDec: Long,
+groupPorClaseServicioEquipo: List[List[String]], tasaIva: Double)
+
+	<!-- ANCLA CABECERAS DE TABLAS -->
+	<style type="text/css"> 
+        thead tr th { 
+            position: sticky;
+            top: 0;
+        }
+    </style>
+
+	
+	@main("") {
+
+		@menues(mapDiccionario, mapPermiso, userMnu, " ")
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "DETALLE EP/FACTURA PROFORMA SERVICIOS " + mapDiccionario.get("BODEGA") + "/PROYECTO: " + bodega.getNombre(),
+				"PERIODO: desde " + fechas.get(2) +" --- hasta: " +  fechas.get(3))
+				
+			<div class="noprint">
+				<table class="table table-sm table-condensed table-fluid">
+					<tr>
+						<td width="25%">
+@*							<div class="input-group">*@
+@*						  		<div class="input-group-prepend">*@
+@*						    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>*@
+@*						  		</div>*@
+@*						  		<input type="text" class="form-control left"*@
+@*									id="searchTermtablaPrincipal"*@
+@*									onkeyup="doSearch3('tablaPrincipal');">*@
+@*							</div>*@
+						</td>
+						<td>
+							<div align="center">
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success" 
+									onclick="history.go(-1);return false;">
+									Volver
+								</button>
+							</div>
+						</td>
+						<td width="25%">
+							HACER @mapDiccionario.get("PROFORMA"):
+							<button id="btnArr" type="button" class="btn btn-mini btn-info" tabindex="-1"
+							onclick=" this.disabled = true;
+							if(parseFloat(neto) > 0){
+								document.getElementById('formProforma').submit();
+							}else{
+								alertify.alert('No hay valor de servicio a emitir', function () {});
+							}">
+								SERVICIOS
+							</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/reportFacturaProyectoDetalleHServExcel/">
+				<input type="hidden" name="fechaDesde" value="@fechas.get(0)">
+				<input type="hidden" name="fechaHasta" value="@fechas.get(1)">
+				<input type="hidden" name="uf" value="@tasaCambio.get(0)">
+				<input type="hidden" name="usd" value="@tasaCambio.get(1)">
+				<input type="hidden" name="eur" value="@tasaCambio.get(2)">
+				<input type="hidden" name="id_bodega" value="@bodega.getId()">
+			</form>
+
+			<form id="formProforma" class="formulario" method="post" action="/reportFacturaProyectoDetalleHServProforma/">
+				<input type="hidden" name="id_bodega" value="@bodega.getId()">
+				<input type="hidden" name="fechaDesde" value="@fechas.get(0)">
+				<input type="hidden" name="fechaHasta" value="@fechas.get(1)">
+				<input type="hidden" name="uf" value="@tasaCambio.get(0)">
+				<input type="hidden" name="usd" value="@tasaCambio.get(1)">
+				<input type="hidden" name="eur" value="@tasaCambio.get(2)">
+				<input type="hidden" name="tipo" value="SERVICIOS">
+				<input type="hidden" id="profneto" name="neto">
+				<input type="hidden" id="profiva" name="iva">
+				<input type="hidden" id="proftotal" name="total">
+
+				<input type="hidden" id="profAlq" name="alq" value="0">
+				<input type="hidden" id="profVta" name="vta" value="0">
+				<input type="hidden" id="profServ" name="serv">
+
+			</form>
+		
+
+
+			
+			<table class="table table-sm table-bordered table-condensed table-fluid">
+					 <TR>
+						 <td style= "text-align: left; vertical-align:top; width: 44%;">
+							<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								@if(!cliente.rut.equals(null)){
+									<tr style= "background-color: #F2F5A9;">
+										<th style="text-align:left;">CLIENTE</th>
+										<th style="text-align:left;">@cliente.rut -- @cliente.nombre</th>
+									</tr>
+								}
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">@mapDiccionario.get("BODEGA")</th>
+									<TH style="text-align:left;">@bodega.nombre.toUpperCase()</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">PROYECTO</th>
+									<th style="text-align:left;">@proyecto.nickName.toUpperCase()</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">PERIODO</th>
+									<th style="text-align:left;">desde @fechas.get(2) hasta @fechas.get(3)</TH>
+								</tr>
+								<tr style= "background-color: #F2F5A9;">
+									<th style="text-align:left;">COMERCIAL</th>
+									<th style="text-align:left;">@bodega.getNameComercial</TH>
+								</tr>
+							</table>
+						</td>
+						 <td>&nbsp;</td>
+						 <td colspan="7" style= "text-align: left;  width: 34%;">
+							 <table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								 <thead style="background-color: #dddddd">
+									 <th colspan="2">TOTALES</th>
+								 </thead>
+								 <tbody>
+									 <tr>
+										 <td style="text-align:left;">NETO:</td>
+										 <td style="text-align:right;" id="NETO">445555</td>
+									 </tr>
+									 <tr>
+										 <td style="text-align:left;">@mapDiccionario.get("IVA") @(tasaIva*100)%:</td>
+										 <td style="text-align:right;" id="IVA">232323</td>
+									 </tr>
+									 <tr>
+										 <th style="text-align:left;">TOTAL:</th>
+										 <th style="text-align:right;" id="TOTAL">232323</th>
+									 </tr>
+								 </tbody>
+							 </table>
+						 </td>
+					</TR>
+			 </table>
+		
+			<table id="tablaResumen" class="table table-sm table-hover table-bordered table-condensed table-fluid" >
+				<thead class="header">
+		        	<TR> 
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">FAMILIA</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">NRO.COTI</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">COD-SERVICIO</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">SERVICIO</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">COD-EQUIPO</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">EQUIPO</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">UN</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">CANT</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">TOTAL</TH>
+						
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">CANT MIN</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">TOTAL MINIMO</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">TOTAL ADICIONAL</TH>
+						<TH style="text-align:center;vertical-align:top;background-color:#eeeeee;">GRAN TOTAL</TH>
+					</TR>
+				</thead>
+				<tbody>
+					@for((inicial,index) <- groupPorClaseServicioEquipo.zipWithIndex){
+						<tr>
+							<td style="text-align: left;">@inicial.get(0)</td>
+							<td style="text-align: center;">@inicial.get(12)</td>
+							<td style="text-align: center;">@inicial.get(1)</td>
+							<td style="text-align: left;">@inicial.get(2)</td>
+							<td style="text-align: center;">@inicial.get(3)</td>
+							<td style="text-align: left;">@inicial.get(4)</td>
+							<td style="text-align: center;">@inicial.get(5)</td>
+							<td style="text-align: right;" class="resumenTot1">@inicial.get(6)</td>
+							<td style="text-align: right;" class="resumenTot2">@inicial.get(7)</td>
+							
+							<td style="text-align: right;" class="resumenTot21">@inicial.get(8)</td>
+							<td style="text-align: right;" class="resumenTot22">@inicial.get(9)</td>
+							<td style="text-align: right;" class="resumenTot23">@inicial.get(10)</td>
+							<td style="text-align: right;" class="resumenTot24">@inicial.get(11)</td>
+		 			}
+					<TR>
+						<th style="background-color: #eeeeee" colspan="7">TOTALES NETO</th>
+						<th style="background-color: #eeeeee"><div align="right" id="resumenTot1"></div></th>
+						<th style="background-color: #eeeeee"><div align="right" id="resumenTot2"></div></th>
+						<th style="background-color: #eeeeee"><div align="right" id="resumenTot21"></div></th>
+						<th style="background-color: #eeeeee"><div align="right" id="resumenTot22"></div></th>
+						<th style="background-color: #eeeeee"><div align="right" id="resumenTot23"></div></th>
+						<th style="background-color: #eeeeee"><div align="right" id="resumenTot24"></div></th>
+						
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+
+		
+		<script type="text/javascript">
+				let neto = 0;
+			  $(document).ready(function () {
+
+					let subtotal = 0;
+					$(".resumenTot1").each(function() {
+							let val = $(this).text().replace(/,/g,'')  || 0;
+							let numero = parseFloat(val) || 0;
+							subtotal += parseFloat(numero);
+					});
+					$("#resumenTot1").text(formatStandar(subtotal,'2'));
+					
+					subtotal = 0;
+					$(".resumenTot2").each(function() {
+						let val = $(this).text().replace(/,/g,'');
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
+					});
+					$("#resumenTot2").text(formatStandar(subtotal,'@cantDec'));
+					
+					subtotal = 0;
+					$(".total7").each(function() {
+						let val = $(this).text().replace(/,/g,'');
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
+					});
+					$("#total7").text(formatStandar(subtotal,'@cantDec'));
+					
+					subtotal = 0;
+					$(".resumenTot21").each(function() {
+						let val = $(this).text().replace(/,/g,'');
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
+					});
+					$("#resumenTot21").text(formatStandar(subtotal,'2'));
+					
+					subtotal = 0;
+					$(".resumenTot22").each(function() {
+						let val = $(this).text().replace(/,/g,'');
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
+					});
+					$("#resumenTot22").text(formatStandar(subtotal,'@cantDec'));
+					
+					subtotal = 0;
+					$(".resumenTot23").each(function() {
+						let val = $(this).text().replace(/,/g,'');
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
+					});
+					$("#resumenTot23").text(formatStandar(subtotal,'@cantDec'));
+					
+					subtotal = 0;
+					$(".resumenTot24").each(function() {
+						let val = $(this).text().replace(/,/g,'');
+						let numero = parseFloat(val) || 0;
+						subtotal += parseFloat(numero);
+					});
+					$("#resumenTot24").text(formatStandar(subtotal,'@cantDec'));
+
+				  neto = subtotal;
+				  let iva = neto * parseFloat("@tasaIva");
+				  let total = parseFloat(neto) + parseFloat(iva);
+				  $("#NETO").text(formatStandar(neto,"@cantDec"));
+				  $("#IVA").text(formatStandar(iva,"@cantDec"));
+				  $("#TOTAL").text(formatStandar(total,"@cantDec"));
+
+				  $("#profneto").val(formatStandar(neto,"@cantDec"));
+				  $("#profiva").val(formatStandar(iva,"@cantDec"));
+				  $("#proftotal").val(formatStandar(total,"@cantDec"));
+
+				  $("#profServ").val(formatStandar(neto,"@cantDec"));
+
+				    document.getElementById('mostrarmostrar').style.display="block"; 
+						
+			   });
+
+
+		</script>
+		
+
+		
+		
+}

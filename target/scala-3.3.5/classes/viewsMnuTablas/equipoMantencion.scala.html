@@ -1,0 +1,224 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+listEquipos: List[tables.Equipo], listPropiedad: List[tables.Propiedad])
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "EQUIPOS: CREAR/MODIFICAR/ELIMINAR", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+			
+			
+				<div class='noprint'>
+					<table class='table table-sm table-condensed table-fluid'>
+						<tr>
+							<td>
+								<div align='center'>
+									<button type='button'  class='btn btn-sm btn-success' onclick="document.getElementById('excel').submit()">
+										Exportar a Excel
+									</button>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				
+				<form id="excel" class="formulario" method="post" action="/routes2/equipoMantencionExcel/"> </form>
+						
+				
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR> 
+							<TH style="vertical-align: top;">GRUPO</TH>
+							<TH>PROPIEDAD</TH>
+							<TH>IMG</TH>
+							<TH>CODIGO</TH>
+							<TH>EQUIPO</TH>
+							<TH>UNIDAD</TH>
+							<TH>EDIT</TH>
+							<TH>VIGENTE</TH>
+							<TH>DEL</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- listEquipos){
+							<TR>
+								<td style="text-align:left;">@lista1.getGrupo()</td>
+								<td style="text-align:center;">
+
+									<select class="form-control form-control-sm"  onchange="cambiaPropiedad(value,'@lista1.getId()')">
+										<option value="@lista1.getId_propiedad()">@lista1.getPropiedad()</option>
+										@for(lista2 <- listPropiedad){
+											<option value="@lista2.getId()">@lista2.getNombre()</option>
+										}
+									</select>
+								</td>
+								<td>
+									@if(lista1.getImg()!="0"){
+										<a href="#" onclick="selectModal('@lista1.getId()','@lista1.getImg()')">
+											<img src='/viewImg/@lista1.getImg()' width="auto" height="25px">
+										</a>
+										
+									}
+								</td>
+								<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista1.getCodigo()');">@lista1.getCodigo()</a></td>
+								<td  style="text-align:left;"><a href="#" onclick="buscaEquipo('@lista1.getCodigo()');"><div id="@lista1.getId()">@lista1.getNombre()</div></a></td>
+								
+								<td style="text-align:center;">@lista1.getUnidad()</td>
+
+								<td style="text-align:center;">
+									<a href="/equipoModifica/@lista1.getId()">
+										<kbd style="background-color: #73C6B6">E</kbd>
+									</a>
+								</td>
+								<td style="text-align: center">
+						        	@if(lista1.getVigente==1){
+						        		<select class="form-control form-control-sm"  onchange="cambiaEstado(value,'@lista1.getId()')">
+								        	<option value="1">Vigente</option>
+							            	<option value="0">NO</option>
+								        </select>
+						        	}else{
+						        		<select class="form-control form-control-sm"  onchange="cambiaEstado(value,'@lista1.getId()')">
+						        			<option value="0">NO</option>
+								        	<option value="1">Vigente</option>
+								        </select>
+						        	}
+						        </td>
+								<td style="text-align:center;">
+									<a href="#" onclick= "eliminarEquipo('@lista1.getId()')">
+										<kbd style="background-color: red">X</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="AGREGAR NUEVO EQUIPO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/equipoNuevo/1';">
+				</div>
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalImgEquipo' class="modal" role="dialog" data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+				   	<h5 id="nombreEquipo" class="modal-title">
+			           nombre de equipo
+			        </h5>
+			        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+			        	<span aria-hidden='true'>&times;</span>
+			        </button>
+				</div>
+	     		<div class="modal-body">
+		     		<div align="center">
+		     			<div id="imagenEquipo"></div>
+						<button type="button" class="btn btn-success btn-sm rounded-pill btn-block" data-dismiss="modal" >
+							CERRAR
+						</button>
+					</div>
+				</div>
+	   		</div>
+		</div>
+	</div>
+	
+	<form id="form_eliminar" method="post" action="/equipoElimina/">
+		<input type="hidden" id="form_id_equipo" name="id_equipo">
+	</form>
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 3, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	const eliminarEquipo = (id_equipo) => {
+		let nombre = $("#"+id_equipo).text();
+		alertify.confirm("Esta seguro de eliminar el equipo: "+nombre, function (e) {
+			if (e) {
+				$("#form_id_equipo").val(id_equipo);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+	const selectModal = (id_equipo,imagen) =>{
+		$("#nombreEquipo").text($("#"+id_equipo).text());
+		document.getElementById('imagenEquipo').innerHTML = "<img src='/viewImg/"+imagen+"' width='auto' height='auto'>";
+	      $("#modalImgEquipo").modal("show");
+	  }
+	
+	const cambiaEstado = (estado,id_equipo) =>{
+    	var formData = new FormData();
+	  	formData.append('id_equipo',id_equipo);
+	  	formData.append('estado',estado);
+        $.ajax({
+            url: "/routes2/equipoCambiaEstado/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		if(!respuesta.status){
+	     			if(respuesta.conInventario){
+	     				alertify.alert("No puede cambiar el estado debido a que existe inventario, debe no existir inventario para cambiar el estado", function () { location.reload(); });
+	     				
+	     			}else{
+	     				location.reload();
+					}
+	     			
+				}
+	     	}
+        });
+	}
+
+	const cambiaPropiedad = (id_propiedad,id_equipo) =>{
+		var formData = new FormData();
+		formData.append('id_equipo',id_equipo);
+		formData.append('id_propiedad',id_propiedad);
+		$.ajax({
+			url: "/routes2/equipoCambiaPropiedad/",
+			type: "POST",
+			method: "POST",
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+			success: function(respuesta){
+				if( ! respuesta.status){
+					location.reload();
+				}
+			}
+		});
+	}
+	
+	
+	
+</script>
+
+
+		
+		
+	

@@ -1,0 +1,210 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, lista: List[List[String]], tipo: String)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalEquipoDescripcion()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "TRAZABILIDAD DEL EQUIPO - "+tipo+" -- "+mapDiccionario.get("BODEGA")+"/PROYECTO : "+bodega.getNombre(),"PROYECTO: "+bodega.nickProyecto)
+		
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch2('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">EXISTENCIA</span>
+					  		</div>
+					  		<input type="text" class="form-control right"
+								id="totalCantidad"
+								readonly>
+						</div>
+					</div>
+						
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div>
+			ALTERNAR COLUMNAS: 
+				<a class="toggle-vis" href="#" data-column="0"><kbd id="kdb0" style="background-color: #73C6B6">NRO. MOV</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="1"><kbd id="kdb1" style="background-color: #73C6B6">NRO. REF</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="2"><kbd id="kdb2" style="background-color: #73C6B6">TIPO</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="3"><kbd id="kdb3" style="background-color: #73C6B6">FECHA</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="4"><kbd id="kdb4" style="background-color: #73C6B6">Nro.Coti</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="5"><kbd id="kdb5" style="background-color: #73C6B6">CODIGO</kbd></a>
+				<a class="toggle-vis" href="#" data-column="6"><kbd id="kdb6" style="background-color: #73C6B6">EQUIPO</kbd></a>
+				<a class="toggle-vis" href="#" data-column="7"><kbd id="kdb7" style="background-color: #73C6B6">UN</kbd></a> 
+				<a class="toggle-vis" href="#" data-column="8"><kbd id="kdb8" style="background-color: #73C6B6">CANT</kbd></a> 
+		</div>
+		
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+			        <TR> 
+						       
+						        <TH style= "text-align: center;vertical-align: top;">NRO. MOV</TH>
+						        <TH style= "text-align: center;vertical-align: top;">NRO. REF</TH>
+						        <TH style= "text-align: center;vertical-align: top;">TIPO</TH>
+								<TH style= "text-align: center;vertical-align: top;min-width:80px;">FECHA</TH>
+						        <TH style= "text-align: center;vertical-align: top;">Nro.Coti</TH>
+								<TH style= "text-align: center;vertical-align: top;">CODIGO</TH>
+								<TH style= "text-align: center;vertical-align: top;">EQUIPO</TH>
+								<TH style= "text-align: center;vertical-align: top;">UN</TH>
+								<TH style= "text-align: center;vertical-align: top;">CANT</TH>
+					</TR>
+				</thead>
+				<tbody>
+				@for(lista1 <- lista){
+				<TR>
+					<td style= "text-align: center;">@lista1.get(0)</td>
+					<td style= "text-align: center;">@lista1.get(9)</td>
+					<td>@lista1.get(8)</td>
+					<td style= "text-align: center;">
+						<div style="display:none">@utilities.Fechas.AAMMDD(lista1.get(1))</div>
+						@lista1.get(1)
+					</td>
+					<td style= "text-align: center;">
+						@if(lista1.get(6).equals("0")){
+								--
+						}else{
+							<a href="#" onclick="verCotizacion('@lista1.get(7)')">
+								<kbd style="background-color: rgb(90, 200, 245)">
+									<font color="green">@lista1.get(6)</font>
+								</kbd>
+							</a>
+
+						}
+					</td>
+					<td><a href="#" onclick="buscaEquipo('@lista1.get(2)');">@lista1.get(2)</a></td>
+					<td><a href="#" onclick="buscaEquipo('@lista1.get(2)');">@lista1.get(3)</a></td>
+					<td style= "text-align: center;">@lista1.get(4)</td>
+					<td style= "text-align: right;">@lista1.get(5)</td>
+				</TR>
+	 			}
+				</tbody>
+			</table>
+		</div>
+		
+		
+		
+		
+		
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+         sumarTotales();
+		 $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 3, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  
+		  $('a.toggle-vis').on('click', function (e) {
+		        e.preventDefault();
+		        // Get the column API object
+		        let col = $(this).attr('data-column');
+		        var column = $('#tablaPrincipal').DataTable().column(col);
+		        // Toggle the visibility
+		        column.visible(!column.visible());
+		        if(column.visible()){
+					document.getElementById('kdb'+col).style.backgroundColor = "#73C6B6";
+				}else{
+					document.getElementById('kdb'+col).style.backgroundColor = "#D6DBDF";
+				}
+		  });
+		    
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	function sumarTotales() {
+		var tabla = document.getElementById("tablaPrincipal");
+		var sumaTotales= 0;
+		var numero = new DecimalFormat("#,##0.00");
+		for (var i = 1; i < tabla.rows.length; i++) { 
+			var aux = tabla.rows[i].cells[8].textContent;
+			sumaTotales = parseFloat(sumaTotales) + parseFloat(numero.formatBack(aux));
+		}
+		$("#totalCantidad").val(formatStandar(sumaTotales,0));
+	}
+	
+	const verCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	
+</script>
+
+
+
+
+		
+		
+	

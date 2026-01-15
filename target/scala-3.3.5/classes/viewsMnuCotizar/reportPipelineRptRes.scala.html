@@ -1,0 +1,259 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+detalle: List[List[String]], fechaDe: String, fechaA: String, tituloSucursal: String,
+desdeAAMMDD: String, hastaAAMMDD: String, id_sucursal: Long)
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "REPORTE PIPELINE RESUMIDO "+tituloSucursal," período movil: de "+fechaDe+" a "+fechaA)
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+			
+			<div class="noprint">
+				<table class="table table-sm table-condensed table-fluid">
+					<tr>
+						<td>
+							<div align="center">
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success" 
+									onclick="history.go(-1);return false;">
+									Volver
+								</button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/routes2/reportPipelineRptResExcel/">
+				<input type="hidden" name="fechaDesde" value="@desdeAAMMDD">
+				<input type="hidden" name="fechaHasta" value="@hastaAAMMDD">
+				<input type="hidden" name="id_sucursal" value="@id_sucursal">
+			</form>
+			
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>ANIO MES<br>COTI</TH>
+							<TH>COMERCIAL</TH>
+							<TH>ESTADO</TH>
+							<TH>TOTAL<BR>NETO</TH>
+							<TH>PESO<BR>KG</TH>
+							<TH>DETALLE</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- detalle){
+							<TR>
+								<td style="text-align:center;">@lista1.get(0)</td>
+								<td style="text-align:left;">@lista1.get(2)</td>
+								<td style="text-align:left;">@lista1.get(1)</td>
+								<td style="text-align:left;">@lista1.get(3)</td>
+								<td style="text-align:left;">@lista1.get(4)</td>
+								<td  style="text-align:center;">
+									<a href="#" onclick="pipelineDetalle('@lista1.get(0)','@lista1.get(5)','@lista1.get(6)')">
+										<kbd style="background-color: #73C6B6">revisar</kbd>
+									</a>
+								</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerDetalle' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>LISTA DE COTIZACIONES</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarDetalle'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  $('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+		    	"order": [[ 1, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+
+
+	const pipelineDetalle = (anioMes, id_comercial, id_cotizaEstado) => {
+		let formData = new FormData();
+		formData.append("anioMes",anioMes);
+		formData.append("id_cotizaEstado",id_cotizaEstado);
+		formData.append("id_comercial",id_comercial);
+		$.ajax({
+		    url: "/routes2/reportPipelineDetalle/",
+		    type: "POST",
+		    method: "POST",
+		    data: formData,
+		    cache: false,
+		    contentType: false,
+		 	processData: false,
+		 	success: function(rs){
+			
+		 		if(rs=="error"){
+		 			alertify.alert('Se presento un problema o usted no tiene permisos otorgados, por favor vuelva a ingresar y si persiste el problema, contactar a soporte', function(){ 
+						location.href = "/home/"; 
+					});
+		 		}else{
+			
+					let html =
+						"<table  id='tablaDetalle' class=\"table table-sm table-bordered table-condensed table-hover table-fluid\">"
+							+ "<thead>"
+								+ "<tr>"
+							        + "<TH>SUCURSAL</TH>"
+									+ "<TH>COMERCIAL</TH>"
+									+ "<TH>SOLUCION</TH>"
+									+ "<TH>Nro.COTI</TH>"
+									+ "<TH style='min-width:80px;'>FECHA<br>COTIZACION</TH>"
+									+ "<TH>CLIENTE</TH>"
+									+ "<TH>PROYECTO</TH>"
+									+ "<TH>ESTADO</TH>"
+									+ "<TH style=\"min-width:80px;\">FECHA<br>CONFIRMADA</TH>"
+								+ "</tr>"
+							+ "</thead>"
+							+ "<tbody>";
+						for(var i=0; i<rs.length; i++){
+							html +=
+							"<tr>"
+								+ "<td style=\"text-align:left;\">"+rs[i][13]+"</td>"
+								+ "<td style=\"text-align:left;\">"+rs[i][14]+"</td>"
+								+ "<td style=\"text-align:left;\">"+rs[i][15]+"</td>"
+								+ "<td style=\"text-align:center;\">"
+									+ "<a href=\"#\" onclick=\"verCotizacion('"+rs[i][0]+"')\">"
+									+ "<kbd style=\"background-color: rgb(90, 200, 245)\">"
+									+ "<font color=\"green\">"+rs[i][1]+"</font>"
+									+ "</kbd>"
+									+ "</a>"
+								+ "</td>"
+								+ "<td  style=\"text-align:center;\">"
+									+"<div style='display:none'>"+rs[i][2]+"</div>"
+									+fechaDDMMAA(rs[i][2])
+								+ "</td>"
+								+ "<td style=\"text-align:left;\">"+rs[i][3]+"</td>"
+								+ "<td style=\"text-align:left;\">"+rs[i][6]+"</td>"
+								+ "<td  style=\"text-align:center;\">"+rs[i][8]+"</td>"
+								+ "<td  style=\"text-align:center;\">"
+									+"<div style='display:none'>"+rs[i][9]+"</div>"
+									+fechaDDMMAA(rs[i][9])
+								+ "</td>"
+							+ "</tr>";
+						}
+				
+					html +=
+						 "</tbody>"
+						+ "</table>";
+				
+					$("#mostrarDetalle").html(html);
+				
+					$('#tablaDetalle').DataTable({
+					    	"fixedHeader": true,
+					    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+					    	"order": [[ 3, "desc" ]],
+					    	"language": {
+					        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+					        }
+					  } );
+		
+				
+					$('#modalVerDetalle').modal('show');
+				}
+			}
+		});
+		
+	}
+	
+	const verCotizacion = (id_cotizacion) => {
+		var formData = new FormData();
+	  	formData.append('id_cotizacion',id_cotizacion);
+        $.ajax({
+            url: "/verCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     		document.getElementById('mostrarLaCotizacion').innerHTML = respuesta;
+	     		$('#modalVerCotizacion').modal('show');
+	     	}
+        });
+	}
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

@@ -1,0 +1,237 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu, detalle: List[List[String]], fechaDe: String, fechaA: String, tituloSucursal: String, desdeAAMMDD: String, hastaAAMMDD: String, id_sucursal: Long, id_comercial: Long, mapResumen: Map[List[String],Double], nroDec: Long)
+
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	@modalContactoCliente()
+	@modalContactoProyecto()
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "PIPELINE RESUMEN Y DETALLE POR COMERCIAL"+tituloSucursal,"período movil: de "+fechaDe+" a "+fechaA)
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+			<div class="noprint">
+				<table class="table table-sm table-condensed table-fluid">
+					<tr>
+						<td>
+							<div align="center">
+								<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+									Exportar a Excel
+								</button>
+								<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+									Imprimir
+								</button>
+								<button type="button"  class="btn btn-sm btn-success" 
+									onclick="history.go(-1);return false;">
+									Volver
+								</button>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<form id="excel" class="formulario" method="post" action="/routes2/reportPipelineRptComercialExcel/">
+				<input type="hidden" name="desdeAAMMDD" value="@desdeAAMMDD">
+				<input type="hidden" name="hastaAAMMDD" value="@hastaAAMMDD">
+				<input type="hidden" name="id_sucursal" value="@id_sucursal">
+				<input type="hidden" name="id_comercial" value="@id_comercial">
+			</form>
+
+				<div class="noprint">
+					<table class="table table-sm table-condensed table-fluid">
+						<tr>
+							<td width="25%">
+								<div class="input-group">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+									</div>
+									<input type="text" class="form-control left"
+									id="searchTermtablaResumen"
+									onkeyup="doSearch2('tablaResumen');
+									$('#searchTermtablaResumen').attr('id','searchTermtablaPrincipal');
+									doSearch2('tablaPrincipal');
+									$('#searchTermtablaPrincipal').attr('id','searchTermtablaResumen');">
+								</div>
+							</td>
+							<td>
+							</td>
+							<td>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div class="col-xs-8 col-sm-7 col-md-6 col-lg-5">
+					<h4>RESUMEN:</h4>
+					<table id="tablaResumen" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>COMERCIAL</TH>
+								<TH>ESTADO</TH>
+								<TH>TOTAL<BR>NETO</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(key <- mapResumen.keys) {
+								<tr>
+									<td>@key.get(0)</td>
+									<td>@key.get(1)</td>
+									<td class="resumen" style="text-align:right;">@mapResumen(key)</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			<br>
+				<h4>DETALLE:</h4>
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead style="background-color: #eeeeee">
+						<TR>
+							<TH>FECHA<br>COTI</TH>
+							<TH>NRO<br>COTI</TH>
+							<TH>SUCURSAL</TH>
+							<TH>COMERCIAL</TH>
+							<TH>SOLUCION</TH>
+							<TH>CLIENTE</TH>
+							<TH>PROYECTO</TH>
+							<TH>ESTADO</TH>
+							<TH>FECHA<br>@mapDiccionario.get("OT")</TH>
+							<TH>NRO<br>@mapDiccionario.get("OT")</TH>
+							<TH>TOTAL<BR>NETO</TH>
+							<TH>PESO<BR>KG</TH>
+							<TH>FECHA<BR>PROBABLE</TH>
+							<TH>DIBUJANTE<BR>PROYECTISTA</TH>
+						</TR>
+					</thead>
+					<tbody>
+						@for(lista1 <- detalle){
+							<TR>
+								<td style="text-align:center;">
+									<div style='display:none'>@lista1.get(0)</div>
+									@utilities.Fechas.DDMMAA(lista1.get(0))
+								</td>
+								<td style="text-align:center;">@lista1.get(16)</td>
+								<td style="text-align:left;">@lista1.get(1)</td>
+								<td style="text-align:left;">@lista1.get(6)</td>
+								<td style="text-align:left;">@lista1.get(4)</td>
+								<td style="text-align:left;">@lista1.get(2)</td>
+								<td style="text-align:left;">@lista1.get(3)</td>
+								<td style="text-align:left;">@lista1.get(5)</td>
+								<td style="text-align:center;">
+									<div style='display:none'>@lista1.get(15)</div>
+									@utilities.Fechas.DDMMAA(lista1.get(15))
+								</td>
+								<td style="text-align:center;">@lista1.get(17)</td>
+								<td style="text-align:right;">@lista1.get(7)</td>
+								<td style="text-align:right;">@lista1.get(14)</td>
+								<td style="text-align:center;">@lista1.get(20)</td>
+								<td style="text-align:left;">@lista1.get(21)</td>
+							</TR>
+			 			}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="noprint">
+			<div class="row justify-content-md-center" >
+				<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+					<input type="button"  value="LISTO" class="btn btn-success btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalVerCotizacion' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>COTIZACION</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaCotizacion'></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id='modalVerOt' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style="max-width: 80% !important;" role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>@mapDiccionario.get("ORDEN_DE_TRABAJO")</h5>
+					<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+						<span aria-hidden='true'>&times;</span>
+					</button>
+				</div>
+				<div class='modal-body'>
+					<div id='mostrarLaOt'></div>
+					<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+}
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$('#tablaPrincipal').DataTable({
+			"fixedHeader": true,
+			"paging": false,
+			"info": false,
+			"searching": false,
+			"order": [[ 1, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		} );
+
+		$('#tablaResumen').DataTable({
+			"fixedHeader": true,
+			"paging": false,
+			"info": false,
+			"searching": false,
+			"order": [[ 0, "asc" ]],
+			"language": {
+				"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+			}
+		} );
+
+		$(".resumen").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			$(this).text(formatStandar(val,"@nroDec"));
+		});
+
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+
+	
+	
+	
+</script>
+
+
+
+
+		
+		
+	

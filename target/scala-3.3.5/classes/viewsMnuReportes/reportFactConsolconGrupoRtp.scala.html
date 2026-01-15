@@ -1,0 +1,343 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+datos: List[List[String]], fecha: String, cantMeses: String, categorias: List[String], 
+listSeleccion: List[String], mapGrupo: Map[String,List[String]], mapDatos: Map[String, List[String]],
+listSeleccion2: List[String], mapEmpresa: Map[String,List[String]], mapDatosGrupo: Map[String, List[String]])
+    	
+
+@main("") {
+	
+	<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="enCarga" class="blocker" style="display: block;"><br><br><br><br><br><br><h1>Ahora se esta cargando.....</h1></div>
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "CONSOLIDADO DE PROFORMAS POR GRUPO (NO CONSIDERA AJUSTES A EP)","POR "+cantMeses+" MESES VS " + mapDiccionario("BODEGA")+"/PROYECTO")
+
+		<div class="noprint">
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch3_conTot('tablaPrincipal'); sumarFiltro('tablaPrincipal')">
+						</div>
+					</td>
+					
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="history.go(-1);return false;">
+								Volver
+							</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		
+		<form id="excel" class="formulario" method="post" action="/reportFactConsolconGrupoRtpExcel/">
+			<input type="hidden" name="fecha" value="@fecha">
+			<input type="hidden" name="cantMeses" value="@cantMeses">
+		</form>
+
+		<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+	  		<thead style="background-color: #eeeeee" class="header">
+	  			<TR>
+					@for(titulos <- datos.get(0)){
+						<th style="text-align:center;">@titulos</th>
+					}
+				</TR>
+				<TR>
+					@for(titulos2 <- datos.get(1)){
+						<th style="text-align:center;">@titulos2</th>
+					}
+				</TR>
+	  		</thead>
+			<tbody>
+			@for(lista <- datos.tail.tail){
+				<TR>
+					@if(lista.get(0).equals("TOTALES")){
+						<td style="text-align:left;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista.get(0)</td>
+						<td style="text-align:left;"><div style="display:none">ZZZZZZZZZZZZ</div></td>
+						@for(lista2 <- lista.tail.tail){
+							<td style="text-align:right;"><div style="display:none">ZZZZZZZZZZZZ</div>@lista2</td>
+						}
+					}else{
+						<td style="text-align:left;">@lista.get(0)</td>
+						<td style="text-align:left;">@lista.get(1)</td>
+						@for(lista2 <- lista.tail.tail){
+							<td style="text-align:right;">@lista2</td>
+						}
+					}
+					
+					
+				</TR>
+			}
+			</tbody>
+		</table>
+		
+		<div class="noprint">
+			<form>
+				<div align="left">
+					Graficar por @mapDiccionario.get("BODEGA"):
+					<select class="input-large" id="selectGrafico" name="cod_region" style="text-align:left;height:24px" onChange="graficar()">
+						<option value="-1">seleccionar</option>
+						@for((lista,index) <- listSeleccion.zipWithIndex){
+					     	<option value="@index">@lista</option>
+						}
+					</select>
+				</div>
+			</form>
+		</div>
+			
+		<table class="table table-sm table-bordered table-condensed table-fluid">
+			<tr>
+				<TD style="width:100%; margin: 0 0">
+					@for((lista,index) <-listSeleccion.zipWithIndex){
+						<div class="graficos" id="grafico_@index" style="height:600px; width:100%; display: none;" >@Html(lista)</div>
+					}
+				</TD>
+			</tr>
+		 </table>
+		 
+		 <div class="noprint">
+			<form>
+				<div align="left">
+					Graficar por GRUPO:
+					<select class="input-large" id="selectGraficoPorGrupo" name="cod_region" style="text-align:left;height:24px" onChange="graficarPorGrupo()">
+						<option value="-1">seleccionar</option>
+						@for((lista,index) <- listSeleccion2.zipWithIndex){
+					     	<option value="@index">@lista</option>
+						}
+					</select>
+				</div>
+			</form>
+		</div>
+		
+		<table class="table table-sm table-bordered table-condensed table-fluid">
+			<tr>
+				<TD style="width:100%; margin: 0 0">
+					@for((lista,index) <-listSeleccion2.zipWithIndex){
+						<div class="graficosPorGrupo" id="graficosPorGrupo_@index" style="height:600px; width:100%; display: none;" >@Html(lista)</div>
+					}
+				</TD>
+			</tr>
+		 </table>
+		 
+		 
+		 
+		 
+		<div class="noprint">
+			<br><br><br><br><br><br><br><br>
+		</div>
+	</div>
+			  
+}
+
+<script type="text/javascript">
+
+		function sumarFiltro(tabla){
+			var tableReg = document.getElementById(tabla);
+			for(var j = 2; j < tableReg.rows[0].cells.length; j++){
+				var acum = 0;
+				for (var i = 2; i < tableReg.rows.length - 1; i++){
+					if(tableReg.rows[i].style.display != 'none'){
+						var aux = tableReg.rows[i].cells[j].innerHTML;
+						aux = aux.replace(/,/g,'');
+						acum += parseFloat(aux);
+					}
+				}
+				tableReg.rows[tableReg.rows.length - 1].cells[j].innerHTML = formatStandar(acum,0);
+			}
+		}
+		
+	$(document).ready(function () {
+		document.getElementById('mostrarmostrar').style.display="block";
+		
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 1, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+		
+		@for((lista,index) <-listSeleccion.zipWithIndex){
+			Highcharts.chart('grafico_@index',{
+	            chart: {
+	                type: 'column'
+	            },
+	            title: {
+	                text: 'CONSOLIDADO '+ @Html(lista)
+	            },
+	            xAxis: {
+	                categories: @Html(categorias.toString()),
+	                labels: {
+	                    rotation: -45
+	                }
+	            },
+	            yAxis: {
+	                min: 0,
+	                title: {
+	                    text: ''
+	                },
+	                stackLabels: {
+	                    enabled: true,
+	                    style: {
+	                        fontWeight: 'bold',
+	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                    }
+	                }
+	            }, 
+	            tooltip: {
+	                formatter: function() {
+	                    return '<b>'+ this.x +'</b><br/>'+
+	                        this.series.name +' $: '+ Highcharts.numberFormat(this.y,0) +'<br/>'+
+	                        'Total $: '+ Highcharts.numberFormat(this.point.stackTotal,0);
+	                }
+	            },
+	            plotOptions: {
+	                column: {
+	                    stacking: 'normal',
+	                    dataLabels: {
+	                        enabled: false,
+	                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+	                        style: {
+	                            textShadow: '0 0 3px black, 0 0 3px black'
+	                        }
+	                    }
+	                }
+	            },
+	            series: [
+		            @if(mapGrupo.get(lista)!=null){
+	            		@for((lista2,index2) <- mapGrupo.get(lista).zipWithIndex){
+			            	{
+				            	name: @Html(lista2),
+				            	data: @mapDatos.get(lista+"_"+lista2).toString()
+				            	
+				            	
+				            }
+			            	@if(index2 < mapGrupo.get(lista).size()-1){
+			            		,
+			            	} 
+	            		} 
+	            	}
+	            ]
+	        });
+		}
+		
+		@for((lista,index) <-listSeleccion2.zipWithIndex){
+			Highcharts.chart('graficosPorGrupo_@index',{
+	            chart: {
+	                type: 'column'
+	            },
+	            title: {
+	                text: 'CONSOLIDADO '+ @Html(lista)
+	            },
+	            xAxis: {
+	                categories: @Html(categorias.toString()),
+	                labels: {
+	                    rotation: -45
+	                }
+	            },
+	            yAxis: {
+	                min: 0,
+	                title: {
+	                    text: ''
+	                },
+	                stackLabels: {
+	                    enabled: true,
+	                    style: {
+	                        fontWeight: 'bold',
+	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                    }
+	                }
+	            }, 
+	            tooltip: {
+	                formatter: function() {
+	                    return '<b>'+ this.x +'</b><br/>'+
+	                        this.series.name +' $: '+ Highcharts.numberFormat(this.y,0) +'<br/>'+
+	                        'Total $: '+ Highcharts.numberFormat(this.point.stackTotal,0);
+	                }
+	            },
+	            plotOptions: {
+	                column: {
+	                    stacking: 'normal',
+	                    dataLabels: {
+	                        enabled: false,
+	                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+	                        style: {
+	                            textShadow: '0 0 3px black, 0 0 3px black'
+	                        }
+	                    }
+	                }
+	            },
+	            series: [
+		            @if(mapEmpresa.get(lista)!=null){
+	            		@for((lista2,index2) <- mapEmpresa.get(lista).zipWithIndex){
+			            	{
+				            	name: @Html(lista2),
+				            	data: @mapDatosGrupo.get(lista+"_"+lista2).toString()
+				            	
+				            	
+				            }
+			            	@if(index2 < mapEmpresa.get(lista).size()-1){
+			            		,
+			            	} 
+	            		} 
+	            	}
+	            ]
+	        });
+		}
+		
+		document.getElementById('enProceso').style.display="none";
+		document.getElementById('mostrarmostrar').style.display="block";
+		document.getElementById('enCarga').style.display="none";
+		
+	});
+	
+	const graficar = () => {
+		let aux= "grafico_"+$("#selectGrafico").val();
+		let graficos = document.getElementsByClassName("graficos");
+		for(let i=0; i<graficos.length; i++){
+			graficos[i].style.display = "none";
+		}
+		if(aux!="grafico_-1"){
+			let div = document.getElementById(aux);
+			div.style.display = "block";
+		}
+	}
+	
+	const graficarPorGrupo = () => {
+		let aux2= "graficosPorGrupo_"+$("#selectGraficoPorGrupo").val();
+		let graficosPorGrupo = document.getElementsByClassName("graficosPorGrupo");
+		for(let i=0; i<graficosPorGrupo.length; i++){
+			graficosPorGrupo[i].style.display = "none";
+		}
+		if(aux2!="graficosPorGrupo_-1"){
+			let div2 = document.getElementById(aux2);
+			div2.style.display = "block";
+		}
+	}
+
+</script>

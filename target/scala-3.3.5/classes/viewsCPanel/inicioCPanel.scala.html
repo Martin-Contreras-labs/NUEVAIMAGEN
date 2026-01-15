@@ -1,0 +1,383 @@
+@(datos: List[List[String]], graficoOcupacion: List[String], graficoPRvsPL: List[String], ventas: List[List[String]])
+    	
+<meta charset="utf-8">
+
+@main("") {
+
+
+
+
+	<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+<br><br>
+<div class="row  justify-content-md-center">
+	<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+	<h1></h1>
+	<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		<thead style="background-color: #eeeeee">
+			<TR>
+        		<TH colspan="20" style="text-align:center;">PANEL</TH>
+			</TR>
+        	<TR> 
+        		<TH style="text-align:center;">Nro</TH>
+		        <TH style="text-align:center;">PAIS</TH>
+				<TH style="text-align:center;">Fecha<BR>Creacion</TH>
+				<TH style="text-align:center;">Fecha Ultimo Ingreso<br>(de un movimiento)</TH>
+				<TH style="text-align:center;">Fecha Ultimo Ingreso<br>(de una guía)</TH>
+				<TH style="text-align:center;">Fecha Ultimo Ingreso<br>(de una cotizacion)</TH>
+				<TH style="text-align:center;">Fecha de Ingreso<br>(ultimo usuario)</TH>
+				<TH style="text-align:center;">Cantidad<br>(Items controlados)</TH>
+				<TH style="text-align:center;">Cantidad<br>(Proyectos activos)</TH>
+				<TH style="text-align:center;">Cantidad<br>(Proyectos inactivos)</TH>
+				<TH style="text-align:center;">SEL</TH>
+			</TR>
+		</thead>
+		<tbody>
+			@for(lista1 <- datos){
+				<TR>
+					<td style="text-align:center;">@lista1.get(0)</td>
+					<td style="text-align:left;">@lista1.get(1)</td>
+					<td style="text-align:center;">@lista1.get(2)</td>
+					<td style="text-align:center;">@lista1.get(3)</td>
+					<td style="text-align:center;">@lista1.get(4)</td>
+					<td style="text-align:center;">@lista1.get(5)</td>
+					<td style="text-align:center;">@lista1.get(6)</td>
+					<td style="text-align:center;"><a href="#" onclick="modalItemsControlados('@lista1.get(10)');"><font color="blue"><u>@lista1.get(7)</u></font></a></td>
+					<td style="text-align:center;"><a href="#" onclick="modalVigentes('@lista1.get(10)');"><font color="blue"><u>@lista1.get(8)</u></font></a></td>
+					<td style="text-align:center;"><a href="#" onclick="modalNoVigentes('@lista1.get(10)');"><font color="blue"><u>@lista1.get(9)</u></font></a></td>
+					<td style="text-align:center;">
+						<a href="#" onclick= "$('#id_cPanel').val('@lista1.get(10)');$('#iniciar').submit()">
+							<code><font color="blue" size="2">
+							<strong>S</strong></font></code>
+						</a>
+					</td>
+				</TR>
+		 	}
+		</tbody>
+	</table>
+	<table id="tablaVentas" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		<thead style="background-color: #eeeeee">
+			<TR>
+        		<TH colspan="20" style="text-align:center;">VENTAS</TH>
+			</TR>
+        	<TR> 
+        		@for(tit1 <- ventas.get(0)){
+        			<TH style="text-align:center;">@tit1</TH>
+        		}
+			</TR>
+		</thead>
+		<tbody>
+			@for(lista1 <- ventas.tail){
+				<TR>
+					<td style="text-align:center;">@lista1.get(0)</td>
+					<td style="text-align:center;">@lista1.get(1)</td>
+					@for(lista2 <- lista1.tail.tail){
+						<td style="text-align:right;">@lista2</td>
+					}
+				</TR>
+		 	}
+		</tbody>
+	</table>
+	
+	
+			<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				<TR>
+			  		<TD id="ocupacion" style="height: auto;"></TD>
+				</TR>
+			 </table>
+			 
+			<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+				<TR>
+			  		<TD id="PRvsPL" style="height: auto;"></TD>
+				</TR>
+			 </table>
+			 
+			  
+			  
+			  
+</div>
+</div>
+
+<form id="iniciar" action="/inicioCPanel2/" method="POST">
+	<input type="hidden" id="id_cPanel" name="id_cPanel">
+</form>
+
+<div id="vigentes" class="modal" role='dialog' data-backdrop='static' data-keyboard='false'>
+	<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+   				<div id="modalVigentes"></div>
+			</div>
+	</div>
+</div>
+
+<div id="noVigentes" class="modal" role='dialog' data-backdrop='static' data-keyboard='false'>
+	<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+   				<div id="modalNoVigentes"></div>
+			</div>
+	</div>
+</div>
+
+<div id="itemsControlados" class="modal" role='dialog' data-backdrop='static' data-keyboard='false'>
+	<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+   				<div id="modalItemsControlados"></div>
+			</div>
+	</div>
+</div>
+
+
+
+}
+
+	<script>
+		function modalVigentes(id_cPanel){
+			var formData = new FormData();
+	    	formData.append('id_cPanel',id_cPanel);
+            $.ajax({
+                url: "/cPanelModalVigentes/",
+                type: "POST",
+                method: "POST",
+                data: formData,
+                cache: false,
+                contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		document.getElementById('modalVigentes').innerHTML = respuesta;
+
+				$('#tableVigentes').DataTable({
+						"fixedHeader": true,
+				    	"paging": false,
+						"info": false,
+						"searching": false,
+						"scrollY": 550,
+						"scrollX": true,
+				    	"language": {
+				        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				        }
+				  } );
+		
+		     		$('#vigentes').modal('show');
+		     	}
+	        });   
+		} 
+		
+		function modalNoVigentes(id_cPanel){
+			var formData = new FormData();
+	    	formData.append('id_cPanel',id_cPanel);
+            $.ajax({
+                url: "/cPanelModalNoVigentes/",
+                type: "POST",
+                method: "POST",
+                data: formData,
+                cache: false,
+                contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		document.getElementById('modalNoVigentes').innerHTML = respuesta;
+
+				$('#tableNoVigentes').DataTable({
+						"fixedHeader": true,
+				    	"paging": false,
+						"info": false,
+						"searching": false,
+						"scrollY": 550,
+						"scrollX": true,
+				    	"language": {
+				        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				        }
+				  } );
+		
+		     		$('#noVigentes').modal('show');
+		     	}
+	        });   
+		} 
+		
+		function modalItemsControlados(id_cPanel){
+			var formData = new FormData();
+	    	formData.append('id_cPanel',id_cPanel);
+            $.ajax({
+                url: "/cPanelModalItemsControlados/",
+                type: "POST",
+                method: "POST",
+                data: formData,
+                cache: false,
+                contentType: false,
+		     	processData: false,
+		     	success: function(respuesta){
+		     		document.getElementById('modalItemsControlados').innerHTML = respuesta;
+
+				$('#tableItemsControlados').DataTable({
+						"fixedHeader": true,
+				    	"paging": false,
+						"info": false,
+						"searching": false,
+						"scrollY": 550,
+						"scrollX": true,
+				    	"language": {
+				        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+				        }
+				  } );
+
+
+
+		     		$('#itemsControlados').modal('show');
+		     	}
+	        });   
+		} 
+		
+	</script>
+
+
+
+		<script>
+			$(function () {
+			        $('#ocupacion').highcharts({
+			        	chart: {
+			                zoomType: 'xy'
+			            },
+			            title: {
+			                text: '% OCUPACIÓN MENSUAL (Sobre Precio de Compra)'
+			            },
+			            subtitle: {
+			                text: ''
+			            },
+			            xAxis: [{
+			            	categories: @Html(graficoOcupacion.get(0)),
+			                labels: {
+			                    rotation: -45,
+			                    align: 'right',
+			                    style: {
+			                        fontSize: '10px',
+			                        fontFamily: 'Verdana, sans-serif'
+			                    }
+			                }
+			            }],
+			            yAxis: {
+			                min: 0,
+			                max: 100,
+			                title: {
+			                    text: 'Porcentaje'
+			                },
+			                stackLabels: {
+			                    enabled: true,
+			                    style: {
+			                        fontWeight: 'bold',
+			                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+			                    }
+			                }
+			            },
+			            tooltip: {
+			                shared: true
+			            },
+			            legend: {
+			                layout: 'horizontal',
+			                align: 'center',
+			                verticalAlign: 'top',
+			                y: 30,
+			                floating: false,
+			                borderWidth: 0,
+			                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+			            },
+			            plotOptions: {
+			                spline: {
+			                    lineWidth: 1,
+			                    states: {
+			                        hover: {
+			                            lineWidth: 6
+			                        }
+			                    },
+			                    marker: {
+			                        enabled: false
+			                    }
+			                }
+			            },
+			            series: [
+			              
+			               @for(lista <- graficoOcupacion.tail){
+			            	   @Html(lista)
+			               }
+
+			            ]
+			        });
+			    });
+			</script>
+			
+			<script>
+			$(function () {
+			        $('#PRvsPL').highcharts({
+			        	chart: {
+			                zoomType: 'xy'
+			            },
+			            title: {
+			                text: 'Compara Alquiler entre Precio Real y Precio Lista (Factor = PR/PL x 100)'
+			            },
+			            subtitle: {
+			                text: ''
+			            },
+			            xAxis: [{
+			            	categories: @Html(graficoPRvsPL.get(0)),
+			                labels: {
+			                    rotation: -45,
+			                    align: 'right',
+			                    style: {
+			                        fontSize: '10px',
+			                        fontFamily: 'Verdana, sans-serif'
+			                    }
+			                }
+			            }],
+			            yAxis: {
+			                min: 0,
+			                max: 2,
+			                title: {
+			                    text: 'Factor'
+			                },
+			                stackLabels: {
+			                    enabled: true,
+			                    style: {
+			                        fontWeight: 'bold',
+			                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+			                    }
+			                }
+			            },
+			            tooltip: {
+			                shared: true
+			            },
+			            legend: {
+			                layout: 'horizontal',
+			                align: 'center',
+			                verticalAlign: 'top',
+			                y: 30,
+			                floating: false,
+			                borderWidth: 0,
+			                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+			            },
+			            plotOptions: {
+			                spline: {
+			                    lineWidth: 1,
+			                    states: {
+			                        hover: {
+			                            lineWidth: 6
+			                        }
+			                    },
+			                    marker: {
+			                        enabled: false
+			                    }
+			                }
+			            },
+			            series: [
+			              
+			               @for(lista <- graficoPRvsPL.tail){
+			            	   @Html(lista)
+			               }
+
+			            ]
+			        });
+			    });
+			</script>
+			
+			
+

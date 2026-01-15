@@ -1,0 +1,115 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+ajuste: tables.AjustesEpOdo, listAjustes: List[tables.TipoAjustes], numDec: Long)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "MODIFICAR AJUSTE A EP/PROFORMA SERVICIO", ajuste.bodegaEmpresa)
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-10 col-sm-5 col-md-5 col-lg-5">
+				<form id="form" action="/ajustesEpUpdateOdo/" method="POST">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<TR>
+							<td colspan="2" style="text-align:left;">
+								<input type="hidden" name="id" value="@ajuste.id" required>
+								<input type="hidden" name="id_bodegaEmpresa" value="@ajuste.id_bodegaEmpresa" required>
+								<input type="hidden" name="id_bodega" value="@ajuste.id_bodegaEmpresa" required>
+								@ajuste.bodegaEmpresa
+							</td>
+						</TR>
+						<tr>
+							<td style="text-align: left;">CUANDO APLICA AJUSTE:</td>
+							<td style="text-align: left;">
+						  		<input type="date" class="form-control left"
+						  			name="fechaAjuste"
+						  			onblur="if(!limitaFecha(value,@mapPermiso.get("parametro.diasMenosGuia"),70)) value='@utilities.Fechas.AAMMDD(ajuste.fechaAjuste)';"
+						  			value="@utilities.Fechas.AAMMDD(ajuste.fechaAjuste)"
+				        			required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align: left;">TIPO DE AJUSTE:</td>
+							<td style="text-align: left;">
+								<select class="custom-select left"
+									name="id_tipoAjuste">
+									<option value="@ajuste.id_tipoAjuste">@ajuste.tipoAjuste</option>
+									@for(lista <- listAjustes){
+								     	<option value="@lista.id">@lista.ajuste</option>
+									}
+								</select>
+						    </td>
+						</tr>
+						<TR>
+					        <td style="text-align:left;padding-left:10px">MONEDA:</td>
+					        <td style="text-align:left">
+					        	<input type="hidden" name="id_moneda" value="@ajuste.id_moneda" required>
+								<input type="text" class="form-control left"
+									value="@ajuste.moneda"
+									readonly>
+					        </td>
+						</TR>
+						<TR>
+					        <td style="text-align:left;padding-left:10px">MONTO A AJUSTAR:</td>
+					        <td style="text-align:left">
+								<input type="text" class="form-control left"
+									name="totalAjuste"
+									value="@ajuste.totalAjuste"
+									onfocus="value = value.replace(/,/g,'');" 
+									onkeydown="return ingresoDouble(window.event)"
+									autocomplete="off"
+									onchange="if(value=='') value=0; value = formatStandar(value,'@numDec');"
+									required>
+					        </td>
+						</TR>
+						<TR>
+					        <td style="text-align:left;padding-left:10px">MOTIVO:</td>
+					        <td style="text-align:left">
+								<input type="text" class="form-control left"
+									name="concepto"
+									autocomplete="off"
+									value="@ajuste.concepto"
+									onchange="value = value.trim();"
+									required>
+					        </td>
+						</TR>
+						<TR>
+					        <td style="text-align:left;padding-left:10px">NOTAS:</td>
+					        <td style="text-align:left">
+								<textarea class="form-control left" 
+									rows="4"
+  									name="observaciones" 
+  									autocomplete="off"
+									onchange="$('#seModifico').val(1);">@ajuste.observaciones</textarea>
+							</td>
+						</TR>
+					</table>
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+							<input type="submit" value='GRABAR' class="btn btn-primary btn-sm rounded-pill btn-block">
+						</div>
+						<div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
+							<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="history.go(-1);return false;">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+
+</script>
+
+		
+	

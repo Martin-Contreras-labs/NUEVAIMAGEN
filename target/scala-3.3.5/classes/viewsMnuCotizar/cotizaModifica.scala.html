@@ -1,0 +1,1469 @@
+
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+formCotiza: forms.FormCotiza, listClientes: List[tables.Cliente], listProyectos: List[tables.Proyecto], numDecParaTot: String, listRegiones: List[tables.Regiones],
+jsonListUnTiempo: String,
+listSucursal: List[tables.Sucursal], listComercial: List[tables.Comercial], 
+jsonDetalle: String, listSoluciones: List[tables.CotizaSolucion], cotizacion: tables.Cotizacion, iva: Double, jsonListMoneda: String,
+listDibujantes: List[tables.Dibujante])
+
+
+@main("") {
+<div id="bloquear2" class="blocker" style="display:none;"><br><br><br><br><br><br><h1>Se esta actualizando... </h1></div>
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+<div id="bloquear2" class="blocker" style="display:none;"><br><br><br><br><br><br><h1>Se esta actualizando... </h1></div>
+	@modalEquipoDescripcion()
+
+	<!-- MODAL CREA CLIENTES -->
+		@modalClienteNuevo(mapDiccionario, listRegiones)
+		<script>
+			const clienteGrabaAjax = (id_cliente) =>{
+				$('#id_cliente').val(id_cliente);
+				$('#rutCliente').val($("#clienteRut").val());
+				$('#nombreCliente').val($("#clienteNickName").val());
+				let tabla = document.getElementById('tablaListaClientes');
+				let row = tabla.insertRow(tabla.rows.length);
+				let cell = row.insertCell(0);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#clienteRut").val();
+				cell = row.insertCell(1);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#clienteNickName").val();
+				cell = row.insertCell(2);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#clienteNombre").val();
+				row.setAttribute("onClick", "$('#id_cliente').val('" + id_cliente + "'); $('#rutCliente').val('" + $("#clienteRut").val() + "');$('#nombreCliente').val('" + $("#clienteNickName").val() + "');");
+				row.setAttribute("data-dismiss", "modal");
+			}
+		</script>
+	<!-- FIN MODAL CREA CLIENTES -->
+	
+	<!-- MODAL CREA PROYECTOS -->
+		@modalProyectoNuevo(mapDiccionario, listRegiones)
+		<script>
+			const proyectoGrabaAjax = (id_proyecto) =>{
+				$('#id_proyecto').val(id_proyecto);
+				$('#nombreProyecto').val($("#proyectoNickName").val());
+				let tabla = document.getElementById('tablaListaProyectos');
+				let row = tabla.insertRow(tabla.rows.length);
+				let cell = row.insertCell(0);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#proyectoNickName").val();
+				cell = row.insertCell(1);
+				cell.style.textAlign = "left";
+				cell.innerHTML = $("#proyectoNombre").val();
+				cell = row.insertCell(2);
+				cell.style.textAlign = "left";
+				cell.innerHTML = "";
+				row.setAttribute("onClick", "$('#id_proyecto').val('" + id_proyecto + "'); $('#nombreProyecto').val('" + $("#proyectoNickName").val() + "');");
+				row.setAttribute("data-dismiss", "modal");
+			}
+		</script>
+	<!-- FIN MODAL CREA PROYECTOS -->
+	
+	<form action="/cotizarUpdate/" enctype="multipart/form-data" method="POST" onsubmit="return validarForm();">
+		<div id="mostrarmostrar" style="display:none;">
+			@barraTitulo(mapDiccionario, "MODIFICAR COTIZACION", "")
+			<div class="row  justify-content-md-center">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+						<thead style="background-color: #eeeeee">
+							<tr>
+								<td width="230px">
+									<input type="hidden" id="id_cotizacion" name="id_cotizacion" value="@formCotiza.id_cotizacion">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Nro.Cotizacion</span>
+								  		</div>
+								  		<input type="text" class="form-control left"
+								  				name="numeroCoti"
+												value = "@formCotiza.numeroCoti"
+												style="width:100px;" 
+												onkeydown="return ingresoInt(window.event)"
+												onchange="if(value.trim()==''){value='@formCotiza.numeroCoti';}else{validarNumero(value);}">
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Fecha</span>
+								  		</div>
+								  		<input type="date" class="form-control center"
+								  			name="fechaCoti" 
+								  			id="fechaCoti"
+								  			onblur="if(!limitaFecha(value,720,10)) value='@formCotiza.fechaCoti';"
+								  			value="@formCotiza.fechaCoti"
+						        			required>
+									</div>
+								</td>
+								<td width="230px">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">@mapDiccionario.get("RUT") Cliente</span>
+								  		</div>
+								  		<input type="hidden" id="id_cliente" name="id_cliente" value="@formCotiza.id_cliente">
+										@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
+											@if(formCotiza.id_cliente>0){
+												<input type="text" class="form-control"
+			  										id="rutCliente"
+			  										value="@formCotiza.rutCliente"
+			  										readonly>
+											}else{
+												<input type="text" class="form-control"
+			  										id="rutCliente"
+			  										value="@formCotiza.rutCliente" 
+			  										style="background:white"
+			  										onclick="$('#listaCliente').modal('show');"
+			  										readonly>
+											}
+										}else{
+											<input type="text" class="form-control"
+		  										id="rutCliente"
+		  										value="@formCotiza.rutCliente" 
+		  										style="background:white"
+		  										onclick="$('#listaCliente').modal('show');"
+		  										readonly>
+										}
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Cliente</span>
+								  		</div>
+											@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
+												@if(formCotiza.id_cliente>0){
+													<input type="text" class="form-control left"
+													id="nombreCliente"
+													value="@formCotiza.nickCliente"
+													required
+													readonly>
+												}else{
+													<input type="text" class="form-control left"
+													id="nombreCliente"
+													value="@formCotiza.nickCliente"
+													style="background:white"
+													onclick='$("#listaCliente").modal("show")'
+													required
+													readonly>
+												}
+											}else{
+												<input type="text" class="form-control left"
+													id="nombreCliente"
+													value="@formCotiza.nickCliente"
+													style="background:white"
+													onclick='$("#listaCliente").modal("show")'
+													required
+													readonly>
+											}
+									</div>
+								</td>
+								<td>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Proyecto</span>
+								  		</div>
+										<input type="hidden" id="id_proyecto" name="id_proyecto" value="@formCotiza.id_proyecto">
+										@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
+											<input type="text" class="form-control left"
+												id="nombreProyecto"
+												value="@formCotiza.nickProyecto"
+												readonly>
+										}else{
+											<input type="text" class="form-control left"
+												id="nombreProyecto"
+												value="@formCotiza.nickProyecto"
+												style="background:white"
+												onclick='$("#listaProyecto").modal("show")'
+												readonly>
+										}
+									</div>
+								</td>
+								<td style="text-align:center;" width="70px">
+									<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+										@if(formCotiza.cotizacionPDF.equals("0")){
+											<div id="txtBtn">Adjuntar</div>
+										}else{
+											<div id="txtBtn">Cambiar</div>
+										}
+				    					<input type="file" id="docAdjunto" name="docAdjunto" onchange="LimitAttach(this.form, this.form.docAdjunto.value);">
+									</span>
+								</td>
+								<td style="text-align:left;">
+									@if(formCotiza.cotizacionPDF.equals("0")){
+										--
+									}else{
+										<a href="#" onclick="descargaDocumento('@formCotiza.cotizacionPDF')">
+											<kbd style="background-color: #7F8C8D">doc</kbd>
+										</a>
+									}
+								</td>
+								
+								
+							</tr>
+							<tr>
+							
+							
+								
+								<td align="center"  colspan="2">
+									<input type="hidden" id="id_sucursal" name="id_sucursal" value="@cotizacion.getId_sucursal()">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Sucursal</span>
+								  		</div>
+										@if(mapPermiso.get("cambiarSucursal")!=null){
+											@if(mapPermiso.get("cambiarComercial")!=null){
+												<select id="selSucursal" class="custom-select"  style="width: 80px;" onchange = "$('#id_sucursal').val(value); actualizaComerciales(value);">
+													<option value="@cotizacion.getId_sucursal()">@cotizacion.getNameSucursal()</option>
+													@for(lista <- listSucursal){
+														<option value="@lista.getId()">@lista.getNombre()</option>
+													}
+												</select>
+											}else{
+												<select id="selSucursal" class="custom-select"  style="width: 80px;" onchange = "$('#id_sucursal').val(value);">
+													<option value="@cotizacion.getId_sucursal()">@cotizacion.getNameSucursal()</option>
+													@for(lista <- listSucursal){
+														<option value="@lista.getId()">@lista.getNombre()</option>
+													}
+												</select>
+											}
+										}else{
+											<input id="selSucursal" type="text" class="form-control left"
+												value = "@cotizacion.getNameSucursal()"
+												readonly>
+										}
+									</div>
+								</td>
+								
+								
+								
+								<td colspan="20" rowspan="6">
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">Observaciones</span>
+								  		</div>
+	  									<textarea class="form-control" rows="9"
+	  										name="observaciones" 
+	  										autocomplete="off">@formCotiza.observaciones</textarea>
+									</div>
+								</td>
+							</tr>
+							<tr>
+							
+							
+								<td align="center"  colspan="2">
+									<div id="actualComerciales">
+										<input type="hidden" id="id_comercial" name="id_comercial" value="@cotizacion.getId_comercial()">
+										<div class="input-group">
+									  		<div class="input-group-prepend">
+									    		<span class="input-group-text" id="basic-addon1">Comercial</span>
+									  		</div>
+											@if(mapPermiso.get("cambiarComercial")!=null){
+												<select id="selComercial" class="custom-select"  style="width: 80px;" onchange="$('#id_comercial').val(value)">
+													<option value="@cotizacion.getId_comercial()">@cotizacion.getNameComercial()</option>
+													@for(lista <- listComercial){
+														<option value="@lista.getId()">@lista.getNameUsuario()</option>
+													}
+												</select>
+											}else{
+												<input id="selComercial" type="text" class="form-control left"
+													value = "@cotizacion.getNameComercial()"
+													readonly>
+											}
+										</div>
+									</div>
+								</td>
+									
+									
+									
+							</tr>
+							<tr>
+								<td align="center"  colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Tipo de Solucion</span>
+										</div>
+										<select id="selSolucion" class="custom-select"  style="width: 80px;" name="id_cotizaSolucion">
+											<option value="@cotizacion.getId_cotizaSolucion()">@cotizacion.getNameCotizaSolucion()</option>
+											@for(lista <- listSoluciones){
+												<option value="@lista.getId()">@lista.getSolucion()</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center" colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Fecha Probable</span>
+										</div>
+										<input type="date" class="form-control center"
+											   name="fechaProbable"
+											   id="fechaProbable"
+											   onblur="if(!limitaFecha(value,720,720)) value='@cotizacion.getFechaProbable()';"
+											   value="@cotizacion.getFechaProbable()"
+											   required>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td align="center"  colspan="2">
+									<div class="input-group">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="basic-addon1">Dibujante/Proyectista</span>
+										</div>
+										<input type="hidden" id="id_dibujante" name="id_dibujante" value="0">
+										<select id="selSolucion" class="custom-select"  style="width: 80px;" onchange="$('#id_dibujante').val(value)">
+											<option value="@cotizacion.getId_dibujante()">@cotizacion.getNombreDibujante()</option>
+											@for(lista <- listDibujantes){
+												<option value="@lista.getId()">@lista.getNombre()</option>
+											}
+										</select>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<input type="hidden" id="id_bodegaEmpresa" name="id_bodegaEmpresa" value="@formCotiza.id_bodegaEmpresa">
+								@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
+									<td align="center"  colspan="2">
+										<div class="input-group">
+									  		<div class="input-group-prepend">
+									    		<span class="input-group-text" id="basic-addon1">@mapDiccionario.get("BODEGA")/PROYECTO</span>
+									  		</div>
+									  		<input type="text" class="form-control left"
+													value = "@formCotiza.nombreBodega"
+													readonly>
+										</div>
+									</td>
+								}
+							</tr>
+							<tr>
+								<input type="hidden" id="id_bodegaEmpresa" name="id_bodegaEmpresa" value="@formCotiza.id_bodegaEmpresa">
+								@if(mapPermiso.get("parametro.cotizaPorTasa").equals("1")) {
+									<td align="center"  colspan="2">
+										<div class="input-group">
+									  		<div class="input-group-prepend">
+									    		<span class="input-group-text" id="basic-addon1">@mapDiccionario.get("BODEGA")/PROYECTO</span>
+									  		</div>
+									  		<input type="text" class="form-control left"
+													value = "@formCotiza.nombreBodega"
+													readonly>
+										</div>
+									</td>
+								}
+							</tr>
+						</thead>
+					</table>
+					<hr>
+					<div id='modalTasaGlobal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+							<div class='modal-content'>
+								<div class='modal-header'>
+								        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+								          <span aria-hidden='true'>&times;</span>
+								        </button>
+								</div>
+								<div class='modal-body'>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">APLICAR TASA GLOBAL</span>
+								  		</div>
+								  		<input type="text" class="form-control center"
+											id="tasaGlobal"
+											value="0.00 %"
+											onfocus="value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')"
+											onkeydown="return ingresoDouble(window.event)"
+											autocomplete="off"
+											onchange="value = formatPorcentaje(value); if(value=='') {value='0.00 %';}">
+									</div>
+									<br>
+									<div class='row'>
+										<div class='col-sm-12' style='text-align:center'>
+											<input type="button" class="btn btn-sm btn-primary" value='Aplicar' onclick='$("#modalTasaGlobal").modal("hide"); aplicarTasaGlobal();'>
+											<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div id='modalPermGlobal' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+						<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+							<div class='modal-content'>
+								<div class='modal-header'>
+								        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+								          <span aria-hidden='true'>&times;</span>
+								        </button>
+								</div>
+								<div class='modal-body'>
+									<div class="input-group">
+								  		<div class="input-group-prepend">
+								    		<span class="input-group-text" id="basic-addon1">APLICAR PERMANENCIA GLOBAL</span>
+								  		</div>
+								  		<input type="text" class="form-control center"
+											id="permGlobal"
+											value="0.00"
+											onfocus="value = value.replace(/,/g,'')"
+											onkeydown="return ingresoDouble(window.event)"
+											autocomplete="off"
+											onchange="value = formatStandar(value,2); if(value=='') {value='0.00';}">
+									</div>
+									<br>
+									<div class='row'>
+										<div class='col-sm-12' style='text-align:center'>
+											<input type="button" class="btn btn-sm btn-primary" value='Aplicar' onclick='$("#modalPermGlobal").modal("hide"); aplicarPermGlobal();'>
+											<input type='button' class='btn btn-sm btn-warning' value='Cancelar' data-dismiss='modal'>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					
+					@if( ! (mapPermiso.get("parametro.cotizar_bloqueaVtaReposi") !=null && mapPermiso.get("parametro.cotizar_bloqueaVtaReposi") == "1") ){
+						<div class="noprint" align="center">
+							<div id="importar" class="row justify-content-md-center" style="display: true;">
+								<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+									<input id="btnCopiaCoti" type="button"  value="Restablecer Precios" class="btn btn-info btn-sm rounded-pill btn-block" 
+										onclick="location.reload();">&nbsp;&nbsp;&nbsp;
+								</div>
+							</div>
+						</div>
+					}
+					
+					<div class="noprint" align="center">
+						<div id="importar" class="row justify-content-md-center" style="display: none;">
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnCopiaCoti" type="button"  value="Copiar desde otra cotización" class="btn btn-warning btn-sm rounded-pill btn-block" 
+									onclick="listadoCotizaciones()">&nbsp;&nbsp;&nbsp;
+							</div>
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnCargaExcel" type="button"  value="Copiar desde un Excel" class="btn btn-info btn-sm rounded-pill btn-block" 
+									onclick="$('#modalCargaMasiva').modal('show');">&nbsp;&nbsp;&nbsp;
+							</div>
+							
+							
+
+						@if(mapPermiso.get("parametro.coti8columnas")!=null && mapPermiso.get("parametro.coti8columnas").equals("1")) {
+							<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+								<input id="btnImport8column" type="button"  value="Import 8 Columnas Excel" class="btn btn-primary btn-sm rounded-pill btn-block" 
+									onclick="$('#modalImport8column').modal('show');">&nbsp;&nbsp;&nbsp;
+							</div>
+						}
+			
+			
+			
+						</div>
+					</div>
+					
+					
+					
+					<div id="tblPrincipal"></div>
+				</div>
+			</div>
+			
+			
+			<div class="noprint" align="left">
+				<div class="row justify-content-md-center" >
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  value="Cancelar" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/home/';">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  id="verifica" value='Verificar' class="btn btn-success btn-sm rounded-pill btn-block" onclick="verificaCotizacion();" >
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="button"  id="modifica" value='Modificar' class="btn btn-warning btn-sm rounded-pill btn-block" onclick="modificaCotizacion();" style="visibility:hidden">
+					</div>
+					<div class="col-xs-5 col-sm-1 col-md-1 col-lg-1">
+						<input type="submit"  id="aplica" value='Aplicar Cambios' class="btn btn-primary btn-sm rounded-pill btn-block" style="visibility:hidden">
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</form>
+	
+	<div id='listaCliente' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR CLIENTE</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaCliente').modal('hide'); $('#modalClienteNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaClientes" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR> 
+								<TH>@mapDiccionario.get("RUT")</TH>
+								<TH>NICK</TH>
+								<TH>NOMBRE</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listClientes){
+								<TR onClick="$('#id_cliente').val(@lista1.getId()); $('#rutCliente').val('@lista1.getRut()');$('#nombreCliente').val('@lista1.getNickName()');" data-dismiss="modal">
+									<td  style="text-align:left;">@lista1.getRut()</td>
+									<td  style="text-align:left;">@lista1.getNickName()</td>
+									<td  style="text-align:left;">@lista1.getNombre()</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='listaProyecto' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>SELECCIONAR PROYECTO</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div class="noprint" align="center">
+						<a href="#" onclick="$('#listaProyecto').modal('hide'); $('#modalProyectoNuevo').modal('show');">
+							<kbd style="background-color: #73C6B6">Agregar Nuevo</kbd>
+						</a>
+					</div>
+					<table id="tablaListaProyectos" class='table table-sm table-bordered table-condensed table-hover table-fluid'>
+						<thead style="background-color: #eeeeee">
+							<TR>
+								<TH>NICK</TH>
+								<TH>NOMBRE</TH>
+								<TH>@mapDiccionario.get("Comuna")</TH>
+							</TR>
+						</thead>
+						<tbody>
+							@for(lista1 <- listProyectos){
+								<TR onClick="$('#id_proyecto').val(@lista1.getId()); $('#nombreProyecto').val('@lista1.getNickName()');" data-dismiss="modal">
+									<td  style="text-align:left;">@lista1.getNickName()</td>
+									<td  style="text-align:left;">@lista1.getNombre()</td>
+									<td  style="text-align:left;">@lista1.getComuna()</td>
+								</TR>
+				 			}
+						</tbody>
+					</table>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id='modalStockPorEquipo' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable' style='max-width: 80% !important;' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>STOCK DISPONIBLE</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="stockPorEquipo"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-warning' style='font-size: 10px;' data-dismiss='modal'>Cancelar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+	</form>
+	
+}
+
+
+
+<script type="text/javascript">
+
+	let factorVta = 1;
+	let factorArr = 1;
+
+	let mapMoneda = new Map();
+
+	$(document).ready(function() {
+		
+		let jsonListUnTiempo = @Html(jsonListUnTiempo);
+		let jsonDetalle = @Html(jsonDetalle);
+		let monedas = "";
+		for(var i in jsonListUnTiempo){
+			monedas += "<option value=\""+jsonListUnTiempo[i]["id"]+"\">"+jsonListUnTiempo[i]["nombre"]+"</option>";
+		}
+		
+		let jsonListMoneda = @Html(jsonListMoneda);
+		let moneda = "";
+		for(var i in jsonListMoneda){
+			moneda += "<option value=\""+jsonListMoneda[i]["id"]+"\">"+jsonListMoneda[i]["nickName"]+"</option>";
+			mapMoneda.set(jsonListMoneda[i]["id"], jsonListMoneda[i]["numeroDecimales"]);
+		}
+		
+		let escondeLosM2 = 0;
+		@if(mapPermiso.get("parametro.escondeLosM2")!=null && mapPermiso.get("parametro.escondeLosM2").equals("1")) {
+			escondeLosM2 = 1;
+		}
+		
+		let tabla = "<table id=\"tablaPrincipal\" class=\"table table-sm table-hover table-bordered table-condensed table-fluid\">"
+			+ "	<thead style=\"background-color: #eeeeee\">"
+			+ "<TR><TH colspan=\"8\" style=\"background-color: white\"></TH>"
+			+ "<TH style=\"text-align:center\">";
+				if( ! ('@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")'!=null && '@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")' == "1") ) {
+					tabla += "<div id=\"titAplicarFactorRepos\">Aplica_Factor</div>"
+						+ "<input type=\"text\" class=\"form-control rounded-pill height23px right\""
+						+ " style='background-color: #ffc107'"
+						+ " id=\"btnAplicarFactorRepos\""
+						+ " value=\"1.00\""
+						+ " onkeydown=\"return ingresoDouble(window.event)\""
+						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+						+ " onchange=\"if(value=='' || value==0) {"
+							+ " value = formatStandar(factorVta,2);"
+							+ "}else{"
+								+ " aplicarFactorGlobalRepos(value);"
+								+ " value = formatStandar(value,2);"
+							+ "}\">";
+				}
+			tabla += "</TH>"
+			+ "<TH style=\"background-color: white\"></TH>"
+			+ "<TH style=\"text-align:center\">"
+			+ "<br><input id=\"btnAplicarTasa\" type=\"button\"  value=\"Aplica Tasa\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalTasaGlobal\").modal(\"show\")'>"
+			+ "</TH>"
+			+ "<TH style=\"text-align:center\">"
+				+ "<div id=\"titAplicarFactorArr\">Aplica_Factor</div><input type=\"text\" class=\"form-control rounded-pill height23px right\""
+						+ " style='background-color: #ffc107'"
+						+ " id=\"btnAplicarFactorRepos\""
+						+ " value=\"1.00\""
+						+ " onkeydown=\"return ingresoDouble(window.event)\""
+						+ " onfocus=\"value = value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+						+ " onchange=\"if(value=='' || value==0) {"
+							+ " value = formatStandar(factorArr,2);"
+							+ "}else{"
+								+ " aplicarFactorGlobal(value);"
+								+ " value = formatStandar(value,2);"
+							+ "}\">"
+			+ "</TH>"
+			+ "<TH style=\"text-align:center\">"
+			+ "<br><input id=\"btnAplicarPerm\" type=\"button\"  value=\"Aplica Perm\" class=\"btn btn-warning btn-sm rounded-pill btn-block\" onclick='$(\"#modalPermGlobal\").modal(\"show\")'>"
+			+ "</TH>"
+			+ "<TH colspan=\"12\" style=\"background-color: white\"></TH>"
+			+ "</TR>"
+			+ "<TR>"
+			+ "<TH>GRUPO</TH>"
+			+ "<TH>CODIGO</TH>"
+			+ "<TH style=\"min-width:30%\">EQUIPO</TH>"
+			+ "<TH>STOCK</TH>"
+			+ "<TH>UN</TH>"
+			+ "<TH>CANT</TH>"
+			+ "<TH>SOLO<br>VENTA</TH>"
+			+ "<TH>MON</TH>"
+			+ "<TH>P.UNITARIO<br>VTA/REPOS</TH>"
+			+ '<TH>UN<br>@mapDiccionario.get("ARR")</TH>'
+			+ '<TH>TASA<br>@mapDiccionario.get("ARR")/VTA</TH>'
+			+ '<TH>P.UNITARIO<br>@mapDiccionario.get("ARR")</TH>'
+			+ "<TH>PERMAN</TH>"
+			+ "<TH>P.TOTAL<br>REPOSICION</TH>"
+			+ '<TH>P.TOTAL<br>@mapDiccionario.get("ARRIENDO")</TH>'
+			+ "<TH>P.TOTAL<br>VENTA</TH>"
+			+ "<TH>TOT.KG</TH>";
+
+
+			if(escondeLosM2 == 1) {
+				tabla += "<TH style = \"display:none\">TOT.M2</TH>";
+			}else{
+				tabla += "<TH>TOT.M2</TH>";
+			}
+
+			tabla += "<TH style = \"display:none\">kg</TH>"
+				+ "<TH style = \"display:none\">m2</TH>"
+				+ "<TH style = \"display:none\">id_equipo</TH>"
+				+ "<TH style = \"display:none\">nrodecimal</TH>"
+				+ "</TR>"
+				+ "</thead>"
+				+ "<tbody>";
+
+			for(var i in jsonDetalle){
+				tabla += "<TR>"
+					+ "<td style=\"text-align:left;\">"+jsonDetalle[i][23]+"</td>"
+					+ "<td style=\"text-align:left;\">"
+					+ "<input type=\"hidden\" name=\"id_equipo[]\" value=\""+jsonDetalle[i][0]+"\">"
+					+ "<a href=\"#\" onclick=\"equipoDescripcion('"+jsonDetalle[i][0]+"');\">"+jsonDetalle[i][1]+"</a>"
+					+ "</td>"
+					+ "<td style= \"text-align: left;\"><a href=\"#\" onclick=\"equipoDescripcion('"+jsonDetalle[i][0]+"');\">"+jsonDetalle[i][2]+"</a></td>"
+					+ "<td style=\"text-align:center;\">"
+					+ "<div class=\"noprint\">"
+					+ "<a href=\"#\" onclick=\"vistaStockPorEquipo('"+jsonDetalle[i][0]+"');\">"
+					+ "<kbd style=\"background-color: #73C6B6\">stock</kbd>"
+					+ "</a>"
+					+ "</div>"
+					+ "</td>"
+					+ "<td style=\"text-align:center;\">"+jsonDetalle[i][3]+"</td>"
+					+ "<td style=\"text-align:center;\">"
+					+ "<div style=\"display:none\" id=\"hiddencantidad_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][25]+"</div>"
+					+ "<input type=\"text\" class=\"cantidad form-control height23px right width80px\""
+					+ "name=\"cantidad[]\""
+					+ "id=\"cantidad_"+jsonDetalle[i][0]+"\""
+					+ "value=\""+jsonDetalle[i][10]+"\""
+					+ "onfocus=\"value=value.replace(/,/g,''); cantAux = value;\" "
+					+ "onblur = \"value = formatStandar(value, '2');\""
+					+ "onkeydown=\"return ingresoDouble(window.event)\""
+					+ "autocomplete=\"off\""
+					+ "onchange=\"if(value=='') value=0; calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
+					+ "</td>"
+					+ "<td style=\"text-align:center;\">"
+					+ "<input type=\"hidden\" name=\"esVenta[]\" id=\"esVenta_"+jsonDetalle[i][0]+"\"  value=\""+jsonDetalle[i][11]+"\">";
+
+
+					if(jsonDetalle[i][11] == "0"){
+						tabla += "<input type=\"checkbox\" id=\"checkbox_"+jsonDetalle[i][0]+"\" onchange=\"checkVenta('"+jsonDetalle[i][0]+"'); "
+							+ "calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
+					}else{
+						tabla += "<input type=\"checkbox\" id=\"checkbox_"+jsonDetalle[i][0]+"\" onchange=\"checkVenta('"+jsonDetalle[i][0]+"');"
+							+ "calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\" checked>";
+					}
+
+					tabla += "</td>"
+						+ "<td style=\"text-align:center;\">" //+jsonDetalle[i][4]
+						
+						+ "<input type=\"hidden\" id=\"id_moneda_"+jsonDetalle[i][0]+"\" name=\"id_moneda[]\" value=\""+jsonDetalle[i][8]+"\">"
+						+ "<select class=\"custom-select\"  style=\"width: 80px;\""
+						+ "onchange=\"$('#id_moneda_"+jsonDetalle[i][0]+"').val(value);calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
+						+ "<option value=\""+jsonDetalle[i][8]+"\">"+jsonDetalle[i][4]+"</option>"+moneda
+						+"</td>"
+						+ "<td style=\"text-align:center;\">"
+						+ "<div style=\"display:none\" id=\"hiddenpuVentaRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][26]+"</div>";
+						
+						if( '@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")'!=null && '@mapPermiso.get("parametro.cotizar_bloqueaVtaReposi")' == "1") {
+							tabla += "<input type=\"text\" class=\"form-control height23px right width100px\""
+							+ "name=\"puVentaRepos[]\""
+							+ "id=\"puVentaRepos_"+jsonDetalle[i][0]+"\""
+							+ "value=\""+jsonDetalle[i][5]+"\""
+							+ " readonly>";
+						}else{
+							tabla += "<input type=\"text\" class=\"form-control height23px right width100px\""
+							+ "name=\"puVentaRepos[]\""
+							+ "id=\"puVentaRepos_"+jsonDetalle[i][0]+"\""
+							+ "value=\""+jsonDetalle[i][5]+"\""
+							+ "onfocus=\"value=value.replace(/,/g,'');\" "
+							+ "onblur = \"value = formatStandar(value, '"+jsonDetalle[i][20]+"');\""
+							+ "onkeydown=\"return ingresoDouble(window.event)\""
+							+ "autocomplete=\"off\""
+							+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">";
+						}
+						tabla += "</td>"
+						+ "<td style=\"text-align:center;\">"
+						+ "<input type=\"hidden\" id=\"id_unidadTiempo_"+jsonDetalle[i][0]+"\" name=\"id_unidadTiempo[]\" value=\""+jsonDetalle[i][9]+"\">"
+						+ "<select class=\"custom-select\"  style=\"width: 80px;\""
+						+ "onchange=\"$('#id_unidadTiempo_"+jsonDetalle[i][0]+"').val(value);\">"
+						+ "<option value=\""+jsonDetalle[i][9]+"\">"+jsonDetalle[i][6]+"</option>"+monedas
+						+ "</td>"
+						+ "<td>"
+						+ "<div style=\"display:none\" id=\"hiddentasaArr_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][27]+"</div>"
+						+ "<input type=\"text\" class=\"tasaGlobal form-control height23px right width80px\""
+						+ "id=\"tasaArr_"+jsonDetalle[i][0]+"\""
+						+ "value=\""+jsonDetalle[i][24]+"\""
+						+ "onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\""
+						+ "onblur = \"value = formatPorcentaje(value);\""
+						+ "onkeydown=\"return ingresoDouble(window.event)\""
+						+ "autocomplete=\"off\""
+						+ "onchange=\"if(value=='') {value='0.00 %';} else {calculaTasa(2,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">"
+						+ "</td>"
+						+ "<td style=\"text-align:center;\">"
+						+ "<div style=\"display:none\" id=\"hiddenpuArriendo_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][28]+"</div>"
+						+ "<input type=\"text\" class=\"factorGlobal form-control height23px right width80px\""
+						+ "name=\"puArriendo[]\""
+						+ "id=\"puArriendo_"+jsonDetalle[i][0]+"\""
+						+ "value=\""+jsonDetalle[i][7]+"\""
+						+ "onfocus=\"value=value.replace(/,/g,'');\" "
+						+ "onblur = \"value = formatStandar(value, '"+jsonDetalle[i][20]+"');\""
+						+ "onkeydown=\"return ingresoDouble(window.event)\""
+						+ "autocomplete=\"off\""
+						+ "onchange=\"if(value=='') {value=0;} else {calculaTasa(1,'"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"'); calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');}\">"
+						+ "</td>"
+						+ "<td style=\"text-align:center;\">"
+						+ "<div style=\"display:none\" id=\"hiddenpermanencia_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][29]+"</div>"
+						+ "<input type=\"text\" class=\"permGlobal form-control height23px right\""
+						+ "name=\"permanencia[]\""
+						+ "id=\"permanencia_"+jsonDetalle[i][0]+"\""
+						+ "value=\""+jsonDetalle[i][12]+"\""
+						+ "onfocus=\"value=value.replace(/,/g,'');\" "
+						+ "onblur = \"$('#hiddenpermanencia_"+jsonDetalle[i][0]+"').text(value); value = formatStandar(value, '2');\""
+						+ "onkeydown=\"return ingresoDouble(window.event)\""
+						+ "autocomplete=\"off\""
+						+ "onchange=\"if(value=='') value=0; calculaLinea('"+jsonDetalle[i][0]+"', '"+jsonDetalle[i][20]+"');\">"
+						+ "</td>"
+						+ "<td class=\"totRepos\" style=\"text-align:right;\" id=\"totRepos_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][13]+"</td>"
+						+ "<td class=\"totArrie\" style=\"text-align:right;\" id=\"totArrie_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][14]+"</td>"
+						+ "<td class=\"totVenta\" style=\"text-align:right;\" id=\"totVenta_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][15]+"</td>"
+						+ "<td class=\"totKg\" style=\"text-align:right;\" id=\"totKg_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][18]+"</td>";
+					
+					if(escondeLosM2 == 1) {
+						tabla +="<td class=\"totM2\" style=\"display:none; text-align:right;\" id=\"totM2_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][19]+"</td>";
+					}else{
+						tabla +="<td class=\"totM2\" style = \"text-align:right;\" id=\"totM2_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][19]+"</td>";
+					}
+					
+						tabla +="<td style = \"display:none\" id=\"uniKg_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][16]+"</td>"
+						+ "<td style = \"display:none\" id=\"uniM2_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][17]+"</td>"
+						+ "<td style = \"display:none\" id=\"idEquipo_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][0]+"</td>"
+						+ "<td style = \"display:none\" id=\"nroDecimales_"+jsonDetalle[i][0]+"\">"+jsonDetalle[i][20]+"</td>"
+						+ ""
+						+ "</TR>";
+			}
+
+			tabla +="</tbody>"
+				+ "<tfoot id=\"tfoot\" style=\"background-color: #eeeeee; display:none\">"
+				+ "<TR> "
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">SUB-TOTALES </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"subtotalRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"subtotalArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"subtotalVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR> "
+				+ "<TH colspan=\"13\" style=\"text-align:right;\">DESCUENTOS</TH>"
+				+ "<TH style=\"text-align:right;\"></TH>"
+				+ "<TH style=\"text-align:center;\">"
+				+ "<input type=\"text\" class=\"form-control height23px right\""
+				+ "id=\"dctoArriendo\""
+				+ "name=\"dctoArriendo\""
+				+ "value=\"@formCotiza.dctoArriendo %\""
+				+ "onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\" "
+				+ "onblur = \"value = formatPorcentaje(value);\""
+				+ "onkeydown=\"return ingresoDouble(window.event)\""
+				+ "onchange=\"sumaTotales(); dctoObligado=1;\">"
+				+ "</td>"
+				+ "</TH>"
+				+ "<TH style=\"text-align:center;\">"
+				+ "<input type=\"text\" class=\"form-control height23px right\""
+				+ "id=\"dctoVenta\""
+				+ "name=\"dctoVenta\""
+				+ "value=\"@formCotiza.dctoVenta %\""
+				+ "onfocus=\"value=value.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'')\" "
+				+ "onblur = \"value = formatPorcentaje(value);\""
+				+ "onkeydown=\"return ingresoDouble(window.event)\""
+				+ "onchange=\"sumaTotales(); dctoObligado=1;\">"
+				+ "</td>"
+				+ "</TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR>"
+				+ "<TH colspan=\"5\" style= \"text-align: right;\">Total cantidad</TH>"
+				+ "<TH colspan=\"1\" style= \"text-align: right;\"><div id=\"granTotCant\">0.00</div></TH>"
+				+ "<TH colspan=\"7\" style= \"text-align: right;\">TOTALES </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"granTotRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"granTotArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"granTotVenta\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"granTotKg\">0.00</div></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style=\"display:none; text-align:right;\"><div id=\"granTotM2\">0.00</div></TH>";
+			}else{
+				tabla +="<TH style = \"text-align:right;\"><div id=\"granTotM2\">0.00</div></TH>";
+			}
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR id='tIva' style='display:none'>"
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">IVA </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"ivaVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "<TR id='tTotal' style='display:none'>"
+				+ "<TH colspan=\"13\" style= \"text-align: right;\">TOTAL CON IVA </TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaRepos\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaArrie\">0.00</div></TH>"
+				+ "<TH style=\"text-align:right;\"><div id=\"totalConIvaVenta\">0.00</div></TH>"
+				+ "<TH></TH>";
+				
+			if(escondeLosM2 == 1) {
+				tabla +="<TH style = \"display:none\"></TH>";
+			}else{
+				tabla +="<TH></TH>";
+			}
+			
+			tabla +="<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "<TH style = \"display:none\"></TH>"
+				+ "</TR>"
+				+ "</tfoot>"
+				+ "</table>";
+
+		document.getElementById('tblPrincipal').innerHTML = tabla;
+		
+		$('#tablaListaClientes').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"order": [[ 1, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	  	} );
+
+		$('#tablaListaProyectos').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[20, 50, 100, 200, -1], [20, 50, 100, 200, "All"]],
+	    	"order": [[ 0, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+	  	} );
+
+		sumaTotales();
+		
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		} );
+		  
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	
+	const validarNumero = (numero) =>{
+		var formData = new FormData();
+		formData.append('numeroCoti',numero);
+        $.ajax({
+            url: "/existeNumeroCotizacionAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+				if(respuesta!="OK"){
+					$("#numeroCoti").val("@formCotiza.numeroCoti");
+					alertify.alert(respuesta, function () { });
+				}
+	     	}
+        });
+	}
+	
+	const vistaStockPorEquipo = (id_equipo) =>{
+		var formData = new FormData();
+		formData.append('id_equipo',id_equipo);
+        $.ajax({
+            url: "/tablaInvPorEquipoAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+				document.getElementById('stockPorEquipo').innerHTML = respuesta;
+				$('#modalStockPorEquipo').modal('show');
+	     	}
+        });
+	}
+	
+	
+	const sumaTotales = () =>{
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let tabla = document.getElementById("tablaPrincipal");
+		let totCant = 0;
+		
+		let cant = 0;
+		$(".cantidad").each(function() {
+			let val = $(this).val().replace(/,/g,'');
+			cant += parseFloat(val);
+		});
+		
+		let repos = 0;
+		$(".totRepos").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			repos += parseFloat(val);
+		}); $("#subtotalRepos").text(formatStandar(repos,'@numDecParaTot'));
+		
+		let arr = 0;
+		$(".totArrie").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			arr += parseFloat(val);
+		}); $("#subtotalArrie").text(formatStandar(arr,'@numDecParaTot'));
+		
+		let vta = 0;
+		$(".totVenta").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			vta += parseFloat(val);
+		}); $("#subtotalVenta").text(formatStandar(vta,'@numDecParaTot'));
+		
+		let kg = 0;
+		$(".totKg").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			kg += parseFloat(val);
+		});
+		
+		let m2 = 0;
+		$(".totM2").each(function() {
+			let val = $(this).text().replace(/,/g,'');
+			m2 += parseFloat(val);
+		});
+		
+		let dctoArriendo = $("#dctoArriendo").val().replace(/,/g,'').replace("%","").trim();
+		let dctoVenta = $("#dctoVenta").val().replace(/,/g,'').replace("%","").trim();
+		
+		$("#granTotRepos").text(formatStandar(repos,'@numDecParaTot'));
+		$("#granTotArrie").text(formatStandar((arr*(1-dctoArriendo/100)),'@numDecParaTot'));
+		$("#granTotVenta").text(formatStandar((vta*(1-dctoVenta/100)),'@numDecParaTot'));
+		$("#granTotKg").text(formatStandar(kg,2));
+		$("#granTotM2").text(formatStandar(m2,2));
+		$("#granTotCant").text(formatStandar(cant,2));
+		
+	}
+	
+	const checkVenta = (id_equipo) =>{
+		let esVenta = $("#esVenta_"+id_equipo).val();
+		if(esVenta==0){
+			$("#esVenta_"+id_equipo).val('1');
+		}else{
+			$("#esVenta_"+id_equipo).val('0');
+		}
+	}
+	
+	let calculaTasa = (flag, id_equipo, numDec) => {
+		if(flag==1){
+			let uniVta = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			let uniArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
+			let uniTasa = parseFloat(uniArr)/parseFloat(uniVta);
+			$("#tasaArr_"+id_equipo).val(formatStandar(uniTasa * 100,2)+" %");
+			$("#hiddentasaArr_"+id_equipo).text(uniTasa);
+		}else if(flag==2){
+			let uniVta = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			let uniTasa = $("#tasaArr_"+id_equipo).val().replace(/,/g,'').replace(/%/g,'').replace(/ /g,'');
+			let uniArr = parseFloat(uniVta)*parseFloat(uniTasa)/100;
+			$("#puArriendo_"+id_equipo).val(formatStandar(uniArr,numDec));
+			$("#hiddentasaArr_"+id_equipo).text(uniTasa);
+		}else{
+			let uniVta = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			let uniArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
+			let uniTasa = parseFloat(uniArr)/parseFloat(uniVta);
+			$("#tasaArr_"+id_equipo).val(formatStandar(uniTasa * 100,2)+" %");
+			$("#hiddentasaArr_"+id_equipo).text(uniTasa);
+		}
+		
+	}
+	
+	const calculaLinea = (id_equipo, numDec) =>{
+		let cant = $("#cantidad_"+id_equipo).val().replace(/,/g,'');
+		let ckeckEsVta = $("#checkbox_"+id_equipo).val();
+		let esVenta = $("#esVenta_"+id_equipo).val();
+		let uniVta = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+		let uniArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
+		let perm = $("#permanencia_"+id_equipo).val().replace(/,/g,'');
+		let uniKg = $("#uniKg_"+id_equipo).text().replace(/,/g,'');
+		let uniM2 = $("#uniM2_"+id_equipo).text().replace(/,/g,'');
+		let totRepos = parseFloat(cant) * parseFloat(uniVta);
+		let totArr = 0;
+		let totVta = 0;
+		let totKg = 0;
+		let totM2 = 0;
+		if(esVenta == 0){
+			 totRepos = parseFloat(cant) * parseFloat(uniVta);
+			 totArr = parseFloat(cant) * parseFloat(perm) * parseFloat(uniArr);
+			 totVta = 0;
+			 totKg = parseFloat(cant) * parseFloat(uniKg);
+			 totM2 = parseFloat(cant) * parseFloat(uniM2);
+		}else{
+			 totRepos = 0;
+			 totArr = 0;
+			 totVta = parseFloat(cant) * parseFloat(uniVta);
+			 totKg = parseFloat(cant) * parseFloat(uniKg);
+			 totM2 = parseFloat(cant) * parseFloat(uniM2);
+		}
+		
+		let idMon = $("#id_moneda_"+id_equipo).val();
+		numDec = mapMoneda.get(parseFloat(idMon));
+		
+		$("#cantidad_"+id_equipo).val(formatStandar(cant,2));
+		$("#puVentaRepos_"+id_equipo).val(formatStandar(uniVta,numDec));
+		$("#puArriendo_"+id_equipo).val(formatStandar(uniArr,numDec))
+		$("#totRepos_"+id_equipo).text(formatStandar(totRepos,numDec));
+		$("#totArrie_"+id_equipo).text(formatStandar(totArr,numDec));
+		$("#totVenta_"+id_equipo).text(formatStandar(totVta,numDec));
+		$("#totKg_"+id_equipo).text(formatStandar(totKg,2));
+		$("#totM2_"+id_equipo).text(formatStandar(totM2,2));
+		
+		$("#hiddencantidad_"+id_equipo).text(cant);
+		$("#hiddenpuVentaRepos_"+id_equipo).text(uniVta);
+		$("#hiddenpuArriendo_"+id_equipo).text(uniArr);
+		
+		if(verificando == 1){
+			sumaTotales();
+		}
+		
+	}
+	
+	let verificando = 0;
+	const verificaCotizacion = () =>{
+		sumaTotales();
+		let granTotRepos = $("#granTotRepos").text().replace(/,/g,'');
+		let granTotArrie = $("#granTotArrie").text().replace(/,/g,'');
+		let granTotVenta = $("#granTotVenta").text().replace(/,/g,'');
+		let sumaAux = parseFloat(granTotRepos) + parseFloat(granTotArrie) + parseFloat(granTotVenta);
+		if(sumaAux > 0){
+			let tabla = document.getElementById("tablaPrincipal");
+			for(i=2; i<tabla.rows.length-5; i++){
+				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
+				let arr = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
+				let vta = tabla.rows[i].cells[15].innerHTML.replace(/,/g,'');
+				if((parseFloat(cant)+parseFloat(arr)+parseFloat(vta))<=0){
+					tabla.rows[i].style.display = 'none';
+				}
+			}
+			
+			let iva = parseFloat("@iva");
+			
+			$("#ivaRepos").text(formatStandar(granTotRepos*iva),'@numDecParaTot');
+			$("#ivaArrie").text(formatStandar(granTotArrie*iva),'@numDecParaTot');
+			$("#ivaVenta").text(formatStandar(granTotVenta*iva),'@numDecParaTot');
+			
+			$("#totalConIvaRepos").text(formatStandar(formatStandar(granTotRepos*(1+iva)),'@numDecParaTot'));
+			$("#totalConIvaArrie").text(formatStandar(formatStandar(granTotArrie*(1+iva)),'@numDecParaTot'));
+			$("#totalConIvaVenta").text(formatStandar(formatStandar(granTotVenta*(1+iva)),'@numDecParaTot'));
+			
+			@if(mapPermiso.get("parametro.cotizaciones-con-iva")!=null && mapPermiso.get("parametro.cotizaciones-con-iva").equals("1")){
+				document.getElementById('tIva').style.display = '';
+				document.getElementById('tTotal').style.display = '';
+			}
+			
+			verificando = 1;
+			document.getElementById('tfoot').style.display = '';
+			document.getElementById('modifica').style.visibility = 'visible';
+			document.getElementById('aplica').style.visibility = 'visible';
+			document.getElementById('verifica').style.visibility = 'hidden';
+			document.getElementById('selSucursal').disabled = true;
+			document.getElementById('selComercial').disabled = true;
+			$('#btnAplicarTasa').hide();
+			$('#titAplicarFactorRepos').hide();
+			$('#btnAplicarFactorRepos').hide();
+			$('#titAplicarFactorArr').hide();
+			$('#btnAplicarFactorArr').hide();
+			$('#btnAplicarPerm').hide();
+			
+		}else{
+			$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+			} );
+			alertify.alert('NO PUEDE VERIFICAR UNA COTIZACION SIN CANTIDADES', function () { });
+		}
+	}
+	
+	const modificaCotizacion = () =>{
+		let tabla = document.getElementById("tablaPrincipal");
+		for(i=2; i<tabla.rows.length-5; i++){
+			tabla.rows[i].style.display = '';
+		}
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+		    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		} );
+		document.getElementById('tfoot').style.display = 'none';
+		document.getElementById('modifica').style.visibility = 'hidden';
+		document.getElementById('aplica').style.visibility = 'hidden';
+		document.getElementById('verifica').style.visibility = 'visible';
+		document.getElementById('selSucursal').disabled = false;
+		document.getElementById('selComercial').disabled = false;
+		$('#btnAplicarTasa').show();
+		$('#titAplicarFactorRepos').show();
+		$('#btnAplicarFactorRepos').show();
+		$('#titAplicarFactorArr').show();
+		$('#btnAplicarFactorArr').show();
+		$('#btnAplicarPerm').show();
+		
+		verificando = 0;
+	}
+
+	const validarForm = () =>{
+		$("#aplica").attr('disabled',true);
+		let flag = true;
+		sumaTotales();
+		let granTotRepos = $("#granTotRepos").text().replace(/,/g,'');
+		let granTotArrie = $("#granTotArrie").text().replace(/,/g,'');
+		let granTotVenta = $("#granTotVenta").text().replace(/,/g,'');
+		let sumaAux = parseFloat(granTotRepos) + parseFloat(granTotArrie) + parseFloat(granTotVenta);
+		
+		
+		if(sumaAux <= 0){
+			flag = false;
+			alertify.alert('NO PUEDE GENERAR UNA COTIZACION SIN CANTIDADES', function () {
+				$("#aplica").attr('disabled',false);
+				return(flag);
+     		});
+		}else if($("#id_cliente").val()=='0'){
+			flag = false;
+			alertify.alert('NO PUEDE GENERAR UNA COTIZACION SIN ASIGNAR UN CLIENTE', function () {
+				$("#aplica").attr('disabled',false);
+				return(flag);
+     		});
+		}else if ((sumaAux-parseFloat(granTotRepos))<=0){
+			flag = false;
+				alertify.alert('NO PUEDE GENERAR UNA COTIZACION QUE SUMA CERO, REVISAR PERMANENCIA', function () {
+					$("#aplica").attr('disabled',false);
+					return(flag);
+	     		});
+		}else{
+			let tabla = document.getElementById("tablaPrincipal");
+			for(i=2; i<tabla.rows.length-5; i++){
+				let cant = $(".cantidad",tabla.rows[i].cells[5]).val().replace(/,/g,'');
+				let arr = tabla.rows[i].cells[13].innerHTML.replace(/,/g,'');
+				let vta = tabla.rows[i].cells[14].innerHTML.replace(/,/g,'');
+				if((parseFloat(cant)+parseFloat(arr)+parseFloat(vta))<=0){
+					tabla.deleteRow(i);
+					i--;
+				}
+			}
+			return(true);
+		}
+		return(flag);
+	}
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file) => {
+		let allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1){
+			file = file.slice(file.indexOf("\\") + 1);
+		}
+		let extencion = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray.length; i++) {
+			if (extArray[i] == extencion) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var file = $("#docAdjunto")[0].files[0];
+			var fileSize = file.size; //tamaño del archivo
+			if(fileSize>100000000){
+				alert("Se permiten únicamente archivos que no superen los 100 MB,"
+				+" el que se intenta subir pesa: "+Math.round(file.size/10)/100+" KB");
+				form.docAdjunto.value="";
+			}else{
+				alert("Documento subido con éxito");
+				$("#txtBtn").text("Cambiar Documento");
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+	
+	
+	const aplicarTasaGlobal = () => {
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		$(".tasaGlobal").each(function() {
+			 $(this).val($("#tasaGlobal").val());
+		});
+		let tasa = $("#tasaGlobal").val();
+		tasa = tasa.replace(/,/g,'').replace(/%/g,'').replace(/ /g,'');
+		let tabla = document.getElementById("tablaPrincipal");
+		for(i=2; i<tabla.rows.length-5; i++){
+			let id_equipo = tabla.rows[i].cells[20].innerHTML;
+			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
+			let prepos = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			$("#puArriendo_"+id_equipo).val(formatStandar(parseFloat(prepos*tasa/100),nroDecimal));
+			calculaLinea(id_equipo,nroDecimal);
+		}
+		sumaTotales();
+		document.getElementById('selSucursal').disabled = true;
+		document.getElementById('selComercial').disabled = true;
+		
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+	    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+		});
+	}
+	
+	const aplicarFactorGlobal = (valor) => {
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let factorGlobal = valor/factorArr;
+		factorArr = valor;
+		let tabla = document.getElementById("tablaPrincipal");
+		for(i=2; i<tabla.rows.length-5; i++){
+			let id_equipo = tabla.rows[i].cells[20].innerHTML;
+			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
+			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
+			let prepos = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			$("#puArriendo_"+id_equipo).val(formatStandar(parseFloat(pArr*factorGlobal),nroDecimal));
+			if(parseFloat(prepos)>0){
+				$("#tasaArr_"+id_equipo).val(formatStandar(parseFloat(pArr*factorGlobal/prepos*100),2) + "%");
+			}
+			calculaLinea(id_equipo,nroDecimal);
+		}
+		sumaTotales();
+		document.getElementById('selSucursal').disabled = true;
+		document.getElementById('selComercial').disabled = true;
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+	    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+		});
+	}
+	
+	const aplicarFactorGlobalRepos = (valor) => {
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let factorGlobalRepos = valor/factorVta;
+		factorVta = valor;
+		let tabla = document.getElementById("tablaPrincipal");
+		for(i=2; i<tabla.rows.length-5; i++){
+			let id_equipo = tabla.rows[i].cells[20].innerHTML;
+			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
+			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
+			let prepos = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			prepos = prepos * factorGlobalRepos;
+			$("#puVentaRepos_"+id_equipo).val(formatStandar(parseFloat(prepos),nroDecimal));
+			if(parseFloat(prepos*factorGlobalRepos)>0){
+				$("#tasaArr_"+id_equipo).val(formatStandar(parseFloat(pArr/prepos*100),2) + "%");
+			}
+			calculaLinea(id_equipo,nroDecimal);
+		}
+		sumaTotales();
+		document.getElementById('selSucursal').disabled = true;
+		document.getElementById('selComercial').disabled = true;
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+	    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+		});
+	}
+	
+	const aplicarPermGlobal = () => {
+		$("#tablaPrincipal").dataTable().fnDestroy();
+		let permGlobal = $("#permGlobal").val();
+		permGlobal = permGlobal.replace(/,/g,'');
+		let tabla = document.getElementById("tablaPrincipal");
+		for(i=2; i<tabla.rows.length-5; i++){
+			let id_equipo = tabla.rows[i].cells[20].innerHTML;
+			let nroDecimal = tabla.rows[i].cells[21].innerHTML;
+			let pArr = $("#puArriendo_"+id_equipo).val().replace(/,/g,'');
+			let prepos = $("#puVentaRepos_"+id_equipo).val().replace(/,/g,'');
+			$("#permanencia_"+id_equipo).val(formatStandar(parseFloat(permGlobal),2));
+			calculaLinea(id_equipo,nroDecimal);
+		}
+		sumaTotales();
+		document.getElementById('selSucursal').disabled = true;
+		document.getElementById('selComercial').disabled = true;
+		$('#tablaPrincipal').DataTable({
+	    	"fixedHeader": true,
+	    	"lengthMenu": [[15, 50, 100, 200, -1], [15, 50, 100, 200, "All"]],
+	    	"order": [[ 0, "asc" ],[ 2, "asc" ]],
+	    	"language": {
+	        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+	        }
+		});
+	}
+	
+	const actualizaComerciales = (id_sucursal) =>{
+		var formData = new FormData();
+		formData.append('id_sucursal',id_sucursal);
+        $.ajax({
+            url: "/actualizaComercialesAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+				document.getElementById('actualComerciales').innerHTML = respuesta;
+	     	}
+        });	
+	}
+	
+	
+	
+
+
+	
+</script>
+
+
+		
+		
+	

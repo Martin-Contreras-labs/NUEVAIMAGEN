@@ -1,0 +1,656 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+allPlan: List[tables.PlanMantencion], listAtributos: List[String], listCompra: List[String],
+listTipoMant: List[tables.TipoMantencion], listTipoTrab: List[tables.TipoTrabajo], listMoneda: List[tables.Moneda], listProveedor: List[tables.Proveedor], listDetalle: List[tables.HojaVida], listTiposPlan: List[List[String]])
+
+<!-- ANCLA CABECERAS DE TABLAS -->
+	<style type="text/css"> 
+        thead tr th { 
+            position: sticky;
+			background-color: #eeeeee;
+            top: 0;
+        }
+    </style>
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "HOJA DE VIDA","AGREGAR/MODIFICAR/ELIMINAR")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="2">
+							<b>DETALLE DEL EQUIPO</b>
+						</td>
+						<td colspan="6">
+							<b>ULTIMA COMPRA</b>
+						</td>
+					</tr>
+					<tr>
+						<td>GRUPO:</td>
+						<td>@allPlan.get(0).equipoGrupo</td>
+						<td>@mapDiccionario.get("RUT")-PROV:</td>
+						<td>@listCompra.get(0)</td>
+						<td>FECHA:</td>
+						<td>@listCompra.get(3)</td>
+						<td>MONEDA:</td>
+						<td>@listCompra.get(5)</td>
+					</tr>
+					<tr>
+						<td>CODIGO EQUIPO:</td>
+						<td>@allPlan.get(0).equipoCodigo</td>
+						<td>PROVEEDOR:</td>
+						<td>@listCompra.get(1)</td>
+						<td>PDF:</td>
+						<td>
+							@if(listCompra.get(4)!="0"){
+								<a href="#" onclick="mostrarPDF('@listCompra.get(4)')">
+									<kbd style="background-color: #85C1E9">pdf</kbd>
+								</a>
+							}else{
+							---
+							}
+						</td>
+						<td>PRECIO:</td>
+						<td>@listCompra.get(6)</td>
+					</tr>
+					<tr>
+						<td>NOMBRE EQUIPO:</td>
+						<td>@allPlan.get(0).equipoNombre</td>
+						<td>FACTURA:</td>
+						<td>@listCompra.get(2)</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td colspan="20">
+							<b>ATRIBUTOS DEL EQUIPO</b>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="20">
+							@for(lista <- listAtributos){
+									@lista|
+								}
+						</td>
+					</tr>
+				</table>
+				<table id="planes" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td colspan="20">
+							<b>PLAN DE MANTENCION</b>
+						</td>
+					</tr>
+					<tr>
+						<TH style="text-align:center">Plan</TH>
+						<TH style="text-align:center">Fecha<br>Lectura</TH>
+						<TH style="text-align:center">Unidad</TH>
+						<TH style="text-align:center">Cantidad<br>Lectura</TH>
+						<TH style="text-align:center">Rotación (Cada X Cantidad<br>Correspone Mantención)</TH>
+						<TH style="text-align:center">Consumo Promedio<br>Mensual Estimado</TH>
+						<TH style="text-align:center">Corresponde Próxima<br>Mantención a los</TH>
+						<TH style="text-align:center">Fecha Estimada<br>Mantencion</TH>
+					</tr>
+					@for((lista, index) <- allPlan.zipWithIndex) {
+					    <tr>
+					        <td style="text-align:center">
+					            <input type="hidden" class="id_tipoPlan" value="@lista.id_tipoPlan">
+					            @lista.tipoPlanNombre
+					        </td>
+					        <td style="text-align:center">
+					            <input type="date" class="fechaReset form-control center"
+					                  onblur="if(!limitaFecha(value, 720, 10)) {
+					                               value = '@utilities.Fechas.AAMMDD(lista.fechaReset)';
+					                           } else {
+					                               actualizaAll('@index', '@lista.id_equipo', 'fechaReset', value);
+					                           }"
+					                  value="@utilities.Fechas.AAMMDD(lista.fechaReset)">
+					        </td>
+					        <td style="text-align:center">
+					            <input type="hidden" class="id_unidadMantencion" value="@lista.id_unidadMantencion">
+					            @lista.unidadMantencion
+					        </td>
+					        <td style="text-align:right">
+					            <input type="text" class="estadoActual form-control center"
+					                   id="lectActual_@index"
+					                   value="@lista.estadoActual"
+					                   onfocus="value = value.replace(/,/g, ''); auxiliar = value;"
+					                   onkeydown="return ingresoDouble(event, value)"
+					                   autocomplete="off"
+					                   onchange="if(value == '') value = 0; 
+					                             actualizaAll('@index', '@lista.id_equipo', 'estadoActual', value); 
+					                             actualizarProximaMantencion('@index', '@lista.id_tipoPlan', '@lista.id_equipo', 'lectura');">
+					        </td>
+							<td style="text-align:center">
+							    <input type="hidden" class="cadaNEstimado" value="@lista.cadaNEstimado">
+							    @lista.cadaNEstimado
+							</td>
+							<td style="text-align:center">
+							    <input type="hidden" class="consumoEstimadoPorMes" value="@lista.consumoEstimadoPorMes">
+							    @lista.consumoEstimadoPorMes
+							</td>
+							@if(mapPermiso.get("parametro.planes_calculaProximaMant") != null && mapPermiso.get("parametro.planes_calculaProximaMant").equals("0")) {
+							    <!-- Modo edición manual -->
+							    <td style="text-align:right">
+							        <input type="text" class="proximaMantencion form-control center"
+							               id="proximaMantencion_@index"
+							               value="@lista.proximaMantencion"
+							               onfocus="value = value.replace(/,/g,'');"
+							               onkeydown="return ingresoDouble(event, value)"
+							               autocomplete="off"
+							               onchange="if(value == '') value = 0; actualizaPlan('@lista.id_tipoPlan', '@lista.id_equipo', 'proximaMantencion', value);">
+							    </td>
+							} else {
+							    <!-- Modo cálculo automático -->
+							    <td style="text-align:right">
+							        <input type="text" class="proximaMantencion form-control center"
+							               id="proximaMantencion_@index"
+							               value="@lista.proximaMantencion"
+							               disabled>
+							    </td>
+							}
+
+
+					        <td style="text-align:center">
+					            <input type="date" class="fechaEstimada form-control center" disabled>
+					        </td>
+					    </tr>
+					}
+
+				</table>
+				
+				<br>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<form method="post" action="/hojaVidaMantencionHojaAgrega/">
+								<input type="hidden" name="id_equipo" value="@allPlan.get(0).id_equipo">
+								<input type="submit" value="AGREGAR LINEA" class="btn btn-success btn-sm rounded-pill btn-block">
+							</form>
+						</div>
+						
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="VOLVER" class="btn btn-info btn-sm rounded-pill btn-block" onclick="location.href='/hojaVidaMantencionLista/0';">
+						</div>
+					</div>
+				</div>
+				
+				<table id="detalle" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<thead>
+						<tr>
+							<td colspan="12">
+								<h5><b><font color="#008000"> REGISTRO DE GASTOS Y OTROS ASOCIADOS</font></b></h5>
+							</td>
+						</tr>
+						<tr>
+							<th style="text-align:center">Tipo<br>Mantención</th>
+							<th style="text-align:center">Tipo<br>Plan</th>
+							<th style="text-align:center">Fecha<br>Inicio</th>
+							<th style="text-align:center">Tipo<br>Trabajo</th>
+							<th style="text-align:center">Moneda<br></th>
+							<th style="text-align:center">Costo<br>Neto</th>
+							<th style="text-align:center">Prestador<br>Servicio</th>
+							<th style="text-align:center">Número<br>Documento</th>
+							<th style="text-align:center">Fecha<br>Documento</th>
+							<th style="text-align:center">Archivo<br></th>
+							<th style="text-align:center">Fecha<br>Termino</th>
+							<TH style="text-align:center">Del</TH>
+						</tr>
+					</thead>
+					<tbody>
+						@for(det <- listDetalle){
+							<tr>
+								<td hidden id="idHojaVida@det.contador">@det.id</td>
+								<td hidden id="tipoMant@det.contador">@det.tipoMantencionNombre</td>
+								<td hidden id="tipoTrab@det.contador">@det.tipoTrabajoNombre</td>
+								<td hidden id="prest@det.contador">@det.proveedorNickName</td>
+								
+								<td style="text-align:center">
+									<select class="custom-select center"
+										onchange="actualizaPorCampo('@det.id','id_tipoMantencion',value);">
+										<option value="@det.id_tipoMantencion">@det.tipoMantencionNombre</option>
+										@for(lista <- listTipoMant){
+											<option value="@lista.id">@lista.nombre</option>
+										}
+									</select>
+								</td>
+								<td style="text-align:center">
+									<select class="custom-select center"
+										onchange="actualizaPorCampo('@det.id','id_tipoPlan',value);">
+										<option value="@det.id_tipoPlan">@det.tipoPlanNombre</option>
+										@for(lista <- listTiposPlan){
+											<option value="@lista.get(0)">@lista.get(1)</option>
+										}
+									</select>
+								</td>
+								<td style="text-align:center">
+									<input type="date" class="form-control center"
+							  			onblur="if(!limitaFecha(value,720,10)) {
+													value = '@utilities.Fechas.AAMMDD(det.fechaInicio)';
+												} else {
+													actualizaPorCampo('@det.id','fechaInicio',value);
+												}"
+							  			value="@utilities.Fechas.AAMMDD(det.fechaInicio)">
+								</td>
+								<td style="text-align:center">
+									<select class="custom-select center"
+										onchange="actualizaPorCampo('@det.id','id_tipoTrabajo',value);">
+										<option value="@det.id_tipoTrabajo">@det.tipoTrabajoNombre</option>
+										@for(lista <- listTipoTrab){
+											<option value="@lista.id">@lista.nombre</option>
+										}
+									</select>
+								</td>
+								<td style="text-align:center">
+									<select class="custom-select center"
+										onchange="actualizaPorCampo('@det.id','id_moneda',value);">
+										<option value="@det.id_moneda">@det.monedaNickName</option>
+										@for(lista <- listMoneda){
+											<option value="@lista.id">@lista.nickName</option>
+										}
+									</select>
+								</td>
+								<td style="text-align:right">
+									<input type="text" class="form-control center"
+										value="@det.costoNeto"
+										onfocus="value = value.replace(/,/g,'');" 
+										onkeydown="return ingresoDouble(window.event)"
+										autocomplete="off"
+										onchange="actualizaPorCampo('@det.id','costoNeto',value);">
+								</td>
+								<td style="text-align:center">
+									<select class="custom-select center"
+										onchange="actualizaPorCampo('@det.id','id_proveedor',value);">
+										<option value="@det.id_proveedor">@det.proveedorNickName</option>
+										@for(lista <- listProveedor){
+											<option value="@lista.id">@lista.nickName</option>
+										}
+									</select>
+								</td>
+								<td style="text-align:right">
+									<input type="text" class="form-control center"
+										value="@det.numeroDocumento" 
+										maxlength="50"
+										autocomplete="off"
+										onchange="actualizaPorCampo('@det.id','numeroDocumento',value);">
+								</td>
+								<td style="text-align:center">
+									@if(det.fechaDocumento==null){
+										<input type="date" class="form-control center"
+								  			onblur="if(limitaFecha(value,720,10)) {
+														actualizaPorCampo('@det.id','fechaDocumento',value);
+													}">
+									}else{
+										<input type="date" class="form-control center"
+								  			onblur="if(!limitaFecha(value,720,10)) {
+														value = '@utilities.Fechas.AAMMDD(det.fechaDocumento)';
+													} else {
+														actualizaPorCampo('@det.id','fechaDocumento',value);
+													}"
+								  			value="@utilities.Fechas.AAMMDD(det.fechaDocumento)">
+									}
+								</td>
+								<td style="text-align:center;">
+									<form id="form_@det.id" action="/grabarHojaVidaPdf/" enctype="multipart/form-data" method="POST">
+										<input type="hidden" name="id_equipo" value="@det.id_equipo">
+										<input type="hidden" name="id_hojaVida" value="@det.id">
+										<span class="btn btn-info btn-sm btn-file" style="font-size: 8px;">
+											@if(det.documentoPDF.equals("0")){
+												<div id="txtBtn">Adjuntar</div>
+											}else{
+												<div id="txtBtn">Reemplazar</div>
+											}
+					    					<input type="file" id="docAdjunto_@det.id" name="docAdjunto" 
+												onchange="LimitAttach(this.form, this.form.docAdjunto.value, '@det.id'); 
+													$('#form_@det.id').submit();">
+										</span>
+										@if(!det.documentoPDF.equals("0")){
+											<a href="#" onclick="mostrarPDF('@det.documentoPDF')">
+												<kbd style="background-color: #85C1E9">VER</kbd>
+											</a>
+										}
+									</form>
+									
+								</td>
+								<td style="text-align:center">
+									<input type="date" class="form-control center"
+							  			onblur="if(!limitaFecha(value,720,10)) {
+													value = '@utilities.Fechas.AAMMDD(det.fechaTermino)';
+												} else {
+													actualizaPorCampo('@det.id','fechaTermino',value);
+												}"
+							  			value="@utilities.Fechas.AAMMDD(det.fechaTermino)">
+								</td>
+								<td rowspan="2" style="text-align:center;">
+									<form id="del_@det.id" method="post" action="/hojaVidaMantencionHojaElimina/">
+										<input type="hidden" name="id_equipo" value="@det.id_equipo">
+										<input type="hidden" name="id_hojaVida" value="@det.id">
+										<a href="#" onclick='document.getElementById("del_@det.id").submit();'>
+											<kbd style="background-color: red">X</kbd>
+										</a>
+									</form>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:left">Trabajo hecho:</TH>
+								<td colspan="10" style="text-align:center">
+									<textarea class="form-control" 
+	  										autocomplete="off"
+											onchange="actualizaPorCampo('@det.id','trabajoHecho',value);">@det.trabajoHecho</textarea>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'></h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		calcFechaProxima();
+		document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const calcFechaProxima = () => {
+	    let filas = $(".estadoActual").length;
+	    let hoy = new Date();
+	
+	    for (let i = 0; i < filas; i++) {
+	        let fecha = $(".fechaReset")[i]?.value;
+	        let proxima = parseFloat($(".proximaMantencion")[i]?.value.replace(/,/g, '') || 0);
+	        let actual = parseFloat($(".estadoActual")[i]?.value.replace(/,/g, '') || 0);
+	        let rotacion = parseFloat($(".consumoEstimadoPorMes")[i]?.value.replace(/,/g, '') || 0);
+	
+	        let dif = proxima - actual;
+	
+	        if (dif <= 0 || rotacion <= 0) {
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(hoy);
+	        } else {
+	            let diasASumar = (dif / rotacion) * 30;
+	            let auxFecha;
+	            try {
+	                let aux = fecha.split("-");
+	                auxFecha = new Date(aux[0], parseInt(aux[1]) - 1, aux[2]);
+	                auxFecha.setDate(auxFecha.getDate() + diasASumar);
+	            } catch (error) {
+	                auxFecha = hoy;
+	            }
+	
+	            $(".fechaEstimada")[i].value = fechaAAMMDD(auxFecha);
+	        }
+	    }
+	}
+
+	
+	const mostrarPDF = (nombrePDF) => {
+	    document.getElementById('rutaPDF').innerHTML = `<object data='/showPdf/${nombrePDF}' type='application/pdf' width='100%' height='720'></object>`;
+	    $('#muestraPDF').modal('show');
+	}
+
+
+	
+	const actualizaPorCampoPlan = (id_tipoPlan, id_equipo, campo, valor) => {
+	
+	    var formData = new FormData();
+	    formData.append('id_tipoPlan', id_tipoPlan);
+	    formData.append('id_equipo', id_equipo);
+	    formData.append('campo', campo);
+	    formData.append('valor', valor);
+	
+	    $.ajax({
+	        url: "/actualCampoPlanMantencionAjax/",
+	        type: "POST",
+	        method: "POST",
+	        data: formData,
+	        cache: false,
+	        contentType: false,
+	        processData: false,
+	        success: function (respuesta) {
+	            calcFechaProxima();
+	        }
+	    });
+	}
+	
+	const actualizaPorCampo = (id_hojaVida, campo, valor) =>{
+		var formData = new FormData();
+	  	formData.append('id_hojaVida',id_hojaVida);
+		formData.append('campo',campo);
+	  	formData.append('valor',valor);
+        $.ajax({
+            url: "/actualCampoHojaVidaAjax/",
+            type: "POST",
+            method: "POST",
+            data: formData,
+            cache: false,
+            contentType: false,
+	     	processData: false,
+	     	success: function(respuesta){
+	     	}
+        });
+	}
+
+	
+	const actualizaAll = (index, id_equipo, campo, valor) => {
+	    const unidadCambiada = $(".id_unidadMantencion")[index].value;
+	    const filas = $(".estadoActual").length;
+	    for (let i = 0; i < filas; i++) {
+	        if ($(".id_unidadMantencion")[i].value === unidadCambiada) {
+	            if (campo === 'estadoActual') {
+	                $(".estadoActual")[i].value = valor;
+	                actualizaPlan($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+	                actualizarProximaMantencion(i, $(".id_tipoPlan")[i].value, id_equipo, campo);
+	            }
+				if (campo === 'fechaReset') {
+					$(".fechaReset")[i].value = valor;
+					actualizaPlan($(".id_tipoPlan")[i].value, id_equipo, campo, valor);
+					actualizarProximaMantencion(i, $(".id_tipoPlan")[i].value, id_equipo, campo);
+				}
+	        }
+	    }
+	}
+
+
+	
+	
+
+
+	let calculoAutomatico = "1";
+	@if(mapPermiso.get("parametro.planes_calculaProximaMant") != null && mapPermiso.get("parametro.planes_calculaProximaMant").equals("0")) {
+		calculoAutomatico = "0";
+	}
+
+	function determinaProxima(lectActual, frecuencia) {
+		if(calculoAutomatico == 1){
+			if (frecuencia <= 0) {
+				alert("la rotacion debe ser mayor a 0")
+				return 0;
+			}
+			if (lectActual % frecuencia === 0) {
+				// Caso múltiplo exacto
+				return lectActual + frecuencia;
+			} else {
+				// Redondear al siguiente múltiplo
+				const resto = lectActual % frecuencia;
+				return lectActual - resto + frecuencia;
+			}
+		}else{
+			if (frecuencia < 0){
+				alert("la rotacion debe ser mayor a 0");
+			}else {
+				return lectActual + frecuencia;
+			}
+		}
+
+	}
+
+	function validaHoras(frecuencia, siguienteMantencion, mantencionAnterior, origen) {
+	    if (!frecuencia || !siguienteMantencion) {
+	        return false;
+	    }
+		if(calculoAutomatico == 1){
+			const isValid = siguienteMantencion % frecuencia === 0;
+			return isValid;
+		}else{
+			return true;
+		}
+
+	}
+
+
+	let auxiliar = 0;
+	
+	let extArray = new Array(".gif", ".jpg", ".png", ".jpeg", ".pdf", ".xls", ".doc", ".xlsx", ".docx", ".tar", ".zip", ".rar");
+	const LimitAttach = (form, file, id_ot) => {
+		let allowSubmit = false;
+		if (!file) return;
+		while (file.indexOf("\\") != -1){
+			file = file.slice(file.indexOf("\\") + 1);
+		}
+		let extencion = file.slice(file.lastIndexOf(".")).toLowerCase();
+		for (var i = 0; i < extArray.length; i++) {
+			if (extArray[i] == extencion) { allowSubmit = true; break; }
+		}
+		if (allowSubmit) {
+			var file = $("#docAdjunto_"+id_ot)[0].files[0];
+			var fileSize = file.size; //tamaño del archivo
+			if(fileSize>100000000){
+				alert("Se permiten únicamente archivos que no superen los 100 MB,"
+				+" el que se intenta subir pesa: "+Math.round(file.size/10)/100+" KB");
+				form.docAdjunto.value="";
+			}
+		}else{
+			alert("Se permiten únicamente archivos con la extención: " 
+			+ (extArray.join("  ")) + "\nPor favor, seleccione otro archivo "
+			+ "e intente de nuevo.");
+			form.docAdjunto.value="";
+		}
+	}
+	
+	
+	
+	const actualizaPlan = (id_tipoPlan, id_equipo, campo, valor) => {
+	    var formData = new FormData();
+	    formData.append('id_tipoPlan', id_tipoPlan);
+	    formData.append('id_equipo', id_equipo);
+	    formData.append('campo', campo);
+	    formData.append('valor', valor);
+	
+	    $.ajax({
+	        url: "/actualCampoPlanMantencionAjax/",
+	        type: "POST",
+	        method: "POST",
+	        data: formData,
+	        cache: false,
+	        contentType: false,
+	        processData: false,
+	        success: function (respuesta) {
+	            calcFechaProxima();
+	        }
+	    });
+	}
+
+
+
+
+
+	function actualizarProximaMantencion(index, id_tipoPlan, id_equipo, origen) {
+	    const lectActual = parseFloat($("#lectActual_" + index).val()?.replace(/,/g, "") || 0);
+	
+	    if (index < $(".cadaNEstimado").length) {
+	        const frecuencia = parseFloat($(".cadaNEstimado")[index]?.value.replace(/,/g, "") || 0);
+	
+	        if (frecuencia > 0) {
+				@if(mapDiccionario.get("nEmpresa").equals("GYL")){
+					return("no aplica");
+				}
+	            const proximaMantencion = determinaProxima(lectActual, frecuencia);
+	            let mantencionAnterior = parseFloat($("#proximaMantencion_" + index).val()?.replace(/,/g, "") || 0);
+	
+	            const isValid = validaHoras(frecuencia, proximaMantencion, mantencionAnterior, origen);
+	
+	            if (isValid) {
+	                $("#proximaMantencion_" + index).val(proximaMantencion);
+	                actualizaPorCampoPlan(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
+	                calcFechaProxima(index);
+	            } else {
+	                alert(`Fila ${index}: Validación fallida.`);
+	            }
+	        }
+
+	    } else {
+	        alert(`Índice fuera de rango: ${index}`);
+	    }
+	}
+	
+// FUNCION PARA RECALCULAR FECHA CUANDO arametro.planes_calculaProximaMant ES 0, ES DECIR LA PROXIMA MATENCION ES MANIPULABLE DE FORMA MANUAL
+	
+	function recalcularFechaEstimada(index, id_tipoPlan, id_equipo) {
+	    // Leer los valores de la fila correspondiente
+	    const proximaMantencion = parseFloat($("#proximaMantencion_" + index).val()?.replace(/,/g, "") || 0);
+	    const fechaReset = $(".fechaReset")[index].value;
+	    const consumoPromedio = parseFloat($(".consumoEstimadoPorMes")[index].value?.replace(/,/g, "") || 0);
+
+	    // Validar valores
+	    if (proximaMantencion <= 0 || consumoPromedio <= 0) {
+	        alert("El valor ingresado y el consumo promedio deben ser mayor que cero.");
+	        return;
+	    }
+	
+	    // Calcular nueva fecha estimada
+	    let diasASumar = (proximaMantencion / consumoPromedio) * 30;
+	    let nuevaFecha;
+	
+	    try {
+	        let aux = fechaReset.split("-");
+	        nuevaFecha = new Date(aux[0], parseInt(aux[1]) - 1, aux[2]);
+	        nuevaFecha.setDate(nuevaFecha.getDate() + diasASumar);
+	    } catch (error) {
+	        nuevaFecha = new Date(); // Fecha actual si hay errores
+	    }
+	
+	    // Actualizar la fecha estimada en la interfaz
+	    $(".fechaEstimada")[index].value = fechaAAMMDD(nuevaFecha);
+
+	    // Guardar el cambio en la base de datos
+	    actualizaPorCampoPlan(id_tipoPlan, id_equipo, "proximaMantencion", proximaMantencion);
+	}
+
+
+	
+	
+	
+</script>
+
+
+		
+		
+	

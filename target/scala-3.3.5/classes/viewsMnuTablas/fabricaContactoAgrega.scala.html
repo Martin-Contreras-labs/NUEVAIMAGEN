@@ -1,0 +1,95 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+fabrica: tables.Fabrica)
+
+    	
+@main("") {
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "NUEVO CONTACTO DEL FABRICANTE", "")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<form id="form" method="post" action="/fabricaContactoGraba/">
+					<table class="table table-sm table-bordered table-condensed table-fluid">
+						<tr>
+							<td colspan="2" style="text-align: left;">
+								<input type="hidden" name="id_fabrica" value="@fabrica.getId()">
+								<h5>FABRICANTE: @fabrica.getNickName()</h5>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">NOMBRE: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="nombre"
+									onkeydown="return sinReservados(window.event)"
+									autocomplete="off"
+									maxlength="100"
+									required>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">CARGO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="cargo"
+									onkeydown="return sinReservados(window.event)"
+									autocomplete="off"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">TELEFONO FIJO: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="fijo"
+									autocomplete="off"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">TELEFONO MOVIL: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="movil"
+									autocomplete="off"
+									maxlength="100">
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">E-MAIL: </td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+									name="mail"
+									autocomplete="off"
+									maxlength="100">
+							</td>
+						</tr>
+					</table>
+					<div class="noprint">
+						<div class="row justify-content-md-center" >
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="submit"  value="GRABAR CONTACTO" class="btn btn-success btn-sm rounded-pill btn-block">
+							</div>
+							<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
+								<input type="button" value="CANCELAR" class="btn btn-light btn-sm rounded-pill btn-block" onclick="location.href='/fabricaModifica/@fabrica.getId()';">
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+}
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		  document.getElementById('mostrarmostrar').style.display="block";
+	});
+</script>
+
+		
+	

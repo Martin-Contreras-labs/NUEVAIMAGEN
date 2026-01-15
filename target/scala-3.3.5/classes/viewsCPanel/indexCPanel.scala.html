@@ -1,0 +1,133 @@
+@(mensaje: String)
+
+@main("") {
+
+<style>
+	.fondo{
+	   background: url('/assets/images/area5-fondo.jpg') no-repeat center center;
+	   background-size: cover;
+	   width: 100% ;
+	   text-align: center;
+	 
+	}
+</style>
+
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div style="height:400px; padding-top:60px;" class="fondo">
+				<div class="container align-bottom" >
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-10 col-sm-4 col-md-4 col-lg-4">
+	                    	<h2>CPANEL - MADA</h2>
+		                    
+								<form onsubmit="return validarIngreso()">
+									<div class="input-group mb-3">
+									  <div class="input-group-prepend">
+									    <label class="input-group-text" for="empresa" style="width:120px">Empresa</label>
+									  </div>
+									  <input type="text" class="form-control" style="min-width:120px" 
+											onchange='value= value.toUpperCase(); $("#ingEmpresa").val(value.toUpperCase())'
+											id="empresa" name="empresa" placeholder="Empresa" required>
+									</div>
+									<div class="input-group mb-3">
+									  <div class="input-group-prepend">
+									    <label class="input-group-text" for="userName"  style="width:120px">Usuario</label>
+									  </div>
+									  <input type="text" class="form-control" style="min-width:120px" 
+											onchange='value= value.toUpperCase(); $("#ingUserName").val(value.toUpperCase())' 
+											id="userName" name="userName" placeholder="Usuario" required>
+									</div>
+									<div class="input-group mb-3">
+									  <div class="input-group-prepend">
+									    <label class="input-group-text" for="userKey"  style="width:120px">Clave</label>
+									  </div>
+									  <input type="password" class="form-control" style="min-width:120px" 
+											onchange='$("#ingUserKey").val(value)' name="userKey" placeholder="Clave" required>
+									</div>
+									<input type="hidden" id="gRecaptchaResponse" name="gRecaptchaResponse">
+			                      <input type="submit"  value="INGRESAR" class="btn btn-success rounded-pill btn-block">
+		                    </form>
+						</div>
+	                  	<div class="col-xs-10 col-sm-4 col-md-4 col-lg-4" align="center">
+	                  	<br>
+	                    	<img src="/assets/images/mada-pc.png" alt="MADA" width="80%" height="auto">
+	                  	</div>
+	         		</div>
+	         	</div>
+	         </div>
+		</div>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	         <div style="padding:20px">
+		         <div class="container">
+		         	<br><br>
+	         		<hr>
+					<h5>ÁREAS CLAVE DE <span>MADA</span></h5>
+					<hr>
+	         		<div class="row">
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+						  <img src="/assets/images/area2-mejores-practicas.png" alt="MADA" width="20%" height="auto">
+						  <h5>Mejores Prácticas</h5>
+						  <p>Desarrollado por profesionales con vasta experiencia demostrable en el rubro. Reúne las mejores prácticas del mercado.</p>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+						  <img src="/assets/images/area3-innovacion.png" alt="MADA" width="20%" height="auto">
+						  <h5>Innovación</h5>
+						  <p>Es un producto innovador en el mercado, orientado a la gestión y control de inventarios como una unidad de negocios.</p>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+						  <img src="/assets/images/area4-prevencion.png" alt="MADA" width="20%" height="auto">
+						  <h5>Prevención</h5>
+						  <p>Administración y registro de mantenciones preventivas y correctivas sobre equipos, con sus respectivos costos y análisis.</p>
+						</div>
+					</div>
+	     				<hr>
+	  					<div align="left">
+						<p class="font-weight-lighter">Contactos: pbarros&#64;inqsol.cl - jiprieto&#64;inqsol.cl</p>
+	  					<p class="font-weight-lighter">Napoleon #3233, Las Condes, Santiago de Chile<br>Copyright 2016 &copy; Mada</p>
+					</div>
+				</div>
+			</div>
+		</div>
+   	</div>
+
+
+<form id="ingresar" action="/inicioCPanel/" method="POST">
+	<input type="hidden" id="ingCaptcha" name="gRecaptchaResponse">
+	<input type="hidden" id="ingEmpresa" name="empresa">
+	<input type="hidden" id="ingUserName" name="userName">
+	<input type="hidden" id="ingUserKey" name="userKey">
+</form>
+
+
+}
+
+
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9"></script>
+<script>
+	function validarIngreso() {
+	  grecaptcha.enterprise.ready(async () => {
+	    const token = await grecaptcha.enterprise.execute('6Lcm3DUjAAAAAMEhoeru8yNe1j7XGIRV2vG2nsV9', {action: 'LOGIN'}).then(onSuccess, onError);
+	  });
+	  if($("#gRecaptchaResponse").val().length > 0){
+	  	return true;
+	  }else{
+	  	return false;
+	  }
+	}
+	
+	function onSuccess(action_token){
+			$("#ingCaptcha").val(action_token);
+			$("#ingresar").submit();
+	}
+	
+	function onError(reason) {
+	  alert("problemas con el captcha, contactar a inqsol.cl");
+      location.reload();
+    }
+</script>
+
+	<script>
+            $(document).ready(function() {
+                if("@mensaje"!="0") alert("@mensaje");                
+            });
+    </script>

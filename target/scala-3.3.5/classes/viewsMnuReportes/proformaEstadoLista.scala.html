@@ -1,0 +1,300 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+lista: List[List[String]], desde: String, hasta: String )
+    	
+@main("") {
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "LISTADO ESTADO EQUIPO COBRAR POR DAÑOS (AJUSTES)", "")
+
+		<div class="noprint">
+			<div class="row">
+				<div class="col-1"></div>
+			  	<div class="col-2">
+						<button type="button"  id="btnEnvioMasivo" class="btn btn-sm btn-warning" 
+							onclick="$('#modalGeneraUnPdf').modal('show');">
+							Genera un PDF multiple
+						</button>
+			  	</div>
+			</div>
+		</div>
+		
+			
+			<div id='modalGeneraUnPdf' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+				<div class='modal-dialog modal-dialog-scrollable' role='document' style="width:300px">
+					<div class='modal-content'>
+						<div class='modal-header'>
+							GENERAR PDF UNICO<br>(debe ser máximo de 100 en 100)
+						        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+						          <span aria-hidden='true'>&times;</span>
+						        </button>
+						</div>
+						<div class='modal-body'>
+							<form class="formulario" method="post" action="/routes3/proformaEstadoListaPdf/"  onsubmit="return validarForm();">
+								<input type="hidden" name = "fechaDesde" value = "@desde">
+								<input type="hidden" name = "fechaHasta" value = "@hasta">
+								<table class="table table-sm table-bordered table-condensed table-fluid">
+									<thead style="background-color: #eeeeee">
+										<TR>
+											<TH>DESDE NRO:</TH>
+											<td>
+												<input type="text" class="form-control center"
+													id="nroIni"
+													name="nroIni"
+													onfocus="value = value.replace(/,/g,'')"
+													onkeydown="return ingresoInt(window.event)"
+													autocomplete="off"
+													onchange="if(value=='') {value='';}"
+													required>
+											</td>
+										</TR>
+										<TR>
+											<TH>HASTA NRO:</TH>
+											<td>
+												<input type="text" class="form-control center"
+													id="nroFin"
+													name="nroFin"
+													onfocus="value = value.replace(/,/g,'')"
+													onkeydown="return ingresoInt(window.event)"
+													autocomplete="off"
+													onchange="if(value=='') {value='';}"
+													required>
+											</td>
+										</TR>
+									</thead>
+								</table>
+								<br>
+								<div class='row'>
+									<div class='col-sm-12' style='text-align:center'>
+										<input type="submit" id="btnSubmit" value='Generar PDF' class="btn btn-primary btn-sm rounded-pill btn-block">
+										<br>
+										<input type='button' class='btn btn-sm btn-warning' value='Cancelar' onclick='$("#btnSubmit").attr("disabled",false);' data-dismiss='modal'>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+	
+	
+			<table class="table table-sm table-condensed table-fluid">
+				<tr>
+					<td width="25%">
+						<div class="input-group">
+					  		<div class="input-group-prepend">
+					    		<span class="input-group-text" id="basic-addon1">BUSCAR</span>
+					  		</div>
+					  		<input type="text" class="form-control left"
+								id="searchTermtablaPrincipal"
+								onkeyup="doSearch2('tablaPrincipal');">
+						</div>
+					</td>
+					<td>
+						<div align="center">
+							<button type="button"  class="btn btn-sm btn-success" onclick="document.getElementById('excel').submit()">
+								Exportar a Excel
+							</button>
+							&nbsp;&nbsp;&nbsp;
+							<button type="button" class="btn btn-sm btn-success" tabindex="-1" onclick="window.print(); return false;" >
+								Imprimir
+							</button>
+							&nbsp;&nbsp;&nbsp;
+							<button type="button"  class="btn btn-sm btn-success" 
+								onclick="location.href = '/home/'">
+								Volver
+							</button>
+							&nbsp;&nbsp;&nbsp;
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+		
+		<form id="excel" class="formulario" method="post" action="/routes3/proformaEstadoListaExcel/">
+			<input type="hidden" name="fechaDesde" value="@desde">
+			<input type="hidden" name="fechaHasta" value="@hasta">
+		</form>
+			
+		
+		<div class="table-responsive">
+			<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+		        <thead style="background-color: #eeeeee">
+					<TR>
+				        <TH>NUMERO</TH>
+						<TH>FECHA</TH>
+						<TH>DESDE</TH>
+						<TH>HASTA</TH>
+						<TH>SUCURSAL</TH>
+						<TH>@mapDiccionario.get("BODEGA")/PROYECTO</TH>
+						<TH>CLIENTE</TH>
+						<TH>PROYECTO</TH>
+						<TH>EXCEL</TH>
+						<TH>PDF</TH>
+						<TH>Total<br>NETO</TH>
+						<TH>Total<br>IVA</TH>
+						<TH>Total<br>TOTAL</TH>
+						<TH>DEL</TH>
+					</TR>
+				</thead>
+				<tbody>
+					@for(lista1 <- lista){
+						<tr>
+							<td style= "text-align: center;">@lista1(0)</td>
+							<td style= "text-align: center; min-width:80px">
+								<div style="display:none">@lista1(1)</div>
+								@utilities.Fechas.DDMMAA(lista1(1))
+							</td>
+							<td style= "text-align: center; min-width:80px">
+								<div style="display:none">@lista1(2)</div>
+								@utilities.Fechas.DDMMAA(lista1(2))
+							</td>
+							<td style= "text-align: center; min-width:80px	">
+								<div style="display:none">@lista1(3)</div>
+								@utilities.Fechas.DDMMAA(lista1(3))
+							</td>
+							<td style= "text-align: left;">@lista1(4)</td>
+							<td style= "text-align: left;">@lista1(5)</td>
+							<td style= "text-align: left;">@lista1(6)</td>
+							<td style= "text-align: left;">@lista1(7)</td>
+							<td style="text-align:center;">
+								@if(lista1(8)!="0"){
+									<a href="#" onclick= "descargaDocumento('@lista1(8)')">
+										<kbd style="background-color: #85C1E9">xls</kbd>
+									</a>
+								}else{
+									--
+								}
+							</td>
+							<td style="text-align:center;">
+								@if(lista1(9)!="0"){
+									<a href="#" onclick="mostrarPDF('@lista1(9)')">
+										<kbd style="background-color: #85C1E9">pdf</kbd>
+									</a>
+								}else{
+									--
+								}
+							</td>
+							<td style= "text-align: right;">@lista1(10)</td>
+							<td style= "text-align: right;">@lista1(11)</td>
+							<td style= "text-align: right;">@lista1(12)</td>
+							<td style="text-align:center;">
+								<a href="#" onclick="eliminaProforma('@lista1(0)');">
+									<kbd style="background-color: red">X</kbd>
+								</a>
+							</td>
+						</tr>
+	 				}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div id='muestraPDF' class='modal' role='dialog' data-backdrop='static' data-keyboard='false'>
+		<div class='modal-dialog modal-dialog-scrollable modal-lg' role='document'>
+			<div class='modal-content'>
+				<div class='modal-header'>
+					<h5 class='modal-title'>EP/PROFORMA</h5>
+				        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+				          <span aria-hidden='true'>&times;</span>
+				        </button>
+				</div>
+				<div class='modal-body'>
+					<div id="rutaPDF"></div>
+	   				<div class='row'>
+						<div class='col-sm-12' style='text-align:center'>
+							<button type='button' class='btn btn-sm  btn-success' style='font-size: 10px;' data-dismiss='modal'>Listo</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<form class="formulario" id="formDescargaDocumento" method="post" action="/downloadPDF/">	
+		<input type="hidden" id="descargaDocumento" name="nombreArchivo">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
+	</form>
+
+	<form id="form_eliminar" method="post" action="/routes3/proformaEstadoElimina/">
+		<input type="hidden" id="form_id_proformaEstado" name="id_proformaEstado">
+		<input type="hidden" name="fechaDesde" value="@desde">
+		<input type="hidden" name="fechaHasta" value="@hasta">
+	</form>
+
+}
+
+
+<script type="text/javascript">
+
+	const validarForm = () =>{
+		$("#btnSubmit").attr('disabled',true);
+		let flag = true;
+		var desde = document.getElementById('nroIni').value;
+		var hasta = document.getElementById('nroFin').value;
+		if(parseFloat(desde) > parseFloat(hasta)){
+			flag = false;
+			alertify.alert('EL NUMERO DESDE NO PUEDE SER MAYOR AL NUMERO HASTA', function () {
+				$("#btnSubmit").attr('disabled',false);
+				return(flag);
+     		});
+		}
+		let aux =  parseFloat(hasta) - parseFloat(desde);
+		if(aux > 100){
+			flag = false;
+			alertify.alert('LA CANTIDAD DE SELECCIONADOS NO PUEDE SER MAYOR A 100', function () {
+				$("#btnSubmit").attr('disabled',false);
+				return(flag);
+     		});
+		}
+		
+		
+		return(flag);
+	}
+
+	$(document).ready(function() {
+		
+		$('#tablaPrincipal').DataTable({
+		    	"fixedHeader": true,
+		    	"paging": false,
+				"info": false,
+				"searching": false,
+		    	"order": [[ 2, "desc" ],[ 1, "desc" ]],
+		    	"language": {
+		        	"url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+		        }
+		  } );
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	});
+	
+	const descargaDocumento = (nombreDOC) => {
+		  $('#descargaDocumento').val(nombreDOC);
+		  document.getElementById('formDescargaDocumento').submit();
+	}
+	
+	const mostrarPDF = (nombrePDF) => {
+		  document.getElementById('rutaPDF').innerHTML="<object data='/showPdf/"+nombrePDF+"' type='application/pdf' width='100%' height='720'></object>";
+		  $('#muestraPDF').modal('show');
+	}
+	
+	const eliminaProforma = (id_proformaEstado) => {
+		alertify.confirm('Esta seguro de eliminar este numero: '+id_proformaEstado, function (e) {
+			if (e) {
+				$("#form_id_proformaEstado").val(id_proformaEstado);
+				document.getElementById("form_eliminar").submit();
+			}
+		});
+	}
+
+
+	
+</script>
+
+
+
+
+		
+		
+	

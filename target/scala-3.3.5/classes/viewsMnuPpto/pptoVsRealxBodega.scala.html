@@ -1,0 +1,190 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+bodega: tables.BodegaEmpresa, listPpto: List[List[String]], numDecimales: Long, listGrafico: List[List[String]], moneda: String)
+
+    	
+@main("") {
+	
+<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "INFORME DE PRESUPUESTO:  "+ bodega.nombre.toUpperCase(),"")
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-11 col-md-11 col-lg-11">
+				<table class="table table-sm table-hover table-bordered table-condensed table-fluid">
+					<tr>
+						<td width="30%">
+							<table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+								<thead style="background-color: #eeeeee">
+									<TR>  
+									    <TH style= "text-align: center;">AÑO-MES<BR></TH>
+										<TH style= "text-align: center;">PPTO</TH>
+										<TH style= "text-align: center;">REAL</TH>
+									</TR>
+								</thead>
+								<tbody>
+									@for(lista1 <- listPpto){
+										<TR>
+											<td style= "text-align: center;">@lista1.get(0)</td>
+											<td style= "text-align: right;">@lista1.get(1)</td>
+											<td style= "text-align: right;">@lista1.get(3)</td>
+										</TR>
+							 		}
+								</tbody>
+								<tfoot>
+						 			<TR>
+										<TH style= "text-align: left;">TOTALES</TH>
+										<TH style= "text-align: right;"></TH>
+										<th style= "text-align: right;"></th>
+									</TR>
+					 			</tfoot>
+							</table>
+						</td>
+						<td width="70%" id="graficoPptovsReal" style="height: auto; margin: 0 auto"></td>
+					</tr>
+				</table>
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+            let tabla = document.getElementById("tablaPrincipal");
+            let numero = new DecimalFormat("#,##0.00");
+            let totPpto = 0;
+            let totReal = 0;
+            for (let i = 2; i < tabla.rows.length-1; i++) { 
+				var aux = tabla.rows[i].cells[1].textContent;
+				totPpto = parseFloat(totPpto) + parseFloat(numero.formatBack(aux));
+				var aux = tabla.rows[i].cells[2].textContent;
+				if(aux!=""){
+					totReal = parseFloat(totReal) + parseFloat(numero.formatBack(aux));
+				}
+			}
+           tabla.rows[tabla.rows.length-1].cells[1].textContent = formatStandar(totPpto,'@numDecimales');
+           tabla.rows[tabla.rows.length-1].cells[2].textContent = formatStandar(totReal,'@numDecimales');
+
+			Highcharts.chart('graficoPptovsReal',{
+	            chart: {
+	                zoomType: 'xy'
+	            },
+	            title: {
+	                text: 'Presupuesto Vs Real'
+	            },
+	            subtitle: {
+	                text: ''
+	            },
+	            xAxis: [{
+	                categories: @Html(listGrafico.get(0).toString())
+	            }],
+	            yAxis: [{ // Primary yAxis
+	            	min: 0,
+	                labels: {
+	                	format: "{value:point.y:,.0f} ",
+	                    style: {
+	                        color: Highcharts.getOptions().colors[1]
+	                    }
+	                },
+	                title: {
+	                    text: 'Parcial',
+	                    style: {
+	                        color: Highcharts.getOptions().colors[1]
+	                    }
+	                }
+	            }, { // Secondary yAxis
+	            	min: 0,
+	                title: {
+	                    text: 'Acumulado',
+	                    style: {
+	                        color: Highcharts.getOptions().colors[0]
+	                    }
+	                },
+	                labels: {
+	                    format: "{value:point.y:,.0f} ",
+	                    style: {
+	                        color: Highcharts.getOptions().colors[0]
+	                    }
+	                },
+	                opposite: true
+	            }],
+	            tooltip: {
+	                shared: true,
+	                
+	            },
+	            legend: {
+	                layout: 'vertical',
+	                align: 'left',
+	                x: 80,
+	                verticalAlign: 'top',
+	                y: 20,
+	                floating: true,
+	                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+	            },
+	            series: [{
+	                name: 'Parcial Presupuesto',
+	                type: 'column',
+	                color: '#FFC30F',
+	                yAxis: 0,
+	                data: @Html(listGrafico.get(1).toString()),
+	                tooltip: {
+	                	valuePrefix: '@moneda',
+	                }
+	    
+	            },{
+	                name: 'Acumulado Presupuesto',
+	                type: 'spline',
+	                color: '#FFC30F',
+	                yAxis: 1,
+	                data: @Html(listGrafico.get(2).toString()),
+	                tooltip: {
+	                	valuePrefix: '@moneda ',
+	                }
+	            },{
+	                name: 'Parcial Real',
+	                type: 'column',
+	                color: '#000000',
+	                yAxis: 0,
+	                data: @Html(listGrafico.get(3).toString()),
+	                tooltip: {
+	                	valuePrefix: '@moneda ',
+	                }
+	    
+	            }, {
+	                name: 'Acumulado Real',
+	                type: 'spline',
+	                color: '#000000',
+	                yAxis: 1,
+	                data: @Html(listGrafico.get(4).toString()),
+	                tooltip: {
+	                	valuePrefix: '@moneda ',
+	                }
+	            }]
+	        });
+
+
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	   });
+			  
+	
+</script>
+
+
+		
+		
+	

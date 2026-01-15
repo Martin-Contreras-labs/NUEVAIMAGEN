@@ -1,0 +1,207 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+valorizado: List[String], porUnidades: List[String], listGrupos: List[tables.Grupo], vistaCheckBox: String, subtitulo: String)
+
+    	
+@main("") {
+	
+	<script src="@routes.Assets.versioned("highcharts/highcharts.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/series-label.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/exporting.js")"></script>
+	<script src="@routes.Assets.versioned("highcharts/export-data.js")"></script>
+
+	@menues(mapDiccionario, mapPermiso, userMnu, " ")
+	
+	<div id="mostrarmostrar" style="display:none;">
+		@barraTitulo(mapDiccionario, "DISTRIBUCION ACTUAL - UBICACION PORCENTUAL",subtitulo)
+		
+		<br><br>
+		<div class="row  justify-content-md-center">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<table id="ESQUEMAGENERAL" class="table table-sm table-bordered table-condensed table-fluid">
+					<TR style="min-height:100% ¡required">
+				  		<TD width="45%" id="valorizadoGrupoBodegas" style="height: auto; margin: 0 0"></TD>
+				  		<TD width="45%" id="porUnidadesGrupoBodegas" style="height: auto; margin: 0 0"></TD>
+				  		<TD width="15%" style="vertical-align:top; height:800px;">
+				
+					  		<form id="emitirGrafico" action="/refreshGraficoMovResumen/" method="POST">
+						  		<div id="checkBox">
+							  		<h6>GRUPOS:</h6>
+								  		@for(lista <- listGrupos){
+								  			<input type="checkbox" name="listIdGrupos[]" value="@lista.getId" checked>@lista.getNombre()<br>
+								  		}
+							  		<br>
+							  	</div>
+					  		</form>
+					  		<div align="center">
+					  			<button type="button" class="btn btn-success btn-mini rounded-pill btn-blocki" 
+					  				onclick="document.getElementById('emitirGrafico').submit()">
+									APLICAR
+					  		</div>
+					
+				  		</TD>
+					</TR>
+				
+				</table>
+				
+				<div class="noprint">
+					<div class="row justify-content-md-center" >
+						<div class="col-xs-5 col-sm-2 col-md-2 col-lg-2">
+							<input type="button"  value="VOLVER" class="btn btn-success btn-sm rounded-pill btn-block" onclick="window.history.back()">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		
+		if("@Html(vistaCheckBox)"!=0){
+				  document.getElementById('checkBox').innerHTML="@Html(vistaCheckBox)";
+			  }	
+
+			Highcharts.chart('valorizadoGrupoBodegas',{
+	            chart: {
+                	type: 'column'
+	            },
+	            title: {
+	                text: 'DISTRIBUCION PORCENTUAL POR VALORIZACION'
+	            },
+	            xAxis: {
+	            	categories: @Html(valorizado.get(0)),
+	                labels: {
+	                    rotation: -45,
+	                    align: 'right',
+	                    style: {
+	                        fontSize: '10px',
+	                        fontFamily: 'Verdana, sans-serif'
+	                    }
+	                }
+	            },
+	            yAxis: {
+	                min: 0,
+					max:100,
+	                title: {
+	                    text: 'Porcentaje'
+	                },
+	                stackLabels: {
+	                    enabled: false,
+	                    style: {
+	                        fontWeight: 'bold',
+	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                    }
+	                }
+	            },
+	            legend: {
+	            	layout: 'horizontal',
+	                align: 'center',
+	                verticalAlign: 'top',
+	                y: 30,
+	                floating: false,
+	                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+	                borderColor: '#CCC',
+	                borderWidth: 1,
+	                shadow: false
+	            },
+	            tooltip: {
+	                formatter: function() {
+	                    return '<b>'+ this.x +'</b><br/>'+
+	                        this.series.name +' M$: '+ Highcharts.numberFormat(this.y,0) +'<br/>'+
+	                        'Total M$: '+ Highcharts.numberFormat(this.point.stackTotal,0);
+	                }
+	            },
+	            plotOptions: {
+	                column: {
+	                    stacking: 'normal',
+	                    dataLabels: {
+	                        enabled: false,
+	                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+	                        style: {
+	                            textShadow: '0 0 3px black, 0 0 3px black'
+	                        }
+	                    }
+	                }
+	            },
+	            series: @Html(valorizado.get(1))
+	        });
+
+			Highcharts.chart('porUnidadesGrupoBodegas',{
+	            chart: {
+                	type: 'column'
+	            },
+	            title: {
+	                text: 'DISTRIBUCION PORCENTUAL POR UNIDADES'
+	            },
+	            xAxis: {
+	            	categories: @Html(porUnidades.get(0)),
+	                labels: {
+	                    rotation: -45,
+	                    align: 'right',
+	                    style: {
+	                        fontSize: '10px',
+	                        fontFamily: 'Verdana, sans-serif'
+	                    }
+	                }
+	            },
+	            yAxis: {
+	                min: 0,
+					max:100,
+	                title: {
+	                    text: 'Porcentaje'
+	                },
+	                stackLabels: {
+	                    enabled: false,
+	                    style: {
+	                        fontWeight: 'bold',
+	                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                    }
+	                }
+	            },
+	            legend: {
+	            	layout: 'horizontal',
+	                align: 'center',
+	                verticalAlign: 'top',
+	                y: 30,
+	                floating: false,
+	                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+	                borderColor: '#CCC',
+	                borderWidth: 1,
+	                shadow: false
+	            },
+	            tooltip: {
+	            	formatter: function() {
+	                    return '<b>'+ this.x +'</b><br/>'+
+	                        this.series.name +'  '+ Highcharts.numberFormat(this.y,0) +' % <br/>'+
+	                        'Total '+ Highcharts.numberFormat(this.point.stackTotal,0)+' %';
+	                }
+	            },
+	            plotOptions: {
+	                column: {
+	                    stacking: 'normal',
+	                    dataLabels: {
+	                        enabled: false,
+	                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+	                        style: {
+	                            textShadow: '0 0 3px black, 0 0 3px black'
+	                        }
+	                    }
+	                }
+	            },
+	            series: @Html(porUnidades.get(1))
+	        });
+
+			document.getElementById('mostrarmostrar').style.display="block";
+	   });
+			  
+	
+</script>
+
+
+		
+		
+	
