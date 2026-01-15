@@ -1,7 +1,0 @@
-[0m[[0m[0mdebug[0m] [0m[0m> Exec(compile, Some(566f5571-943f-4014-b33e-ab1b8733dc30), Some(CommandSource(console0)))[0m
-[0m[[0m[0mdebug[0m] [0m[0mEvaluating tasks: Compile / compile[0m
-[0m[[0m[0mdebug[0m] [0m[0mRunning task... Cancel: Signal, check cycles: false, forcegc: true[0m
-[0m[[0m[0minfo[0m] [0m[0mcompiling 534 Scala sources and 242 Java sources to /Users/pedro/Documents/workspace/mada_aws/target/scala-3.3.5/classes ...[0m
-[0m[[0m[33mwarn[0m] [0m[0m--add-opens has no effect at compile time[0m
-[0m[[0m[32msuccess[0m] [0m[0mTotal time: 66 s (01:06), completed Jan 5, 2026, 4:59:43 PM[0m
-[0m[[0m[0mdebug[0m] [0m[0m> Exec(shell, None, None)[0m
