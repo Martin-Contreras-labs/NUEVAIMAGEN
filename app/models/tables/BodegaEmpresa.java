@@ -54,12 +54,15 @@ public class BodegaEmpresa {
 
 	public Long id_rubro;
 	public String nameRubro;
+
+	private String emailEnvio;
+	private String emailCcopia;
 	
 	public BodegaEmpresa(Long id, Long esInterna, String nombre, Long id_cliente, Long id_proyecto, Double tasaDescto,
 			Double tasaArriendo, Double tasaCfi, Long cobraDiaDespacho, Long nDiaGraciaEnvio, Long nDiaGraciaRegreso,
 			Double factorM2Viga, Long baseCalculo, Long tratoDevoluciones, String nombreTipoBodega, String nickCliente,
 			String nickProyecto,String comercial, String rutCliente, String pep, Double ivaBodega, Long id_sucursal, 
-			String nameSucursal, Long id_comercial, String nameComercial, Long vigente, Long clienteVigente, Long id_rubro, String nameRubro) {
+			String nameSucursal, Long id_comercial, String nameComercial, Long vigente, Long clienteVigente, Long id_rubro, String nameRubro, String emailEnvio, String emailCcopia) {
 		super();
 		this.id = id;
 		this.esInterna = esInterna;
@@ -90,6 +93,8 @@ public class BodegaEmpresa {
 		this.clienteVigente = clienteVigente;
 		this.id_rubro = id_rubro;
 		this.nameRubro = nameRubro;
+		this.emailCcopia = emailCcopia;
+		this.emailEnvio = emailEnvio;
 		
 		if(id_comercial.toString().equals("0")) {
 			this.nameComercial = comercial;
@@ -208,6 +213,9 @@ public class BodegaEmpresa {
 		this.nameRubro = nameRubro;
 	}
 
+	public String getEmailEnvio() { return emailEnvio; }
+	public String getEmailCcopia() { return emailCcopia; }
+
 	static DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 	static DecimalFormat myformatdouble2 = new DecimalFormat("#,##0.00",symbols);
 	static DecimalFormat myformatdouble4 = new DecimalFormat("#,##0.0000",symbols);
@@ -321,7 +329,9 @@ public class BodegaEmpresa {
 					" bodegaEmpresa.id_comercial, "+
 					" bodegaEmpresa.vigente, "+
 					" ifnull(cliente.vigente,1), "+
-					" id_rubro "+
+					" id_rubro, "+
+					" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+					" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 					" from `"+db+"`.bodegaEmpresa " +
 					" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 					" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -348,6 +358,7 @@ public class BodegaEmpresa {
 					if(rubro!=null) {
 						nameRubro = rubro.nombre;
 					}
+
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -356,7 +367,8 @@ public class BodegaEmpresa {
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro));
+							rs.getLong(26),nameRubro, rs.getString("email_envio"),
+							rs.getString("email_ccopia")));
 				}
 			}
 		} catch (SQLException e) {
@@ -395,7 +407,9 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" bodegaEmpresa.vigente, "+
 				" ifnull(cliente.vigente,1), "+
-				" id_rubro "+
+				" id_rubro, " + 
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -424,6 +438,7 @@ public class BodegaEmpresa {
 				if(rubro!=null) {
 					nameRubro = rubro.nombre;
 				}
+
 				lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 						rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 						rs.getDouble(8),rs.getLong(9),
@@ -432,7 +447,8 @@ public class BodegaEmpresa {
 						rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 						rs.getString(20),rs.getDouble(21),
 						rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-						rs.getLong(26),nameRubro));
+						rs.getLong(26),nameRubro, rs.getString("email_envio"),
+						rs.getString("email_ccopia")));
 			}
 		} catch (SQLException e) {
 			String className = BodegaEmpresa.class.getSimpleName();
@@ -470,7 +486,9 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" bodegaEmpresa.vigente, "+
 				" ifnull(cliente.vigente,1), "+
-				" id_rubro "+
+				" id_rubro, "+
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -499,6 +517,7 @@ public class BodegaEmpresa {
 				if(rubro!=null) {
 					nameRubro = rubro.nombre;
 				}
+
 				lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 						rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 						rs.getDouble(8),rs.getLong(9),
@@ -507,7 +526,8 @@ public class BodegaEmpresa {
 						rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 						rs.getString(20),rs.getDouble(21),
 						rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-						rs.getLong(26),nameRubro));
+						rs.getLong(26),nameRubro, rs.getString("email_envio"),
+						rs.getString("email_ccopia")));
 			}
 		} catch (SQLException e) {
 			String className = BodegaEmpresa.class.getSimpleName();
@@ -545,7 +565,9 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" bodegaEmpresa.vigente, "+
 				" ifnull(cliente.vigente,1), "+
-				" id_rubro "+
+				" id_rubro, "+
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -574,6 +596,7 @@ public class BodegaEmpresa {
 				if(rubro!=null) {
 					nameRubro = rubro.nombre;
 				}
+
 				lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 						rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 						rs.getDouble(8),rs.getLong(9),
@@ -582,7 +605,8 @@ public class BodegaEmpresa {
 						rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 						rs.getString(20),rs.getDouble(21),
 						rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-						rs.getLong(26),nameRubro));
+						rs.getLong(26),nameRubro, rs.getString("email_envio"),
+						rs.getString("email_ccopia")));
 			}
 		} catch (SQLException e) {
 			String className = BodegaEmpresa.class.getSimpleName();
@@ -622,7 +646,9 @@ public class BodegaEmpresa {
 					" bodegaEmpresa.id_comercial, "+
 					" bodegaEmpresa.vigente, "+
 					" ifnull(cliente.vigente,1), "+
-					" id_rubro "+
+					" id_rubro, "+
+					" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+					" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 					" from `" + db + "`.bodegaEmpresa " +
 					" left join `" + db + "`.tipoBodega on tipoBodega.id = esInterna " +
 					" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -652,6 +678,7 @@ public class BodegaEmpresa {
 					if(rubro!=null) {
 						nameRubro = rubro.nombre;
 					}
+
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -660,7 +687,8 @@ public class BodegaEmpresa {
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro));
+							rs.getLong(26),nameRubro, rs.getString("email_envio"),
+							rs.getString("email_ccopia")));
 				}
 			} catch (SQLException e) {
 				String className = BodegaEmpresa.class.getSimpleName();
@@ -701,7 +729,9 @@ public class BodegaEmpresa {
 					" bodegaEmpresa.id_comercial, "+
 					" bodegaEmpresa.vigente, "+
 					" ifnull(cliente.vigente,1), "+
-					" id_rubro "+
+					" id_rubro, "+
+					" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+					" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 					" from `" + db + "`.bodegaEmpresa " +
 					" left join `" + db + "`.tipoBodega on tipoBodega.id = esInterna " +
 					" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -731,6 +761,7 @@ public class BodegaEmpresa {
 					if(rubro!=null) {
 						nameRubro = rubro.nombre;
 					}
+
 					lista.add(new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -739,7 +770,8 @@ public class BodegaEmpresa {
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro));
+							rs.getLong(26),nameRubro, rs.getString("email_envio"),
+							rs.getString("email_ccopia")));
 				}
 			} catch (SQLException e) {
 				String className = BodegaEmpresa.class.getSimpleName();
@@ -800,7 +832,9 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" bodegaEmpresa.vigente, "+
 				" ifnull(cliente.vigente,1), "+
-				" id_rubro " +
+				" id_rubro, " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" left join `"+db+"`.tipoBodega on tipoBodega.id = esInterna " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -830,6 +864,7 @@ public class BodegaEmpresa {
 					if(rubro!=null) {
 						nameRubro = rubro.nombre;
 					}
+
 					aux = new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -838,7 +873,8 @@ public class BodegaEmpresa {
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro);
+							rs.getLong(26),nameRubro, rs.getString("email_envio"),
+							rs.getString("email_ccopia"));
 				}
 			}
 		} catch (SQLException e) {
@@ -877,7 +913,9 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" bodegaEmpresa.vigente, "+
 				" ifnull(cliente.vigente,1), "+
-				" id_rubro " +
+				" id_rubro, " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `" + db + "`.bodegaEmpresa " +
 				" left join `" + db + "`.tipoBodega on tipoBodega.id = esInterna " +
 				" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
@@ -907,6 +945,7 @@ public class BodegaEmpresa {
 					if(rubro!=null) {
 						nameRubro = rubro.nombre;
 					}
+
 					aux = new BodegaEmpresa(rs.getLong(1),rs.getLong(2),rs.getString(3),
 							rs.getLong(4),rs.getLong(5),	rs.getDouble(6),rs.getDouble(7),
 							rs.getDouble(8),rs.getLong(9),
@@ -915,7 +954,8 @@ public class BodegaEmpresa {
 							rs.getString(16),rs.getString(17),nameComercial,rs.getString(19),
 							rs.getString(20),rs.getDouble(21),
 							rs.getLong(22),nameSucursal,rs.getLong(23),nameComercial,rs.getLong(24),rs.getLong(25),
-							rs.getLong(26),nameRubro);
+							rs.getLong(26),nameRubro, rs.getString("email_envio"),
+							rs.getString("email_ccopia"));
 				}
 			}
 		} catch (SQLException e) {
@@ -1040,6 +1080,8 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_sucursal, " +
 				" bodegaEmpresa.id_comercial, " +
 				" bodegaEmpresa.id_rubro " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `" + db + "`.bodegaEmpresa    " +
 				" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1116,7 +1158,9 @@ public class BodegaEmpresa {
 				" ifnull(bodegaEmpresa.ivaBodega,0), "+
 				" bodegaEmpresa.id_sucursal, " +
 				" bodegaEmpresa.id_comercial, " +
-				" bodegaEmpresa.id_rubro " +
+				" bodegaEmpresa.id_rubro ," +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" where bodegaEmpresa.vigente = 1  " + condSucursal +
 				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
@@ -1222,6 +1266,8 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_sucursal, " +
 				" bodegaEmpresa.id_comercial, " +
 				" bodegaEmpresa.id_rubro " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" where bodegaEmpresa.vigente = 1  " + condSucursal +
 				" order by bodegaEmpresa.esInterna,bodegaEmpresa.nombre;";
@@ -1369,7 +1415,9 @@ public class BodegaEmpresa {
 				" ifnull(bodegaEmpresa.ivaBodega,0), "+
 				" bodegaEmpresa.id_sucursal, " +
 				" bodegaEmpresa.id_comercial, "+
-				" bodegaEmpresa.id_rubro " +
+				" bodegaEmpresa.id_rubro, " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
 				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
@@ -1459,7 +1507,9 @@ public class BodegaEmpresa {
 				" ifnull(bodegaEmpresa.ivaBodega,0), "+
 				" bodegaEmpresa.id_sucursal, " +
 				" bodegaEmpresa.id_comercial, "+
-				" bodegaEmpresa.id_rubro " +
+				" bodegaEmpresa.id_rubro ," +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa    " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1550,6 +1600,8 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" ifnull(cliente.vigente,1), " +
 				" bodegaEmpresa.id_rubro " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa    " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1652,7 +1704,9 @@ public class BodegaEmpresa {
 				" ifnull(bodegaEmpresa.ivaBodega,0), "+
 				" bodegaEmpresa.id_sucursal,   " +
 				" bodegaEmpresa.id_comercial, "+
-				" bodegaEmpresa.id_rubro " +
+				" bodegaEmpresa.id_rubro ," +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa    " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1742,6 +1796,8 @@ public class BodegaEmpresa {
 				" bodegaEmpresa.id_comercial, "+
 				" ifnull(cliente.vigente,1), "+
 				" bodegaEmpresa.id_rubro " +
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa    " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -1822,18 +1878,31 @@ public class BodegaEmpresa {
 		}
 		return (flag);
 	}
-	
+
 	public static boolean create(Connection con, String db, FormBodegaGraba form) {
 		boolean flag = false;
-		String sql = "insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_sucursal,id_rubro) values (?,?,?,?,?);";
+
+		// normalizar (null -> "")
+		String emailEnvio = (form.email_envio == null) ? "" : form.email_envio.trim();
+		String emailCcopia = (form.email_ccopia == null) ? "" : form.email_ccopia.trim();
+
+		String sql = "insert into `" + db + "`.bodegaEmpresa " +
+				"(nombre, esInterna, id_cliente, id_sucursal, id_rubro, email_envio, email_ccopia) " +
+				"values (?,?,?,?,?,?,?);";
+
 		try {
-			if(form.id_tipoBodega == (long) 1) {
+			if (form.id_tipoBodega == (long) 1) {
 				try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 					smt1.setString(1, form.nombre.trim());
 					smt1.setLong(2, form.id_tipoBodega);
 					smt1.setLong(3, form.id_propietario);
 					smt1.setLong(4, form.id_sucursal);
 					smt1.setLong(5, form.id_rubro);
+
+					// ✅ nuevos
+					smt1.setString(6, emailEnvio);
+					smt1.setString(7, emailCcopia);
+
 					smt1.executeUpdate();
 					flag = true;
 				}
@@ -1841,7 +1910,8 @@ public class BodegaEmpresa {
 				String pep = "";
 				String ivaBodegaAux = "";
 				Double ivaBodega = (double) 0;
-				if(form.pep != null) {
+
+				if (form.pep != null) {
 					pep = form.pep.trim();
 					ivaBodegaAux = form.ivaBodega.replace("%", "").replaceAll(",", "").trim();
 					ivaBodega = Double.parseDouble(ivaBodegaAux.trim()) / 100;
@@ -1849,17 +1919,23 @@ public class BodegaEmpresa {
 					EmisorTributario emisor = EmisorTributario.find(con, db);
 					ivaBodega = emisor.getTasaIva() / 100;
 				}
-				sql = "insert into `"+db+"`.bodegaEmpresa (nombre,esInterna,id_cliente,id_proyecto, " +
-						"tasaCfi,cobraDiaDespacho,nDiaGraciaEnvio,nDiaGraciaRegreso,baseCalculo,tratoDevoluciones,pep,ivaBodega," +
-						"id_sucursal,id_comercial, id_rubro) " +
-						"values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+
+				sql = "insert into `" + db + "`.bodegaEmpresa " +
+						"(nombre, esInterna, id_cliente, id_proyecto, " +
+						"tasaCfi, cobraDiaDespacho, nDiaGraciaEnvio, nDiaGraciaRegreso, baseCalculo, tratoDevoluciones, pep, ivaBodega, " +
+						"id_sucursal, id_comercial, id_rubro, " +
+						"email_envio, email_ccopia) " +   // ✅ nuevos
+						"values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+
 				try (PreparedStatement smt1 = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 					smt1.setString(1, form.nombre.trim());
 					smt1.setLong(2, form.id_tipoBodega);
 					smt1.setLong(3, form.id_cliente);
 					smt1.setLong(4, form.id_proyecto);
+
 					String cfiAux = form.cfi.replace("%", "").replaceAll(",", "").trim();
 					Double cfi = Double.parseDouble(cfiAux.trim()) / 100;
+
 					smt1.setDouble(5, cfi);
 					smt1.setLong(6, form.cobraDiaDespacho);
 					smt1.setLong(7, form.nDiasEnvio);
@@ -1871,9 +1947,15 @@ public class BodegaEmpresa {
 					smt1.setLong(13, form.id_sucursal);
 					smt1.setLong(14, form.id_comercial);
 					smt1.setLong(15, form.id_rubro);
+
+					// ✅ nuevos
+					smt1.setString(16, emailEnvio);
+					smt1.setString(17, emailCcopia);
+
 					smt1.executeUpdate();
+
 					try (ResultSet rs1 = smt1.getGeneratedKeys()) {
-						if(rs1.next()) {
+						if (rs1.next()) {
 							Long id_bodegaEmpresa = rs1.getLong(1);
 
 							List<Long> idsMoneda = form.idsMoneda;
@@ -1881,21 +1963,22 @@ public class BodegaEmpresa {
 							Map<Long, Double> mapAux = new HashMap<>();
 
 							for (int i = 0; idsMoneda != null && i < idsMoneda.size(); i++) {
-								if(tasaCambio.get(i) > 0) {
+								if (tasaCambio.get(i) > 0) {
 									mapAux.put(idsMoneda.get(i), tasaCambio.get(i));
 								}
 							}
-							if(!mapAux.isEmpty()) {
+
+							if (!mapAux.isEmpty()) {
 								String insertar = "";
 								for (Map.Entry<Long, Double> entry : mapAux.entrySet()) {
 									Long k = entry.getKey();
 									Double v = entry.getValue();
-									insertar += "("+id_bodegaEmpresa+","+k+","+v+"),";
+									insertar += "(" + id_bodegaEmpresa + "," + k + "," + v + "),";
 								}
-								if(insertar.length() > 2) {
-									insertar = insertar.substring(0,insertar.length()-1);
-									String sqlInsert = "insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "
-											+ insertar + ";";
+								if (insertar.length() > 2) {
+									insertar = insertar.substring(0, insertar.length() - 1);
+									String sqlInsert = "insert into `" + db + "`.fijaTasasCambio " +
+											"(id_bodegaEmpresa, id_moneda, tasaCambio) values " + insertar + ";";
 									try (PreparedStatement smt3 = con.prepareStatement(sqlInsert)) {
 										smt3.executeUpdate();
 									}
@@ -1903,6 +1986,7 @@ public class BodegaEmpresa {
 							}
 						}
 					}
+
 					flag = true;
 				}
 			}
@@ -1912,44 +1996,68 @@ public class BodegaEmpresa {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			flag = false;
 		}
-		return(flag);
+
+		return flag;
 	}
-	
+
+
 	public static boolean update(Connection con, String db, FormBodegaGraba form) {
 		boolean flag = false;
+
+		// normalizar (null -> "")
+		String emailEnvio = (form.email_envio == null) ? "" : form.email_envio.trim();
+		String emailCcopia = (form.email_ccopia == null) ? "" : form.email_ccopia.trim();
+
 		try {
-			if(form.id_tipoBodega == (long) 1) {
-				String sql = "update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_sucursal=?, id_rubro=? where id = ?;";
+			if (form.id_tipoBodega == (long) 1) {
+				String sql = "update `" + db + "`.bodegaEmpresa " +
+						"set nombre = ?, id_cliente = ?, id_sucursal = ?, id_rubro = ?, " +
+						"email_envio = ?, email_ccopia = ? " + // ✅ nuevos
+						"where id = ?;";
+
 				try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 					smt1.setString(1, form.nombre.trim());
 					smt1.setLong(2, form.id_propietario);
-					smt1.setDouble(3, form.id_sucursal);
+					smt1.setLong(3, form.id_sucursal);
 					smt1.setLong(4, form.id_rubro);
-					smt1.setLong(5, form.id_bodegaEmpresa);
+
+					// ✅ nuevos
+					smt1.setString(5, emailEnvio);
+					smt1.setString(6, emailCcopia);
+
+					smt1.setLong(7, form.id_bodegaEmpresa);
 					smt1.executeUpdate();
 					flag = true;
 				}
 			} else {
 				String pep = "";
 				String ivaBodegaAux = "";
-				Double ivaBodega = (double)0;
-				if(form.pep!=null) {
+				Double ivaBodega = (double) 0;
+
+				if (form.pep != null) {
 					pep = form.pep.trim();
 					ivaBodegaAux = form.ivaBodega.replace("%", "").replaceAll(",", "").trim();
 					ivaBodega = Double.parseDouble(ivaBodegaAux.trim()) / 100;
 				} else {
 					EmisorTributario emisor = EmisorTributario.find(con, db);
-					ivaBodega = emisor.getTasaIva()/100;
+					ivaBodega = emisor.getTasaIva() / 100;
 				}
-				String sql = "update `"+db+"`.bodegaEmpresa set nombre = ?, id_cliente= ?, id_proyecto = ?, " +
-						"tasaCfi = ?, cobraDiaDespacho = ?, nDiaGraciaEnvio = ?, nDiaGraciaRegreso = ?, baseCalculo=?, tratoDevoluciones=?, " +
-						"id_comercial=?, pep=?, ivaBodega=?, id_sucursal=?, id_rubro=? where id = ?;";
+
+				String sql = "update `" + db + "`.bodegaEmpresa set " +
+						"nombre = ?, id_cliente = ?, id_proyecto = ?, " +
+						"tasaCfi = ?, cobraDiaDespacho = ?, nDiaGraciaEnvio = ?, nDiaGraciaRegreso = ?, baseCalculo = ?, tratoDevoluciones = ?, " +
+						"id_comercial = ?, pep = ?, ivaBodega = ?, id_sucursal = ?, id_rubro = ?, " +
+						"email_envio = ?, email_ccopia = ? " + // ✅ nuevos
+						"where id = ?;";
+
 				try (PreparedStatement smt1 = con.prepareStatement(sql)) {
 					smt1.setString(1, form.nombre.trim());
 					smt1.setLong(2, form.id_cliente);
 					smt1.setLong(3, form.id_proyecto);
+
 					String cfiAux = form.cfi.replace("%", "").replaceAll(",", "").trim();
 					Double cfi = Double.parseDouble(cfiAux.trim()) / 100;
+
 					smt1.setDouble(4, cfi);
 					smt1.setLong(5, form.cobraDiaDespacho);
 					smt1.setLong(6, form.nDiasEnvio);
@@ -1959,39 +2067,52 @@ public class BodegaEmpresa {
 					smt1.setLong(10, form.id_comercial);
 					smt1.setString(11, pep);
 					smt1.setDouble(12, ivaBodega);
-					smt1.setDouble(13, form.id_sucursal);
+					smt1.setLong(13, form.id_sucursal);
 					smt1.setLong(14, form.id_rubro);
-					smt1.setLong(15, form.id_bodegaEmpresa);
+
+					// ✅ nuevos
+					smt1.setString(15, emailEnvio);
+					smt1.setString(16, emailCcopia);
+
+					smt1.setLong(17, form.id_bodegaEmpresa);
+
 					smt1.executeUpdate();
 				}
+
+				// ----- tu lógica de fijaTasasCambio, igual que antes -----
 				List<Long> idsMoneda = form.idsMoneda;
 				List<Double> tasaCambio = form.tasaCambio;
-				Map<Long,Double> mapAux = new HashMap<Long,Double>();
-				for(int i=0; idsMoneda!=null && i<idsMoneda.size(); i++) {
-					if(tasaCambio.get(i) > 0) {
+				Map<Long, Double> mapAux = new HashMap<>();
+
+				for (int i = 0; idsMoneda != null && i < idsMoneda.size(); i++) {
+					if (tasaCambio.get(i) > 0) {
 						mapAux.put(idsMoneda.get(i), tasaCambio.get(i));
 					}
 				}
-				String deleteSql = "delete from `"+db+"`.fijaTasasCambio where id_bodegaEmpresa=?;";
+
+				String deleteSql = "delete from `" + db + "`.fijaTasasCambio where id_bodegaEmpresa = ?;";
 				try (PreparedStatement smt2 = con.prepareStatement(deleteSql)) {
 					smt2.setLong(1, form.id_bodegaEmpresa);
 					smt2.executeUpdate();
 				}
-				if(mapAux.size() > 0) {
+
+				if (mapAux.size() > 0) {
 					String insertar = "";
 					for (Map.Entry<Long, Double> entry : mapAux.entrySet()) {
 						Long k = entry.getKey();
 						Double v = entry.getValue();
-						insertar += "("+form.id_bodegaEmpresa+","+k+","+v+"),";
+						insertar += "(" + form.id_bodegaEmpresa + "," + k + "," + v + "),";
 					}
-					if(insertar.length()>2) {
-						insertar = insertar.substring(0,insertar.length()-1);
-						String insertSql = "insert into `"+db+"`.fijaTasasCambio (id_bodegaEmpresa, id_moneda, tasaCambio) values "+insertar+";";
+					if (insertar.length() > 2) {
+						insertar = insertar.substring(0, insertar.length() - 1);
+						String insertSql = "insert into `" + db + "`.fijaTasasCambio " +
+								"(id_bodegaEmpresa, id_moneda, tasaCambio) values " + insertar + ";";
 						try (PreparedStatement smt3 = con.prepareStatement(insertSql)) {
 							smt3.executeUpdate();
 						}
 					}
 				}
+
 				flag = true;
 			}
 		} catch (SQLException e) {
@@ -2000,8 +2121,10 @@ public class BodegaEmpresa {
 			logger.error("DB ERROR. [CLASS: {}. METHOD: {}. DB: {}.]", className, methodName, db, e);
 			flag = false;
 		}
-		return(flag);
+
+		return flag;
 	}
+
 	
 	public static List<List<String>> listaFijaTasas(Connection con, String db, Long id_bodegaEmpresa) {
 		List<List<String>> lista = new ArrayList<List<String>>();
@@ -2146,7 +2269,9 @@ public class BodegaEmpresa {
 				" ifnull(bodegaEmpresa.ivaBodega,0), "+
 				" bodegaEmpresa.id_sucursal, "+
 				" bodegaEmpresa.id_comercial, "+
-				" bodegaEmpresa.id_rubro "+
+				" bodegaEmpresa.id_rubro, "+
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `"+db+"`.bodegaEmpresa    " +
 				" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -2279,7 +2404,9 @@ public class BodegaEmpresa {
 				" ifnull(bodegaEmpresa.ivaBodega,0), " +
 				" bodegaEmpresa.id_sucursal, " +
 				" bodegaEmpresa.id_comercial, "+
-				" bodegaEmpresa.id_rubro "+
+				" bodegaEmpresa.id_rubro ,"+
+				" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+				" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 				" from `" + db + "`.bodegaEmpresa    " +
 				" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 				" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +
@@ -2380,6 +2507,8 @@ public class BodegaEmpresa {
 							" bodegaEmpresa.id_sucursal, " +
 							" bodegaEmpresa.id_comercial, "+
 							" bodegaEmpresa.id_rubro "+
+							" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+							" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 							" from `" + db + "`.bodegaEmpresa " +
 							" left join `" + db + "`.cliente on cliente.id = bodegaEmpresa.id_cliente " +
 							" left join `" + db + "`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto " +
@@ -2484,6 +2613,8 @@ public class BodegaEmpresa {
 					" bodegaEmpresa.id_sucursal, "+
 					" bodegaEmpresa.id_comercial, "+
 					" bodegaEmpresa.id_rubro "+
+					" ifnull(bodegaEmpresa.email_envio,'') as email_envio, " +
+					" ifnull(bodegaEmpresa.email_ccopia,'') as email_ccopia " +
 					" from `"+db+"`.bodegaEmpresa    " +
 					" left join `"+db+"`.cliente on cliente.id = bodegaEmpresa.id_cliente   " +
 					" left join `"+db+"`.proyecto on proyecto.id = bodegaEmpresa.id_proyecto   " +

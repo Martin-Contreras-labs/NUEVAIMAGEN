@@ -1,0 +1,234 @@
+@(mapDiccionario: Map[String,String], mapPermiso: Map[String,String], userMnu: utilities.UserMnu,
+        lista: List[List[String]])
+
+@main("") {
+
+    @menues(mapDiccionario, mapPermiso, userMnu, " ")
+
+    @modalContactoBodega(mapDiccionario)
+    @modalContactoCliente()
+    @modalContactoProyecto()
+
+    <div id="mostrarmostrar" style="display:none;">
+        @barraTitulo(mapDiccionario, "SELECCION DE "+mapDiccionario.get("BODEGA")+"/PROYECTO","PARA OBTENER DETALLE")
+
+        <div class="row justify-content-md-center">
+            <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+
+                <div class="noprint">
+                    <table class="table table-sm table-condensed table-fluid">
+                        <tr>
+                            <td width="25%">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">BUSCAR</span>
+                                    </div>
+                                    <input type="text" class="form-control left"
+                                    id="searchTermtablaPrincipal"
+                                    onkeyup="doSearch2('tablaPrincipal');">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                @if(lista != null && lista.nonEmpty) {
+                    <div class="table-responsive">
+
+                            <!-- ✅ Form ÚNICO para mailing (SIN forms anidados) -->
+                        <form class="formulario" method="post" action="/mailingInventarioProyectoEnviar">
+
+                            <table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
+                                <thead style="background-color: #eeeeee">
+                                    <tr>
+                                        <th style="text-align:center; vertical-align:top;">SUCURSAL</th>
+                                        <th style="text-align:center; vertical-align:top;">
+                                            @mapDiccionario.getOrElse("BODEGA", "BODEGA")/PROYECTO
+                                        </th>
+                                        <th style="text-align:center; vertical-align:top;">NOMBRE<BR>CLIENTE</th>
+                                        <th style="text-align:center; vertical-align:top;">NOMBRE<br>PROYECTO</th>
+                                        <th style="text-align:center; vertical-align:top;">
+                                            @mapDiccionario.getOrElse("COMUNA", "COMUNA")<BR>PROYECTO
+                                        </th>
+
+                                            <!-- ✅ Columna SELECT (igual a inventario normal) -->
+                                        <th class="col-select">
+                                            SELECT
+                                        </th>
+
+                                            <!-- ✅ Columna mailing (checkbox) -->
+                                        <th class="col-seleccionar">
+                                            <div class="sel-head">
+                                                <span>SELEC</span>
+                                                <input
+                                                type="checkbox"
+                                                id="selectAll"
+                                                class="circle-check"
+                                                title="Seleccionar / Deseleccionar todos"
+                                                style="transform: scale(1.4); cursor:pointer;"
+                                                >
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                @for(lista1 <- lista) {
+                                    <tr>
+                                        <td style="text-align:left;vertical-align:middle;">
+                                        @lista1.get(10)
+                                        </td>
+                                        <td style="text-align:left;vertical-align:middle;">
+                                            <a href="#" onclick="modalContactoBodega('@lista1.get(1)');">@lista1.get(5)</a>
+                                        </td>
+                                        <td style="text-align:left;vertical-align:middle;">
+                                            <a href="#" onclick="modalContactoCliente('@lista1.get(2)');">@lista1.get(7)</a>
+                                        </td>
+                                        <td style="text-align:left;vertical-align:middle;">
+                                            <a href="#" onclick="modalContactoProyecto('@lista1.get(3)');">@lista1.get(8)</a>
+                                        </td>
+                                        <td style="text-align:left;vertical-align:middle;">
+                                        @lista1.get(9)
+                                        </td>
+
+                                            <!-- ✅ Botón SELECT que postea a /reportInventarioProyectoDetalle/ sin form anidado -->
+                                        <td class="col-select" style="text-align:center;vertical-align:middle;">
+                                            <button
+                                            type="submit"
+                                            class="btn btn-link p-0"
+                                            name="id_bodega"
+                                            value="@lista1.get(1)"
+                                            formaction="/reportInventarioProyectoDetalle/"
+                                            formmethod="post"
+                                            style="text-decoration:none;"
+                                            title="Ver detalle"
+                                            >
+                                                <kbd style="background-color: #73C6B6">select</kbd>
+                                            </button>
+                                        </td>
+
+                                        <td class="col-seleccionar">
+                                            <div class="sel-cell">
+                                                <input
+                                                type="checkbox"
+                                                class="select-proyecto"
+                                                name="id_bodega[]"
+                                                value="@lista1.get(1)"
+                                                style="transform: scale(1.4); cursor: pointer;"
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+
+                            <div class="noprint" style="margin-top: 12px; text-align: center;">
+                                <button type="submit" class="btn btn-primary" id="btnEnviarMail">
+                                    ENVIAR
+                                </button>
+                            </div>
+
+                        </form>
+
+                        <style>
+                                .circle-check{
+                                    -webkit-appearance: none;
+                                    appearance: none;
+                                    width: 15px;
+                                    height: 15px;
+                                    border: 2px solid #555;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                    cursor: pointer;
+                                    position: relative;
+                                    background: #fff;
+                                }
+
+                                .circle-check:checked{
+                                    background: #555;
+                                }
+
+                                th.col-seleccionar, td.col-seleccionar {
+                                    text-align: center !important;
+                                    vertical-align: middle !important;
+                                    width: 8%;
+                                    padding-left: 0 !important;
+                                    padding-right: 0 !important;
+                                }
+
+                                th.col-select, td.col-select {
+                                    text-align: center !important;
+                                    vertical-align: middle !important;
+                                    width: 8%;
+                                    white-space: nowrap;
+                                }
+
+                                .sel-head, .sel-cell {
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 4px;
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                        </style>
+
+                    </div>
+
+                } else {
+                    <p>No hay datos disponibles para mostrar.</p>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        var table = $('#tablaPrincipal').DataTable({
+            "fixedHeader": true,
+            "paging": false,
+            "info": false,
+            "searching": false,
+            "order": [[ 1, "asc" ]],
+            "columnDefs": [
+                // ✅ ahora hay 2 columnas finales "especiales": SELECT y CHECKBOX
+                { "orderable": false, "targets": -1 },
+                { "orderable": false, "targets": -2 }
+            ],
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json"
+            }
+        });
+
+        document.getElementById('mostrarmostrar').style.display = "block";
+
+        $('#selectAll').on('change', function() {
+            var checked = this.checked;
+            var rows = table.rows({ 'search': 'applied' }).nodes();
+
+            $('input.select-proyecto', rows)
+                .prop('checked', checked)
+                .trigger('change');
+        });
+
+        $('#tablaPrincipal').on('change', 'input.select-proyecto', function() {
+            var rows = table.rows({ 'search': 'applied' }).nodes();
+            var total = $('input.select-proyecto', rows).length;
+            var seleccionados = $('input.select-proyecto:checked', rows).length;
+
+            $('#selectAll').prop('checked', total > 0 && total === seleccionados);
+        });
+
+        // ✅ evitar doble envío por doble click (solo cuando es ENVIAR)
+        $('.formulario').on('submit', function(e) {
+            // si el submit viene desde el botón ENVIAR, deshabilitamos
+            if (document.activeElement && document.activeElement.id === 'btnEnviarMail') {
+                $('#btnEnviarMail').prop('disabled', true).text('ENVIANDO...');
+            }
+        });
+    });
+</script>

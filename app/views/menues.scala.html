@@ -943,7 +943,11 @@
 		        		@if(mapPermiso.get("mnuPROYECTOS")!=null && mapPermiso.get("reportInventarioProyecto")!=null){
 		        			<a class="dropdown-item" href="/reportInventarioProyecto/">Existencias</a>
 		        		}
-		        		@if(mapPermiso.get("mnuGRAFICOS")!=null){
+						@if(mapPermiso.get("mnuPROYECTOS")!=null && mapPermiso.get("reportInventarioProyecto")!=null){
+						<a class="dropdown-item" href="/mailingInventarioProyecto/">Existencias Mailing</a>
+					}
+
+						@if(mapPermiso.get("mnuGRAFICOS")!=null){
 		        			<li class="dropdown-submenu pull-left">
 								<a class="dropdown-item dropdown-toggle" href="#">Gr&aacuteficos</a>
 								<ul class="dropdown-menu">

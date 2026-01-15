@@ -374,6 +374,10 @@ GET     /reportInventarioProyecto/					controllers.MnuReportes.reportInventarioP
 POST    /reportInventarioProyectoDetalle/			controllers.MnuReportes.reportInventarioProyectoDetalle(request: Request)
 POST    /reportInventarioProyectoDetalleExcel/		controllers.MnuReportes.reportInventarioProyectoDetalleExcel(request: Request)
 
+GET     /mailingInventarioProyecto/          controllers.MnuReportes.reportMailInventarioProyecto(request: Request)
+POST    /mailingInventarioProyectoEnviar     controllers.MnuReportes.reportMailInventarioProyectoEnviar(request: Request)
+GET     /mailingInventarioProyectoEnviar     controllers.MnuReportes.reportMailInventarioProyecto(request: Request)
+
 
 GET     /reporteMovimientosPeriodoAgrupado/					controllers.MnuReportes.reporteMovimientosPeriodoAgrupado(request: Request)
 POST    /reporteMovimientosListaProyectosAgrupado/			controllers.MnuReportes.reporteMovimientosListaProyectosAgrupado(request: Request)

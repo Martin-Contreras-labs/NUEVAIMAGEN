@@ -32,6 +32,17 @@ import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 
 
+import java.io.File;
+import java.sql.Connection;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +51,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import controllers.HomeController.Sessiones;
 import models.forms.FormFactura;
+import models.tables.BodegaEmpresa;
+import models.reports.ReportInventarios;
 import models.forms.FormGrafico;
 import models.utilities.Archivos;
 import models.utilities.DatabaseRead;
@@ -76,6 +89,9 @@ public class MnuReportes extends Controller {
 	private static final String msgErrorFormulario = HomeController.msgErrorFormulario;
 	private static final String msgSinPermiso = HomeController.msgSinPermiso;
 	private static final String msgReport = HomeController.msgReport;
+	private static final java.util.concurrent.ExecutorService MAIL_EXECUTOR =
+			java.util.concurrent.Executors.newFixedThreadPool(2);
+
 
 	private static WSClient ws;
 	private final MailerClient mailerClient;
@@ -1167,6 +1183,8 @@ public class MnuReportes extends Controller {
 		}
 	}
 
+
+
 	public Result reportInventarioProyectoDetalleExcel(Http.Request request) {
 		Sessiones s = new Sessiones(request);
 		String className = this.getClass().getSimpleName();
@@ -1204,6 +1222,111 @@ public class MnuReportes extends Controller {
 			}
 		}
 	}
+
+
+	//====================================================================================
+	// MNU reportInventarioProyecto   Reportes/Existencias Mailing
+	//====================================================================================
+
+
+	public Result reportMailInventarioProyecto(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+		if (!s.isValid()) {
+			return ok(mensajes.render("/", msgError));
+		}
+
+		UserMnu userMnu = new UserMnu(
+				s.userName, s.id_usuario, s.id_tipoUsuario,
+				s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal
+		);
+
+		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+		if (mapeoPermiso.get("reportInventarioProyecto") == null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",
+					className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/", msgSinPermiso));
+		}
+
+		try (Connection con = dbRead.getConnection()) {
+			String permisoPorBodega =
+					UsuarioPermiso.permisoBodegaEmpresa(con, s.baseDato, Long.parseLong(s.id_usuario));
+
+			List<List<String>> datos =
+					ReportInventarios.reportInventarioProyecto(
+							con, s.baseDato, permisoPorBodega,
+							s.aplicaPorSucursal, s.id_sucursal
+					);
+
+			return ok(
+					viewsMnuReportes.html.reportMailInventarioProyecto
+							.render(mapeoDiccionario, mapeoPermiso, userMnu, datos)
+			);
+
+		} catch (Exception e) {
+			logger.error("ERROR. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",
+					className, methodName, s.baseDato, s.userName, e);
+			return ok(mensajes.render("/home/", msgReport));
+		}
+	}
+
+
+
+	public Result reportMailInventarioProyectoEnviar(Http.Request request) {
+		Sessiones s = new Sessiones(request);
+		String className = this.getClass().getSimpleName();
+		String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+		if (!s.isValid()) return ok(mensajes.render("/", msgError));
+
+		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
+		if (mapeoPermiso.get("reportInventarioProyecto") == null) {
+			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",
+					className, methodName, s.baseDato, s.userName);
+			return ok(mensajes.render("/", msgSinPermiso));
+		}
+
+		Map<String, String[]> data = request.body().asFormUrlEncoded();
+		if (data == null || data.get("id_bodega[]") == null || data.get("id_bodega[]").length == 0) {
+			return ok(mensajes.render("/home/", msgErrorFormulario));
+		}
+
+		// IDs seleccionados
+		List<Long> ids = new ArrayList<>();
+		for (String idStr : data.get("id_bodega[]")) {
+			try { ids.add(Long.parseLong(idStr.trim())); } catch (Exception ignored) {}
+		}
+		if (ids.isEmpty()) return ok(mensajes.render("/home/", msgErrorFormulario));
+
+		Map<String, String> mapDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+		// 🔒 EMAIL HARDCODEADO PARA PRUEBAS
+		String emailUser = "mfcontreras@inqsol.cl";
+		System.out.println("========================================");
+		System.out.println("[MAIL][DEBUG] Email de usuario HARDCODEADO");
+		System.out.println("[MAIL][DEBUG] emailUser = " + emailUser);
+		System.out.println("[MAIL][DEBUG] ids = " + ids);
+		System.out.println("========================================");
+
+		Runnable job = new MailInventarioExcel0(
+				s.baseDato,
+				emailUser,
+				ids,
+				mapDiccionario,
+				dbRead,
+				mailerClient
+		);
+
+		new Thread(job, "ThreadEnvioMailInventario-" + s.userName).start();
+
+		return redirect(request.header("Referer").orElse("/home/"));
+	}
+
+
 
 	//====================================================================================
 	// MNU reporteMovimientos0   Reportes/Movimientos/Por Fecha (Agrupado)
@@ -9778,6 +9901,291 @@ public class MnuReportes extends Controller {
 			}
 		}
 	}
+
+	//Mailing
+		public class MailInventarioExcel0 implements Runnable {
+
+			private static final Logger logger = LoggerFactory.getLogger(MailInventarioExcel0.class);
+
+			private static final String EMAIL_REGEX =
+					"^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+			private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+
+			private final String baseDato;
+			private final String emailUser; // emisor (siempre debe ir en BCC)
+			private final List<Long> ids;
+			private final Map<String, String> mapDiccionario;
+			private final DatabaseRead dbRead;
+			private final MailerClient mailerClient;
+
+			public MailInventarioExcel0(
+					String baseDato,
+					String emailUser,
+					List<Long> ids,
+					Map<String, String> mapDiccionario,
+					DatabaseRead dbRead,
+					MailerClient mailerClient
+			) {
+				this.baseDato = baseDato;
+				this.emailUser = emailUser;
+				this.ids = ids;
+				this.mapDiccionario = mapDiccionario;
+				this.dbRead = dbRead;
+				this.mailerClient = mailerClient;
+			}
+
+			private static boolean isValidEmail(String email) {
+				if (email == null) return false;
+				String e = email.trim();
+				return !e.isEmpty() && EMAIL_PATTERN.matcher(e).matches();
+			}
+
+			private static class EmailParseResult {
+				final List<String> valid;
+				final List<String> invalid;
+
+				EmailParseResult(List<String> valid, List<String> invalid) {
+					this.valid = valid;
+					this.invalid = invalid;
+				}
+			}
+
+			// Soporta correos separados por: coma, punto y coma, saltos de línea
+			private static EmailParseResult parseEmailsWithInvalids(String emails, String contexto, String bodegaNombre) {
+				List<String> valid = new ArrayList<>();
+				List<String> invalid = new ArrayList<>();
+				if (emails == null) return new EmailParseResult(valid, invalid);
+
+				String normalized = emails
+						.replace(";", ",")
+						.replace("\n", ",")
+						.replace("\r", ",");
+
+				if (normalized.trim().isEmpty()) return new EmailParseResult(valid, invalid);
+
+				LinkedHashSet<String> validSet = new LinkedHashSet<>();
+				LinkedHashSet<String> invalidSet = new LinkedHashSet<>();
+
+				for (String raw : normalized.split(",")) {
+					String e = raw == null ? "" : raw.trim();
+					if (e.isEmpty()) continue;
+
+					if (isValidEmail(e)) {
+						validSet.add(e);
+					} else {
+						invalidSet.add(e);
+						logger.warn("EMAIL INVALIDO ({}) en bodega '{}': '{}'", contexto, bodegaNombre, e);
+					}
+				}
+
+				valid.addAll(validSet);
+				invalid.addAll(invalidSet);
+				return new EmailParseResult(valid, invalid);
+			}
+
+			@Override
+			public void run() {
+				int okCount = 0;
+				int failCount = 0;
+
+				StringBuilder resumenOk = new StringBuilder();
+				StringBuilder resumenFail = new StringBuilder();
+
+				// Emisor (va en BCC)
+				String emisorBcc = emailUser == null ? "" : emailUser.trim();
+				boolean emisorValido = isValidEmail(emisorBcc);
+
+				if (!emisorValido) {
+					System.out.println("⚠️ [MAIL] EMAIL DEL USUARIO INVALIDO (BCC)");
+					System.out.println("⚠️ [MAIL] emailUser = '" + emailUser + "'");
+					System.out.println("⚠️ [MAIL] Los correos NO se enviarán hasta corregirlo");
+				}
+
+				try {
+					for (Long idBodega : ids) {
+
+						System.out.println("========================================");
+						System.out.println("[MAIL] Procesando bodega ID = " + idBodega);
+
+						BodegaEmpresa bodega = null;
+
+						try (Connection con = dbRead.getConnection()) {
+
+							bodega = BodegaEmpresa.findXIdBodega(con, baseDato, idBodega);
+
+							if (bodega == null) {
+								failCount++;
+								resumenFail.append("<li style='color:#c0392b;'>ID ")
+										.append(idBodega)
+										.append(" (no existe)</li>");
+								System.out.println("[MAIL] Bodega NO existe: ID = " + idBodega);
+								continue;
+							}
+
+							System.out.println("[MAIL] Bodega encontrada: " + bodega.getNombre());
+							System.out.println("[MAIL] email_envio (raw)  = " + bodega.getEmailEnvio());
+							System.out.println("[MAIL] email_ccopia (raw) = " + bodega.getEmailCcopia());
+							System.out.println("[MAIL] email emisor (BCC) = " + emailUser);
+
+							EmailParseResult toRes = parseEmailsWithInvalids(
+									bodega.getEmailEnvio(),
+									"email_envio",
+									bodega.getNombre()
+							);
+
+							EmailParseResult ccRes = parseEmailsWithInvalids(
+									bodega.getEmailCcopia(),
+									"email_ccopia",
+									bodega.getNombre()
+							);
+
+							List<String> toList = toRes.valid;
+							List<String> ccList = ccRes.valid;
+
+							List<String> invalidTo = new ArrayList<>(toRes.invalid);
+							List<String> invalidCc = new ArrayList<>(ccRes.invalid);
+
+							// evitar duplicar emisor en TO/CC
+							ccList.removeIf(cc -> cc.equalsIgnoreCase(emisorBcc));
+							toList.removeIf(to -> to.equalsIgnoreCase(emisorBcc));
+
+							System.out.println("[MAIL] TO válidos  = " + toList);
+							System.out.println("[MAIL] CC visibles = " + ccList);
+							System.out.println("[MAIL] BCC emisor  = " + emisorBcc);
+
+							// si el emisor es inválido, esta bodega no se envía
+							if (!emisorValido) {
+								failCount++;
+
+								List<String> invalidAll = new ArrayList<>();
+								for (String x : invalidTo) invalidAll.add("TO: " + x);
+								for (String x : invalidCc) invalidAll.add("CC: " + x);
+
+								resumenFail.append("<li style='color:#c0392b;'>")
+										.append("<b>").append(bodega.getNombre()).append("</b><br>")
+										.append("TO: (no enviado: emisor inválido)<br>")
+										.append("CC: ").append(ccList.isEmpty() ? "(sin copia)" : String.join(", ", ccList)).append("<br>")
+										.append("Inválidos: ").append(invalidAll.isEmpty() ? "(ninguno)" : String.join(", ", invalidAll))
+										.append("</li>");
+
+								System.out.println("[MAIL][ERROR] No se envía: email emisor inválido = " + emisorBcc);
+								continue;
+							}
+
+							// TO obligatorio
+							if (toList.isEmpty()) {
+								failCount++;
+
+								List<String> invalidAll = new ArrayList<>();
+								for (String x : invalidTo) invalidAll.add("TO: " + x);
+								for (String x : invalidCc) invalidAll.add("CC: " + x);
+
+								resumenFail.append("<li style='color:#c0392b;'>")
+										.append("<b>").append(bodega.getNombre()).append("</b><br>")
+										.append("TO: (sin destinatarios válidos)<br>")
+										.append("CC: ").append(ccList.isEmpty() ? "(sin copia)" : String.join(", ", ccList)).append("<br>")
+										.append("Inválidos: ").append(invalidAll.isEmpty() ? "(ninguno)" : String.join(", ", invalidAll))
+										.append("</li>");
+
+								System.out.println("[MAIL][ERROR] Sin TO válido. No se envía.");
+								continue;
+							}
+
+							// Generar datos + Excel
+							List<List<String>> datos = ReportInventarios.reportInventarioProyectoDetalle(
+									con, baseDato, bodega.getId(), mapDiccionario
+							);
+
+							File excel = ReportInventarios.exportaReportInventarioProyectoDetalle(
+									baseDato, datos, mapDiccionario, bodega
+							);
+
+							// Enviar mail por bodega
+							Email email = new Email();
+							email.setSubject("Reporte enviado - " + bodega.getNombre());
+							email.setFrom("MADA <informaciones@inqsol.cl>");
+
+							for (String to : toList) email.addTo(to);
+							for (String cc : ccList) email.addCc(cc);
+							email.addBcc(emisorBcc);
+
+							email.setBodyHtml(
+									"<html><body>" +
+											"<p><b>Reporte enviado</b></p>" +
+											"<p><b>" + bodega.getNombre() + "</b></p>" +
+											"</body></html>"
+							);
+
+							email.addAttachment("Inventario_" + idBodega + ".xlsx", excel);
+
+							System.out.println("[MAIL] Enviando correo...");
+
+							mailerClient.send(email);
+
+							okCount++;
+
+							List<String> invalidAll = new ArrayList<>();
+							for (String x : invalidTo) invalidAll.add("TO: " + x);
+							for (String x : invalidCc) invalidAll.add("CC: " + x);
+
+							resumenOk.append("<li>")
+									.append("<b>").append(bodega.getNombre()).append("</b><br>")
+									.append("TO: ").append(String.join(", ", toList)).append("<br>")
+									.append("CC: ").append(ccList.isEmpty() ? "(sin copia)" : String.join(", ", ccList)).append("<br>")
+									.append("Inválidos: ").append(invalidAll.isEmpty() ? "(ninguno)" : String.join(", ", invalidAll))
+									.append("</li>");
+
+							try { if (excel != null && excel.exists()) excel.delete(); } catch (Exception ignore) {}
+
+							System.out.println("[MAIL] ✔ Enviado OK: " + bodega.getNombre());
+
+						} catch (Exception exBodega) {
+							failCount++;
+							String nombre = (bodega != null ? bodega.getNombre() : "ID " + idBodega);
+							logger.error("FALLA ENVIO bodega={}. baseDato={}", nombre, baseDato, exBodega);
+							resumenFail.append("<li style='color:#c0392b;'><b>")
+									.append(nombre)
+									.append("</b> (fallido)</li>");
+						}
+					}
+
+					// Correo resumen al emisor
+					if (emisorValido) {
+						Email confirmacion = new Email();
+						confirmacion.setSubject("Confirmación de envío de reportes enviados");
+						confirmacion.setFrom("MADA <informaciones@inqsol.cl>");
+						confirmacion.addTo(emisorBcc);
+
+						confirmacion.setBodyHtml(
+								"<html><body>" +
+										"<p><b>Reportes enviados correctamente:</b></p>" +
+										"<ul style='margin:0; padding-left:18px;'>" +
+										(resumenOk.length() > 0 ? resumenOk.toString() : "<li>(ninguno)</li>") +
+										"</ul>" +
+
+										(resumenFail.length() > 0
+												? "<br><p><b style='color:#c0392b;'>Reportes con error / inválidos:</b></p>" +
+												"<ul style='margin:0; padding-left:18px;'>" +
+												resumenFail.toString() +
+												"</ul>"
+												: ""
+										) +
+										"</body></html>"
+						);
+
+						mailerClient.send(confirmacion);
+						System.out.println("[MAIL] ✔ Resumen enviado a: " + emisorBcc);
+
+					} else {
+						System.out.println("⚠️ [MAIL] NO SE ENVIO CORREO RESUMEN: emisor inválido = '" + emisorBcc + "'");
+						logger.warn("No se pudo enviar resumen: emailUser inválido='{}'", emisorBcc);
+					}
+
+				} catch (Exception e) {
+					logger.error("ERROR GENERAL EN THREAD MailInventarioExcel0. baseDato={}", baseDato, e);
+				}
+			}
+		}
 
 	public class reportFacturaResumenExcel0mail extends Thread {
 		String baseDato;
