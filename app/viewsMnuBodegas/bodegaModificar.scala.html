@@ -146,6 +146,27 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 							</td>
 						</tr>
 						<tr>
+							<td style="text-align:left;">EMAIL ENVÍO:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+								id="email_envio"
+								name="email_envio"
+								value="@bodega.getEmailEnvio()"
+								onchange="value=value.trim();">
+							</td>
+						</tr>
+
+						<tr>
+							<td style="text-align:left;">EMAIL COPIA:</td>
+							<td style="text-align:left;">
+								<input type="text" class="form-control left"
+								id="email_ccopia"
+								name="email_ccopia"
+								value="@bodega.getEmailCcopia()"
+								onchange="value=value.trim();">
+							</td>
+						</tr>
+						<tr>
 							<td colspan="2">
 								<table id="datosInterna" class="table table-sm table-bordered table-condensed table-fluid" hidden>
 									<tr>
@@ -186,27 +207,7 @@ listComercial: List[tables.Comercial], listMon: List[tables.Moneda], fijaTasas: 
 												readonly>
 										</td>
 									</tr>
-									<tr>
-										<td style="text-align:left;">EMAIL ENVÍO:</td>
-										<td style="text-align:left;">
-											<input type="text" class="form-control left"
-											id="email_envio"
-											name="email_envio"
-											value="@bodega.getEmailEnvio()"
-											onchange="value=value.trim();">
-										</td>
-									</tr>
 
-									<tr>
-										<td style="text-align:left;">EMAIL COPIA:</td>
-										<td style="text-align:left;">
-											<input type="text" class="form-control left"
-											id="email_ccopia"
-											name="email_ccopia"
-											value="@bodega.getEmailCcopia()"
-											onchange="value=value.trim();">
-										</td>
-									</tr>
 									<tr>
 										<td style="text-align:left;">COMERCIAL: </td>
 										<td style="text-align:left;">

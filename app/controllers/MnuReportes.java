@@ -1290,6 +1290,7 @@ public class MnuReportes extends Controller {
 			return ok(mensajes.render("/", msgError));
 		}
 
+
 		UserMnu userMnu = new UserMnu(
 				s.userName, s.id_usuario, s.id_tipoUsuario,
 				s.baseDato, s.id_sucursal, s.porProyecto, s.aplicaPorSucursal
@@ -1297,6 +1298,11 @@ public class MnuReportes extends Controller {
 
 		Map<String, String> mapeoPermiso = HomeController.mapPermisos(s.baseDato, s.id_tipoUsuario);
 		Map<String, String> mapeoDiccionario = HomeController.mapDiccionario(s.baseDato);
+
+		if (mapeoPermiso.get("parametro.reportExistencia-enviarCorreos") == null ||
+				!mapeoPermiso.get("parametro.reportExistencia-enviarCorreos").equals("1")) {
+			return ok(mensajes.render("/", msgSinPermiso));
+		}
 
 		if (mapeoPermiso.get("reportInventarioProyecto") == null) {
 			logger.error("PERMISO DENEGADO. [CLASS: {}. METHOD: {}. DB: {}. USER: {}.]",

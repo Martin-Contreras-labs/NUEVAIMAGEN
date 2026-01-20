@@ -1,0 +1,343 @@
+/* SOLO para HOME, scope .home-modern */
+.home-modern {
+    min-height: calc(100vh - 64px);
+    position: relative;
+    overflow: hidden;
+}
+
+.home-modern .hm-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.home-modern .hm-bg-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.82;
+}
+
+.home-modern .hm-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+    rgba(255,255,255,0.72),
+    rgba(255,255,255,0.55),
+    rgba(240,253,250,0.40));
+}
+
+.home-modern .hm-center {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.home-modern .hm-card {
+    width: 100%;
+    max-width: 980px;
+    text-align: center;
+    position: relative;
+}
+
+.home-modern .hm-pill {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(20,184,166,0.10);
+    border: 1px solid rgba(20,184,166,0.20);
+    color: #0f766e;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+}
+
+.home-modern .hm-title {
+    margin: 18px 0 0 0;
+    font-size: 56px;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 900;
+    color: #1f2937;
+}
+
+@media (min-width: 768px) {
+    .home-modern .hm-title { font-size: 78px; }
+}
+
+.home-modern .hm-gradient {
+    color: transparent;
+    background: linear-gradient(90deg, #316A88F4, rgba(81, 181, 241, 0.96));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.home-modern .hm-desc {
+    margin: 18px auto 0 auto;
+    max-width: 760px;
+    font-size: 18px;
+    line-height: 1.6;
+    font-weight: 600;
+    color: #334155;
+}
+
+@media (min-width: 768px) {
+    .home-modern .hm-desc { font-size: 22px; }
+}
+
+/* Logo empresa “en algún lado” (arriba a la derecha) */
+.home-modern .hm-logo {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: rgba(255,255,255,0.70);
+    border: 1px solid rgba(255,255,255,0.90);
+    border-radius: 16px;
+    padding: 10px 12px;
+    box-shadow: 0 14px 30px rgba(15,23,42,0.08);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.home-modern .hm-logo img {
+    height: 38px;
+    width: auto;
+    display: block;
+}
+
+.home-modern .hm-logo small {
+    display: block;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+
+.home-modern .hm-actions {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+}
+
+.home-modern .hm-btn-primary {
+    padding: 14px 34px;
+    border: 0;
+    border-radius: 18px;
+    background: #316A88F4;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 18px 30px rgba(20, 184, 166, 0.22);
+    transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.home-modern .hm-btn-primary:hover {
+    background: rgba(80, 171, 220, 0.96);
+    transform: scale(1.03);
+}
+
+
+/* =========================
+   LOGIN SCREEN (toggle)
+   ========================= */
+
+.login-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* centro vertical/horizontal */
+.login-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 40px;
+    padding-bottom: 60px;
+}
+
+/* el bloque de login como card */
+.login-center .row {
+    width: 100%;
+    max-width: 980px;
+}
+
+.login-center h2 {
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #1f2937;
+}
+
+/* footer pegado abajo */
+.login-footer {
+    margin-top: auto;
+    padding: 18px 16px 26px 16px;
+}
+
+/* ======================================
+   Animación de aparición (fade + slide)
+   ====================================== */
+
+.is-hidden {
+    display: none !important;
+}
+
+.fade-slide-in {
+    animation: fadeSlideIn 260ms ease-out both; /* antes 420ms */
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =========================
+   Botón principal moderno
+   ========================= */
+.mm-btn-primary{
+    background: #316A88F4 !important;
+    border: 1px solid rgba(20,184,166,0.35) !important;
+    color: #fff !important;
+    border-radius: 18px !important;
+    padding: 12px 18px !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    box-shadow: 0 18px 30px rgba(20,184,166,0.22);
+    transition: transform 160ms ease, background-color 160ms ease;
+}
+.mm-btn-primary:hover{
+    background: rgba(30, 66, 85, 0.96) !important;
+    transform: translateY(-1px) scale(1.01);
+}
+.mm-btn-primary:active{
+    transform: scale(0.99);
+}
+
+/* ===== Footer login FULL WIDTH ===== */
+.login-footer {
+    width: 100%;
+}
+
+.login-footer-bg {
+    width: 100%;
+    background: rgba(255,255,255,0.85);
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 0 20px 0; /* menos padding arriba */
+}
+
+/* HR full visual */
+.login-footer hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 28px 0;
+}
+
+/* ===== Botones footer ===== */
+.mm-footer-btn {
+    min-width: 180px;
+    padding: 12px 24px;
+    border-radius: 999px;
+    border: 1px solid rgba(20,184,166,0.4);
+    background: #ffffff;
+    color: #0f766e;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 11px;
+    box-shadow: 0 10px 20px rgba(15,23,42,0.08);
+    transition: all 160ms ease;
+}
+
+.mm-footer-btn:hover {
+    background: rgba(20,184,166,0.12);
+    transform: translateY(-1px);
+}
+
+
+/* =========================
+   Separación form vs imagen
+   ========================= */
+.login-row{
+    row-gap: 18px;
+}
+
+@media (min-height: 900px) {
+    .login-center {
+        padding-bottom: 120px;
+    }
+}
+
+
+/* opcional: bajar un poquito la imagen */
+.login-row img{
+    margin-left: 12px;
+}
+
+/* Botones tipo "chip" modernos del footer */
+.login-footer input[type="button"].form-control{
+    border-radius: 14px !important;
+    border: 1px solid rgba(226,232,240,1) !important;
+    background: rgba(255,255,255,0.9) !important;
+    color: #316A88F4 !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 11px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 22px rgba(15,23,42,0.06);
+    transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.login-footer input[type="button"].form-control:hover{
+    background: rgba(20,184,166,0.10) !important;
+    transform: translateY(-1px);
+}
+
+/* HR del footer: que crucen toda la pantalla aunque estén dentro de .container */
+.login-footer-bg hr {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+}
+
+/* Empuja TODO lo de abajo más al bottom */
+#loginPanel.login-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* baja el bloque del login */
+#loginPanel .login-center {
+    flex: 1;
+    padding-top: 50px;
+    padding-bottom: 50px;  /* 👈 aumenta esto para bajar más el footer */
+}
+
+/* pega el footer al fondo */
+#loginPanel .login-footer {
+    margin-top: auto;       /* 👈 lo deja lo más abajo posible */
+    padding-bottom: 16px;    /* 👈 casi pegado */
+}
+
+/* baja un poco la franja y quita aire extra */
+#loginPanel .login-footer-bg {
+    padding: 10px 0 12px 0;
+}
+
+

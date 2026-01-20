@@ -35,7 +35,6 @@
                 @if(lista != null && lista.nonEmpty) {
                     <div class="table-responsive">
 
-                            <!-- ✅ Form ÚNICO para mailing (SIN forms anidados) -->
                         <form class="formulario" method="post" action="/mailingInventarioProyectoEnviar">
 
                             <table id="tablaPrincipal" class="table table-sm table-hover table-bordered table-condensed table-fluid">
@@ -51,12 +50,10 @@
                                             @mapDiccionario.getOrElse("COMUNA", "COMUNA")<BR>PROYECTO
                                         </th>
 
-                                            <!-- ✅ Columna SELECT (igual a inventario normal) -->
                                         <th class="col-select">
                                             SELECT
                                         </th>
 
-                                            <!-- ✅ Columna mailing (checkbox) -->
                                         <th class="col-seleccionar">
                                             <div class="sel-head">
                                                 <span>SELEC</span>

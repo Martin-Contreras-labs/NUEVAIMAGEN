@@ -1,0 +1,213 @@
+/* Scope: SOLO afecta dentro de .mov-modern */
+.mov-modern {
+    max-width: 95vw;          /* usa casi toda la pantalla */
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Header card */
+.mov-modern .mm-header {
+    background: rgba(255,255,255,.85);
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 24px;
+    padding: 18px 18px;
+    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+    margin-bottom: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.mov-modern .mm-title {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #1f2937; /* slate-800 */
+    margin: 0;
+}
+
+/*CENTRADO*/
+
+.mov-modern .mm-header-centered {
+    position: relative;
+    justify-content: center;
+}
+
+.mov-modern .mm-header-centered .mm-title-wrap {
+    text-align: center;
+}
+
+.mov-modern .mm-header-centered .mm-actions {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mov-modern .mm-subtitle {
+    margin-top: 6px;
+    color: #64748b; /* slate-500 */
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mov-modern .mm-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.mov-modern .mm-table-wide {
+    width: 110%;           /* hace la tabla más ancha */
+    margin-left: -5%;      /* la centra visualmente */
+    margin-right: -5%;
+}
+
+.mov-modern .mm-table-wide .mm-table {
+    width: 100%;
+    table-layout: auto;
+}
+
+/* Modern button (sin afectar bootstrap global) */
+.mov-modern .mm-btn {
+    border: 0;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.mov-modern .mm-btn-teal {
+    background: #14b8a6; /* teal-500 */
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(20,184,166,.22);
+}
+.mov-modern .mm-btn-teal:hover { background: #0d9488; } /* teal-600 */
+
+.mov-modern .mm-card {
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.95);
+    border-radius: 28px;
+    box-shadow: 0 22px 45px rgba(15, 23, 42, 0.08);
+    overflow: visible;}
+
+/* Table base */
+.mov-modern table.mm-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1850px;
+}
+
+.mov-modern table.mm-table thead th {
+    background: rgba(240, 253, 250, 0.7); /* teal-50-ish */
+    border-bottom: 1px solid rgba(20,184,166,.18);
+    color: #0f766e; /* teal-700 */
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    padding: 14px 14px;
+    white-space: nowrap;
+
+}
+
+.mov-modern table.mm-table tbody td {
+    border-top: 1px solid #f1f5f9; /* slate-100 */
+    padding: 14px 14px;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.mov-modern table.mm-table tbody tr:hover {
+    background: rgba(240, 253, 250, 0.55);
+}
+
+.mov-modern .mm-strong { font-weight: 900; color: #0f172a; }
+.mov-modern .mm-muted { color: #64748b; font-weight: 600; }
+.mov-modern .mm-mini  { font-size: 10px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; color: #94a3b8; }
+
+/* Chips (PDF/DOC/SELECT/etc) */
+.mov-modern .mm-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mov-modern .mm-chip-teal {
+    background: rgba(20,184,166,.12);
+    border-color: rgba(20,184,166,.22);
+    color: #0f766e;
+}
+.mov-modern .mm-chip-teal:hover { background: rgba(20,184,166,.18); }
+
+.mov-modern .mm-chip-red {
+    background: rgba(239,68,68,.10);
+    border-color: rgba(239,68,68,.18);
+    color: #dc2626;
+}
+.mov-modern .mm-chip-red:hover { background: rgba(239,68,68,.16); }
+
+.mov-modern .mm-chip-blue {
+    background: rgba(59,130,246,.10);
+    border-color: rgba(59,130,246,.18);
+    color: #2563eb;
+}
+.mov-modern .mm-chip-blue:hover { background: rgba(59,130,246,.16); }
+
+.mov-modern .mm-link {
+    color: #0f766e;
+    font-weight: 800;
+    text-decoration: none;
+}
+.mov-modern .mm-link:hover { text-decoration: underline; }
+
+/* --- DataTables: SOLO dentro de esta vista --- */
+.mov-modern .dataTables_wrapper {
+    padding: 16px 14px 14px 14px;
+}
+
+.mov-modern .dataTables_filter input,
+.mov-modern .dataTables_length select {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 8px 10px;
+    outline: none;
+    min-width: 78px;
+
+}
+
+.mov-modern .dataTables_length label,
+.mov-modern .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.mov-modern .dataTables_info {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.mov-modern .paginate_button {
+    border-radius: 12px !important;
+}
+
+.mov-modern .paginate_button.current {
+    background: rgba(20,184,166,.15) !important;
+    border: 1px solid rgba(20,184,166,.25) !important;
+    color: #0f766e !important;
+}

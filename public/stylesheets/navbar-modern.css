@@ -1,0 +1,229 @@
+/* =========================================================
+   Navbar moderna - SOLO afecta donde exista .nav-modern
+   ========================================================= */
+
+.nav-modern.navbar {
+    /* color original */
+    background: rgba(49, 106, 136, 0.96) !important; /* rgb(49,106,136) */
+    backdrop-filter: blur(10px);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.22) !important;
+
+    padding-top: 10px;
+    padding-bottom: 16px;
+
+    /* clave para que se imponga */
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+
+
+}
+
+/* brand */
+.nav-modern .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.96) !important;
+
+}
+
+.nav-modern .navbar-brand:hover {
+    color: #ffffff !important;
+}
+
+.nav-modern .navbar-brand img {
+    width: 28px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 8px 18px rgba(20, 184, 166, 0.20);
+}
+
+
+/* links */
+.nav-modern.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,0.92) !important;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    line-height: 1;            /* evita alturas raras */
+    display: inline-flex;
+    align-items: center;        /* misma altura visual */
+    gap: 8px;
+
+}
+
+.nav-modern.navbar-dark .navbar-nav .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.nav-modern.navbar-dark .navbar-nav .nav-item.active .nav-link {
+    color: #ffffff !important;
+}
+
+/* separador vertical */
+.nav-modern .divider-vertical {
+    opacity: 0.25;
+}
+
+
+/* EXIT Y HOME */
+
+.nav-modern .mm-exit {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: none !important;
+
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: transparent !important;
+    border: none !important;
+
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.nav-modern .mm-home {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: none !important;
+
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: transparent !important;
+    border: none !important;
+
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.nav-modern .mm-exit:hover {
+    background: rgba(255,255,255,0.22) !important;
+    border-color: rgba(255,255,255,0.36) !important;
+}
+.nav-modern a {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.nav-modern .mm-exit,
+.nav-modern .mm-exit.btn,
+.nav-modern .mm-exit.btn-success {
+    color: #ffffff !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.nav-modern .btn-success:hover {
+    background: rgba(255,255,255,0.22) !important;
+}
+
+.nav-modern .navbar-nav .nav-item {
+    margin-right: 6px;
+}
+.nav-modern .navbar-nav .nav-item:last-child {
+    margin-right: 0;
+}
+
+/* Home con margen a la derecha para que no quede pegado */
+.nav-modern .mm-home {
+    margin-right: 8px !important;
+}
+
+/* Exit con margen a la izquierda para separarlo del resto */
+.nav-modern .mm-exit {
+    margin-left: 12px !important;
+}
+
+/**/
+
+/* dropdown container */
+.nav-modern .dropdown-menu {
+    border: 1px solid rgba(226, 232, 240, 1) !important;
+    border-radius: 14px;
+    box-shadow: 0 25px 50px rgba(15, 23, 42, 0.14);
+    padding: 10px;
+    min-width: 240px;
+    background: #ffffff !important; /* le gana al inline #e3f2fd */
+
+    z-index: 100000 !important;
+    position: absolute !important;
+}
+
+/* items */
+.nav-modern .dropdown-item {
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569; /* slate-600 */
+    transition: all 160ms ease;
+}
+
+.nav-modern .dropdown-item:hover,
+.nav-modern .dropdown-item:focus {
+    background: rgba(20, 184, 166, 0.10);
+    color: #0f766e;
+}
+
+/* divider */
+.nav-modern .dropdown-divider {
+    border-top: 1px solid rgba(226, 232, 240, 1) !important;
+    margin: 8px 6px;
+}
+
+/* submenu (tu estructura actual) */
+.nav-modern .dropdown-submenu > .dropdown-menu {
+    border-radius: 14px;
+    padding: 10px;
+    z-index: 100001 !important;
+}
+
+.nav-modern .dropdown-submenu a.dropdown-toggle::after {
+    opacity: 0.5;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+/* toggler (hamburguesa mobile) */
+.nav-modern .navbar-toggler {
+    border: 1px solid rgba(226, 232, 240, 1) !important;
+    border-radius: 12px;
+    padding: 8px 10px;
+}
+
+.nav-modern .navbar-toggler:focus {
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.18) !important;
+}
+
+/* el icono default de bootstrap en navbar-dark se ve mal sobre fondo blanco */
+.nav-modern.navbar-dark .navbar-toggler-icon {
+    filter: invert(0.55);
+}
+
+/* bloque usuario/exit a la derecha */
+.nav-modern .navbar-nav.mr-auto {
+    gap: 2px;
+}
+.mov-modern .dataTables_wrapper,
+.mov-modern .dataTables_scroll,
+.mov-modern .dataTables_scrollBody,
+.mov-modern .dataTables_scrollHead {
+    z-index: 1;
+    position: relative;
+}
+
+/* evita que el dropdown quede atrás */
+.nav-modern .dropdown-menu {
+    z-index: 1050;
+}

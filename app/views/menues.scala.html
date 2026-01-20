@@ -27,11 +27,12 @@
 	          border-radius: 6px 0 6px 6px;
 	}
 </style>
-    
 
-   
 
-<nav class="navbar navbar-expand-lg navbar-dark border" style="background-color: rgb(49, 106, 136);">
+
+<link rel="stylesheet" media="screen"
+href='@routes.Assets.versioned("../../public/stylesheets/Views/navbar-modern.css")'>
+<nav class="navbar nav-modern navbar-expand-lg navbar-dark border" style="background-color: rgb(49, 106, 136);">
 	<a class="navbar-brand" href="/home/"><img src="/assets/images/favicon.png" width="25px" height="auto"></a>
   	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     	<span class="navbar-toggler-icon"></span>
@@ -44,10 +45,10 @@
        			</li>
        		}
        			<li class="nav-item active">
-       				<a class="nav-link" href="/home/">@marcar Home<span class="sr-only">(current)</span></a>
+       				<a class="nav-link mm-home" href="/home/">@marcar MADA<span class="sr-only">(current)</span></a>
        			</li>
-       		
-      		&nbsp;
+
+			&nbsp;
       		<li class="divider-vertical border"></li>
       		
       		
@@ -941,11 +942,16 @@
 							</li>
 		        		}
 		        		@if(mapPermiso.get("mnuPROYECTOS")!=null && mapPermiso.get("reportInventarioProyecto")!=null){
-		        			<a class="dropdown-item" href="/reportInventarioProyecto/">Existencias</a>
-		        		}
-						@if(mapPermiso.get("mnuPROYECTOS")!=null && mapPermiso.get("reportInventarioProyecto")!=null){
-						<a class="dropdown-item" href="/mailingInventarioProyecto/">Existencias Mailing</a>
-					}
+		        			<a class="dropdown-item" href="/reportInventarioProyecto/">Existencias</a>}
+
+						@if(
+							mapPermiso.get("mnuPROYECTOS")!=null &&
+									mapPermiso.get("reportInventarioProyecto")!=null &&
+									mapPermiso.get("parametro.reportExistencia-enviarCorreos")!=null &&
+									mapPermiso.get("parametro.reportExistencia-enviarCorreos").equals("1")
+						){
+							<a class="dropdown-item" href="/mailingInventarioProyecto/">eMail Existencias</a>
+						}
 
 						@if(mapPermiso.get("mnuGRAFICOS")!=null){
 		        			<li class="dropdown-submenu pull-left">
@@ -1298,7 +1304,7 @@
 		      	&nbsp;
 		      	<li class="divider-vertical border"></li>
 		      	<li class="nav-item active">
-		        	<a class="nav-link" href="/">EXIT</a>
+					<a href="/" class="nav-link mm-exit">Exit</a>
 				</li>
      		</ul>
     	</div>
